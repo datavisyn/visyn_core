@@ -1,1 +1,1 @@
-recursive-include tdp_core *
+^recursive-include visyn_core *

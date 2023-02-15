@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-pkg_src = tdp_core
+pkg_src = visyn_core
 
 black = black --line-length 140 $(pkg_src) setup.py
 pyright = pyright $(pkg_src) setup.py
