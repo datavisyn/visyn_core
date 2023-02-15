@@ -1,14 +1,9 @@
 import { EP_PHOVEA_CORE_LOCALE, PluginRegistry } from './plugin';
 export default function (registry) {
-    registry.push(EP_PHOVEA_CORE_LOCALE, 'tdpCoreLocaleEN', function () {
-        return import('./locales/en/tdp.json').then(PluginRegistry.getInstance().asResource);
+    registry.push(EP_PHOVEA_CORE_LOCALE, 'visynCoreLocaleEN', function () {
+        return import('./locales/en/visyn.json').then(PluginRegistry.getInstance().asResource);
     }, {
-        ns: 'tdp',
-    });
-    registry.push(EP_PHOVEA_CORE_LOCALE, 'phoveaClueLocaleEN', function () {
-        return import('./locales/en/phovea.json').then(PluginRegistry.getInstance().asResource);
-    }, {
-        ns: 'phovea',
+        ns: 'visyn',
     });
     /*
     registry.pushVisynView<DemoVisynViewPluginType>(

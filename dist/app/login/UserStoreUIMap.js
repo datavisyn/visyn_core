@@ -2,7 +2,6 @@ import React from 'react';
 import { Anchor, Text } from '@mantine/core';
 import { LoginUtils } from '../../security/LoginUtils';
 import { VisynLoginForm } from './VisynLoginForm';
-import { I18nextManager } from '../../i18n';
 import { UserSession } from '../../security/UserSession';
 export const UserStoreUIMap = new Map();
 export function DefaultLoginForm({ setError, store }) {
@@ -19,7 +18,7 @@ export function DefaultLoginForm({ setError, store }) {
                     setError('not_reachable');
                 }
                 else {
-                    setError(I18nextManager.getInstance().i18n.t('phovea:security_flask.alertWrongCredentials'));
+                    setError('Username or password incorrect. Please try again.');
                 }
             });
         } }));

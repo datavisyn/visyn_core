@@ -8,6 +8,6 @@ export function HexbinOptionSelect({ callback, currentSelected }) {
         { value: EHexbinOptions.BINS, label: EHexbinOptions.BINS },
         { value: EHexbinOptions.PIE, label: EHexbinOptions.PIE },
     ];
-    return (React.createElement(Select, { label: I18nextManager.getInstance().i18n.t('tdp:core.vis.hexbinOptions'), onChange: (e) => callback(e), data: options, value: currentSelected }));
+    return (React.createElement(Select, { label: I18nextManager.getInstance().i18n.t('visyn:vis.hexbinOptions'), onChange: (e) => callback(e), data: options, value: currentSelected }));
 }
 //# sourceMappingURL=HexbinOptionSelect.js.map

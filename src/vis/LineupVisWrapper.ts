@@ -35,7 +35,7 @@ export class LineupVisWrapper {
     this.node.classList.add('custom-vis-panel');
     this.viewable = false;
     this.idField = props.idField ?? 'id';
-    this.PLOTLY_CATEGORICAL_MISSING_VALUE = I18nextManager.getInstance().i18n.t('tdp:core.vis.missingValue');
+    this.PLOTLY_CATEGORICAL_MISSING_VALUE = I18nextManager.getInstance().i18n.t('visyn:vis.missingValue');
   }
 
   getSelectedList = (): string[] => {

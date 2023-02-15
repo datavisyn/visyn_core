@@ -331,8 +331,8 @@ export async function createBarTraces(columns, config, scales) {
             legendPlots: [],
             rows: 0,
             cols: 0,
-            errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.barError'),
-            errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+            errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.barError'),
+            errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
         };
     }
     const plots = [];
@@ -361,8 +361,8 @@ export async function createBarTraces(columns, config, scales) {
         legendPlots: [],
         rows,
         cols,
-        errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.barError'),
-        errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+        errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.barError'),
+        errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
     };
 }
 //# sourceMappingURL=utils.js.map

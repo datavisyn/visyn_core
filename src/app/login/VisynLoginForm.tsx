@@ -18,18 +18,11 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
   return (
     <form onSubmit={form.onSubmit((values) => onLogin(values.username, values.password))}>
       <Stack>
-        <TextInput
-          placeholder={I18nextManager.getInstance().i18n.t('phovea:security_flask.username')}
-          label={I18nextManager.getInstance().i18n.t('phovea:security_flask.username')}
-          name="username"
-          autoComplete="username"
-          {...form.getInputProps('username')}
-          required
-        />
+        <TextInput placeholder="Username" label="Username" name="username" autoComplete="username" {...form.getInputProps('username')} required />
         <TextInput
           type={isShowPassword ? 'text' : 'password'}
-          placeholder={I18nextManager.getInstance().i18n.t('phovea:security_flask.password')}
-          label={I18nextManager.getInstance().i18n.t('phovea:security_flask.password')}
+          placeholder="Password"
+          label="Password"
           name="password"
           autoComplete="current-password"
           {...form.getInputProps('password')}
@@ -43,7 +36,7 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
       </Stack>
       <Group position="right">
         <Button fullWidth={false} mt="md" type="submit" className="btn btn-primary">
-          {I18nextManager.getInstance().i18n.t('tdp:core.visynApp.loginButton')}
+          Login
         </Button>
       </Group>
     </form>

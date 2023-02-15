@@ -8,11 +8,8 @@ import { GlobalEventHandler } from '../../base/event';
 import { LoginUtils } from '../../security/LoginUtils';
 import { SessionWatcher } from '../../security/watcher';
 import { useAsync } from '../../hooks/useAsync';
-import { I18nextManager } from '../../i18n/I18nextManager';
 import { useVisynAppContext } from '../VisynAppContext';
 import { DefaultLoginForm, UserStoreUIMap } from './UserStoreUIMap';
-
-const { i18n } = I18nextManager.getInstance();
 
 export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
   const { appName } = useVisynAppContext();
@@ -84,7 +81,7 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
         <Stack mb="lg">
           <Center>
             <Title order={4} truncate>
-              {i18n.t('tdp:core.visynApp.welcome')} {appName}
+              Welcome to {appName}
             </Title>
           </Center>
           <Divider />
@@ -93,7 +90,7 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
       <Stack>
         {isOffline ? (
           <Alert icon={<FontAwesomeIcon icon={faCircleExclamation} />} color="yellow" radius="md">
-            {i18n.t('phovea:security_flask.alertOffline')}
+            The server seems to be offline! Login not possible. Try again later.
           </Alert>
         ) : null}
         {hasError ? (

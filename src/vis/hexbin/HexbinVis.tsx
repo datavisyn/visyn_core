@@ -63,7 +63,7 @@ export function HexbinVis({
   return (
     <Container p={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
       {enableSidebar ? (
-        <Tooltip withinPortal label={I18nextManager.getInstance().i18n.t('tdp:core.vis.openSettings')}>
+        <Tooltip withinPortal label={I18nextManager.getInstance().i18n.t('visyn:vis.openSettings')}>
           <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
             <FontAwesomeIcon icon={faGear} />
           </ActionIcon>
@@ -83,8 +83,8 @@ export function HexbinVis({
         <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
           {config.numColumnsSelected.length < 2 ? (
             <InvalidCols
-              headerMessage={I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader')}
-              bodyMessage={I18nextManager.getInstance().i18n.t('tdp:core.vis.hexbinError')}
+              headerMessage={I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader')}
+              bodyMessage={I18nextManager.getInstance().i18n.t('visyn:vis.hexbinError')}
             />
           ) : (
             <>

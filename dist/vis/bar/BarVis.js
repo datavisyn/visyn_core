@@ -130,7 +130,7 @@ export function BarVis({ config, optionsConfig, extensions, columns, setConfig, 
         showCloseButton ? React.createElement(CloseButton, { closeCallback: closeButtonCallback }) : null,
         mergedExtensions.prePlot,
         React.createElement(Space, { h: "xl" }),
-        enableSidebar ? (React.createElement(Tooltip, { withinPortal: true, label: I18nextManager.getInstance().i18n.t('tdp:core.vis.openSettings') },
+        enableSidebar ? (React.createElement(Tooltip, { withinPortal: true, label: I18nextManager.getInstance().i18n.t('visyn:vis.openSettings') },
             React.createElement(ActionIcon, { sx: { zIndex: 10, position: 'absolute', top: '10px', right: '10px' }, onClick: () => setShowSidebar(true) },
                 React.createElement(FontAwesomeIcon, { icon: faGear })))) : null,
         traceStatus === 'success' && layout && finalTraces?.plots.length > 0 ? (React.createElement(PlotlyComponent, { divId: `plotlyDiv${id}`, data: traceData, layout: layout, config: { responsive: true, displayModeBar: false }, useResizeHandler: true, style: { width: '100%', height: '100%' }, onClick: (e) => {

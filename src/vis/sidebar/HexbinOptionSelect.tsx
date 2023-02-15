@@ -16,7 +16,7 @@ export function HexbinOptionSelect({ callback, currentSelected }: HexbinOptionSe
   ];
   return (
     <Select
-      label={I18nextManager.getInstance().i18n.t('tdp:core.vis.hexbinOptions')}
+      label={I18nextManager.getInstance().i18n.t('visyn:vis.hexbinOptions')}
       onChange={(e) => callback(e as EHexbinOptions)}
       data={options}
       value={currentSelected}

@@ -28,7 +28,7 @@ export function DefaultLoginForm({ setError, store }: IUserStoreRenderProps) {
               // server error
               setError('not_reachable');
             } else {
-              setError(I18nextManager.getInstance().i18n.t('phovea:security_flask.alertWrongCredentials'));
+              setError('Username or password incorrect. Please try again.');
             }
           });
       }}

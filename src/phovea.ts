@@ -3,23 +3,12 @@ import { IRegistry, EP_PHOVEA_CORE_LOCALE, PluginRegistry, ILocaleEPDesc } from 
 export default function (registry: IRegistry) {
   registry.push(
     EP_PHOVEA_CORE_LOCALE,
-    'tdpCoreLocaleEN',
+    'visynCoreLocaleEN',
     function () {
-      return import('./locales/en/tdp.json').then(PluginRegistry.getInstance().asResource);
+      return import('./locales/en/visyn.json').then(PluginRegistry.getInstance().asResource);
     },
     <ILocaleEPDesc>{
-      ns: 'tdp',
-    },
-  );
-
-  registry.push(
-    EP_PHOVEA_CORE_LOCALE,
-    'phoveaClueLocaleEN',
-    function () {
-      return import('./locales/en/phovea.json').then(PluginRegistry.getInstance().asResource);
-    },
-    <ILocaleEPDesc>{
-      ns: 'phovea',
+      ns: 'visyn',
     },
   );
 

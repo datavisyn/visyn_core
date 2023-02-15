@@ -27,8 +27,8 @@ export async function createViolinTraces(columns, config, scales) {
             legendPlots: [],
             rows: 0,
             cols: 0,
-            errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.violinError'),
-            errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+            errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.violinError'),
+            errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
         };
     }
     const numCols = config.numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id));
@@ -112,8 +112,8 @@ export async function createViolinTraces(columns, config, scales) {
         legendPlots: [],
         rows: numColValues.length,
         cols: catColValues.length > 0 ? catColValues.length : 1,
-        errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.violinError'),
-        errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+        errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.violinError'),
+        errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
     };
 }
 //# sourceMappingURL=utils.js.map

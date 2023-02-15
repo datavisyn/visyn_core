@@ -8,10 +8,8 @@ import { GlobalEventHandler } from '../../base/event';
 import { LoginUtils } from '../../security/LoginUtils';
 import { SessionWatcher } from '../../security/watcher';
 import { useAsync } from '../../hooks/useAsync';
-import { I18nextManager } from '../../i18n/I18nextManager';
 import { useVisynAppContext } from '../VisynAppContext';
 import { DefaultLoginForm, UserStoreUIMap } from './UserStoreUIMap';
-const { i18n } = I18nextManager.getInstance();
 export function VisynLoginMenu({ watch = false }) {
     const { appName } = useVisynAppContext();
     const [loggedInAs, setLoggedInAs] = React.useState(null);
@@ -72,12 +70,11 @@ export function VisynLoginMenu({ watch = false }) {
             React.createElement(Stack, { mb: "lg" },
                 React.createElement(Center, null,
                     React.createElement(Title, { order: 4, truncate: true },
-                        i18n.t('tdp:core.visynApp.welcome'),
-                        " ",
+                        "Welcome to ",
                         appName)),
                 React.createElement(Divider, null))),
         React.createElement(Stack, null,
-            isOffline ? (React.createElement(Alert, { icon: React.createElement(FontAwesomeIcon, { icon: faCircleExclamation }), color: "yellow", radius: "md" }, i18n.t('phovea:security_flask.alertOffline'))) : null,
+            isOffline ? (React.createElement(Alert, { icon: React.createElement(FontAwesomeIcon, { icon: faCircleExclamation }), color: "yellow", radius: "md" }, "The server seems to be offline! Login not possible. Try again later.")) : null,
             hasError ? (React.createElement(Alert, { icon: React.createElement(FontAwesomeIcon, { icon: faCircleExclamation }), color: "red", radius: "md" }, error)) : null,
             userStoreStatus === 'pending' ? React.createElement(LoadingOverlay, { visible: true }) : null,
             !userStores || isOffline ? null : userStoresWithUI.length === 0 ? (

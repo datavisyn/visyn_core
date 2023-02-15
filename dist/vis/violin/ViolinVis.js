@@ -79,7 +79,7 @@ export function ViolinVis({ config, optionsConfig, extensions, columns, setConfi
         }, ref: plotlyDivRef },
         React.createElement(Space, { h: "xl" }),
         showCloseButton ? React.createElement(CloseButton, { closeCallback: closeButtonCallback }) : null,
-        enableSidebar ? (React.createElement(Tooltip, { withinPortal: true, label: I18nextManager.getInstance().i18n.t('tdp:core.vis.openSettings') },
+        enableSidebar ? (React.createElement(Tooltip, { withinPortal: true, label: I18nextManager.getInstance().i18n.t('visyn:vis.openSettings') },
             React.createElement(ActionIcon, { sx: { zIndex: 10, position: 'absolute', top: '10px', right: '10px' }, onClick: () => setShowSidebar(true) },
                 React.createElement(FontAwesomeIcon, { icon: faGear })))) : null,
         mergedExtensions.prePlot,

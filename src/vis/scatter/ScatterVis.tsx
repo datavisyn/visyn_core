@@ -243,7 +243,7 @@ export function ScatterVis({
       ref={plotlyDivRef}
     >
       {enableSidebar ? (
-        <Tooltip withinPortal label={I18nextManager.getInstance().i18n.t('tdp:core.vis.openSettings')}>
+        <Tooltip withinPortal label={I18nextManager.getInstance().i18n.t('visyn:vis.openSettings')}>
           <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
             <FontAwesomeIcon icon={faGear} />
           </ActionIcon>

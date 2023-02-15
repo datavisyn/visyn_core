@@ -59,8 +59,8 @@ export async function createScatterTraces(columns, numColumnsSelected, shape, co
         legendPlots: [],
         rows: 0,
         cols: 0,
-        errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.scatterError'),
-        errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+        errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.scatterError'),
+        errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
         formList: ['color', 'shape', 'bubble', 'opacity'],
     };
     if (!numColumnsSelected) {
@@ -331,8 +331,8 @@ export async function createScatterTraces(columns, numColumnsSelected, shape, co
         legendPlots,
         rows: Math.sqrt(plots.length),
         cols: Math.sqrt(plots.length),
-        errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.scatterError'),
-        errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+        errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.scatterError'),
+        errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
     };
 }
 //# sourceMappingURL=utils.js.map

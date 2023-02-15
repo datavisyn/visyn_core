@@ -22,15 +22,7 @@ class VisynPlugin(AVisynPlugin):
             {"namespace": "/api/idtype", "factory": "create_idtype"},
         )
 
-        try:
-            import numpy  # noqa, type: ignore
-
-            registry.append("json-encoder", "numpy", "visyn_core.encoder.json_encoder")
-        except ImportError:
-            _log.info('numpy not available, skipping "numpy" json encoder')
-
-        registry.append("json-encoder", "set-encoder", "visyn_core.encoder.set_encoder", {})
-
+        # General routers
         registry.append("namespace", "visyn_core_main", "visyn_core.server.mainapp", {"namespace": "/app"})
         registry.append_router("visyn_config_router", "visyn_core.settings.router", {})
         registry.append_router("visyn_plugin_router", "visyn_core.plugin.router", {})
@@ -50,7 +42,7 @@ class VisynPlugin(AVisynPlugin):
             {"factory": "create_migration_api", "namespace": "/api/tdp/db-migration"},
         )
 
-        # phovea_security_flask
+        # Security plugins
         registry.append(
             "user_stores",
             "dummy_store",
@@ -69,6 +61,3 @@ class VisynPlugin(AVisynPlugin):
             "visyn_core.security.store.no_security_store",
             {},
         )
-
-        # phovea_data_mongo
-        registry.append("dataset-provider", "dataset-graph", "visyn_core.graph", {})

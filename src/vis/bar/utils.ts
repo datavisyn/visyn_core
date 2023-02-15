@@ -481,8 +481,8 @@ export async function createBarTraces(columns: VisColumn[], config: IBarConfig, 
       legendPlots: [],
       rows: 0,
       cols: 0,
-      errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.barError'),
-      errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+      errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.barError'),
+      errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
     };
   }
 
@@ -513,7 +513,7 @@ export async function createBarTraces(columns: VisColumn[], config: IBarConfig, 
     legendPlots: [],
     rows,
     cols,
-    errorMessage: I18nextManager.getInstance().i18n.t('tdp:core.vis.barError'),
-    errorMessageHeader: I18nextManager.getInstance().i18n.t('tdp:core.vis.errorHeader'),
+    errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.barError'),
+    errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
   };
 }
