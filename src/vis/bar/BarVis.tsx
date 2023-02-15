@@ -1,6 +1,8 @@
 import * as React from 'react';
-import d3v3 from 'd3v3';
-import { merge, uniqueId, difference } from 'lodash';
+import * as d3v7 from 'd3v7';
+import merge from 'lodash/merge';
+import uniqueId from 'lodash/uniqueId';
+import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
 import { ActionIcon, Container, Space, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -196,6 +198,8 @@ export function BarVis({
   return (
     <Container
       fluid
+      pl={0}
+      pr={0}
       sx={{
         flexGrow: 1,
         height: '100%',
@@ -254,9 +258,9 @@ export function BarVis({
           // plotly redraws everything on updates, so you need to reappend title and
           onUpdate={() => {
             for (const p of finalTraces.plots) {
-              d3v3.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
+              d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
 
-              d3v3.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+              d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
             }
           }}
         />

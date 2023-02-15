@@ -1,5 +1,5 @@
-import { merge } from 'lodash';
-import d3v3 from 'd3v3';
+import merge from 'lodash/merge';
+import * as d3v7 from 'd3v7';
 import { EColumnTypes, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, } from '../interfaces';
 import { getCol } from '../sidebar';
 import { getCssValue } from '../../utils';
@@ -72,20 +72,20 @@ export async function createScatterTraces(columns, numColumnsSelected, shape, co
     const shapeCol = await resolveSingleColumn(getCol(columns, shape));
     const colorCol = await resolveSingleColumn(getCol(columns, color));
     const shapeScale = shape
-        ? d3v3.scale
-            .ordinal()
+        ? d3v7
+            .scaleOrdinal()
             .domain([...new Set(shapeCol.resolvedValues.map((v) => v.val))])
             .range(shapes)
         : null;
     let min = 0;
     let max = 0;
     if (color) {
-        min = d3v3.min(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
-        max = d3v3.max(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
+        min = d3v7.min(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
+        max = d3v7.max(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
     }
     const numericalColorScale = color
-        ? d3v3.scale
-            .linear()
+        ? d3v7
+            .scaleLinear()
             .domain([max, (max + min) / 2, min])
             .range(colorScaleType === ENumericalColorScaleType.SEQUENTIAL
             ? [getCssValue('visyn-s9-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s1-blue')]

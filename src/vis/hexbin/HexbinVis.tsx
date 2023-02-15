@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { merge, uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
+import merge from 'lodash/merge';
 import { useEffect, useMemo, useRef } from 'react';
 import { ActionIcon, Center, Container, Group, SimpleGrid, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

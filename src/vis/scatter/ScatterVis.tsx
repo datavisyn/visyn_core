@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { merge, uniqueId } from 'lodash';
+import merge from 'lodash/merge';
+import uniqueId from 'lodash/uniqueId';
 import { useEffect, useMemo, useState } from 'react';
 import { ActionIcon, Center, Container, Group, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -226,6 +227,8 @@ export function ScatterVis({
   return (
     <Container
       fluid
+      pl={0}
+      pr={0}
       sx={{
         flexGrow: 1,
         height: '100%',

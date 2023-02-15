@@ -204,7 +204,7 @@ span.lu-mapping-hint {
 }
 
 .lu-dialog-mapper-warning {
-  @extend .alert; // apply base styles of Bootstrap alert
-  @extend .alert-warning;
+  // TODO: @extend .alert; // apply base styles of Bootstrap alert
+  // TODO: @extend .alert-warning;
   margin-bottom: 0; // override margin
 }

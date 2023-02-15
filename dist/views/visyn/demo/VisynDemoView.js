@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
 import { EColumnTypes } from '../../../vis/interfaces';
 import { Vis } from '../../../vis';
 import { VisSidebar } from '../../../vis/VisSidebar';

@@ -1,4 +1,4 @@
-import { AppContext } from '../app';
+import { AppContext } from '../base/AppContext';
 import { Ajax } from '../base/ajax';
 export class XlsxUtils {
     static xlsx2json(file) {

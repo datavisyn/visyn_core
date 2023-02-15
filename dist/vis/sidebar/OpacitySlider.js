@@ -1,5 +1,5 @@
 import { Box, Slider, Stack, Text } from '@mantine/core';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import { useMemo } from 'react';
 import * as React from 'react';
 import { useSyncedRef } from '../../hooks';

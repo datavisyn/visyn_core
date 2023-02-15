@@ -1,4 +1,4 @@
-import { PluginRegistry } from './app';
+import { PluginRegistry } from './plugin';
 import { i18n } from './i18n';
 import reg from './phovea';
 /**

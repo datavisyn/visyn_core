@@ -1,4 +1,4 @@
-import { Menu } from '@mantine/core';
+import { Box, Menu } from '@mantine/core';
 import * as React from 'react';
 import {
   Vis,

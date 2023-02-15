@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { uniqueId } from 'lodash';
-import { EPermission, UserUtils } from '../security';
+import uniqueId from 'lodash/uniqueId';
+import { EPermission, UserUtils, UserSession } from '../security';
 import { I18nextManager } from '../i18n';
-import { UserSession } from '../app';
 function PermissionsEntry({ permission, setPermission, setGetter, }) {
     const id = React.useMemo(() => uniqueId('PermissionsEntry'), []);
     return (React.createElement("div", { className: "btn-group col-sm-auto", role: "group" },

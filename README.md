@@ -1,4 +1,4 @@
-tdp_core  
+core  
 =====================
 [![Target Discovery Platform][tdp-image-client]][tdp-url] [![Target Discovery Platform][tdp-image-server]][tdp-url] [![NPM version][npm-image]][npm-url] [![Build Status][circleci-image]][circleci-url]
 
@@ -9,8 +9,8 @@ Installation
 ------------
 
 ```bash
-git clone -b develop https://github.com/datavisyn/tdp_core.git  # or any other branch you want to develop in
-cd tdp_core
+git clone -b develop https://github.com/datavisyn/core.git  # or any other branch you want to develop in
+cd core
 
 # Frontend
 yarn install
@@ -29,7 +29,7 @@ Local development
 yarn start
 
 # Backend
-python tdp_core
+python core
 ```
 
 Testing
@@ -63,7 +63,7 @@ This repository is part of the **Target Discovery Platform** (TDP). For tutorial
 [tdp-image-client]: https://img.shields.io/badge/Target%20Discovery%20Platform-Client%20Plugin-F47D20.svg
 [tdp-image-server]: https://img.shields.io/badge/Target%20Discovery%20Platform-Server%20Plugin-10ACDF.svg
 [tdp-url]: http://datavisyn.io
-[npm-image]: https://badge.fury.io/js/tdp_core.svg
-[npm-url]: https://npmjs.org/package/tdp_core
-[circleci-image]: https://circleci.com/gh/datavisyn/tdp_core.svg?style=shield
-[circleci-url]: https://circleci.com/gh/datavisyn/tdp_core
+[npm-image]: https://badge.fury.io/js/core.svg
+[npm-url]: https://npmjs.org/package/core
+[circleci-image]: https://circleci.com/gh/datavisyn/core.svg?style=shield
+[circleci-url]: https://circleci.com/gh/datavisyn/core

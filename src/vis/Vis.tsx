@@ -1,5 +1,5 @@
 import * as React from 'react';
-import d3v3 from 'd3v3';
+import * as d3v7 from 'd3v7';
 import { useMemo, useEffect } from 'react';
 import { useUncontrolled } from '@mantine/hooks';
 import {
@@ -177,8 +177,8 @@ export function EagerVis({
   }, [selected]);
 
   const scales: Scales = useMemo(() => {
-    const colorScale = d3v3.scale
-      .ordinal()
+    const colorScale = d3v7
+      .scaleOrdinal()
       .range(
         colors || [
           getCssValue('visyn-c1'),

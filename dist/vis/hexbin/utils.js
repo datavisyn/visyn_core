@@ -1,4 +1,4 @@
-import { merge } from 'lodash';
+import merge from 'lodash/merge';
 import { EColumnTypes, ESupportedPlotlyVis, EHexbinOptions, EScatterSelectSettings, } from '../interfaces';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 export function isHexbin(s) {

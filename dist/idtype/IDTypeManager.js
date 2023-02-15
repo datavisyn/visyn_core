@@ -1,8 +1,8 @@
-import { AppContext } from '../app/AppContext';
+import { AppContext } from '../base/AppContext';
 import { GlobalEventHandler } from '../base/event';
 import { SelectionUtils } from './SelectionUtils';
 import { IDType } from './IDType';
-import { PluginRegistry } from '../app/PluginRegistry';
+import { PluginRegistry } from '../plugin/PluginRegistry';
 export class IDTypeManager {
     constructor() {
         this.cache = new Map();

@@ -1,6 +1,5 @@
-import { AppContext } from '../app/AppContext';
+import { AppContext } from '../base/AppContext';
 import { EventHandler, IEventHandler } from '../base/event';
-import { IPersistable } from '../base/IPersistable';
 import { SelectOperation, SelectionUtils } from './SelectionUtils';
 
 export interface IPersistedIDType {
@@ -15,7 +14,7 @@ export interface IPersistedIDType {
  * An entity is tracked by a unique identifier (integer) within the system,
  * which is mapped to a common, external identifier or name (string) as well.
  */
-export class IDType extends EventHandler implements IEventHandler, IPersistable {
+export class IDType extends EventHandler implements IEventHandler {
   static readonly EVENT_SELECT = 'select';
 
   /**

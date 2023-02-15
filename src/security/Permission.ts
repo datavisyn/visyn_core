@@ -1,15 +1,4 @@
-export enum EPermission {
-  READ = 4,
-  WRITE = 2,
-  EXECUTE = 1,
-}
-
-export enum EEntity {
-  USER,
-  GROUP,
-  OTHERS,
-  BUDDIES,
-}
+import { EPermission, EEntity } from './constants';
 
 export class Permission {
   /**

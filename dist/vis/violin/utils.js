@@ -1,4 +1,4 @@
-import { merge } from 'lodash';
+import merge from 'lodash/merge';
 import { EColumnTypes, ESupportedPlotlyVis, EViolinOverlay, } from '../interfaces';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { I18nextManager } from '../../i18n';

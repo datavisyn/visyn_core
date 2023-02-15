@@ -1,4 +1,4 @@
-import { merge } from 'lodash';
+import merge from 'lodash/merge';
 import { GlobalEventHandler } from './event';
 export class AjaxError extends Error {
     constructor(response, message) {

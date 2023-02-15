@@ -3,7 +3,7 @@ import * as hex from 'd3-hexbin';
 import { HexbinBin } from 'd3-hexbin';
 import * as d3v7 from 'd3v7';
 import { D3BrushEvent, D3ZoomEvent } from 'd3v7';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAsync } from '../../hooks/useAsync';
@@ -382,6 +382,8 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     <Container
       ref={ref}
       fluid
+      pl={0}
+      pr={0}
       sx={{
         width: '100%',
         '.overlay': {

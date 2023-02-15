@@ -3,8 +3,8 @@ import * as ReactDOM from 'react-dom';
 import { CategoricalColumn, Column, IDataRow, LocalDataProvider, NumberColumn, Ranking, ValueColumn } from 'lineupjs';
 import { Vis } from './LazyVis';
 import { EColumnTypes, ColumnInfo, VisColumn, EFilterOptions, IVisCommonValue } from './interfaces';
-import { IRow } from '../base/rest';
 import { I18nextManager } from '../i18n/I18nextManager';
+import { IRow } from '../base/interfaces';
 
 export class LineupVisWrapper {
   /**

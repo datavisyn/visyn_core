@@ -1,4 +1,4 @@
-import { AppContext } from '../app/AppContext';
+import { AppContext } from '../base/AppContext';
 import { EventHandler } from '../base/event';
 import { SelectOperation, SelectionUtils } from './SelectionUtils';
 /**

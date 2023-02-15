@@ -1,9 +1,9 @@
-import { AppContext } from '../app/AppContext';
+import { AppContext } from '../base/AppContext';
 import { GlobalEventHandler } from '../base/event';
 import { SelectionUtils } from './SelectionUtils';
 import { IDType, IDTypeLike, IPersistedIDType } from './IDType';
-import { PluginRegistry } from '../app/PluginRegistry';
-import { IPluginDesc } from '../base/plugin';
+import { PluginRegistry } from '../plugin/PluginRegistry';
+import { IPluginDesc } from '../plugin/interfaces';
 
 export class IDTypeManager {
   public static EXTENSION_POINT_IDTYPE = 'idType';

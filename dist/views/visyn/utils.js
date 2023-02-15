@@ -1,5 +1,5 @@
-import { isFunction } from 'lodash';
-import { EXTENSION_POINT_VISYN_VIEW } from '../../base/extensions';
+import isFunction from 'lodash/isFunction';
+import { EXTENSION_POINT_VISYN_VIEW } from '../../plugin/extensions';
 /**
  * Resolves the current value of a setStateAction by calling it with the current value if it is a function,
  * or by simply returning the value otherwise.

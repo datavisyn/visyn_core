@@ -1,5 +1,9 @@
-import { merge, sum, mean, min, max } from 'lodash';
-import { median } from 'd3v3';
+import merge from 'lodash/merge';
+import sum from 'lodash/sum';
+import mean from 'lodash/mean';
+import min from 'lodash/min';
+import max from 'lodash/max';
+import { median } from 'd3v7';
 import { I18nextManager } from '../../i18n';
 import { EColumnTypes, ESupportedPlotlyVis, EBarGroupingType, EBarDisplayType, EBarDirection, EAggregateTypes, } from '../interfaces';
 import { columnNameWithDescription, resolveSingleColumn, truncateText } from '../general/layoutUtils';

@@ -1,3 +1,4 @@
 export * from './useAsync';
-export * from './useBootstrap';
+export * from './useInitVisynApp';
 export * from './useSyncedRef';
+export * from './useVisynUser';

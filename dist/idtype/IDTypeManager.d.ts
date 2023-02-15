@@ -1,5 +1,5 @@
 import { IDType, IDTypeLike, IPersistedIDType } from './IDType';
-import { IPluginDesc } from '../base/plugin';
+import { IPluginDesc } from '../plugin/interfaces';
 export declare class IDTypeManager {
     static EXTENSION_POINT_IDTYPE: string;
     static EVENT_REGISTER_IDTYPE: string;

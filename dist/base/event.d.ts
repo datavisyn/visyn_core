@@ -6,10 +6,6 @@ export interface IEventHandler {
         [key: string]: IEventListener;
     }, handler?: IEventListener): void;
 }
-export interface IDataBinding {
-    data(key: string): any;
-    data(key: string, value: any): any;
-}
 /**
  * basic interface of an event
  */

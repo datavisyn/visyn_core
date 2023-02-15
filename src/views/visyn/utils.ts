@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { isFunction } from 'lodash';
-import { VisynViewPluginDesc, VisynSimpleViewPluginType, VisynDataViewPluginType, VisynViewPlugin } from './interfaces';
-import { EXTENSION_POINT_VISYN_VIEW } from '../../base/extensions';
+import isFunction from 'lodash/isFunction';
+import { VisynViewPluginDesc, VisynSimpleViewPluginType, VisynDataViewPluginType } from './interfaces';
+import { EXTENSION_POINT_VISYN_VIEW } from '../../plugin/extensions';
 
 /**
  * Resolves the current value of a setStateAction by calling it with the current value if it is a function,

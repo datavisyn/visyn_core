@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { uniqueId } from 'lodash';
-import { EPermission, Permission, UserUtils } from '../security';
+import uniqueId from 'lodash/uniqueId';
+import { EPermission, Permission, UserUtils, UserSession } from '../security';
 import { I18nextManager } from '../i18n';
-import { UserSession } from '../app';
 
 function PermissionsEntry({
   permission,

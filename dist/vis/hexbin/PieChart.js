@@ -1,5 +1,5 @@
 import * as d3v7 from 'd3v7';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { useMemo } from 'react';
 export function PieChart({ data, dataCategories, radius, transform, colorScale }) {

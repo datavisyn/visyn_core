@@ -1,5 +1,5 @@
-import { merge } from 'lodash';
-import d3v3 from 'd3v3';
+import merge from 'lodash/merge';
+import * as d3v7 from 'd3v7';
 import {
   PlotlyInfo,
   PlotlyData,
@@ -115,8 +115,8 @@ export async function createScatterTraces(
   const colorCol = await resolveSingleColumn(getCol(columns, color));
 
   const shapeScale = shape
-    ? d3v3.scale
-        .ordinal<string>()
+    ? d3v7
+        .scaleOrdinal<string>()
         .domain([...new Set(shapeCol.resolvedValues.map((v) => v.val))] as string[])
         .range(shapes)
     : null;
@@ -125,13 +125,13 @@ export async function createScatterTraces(
   let max = 0;
 
   if (color) {
-    min = d3v3.min(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
-    max = d3v3.max(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
+    min = d3v7.min(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
+    max = d3v7.max(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
   }
 
   const numericalColorScale = color
-    ? d3v3.scale
-        .linear<string, number>()
+    ? d3v7
+        .scaleLinear<string, number>()
         .domain([max, (max + min) / 2, min])
         .range(
           colorScaleType === ENumericalColorScaleType.SEQUENTIAL

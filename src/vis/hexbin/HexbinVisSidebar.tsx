@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useMemo } from 'react';
-import { merge } from 'lodash';
+import merge from 'lodash/merge';
 import { Container, Divider, Stack } from '@mantine/core';
 import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, IHexbinConfig, IVisConfig, VisColumn } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';

@@ -1,7 +1,6 @@
 import * as React from 'react';
-import type { IBaseViewPluginDesc } from '../../base/interfaces';
-import type { IPlugin } from '../../base/plugin';
-import type { IServerColumn } from '../../base/rest';
+import { IBaseViewPluginDesc, IServerColumn } from '../../base/interfaces';
+import type { IPlugin } from '../../plugin/interfaces';
 
 /**
  * Props interface for visyn views.
