@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import { Ajax } from '../src/base/ajax';
-import { AppContext } from '../src/app/AppContext';
+import { AppContext } from '../src/base/AppContext';
 
 describe('api2absURL', () => {
   it('one arg', () => expect(AppContext.getInstance().api2absURL('/path')).toEqual(`${AppContext.context || '/'}api/path`));
