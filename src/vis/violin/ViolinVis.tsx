@@ -5,7 +5,7 @@ import uniqueId from 'lodash/uniqueId';
 import { useEffect, useState } from 'react';
 import { ActionIcon, Container, Space, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { Scales, VisColumn, IVisConfig, IViolinConfig } from '../interfaces';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';

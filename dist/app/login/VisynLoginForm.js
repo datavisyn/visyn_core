@@ -1,7 +1,8 @@
 import { ActionIcon, Button, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
+import { faEyeSlash } from '@fortawesome/free-solid-svg-icons/faEyeSlash';
 import React, { useState } from 'react';
 import { I18nextManager } from '../../i18n/I18nextManager';
 export function VisynLoginForm({ onLogin }) {

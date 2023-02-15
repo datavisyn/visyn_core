@@ -6,7 +6,7 @@ import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
 import { ActionIcon, Container, Space, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { EBarGroupingType } from '../interfaces';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';

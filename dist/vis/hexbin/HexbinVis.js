@@ -4,7 +4,7 @@ import merge from 'lodash/merge';
 import { useEffect, useMemo, useRef } from 'react';
 import { ActionIcon, Center, Container, Group, SimpleGrid, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { EScatterSelectSettings } from '../interfaces';
 import { InvalidCols } from '../general';
 import { I18nextManager } from '../../i18n/I18nextManager';

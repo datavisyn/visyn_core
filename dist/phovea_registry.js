@@ -9,5 +9,5 @@ import reg from './phovea';
  * build a registry by registering all phovea modules
  */
 // self
-PluginRegistry.getInstance().register('tdp_core', reg);
+PluginRegistry.getInstance().register('core', reg);
 //# sourceMappingURL=phovea_registry.js.map

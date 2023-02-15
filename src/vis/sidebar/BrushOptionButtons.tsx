@@ -1,5 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaintBrush, faSquare, faSearchPlus, faArrowsAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPaintbrush } from '@fortawesome/free-solid-svg-icons/faPaintbrush';
+import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
+import { faSearchPlus } from '@fortawesome/free-solid-svg-icons/faSearchPlus';
+import { faArrowsAlt } from '@fortawesome/free-solid-svg-icons/faArrowsAlt';
 import { SegmentedControl, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { EScatterSelectSettings } from '../interfaces';
@@ -31,7 +34,7 @@ export function BrushOptionButtons({
         {
           label: (
             <Tooltip withinPortal withArrow arrowSize={6} label="Lasso brush">
-              <FontAwesomeIcon icon={faPaintBrush} />
+              <FontAwesomeIcon icon={faPaintbrush} />
             </Tooltip>
           ),
           value: EScatterSelectSettings.LASSO,

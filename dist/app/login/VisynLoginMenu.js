@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Modal, Stack, Title, Center, Divider, Container, LoadingOverlay } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
 import { AppContext } from '../../base/AppContext';
 import { UserSession } from '../../security/UserSession';
 import { GlobalEventHandler } from '../../base/event';
