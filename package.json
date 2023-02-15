@@ -77,6 +77,7 @@
       "types": "./dist/visynApp/index.d.ts",
       "import": "./dist/visynApp/index.js"
     },
+    "./phovea_registry": "./dist/phovea_registry.js",
     "./package.json": "./package.json"
   },
   "files": [
