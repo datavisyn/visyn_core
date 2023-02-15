@@ -7,7 +7,7 @@ export declare enum ESupportedPlotlyVis {
     HEXBIN = "Hexbin plot"
 }
 export declare const allVisTypes: ESupportedPlotlyVis[];
-export declare type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
 export declare enum EBarDisplayType {
     ABSOLUTE = "Absolute",
     NORMALIZED = "Normalized"
@@ -97,7 +97,7 @@ export interface IHexbinConfig {
     dragMode: EScatterSelectSettings;
     hexbinOptions: EHexbinOptions;
 }
-declare type ValueGetter<T> = () => T | Promise<T>;
+type ValueGetter<T> = () => T | Promise<T>;
 export interface IVisCommonValue<Type extends number | string> {
     /**
      * Visyn id of the row.
@@ -108,8 +108,8 @@ export interface IVisCommonValue<Type extends number | string> {
      */
     val: Type;
 }
-export declare type VisNumericalValue = IVisCommonValue<number>;
-export declare type VisCategoricalValue = IVisCommonValue<string>;
+export type VisNumericalValue = IVisCommonValue<number>;
+export type VisCategoricalValue = IVisCommonValue<string>;
 export interface VisCommonColumn {
     info: ColumnInfo;
     values: ValueGetter<(VisNumericalValue | VisCategoricalValue)[]>;
@@ -121,8 +121,8 @@ export interface VisNumericalColumn extends VisCommonColumn {
 export interface VisCategoricalColumn extends VisCommonColumn {
     type: EColumnTypes.CATEGORICAL;
 }
-export declare type VisColumn = VisNumericalColumn | VisCategoricalColumn;
-export declare type PlotlyInfo = {
+export type VisColumn = VisNumericalColumn | VisCategoricalColumn;
+export type PlotlyInfo = {
     plots: PlotlyData[];
     legendPlots: PlotlyData[];
     rows: number;
@@ -130,7 +130,7 @@ export declare type PlotlyInfo = {
     errorMessage: string;
     errorMessageHeader: string;
 };
-export declare type PlotlyData = {
+export type PlotlyData = {
     data: Partial<PlotlyTypes.PlotData>;
     xLabel: string;
     yLabel: string;
@@ -141,12 +141,12 @@ export declare type PlotlyData = {
     xDomain?: [number | undefined, number | undefined];
     yDomain?: [number | undefined, number | undefined];
 };
-export declare type ColumnInfo = {
+export type ColumnInfo = {
     name: string;
     id: string;
     description: string;
 };
-export declare type Scales = {
+export type Scales = {
     color: any;
 };
 /**

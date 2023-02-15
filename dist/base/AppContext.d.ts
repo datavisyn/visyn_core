@@ -1,4 +1,4 @@
-declare type OfflineGenerator = ((data: any, url: string) => Promise<any>) | Promise<any> | any;
+type OfflineGenerator = ((data: any, url: string) => Promise<any>) | Promise<any> | any;
 export declare class AppContext {
     /**
      * whether the standard api calls should be prevented

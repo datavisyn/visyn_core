@@ -1,8 +1,8 @@
-declare type Awaited<T> = T extends PromiseLike<infer U> ? {
+type Awaited<T> = T extends PromiseLike<infer U> ? {
     0: Awaited<U>;
     1: U;
 }[U extends PromiseLike<any> ? 0 : 1] : T;
-export declare type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
+export type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
 /**
  * Wraps an (async) function and provides value, status and error states.
  *

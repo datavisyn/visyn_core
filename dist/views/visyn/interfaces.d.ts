@@ -4,7 +4,7 @@ import type { IPlugin } from '../../plugin/interfaces';
 /**
  * Props interface for visyn views.
  */
-declare type VisynViewProps<Param extends Record<string, unknown>> = {
+type VisynViewProps<Param extends Record<string, unknown>> = {
     /**
      * Selection matching the idtype from the desc at `desc.idtype`.
      */
@@ -27,7 +27,7 @@ declare type VisynViewProps<Param extends Record<string, unknown>> = {
 /**
  * Type for the react components of a visyn view.
  */
-declare type VisynViewComponents<Props extends object> = {
+type VisynViewComponents<Props extends object> = {
     /**
      * Main view component of this viysn view plugin.
      */
@@ -41,7 +41,7 @@ declare type VisynViewComponents<Props extends object> = {
      */
     tab?: React.LazyExoticComponent<React.ComponentType<Props>> | React.ComponentType<Props>;
 };
-declare type BaseVisynViewDesc<Type extends string, Param extends Record<string, unknown>> = IBaseViewPluginDesc & {
+type BaseVisynViewDesc<Type extends string, Param extends Record<string, unknown>> = IBaseViewPluginDesc & {
     /**
      * Type identifier for the visyn view.
      */
@@ -59,7 +59,7 @@ declare type BaseVisynViewDesc<Type extends string, Param extends Record<string,
 /**
  * Utility type which combines type, params, props and desc together into a single type, which is used by `DefineVisynViewPlugin` to extract all necessary subtypes.
  */
-declare type VisynViewPluginBaseType<Type extends string, Param extends Record<string, unknown>, Props extends object, Desc extends object> = {
+type VisynViewPluginBaseType<Type extends string, Param extends Record<string, unknown>, Props extends object, Desc extends object> = {
     /**
      * View description of the visyn view plugin.
      */
@@ -116,21 +116,21 @@ export interface DefineVisynViewPlugin<Type extends string, Param extends Record
 /**
  * Generic visyn view plugin definition with arbitrary type, params, props and desc.
  */
-export declare type VisynViewPluginType = DefineVisynViewPlugin<string, Record<string, any>, Record<string, any>, Record<string, any>>;
+export type VisynViewPluginType = DefineVisynViewPlugin<string, Record<string, any>, Record<string, any>, Record<string, any>>;
 /**
  * View description for visyn views without any dynamic functions like `load()`. Every property of this interface is configurable
  * and is being used as typing for the `pushVisynView` function.
  */
-export declare type VisynViewPluginDesc = VisynViewPluginType['desc'];
-export declare type VisynViewPlugin = VisynViewPluginType['plugin'];
+export type VisynViewPluginDesc = VisynViewPluginType['desc'];
+export type VisynViewPlugin = VisynViewPluginType['plugin'];
 /**
  * Plugin type for simple visyn views.
  */
-export declare type VisynSimpleViewPluginType<Param extends Record<string, unknown> = Record<string, unknown>, Desc extends Record<string, unknown> = Record<string, unknown>> = DefineVisynViewPlugin<'simple', Param, Record<string, unknown>, Desc>;
+export type VisynSimpleViewPluginType<Param extends Record<string, unknown> = Record<string, unknown>, Desc extends Record<string, unknown> = Record<string, unknown>> = DefineVisynViewPlugin<'simple', Param, Record<string, unknown>, Desc>;
 /**
  * Plugin type for all data backed visyn views. Extends the visyn view props with data and their description.
  */
-export declare type VisynDataViewPluginType<Param extends Record<string, unknown> = Record<string, unknown>, Desc extends Record<string, unknown> = Record<string, unknown>> = DefineVisynViewPlugin<'data', Param, {
+export type VisynDataViewPluginType<Param extends Record<string, unknown> = Record<string, unknown>, Desc extends Record<string, unknown> = Record<string, unknown>> = DefineVisynViewPlugin<'data', Param, {
     /**
      * Data array matching the columns defined in the `dataDesc`.
      */

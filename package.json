@@ -142,7 +142,7 @@
     "react-highlight-words": "^0.17.0",
     "react-plotly.js": "^2.5.1",
     "use-deep-compare-effect": "^1.8.0",
-    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#develop"
+    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#visyn_core"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",

@@ -7,7 +7,11 @@ if (typeof window.URL.createObjectURL === 'undefined') {
 }
 import * as React from 'react';
 // Lazily load plotly.js-dist-min to allow code-splitting to occur, otherwise plotly is loaded everytime core is imported.
-const LazyPlotlyComponent = React.lazy(() => Promise.all([import('plotly.js-dist-min'), import('react-plotly.js/factory')]).then(([plotly, createPlotlyComponent]) => ({
+const LazyPlotlyComponent = React.lazy(() => Promise.all([
+    import('plotly.js-dist-min'),
+    // @ts-ignore
+    import('react-plotly.js/factory'),
+]).then(([plotly, createPlotlyComponent]) => ({
     // Use the minified version for our own `Plotly` object
     default: createPlotlyComponent.default(plotly),
 })));

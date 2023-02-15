@@ -2,7 +2,7 @@ import React from 'react';
 import { Vis } from '../LazyVis';
 import { EAggregateTypes, EBarDirection, EBarDisplayType, EBarGroupingType, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, EViolinOverlay, } from '../interfaces';
 export function fetchIrisData() {
-    const dataPromise = import('./irisData').then((m) => m.iris);
+    const dataPromise = import('./irisData.js').then((m) => m.iris);
     return [
         {
             info: {
