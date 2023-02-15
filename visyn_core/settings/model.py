@@ -9,19 +9,6 @@ class DBMigrationSettings(BaseModel):
     autoUpgrade: bool = True  # NOQA
 
 
-class MatomoSettings(BaseModel):
-    url: str = ""
-    site: str = "1"
-    encryptUserName: bool = False  # NOQA
-
-
-class MongoSettings(BaseModel):
-    host: str = "mongo"
-    port: int = 27017
-    db_graph: str = "graph"
-    db_namedsets: str = "targid"
-
-
 class DisableSettings(BaseModel):
     plugins: list[str] = []
     extensions: list[str] = []
@@ -90,12 +77,6 @@ class VisynCoreSettings(BaseModel):
     alwaysAppendDummyStore: bool = False  # NOQA
     """Deprecated: use visyn_core.security.store.dummy_store.enable instead."""
     security: SecuritySettings = SecuritySettings()
-
-    # tdp_matomo
-    matomo: MatomoSettings = MatomoSettings()
-
-    # phovea_data_mongo
-    mongo: MongoSettings = MongoSettings()
 
 
 class GlobalSettings(BaseSettings):

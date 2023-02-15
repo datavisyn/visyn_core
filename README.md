@@ -1,6 +1,7 @@
-core  
+visyn_core  
 =====================
-[![Target Discovery Platform][tdp-image-client]][tdp-url] [![Target Discovery Platform][tdp-image-server]][tdp-url] [![NPM version][npm-image]][npm-url] [![Build Status][circleci-image]][circleci-url]
+[![NPM version](https://badge.fury.io/js/visyn_core.svg)](https://npmjs.org/package/visyn_core)
+[![build](https://github.com/datavisyn/visyn_core/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/datavisyn/visyn_core/actions/workflows/build.yml)
 
 
 Target discovery platform for exploring rankings of genes, disease models, and other entities.
@@ -56,14 +57,3 @@ yarn run build
 
 <a href="https://www.datavisyn.io"><img src="https://www.datavisyn.io/img/logos/datavisyn-logo.png" align="left" width="200px" hspace="10" vspace="6"></a>
 This repository is part of the **Target Discovery Platform** (TDP). For tutorials, API docs, and more information about the build and deployment process, see the [documentation page](https://wiki.datavisyn.io).
-
-
-
-
-[tdp-image-client]: https://img.shields.io/badge/Target%20Discovery%20Platform-Client%20Plugin-F47D20.svg
-[tdp-image-server]: https://img.shields.io/badge/Target%20Discovery%20Platform-Server%20Plugin-10ACDF.svg
-[tdp-url]: http://datavisyn.io
-[npm-image]: https://badge.fury.io/js/core.svg
-[npm-url]: https://npmjs.org/package/core
-[circleci-image]: https://circleci.com/gh/datavisyn/core.svg?style=shield
-[circleci-url]: https://circleci.com/gh/datavisyn/core

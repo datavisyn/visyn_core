@@ -32,9 +32,9 @@ class VisynPlugin(AVisynPlugin):
         registry.append("json-encoder", "set-encoder", "visyn_core.encoder.set_encoder", {})
 
         registry.append("namespace", "visyn_core_main", "visyn_core.server.mainapp", {"namespace": "/app"})
-        registry.append_router("tdp_config_router", "visyn_core.settings.router", {})
-        registry.append_router("tdp_plugin_router", "visyn_core.plugin.router", {})
-        registry.append("namespace", "tdp_xlsx2json", "visyn_core.xlsx", {"namespace": "/api/tdp/xlsx"})
+        registry.append_router("visyn_config_router", "visyn_core.settings.router", {})
+        registry.append_router("visyn_plugin_router", "visyn_core.plugin.router", {})
+        registry.append("namespace", "visyn_xlsx2json", "visyn_core.xlsx", {"namespace": "/api/tdp/xlsx"})
 
         # DB migration plugins
         registry.append(
@@ -69,9 +69,6 @@ class VisynPlugin(AVisynPlugin):
             "visyn_core.security.store.no_security_store",
             {},
         )
-
-        # tdp_matomo
-        registry.append("tdp-config-safe-keys", "matomo", "", {"configKey": "visyn_core.matomo"})
 
         # phovea_data_mongo
         registry.append("dataset-provider", "dataset-graph", "visyn_core.graph", {})

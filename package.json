@@ -1,5 +1,5 @@
 {
-  "name": "@datavisyn/core",
+  "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
   "version": "0.0.1-SNAPSHOT",
   "author": {
@@ -10,11 +10,11 @@
   "license": "BSD-3-Clause",
   "homepage": "https://www.datavisyn.io",
   "bugs": {
-    "url": "https://github.com/datavisyn/core/issues"
+    "url": "https://github.com/datavisyn/visyn_core/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:datavisyn/core.git"
+    "url": "git@github.com:datavisyn/visyn_core.git"
   },
   "exports": {
     ".": {

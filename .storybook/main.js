@@ -12,10 +12,10 @@ module.exports = {
       ...(config.resolve.alias || {}),
       // I have no clue why this is required, but if this is missing we get a "Can't resolve '../../assets/icons/datavisyn_logo.svg' in '.../src/scss'""
       '../../assets': path.resolve(__dirname, '../src/assets'),
-      // Add tdp_core/dist as alias, as we have scss/code imports like tdp_core/dist/assets/...
-      'tdp_core/dist': path.resolve(__dirname, '../src'),
-      'tdp_core/src': path.resolve(__dirname, '../src'),
-      'tdp_core': path.resolve(__dirname, '../src'),
+      // Add visyn_core/dist as alias, as we have scss/code imports like visyn_core/dist/assets/...
+      'visyn_core/dist': path.resolve(__dirname, '../src'),
+      'visyn_core/src': path.resolve(__dirname, '../src'),
+      'visyn_core': path.resolve(__dirname, '../src'),
     };
     return config;
   },
