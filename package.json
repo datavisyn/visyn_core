@@ -16,66 +16,83 @@
     "type": "git",
     "url": "git@github.com:datavisyn/visyn_core.git"
   },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./app": {
       "types": "./dist/app/index.d.ts",
-      "import": "./dist/app/index.js"
+      "import": "./dist/app/index.js",
+      "default": "./dist/app/index.js"
     },
     "./base": {
       "types": "./dist/base/index.d.ts",
-      "import": "./dist/base/index.js"
+      "import": "./dist/base/index.js",
+      "default": "./dist/base/index.js"
     },
     "./components": {
       "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.js"
+      "import": "./dist/components/index.js",
+      "default": "./dist/components/index.js"
     },
     "./hooks": {
       "types": "./dist/hooks/index.d.ts",
-      "import": "./dist/hooks/index.js"
+      "import": "./dist/hooks/index.js",
+      "default": "./dist/hooks/index.js"
     },
     "./i18n": {
       "types": "./dist/i18n/index.d.ts",
-      "import": "./dist/i18n/index.js"
+      "import": "./dist/i18n/index.js",
+      "default": "./dist/i18n/index.js"
     },
     "./idtype": {
       "types": "./dist/idtype/index.d.ts",
-      "import": "./dist/idtype/index.js"
+      "import": "./dist/idtype/index.js",
+      "default": "./dist/idtype/index.js"
     },
     "./plotly/full": {
       "types": "./dist/plotly/full/index.d.ts",
-      "import": "./dist/plotly/full/index.js"
+      "import": "./dist/plotly/full/index.js",
+      "default": "./dist/plotly/full/index.js"
     },
     "./plotly": {
       "types": "./dist/plotly/index.d.ts",
-      "import": "./dist/plotly/index.js"
+      "import": "./dist/plotly/index.js",
+      "default": "./dist/plotly/index.js"
     },
     "./plugin": {
       "types": "./dist/plugin/index.d.ts",
-      "import": "./dist/plugin/index.js"
+      "import": "./dist/plugin/index.js",
+      "default": "./dist/plugin/index.js"
     },
     "./security": {
       "types": "./dist/security/index.d.ts",
-      "import": "./dist/security/index.js"
+      "import": "./dist/security/index.js",
+      "default": "./dist/security/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
-      "import": "./dist/utils/index.js"
+      "import": "./dist/utils/index.js",
+      "default": "./dist/utils/index.js"
     },
     "./views": {
       "types": "./dist/views/index.d.ts",
-      "import": "./dist/views/index.js"
+      "import": "./dist/views/index.js",
+      "default": "./dist/views/index.js"
     },
     "./vis": {
       "types": "./dist/vis/index.d.ts",
-      "import": "./dist/vis/index.js"
+      "import": "./dist/vis/index.js",
+      "default": "./dist/vis/index.js"
     },
     "./visynApp": {
       "types": "./dist/visynApp/index.d.ts",
-      "import": "./dist/visynApp/index.js"
+      "import": "./dist/visynApp/index.js",
+      "default": "./dist/visynApp/index.js"
     },
     "./phovea_registry": "./dist/phovea_registry.js",
     "./package.json": "./package.json"
