@@ -1,9 +1,9 @@
 from collections.abc import Callable
 
 from rdkit.Chem import Mol  # type: ignore
-from rdkit.Chem.Draw import SimilarityMaps, rdMolDraw2D
-from rdkit.Chem.Draw.rdMolDraw2D import MolDraw2DSVG
-from rdkit.Chem.Draw.SimilarityMaps import GetSimilarityMapForFingerprint
+from rdkit.Chem.Draw import SimilarityMaps, rdMolDraw2D  # type: ignore
+from rdkit.Chem.Draw.rdMolDraw2D import MolDraw2DSVG  # type: ignore
+from rdkit.Chem.Draw.SimilarityMaps import GetSimilarityMapForFingerprint  # type: ignore
 
 
 def _draw_wrapper(draw_inner: Callable[[MolDraw2DSVG, ...], None]) -> Callable[..., str]:  # type: ignore

@@ -120,7 +120,7 @@ export function VisynHeader({
         <Group align="center" position="center" noWrap>
           {components?.beforeTitle}
           {components?.title === undefined ? (
-            <Title order={3} weight={100} color={color} truncate>
+            <Title order={3} weight={100} color={color} truncate="end">
               {appName}
             </Title>
           ) : (

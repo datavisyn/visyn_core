@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from rdkit.Chem import Mol  # type: ignore
-from rdkit.Chem.Scaffolds import MurckoScaffold
+from rdkit.Chem.Scaffolds import MurckoScaffold  # type: ignore
 from starlette.responses import Response
 from starlette.status import HTTP_204_NO_CONTENT
 

@@ -5,15 +5,19 @@ from .plugin.model import AVisynPlugin, RegHelper
 
 class VisynPlugin(AVisynPlugin):
     def init_app(self, app: FastAPI):
-        from .mol_img import img_api
-
-        app.include_router(img_api.app)
-
-    def register(self, registry: RegHelper):
         import logging
 
         _log = logging.getLogger(__name__)
+        try:
+            from .rdkit import img_api
 
+            app.include_router(img_api.app)
+        except ImportError:
+            _log.warn(
+                "RDKit is not installed, corresponding API could not be loaded. Consider installing visyn_core[full] or visyn_core[rdkit]."
+            )
+
+    def register(self, registry: RegHelper):
         # phovea_server
         registry.append(
             "namespace",
