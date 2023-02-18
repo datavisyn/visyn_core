@@ -24,10 +24,16 @@ class DummyStoreSettings(BaseModel):
             "roles": ["admin"],
         },
         {
-            "name": "sam",
-            "salt": "2338b858597b4937ad1c5db4b524f56d",
-            "password": "814cbf874d3da7c01327b50c96bedf7db26357e0b4be25623242a33b33861651c3efd90d5c1a6410a646f356c73adf2de473611dee158672e8ee073767dc88f2",
-            "roles": ["sam"],
+            "name": "bob",
+            "salt": "35c63c3121b04aaba8c735ee302e9f9d",
+            "password": "8cb741b1e6b8cd5eb41767146876de16c736bf0a1af9505a9c44fc662d21ca48a4c9e922cc4454e3034906a27918adc20265063cc3e279b31c59afd74f6e8233",
+            "roles": ["bob"],
+        },
+        {
+            "name": "alice",
+            "salt": "b955b2adba0c4b599338af5e087931a9",
+            "password": "15ee8aa9740221def6fa31c1aa775b170e11e35409edcc86faf7bc437c006be0b4ff372ad42675e8a9c5889d2f99b5b9b5fce8af57740cfaa42519bf74ba2f44",
+            "roles": ["alice"],
         },
     ]
 

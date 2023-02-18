@@ -1,5 +1,3 @@
-__author__ = "Samuel Gratzl"
-
 if __name__ == "__main__":
     import hashlib
     import uuid
