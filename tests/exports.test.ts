@@ -5,6 +5,7 @@ import { readdirSync, readFileSync } from 'fs';
 import packageJson from '../package.json';
 
 const NOT_EXPORTED_PACKAGES = ['assets', 'demo', 'locales', 'scss', 'stories'];
+const ADDITIONAL_EXPORTS = ['.', './plotly/full', './phovea_registry', './package.json'];
 
 describe('package.json exports', () => {
   expect(packageJson.exports).toBeDefined();
@@ -12,7 +13,9 @@ describe('package.json exports', () => {
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
     .filter((name) => !NOT_EXPORTED_PACKAGES.includes(name));
-  expect(allPackages.length).toBeGreaterThan(0);
+
+  // Check if we have exactly as many exports as defined
+  expect(Object.keys(packageJson.exports)).toHaveLength(allPackages.length + ADDITIONAL_EXPORTS.length);
 
   const rootIndexTs = readFileSync('./src/index.ts', 'utf-8').toString();
 

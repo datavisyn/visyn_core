@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Modal, Stack, Title, Center, Divider, Container, LoadingOverlay } from '@mantine/core';
+import { Alert, Modal, Stack, Title, Center, Divider, Container, LoadingOverlay, Button, Anchor } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
 import { AppContext } from '../../base/AppContext';
@@ -70,7 +70,7 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
   }, [loggedInAs]);
 
   useAsync(autoLogin, []);
-  const { value: userStores, error: userStoreError, status: userStoreStatus } = useAsync(LoginUtils.getStores, []);
+  const { value: userStores, error: userStoreError, status: userStoreStatus, execute: retryGetStores } = useAsync(LoginUtils.getStores, []);
   const userStoresWithUI = userStores?.filter((store) => store.ui);
   const hasError = error && error !== 'not_reachable';
   const isOffline = error === 'not_reachable' || userStoreStatus === 'error';
@@ -87,10 +87,20 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
           <Divider />
         </Stack>
       </Container>
-      <Stack>
+      <Stack style={{ position: 'relative', minHeight: '5rem' }}>
         {isOffline ? (
           <Alert icon={<FontAwesomeIcon icon={faCircleExclamation} />} color="yellow" radius="md">
-            The server seems to be offline! Login not possible. Try again later.
+            The server seems to be offline!{' '}
+            <Anchor
+              component="button"
+              type="button"
+              onClick={() => {
+                retryGetStores();
+              }}
+            >
+              Try again
+            </Anchor>
+            .
           </Alert>
         ) : null}
         {hasError ? (

@@ -3,15 +3,12 @@ visyn_core
 [![NPM version](https://badge.fury.io/js/visyn_core.svg)](https://npmjs.org/package/visyn_core)
 [![build](https://github.com/datavisyn/visyn_core/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/datavisyn/visyn_core/actions/workflows/build.yml)
 
-
-Target discovery platform for exploring rankings of genes, disease models, and other entities.
-
 Installation
 ------------
 
 ```bash
-git clone -b develop https://github.com/datavisyn/core.git  # or any other branch you want to develop in
-cd core
+git clone -b develop https://github.com/datavisyn/visyn_core.git  # or any other branch you want to develop in
+cd visyn_core
 
 # Frontend
 yarn install
@@ -30,7 +27,7 @@ Local development
 yarn start
 
 # Backend
-python core
+python visyn_core
 ```
 
 Testing

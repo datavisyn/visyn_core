@@ -89,11 +89,6 @@
       "import": "./dist/vis/index.js",
       "default": "./dist/vis/index.js"
     },
-    "./visynApp": {
-      "types": "./dist/visynApp/index.d.ts",
-      "import": "./dist/visynApp/index.js",
-      "default": "./dist/visynApp/index.js"
-    },
     "./phovea_registry": "./dist/phovea_registry.js",
     "./package.json": "./package.json"
   },

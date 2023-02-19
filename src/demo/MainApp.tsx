@@ -1,19 +1,9 @@
-import { Box, Menu } from '@mantine/core';
 import * as React from 'react';
-import {
-  Vis,
-  LoginUtils,
-  VisynHeader,
-  VisynApp,
-  useVisynAppContext,
-  ESupportedPlotlyVis,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  IVisConfig,
-} from '..';
+import { Menu } from '@mantine/core';
+import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
-
-const irisData = fetchIrisData();
+import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
+import { LoginUtils } from '../security';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -41,6 +31,7 @@ export function MainApp() {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
   });
+  const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
 
   return (
     <VisynApp
@@ -63,9 +54,8 @@ export function MainApp() {
           backgroundColor="dark"
         />
       }
-      appShellProps={{}}
     >
-      {user ? <Vis columns={irisData} showSidebarDefault externalConfig={visConfig} setExternalConfig={setVisConfig} /> : null}
+      {user ? <Vis columns={columns} showSidebarDefault externalConfig={visConfig} setExternalConfig={setVisConfig} /> : null}
     </VisynApp>
   );
 }
