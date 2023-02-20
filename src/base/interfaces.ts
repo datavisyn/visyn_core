@@ -1,4 +1,4 @@
-import { ICategory } from 'lineupjs';
+import type { ICategory } from 'lineupjs';
 import { IUser } from '../security';
 import { IPluginDesc } from '../plugin/interfaces';
 

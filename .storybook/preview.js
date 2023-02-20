@@ -1,4 +1,4 @@
-import '../src/scss/storybook.scss';
+import '../src/scss/main.scss';
 import { initializeLibrary } from '../src/initialize';
 
 // TODO: This is async, how to wait for it?

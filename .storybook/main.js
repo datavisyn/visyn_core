@@ -8,6 +8,13 @@ module.exports = {
   addons: ['@storybook/addon-links', '@storybook/addon-essentials', '@storybook/addon-interactions', '@storybook/preset-scss', 'storybook-addon-swc'],
   framework: '@storybook/react',
   webpackFinal: async (config) => {
+    // This is required to enable TS moduleResolution: node16, as there we have to add .js extensions which are actually .ts files.
+    config.resolve.extensionAlias = {
+      ...(config.resolve.extensionAlias || {}),
+      '.js': ['.tsx', '.ts', '.js'],
+      '.cjs': ['.cts', '.cjs'],
+      '.mjs': ['.mts', '.mjs'],
+    },
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       // I have no clue why this is required, but if this is missing we get a "Can't resolve '../../assets/icons/datavisyn_logo.svg' in '.../src/scss'""
