@@ -42,7 +42,6 @@ export function VisynApp({
       styles={{
         root: { height: '100%' },
         body: { height: `calc(100% - ${headerHeight}px)` },
-        main: { minHeight: '0px' },
       }}
       {...appShellProps}
       navbar={navbar}

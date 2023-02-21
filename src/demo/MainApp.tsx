@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { Menu } from '@mantine/core';
+import { Menu, SimpleGrid } from '@mantine/core';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
+import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { LoginUtils } from '../security';
+import { VisynRanking } from '../ranking/VisynRanking';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -32,6 +34,9 @@ export function MainApp() {
     alphaSliderVal: 1,
   });
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
+  const [selection, setSelection] = React.useState<typeof iris>([]);
+
+  const visSelection = React.useMemo(() => selection.map((s) => `${iris.indexOf(s)}`), [selection]);
 
   return (
     <VisynApp
@@ -55,7 +60,21 @@ export function MainApp() {
         />
       }
     >
-      {user ? <Vis columns={columns} showSidebarDefault externalConfig={visConfig} setExternalConfig={setVisConfig} /> : null}
+      {user ? (
+        <SimpleGrid cols={2} style={{ height: '100%' }}>
+          <VisynRanking data={iris} selection={selection} setSelection={setSelection} />
+          <Vis
+            columns={columns}
+            showSidebarDefault
+            externalConfig={visConfig}
+            setExternalConfig={setVisConfig}
+            selected={visSelection}
+            selectionCallback={(s) => {
+              setSelection(s.map((i) => iris[+i]));
+            }}
+          />
+        </SimpleGrid>
+      ) : null}
     </VisynApp>
   );
 }

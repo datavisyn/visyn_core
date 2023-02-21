@@ -10,6 +10,7 @@ export * from './idtype';
 export * from './initialize';
 export * from './plotly';
 export * from './plugin';
+export * from './ranking';
 export * from './security';
 export * from './utils';
 export * from './views';

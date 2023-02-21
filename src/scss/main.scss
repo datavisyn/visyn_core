@@ -5,4 +5,5 @@
 
 @import "./fonts/roboto";
 
-@import './vendors/lineup';
+// Is loaded in the VisynRanking to allow code-splitting
+// @import './vendors/lineup';
