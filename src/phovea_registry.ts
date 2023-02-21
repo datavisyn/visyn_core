@@ -3,10 +3,10 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  **************************************************************************** */
-import { PluginRegistry } from './plugin';
+import { pluginRegistry } from './plugin';
 import reg from './phovea';
 /**
  * build a registry by registering all phovea modules
  */
 // self
-PluginRegistry.getInstance().register('core', reg);
+pluginRegistry.register('core', reg);

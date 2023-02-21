@@ -1,8 +1,8 @@
-import { AppContext } from '../base/AppContext';
-import { GlobalEventHandler } from '../base/event';
+import { appContext } from '../base/AppContext';
+import { globalEventHandler } from '../base/event';
 import { SelectionUtils } from './SelectionUtils';
 import { IDType, IDTypeLike, IPersistedIDType } from './IDType';
-import { PluginRegistry } from '../plugin/PluginRegistry';
+import { pluginRegistry } from '../plugin/PluginRegistry';
 import { IPluginDesc } from '../plugin/interfaces';
 
 export class IDTypeManager {
@@ -16,7 +16,7 @@ export class IDTypeManager {
 
   private fillUpData(entries: IDType[]) {
     entries.forEach((row) => {
-      let entry = IDTypeManager.getInstance().cache.get(row.id);
+      let entry = this.cache.get(row.id);
       let newOne = false;
       if (entry) {
         if (entry instanceof IDType) {
@@ -29,9 +29,9 @@ export class IDTypeManager {
         entry = new IDType(row.id, row.name, row.names);
         newOne = true;
       }
-      IDTypeManager.getInstance().cache.set(row.id, entry);
+      this.cache.set(row.id, entry);
       if (newOne) {
-        GlobalEventHandler.getInstance().fire(IDTypeManager.EVENT_REGISTER_IDTYPE, entry);
+        globalEventHandler.fire(IDTypeManager.EVENT_REGISTER_IDTYPE, entry);
       }
     });
   }
@@ -48,7 +48,7 @@ export class IDTypeManager {
       return id;
     }
     const sid = <string>id;
-    return <IDType>IDTypeManager.getInstance().registerIdType(sid, new IDType(sid, sid, IDTypeManager.getInstance().toPlural(sid)));
+    return <IDType>this.registerIdType(sid, new IDType(sid, sid, this.toPlural(sid)));
   }
 
   /**
@@ -56,7 +56,7 @@ export class IDTypeManager {
    * @returns {Array<IDType>}
    */
   public listIdTypes(): IDType[] {
-    return Array.from(IDTypeManager.getInstance().cache.values());
+    return Array.from(this.cache.values());
   }
 
   /**
@@ -64,36 +64,36 @@ export class IDTypeManager {
    * @returns {any}
    */
   public async listAllIdTypes(): Promise<IDType[]> {
-    if (IDTypeManager.getInstance().filledUp) {
-      return Promise.resolve(IDTypeManager.getInstance().listIdTypes());
+    if (this.filledUp) {
+      return Promise.resolve(this.listIdTypes());
     }
-    const c = await (<Promise<IDType[]>>AppContext.getInstance().getAPIJSON('/idtype/', {}, []));
-    IDTypeManager.getInstance().filledUp = true;
-    IDTypeManager.getInstance().fillUpData(c);
-    return IDTypeManager.getInstance().listIdTypes();
+    const c = await (<Promise<IDType[]>>appContext.getAPIJSON('/idtype/', {}, []));
+    this.filledUp = true;
+    this.fillUpData(c);
+    return this.listIdTypes();
   }
 
   public registerIdType(id: string, idtype: IDType): IDType {
-    if (IDTypeManager.getInstance().cache.has(id)) {
-      return IDTypeManager.getInstance().cache.get(id);
+    if (this.cache.has(id)) {
+      return this.cache.get(id);
     }
-    IDTypeManager.getInstance().cache.set(id, idtype);
-    GlobalEventHandler.getInstance().fire(IDTypeManager.EVENT_REGISTER_IDTYPE, idtype);
+    this.cache.set(id, idtype);
+    globalEventHandler.fire(IDTypeManager.EVENT_REGISTER_IDTYPE, idtype);
     return idtype;
   }
 
   public persistIdTypes() {
-    return Array.from(IDTypeManager.getInstance().cache.entries()).reduce((acc, [id, idType]) => ({ ...acc, [id]: idType.persist() }), {});
+    return Array.from(this.cache.entries()).reduce((acc, [id, idType]) => ({ ...acc, [id]: idType.persist() }), {});
   }
 
   public restoreIdType(persisted: { [key: string]: IPersistedIDType }) {
     Object.keys(persisted).forEach((id) => {
-      IDTypeManager.getInstance().resolveIdType(id).restore(persisted[id]);
+      this.resolveIdType(id).restore(persisted[id]);
     });
   }
 
   public clearSelection(type = SelectionUtils.defaultSelectionType) {
-    IDTypeManager.getInstance().cache.forEach((v) => v.clear(type));
+    this.cache.forEach((v) => v.clear(type));
   }
 
   /**
@@ -112,8 +112,8 @@ export class IDTypeManager {
    * @return {Promise<void>}
    */
   public searchMapping(idType: IDType, pattern: string, toIDType: string | IDType, limit = 10): Promise<{ match: string; to: string }[]> {
-    const target = IDTypeManager.getInstance().resolveIdType(toIDType);
-    return AppContext.getInstance().getAPIJSON(`/idtype/${idType.id}/${target.id}/search`, { q: pattern, limit });
+    const target = this.resolveIdType(toIDType);
+    return appContext.getAPIJSON(`/idtype/${idType.id}/${target.id}/search`, { q: pattern, limit });
   }
 
   /**
@@ -122,9 +122,7 @@ export class IDTypeManager {
    */
   public getCanBeMappedTo(idType: IDType) {
     if (idType.canBeMappedTo === null) {
-      idType.canBeMappedTo = AppContext.getInstance()
-        .getAPIJSON(`/idtype/${idType.id}/`)
-        .then((list) => list.map(IDTypeManager.getInstance().resolveIdType));
+      idType.canBeMappedTo = appContext.getAPIJSON(`/idtype/${idType.id}/`).then((list) => list.map(this.resolveIdType));
     }
     return idType.canBeMappedTo;
   }
@@ -138,7 +136,7 @@ export class IDTypeManager {
   }
 
   public async mapNameToFirstName(idType: IDType, names: string[], toIDtype: IDTypeLike): Promise<string[]> {
-    const target = IDTypeManager.getInstance().resolveIdType(toIDtype);
+    const target = this.resolveIdType(toIDtype);
     if (idType.id === target.id) {
       return names;
     }
@@ -146,7 +144,7 @@ export class IDTypeManager {
   }
 
   public async mapNameToName(idType: IDType, names: string[], toIDtype: IDTypeLike): Promise<string[][]> {
-    const target = IDTypeManager.getInstance().resolveIdType(toIDtype);
+    const target = this.resolveIdType(toIDtype);
     // TODO: Check if this makes sense, what if we have synonyms?
     // if(idType.id === target.id) {
     //   return names.map((name) => [name]);
@@ -165,9 +163,7 @@ export class IDTypeManager {
         return true;
       }
       // lookup the targets and check if our target is part of it
-      return IDTypeManager.getInstance()
-        .getCanBeMappedTo(IDTypeManager.getInstance().resolveIdType(idtype))
-        .then((mappables: IDType[]) => mappables.some((d) => d.id === target.id));
+      return this.getCanBeMappedTo(this.resolveIdType(idtype)).then((mappables: IDType[]) => mappables.some((d) => d.id === target.id));
     }
     // check which idTypes can be mapped to the target one
     return Promise.all(idTypes.map(canBeMappedTo)).then((mappable: boolean[]) => {
@@ -178,25 +174,23 @@ export class IDTypeManager {
 
   init() {
     // register known idtypes via registry
-    PluginRegistry.getInstance()
-      .listPlugins(IDTypeManager.EXTENSION_POINT_IDTYPE)
-      .forEach((plugin) => {
-        const { id } = plugin;
-        const { name } = plugin;
-        const names = plugin.names || this.toPlural(name);
-        const internal = Boolean(plugin.internal);
-        this.registerIdType(id, new IDType(id, name, names, internal));
-      });
+    pluginRegistry.listPlugins(IDTypeManager.EXTENSION_POINT_IDTYPE).forEach((plugin) => {
+      const { id } = plugin;
+      const { name } = plugin;
+      const names = plugin.names || this.toPlural(name);
+      const internal = Boolean(plugin.internal);
+      this.registerIdType(id, new IDType(id, name, names, internal));
+    });
   }
 
-  private static instance: IDTypeManager;
-
+  /**
+   * @deprecated Use `idTypeManager` instead.
+   */
   public static getInstance(): IDTypeManager {
-    if (!IDTypeManager.instance) {
-      IDTypeManager.instance = new IDTypeManager();
-      IDTypeManager.instance.init();
-    }
-
-    return IDTypeManager.instance;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return idTypeManager;
   }
 }
+
+const idTypeManager = new IDTypeManager();
+idTypeManager.init();

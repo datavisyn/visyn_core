@@ -225,12 +225,13 @@ export class EventHandler implements IEventHandler {
 }
 
 export class GlobalEventHandler extends EventHandler {
-  private static instance: GlobalEventHandler;
-
-  public static getInstance(): GlobalEventHandler {
-    if (!GlobalEventHandler.instance) {
-      GlobalEventHandler.instance = new GlobalEventHandler();
-    }
-    return GlobalEventHandler.instance;
+  /**
+   * @deprecated Use `globalEventHandler` instead.
+   */
+  public static getInstance(): EventHandler {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return globalEventHandler;
   }
 }
+
+export const globalEventHandler = new EventHandler();

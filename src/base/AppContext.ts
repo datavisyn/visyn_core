@@ -1,4 +1,3 @@
-import merge from 'lodash/merge';
 import { Ajax } from './ajax';
 import { WebpackEnv } from './WebpackEnv';
 
@@ -32,56 +31,8 @@ export class AppContext {
   public server_json_suffix = '';
   // eslint-enable @typescript-eslint/naming-convention disable
 
-  /**
-   * initializes certain properties of the core
-   * @param config
-   */
-  public init(config: { offline?: boolean; server_url?: string; server_json_suffix?: string } = {}) {
-    config = merge(
-      {
-        offline: this.offline,
-        server_url: this.server_url,
-        server_json_suffix: this.server_json_suffix,
-      },
-      config,
-    );
-    this.offline = config.offline;
-    this.server_url = config.server_url;
-    this.server_json_suffix = config.server_json_suffix;
-  }
-
   public isOffline() {
     return this.offline;
-  }
-
-  /**
-   * initializes itself based on script data attributes
-   * @private
-   */
-  protected _init() {
-    function find(name: string, camelCaseName = name.slice(0, 1).toUpperCase() + name.slice(1)) {
-      const node: HTMLElement = <HTMLElement>document.currentScript || <HTMLElement>document.querySelector(`script[data-phovea-${name}]`);
-      if (!node) {
-        return undefined;
-      }
-      return node.dataset[`phovea${camelCaseName}`];
-    }
-
-    const config: any = {};
-    if (find('offline') === 'true') {
-      config.offline = true;
-    }
-    let v;
-    // eslint-disable-next-line no-cond-assign
-    if ((v = find('server-url', 'ServerUrl')) !== undefined) {
-      config.server_url = v;
-    }
-    // eslint-disable-next-line no-cond-assign
-    if ((v = find('server-json-suffix', 'ServerJsonSuffix')) !== undefined) {
-      config.server_json_suffix = v;
-    }
-    // init myself
-    this.init(config);
   }
 
   /**
@@ -91,7 +42,7 @@ export class AppContext {
    * @returns {string}
    */
   public api2absURL(url: string, data: any = null) {
-    url = `${AppContext.getInstance().server_url}${url}${AppContext.getInstance().server_json_suffix}`;
+    url = `${this.server_url}${url}${this.server_json_suffix}`;
     data = Ajax.encodeParams(data);
     if (data) {
       url += (/\?/.test(url) ? '&' : '?') + data;
@@ -102,7 +53,7 @@ export class AppContext {
   private defaultGenerator: OfflineGenerator = () => Promise.reject('offline');
 
   public setDefaultOfflineGenerator(generator: OfflineGenerator | null) {
-    AppContext.getInstance().defaultGenerator = generator || (() => Promise.reject('offline'));
+    this.defaultGenerator = generator || (() => Promise.reject('offline'));
   }
 
   /**
@@ -130,12 +81,12 @@ export class AppContext {
     data: any = {},
     method = 'GET',
     expectedDataType = 'json',
-    offlineGenerator: OfflineGenerator = AppContext.getInstance().defaultGenerator,
+    offlineGenerator: OfflineGenerator = this.defaultGenerator,
   ): Promise<any> {
-    if (AppContext.getInstance().isOffline()) {
-      return AppContext.getInstance().sendOffline(offlineGenerator, url, data);
+    if (this.isOffline()) {
+      return this.sendOffline(offlineGenerator, url, data);
     }
-    return Ajax.send(AppContext.getInstance().api2absURL(url), data, method, expectedDataType);
+    return Ajax.send(this.api2absURL(url), data, method, expectedDataType);
   }
 
   /**
@@ -145,11 +96,11 @@ export class AppContext {
    * @param offlineGenerator in case of offline flag is set what should be returned
    * @returns {Promise<any>}
    */
-  public getAPIJSON(url: string, data: any = {}, offlineGenerator: OfflineGenerator = AppContext.getInstance().defaultGenerator): Promise<any> {
-    if (AppContext.getInstance().isOffline()) {
-      return AppContext.getInstance().sendOffline(offlineGenerator, url, data);
+  public getAPIJSON(url: string, data: any = {}, offlineGenerator: OfflineGenerator = this.defaultGenerator): Promise<any> {
+    if (this.isOffline()) {
+      return this.sendOffline(offlineGenerator, url, data);
     }
-    return Ajax.getJSON(AppContext.getInstance().api2absURL(url), data);
+    return Ajax.getJSON(this.api2absURL(url), data);
   }
 
   /**
@@ -160,26 +111,20 @@ export class AppContext {
    * @param offlineGenerator in case of offline flag is set what should be returned
    * @returns {Promise<any>}
    */
-  public getAPIData(
-    url: string,
-    data: any = {},
-    expectedDataType = 'json',
-    offlineGenerator: OfflineGenerator = () => AppContext.getInstance().defaultGenerator,
-  ): Promise<any> {
-    if (AppContext.getInstance().isOffline()) {
-      return AppContext.getInstance().sendOffline(offlineGenerator, url, data);
+  public getAPIData(url: string, data: any = {}, expectedDataType = 'json', offlineGenerator: OfflineGenerator = () => this.defaultGenerator): Promise<any> {
+    if (this.isOffline()) {
+      return this.sendOffline(offlineGenerator, url, data);
     }
-    return Ajax.getData(AppContext.getInstance().api2absURL(url), data, expectedDataType);
+    return Ajax.getData(this.api2absURL(url), data, expectedDataType);
   }
 
-  private static instance: AppContext;
-
+  /**
+   * @deprecated Use `appContext` instead.
+   */
   public static getInstance(): AppContext {
-    if (!AppContext.instance) {
-      AppContext.instance = new AppContext();
-      AppContext.instance._init();
-    }
-
-    return AppContext.instance;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return appContext;
   }
 }
+
+export const appContext = new AppContext();

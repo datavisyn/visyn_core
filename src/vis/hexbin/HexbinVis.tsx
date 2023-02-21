@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { VisColumn, IVisConfig, IHexbinConfig, EScatterSelectSettings } from '../interfaces';
 import { InvalidCols } from '../general';
-import { I18nextManager } from '../../i18n/I18nextManager';
+import { i18n } from '../../i18n';
 import { Hexplot } from './Hexplot';
 import { HexbinVisSidebar } from './HexbinVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
@@ -63,7 +63,7 @@ export function HexbinVis({
   return (
     <Container p={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
       {enableSidebar ? (
-        <Tooltip withinPortal label={I18nextManager.getInstance().i18n.t('visyn:vis.openSettings')}>
+        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
           <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
             <FontAwesomeIcon icon={faGear} />
           </ActionIcon>
@@ -82,10 +82,7 @@ export function HexbinVis({
         </Center>
         <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
           {config.numColumnsSelected.length < 2 ? (
-            <InvalidCols
-              headerMessage={I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader')}
-              bodyMessage={I18nextManager.getInstance().i18n.t('visyn:vis.hexbinError')}
-            />
+            <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={i18n.t('visyn:vis.hexbinError')} />
           ) : (
             <>
               {config.numColumnsSelected.length > 2 ? (

@@ -1,6 +1,6 @@
 // In case of failing tests due to i18next, check if the `esModuleInterop` flag is set to true in the jest config (in "tsConfig" object under "ts-jest" in globals property).
 import i18next from 'i18next';
-import { PluginRegistry } from '../plugin/PluginRegistry';
+import { pluginRegistry } from '../plugin/PluginRegistry';
 import { EP_PHOVEA_CORE_LOCALE, ILocaleEPDesc } from '../plugin/extensions';
 
 export class I18nextManager {
@@ -21,22 +21,20 @@ export class I18nextManager {
    */
   public async initI18n() {
     const plugins = await Promise.all(
-      PluginRegistry.getInstance()
-        .listPlugins(EP_PHOVEA_CORE_LOCALE)
-        .map((pluginDesc: ILocaleEPDesc) => {
-          return pluginDesc.load().then((locale) => {
-            return {
-              lng: pluginDesc.lng || I18nextManager.DEFAULT_LANGUAGE,
-              ns: pluginDesc.ns || I18nextManager.DEFAULT_NAMESPACE,
-              resources: locale.factory(),
-              order: pluginDesc.order || 0,
-            };
-          });
-        }),
+      pluginRegistry.listPlugins(EP_PHOVEA_CORE_LOCALE).map((pluginDesc: ILocaleEPDesc) => {
+        return pluginDesc.load().then((locale) => {
+          return {
+            lng: pluginDesc.lng || I18nextManager.DEFAULT_LANGUAGE,
+            ns: pluginDesc.ns || I18nextManager.DEFAULT_NAMESPACE,
+            resources: locale.factory(),
+            order: pluginDesc.order || 0,
+          };
+        });
+      }),
     );
 
-    return I18nextManager.getInstance()
-      .i18n.use({
+    return this.i18n
+      .use({
         type: 'postProcessor',
         name: 'showKeyDebugger',
         process: (value, key, option, translator) => (translator.options.debug ? key : value),
@@ -70,20 +68,19 @@ export class I18nextManager {
         plugins
           .sort((pluginA, pluginB) => pluginA.order - pluginB.order)
           .forEach((plugin) => {
-            I18nextManager.getInstance().i18n.addResourceBundle(plugin.lng, plugin.ns, plugin.resources, true, true);
+            this.i18n.addResourceBundle(plugin.lng, plugin.ns, plugin.resources, true, true);
           });
       });
   }
 
-  private static instance: I18nextManager;
-
+  /**
+   * @deprecated Use `i18n` instead.
+   */
   public static getInstance(): I18nextManager {
-    if (!I18nextManager.instance) {
-      I18nextManager.instance = new I18nextManager();
-    }
-
-    return I18nextManager.instance;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return i18nManager;
   }
 }
 
-export const i18n = I18nextManager.getInstance();
+export const i18nManager = new I18nextManager();
+export const { i18n } = i18nManager;

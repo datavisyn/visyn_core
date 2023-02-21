@@ -1,4 +1,4 @@
-import { AppContext } from '../base/AppContext';
+import { appContext } from '../base/AppContext';
 import { Ajax } from '../base/ajax';
 
 export interface IXLSXColumn {
@@ -21,21 +21,21 @@ export class XlsxUtils {
     const data = new FormData();
     data.set('file', file);
 
-    return AppContext.getInstance().sendAPI('/tdp/xlsx/to_json', data, 'POST');
+    return appContext.sendAPI('/tdp/xlsx/to_json', data, 'POST');
   }
 
   static xlsx2jsonArray(file: File): Promise<any[][]> {
     const data = new FormData();
     data.set('file', file);
 
-    return AppContext.getInstance().sendAPI('/tdp/xlsx/to_json_array', data, 'POST');
+    return appContext.sendAPI('/tdp/xlsx/to_json_array', data, 'POST');
   }
 
   static json2xlsx(file: IXLSXJSONFile): Promise<Blob> {
-    return Ajax.send(AppContext.getInstance().api2absURL('/tdp/xlsx/from_json'), file, 'POST', 'blob', 'application/json');
+    return Ajax.send(appContext.api2absURL('/tdp/xlsx/from_json'), file, 'POST', 'blob', 'application/json');
   }
 
   static jsonArray2xlsx(file: any[][]): Promise<Blob> {
-    return Ajax.send(AppContext.getInstance().api2absURL('/tdp/xlsx/from_json_array'), file, 'POST', 'blob', 'application/json');
+    return Ajax.send(appContext.api2absURL('/tdp/xlsx/from_json_array'), file, 'POST', 'blob', 'application/json');
   }
 }

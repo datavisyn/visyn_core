@@ -1,4 +1,4 @@
-import { AppContext } from '../base/AppContext';
+import { appContext } from '../base/AppContext';
 import { EventHandler, IEventHandler } from '../base/event';
 import { SelectOperation, SelectionUtils } from './SelectionUtils';
 
@@ -126,7 +126,7 @@ export class IDType extends EventHandler implements IEventHandler {
     const lengthGuess = url.length + dataLengthGuess.length;
 
     const method = lengthGuess < 2000 ? 'GET' : 'POST';
-    return AppContext.getInstance().sendAPI(url, data, method);
+    return appContext.sendAPI(url, data, method);
   }
 }
 

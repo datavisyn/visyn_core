@@ -1,5 +1,5 @@
 import merge from 'lodash/merge';
-import { GlobalEventHandler } from './event';
+import { globalEventHandler } from './event';
 
 export class AjaxError extends Error {
   constructor(public readonly response: Response, message?: string) {
@@ -142,10 +142,10 @@ export class Ajax {
     }
 
     // there are no typings for fetch so far
-    GlobalEventHandler.getInstance().fire(Ajax.GLOBAL_EVENT_AJAX_PRE_SEND, url, mergedOptions);
+    globalEventHandler.fire(Ajax.GLOBAL_EVENT_AJAX_PRE_SEND, url, mergedOptions);
     const r = await Ajax.checkStatus(await window.fetch(url, mergedOptions));
     const output = Ajax.parseType(expectedDataType, r);
-    GlobalEventHandler.getInstance().fire(Ajax.GLOBAL_EVENT_AJAX_POST_SEND, url, mergedOptions, r, output);
+    globalEventHandler.fire(Ajax.GLOBAL_EVENT_AJAX_POST_SEND, url, mergedOptions, r, output);
     return output;
   }
 

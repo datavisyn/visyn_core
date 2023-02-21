@@ -1,6 +1,6 @@
 import type { IUser, ISecureItem } from './interfaces';
-import { GlobalEventHandler } from '../base/event';
-import { PluginRegistry } from '../plugin/PluginRegistry';
+import { globalEventHandler } from '../base/event';
+import { pluginRegistry } from '../plugin/PluginRegistry';
 import { ILoginExtensionPointDesc, ILogoutEP, ILogoutEPDesc, ILoginExtensionPoint, EP_PHOVEA_CORE_LOGIN, EP_PHOVEA_CORE_LOGOUT } from '../plugin/extensions';
 import { UserUtils, EPermission, EEntity } from './constants';
 import { Permission } from './Permission';
@@ -85,13 +85,11 @@ export class UserSession {
     this.store('username', user.name);
     this.store('user', user);
 
-    PluginRegistry.getInstance()
-      .listPlugins(EP_PHOVEA_CORE_LOGIN)
-      .forEach((desc: ILoginExtensionPointDesc) => {
-        desc.load().then((plugin: ILoginExtensionPoint) => plugin.factory(user));
-      });
+    pluginRegistry.listPlugins(EP_PHOVEA_CORE_LOGIN).forEach((desc: ILoginExtensionPointDesc) => {
+      desc.load().then((plugin: ILoginExtensionPoint) => plugin.factory(user));
+    });
 
-    GlobalEventHandler.getInstance().fire(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, user);
+    globalEventHandler.fire(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, user);
   }
 
   /**
@@ -101,14 +99,12 @@ export class UserSession {
     const wasLoggedIn = this.isLoggedIn();
     this.reset();
     if (wasLoggedIn) {
-      PluginRegistry.getInstance()
-        .listPlugins(EP_PHOVEA_CORE_LOGOUT)
-        .forEach((desc: ILogoutEPDesc) => {
-          desc.load().then((plugin: ILogoutEP) => plugin.factory());
-        });
+      pluginRegistry.listPlugins(EP_PHOVEA_CORE_LOGOUT).forEach((desc: ILogoutEPDesc) => {
+        desc.load().then((plugin: ILogoutEP) => plugin.factory());
+      });
 
       // Notify all listeners
-      GlobalEventHandler.getInstance().fire(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, options);
+      globalEventHandler.fire(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, options);
 
       // Handle different logout options
       // TODO: Maybe extract them to extension points later?
@@ -216,13 +212,13 @@ export class UserSession {
     return items.some((r) => this.isEqual(item, r));
   }
 
-  private static instance: UserSession;
-
+  /**
+   * @deprecated Use `userSession` instead.
+   */
   public static getInstance(): UserSession {
-    if (!UserSession.instance) {
-      UserSession.instance = new UserSession();
-    }
-
-    return UserSession.instance;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return userSession;
   }
 }
+
+export const userSession = new UserSession();

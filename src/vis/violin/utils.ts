@@ -13,7 +13,7 @@ import {
   EViolinOverlay,
 } from '../interfaces';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
-import { I18nextManager } from '../../i18n';
+import { i18n } from '../../i18n';
 
 export function isViolin(s: IVisConfig): s is IViolinConfig {
   return s.type === ESupportedPlotlyVis.VIOLIN;
@@ -47,8 +47,8 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
       legendPlots: [],
       rows: 0,
       cols: 0,
-      errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.violinError'),
-      errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
+      errorMessage: i18n.t('visyn:vis.violinError'),
+      errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
     };
   }
 
@@ -137,7 +137,7 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
     legendPlots: [],
     rows: numColValues.length,
     cols: catColValues.length > 0 ? catColValues.length : 1,
-    errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.violinError'),
-    errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
+    errorMessage: i18n.t('visyn:vis.violinError'),
+    errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
   };
 }

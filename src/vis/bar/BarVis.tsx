@@ -17,7 +17,7 @@ import { createBarTraces } from './utils';
 import { BarVisSidebar } from './BarVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
-import { I18nextManager } from '../../i18n';
+import { i18n } from '../../i18n';
 
 const defaultExtensions = {
   prePlot: null,
@@ -218,7 +218,7 @@ export function BarVis({
       {mergedExtensions.prePlot}
       <Space h="xl" />
       {enableSidebar ? (
-        <Tooltip withinPortal label={I18nextManager.getInstance().i18n.t('visyn:vis.openSettings')}>
+        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
           <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
             <FontAwesomeIcon icon={faGear} />
           </ActionIcon>

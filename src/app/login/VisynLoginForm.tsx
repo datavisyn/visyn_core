@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 import { faEyeSlash } from '@fortawesome/free-solid-svg-icons/faEyeSlash';
 import React, { useState } from 'react';
-import { I18nextManager } from '../../i18n/I18nextManager';
 
 export function VisynLoginForm({ onLogin }: { onLogin: (username: string, password: string) => Promise<void> }) {
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);

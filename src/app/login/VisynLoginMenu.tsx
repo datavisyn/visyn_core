@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Alert, Modal, Stack, Title, Center, Divider, Container, LoadingOverlay, Button, Anchor } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
-import { AppContext } from '../../base/AppContext';
-import { UserSession } from '../../security/UserSession';
-import { GlobalEventHandler } from '../../base/event';
+import { appContext } from '../../base/AppContext';
+import { userSession, UserSession } from '../../security/UserSession';
+import { globalEventHandler } from '../../base/event';
 import { LoginUtils } from '../../security/LoginUtils';
 import { SessionWatcher } from '../../security/watcher';
 import { useAsync } from '../../hooks/useAsync';
@@ -22,10 +22,10 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
    */
   const autoLogin = React.useCallback(async () => {
     return new Promise((resolve) => {
-      if (!AppContext.getInstance().offline && !loggedInAs) {
+      if (!appContext.offline && !loggedInAs) {
         LoginUtils.loggedInAs()
           .then((user) => {
-            UserSession.getInstance().login(user);
+            userSession.login(user);
             resolve(null);
           })
           .catch(() => {
@@ -55,8 +55,8 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
       setShow(true);
     };
 
-    GlobalEventHandler.getInstance().on(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
-    GlobalEventHandler.getInstance().on(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
+    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
+    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
 
     if (!loggedInAs) {
       // wait .5sec before showing the login dialog to give the auto login mechanism a chance
@@ -64,8 +64,8 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
     }
 
     return () => {
-      GlobalEventHandler.getInstance().off(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
-      GlobalEventHandler.getInstance().off(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
+      globalEventHandler.off(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
+      globalEventHandler.off(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
     };
   }, [loggedInAs]);
 

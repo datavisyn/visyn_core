@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { CategoricalColumn, Column, IDataRow, LocalDataProvider, NumberColumn, Ranking, ValueColumn } from 'lineupjs';
 import { Vis } from './LazyVis';
 import { EColumnTypes, ColumnInfo, VisColumn, EFilterOptions, IVisCommonValue } from './interfaces';
-import { I18nextManager } from '../i18n/I18nextManager';
+import { i18n } from '../i18n';
 import { IRow } from '../base/interfaces';
 
 export class LineupVisWrapper {
@@ -35,7 +35,7 @@ export class LineupVisWrapper {
     this.node.classList.add('custom-vis-panel');
     this.viewable = false;
     this.idField = props.idField ?? 'id';
-    this.PLOTLY_CATEGORICAL_MISSING_VALUE = I18nextManager.getInstance().i18n.t('visyn:vis.missingValue');
+    this.PLOTLY_CATEGORICAL_MISSING_VALUE = i18n.t('visyn:vis.missingValue');
   }
 
   getSelectedList = (): string[] => {

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useAsync } from './useAsync';
-import { I18nextManager } from '../i18n/I18nextManager';
+import { i18nManager } from '../i18n';
 
 export function useInitVisynApp() {
   const initI18n = React.useMemo(
     () => () => {
-      return I18nextManager.getInstance().initI18n();
+      return i18nManager.initI18n();
     },
     [],
   );

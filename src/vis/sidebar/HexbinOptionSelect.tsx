@@ -1,6 +1,6 @@
 import { Select } from '@mantine/core';
 import * as React from 'react';
-import { I18nextManager } from '../../i18n/I18nextManager';
+import { i18n } from '../../i18n';
 import { EHexbinOptions } from '../interfaces';
 
 interface HexbinOptionSelectProps {
@@ -14,12 +14,5 @@ export function HexbinOptionSelect({ callback, currentSelected }: HexbinOptionSe
     { value: EHexbinOptions.BINS, label: EHexbinOptions.BINS },
     { value: EHexbinOptions.PIE, label: EHexbinOptions.PIE },
   ];
-  return (
-    <Select
-      label={I18nextManager.getInstance().i18n.t('visyn:vis.hexbinOptions')}
-      onChange={(e) => callback(e as EHexbinOptions)}
-      data={options}
-      value={currentSelected}
-    />
-  );
+  return <Select label={i18n.t('visyn:vis.hexbinOptions')} onChange={(e) => callback(e as EHexbinOptions)} data={options} value={currentSelected} />;
 }

@@ -19,7 +19,7 @@ import {
 import { getCol } from '../sidebar';
 import { getCssValue } from '../../utils';
 import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
-import { I18nextManager } from '../../i18n';
+import { i18n } from '../../i18n';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
 
 export function isScatter(s: IVisConfig): s is IScatterConfig {
@@ -97,8 +97,8 @@ export async function createScatterTraces(
     legendPlots: [],
     rows: 0,
     cols: 0,
-    errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.scatterError'),
-    errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
+    errorMessage: i18n.t('visyn:vis.scatterError'),
+    errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
 
     formList: ['color', 'shape', 'bubble', 'opacity'],
   };
@@ -403,7 +403,7 @@ export async function createScatterTraces(
     legendPlots,
     rows: Math.sqrt(plots.length),
     cols: Math.sqrt(plots.length),
-    errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.scatterError'),
-    errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
+    errorMessage: i18n.t('visyn:vis.scatterError'),
+    errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
   };
 }

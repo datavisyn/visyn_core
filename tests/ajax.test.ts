@@ -1,13 +1,14 @@
 /// <reference types="jest" />
 import { Ajax } from '../src/base/ajax';
-import { AppContext } from '../src/base/AppContext';
+import { AppContext } from '../src/base';
 
 describe('api2absURL', () => {
-  it('one arg', () => expect(AppContext.getInstance().api2absURL('/path')).toEqual(`${AppContext.context || '/'}api/path`));
-  it('empty query', () => expect(AppContext.getInstance().api2absURL('/path', {})).toEqual(`${AppContext.context || '/'}api/path`));
-  it('query', () => expect(AppContext.getInstance().api2absURL('/path', { foo: 'bar' })).toEqual(`${AppContext.context || '/'}api/path?foo=bar`));
+  const appContext = new AppContext();
+  it('one arg', () => expect(appContext.api2absURL('/path')).toEqual(`${AppContext.context || '/'}api/path`));
+  it('empty query', () => expect(appContext.api2absURL('/path', {})).toEqual(`${AppContext.context || '/'}api/path`));
+  it('query', () => expect(appContext.api2absURL('/path', { foo: 'bar' })).toEqual(`${AppContext.context || '/'}api/path?foo=bar`));
   it('url w/ query', () =>
-    expect(AppContext.getInstance().api2absURL('/path?query=fake', { foo: 'bar' })).toEqual(`${AppContext.context || '/'}api/path?query=fake&foo=bar`));
+    expect(appContext.api2absURL('/path?query=fake', { foo: 'bar' })).toEqual(`${AppContext.context || '/'}api/path?query=fake&foo=bar`));
 });
 
 describe('encodeParams', () => {

@@ -2,8 +2,7 @@ import React from 'react';
 import { Anchor, Text } from '@mantine/core';
 import { LoginUtils } from '../../security/LoginUtils';
 import { VisynLoginForm } from './VisynLoginForm';
-import { IUserStore } from '../../security';
-import { I18nextManager } from '../../i18n';
+import { IUserStore, userSession } from '../../security';
 import { UserSession } from '../../security/UserSession';
 
 interface IUserStoreRenderProps<T extends IUserStore = IUserStore> {
@@ -60,7 +59,7 @@ export function AutoLoginForm({ setError, store }: IUserStoreRenderProps) {
             // ignore not yet logged in
           });
           if (user) {
-            UserSession.getInstance().login(user);
+            userSession.login(user);
           } else {
             setError('Could not login in, try refreshing the page.');
           }

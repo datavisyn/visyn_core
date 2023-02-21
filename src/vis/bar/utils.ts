@@ -4,7 +4,7 @@ import mean from 'lodash/mean';
 import min from 'lodash/min';
 import max from 'lodash/max';
 import { median } from 'd3v7';
-import { I18nextManager } from '../../i18n';
+import { i18n } from '../../i18n';
 import {
   PlotlyInfo,
   PlotlyData,
@@ -481,8 +481,8 @@ export async function createBarTraces(columns: VisColumn[], config: IBarConfig, 
       legendPlots: [],
       rows: 0,
       cols: 0,
-      errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.barError'),
-      errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
+      errorMessage: i18n.t('visyn:vis.barError'),
+      errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
     };
   }
 
@@ -513,7 +513,7 @@ export async function createBarTraces(columns: VisColumn[], config: IBarConfig, 
     legendPlots: [],
     rows,
     cols,
-    errorMessage: I18nextManager.getInstance().i18n.t('visyn:vis.barError'),
-    errorMessageHeader: I18nextManager.getInstance().i18n.t('visyn:vis.errorHeader'),
+    errorMessage: i18n.t('visyn:vis.barError'),
+    errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
   };
 }

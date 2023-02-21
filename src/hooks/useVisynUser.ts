@@ -1,10 +1,10 @@
 import React from 'react';
 import { UserSession } from '../security/UserSession';
-import { GlobalEventHandler } from '../base/event';
-import type { IUser } from '../security';
+import { globalEventHandler } from '../base/event';
+import { IUser, userSession } from '../security';
 
 export function useVisynUser(): IUser | null {
-  const [user, setUser] = React.useState<IUser | null>(UserSession.getInstance().currentUser());
+  const [user, setUser] = React.useState<IUser | null>(userSession.currentUser());
 
   React.useEffect(() => {
     const loginListener = (_, u) => {
@@ -15,12 +15,12 @@ export function useVisynUser(): IUser | null {
       setUser(null);
     };
 
-    GlobalEventHandler.getInstance().on(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
-    GlobalEventHandler.getInstance().on(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
+    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
+    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
 
     return () => {
-      GlobalEventHandler.getInstance().off(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
-      GlobalEventHandler.getInstance().off(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
+      globalEventHandler.off(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
+      globalEventHandler.off(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
     };
   }, []);
 

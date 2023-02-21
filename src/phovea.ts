@@ -1,11 +1,11 @@
-import { IRegistry, EP_PHOVEA_CORE_LOCALE, PluginRegistry, ILocaleEPDesc } from './plugin';
+import { IRegistry, EP_PHOVEA_CORE_LOCALE, ILocaleEPDesc, pluginRegistry } from './plugin';
 
 export default function (registry: IRegistry) {
   registry.push(
     EP_PHOVEA_CORE_LOCALE,
     'visynCoreLocaleEN',
     function () {
-      return import('./locales/en/visyn.json').then(PluginRegistry.getInstance().asResource);
+      return import('./locales/en/visyn.json').then(pluginRegistry.asResource);
     },
     <ILocaleEPDesc>{
       ns: 'visyn',

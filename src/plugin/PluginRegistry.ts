@@ -25,7 +25,7 @@ export class PluginRegistry implements IRegistry {
         load: async (): Promise<IPlugin> => {
           const instance = await Promise.resolve(loader());
           if (p.factory) {
-            return { desc: p, factory: PluginRegistry.getInstance().getFactoryMethod(instance, p.factory) };
+            return { desc: p, factory: this.getFactoryMethod(instance, p.factory) };
           }
           // If no factory was given, and the instance is an object, use it as factory object.
           if (isObject(instance)) {
@@ -38,7 +38,7 @@ export class PluginRegistry implements IRegistry {
       typeof descOrLoader === 'function' ? desc : descOrLoader,
     );
 
-    PluginRegistry.getInstance().registry.push(p);
+    this.registry.push(p);
   }
 
   /**
@@ -72,12 +72,12 @@ export class PluginRegistry implements IRegistry {
       // wrong type - not a function, maybe a dummy inline
       return;
     }
-    if (PluginRegistry.getInstance().knownPlugins.has(plugin)) {
+    if (this.knownPlugins.has(plugin)) {
       return; // don't call it twice
     }
-    PluginRegistry.getInstance().knownPlugins.add(plugin);
+    this.knownPlugins.add(plugin);
 
-    generator(PluginRegistry.getInstance());
+    generator(this);
   }
 
   /**
@@ -90,7 +90,7 @@ export class PluginRegistry implements IRegistry {
       const v = filter;
       filter = (desc) => desc.type === v;
     }
-    return PluginRegistry.getInstance().registry.filter(<any>filter);
+    return this.registry.filter(<any>filter);
   }
 
   /**
@@ -102,7 +102,7 @@ export class PluginRegistry implements IRegistry {
   public getPlugin(type: 'visynView', id: string): VisynViewPluginDesc;
   public getPlugin(type: string, id: string): IPluginDesc;
   public getPlugin(type: string, id: string): IPluginDesc {
-    return PluginRegistry.getInstance().registry.find((d) => d.type === type && d.id === id);
+    return this.registry.find((d) => d.type === type && d.id === id);
   }
 
   public loadPlugin(desc: IPluginDesc[]) {
@@ -165,7 +165,7 @@ export class PluginRegistry implements IRegistry {
    * @param remove Custom function to remove only specific plugins.
    * @example
    * ```ts
-   * PluginRegistry.getInstance().removePlugins((desc) => desc.type === 'tdpView');
+   * this.removePlugins((desc) => desc.type === 'tdpView');
    * // => removes all plugins of type "tdpView"
    * ```
    */
@@ -173,13 +173,13 @@ export class PluginRegistry implements IRegistry {
     this.registry = this.registry.filter((d) => !remove(<T>d));
   }
 
-  private static instance: PluginRegistry;
-
+  /**
+   * @deprecated Use `pluginRegistry` instead.
+   */
   public static getInstance(): PluginRegistry {
-    if (!PluginRegistry.instance) {
-      PluginRegistry.instance = new PluginRegistry();
-    }
-
-    return PluginRegistry.instance;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return pluginRegistry;
   }
 }
+
+export const pluginRegistry = new PluginRegistry();
