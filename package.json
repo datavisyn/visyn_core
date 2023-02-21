@@ -89,6 +89,7 @@
       "import": "./dist/vis/index.js",
       "default": "./dist/vis/index.js"
     },
+    "./dist/scss/main.scss": "./dist/scss/main.scss",
     "./phovea_registry": "./dist/phovea_registry.js",
     "./package.json": "./package.json"
   },

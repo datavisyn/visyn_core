@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from 'fs';
 import packageJson from '../package.json';
 
 const NOT_EXPORTED_PACKAGES = ['assets', 'demo', 'locales', 'scss', 'stories'];
-const ADDITIONAL_EXPORTS = ['.', './plotly/full', './phovea_registry', './package.json'];
+const ADDITIONAL_EXPORTS = ['.', './plotly/full', './dist/scss/main.scss', './phovea_registry', './package.json'];
 
 describe('package.json exports', () => {
   expect(packageJson.exports).toBeDefined();
