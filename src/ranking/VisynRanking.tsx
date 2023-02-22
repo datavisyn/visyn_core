@@ -36,12 +36,13 @@ export function VisynRanking<T extends Record<string, unknown>>({
   const disableLineUpSelectionListener = React.useRef<boolean>(false);
 
   const setSelectionRef = useSyncedRef(setSelection);
+  const getBuilderRef = useSyncedRef(getBuilder);
   const onBuiltLineupRef = useSyncedRef(onBuiltLineUp);
 
   React.useEffect(() => {
     lineupRef.current?.destroy();
 
-    const b = getBuilder({ data });
+    const b = getBuilderRef.current({ data });
 
     // Build the ranking
     lineupRef.current = b.buildTaggle(divRef.current);
@@ -67,7 +68,7 @@ export function VisynRanking<T extends Record<string, unknown>>({
     return () => {
       lineupRef.current?.destroy();
     };
-  }, [setSelectionRef, getBuilder, data, onBuiltLineupRef]);
+  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef]);
 
   React.useEffect(() => {
     // Sync the selection back to lineup
