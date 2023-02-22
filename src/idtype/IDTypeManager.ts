@@ -192,5 +192,5 @@ export class IDTypeManager {
   }
 }
 
-const idTypeManager = new IDTypeManager();
+export const idTypeManager = new IDTypeManager();
 idTypeManager.init();
