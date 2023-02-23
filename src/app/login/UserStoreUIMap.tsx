@@ -3,7 +3,6 @@ import { Anchor, Text } from '@mantine/core';
 import { LoginUtils } from '../../security/LoginUtils';
 import { VisynLoginForm } from './VisynLoginForm';
 import { IUserStore, userSession } from '../../security';
-import { UserSession } from '../../security/UserSession';
 
 interface IUserStoreRenderProps<T extends IUserStore = IUserStore> {
   setError(error: string | null): void;
@@ -54,6 +53,8 @@ export function AutoLoginForm({ setError, store }: IUserStoreRenderProps) {
       }
       try {
         if (popup.window.location.hostname === HOSTNAME) {
+          // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           // eslint-disable-next-line no-await-in-loop
           const user = await LoginUtils.loggedInAs().catch(() => {
             // ignore not yet logged in
