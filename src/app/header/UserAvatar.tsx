@@ -6,7 +6,7 @@ export function UserAvatar({ menu, user, color }: { menu: JSX.Element; user: str
   return (
     <Menu shadow="md" data-testid="visyn-user-avatar">
       <Menu.Target>
-        <Avatar role="button" color={color} radius="xl">
+        <Avatar src={null} role="button" color={color} radius="xl" size="md" style={{ cursor: 'pointer' }}>
           {user
             .split(' ')
             .map((name) => name[0])
