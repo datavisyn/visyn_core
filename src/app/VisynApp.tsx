@@ -42,6 +42,8 @@ export function VisynApp({
       styles={{
         root: { height: '100%' },
         body: { height: `calc(100% - ${headerHeight}px)` },
+        // Add a negative margin of 16px as we already get a padding like "calc(var(--mantine-aside-width, 0px) + 16px)", not allowing us to fill the full page.
+        main: { margin: -16 },
       }}
       {...appShellProps}
       navbar={navbar}
