@@ -42,11 +42,11 @@ export class UserSession {
    * @param value
    * @returns {any}
    */
-  public store(key: string, value: any) {
+  public store = (key: string, value: any) => {
     const bak = this.context.getItem(key);
     this.context.setItem(key, JSON.stringify(value));
     return bak;
-  }
+  };
 
   /**
    * Returns the value for the given key if it exists in the session.
@@ -55,32 +55,32 @@ export class UserSession {
    * @param defaultValue
    * @returns {T}
    */
-  public retrieve<T>(key: string, defaultValue: T = null): T {
+  public retrieve = <T>(key: string, defaultValue: T = null): T => {
     return this.context.getItem(key) !== null ? JSON.parse(this.context.getItem(key)) : defaultValue;
-  }
+  };
 
   /**
    * resets the stored session data that will be automatically filled during login
    */
-  public reset() {
+  public reset = () => {
     this.context.removeItem('logged_in');
     this.context.removeItem('username');
     this.context.removeItem('user');
-  }
+  };
 
   /**
    * whether the user is logged in
    * @returns {boolean}
    */
-  public isLoggedIn() {
+  public isLoggedIn = () => {
     return this.retrieve('logged_in') === true;
-  }
+  };
 
   /**
    * stores the given user information
    * @param user
    */
-  public login(user: IUser) {
+  public login = (user: IUser) => {
     this.store('logged_in', true);
     this.store('username', user.name);
     this.store('user', user);
@@ -90,12 +90,12 @@ export class UserSession {
     });
 
     globalEventHandler.fire(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, user);
-  }
+  };
 
   /**
    * logs the current user out
    */
-  public logout(options: ILogoutOptions) {
+  public logout = (options: ILogoutOptions) => {
     const wasLoggedIn = this.isLoggedIn();
     this.reset();
     if (wasLoggedIn) {
@@ -112,28 +112,28 @@ export class UserSession {
         window.location.href = options.alb_security_store?.redirect;
       }
     }
-  }
+  };
 
   /**
    * returns the current user or null
    * @returns {any}
    */
-  public currentUser(): IUser | null {
+  public currentUser = (): IUser | null => {
     if (!this.isLoggedIn()) {
       return null;
     }
     return this.retrieve('user', UserUtils.ANONYMOUS_USER);
-  }
+  };
 
   /**
    * returns the current user name else an anonymous user name
    */
-  public currentUserNameOrAnonymous() {
+  public currentUserNameOrAnonymous = () => {
     const u = this.currentUser();
     return u ? u.name : UserUtils.ANONYMOUS_USER.name;
-  }
+  };
 
-  public can(item: ISecureItem, permission: EPermission, user = this.currentUser()): boolean {
+  public can = (item: ISecureItem, permission: EPermission, user = this.currentUser()): boolean => {
     if (!user) {
       user = UserUtils.ANONYMOUS_USER;
     }
@@ -156,7 +156,7 @@ export class UserSession {
 
     // check others
     return permissions.others.has(permission);
-  }
+  };
 
   /**
    * check whether the given user can read the given item
@@ -164,9 +164,9 @@ export class UserSession {
    * @param user the user by default the current user
    * @returns {boolean}
    */
-  public canRead(item: ISecureItem, user = this.currentUser()) {
+  public canRead = (item: ISecureItem, user = this.currentUser()) => {
     return this.can(item, EPermission.READ, user);
-  }
+  };
 
   /**
    * check whether the given user can write the given item
@@ -174,9 +174,9 @@ export class UserSession {
    * @param user the user by default the current user
    * @returns {boolean}
    */
-  public canWrite(item: ISecureItem, user = this.currentUser()) {
+  public canWrite = (item: ISecureItem, user = this.currentUser()) => {
     return this.can(item, EPermission.WRITE, user);
-  }
+  };
 
   /**
    * check whether the given user can execute the given item
@@ -184,16 +184,16 @@ export class UserSession {
    * @param user the user by default the current user
    * @returns {boolean}
    */
-  public canExecute(item: ISecureItem, user = this.currentUser()) {
+  public canExecute = (item: ISecureItem, user = this.currentUser()) => {
     return this.can(item, EPermission.EXECUTE, user);
-  }
+  };
 
   public hasPermission(item: ISecureItem, entity: EEntity = EEntity.USER, permission: EPermission = EPermission.READ) {
     const permissions = Permission.decode(item.permissions);
     return permissions.hasPermission(entity, permission);
   }
 
-  private isEqual(a: string, b: string) {
+  private isEqual = (a: string, b: string) => {
     if (a === b) {
       return true;
     }
@@ -203,14 +203,14 @@ export class UserSession {
     a = a.toLowerCase();
     b = b.toLowerCase();
     return a.localeCompare(b) === 0;
-  }
+  };
 
-  private includes(items: string[], item: string) {
+  private includes = (items: string[], item: string) => {
     if (!item) {
       return false;
     }
     return items.some((r) => this.isEqual(item, r));
-  }
+  };
 
   /**
    * @deprecated Use `userSession` instead.

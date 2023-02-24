@@ -44,7 +44,7 @@ export class PluginRegistry implements IRegistry {
   /**
    * Push a visyn view to the registry.
    */
-  public pushVisynView<Plugin extends VisynViewPluginType>(
+  public pushVisynView = <Plugin extends VisynViewPluginType>(
     /**
      * Unique ID of the visyn view.
      */
@@ -57,17 +57,17 @@ export class PluginRegistry implements IRegistry {
      * View description of the visyn view plugin.
      */
     desc: Plugin['partialDesc'],
-  ): void {
+  ): void => {
     return this.push(EXTENSION_POINT_VISYN_VIEW, id, (...args: any[]) => loader().then((callable) => callable(...args)), {
       ...desc,
       // Override the load to return the plugin directly instead of the factory function
       factory: null,
     });
-  }
+  };
 
   private knownPlugins = new Set<string>();
 
-  public register(plugin: string, generator?: (registry: IRegistry) => void) {
+  public register = (plugin: string, generator?: (registry: IRegistry) => void) => {
     if (typeof generator !== 'function') {
       // wrong type - not a function, maybe a dummy inline
       return;
@@ -78,20 +78,20 @@ export class PluginRegistry implements IRegistry {
     this.knownPlugins.add(plugin);
 
     generator(this);
-  }
+  };
 
   /**
    * returns a list of matching plugin descs
    * @param filter
    * @returns {IPluginDesc[]}
    */
-  public listPlugins(filter: string | ((desc: IPluginDesc) => boolean) = () => true) {
+  public listPlugins = (filter: string | ((desc: IPluginDesc) => boolean) = () => true) => {
     if (typeof filter === 'string') {
       const v = filter;
       filter = (desc) => desc.type === v;
     }
     return this.registry.filter(<any>filter);
-  }
+  };
 
   /**
    * returns an extension identified by type and id
@@ -105,9 +105,9 @@ export class PluginRegistry implements IRegistry {
     return this.registry.find((d) => d.type === type && d.id === id);
   }
 
-  public loadPlugin(desc: IPluginDesc[]) {
+  public loadPlugin = (desc: IPluginDesc[]) => {
     return Promise.all(desc.map((d) => d.load()));
-  }
+  };
 
   /**
    * Helper function to simplify importing of  resource files (e.g., JSON).
@@ -115,16 +115,16 @@ export class PluginRegistry implements IRegistry {
    *
    * @param data Imported JSON file
    */
-  public asResource(data: any) {
+  public asResource = (data: any) => {
     return {
       create: () => data,
     };
-  }
+  };
 
   /**
    * determines the factory method to use in case of the 'new ' syntax wrap the class constructor using a factory method
    */
-  public getFactoryMethod(instance: any, factory: string | null) {
+  public getFactoryMethod = (instance: any, factory: string | null) => {
     if (factory == null) {
       return instance;
     }
@@ -158,7 +158,7 @@ export class PluginRegistry implements IRegistry {
       return (...args: any[]) => new instance[className](...args);
     }
     return instance[f];
-  }
+  };
 
   /**
    * Removes all registered plugins if no custom remove function is provided.
@@ -169,9 +169,9 @@ export class PluginRegistry implements IRegistry {
    * // => removes all plugins of type "tdpView"
    * ```
    */
-  public removePlugins<T extends IPluginDesc>(remove: (desc: T) => boolean = () => false): void {
+  public removePlugins = <T extends IPluginDesc>(remove: (desc: T) => boolean = () => false): void => {
     this.registry = this.registry.filter((d) => !remove(<T>d));
-  }
+  };
 
   /**
    * @deprecated Use `pluginRegistry` instead.
