@@ -19,12 +19,15 @@ def _mock_plugins(monkeypatch):
 
 
 @pytest.fixture()
-def app() -> FastAPI:
-    return create_visyn_server(
-        workspace_config={
-            "visyn_core": {"enabled_plugins": ["visyn_core"]},
-        }
-    )
+def workspace_config() -> dict:
+    return {
+        "visyn_core": {"enabled_plugins": ["visyn_core"], "telemetry": {"enabled": False}},
+    }
+
+
+@pytest.fixture()
+def app(workspace_config) -> FastAPI:
+    return create_visyn_server(workspace_config=workspace_config)
 
 
 @pytest.fixture()

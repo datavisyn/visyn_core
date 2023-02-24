@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, BaseSettings, Extra, Field
+from pydantic import AnyHttpUrl, BaseModel, BaseSettings, Extra, Field
 
 from .constants import default_logging_dict
 
@@ -44,6 +44,12 @@ class AlbSecurityStoreSettings(BaseModel):
     signout_url: str | None = None
 
 
+class RandomGeneratedSecurityStoreSettings(BaseModel):
+    enable: bool = False
+    # TODO: Have a global datadir settings in core and extend it here.
+    file: str = "./fakeUsers.db"
+
+
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
@@ -55,6 +61,8 @@ class SecurityStoreSettings(BaseModel):
     """Settings for the dummy security store"""
     alb_security_store: AlbSecurityStoreSettings = AlbSecurityStoreSettings()
     """Settings for the ALB security store"""
+    random_generated_security_store: RandomGeneratedSecurityStoreSettings = RandomGeneratedSecurityStoreSettings()
+    """Settings for the random generated security store"""
     no_security_store: NoSecurityStoreSettings = NoSecurityStoreSettings()
     """Settings for the no security store"""
 
@@ -63,11 +71,37 @@ class SecuritySettings(BaseModel):
     store: SecurityStoreSettings = SecurityStoreSettings()
 
 
+class BaseTelemetrySettings(BaseModel):
+    enabled: bool = False
+
+
+class MetricsTelemetrySettings(BaseTelemetrySettings):
+    export_endpoint: AnyHttpUrl | None = None  # could be "http://localhost:4317"
+
+
+class TracesTelemetrySettings(BaseTelemetrySettings):
+    export_endpoint: AnyHttpUrl | None = None
+
+
+class LogsTelemetrySettings(BaseTelemetrySettings):
+    export_endpoint: AnyHttpUrl | None = None  # could be "http://localhost:3100/loki/api/v1/push"
+    username: str | None = None
+    password: str | None = None
+
+
+class TelemetrySettings(BaseTelemetrySettings):
+    metrics: MetricsTelemetrySettings = MetricsTelemetrySettings()
+    traces: TracesTelemetrySettings = TracesTelemetrySettings()
+    logs: LogsTelemetrySettings = LogsTelemetrySettings()
+    metrics_middleware: BaseTelemetrySettings = BaseTelemetrySettings(enabled=True)
+
+
 class VisynCoreSettings(BaseModel):
     total_anyio_tokens: int = 100
     """
     The total number of threads to use for anyio. FastAPI uses these threads to run sync routes concurrently.
     """
+    telemetry: TelemetrySettings = TelemetrySettings()
 
     disable: DisableSettings = DisableSettings()
     enabled_plugins: list[str] = []

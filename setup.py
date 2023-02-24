@@ -16,8 +16,11 @@ def requirements(file):
     return [r.strip() for r in read_it(file).strip().split("\n")]
 
 
-requirements_extras_rdkit = requirements("requirements_extras_rdkit.txt")
-requirements_extras_all = requirements_extras_rdkit
+requirements_extras = {
+    "rdkit": requirements("requirements_extras_rdkit.txt"),
+    "telemetry": requirements("requirements_extras_telemetry.txt"),
+}
+requirements_extras_all = [d for extras in requirements_extras.values() for d in extras]
 
 setup(
     name=pkg["name"].lower(),
@@ -53,8 +56,8 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=requirements("requirements.txt"),
     extras_require={
+        **requirements_extras,
         "all": requirements_extras_all,
-        "rdkit": requirements_extras_rdkit,
         "develop": requirements("requirements_dev.txt") + requirements_extras_all,
     },
     # Include all files from the MANIFEST.in file.
