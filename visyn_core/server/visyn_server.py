@@ -36,6 +36,11 @@ def create_visyn_server(
 
     # Load the workspace config.json and initialize the global settings
     workspace_config = workspace_config if isinstance(workspace_config, dict) else load_workspace_config()
+    # Temporary backwards compatibility: if no visyn_core config entry is found, copy the one from tdp_core.
+    if "visyn_core" not in workspace_config and "tdp_core" in workspace_config:
+        logging.warn('You are still using "tdp_core" config entries instead of "visyn_core" entries. Please migrate as soon as possible!')
+        workspace_config["visyn_core"] = workspace_config["tdp_core"]
+
     manager.settings = GlobalSettings(**workspace_config)
     logging.config.dictConfig(manager.settings.visyn_core.logging)
 
