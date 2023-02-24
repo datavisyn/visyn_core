@@ -19,7 +19,7 @@ export class I18nextManager {
    *  Awaits the translation files registered at the EP_PHOVEA_CORE_LOCALE extension point
    *  Initialize I18next with the translation files
    */
-  public async initI18n() {
+  public initI18n = async () => {
     const plugins = await Promise.all(
       pluginRegistry.listPlugins(EP_PHOVEA_CORE_LOCALE).map((pluginDesc: ILocaleEPDesc) => {
         return pluginDesc.load().then((locale) => {
@@ -71,7 +71,7 @@ export class I18nextManager {
             this.i18n.addResourceBundle(plugin.lng, plugin.ns, plugin.resources, true, true);
           });
       });
-  }
+  };
 
   /**
    * @deprecated Use `i18n` instead.

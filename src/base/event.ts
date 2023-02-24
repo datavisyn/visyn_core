@@ -51,21 +51,21 @@ class Event implements IEvent {
     return this.target;
   }
 
-  isImmediatePropagationStopped() {
+  isImmediatePropagationStopped = () => {
     return this.stopped;
-  }
+  };
 
-  stopImmediatePropagation() {
+  stopImmediatePropagation = () => {
     this.stopped = true;
-  }
+  };
 
-  isPropagationStopped() {
+  isPropagationStopped = () => {
     return this.stopedPropagation;
-  }
+  };
 
-  stopPropagation() {
+  stopPropagation = () => {
     this.stopedPropagation = true;
-  }
+  };
 }
 
 class SingleEventHandler {
@@ -75,20 +75,20 @@ class SingleEventHandler {
     // nothing else to do
   }
 
-  push(listener: IEventListener) {
+  push = (listener: IEventListener) => {
     this.listeners.push(listener);
-  }
+  };
 
-  remove(listener: IEventListener) {
+  remove = (listener: IEventListener) => {
     const i = this.listeners.indexOf(listener);
     if (i >= 0) {
       this.listeners.splice(i, 1);
       return true;
     }
     return false;
-  }
+  };
 
-  fire(event: IEvent) {
+  fire = (event: IEvent) => {
     if (this.listeners.length === 0) {
       return false;
     }
@@ -104,7 +104,7 @@ class SingleEventHandler {
       }
     }
     return true;
-  }
+  };
 
   get length() {
     return this.listeners.length;
@@ -137,7 +137,7 @@ export class EventHandler implements IEventHandler {
    * @param events either one event string (multiple are supported using , as separator) or a map of event handlers
    * @param handler the handler in case of a given string
    */
-  on(events: string | { [key: string]: IEventListener }, handler?: IEventListener) {
+  on = (events: string | { [key: string]: IEventListener }, handler?: IEventListener) => {
     if (typeof events === 'string') {
       events.split(EventHandler.MULTI_EVENT_SEPARATOR).forEach((event) => {
         if (!this.handlers.has(event)) {
@@ -152,14 +152,14 @@ export class EventHandler implements IEventHandler {
       });
     }
     return this;
-  }
+  };
 
   /**
    * unregister a global event handler
    * @param events
    * @param handler
    */
-  off(events: string | { [key: string]: IEventListener }, handler?: IEventListener) {
+  off = (events: string | { [key: string]: IEventListener }, handler?: IEventListener) => {
     if (typeof events === 'string') {
       events.split(EventHandler.MULTI_EVENT_SEPARATOR).forEach((event) => {
         if (this.handlers.has(event)) {
@@ -177,51 +177,51 @@ export class EventHandler implements IEventHandler {
       });
     }
     return this;
-  }
+  };
 
   /**
    * list for each registered event the number of listeners
    */
-  getRegisteredHandlerCount(): { [key: string]: number } {
+  getRegisteredHandlerCount = (): { [key: string]: number } => {
     const r: { [key: string]: number } = {};
     this.handlers.forEach((handler, type) => {
       r[type] = handler.length;
     });
     return r;
-  }
+  };
 
   /**
    * fires an event
    * @param events name(s) of the event
    * @param args additional arguments
    */
-  fire(events: string, ...args: any[]) {
+  fire = (events: string, ...args: any[]) => {
     events.split(EventHandler.MULTI_EVENT_SEPARATOR).forEach((event) => {
       this.fireEvent(createEvent(event, args, this));
     });
     return this;
-  }
+  };
 
-  private fireEvent(event: Event) {
+  private fireEvent = (event: Event) => {
     if (this.handlers.has(event.type)) {
       const h: SingleEventHandler = this.handlers.get(event.type);
       return h.fire(event);
     }
     return false;
-  }
+  };
 
   /**
    * registers on the given event handler and propagates the given events to itself
    * @param progatee
    * @param events
    */
-  propagate(progatee: IEventHandler, ...events: string[]) {
+  propagate = (progatee: IEventHandler, ...events: string[]) => {
     progatee.on(events.join(EventHandler.MULTI_EVENT_SEPARATOR), this.propagationHandler);
-  }
+  };
 
-  stopPropagation(progatee: IEventHandler, ...events: string[]) {
+  stopPropagation = (progatee: IEventHandler, ...events: string[]) => {
     progatee.off(events.join(EventHandler.MULTI_EVENT_SEPARATOR), this.propagationHandler);
-  }
+  };
 }
 
 export class GlobalEventHandler extends EventHandler {
