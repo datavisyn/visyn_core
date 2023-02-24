@@ -49,7 +49,7 @@ export class SessionWatcher {
     this.logout();
   }
 
-  private stop() {
+  public stop() {
     this.pause();
     this.lastChecked = 0;
   }
@@ -66,7 +66,7 @@ export class SessionWatcher {
     }
   }
 
-  private start() {
+  public start() {
     this.pause();
     if (userSession.isLoggedIn()) {
       this.timeout = window.setTimeout(() => this.checkSession(), DEFAULT_SESSION_TIMEOUT + 100);
@@ -76,11 +76,10 @@ export class SessionWatcher {
   /**
    * watches for session auto log out scenarios
    */
-  static startWatching(logout: () => any = LoginUtils.logout) {
+  static startWatching(logout: () => any = LoginUtils.logout): SessionWatcher | null {
     if (appContext.offline) {
-      return;
+      return null;
     }
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const _ = new SessionWatcher(logout);
+    return new SessionWatcher(logout);
   }
 }

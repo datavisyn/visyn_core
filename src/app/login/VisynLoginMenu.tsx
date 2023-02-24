@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Alert, Modal, Stack, Title, Center, Divider, Container, LoadingOverlay, Button, Anchor } from '@mantine/core';
+import { Alert, Modal, Stack, Title, Center, Divider, Container, LoadingOverlay, Anchor } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
 import { appContext } from '../../base/AppContext';
-import { userSession, UserSession } from '../../security/UserSession';
-import { globalEventHandler } from '../../base/event';
+import { userSession } from '../../security/UserSession';
 import { LoginUtils } from '../../security/LoginUtils';
 import { SessionWatcher } from '../../security/watcher';
 import { useAsync } from '../../hooks/useAsync';
@@ -12,64 +11,43 @@ import { useVisynAppContext } from '../VisynAppContext';
 import { DefaultLoginForm, UserStoreUIMap } from './UserStoreUIMap';
 
 export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
-  const { appName } = useVisynAppContext();
-  const [loggedInAs, setLoggedInAs] = React.useState<string>(null);
+  const { appName, user } = useVisynAppContext();
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string>(null);
 
-  /**
-   * auto login if (rememberMe=true)
-   */
-  const autoLogin = React.useCallback(async () => {
-    return new Promise((resolve) => {
-      if (!appContext.offline && !loggedInAs) {
-        LoginUtils.loggedInAs()
-          .then((user) => {
-            userSession.login(user);
-            resolve(null);
-          })
-          .catch(() => {
-            // ignore not yet logged in
-          });
-      }
-      resolve(null);
-    });
-  }, [loggedInAs]);
-
   React.useEffect(() => {
     if (watch) {
-      SessionWatcher.startWatching(LoginUtils.logout);
+      const watcher = SessionWatcher.startWatching(LoginUtils.logout);
+      return () => {
+        watcher.stop();
+      };
     }
+    return undefined;
   }, [watch]);
 
   React.useEffect(() => {
-    let forceShowLoginDialogTimeout = null;
-    const loginListener = (_, user) => {
-      setLoggedInAs(user.name);
+    if (user) {
       setShow(false);
-      clearTimeout(forceShowLoginDialogTimeout);
-    };
+    } else {
+      const loginTimeout = setTimeout(() => {
+        // Check if we are now logged in, if not, show the dialog.
+        LoginUtils.loggedInAs()
+          .then((u) => {
+            userSession.login(u);
+            setShow(false);
+          })
+          .catch(() => {
+            setShow(true);
+          });
+      }, 500);
 
-    const logoutListener = () => {
-      setLoggedInAs(null);
-      setShow(true);
-    };
-
-    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
-    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
-
-    if (!loggedInAs) {
-      // wait .5sec before showing the login dialog to give the auto login mechanism a chance
-      forceShowLoginDialogTimeout = setTimeout(() => setShow(true), 500);
+      return () => {
+        clearTimeout(loginTimeout);
+      };
     }
+    return undefined;
+  }, [user]);
 
-    return () => {
-      globalEventHandler.off(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, loginListener);
-      globalEventHandler.off(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, logoutListener);
-    };
-  }, [loggedInAs]);
-
-  useAsync(autoLogin, []);
   const { value: userStores, error: userStoreError, status: userStoreStatus, execute: retryGetStores } = useAsync(LoginUtils.getStores, []);
   const userStoresWithUI = userStores?.filter((store) => store.ui);
   const hasError = error && error !== 'not_reachable';
