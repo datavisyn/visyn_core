@@ -88,8 +88,8 @@ export function AutoLoginForm({ setError, store }: IUserStoreRenderProps) {
 
       let popup: Window = null;
       try {
-        console.log(window.location);
-        const authUrl = window.location.origin;
+        // Add timestamp to avoid no proper reloading due to cache hits.
+        const authUrl = `${window.location.origin}?timestamp=${new Date().getTime()}`;
         popup = window.open(
           authUrl,
           'Authorization',
