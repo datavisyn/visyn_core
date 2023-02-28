@@ -52,6 +52,7 @@ def create_visyn_server(
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
     _log = logging.getLogger(__name__)
+    _log.info(f"Starting visyn_server in {manager.settings.env} mode")
 
     # Load the initial plugins
     from ..plugin.parser import get_config_from_plugins, load_all_plugins
