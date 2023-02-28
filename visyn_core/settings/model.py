@@ -86,7 +86,7 @@ class VisynCoreSettings(BaseModel):
 
 
 class GlobalSettings(BaseSettings):
-    env: Literal["development", "production"] = "development"
+    env: Literal["development", "production"] = "production"
     secret_key: str = "VERY_SECRET_STUFF_T0IB84wlQrdMH8RVT28w"
 
     # JWT options mostly inspired by flask-jwt-extended: https://flask-jwt-extended.readthedocs.io/en/stable/options/#general-options
