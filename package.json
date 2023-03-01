@@ -101,10 +101,7 @@
   "files": [
     "src",
     "dist",
-    "cypress",
-    "visyn_core",
-    "requirements.txt",
-    "requirements_dev.txt"
+    "cypress"
   ],
   "engines": {
     "npm": ">=8",
