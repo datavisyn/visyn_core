@@ -9,4 +9,4 @@ import reg from './phovea';
  * build a registry by registering all phovea modules
  */
 // self
-pluginRegistry.register('core', reg);
+pluginRegistry.register('visyn_core', reg);

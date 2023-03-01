@@ -102,7 +102,7 @@
     "src",
     "dist",
     "cypress",
-    "core",
+    "visyn_core",
     "requirements.txt",
     "requirements_dev.txt"
   ],

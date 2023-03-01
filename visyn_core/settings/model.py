@@ -101,7 +101,6 @@ class GlobalSettings(BaseSettings):
     jwt_cookie_samesite: Literal["lax", "strict", "none"] | None = "strict"
     jwt_access_cookie_path: str = "/"
 
-    # General settings for core
     visyn_core: VisynCoreSettings = VisynCoreSettings()  # type: ignore
 
     @property

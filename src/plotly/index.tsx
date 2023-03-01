@@ -10,7 +10,7 @@ import * as React from 'react';
 import type { PlotParams } from 'react-plotly.js';
 import type { Plotly as PlotlyTypes } from './full';
 
-// Lazily load plotly.js-dist-min to allow code-splitting to occur, otherwise plotly is loaded everytime core is imported.
+// Lazily load plotly.js-dist-min to allow code-splitting to occur, otherwise plotly is loaded everytime visyn_core is imported.
 const LazyPlotlyComponent = React.lazy(() =>
   Promise.all([
     import('plotly.js-dist-min'),
