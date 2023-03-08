@@ -44,6 +44,7 @@ export function VisynApp({
         body: { height: `calc(100% - ${headerHeight}px)` },
         // Override the padding as Mantine uses "calc(var(--mantine-aside-width, 0px) + 16px)", not allowing us to fill the full page.
         main: {
+          minHeight: '100%',
           paddingTop: 'calc(var(--mantine-header-height, 0px))',
           paddingBottom: 'calc(var(--mantine-footer-height, 0px))',
           paddingLeft: 'calc(var(--mantine-navbar-width, 0px))',
