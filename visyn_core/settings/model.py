@@ -84,6 +84,9 @@ class VisynCoreSettings(BaseModel):
     """Deprecated: use visyn_core.security.store.dummy_store.enable instead."""
     security: SecuritySettings = SecuritySettings()
 
+    client_config: dict[str, Any] | None = None
+    """Client config to be loaded via /api/clientConfig"""
+
 
 class GlobalSettings(BaseSettings):
     env: Literal["development", "production"] = "production"

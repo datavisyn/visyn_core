@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Any
+
+from fastapi import APIRouter, Depends, FastAPI, HTTPException
 
 from .. import manager
 from ..security.dependencies import get_current_user
@@ -21,5 +23,9 @@ def get_config_path(path: str):
     return manager.settings.get_nested(".".join(split_path))
 
 
-def create():
+def create(app: FastAPI) -> APIRouter:
+    @app.get("/api/clientConfig", tags=["Configuration"])
+    def get_client_config() -> dict[str, Any] | None:
+        return manager.settings.visyn_core.client_config
+
     return router
