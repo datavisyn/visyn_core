@@ -1,6 +1,8 @@
+import contextlib
+import json
 from typing import Any, Literal
 
-from pydantic import BaseModel, BaseSettings, Extra, Field
+from pydantic import BaseModel, BaseSettings, Extra, Field, validator
 
 from .constants import default_logging_dict
 
@@ -86,6 +88,15 @@ class VisynCoreSettings(BaseModel):
 
     client_config: dict[str, Any] | None = None
     """Client config to be loaded via /api/clientConfig"""
+
+    @validator("client_config", pre=True)
+    def json_decode_client_config(cls, v):  # NOQA N805
+        # Manually parse JSON strings if they are coming from the env via `VISYN_CORE__CLIENT_CONFIG='{"...": ...}'`.
+        # See https://github.com/pydantic/pydantic/issues/831 for details.
+        if isinstance(v, str):
+            with contextlib.suppress(ValueError):
+                return json.loads(v)
+        return v
 
 
 class GlobalSettings(BaseSettings):
