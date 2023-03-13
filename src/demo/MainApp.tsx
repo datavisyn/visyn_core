@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Menu, SimpleGrid } from '@mantine/core';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
-import { fetchIrisData } from '../vis/stories/Iris.stories';
+import { fetchIrisData } from '../vis/stories/fetchIrisData';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { LoginUtils } from '../security';
