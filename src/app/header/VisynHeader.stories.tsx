@@ -1,10 +1,9 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { Menu, Text, createStyles, Group } from '@mantine/core';
+import { Menu, Text, createStyles, Group, Button } from '@mantine/core';
 import { VisynHeader } from './VisynHeader';
 import { VisynAppContext } from '../VisynAppContext';
-import { IUser } from '../../security';
-import datavisynWhite from '../../assets/datavisyn_white.svg';
+import { IUser } from '../../security/index';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -65,9 +64,9 @@ const user: IUser = {
 };
 
 const customerLogo = (
-  <a href="#">
-    <img src={datavisynWhite} alt="customer-logo" style={{ height: '24px' }} />
-  </a>
+  <Text fw={700} color="gray.0">
+    Customer
+  </Text>
 );
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
@@ -141,7 +140,7 @@ BurgerMenu.args = {
   },
 };
 
-function AfterLeft() {
+function TabGroup() {
   const { classes } = useStyles();
   return (
     <Group h="100%" className={classes.customComponentGroup}>
@@ -155,13 +154,13 @@ function AfterLeft() {
   );
 }
 
-export const CustomComponents = Template.bind({}) as typeof Template;
-CustomComponents.args = {
+export const Tabs = Template.bind({}) as typeof Template;
+Tabs.args = {
   components: {
     aboutAppModal: {
       content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
     },
-    afterLeft: <AfterLeft />,
+    afterLeft: <TabGroup />,
   },
 };
 
@@ -192,6 +191,50 @@ ExtendedConfigurationMenu.args = {
         <Menu.Divider />
         <Menu.Item>Item C</Menu.Item>
       </>
+    ),
+  },
+};
+
+export const AllExtensionPoints = Template.bind({}) as typeof Template;
+AllExtensionPoints.args = {
+  components: {
+    afterLeft: (
+      <Button variant="light" compact radius="lg">
+        afterLeft
+      </Button>
+    ),
+    beforeLeft: (
+      <Button variant="light" compact radius="lg">
+        beforeLeft
+      </Button>
+    ),
+    burgerMenu: (
+      <>
+        <Menu.Item>Item A</Menu.Item>
+        <Menu.Item>Item B</Menu.Item>
+        <Menu.Divider />
+        <Menu.Item>Item C</Menu.Item>
+      </>
+    ),
+    beforeTitle: (
+      <Button variant="light" compact radius="lg">
+        beforeTitle
+      </Button>
+    ),
+    afterTitle: (
+      <Button variant="light" compact radius="lg">
+        afterTitle
+      </Button>
+    ),
+    beforeRight: (
+      <Button variant="light" compact radius="lg">
+        beforeRight
+      </Button>
+    ),
+    afterRight: (
+      <Button variant="light" compact radius="lg">
+        afterRight
+      </Button>
     ),
   },
 };
