@@ -6,7 +6,7 @@ export function BurgerButton({ menu }: { menu: JSX.Element }) {
     <Menu shadow="md">
       <Menu.Target>
         <ActionIcon mx="xs" variant="transparent" color="gray.0">
-          <Burger opened={false} color="white" />
+          <Burger opened={false} color="#F8F9FA" size="sm" mx="sm" />
         </ActionIcon>
       </Menu.Target>
 

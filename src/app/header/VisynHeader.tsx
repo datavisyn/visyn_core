@@ -1,10 +1,11 @@
-import { Header, Group, Title, ActionIcon, TextInput, Transition, useMantineTheme, MantineColor, Text, createStyles } from '@mantine/core';
+import { Header, Group, Title, ActionIcon, TextInput, Transition, useMantineTheme, MantineColor, Text, createStyles, MediaQuery, Burger } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
 import * as React from 'react';
 import { useCallback, useState } from 'react';
+import { useMediaQuery } from '@mantine/hooks';
 import { BurgerButton } from './BurgerButton';
 import { DatavisynLogo } from './DatavisynLogo';
 import { UserAvatar } from './UserAvatar';
@@ -19,6 +20,8 @@ const cardTransition = {
   out: { opacity: 0, width: '0px' },
   transitionProperty: 'opacity, width',
 };
+
+type HeaderComponents = 'beforeLeft' | 'afterLeft' | 'beforeTitle' | 'title' | 'afterTitle' | 'beforeRight' | 'logo' | 'afterRight';
 
 const useStyles = createStyles(() => ({
   a: {
@@ -63,6 +66,10 @@ export function VisynHeader({
     configurationMenu?: JSX.Element;
     afterRight?: JSX.Element;
     aboutAppModal?: JSX.Element | IAboutAppModalConfig;
+    /**
+     * Components to show on small screens
+     */
+    showOnSm?: HeaderComponents[];
   };
   /**
    * Optional callback functioned which is called when the undo button is clicked. If not given, undo button is not created
@@ -84,6 +91,13 @@ export function VisynHeader({
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchString, setSearchString] = useState<string>('');
 
+  const largerThanSm = useMediaQuery('(min-width: 768px)');
+  const showOnSm = components.showOnSm;
+
+  const show = (extensionPoint: HeaderComponents) => {
+    return largerThanSm || !!showOnSm || showOnSm?.includes(extensionPoint);
+  };
+
   const onSearch = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchString(event.currentTarget.value);
@@ -95,7 +109,6 @@ export function VisynHeader({
   return (
     <Header height={HEADER_HEIGHT} style={{ backgroundColor: theme.colors[backgroundColor][7] || backgroundColor }}>
       <Group
-        grow
         sx={{
           height: HEADER_HEIGHT,
           display: 'flex',
@@ -104,19 +117,22 @@ export function VisynHeader({
         noWrap
       >
         <Group align="center" position="left" noWrap h="100%">
-          {components?.beforeLeft}
-          {components?.burgerMenu ? <BurgerButton menu={components.burgerMenu} /> : null}
-          {undoCallback ? (
-            <ActionIcon color={color} variant="transparent" onClick={undoCallback}>
-              <FontAwesomeIcon icon={faArrowLeft} size="lg" />
-            </ActionIcon>
-          ) : null}
-          {redoCallback ? (
-            <ActionIcon color={color} variant="transparent" onClick={redoCallback}>
-              <FontAwesomeIcon icon={faArrowRight} size="lg" />
-            </ActionIcon>
-          ) : null}
-          {searchCallback ? (
+          {/* <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+            <Burger color="#F8F9FA" opened={showMobileMenu} onClick={() => setShowMobileMenu(!showMobileMenu)} size="sm" mx="sm" />
+          </MediaQuery> */}
+          {show('beforeLeft') ? components?.beforeLeft : null}
+          {largerThanSm && components?.burgerMenu ? <BurgerButton menu={components.burgerMenu} /> : null}
+          {/* {undoCallback ? (
+              <ActionIcon color={color} variant="transparent" onClick={undoCallback}>
+                <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+              </ActionIcon>
+            ) : null}
+            {redoCallback ? (
+              <ActionIcon color={color} variant="transparent" onClick={redoCallback}>
+                <FontAwesomeIcon icon={faArrowRight} size="lg" />
+              </ActionIcon>
+            ) : null} */}
+          {/* {searchCallback ? (
             <>
               <ActionIcon color={color} variant="transparent" onClick={() => setIsSearching(!isSearching)}>
                 <FontAwesomeIcon icon={faMagnifyingGlass} size="lg" />
@@ -125,11 +141,11 @@ export function VisynHeader({
                 {(styles) => <TextInput variant="filled" style={styles} placeholder="Search" value={searchString} onChange={onSearch} />}
               </Transition>
             </>
-          ) : null}
-          {components?.afterLeft}
+          ) : null} */}
+          {show('afterLeft') ? components?.afterLeft : null}
         </Group>
         <Group align="center" position="center" noWrap>
-          {components?.beforeTitle}
+          {show('beforeTitle') ? components?.beforeTitle : null}
           {components?.title === undefined ? (
             <Title className={classes.a} order={3} weight={100} color={color} truncate>
               <Text>{appName}</Text>
@@ -137,26 +153,34 @@ export function VisynHeader({
           ) : (
             components?.title
           )}
-          {components?.afterTitle}
+          {show('afterTitle') ? components?.afterTitle : null}
         </Group>
 
-        <Group align="center" position="right" noWrap>
-          {components?.beforeRight}
-          {components?.logo === undefined ? <DatavisynLogo color={backgroundColor === 'white' ? 'black' : 'white'} /> : components?.logo}
-          {components?.userAvatar === undefined ? (
-            user ? (
-              <UserAvatar menu={components?.userMenu} user={user.name} color={backgroundColor} />
-            ) : null
-          ) : (
-            components?.userAvatar
-          )}
-          <ConfigurationMenu
-            dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
-            menu={components?.configurationMenu}
-            aboutAppModal={components?.aboutAppModal}
-          />
-          {components?.afterRight}
-        </Group>
+        <MediaQuery largerThan="sm" styles={{ flexGrow: 1 }}>
+          <Group align="center" position="right" noWrap>
+            {show('beforeRight') ? components?.beforeRight : null}
+            {largerThanSm ? (
+              components?.logo === undefined ? (
+                <DatavisynLogo color={backgroundColor === 'white' ? 'black' : 'white'} />
+              ) : (
+                components?.logo
+              )
+            ) : null}
+            {components?.userAvatar === undefined ? (
+              user ? (
+                <UserAvatar menu={components?.userMenu} user={user.name} color={backgroundColor} />
+              ) : null
+            ) : (
+              components?.userAvatar
+            )}
+            <ConfigurationMenu
+              dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
+              menu={components?.configurationMenu}
+              aboutAppModal={components?.aboutAppModal}
+            />
+            {show('afterRight') ? components?.afterRight : null}
+          </Group>
+        </MediaQuery>
       </Group>
     </Header>
   );
