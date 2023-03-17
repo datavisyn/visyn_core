@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Menu, SimpleGrid } from '@mantine/core';
+import { Menu, SimpleGrid, Text } from '@mantine/core';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
@@ -43,6 +43,9 @@ export function MainApp() {
       header={
         <VisynHeader
           components={{
+            aboutAppModal: {
+              content: <Text>This is the demo app for tdp core.</Text>,
+            },
             userMenu: user ? (
               <>
                 <Menu.Label>Logged in as {user.name}</Menu.Label>

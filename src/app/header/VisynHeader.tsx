@@ -1,4 +1,4 @@
-import { Header, Group, Title, ActionIcon, TextInput, Transition, useMantineTheme, MantineColor } from '@mantine/core';
+import { Header, Group, Title, ActionIcon, TextInput, Transition, useMantineTheme, MantineColor, Text, createStyles } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
@@ -9,6 +9,8 @@ import { BurgerButton } from './BurgerButton';
 import { DatavisynLogo } from './DatavisynLogo';
 import { UserAvatar } from './UserAvatar';
 import { useVisynAppContext } from '../VisynAppContext';
+import { IAboutAppModalConfig } from './AboutAppModal';
+import { ConfigurationMenu } from './ConfigurationMenu';
 
 const HEADER_HEIGHT = 50;
 
@@ -18,9 +20,19 @@ const cardTransition = {
   transitionProperty: 'opacity, width',
 };
 
+const useStyles = createStyles(() => ({
+  a: {
+    '& > a': {
+      '&:hover': {
+        color: 'currentColor',
+      },
+    },
+  },
+}));
+
 export function VisynHeader({
   color = 'white',
-  backgroundColor = 'dark',
+  backgroundColor = 'gray',
   components,
   undoCallback = null,
   redoCallback = null,
@@ -48,7 +60,9 @@ export function VisynHeader({
     logo?: JSX.Element;
     userAvatar?: JSX.Element;
     userMenu?: JSX.Element;
+    configurationMenu?: JSX.Element;
     afterRight?: JSX.Element;
+    aboutAppModal?: JSX.Element | IAboutAppModalConfig;
   };
   /**
    * Optional callback functioned which is called when the undo button is clicked. If not given, undo button is not created
@@ -60,13 +74,12 @@ export function VisynHeader({
   redoCallback?: () => void;
   /**
    * Optional callback called when the search is changed, passing the current search value. If not given, no search icon is created
-   * @param s Search string.
    */
   searchCallback?: (s: string) => void;
 }) {
-  const { appName } = useVisynAppContext();
+  const { appName, user } = useVisynAppContext();
   const theme = useMantineTheme();
-  const { user } = useVisynAppContext();
+  const { classes } = useStyles();
 
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchString, setSearchString] = useState<string>('');
@@ -80,11 +93,9 @@ export function VisynHeader({
   );
 
   return (
-    <Header height={HEADER_HEIGHT} style={{ backgroundColor: theme.colors[backgroundColor]?.[theme.fn.primaryShade()] || backgroundColor }}>
+    <Header height={HEADER_HEIGHT} style={{ backgroundColor: theme.colors[backgroundColor][7] || backgroundColor }}>
       <Group
         grow
-        pl="sm"
-        pr="sm"
         sx={{
           height: HEADER_HEIGHT,
           display: 'flex',
@@ -92,7 +103,7 @@ export function VisynHeader({
         }}
         noWrap
       >
-        <Group align="center" position="left" noWrap>
+        <Group align="center" position="left" noWrap h="100%">
           {components?.beforeLeft}
           {components?.burgerMenu ? <BurgerButton menu={components.burgerMenu} /> : null}
           {undoCallback ? (
@@ -120,8 +131,8 @@ export function VisynHeader({
         <Group align="center" position="center" noWrap>
           {components?.beforeTitle}
           {components?.title === undefined ? (
-            <Title order={3} weight={100} color={color} truncate="end">
-              {appName}
+            <Title className={classes.a} order={3} weight={100} color={color} truncate>
+              <Text>{appName}</Text>
             </Title>
           ) : (
             components?.title
@@ -139,6 +150,11 @@ export function VisynHeader({
           ) : (
             components?.userAvatar
           )}
+          <ConfigurationMenu
+            dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
+            menu={components?.configurationMenu}
+            aboutAppModal={components?.aboutAppModal}
+          />
           {components?.afterRight}
         </Group>
       </Group>
