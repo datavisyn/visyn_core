@@ -5,7 +5,7 @@ import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { LoginUtils } from '../security';
-import { VisynRanking } from '../ranking/VisynRanking';
+import { VisynRanking } from '../ranking';
 
 export function MainApp() {
   const { user } = useVisynAppContext();

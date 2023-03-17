@@ -1,4 +1,3 @@
-import { appContext } from '../base/AppContext';
 import { userSession, UserSession } from './UserSession';
 import { LoginUtils } from './LoginUtils';
 import { Ajax } from '../base/ajax';
@@ -8,6 +7,8 @@ const DEFAULT_SESSION_TIMEOUT = 1 * 60 * 1000; // 1 min
 
 export class SessionWatcher {
   private timeout = -1;
+
+  private hiddenTimeout = -1;
 
   private lastChecked = 0;
 
@@ -19,11 +20,16 @@ export class SessionWatcher {
     globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, () => this.stop());
     globalEventHandler.on(Ajax.GLOBAL_EVENT_AJAX_POST_SEND, () => this.reset());
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
+      window.clearInterval(this.hiddenTimeout);
+      if (document.hidden) {
+        this.pause();
+        this.hiddenTimeout = window.setInterval(() => {
+          // Check the session every now and then even when the window is not focused.
+          this.checkSession();
+        }, DEFAULT_SESSION_TIMEOUT * 10);
+      } else {
         this.start();
         this.checkSession();
-      } else {
-        this.pause();
       }
     });
   }
@@ -77,9 +83,6 @@ export class SessionWatcher {
    * watches for session auto log out scenarios
    */
   static startWatching(logout: () => any = LoginUtils.logout): SessionWatcher | null {
-    if (appContext.offline) {
-      return null;
-    }
     return new SessionWatcher(logout);
   }
 }
