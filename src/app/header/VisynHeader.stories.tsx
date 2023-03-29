@@ -87,36 +87,9 @@ const Template: ComponentStory<typeof VisynHeader> = (args) => {
   );
 };
 
-// More on args: https://storybook.js.org/docs/react/writing-stories/args
-
 export const Basic = Template.bind({}) as typeof Template;
 Basic.args = {
   components: {
-    aboutAppModal: {
-      content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
-    },
-  },
-};
-
-export const CustomerLogo = Template.bind({}) as typeof Template;
-CustomerLogo.args = {
-  components: {
-    beforeRight: customerLogo,
-    aboutAppModal: {
-      content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
-      customerLogo,
-    },
-  },
-};
-
-export const ProjectName = Template.bind({}) as typeof Template;
-ProjectName.args = {
-  components: {
-    afterTitle: (
-      <Text weight={500} size="md" c="white">
-        Project A
-      </Text>
-    ),
     aboutAppModal: {
       content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
     },
@@ -137,6 +110,31 @@ BurgerMenu.args = {
         <Menu.Item>Item C</Menu.Item>
       </>
     ),
+  },
+};
+
+export const CustomerLogo = Template.bind({}) as typeof Template;
+CustomerLogo.args = {
+  components: {
+    beforeRight: customerLogo,
+    aboutAppModal: {
+      content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
+      customerLogo,
+    },
+  },
+};
+
+export const ProjectName = Template.bind({}) as typeof Template;
+ProjectName.args = {
+  components: {
+    center: (
+      <Text weight={500} size="md" c="white">
+        Project A
+      </Text>
+    ),
+    aboutAppModal: {
+      content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
+    },
   },
 };
 
@@ -198,6 +196,11 @@ ExtendedConfigurationMenu.args = {
 export const AllExtensionPoints = Template.bind({}) as typeof Template;
 AllExtensionPoints.args = {
   components: {
+    title: (
+      <Button variant="light" compact radius="lg">
+        title
+      </Button>
+    ),
     afterLeft: (
       <Button variant="light" compact radius="lg">
         afterLeft
@@ -216,14 +219,19 @@ AllExtensionPoints.args = {
         <Menu.Item>Item C</Menu.Item>
       </>
     ),
-    beforeTitle: (
+    beforeCenter: (
       <Button variant="light" compact radius="lg">
-        beforeTitle
+        beforeCenter
       </Button>
     ),
-    afterTitle: (
+    center: (
       <Button variant="light" compact radius="lg">
-        afterTitle
+        center
+      </Button>
+    ),
+    afterCenter: (
+      <Button variant="light" compact radius="lg">
+        afterCenter
       </Button>
     ),
     beforeRight: (

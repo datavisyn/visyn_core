@@ -34,6 +34,7 @@ export function ConfigurationMenu({
               <Menu.Divider />
             </>
           ) : null}
+          <Menu.Label>About</Menu.Label>
           <Menu.Item onClick={() => setShowAboutModal(true)}>About {appName}</Menu.Item>
         </Menu.Dropdown>
       </Menu>

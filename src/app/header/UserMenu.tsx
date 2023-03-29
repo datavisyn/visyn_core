@@ -2,7 +2,7 @@ import { Avatar, createStyles, Menu } from '@mantine/core';
 import React from 'react';
 import { LoginUtils } from '../../security';
 
-export function UserAvatar({ menu, user, color }: { menu: JSX.Element; user: string; color: string }) {
+export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: string; color: string }) {
   const useStyles = createStyles(() => ({
     avatar: {
       cursor: 'pointer',
@@ -14,7 +14,7 @@ export function UserAvatar({ menu, user, color }: { menu: JSX.Element; user: str
   return (
     <Menu shadow="md" data-testid="visyn-user-avatar">
       <Menu.Target>
-        <Avatar className={classes.avatar} role="button" color={color} radius="xl" size={35}>
+        <Avatar className={classes.avatar} role="button" color={color} radius="xl" size={30}>
           {user
             .split(' ')
             .map((name) => name[0])
@@ -27,7 +27,6 @@ export function UserAvatar({ menu, user, color }: { menu: JSX.Element; user: str
       <Menu.Dropdown>
         <>
           <Menu.Label>Logged in as {user}</Menu.Label>
-          <Menu.Divider />
           {menu ? (
             <>
               {menu}
