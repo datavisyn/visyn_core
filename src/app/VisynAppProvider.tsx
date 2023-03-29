@@ -1,13 +1,16 @@
-import merge from 'lodash/merge';
 import * as React from 'react';
+import { MantineProvider, MantineProviderProps } from '@mantine/core';
+import merge from 'lodash/merge';
 import { ITDPClientConfig, loadClientConfig } from '../base/clientConfig';
 import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
 import { VisynAppContext } from './VisynAppContext';
+import { DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
 
 export function VisynAppProvider({
   children,
   appName,
   defaultClientConfig,
+  mantineProviderProps,
 }: {
   children?: React.ReactNode;
   appName: JSX.Element | string;
@@ -17,6 +20,10 @@ export function VisynAppProvider({
    * Passing falsy values disables the client configuration load.
    */
   defaultClientConfig?: ITDPClientConfig | null | undefined;
+  /**
+   * Props to merge with the `DEFAULT_MANTINE_PROVIDER_PROPS`.
+   */
+  mantineProviderProps?: Omit<MantineProviderProps, 'children'>;
 }) {
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
@@ -40,5 +47,11 @@ export function VisynAppProvider({
     [user, appName, clientConfig],
   );
 
-  return <VisynAppContext.Provider value={context}>{initStatus === 'success' && clientConfigStatus === 'success' ? children : null}</VisynAppContext.Provider>;
+  const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
+
+  return (
+    <MantineProvider {...mergedMantineProviderProps}>
+      <VisynAppContext.Provider value={context}>{initStatus === 'success' && clientConfigStatus === 'success' ? children : null}</VisynAppContext.Provider>
+    </MantineProvider>
+  );
 }

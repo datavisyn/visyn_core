@@ -15,3 +15,14 @@ $lu_include_font_awesome: false !default;
 @import '~@fortawesome/fontawesome-free/scss/fontawesome';
 
 @import '~lineupjs/src/style.scss';
+
+.lu {
+    // use a fixed font-size for the ranking + side panel with the Roboto font family.
+    // this font-size corresponds with the visual size of the previous font family Yantramanav
+    // and allows to display more rows by default.
+    // the LineUp zoom buttons are still working as they are using percentages (e.g., `font-size: 100%`)
+    // which works relative to the font size defined here.
+    font-size: 13.4px;
+    // unset to reset the LineUp default line height and set it to the Bootstrap default line height
+    line-height: unset;
+}
