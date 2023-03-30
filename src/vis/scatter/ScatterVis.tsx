@@ -41,6 +41,7 @@ export function ScatterVis({
   showSidebar,
   showCloseButton = false,
   closeButtonCallback = () => null,
+  showDragModeOptions,
   scales,
   scrollZoom,
 }: {
@@ -78,6 +79,7 @@ export function ScatterVis({
   setShowSidebar?(show: boolean): void;
   enableSidebar?: boolean;
   showCloseButton?: boolean;
+  showDragModeOptions: boolean;
   scrollZoom?: boolean;
 }) {
   const id = React.useMemo(() => uniqueId('ScatterVis'), []);
@@ -252,11 +254,14 @@ export function ScatterVis({
       {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
       <Stack spacing={0} sx={{ height: '100%' }}>
-        <Center>
-          <Group mt="lg">
-            <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
-          </Group>
-        </Center>
+        {showDragModeOptions ? (
+          <Center>
+            <Group mt="lg">
+              <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
+            </Group>
+          </Center>
+        ) : null}
+
         {mergedExtensions.prePlot}
         {traceStatus === 'success' && layout && plotsWithSelectedPoints.length > 0 ? (
           plotly
