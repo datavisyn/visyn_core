@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import '../scss/vendors/_lineup.scss';
+import { createScoreColumn, IScoreResult } from './score/interfaces';
 
 export const defaultBuilder = ({ data }) => {
   const b = builder(data).deriveColumns().animated(true);
@@ -14,6 +15,12 @@ export const defaultBuilder = ({ data }) => {
   b.aggregationStrategy('group+item+top').propagateAggregationState(true).livePreviews({}).sidePanel(true, true);
   return b;
 };
+
+export interface IBuiltVisynRanking {
+  provider: LocalDataProvider;
+  ranking: Ranking;
+  createScoreColumn: (score: IScoreResult) => void;
+}
 
 export function EagerVisynRanking<T extends Record<string, unknown>>({
   data,
@@ -27,7 +34,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   getBuilder?: (props: { data: T[] }) => DataBuilder;
   setSelection: (selection: T[]) => void;
   selection: T[];
-  onBuiltLineUp?: (props: { provider: LocalDataProvider; ranking: Ranking }) => void;
+  onBuiltLineUp?: (props: IBuiltVisynRanking) => void;
 } & BoxProps) {
   const divRef = React.useRef<HTMLDivElement>(null);
   const lineupRef = React.useRef<Taggle | null>(null);
@@ -63,7 +70,11 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       return acc;
     }, new Map());
 
-    onBuiltLineupRef.current?.({ provider: lineupRef.current.data as LocalDataProvider, ranking: rankingRef.current });
+    onBuiltLineupRef.current?.({
+      provider: lineupRef.current.data as LocalDataProvider,
+      ranking: rankingRef.current,
+      createScoreColumn: (desc: IScoreResult) => createScoreColumn(desc, lineupRef.current, rankingRef.current),
+    });
 
     return () => {
       lineupRef.current?.destroy();
