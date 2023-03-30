@@ -1,4 +1,4 @@
-import { Header, Group, Title, ActionIcon, TextInput, Transition, useMantineTheme, MantineColor, Text, createStyles, MediaQuery, Burger } from '@mantine/core';
+import { Header, Group, Title, useMantineTheme, MantineColor, Text, createStyles, MediaQuery } from '@mantine/core';
 import * as React from 'react';
 import { useMediaQuery } from '@mantine/hooks';
 import { BurgerMenu } from './BurgerMenu';
