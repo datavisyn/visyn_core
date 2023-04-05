@@ -44,22 +44,9 @@ export function MainApp() {
         <VisynHeader
           components={{
             aboutAppModal: {
-              content: <Text>This is the demo app for tdp core.</Text>,
+              content: <Text>This is the demo app for visyn core.</Text>,
             },
-            userMenu: user ? (
-              <>
-                <Menu.Label>Logged in as {user.name}</Menu.Label>
-                <Menu.Item
-                  onClick={() => {
-                    LoginUtils.logout();
-                  }}
-                >
-                  Logout
-                </Menu.Item>
-              </>
-            ) : null,
           }}
-          backgroundColor="dark"
         />
       }
     >
