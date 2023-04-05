@@ -39,6 +39,7 @@ export function EagerVis({
   externalConfig = null,
   enableSidebar = true,
   showSidebar: internalShowSidebar,
+  showDragModeOptions = true,
   setShowSidebar: internalSetShowSidebar,
   showSidebarDefault = false,
   scrollZoom = true,
@@ -73,6 +74,7 @@ export function EagerVis({
   externalConfig?: IVisConfig;
   enableSidebar?: boolean;
   showSidebar?: boolean;
+  showDragModeOptions?: boolean;
   setShowSidebar?(show: boolean): void;
   showSidebarDefault?: boolean;
   scrollZoom?: boolean;
@@ -219,6 +221,7 @@ export function EagerVis({
               enable: true,
             },
           }}
+          showDragModeOptions={showDragModeOptions}
           shapes={shapes}
           setConfig={setVisConfig}
           filterCallback={filterCallback}

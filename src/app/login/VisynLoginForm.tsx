@@ -17,8 +17,17 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
   return (
     <form onSubmit={form.onSubmit((values) => onLogin(values.username, values.password))}>
       <Stack>
-        <TextInput placeholder="Username" label="Username" name="username" autoComplete="username" {...form.getInputProps('username')} required />
         <TextInput
+          data-cy="visyn-login-username"
+          placeholder="Username"
+          label="Username"
+          name="username"
+          autoComplete="username"
+          {...form.getInputProps('username')}
+          required
+        />
+        <TextInput
+          data-cy="visyn-login-password"
           type={isShowPassword ? 'text' : 'password'}
           placeholder="Password"
           label="Password"
@@ -34,7 +43,7 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
         />
       </Stack>
       <Group position="right">
-        <Button fullWidth={false} mt="md" type="submit" className="btn btn-primary">
+        <Button data-cy="visyn-login-submit" fullWidth={false} mt="md" type="submit" className="btn btn-primary">
           Login
         </Button>
       </Group>
