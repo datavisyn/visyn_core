@@ -92,9 +92,7 @@ export function MainApp() {
                 setLoading(true);
                 // eslint-disable-next-line no-promise-executor-return
                 await new Promise((resolve) => setTimeout(resolve, 1000));
-                createScoreColumnFunc.current(({ data }) => {
-                  return value === 'number' ? MyNumberScore(value) : MyStringScore(value);
-                });
+                createScoreColumnFunc.current(await (value === 'number' ? MyNumberScore(value) : MyStringScore(value)));
                 setLoading(false);
               }}
               rightSection={loading ? <i className="fas fa-spinner" /> : undefined}

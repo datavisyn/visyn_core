@@ -19,7 +19,7 @@ export const defaultBuilder = ({ data }) => {
 export interface IBuiltVisynRanking {
   provider: LocalDataProvider;
   ranking: Ranking;
-  createScoreColumn: (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => Promise<void>;
+  createScoreColumn: (score: IScoreResult) => void;
 }
 
 export function EagerVisynRanking<T extends Record<string, unknown>>({
@@ -73,10 +73,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     onBuiltLineupRef.current?.({
       provider: lineupRef.current.data as LocalDataProvider,
       ranking: rankingRef.current,
-      createScoreColumn: async (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => {
-        const desc = await functionToCall({ data });
-        createScoreColumn(desc, lineupRef.current, rankingRef.current);
-      },
+      createScoreColumn: (desc: IScoreResult) => createScoreColumn(desc, lineupRef.current, rankingRef.current),
     });
 
     return () => {
