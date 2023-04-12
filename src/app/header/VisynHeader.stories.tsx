@@ -182,7 +182,7 @@ ExtendedConfigurationMenu.args = {
     aboutAppModal: {
       content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
     },
-    configurationMenuEntries: (
+    configurationMenu: (
       <>
         <Menu.Item>Item A</Menu.Item>
         <Menu.Item>Item B</Menu.Item>

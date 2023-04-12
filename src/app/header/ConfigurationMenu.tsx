@@ -5,15 +5,7 @@ import React from 'react';
 import { useVisynAppContext } from '../VisynAppContext';
 import { AboutAppModal, IAboutAppModalConfig } from './AboutAppModal';
 
-export function ConfigurationMenu({
-  menu,
-  dvLogo,
-  aboutAppModal,
-}: {
-  menu: JSX.Element;
-  dvLogo: JSX.Element;
-  aboutAppModal?: JSX.Element | IAboutAppModalConfig;
-}) {
+export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu: JSX.Element; dvLogo: JSX.Element; aboutAppModal?: IAboutAppModalConfig }) {
   const { appName } = useVisynAppContext();
 
   const [showAboutModal, setShowAboutModal] = React.useState(false);
@@ -38,18 +30,14 @@ export function ConfigurationMenu({
           <Menu.Item onClick={() => setShowAboutModal(true)}>About {appName}</Menu.Item>
         </Menu.Dropdown>
       </Menu>
-      {aboutAppModal && React.isValidElement(aboutAppModal) ? (
-        aboutAppModal
-      ) : (
-        <AboutAppModal
-          opened={showAboutModal}
-          onClose={() => setShowAboutModal(false)}
-          dvLogo={dvLogo}
-          customerLogo={(aboutAppModal as IAboutAppModalConfig)?.customerLogo}
-          content={(aboutAppModal as IAboutAppModalConfig)?.content}
-          size={(aboutAppModal as IAboutAppModalConfig)?.size}
-        />
-      )}
+      <AboutAppModal
+        opened={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
+        dvLogo={dvLogo}
+        customerLogo={aboutAppModal?.customerLogo}
+        content={aboutAppModal?.content}
+        size={aboutAppModal?.size}
+      />
     </>
   );
 }

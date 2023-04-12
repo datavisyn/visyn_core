@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { Menu, SimpleGrid, Text } from '@mantine/core';
+import { SimpleGrid, Text } from '@mantine/core';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
-import { LoginUtils } from '../security';
 import { VisynRanking } from '../ranking';
 
 export function MainApp() {

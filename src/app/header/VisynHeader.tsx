@@ -49,9 +49,8 @@ export function VisynHeader({
     userAvatar: JSX.Element;
     userMenu: JSX.Element;
     configurationMenu: JSX.Element;
-    configurationMenuEntries: JSX.Element;
     afterRight: JSX.Element;
-    aboutAppModal: JSX.Element | IAboutAppModalConfig;
+    aboutAppModal: IAboutAppModalConfig;
   }>;
 }) {
   const { appName, user } = useVisynAppContext();
@@ -99,15 +98,11 @@ export function VisynHeader({
               ) : (
                 components?.userAvatar
               )}
-              {components?.configurationMenu === undefined ? (
-                <ConfigurationMenu
-                  dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
-                  menu={components?.configurationMenuEntries}
-                  aboutAppModal={components?.aboutAppModal}
-                />
-              ) : (
-                components?.configurationMenu
-              )}
+              <ConfigurationMenu
+                dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
+                menu={components?.configurationMenu}
+                aboutAppModal={components?.aboutAppModal}
+              />
               {largerThanSm && components?.afterRight}
             </Group>
           </Group>
