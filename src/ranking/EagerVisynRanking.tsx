@@ -75,7 +75,6 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       ranking: rankingRef.current,
       createScoreColumn: async (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => {
         const desc = await functionToCall({ data });
-        console.log(desc)
         createScoreColumn(desc, lineupRef.current, rankingRef.current);
       },
     });

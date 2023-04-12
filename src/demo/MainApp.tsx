@@ -93,7 +93,6 @@ export function MainApp() {
                 // eslint-disable-next-line no-promise-executor-return
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 createScoreColumnFunc.current(({ data }) => {
-                  console.log(data)
                   return value === 'number' ? MyNumberScore(value) : MyStringScore(value);
                 });
                 setLoading(false);
