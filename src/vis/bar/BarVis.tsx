@@ -185,8 +185,6 @@ export function BarVis({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalTraces, config.groupType]);
 
-  console.log(layout);
-
   const traceData = useMemo(() => {
     if (!finalTraces) {
       return null;
@@ -205,7 +203,6 @@ export function BarVis({
         width: '100%',
         overflow: 'hidden',
         position: 'relative',
-        paddingBottom: '20px',
         // Disable plotly crosshair cursor
         '.nsewdrag': {
           cursor: 'pointer !important',
@@ -231,7 +228,7 @@ export function BarVis({
           layout={layout}
           config={{ responsive: true, displayModeBar: false }}
           useResizeHandler
-          style={{ width: '100%', height: '100%', paddingBottom: '20px' }}
+          style={{ width: '100%', height: '100%' }}
           onClick={(e) => {
             // plotly types here are just wrong. So have to convert to unknown first.
             const selectedPoints: string[] = e.points[0].customdata as unknown as string[];
