@@ -36,22 +36,23 @@ export function VisynHeader({
    * Extension components to be rendered within the header.
    */
   height?: number;
-  components?: {
-    beforeLeft?: JSX.Element;
-    burgerMenu?: JSX.Element;
-    title?: JSX.Element;
-    afterLeft?: JSX.Element;
-    beforeCenter?: JSX.Element;
-    center?: JSX.Element;
-    afterCenter?: JSX.Element;
-    beforeRight?: JSX.Element;
-    logo?: JSX.Element;
-    userAvatar?: JSX.Element;
-    userMenu?: JSX.Element;
-    configurationMenu?: JSX.Element;
-    afterRight?: JSX.Element;
-    aboutAppModal?: JSX.Element | IAboutAppModalConfig;
-  };
+  components?: Partial<{
+    beforeLeft: JSX.Element;
+    burgerMenu: JSX.Element;
+    title: JSX.Element;
+    afterLeft: JSX.Element;
+    beforeCenter: JSX.Element;
+    center: JSX.Element;
+    afterCenter: JSX.Element;
+    beforeRight: JSX.Element;
+    logo: JSX.Element;
+    userAvatar: JSX.Element;
+    userMenu: JSX.Element;
+    configurationMenu: JSX.Element;
+    configurationMenuEntries: JSX.Element;
+    afterRight: JSX.Element;
+    aboutAppModal: JSX.Element | IAboutAppModalConfig;
+  }>;
 }) {
   const { appName, user } = useVisynAppContext();
   const theme = useMantineTheme();
@@ -98,11 +99,15 @@ export function VisynHeader({
               ) : (
                 components?.userAvatar
               )}
-              <ConfigurationMenu
-                dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
-                menu={components?.configurationMenu}
-                aboutAppModal={components?.aboutAppModal}
-              />
+              {components?.configurationMenu === undefined ? (
+                <ConfigurationMenu
+                  dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
+                  menu={components?.configurationMenuEntries}
+                  aboutAppModal={components?.aboutAppModal}
+                />
+              ) : (
+                components?.configurationMenu
+              )}
               {largerThanSm && components?.afterRight}
             </Group>
           </Group>
