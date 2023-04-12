@@ -16,6 +16,7 @@ export function ColorSelect({ callback, numTypeCallback = () => null, currentNum
   return (
     <Stack spacing="sm">
       <Select
+        withinPortal
         clearable
         placeholder="Select Column"
         label="Color"

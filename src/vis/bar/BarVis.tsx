@@ -107,17 +107,15 @@ export function BarVis({
 
       const selectedIndices = [];
       tracePoints.forEach((points, index) => {
-        if (points.length === 0 || selectedList.length < points.length) {
+        if (points.length === 0) {
           return;
         }
         for (const point of points) {
-          if (!selectedMap[point]) {
-            return;
+          if (selectedMap[point]) {
+            isTraceSelected = true;
+            selectedIndices.push(index);
           }
         }
-
-        selectedIndices.push(index);
-        isTraceSelected = true;
       });
 
       if (selectedIndices.length > 0) {
@@ -136,7 +134,7 @@ export function BarVis({
     }
 
     return editedTraces;
-  }, [traces, selectedMap, selectedList]);
+  }, [traces, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('BarVis'), []);
 

@@ -17,6 +17,7 @@ export function SingleColumnSelect({ callback, columns, currentSelected, label, 
 
   return (
     <Select
+      withinPortal
       clearable
       placeholder="Select column"
       label={label}

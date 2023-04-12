@@ -15,6 +15,7 @@ export function NumericalColumnSelect({ callback, columns, currentSelected }: Nu
 
   return (
     <MultiSelect
+      withinPortal
       clearable
       label="Numerical columns"
       onChange={(e: string[]) => {
