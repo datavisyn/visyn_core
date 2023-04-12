@@ -4,7 +4,7 @@ import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Container, Space, Tooltip } from '@mantine/core';
+import { ActionIcon, Container, Space, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType } from '../interfaces';
@@ -185,6 +185,8 @@ export function BarVis({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalTraces, config.groupType]);
 
+  console.log(layout);
+
   const traceData = useMemo(() => {
     if (!finalTraces) {
       return null;
@@ -194,8 +196,7 @@ export function BarVis({
   }, [finalTraces]);
 
   return (
-    <Container
-      fluid
+    <Stack
       pl={0}
       pr={0}
       sx={{
@@ -204,6 +205,7 @@ export function BarVis({
         width: '100%',
         overflow: 'hidden',
         position: 'relative',
+        paddingBottom: '20px',
         // Disable plotly crosshair cursor
         '.nsewdrag': {
           cursor: 'pointer !important',
@@ -229,7 +231,7 @@ export function BarVis({
           layout={layout}
           config={{ responsive: true, displayModeBar: false }}
           useResizeHandler
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: '100%', height: '100%', paddingBottom: '20px' }}
           onClick={(e) => {
             // plotly types here are just wrong. So have to convert to unknown first.
             const selectedPoints: string[] = e.points[0].customdata as unknown as string[];
@@ -271,6 +273,6 @@ export function BarVis({
           <BarVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Stack>
   );
 }
