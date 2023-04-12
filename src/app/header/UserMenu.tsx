@@ -6,6 +6,9 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
   const useStyles = createStyles(() => ({
     avatar: {
       cursor: 'pointer',
+      '> div': {
+        fontSize: '12.5px',
+      },
     },
   }));
 
@@ -14,7 +17,7 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
   return (
     <Menu shadow="md" data-testid="visyn-user-avatar">
       <Menu.Target>
-        <Avatar className={classes.avatar} role="button" color={color} radius="xl" size={30}>
+        <Avatar className={classes.avatar} role="button" color={color} radius="xl" size={28}>
           {user
             .split(' ')
             .map((name) => name[0])

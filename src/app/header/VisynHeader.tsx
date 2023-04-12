@@ -1,4 +1,4 @@
-import { Header, Group, Title, useMantineTheme, MantineColor, Text, createStyles, MediaQuery } from '@mantine/core';
+import { Header, Group, Title, useMantineTheme, MantineColor, Text, createStyles, MediaQuery, Space } from '@mantine/core';
 import * as React from 'react';
 import { useMediaQuery } from '@mantine/hooks';
 import { BurgerMenu } from './BurgerMenu';
@@ -7,8 +7,6 @@ import { UserMenu } from './UserMenu';
 import { useVisynAppContext } from '../VisynAppContext';
 import { IAboutAppModalConfig } from './AboutAppModal';
 import { ConfigurationMenu } from './ConfigurationMenu';
-
-const HEADER_HEIGHT = 50;
 
 const useStyles = createStyles(() => ({
   a: {
@@ -23,6 +21,7 @@ const useStyles = createStyles(() => ({
 export function VisynHeader({
   color = 'white',
   backgroundColor = 'gray',
+  height = 50,
   components,
 }: {
   /**
@@ -36,6 +35,7 @@ export function VisynHeader({
   /**
    * Extension components to be rendered within the header.
    */
+  height?: number;
   components?: {
     beforeLeft?: JSX.Element;
     burgerMenu?: JSX.Element;
@@ -59,10 +59,10 @@ export function VisynHeader({
   const largerThanSm = useMediaQuery('(min-width: 768px)');
 
   return (
-    <Header height={HEADER_HEIGHT} style={{ backgroundColor: theme.colors[backgroundColor][7] || backgroundColor }}>
+    <Header height={height} style={{ backgroundColor: theme.colors[backgroundColor][7] || backgroundColor }}>
       <Group
         sx={{
-          height: HEADER_HEIGHT,
+          height,
           display: 'flex',
           justifyContent: 'space-between',
         }}
@@ -90,19 +90,21 @@ export function VisynHeader({
           <Group h="100%" align="center" position="right" noWrap>
             {largerThanSm && components?.beforeRight}
             {components?.logo === undefined ? <DatavisynLogo color={backgroundColor === 'white' ? 'black' : 'white'} /> : components?.logo}
-            {components?.userAvatar === undefined ? (
-              user ? (
-                <UserMenu menu={components?.userMenu} user={user.name} color={backgroundColor} />
-              ) : null
-            ) : (
-              components?.userAvatar
-            )}
-            <ConfigurationMenu
-              dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
-              menu={components?.configurationMenu}
-              aboutAppModal={components?.aboutAppModal}
-            />
-            {largerThanSm && components?.afterRight}
+            <Group spacing={5}>
+              {components?.userAvatar === undefined ? (
+                user ? (
+                  <UserMenu menu={components?.userMenu} user={user.name} color={backgroundColor} />
+                ) : null
+              ) : (
+                components?.userAvatar
+              )}
+              <ConfigurationMenu
+                dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
+                menu={components?.configurationMenu}
+                aboutAppModal={components?.aboutAppModal}
+              />
+              {largerThanSm && components?.afterRight}
+            </Group>
           </Group>
         </MediaQuery>
       </Group>
