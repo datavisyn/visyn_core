@@ -20,7 +20,7 @@ const useStyles = createStyles(() => ({
 
 export function VisynHeader({
   color = 'white',
-  backgroundColor = 'gray',
+  backgroundColor,
   height = 50,
   components,
 }: {
@@ -59,7 +59,7 @@ export function VisynHeader({
   const largerThanSm = useMediaQuery('(min-width: 768px)');
 
   return (
-    <Header height={height} style={{ backgroundColor: theme.colors[backgroundColor][7] || backgroundColor }}>
+    <Header height={height} style={{ backgroundColor: backgroundColor || '#495057' }}>
       <Group
         sx={{
           height,
