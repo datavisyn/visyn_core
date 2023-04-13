@@ -120,6 +120,7 @@ export function ViolinVis({
     <Stack
       pl={0}
       pr={0}
+      spacing={0}
       sx={{
         flexGrow: 1,
         height: '100%',
