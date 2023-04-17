@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Menu, Select, SimpleGrid, Stack } from '@mantine/core';
+import { Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import { buildCategoricalColumn, buildNumberColumn } from 'lineupjs';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
-import { LoginUtils } from '../security';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
 import { IScoreResult } from '../ranking/score';
@@ -66,20 +65,10 @@ export function MainApp() {
       header={
         <VisynHeader
           components={{
-            userMenu: user ? (
-              <>
-                <Menu.Label>Logged in as {user.name}</Menu.Label>
-                <Menu.Item
-                  onClick={() => {
-                    LoginUtils.logout();
-                  }}
-                >
-                  Logout
-                </Menu.Item>
-              </>
-            ) : null,
+            aboutAppModal: {
+              content: <Text>This is the demo app for visyn core.</Text>,
+            },
           }}
-          backgroundColor="dark"
         />
       }
     >

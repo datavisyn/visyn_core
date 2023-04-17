@@ -1,4 +1,4 @@
 export * from './VisynHeader';
-export * from './UserAvatar';
+export * from './UserMenu';
 export * from './DatavisynLogo';
-export * from './BurgerButton';
+export * from './BurgerMenu';
