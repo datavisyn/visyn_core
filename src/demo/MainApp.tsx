@@ -1,31 +1,12 @@
 import * as React from 'react';
-import { Select, SimpleGrid, Stack, Text } from '@mantine/core';
-import { buildCategoricalColumn, buildNumberColumn } from 'lineupjs';
+import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
-import { IScoreResult } from '../ranking/score';
-
-async function MyStringScore(value: string): Promise<IScoreResult> {
-  const data = new Array(5000).fill(0).map(() => (Math.random() * 10).toFixed(0));
-
-  return {
-    data,
-    builder: buildCategoricalColumn('').label(value),
-  };
-}
-
-async function MyNumberScore(value: string): Promise<IScoreResult> {
-  const data = new Array(5000).fill(0).map(() => Math.random() * 100);
-
-  return {
-    data,
-    builder: buildNumberColumn('').label(value),
-  };
-}
+import { MyNumberScore, MyStringScore } from './scoresUtils';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -86,7 +67,7 @@ export function MainApp() {
                 });
                 setLoading(false);
               }}
-              rightSection={loading ? <i className="fas fa-spinner" /> : undefined}
+              rightSection={loading ? <Loader /> : null}
               data={[
                 { value: 'number', label: 'Number' },
                 { value: 'category', label: 'Category' },

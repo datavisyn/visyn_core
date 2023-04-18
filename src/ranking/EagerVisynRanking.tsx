@@ -16,6 +16,27 @@ export const defaultBuilder = ({ data }) => {
   return b;
 };
 
+/**
+ * Lineup information passed to user via onBuiltLineUp. This is useful for adding custom/score columns to the ranking.
+ * Can store the createScoreColumn function in a ref and call it later to add a score column to the ranking.
+ *
+ * Such as in the following example:
+ *
+ *  const createScoreColumnFunc = React.useRef<(func: (data: { data: any }) => Promise<IScoreResult>) => Promise<void>>();
+ *  const onBuiltLineUp = React.useCallback((props: IBuiltVisynRanking) => {
+ *   createScoreColumnFunc.current = props.createScoreColumn;
+ *  }, []);
+ *
+ *  React.useEffect(() => {
+ *    if (createScoreColumnFunc.current) {
+ *      createScoreColumnFunc.current(async ({ data }) => {
+ *        const desc = await yourFunctionToGetDescription();
+ *       return desc;
+ *     });
+ *    }
+ *  }, [createScoreColumnFunc, yourFunctionToGetDescription]);
+ *
+ */
 export interface IBuiltVisynRanking {
   provider: LocalDataProvider;
   ranking: Ranking;
