@@ -54,7 +54,7 @@ export function VisynApp({
       navbar={navbar}
       aside={aside}
       footer={footer}
-      header={header || <VisynHeader />}
+      header={header || <VisynHeader height={headerHeight} />}
     >
       {children}
       {loginMenu}
