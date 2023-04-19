@@ -3,11 +3,15 @@ import castArray from 'lodash/castArray';
 
 /**
  * A single score result
- * data: the data to be used for the score column
- * builder: the builder to be used for the score column
  */
 export interface ISingleScoreResult {
+  /**
+   * The data to be used for the score column
+   */
   data: unknown[];
+  /**
+   * The lineup builder object to be used for the score column
+   */
   builder: ColumnBuilder<IValueColumnDesc<unknown>>;
 }
 
