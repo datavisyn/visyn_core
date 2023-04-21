@@ -70,6 +70,20 @@ class VisynCoreSettings(BaseModel):
     """
     The total number of threads to use for anyio. FastAPI uses these threads to run sync routes concurrently.
     """
+    cypress: bool = False
+    """
+    True if the application is running in Cypress testing environment. Enables application to return special responses for example.
+
+    To enable this flag in applications, simply add `VISYN_CORE__CYPRESS=true` to your `.env` file.
+
+    Example usage in a route:
+    ```
+    from visyn_core import manager
+    ...
+    if manager.settings.visyn_core.cypress:
+        # Do something
+    ```
+    """
 
     disable: DisableSettings = DisableSettings()
     enabled_plugins: list[str] = []
