@@ -1,6 +1,6 @@
-import { Container, Drawer, ScrollArea } from '@mantine/core';
+import { Box, Drawer, ScrollArea } from '@mantine/core';
 import * as React from 'react';
-import { ReactNode, useRef } from 'react';
+import { ReactNode } from 'react';
 
 export function VisSidebarWrapper({
   id,
@@ -37,7 +37,9 @@ export function VisSidebarWrapper({
       size="sm"
     >
       <ScrollArea p={0} w="100%" h="100%">
-        {children}
+        <Box pb="xl" style={{ height: '100%', width: '100%' }}>
+          {children}
+        </Box>
       </ScrollArea>
     </Drawer>
   );
