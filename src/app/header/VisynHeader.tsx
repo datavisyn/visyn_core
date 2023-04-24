@@ -54,7 +54,6 @@ export function VisynHeader({
   }>;
 }) {
   const { appName, user } = useVisynAppContext();
-  const theme = useMantineTheme();
   const { classes } = useStyles();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
 
