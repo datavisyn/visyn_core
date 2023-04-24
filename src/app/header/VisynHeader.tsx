@@ -59,7 +59,7 @@ export function VisynHeader({
   const largerThanSm = useMediaQuery('(min-width: 768px)');
 
   return (
-    <Header height={height} style={{ backgroundColor: backgroundColor || '#495057' }}>
+    <Header height={height} style={{ backgroundColor: backgroundColor || '#495057' }} withBorder={false}>
       <Group
         sx={{
           height,
