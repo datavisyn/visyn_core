@@ -175,4 +175,7 @@ def create_visyn_server(
         limiter = anyio.to_thread.current_default_thread_limiter()
         limiter.total_tokens = manager.settings.visyn_core.total_anyio_tokens
 
+    if manager.settings.visyn_core.cypress:
+        _log.info("Cypress mode is enabled. This should only be used in a Cypress testing environment or CI.")
+
     return app
