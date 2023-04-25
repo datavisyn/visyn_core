@@ -54,7 +54,7 @@ export function ViolinVisSidebar({
   }, [extensions]);
 
   return (
-    <Container fluid sx={{ width: '100%' }} p={10}>
+    <Container fluid p={10}>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
       <Stack spacing="sm">
