@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 
 /**
  * Creates a callback that always has the latest version of the given handler.
- * Can be used to avoid stale closures in event handlers.
+ * Can be used to avoid stale closures in event handlers. See https://twitter.com/diegohaz/status/1522868292301606912?s=20 for details.
  *
  * Example:
  * ```tsx
@@ -16,13 +17,15 @@ import * as React from 'react';
  * @returns Callback that always has the latest version of the given handler.
  */
 export function useEvent<T extends (...args: unknown[]) => unknown, P extends Parameters<T>>(handler: T) {
-  const handlerRef = React.useRef<T>(null);
+  // @ts-ignore
+  const handlerRef = React.useRef<T>(() => {
+    throw new Error('Cannot call an event handler while rendering.');
+  });
 
   React.useLayoutEffect(() => {
     handlerRef.current = handler;
   });
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return React.useCallback<T>((...args: P) => handlerRef.current?.(...args), []);
 }
