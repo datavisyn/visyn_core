@@ -15,6 +15,7 @@ export function CategoricalColumnSelect({ callback, columns, currentSelected }: 
 
   return (
     <MultiSelect
+      withinPortal
       placeholder="Select Column"
       label="Categorical columns"
       clearable

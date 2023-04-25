@@ -14,5 +14,7 @@ export function HexbinOptionSelect({ callback, currentSelected }: HexbinOptionSe
     { value: EHexbinOptions.BINS, label: EHexbinOptions.BINS },
     { value: EHexbinOptions.PIE, label: EHexbinOptions.PIE },
   ];
-  return <Select label={i18n.t('visyn:vis.hexbinOptions')} onChange={(e) => callback(e as EHexbinOptions)} data={options} value={currentSelected} />;
+  return (
+    <Select withinPortal label={i18n.t('visyn:vis.hexbinOptions')} onChange={(e) => callback(e as EHexbinOptions)} data={options} value={currentSelected} />
+  );
 }

@@ -1,6 +1,6 @@
-import { Container, Drawer } from '@mantine/core';
+import { Box, Drawer, ScrollArea } from '@mantine/core';
 import * as React from 'react';
-import { ReactNode, useRef } from 'react';
+import { ReactNode } from 'react';
 
 export function VisSidebarWrapper({
   id,
@@ -22,7 +22,12 @@ export function VisSidebarWrapper({
       lockScroll={false}
       overlayOpacity={0}
       zIndex={50}
-      styles={{ drawer: { position: 'absolute', overflow: 'hidden' }, root: { position: 'absolute', padding: 0, overflow: 'hidden' }, header: { margin: 0 } }}
+      styles={{
+        drawer: { position: 'absolute', overflow: 'hidden' },
+        root: { position: 'absolute', padding: 0, overflow: 'hidden' },
+        header: { margin: 0 },
+        body: { height: '100%' },
+      }}
       position="right"
       withinPortal
       shadow="xl"
@@ -31,7 +36,11 @@ export function VisSidebarWrapper({
       onClose={() => onClose()}
       size="sm"
     >
-      {children}
+      <ScrollArea p={0} w="100%" h="100%">
+        <Box pb="xl" style={{ height: '100%', width: '100%' }}>
+          {children}
+        </Box>
+      </ScrollArea>
     </Drawer>
   );
 }
