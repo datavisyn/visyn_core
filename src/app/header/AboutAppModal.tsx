@@ -64,7 +64,9 @@ export function AboutAppModal({
             <Text fw={700} c="dimmed">
               Version:
             </Text>
-            <Text>{process.env.__VERSION__} {process.env.__BUILD_DATE__ ? ` (${process.env.__BUILD_DATE__})` : ''}</Text>
+            <Text>
+              {process.env.__VERSION__} {process.env.__BUILD_DATE__ ? ` (${process.env.__BUILD_DATE__})` : ''}
+            </Text>
           </Group>
           <Space h="md" />
         </>
