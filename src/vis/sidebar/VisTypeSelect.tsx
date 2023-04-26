@@ -10,6 +10,7 @@ interface VisTypeSelectProps {
 export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps) {
   return (
     <Select
+      withinPortal
       label="Visualization type"
       // components={{Option: optionLayout}}
       onChange={(e) => callback(e as ESupportedPlotlyVis)}

@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import '../scss/vendors/_lineup.scss';
+import { createScoreColumn, IScoreResult } from './score/interfaces';
 
 export const defaultBuilder = ({ data }) => {
   const b = builder(data).deriveColumns().animated(true);
@@ -14,6 +15,33 @@ export const defaultBuilder = ({ data }) => {
   b.aggregationStrategy('group+item+top').propagateAggregationState(true).livePreviews({}).sidePanel(true, true);
   return b;
 };
+
+/**
+ * Lineup information passed to user via onBuiltLineUp. This is useful for adding custom/score columns to the ranking.
+ * Can store the createScoreColumn function in a ref and call it later to add a score column to the ranking.
+ *
+ * Such as in the following example:
+ *
+ *  const createScoreColumnFunc = React.useRef<(func: (data: { data: any }) => Promise<IScoreResult>) => Promise<void>>();
+ *  const onBuiltLineUp = React.useCallback((props: IBuiltVisynRanking) => {
+ *   createScoreColumnFunc.current = props.createScoreColumn;
+ *  }, []);
+ *
+ *  React.useEffect(() => {
+ *    if (createScoreColumnFunc.current) {
+ *      createScoreColumnFunc.current(async ({ data }) => {
+ *        const desc = await yourFunctionToGetDescription();
+ *       return desc;
+ *     });
+ *    }
+ *  }, [createScoreColumnFunc, yourFunctionToGetDescription]);
+ *
+ */
+export interface IBuiltVisynRanking {
+  provider: LocalDataProvider;
+  ranking: Ranking;
+  createScoreColumn: (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => Promise<void>;
+}
 
 export function EagerVisynRanking<T extends Record<string, unknown>>({
   data,
@@ -27,7 +55,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   getBuilder?: (props: { data: T[] }) => DataBuilder;
   setSelection: (selection: T[]) => void;
   selection: T[];
-  onBuiltLineUp?: (props: { provider: LocalDataProvider; ranking: Ranking }) => void;
+  onBuiltLineUp?: (props: IBuiltVisynRanking) => void;
 } & BoxProps) {
   const divRef = React.useRef<HTMLDivElement>(null);
   const lineupRef = React.useRef<Taggle | null>(null);
@@ -63,7 +91,14 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       return acc;
     }, new Map());
 
-    onBuiltLineupRef.current?.({ provider: lineupRef.current.data as LocalDataProvider, ranking: rankingRef.current });
+    onBuiltLineupRef.current?.({
+      provider: lineupRef.current.data as LocalDataProvider,
+      ranking: rankingRef.current,
+      createScoreColumn: async (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => {
+        const desc = await functionToCall({ data });
+        createScoreColumn(desc, lineupRef.current, rankingRef.current);
+      },
+    });
 
     return () => {
       lineupRef.current?.destroy();
