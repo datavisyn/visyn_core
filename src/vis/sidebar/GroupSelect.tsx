@@ -26,6 +26,7 @@ export function GroupSelect({
   return (
     <Stack spacing="sm">
       <Select
+        withinPortal
         clearable
         placeholder="Select Column"
         label="Group"

@@ -3,7 +3,7 @@ import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import { useEffect, useState } from 'react';
-import { ActionIcon, Container, Space, Tooltip } from '@mantine/core';
+import { ActionIcon, Container, Space, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { Scales, VisColumn, IVisConfig, IViolinConfig } from '../interfaces';
@@ -117,10 +117,10 @@ export function ViolinVis({
   }, [traces]);
 
   return (
-    <Container
-      fluid
+    <Stack
       pl={0}
       pr={0}
+      spacing={0}
       sx={{
         flexGrow: 1,
         height: '100%',
@@ -171,6 +171,6 @@ export function ViolinVis({
           <ViolinVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Stack>
   );
 }

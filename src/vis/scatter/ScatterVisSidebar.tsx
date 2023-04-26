@@ -84,7 +84,7 @@ export function ScatterVisSidebar({
   }, [extensions]);
 
   return (
-    <Container fluid sx={{ width: '100%' }} p={10}>
+    <Container fluid p={10}>
       <Stack spacing={0}>
         <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
         <Divider my="sm" />
