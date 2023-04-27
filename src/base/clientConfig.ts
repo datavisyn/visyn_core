@@ -7,16 +7,15 @@ import { Ajax } from './ajax';
  *
  * ```ts
  * declare module 'visyn_core' {
- *   export interface IVisynAppConfig {
+ *   export interface IClientConfig {
  *     customProperty: string;
  *   }
  * }
  *
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IClientConfig {
-  // empty
+  env?: 'development' | 'production';
 }
 
 /**

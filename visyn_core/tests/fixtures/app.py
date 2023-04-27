@@ -33,11 +33,10 @@ def app() -> FastAPI:
             demo_from_function: bool = False
 
         return MyFunctionAppConfigModel
-    
+
     @client_config.visyn_client_config
     class MyClassAppConfigModel(BaseModel):
         demo_from_class: bool = False
-
 
     return create_visyn_server(
         workspace_config={

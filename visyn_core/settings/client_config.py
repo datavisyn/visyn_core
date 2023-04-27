@@ -1,7 +1,8 @@
-from typing import Callable, Union
 from inspect import isclass
+from typing import Callable, Literal
+
 from fastapi import FastAPI
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, Field, create_model
 
 from .. import manager
 
@@ -9,7 +10,7 @@ _has_been_initialized = False
 _configs: list[type[BaseModel]] = []
 
 
-def visyn_client_config(callback: Union[Callable[[], type[BaseModel]], type[BaseModel]]):
+def visyn_client_config(callback: Callable[[], type[BaseModel]] | type[BaseModel]):
     """
     Decorator to register a config model to be used in the client config endpoint.
 
@@ -35,6 +36,11 @@ def visyn_client_config(callback: Union[Callable[[], type[BaseModel]], type[Base
     else:
         raise Exception("Invalid callback type. Must be a BaseModel or a function that returns a BaseModel.")
     return callback
+
+
+@visyn_client_config
+class VisynCoreClientConfigModel(BaseModel):
+    env: Literal["development", "production"] = Field(default_factory=lambda: manager.settings.env)
 
 
 def init_client_config(app: FastAPI):
