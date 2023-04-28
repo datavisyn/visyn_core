@@ -8,11 +8,13 @@ import { MainApp } from './MainApp';
 const container = document.getElementById('main');
 if (container) {
   createRoot(container).render(
-    <VisynAppProvider appName="Demo App">
-      <MantineProvider withNormalizeCSS withCSSVariables>
-        <MainApp />
-      </MantineProvider>
-    </VisynAppProvider>,
+    <React.StrictMode>
+      <VisynAppProvider appName="Demo App">
+        <MantineProvider withNormalizeCSS withCSSVariables>
+          <MainApp />
+        </MantineProvider>
+      </VisynAppProvider>
+    </React.StrictMode>,
   );
 } else {
   console.error('Could not find container element. This might indicate a problem with the app.');
