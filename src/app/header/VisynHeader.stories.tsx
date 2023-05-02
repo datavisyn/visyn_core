@@ -76,7 +76,9 @@ const Template: ComponentStory<typeof VisynHeader> = (args) => {
     () => ({
       user,
       appName: 'Demo Application',
-      clientConfig: {},
+      clientConfig: {
+        env: 'development' as const,
+      },
     }),
     [],
   );

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import merge from 'lodash/merge';
-import { ITDPClientConfig, loadClientConfig } from '../base/clientConfig';
+import { loadClientConfig } from '../base/clientConfig';
 import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
 import { VisynAppContext } from './VisynAppContext';
 import { DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
@@ -9,17 +9,10 @@ import { DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
 export function VisynAppProvider({
   children,
   appName,
-  defaultClientConfig,
   mantineProviderProps,
 }: {
   children?: React.ReactNode;
   appName: JSX.Element | string;
-  /**
-   * Client configuration which is automatically populated by the '/clientConfig.json' on initialize.
-   * To enable the asynchronous loading of the client configuration, pass an object (optionally with default values).
-   * Passing falsy values disables the client configuration load.
-   */
-  defaultClientConfig?: ITDPClientConfig | null | undefined;
   /**
    * Props to merge with the `DEFAULT_MANTINE_PROVIDER_PROPS`.
    */
@@ -28,15 +21,7 @@ export function VisynAppProvider({
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
 
-  const parseClientConfig = React.useCallback(async (): Promise<ITDPClientConfig> => {
-    if (!defaultClientConfig) {
-      return {};
-    }
-    const remoteClientConfig = await loadClientConfig();
-    return merge(defaultClientConfig || {}, remoteClientConfig || {});
-  }, [defaultClientConfig]);
-
-  const { value: clientConfig, status: clientConfigStatus } = useAsync(parseClientConfig, []);
+  const { value: clientConfig, status: clientConfigStatus } = useAsync(loadClientConfig, []);
 
   const context = React.useMemo(
     () => ({
