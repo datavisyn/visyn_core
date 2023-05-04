@@ -21,7 +21,12 @@ export function VisynAppProvider({
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
 
-  const { value: clientConfig, status: clientConfigStatus } = useAsync(loadClientConfig, []);
+  const { value: clientConfig, status: clientConfigStatus, execute } = useAsync(loadClientConfig, []);
+
+  React.useEffect(() => {
+    // Whenever the user changes, we want to reload the client config to get the latest permissions.
+    execute();
+  }, [user, execute]);
 
   const context = React.useMemo(
     () => ({
