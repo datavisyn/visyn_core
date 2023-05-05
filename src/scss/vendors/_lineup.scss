@@ -23,6 +23,4 @@ $lu_include_font_awesome: false !default;
     // the LineUp zoom buttons are still working as they are using percentages (e.g., `font-size: 100%`)
     // which works relative to the font size defined here.
     font-size: 13.4px;
-    // unset to reset the LineUp default line height and set it to the Bootstrap default line height
-    line-height: unset;
 }
