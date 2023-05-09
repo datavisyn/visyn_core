@@ -40,7 +40,7 @@ export function fetchIrisData(): VisColumn[] {
       info: {
         description: '',
         id: 'petalLength',
-        name: 'Petal Length',
+        name: 'Petal Length PEtal length petal length',
       },
       type: EColumnTypes.NUMERICAL,
       values: () => dataPromise.then((data) => data.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),

@@ -2,6 +2,9 @@ import { Box, Drawer, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 import { ReactNode } from 'react';
 
+const sidebarSize = 200;
+const padding = 10;
+
 export function VisSidebarWrapper({
   id,
   children,
@@ -18,7 +21,7 @@ export function VisSidebarWrapper({
   return (
     <Drawer
       closeOnClickOutside
-      padding="sm"
+      padding={padding}
       lockScroll={false}
       overlayOpacity={0}
       zIndex={50}
@@ -34,10 +37,10 @@ export function VisSidebarWrapper({
       target={target}
       opened={open}
       onClose={() => onClose()}
-      size="sm"
+      size={`${sidebarSize + padding * 2}px`}
     >
-      <ScrollArea p={0} w="100%" h="100%">
-        <Box pb="xl" style={{ height: '100%', width: '100%' }}>
+      <ScrollArea p={0} w={`${sidebarSize}px`} h="100%">
+        <Box pb="xl" style={{ height: '100%', width: `${sidebarSize}px` }}>
           {children}
         </Box>
       </ScrollArea>

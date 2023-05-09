@@ -22,7 +22,7 @@ export function OpacitySlider({ callback, currentValue }: OpacitySliderProps) {
       <Text weight={500} size={14}>
         Opacity
       </Text>
-      <Box sx={{ width: '200px' }}>
+      <Box>
         <Slider
           step={0.05}
           value={+currentValue.toFixed(2)}
