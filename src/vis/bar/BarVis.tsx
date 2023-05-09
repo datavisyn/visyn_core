@@ -168,7 +168,7 @@ export function BarVis({
         family: 'Roboto, sans-serif',
       },
       margin: {
-        t: 25,
+        t: 40,
         r: 25,
         l: 25,
         b: 25,
