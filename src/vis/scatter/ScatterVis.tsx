@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActionIcon, Center, Container, Group, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+import * as d3 from 'd3v7';
 import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings } from '../interfaces';
 import { InvalidCols } from '../general/InvalidCols';
 import { createScatterTraces } from './utils';
@@ -216,6 +217,12 @@ export function ScatterVis({
             } else {
               selectionCallback([...selectedList, clickedId]);
             }
+          }}
+          onInitialized={() => {
+            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+          }}
+          onRedraw={() => {
+            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
           }}
           onSelected={(sel) => {
             selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
