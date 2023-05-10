@@ -4,7 +4,7 @@ import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Container, Space, Tooltip } from '@mantine/core';
+import { ActionIcon, Container, Space, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType } from '../interfaces';
@@ -107,17 +107,15 @@ export function BarVis({
 
       const selectedIndices = [];
       tracePoints.forEach((points, index) => {
-        if (points.length === 0 || selectedList.length < points.length) {
+        if (points.length === 0) {
           return;
         }
         for (const point of points) {
-          if (!selectedMap[point]) {
-            return;
+          if (selectedMap[point]) {
+            isTraceSelected = true;
+            selectedIndices.push(index);
           }
         }
-
-        selectedIndices.push(index);
-        isTraceSelected = true;
       });
 
       if (selectedIndices.length > 0) {
@@ -136,7 +134,7 @@ export function BarVis({
     }
 
     return editedTraces;
-  }, [traces, selectedMap, selectedList]);
+  }, [traces, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('BarVis'), []);
 
@@ -196,10 +194,10 @@ export function BarVis({
   }, [finalTraces]);
 
   return (
-    <Container
-      fluid
+    <Stack
       pl={0}
       pr={0}
+      spacing={0}
       sx={{
         flexGrow: 1,
         height: '100%',
@@ -273,6 +271,6 @@ export function BarVis({
           <BarVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Stack>
   );
 }

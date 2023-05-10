@@ -103,7 +103,7 @@ export function BarVisSidebar({
   }, [extensions]);
 
   return (
-    <Container p={10} fluid sx={{ width: '100%' }}>
+    <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
       <Stack spacing="sm">

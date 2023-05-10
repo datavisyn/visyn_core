@@ -52,6 +52,7 @@ def create_visyn_server(
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
     _log = logging.getLogger(__name__)
+    _log.info(f"Starting visyn_server in {manager.settings.env} mode")
 
     # Load the initial plugins
     from ..plugin.parser import get_config_from_plugins, load_all_plugins
@@ -172,11 +173,18 @@ def create_visyn_server(
     app.add_api_route("/health", health)  # type: ignore
     app.add_api_route("/api/buildInfo.json", build_info)  # type: ignore
 
+    from ..settings.client_config import init_client_config
+
+    init_client_config(app)
+
     @app.on_event("startup")
     async def change_anyio_total_tokens():
         # FastAPI uses anyio threads to handle sync endpoint concurrently.
         # This is a workaround to increase the number of threads to 100, as the default is only 40.
         limiter = anyio.to_thread.current_default_thread_limiter()
         limiter.total_tokens = manager.settings.visyn_core.total_anyio_tokens
+
+    if manager.settings.visyn_core.cypress:
+        _log.info("Cypress mode is enabled. This should only be used in a Cypress testing environment or CI.")
 
     return app

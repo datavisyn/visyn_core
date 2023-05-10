@@ -1,6 +1,8 @@
+import contextlib
+import json
 from typing import Any, Literal
 
-from pydantic import AnyHttpUrl, BaseModel, BaseSettings, Extra, Field
+from pydantic import AnyHttpUrl, BaseModel, BaseSettings, Extra, Field, validator
 
 from .constants import default_logging_dict
 
@@ -102,6 +104,23 @@ class VisynCoreSettings(BaseModel):
     The total number of threads to use for anyio. FastAPI uses these threads to run sync routes concurrently.
     """
     telemetry: TelemetrySettings = TelemetrySettings()
+    """
+    Settings for telemetry using OpenTelemetry, prometheus, ...
+    """
+    cypress: bool = False
+    """
+    True if the application is running in Cypress testing environment. Enables application to return special responses for example.
+
+    To enable this flag in applications, simply add `VISYN_CORE__CYPRESS=true` to your `.env` file.
+
+    Example usage in a route:
+    ```
+    from visyn_core import manager
+    ...
+    if manager.settings.visyn_core.cypress:
+        # Do something
+    ```
+    """
 
     disable: DisableSettings = DisableSettings()
     enabled_plugins: list[str] = []
@@ -118,9 +137,21 @@ class VisynCoreSettings(BaseModel):
     """Deprecated: use visyn_core.security.store.dummy_store.enable instead."""
     security: SecuritySettings = SecuritySettings()
 
+    client_config: dict[str, Any] | None = None
+    """Client config to be loaded via /api/clientConfig"""
+
+    @validator("client_config", pre=True)
+    def json_decode_client_config(cls, v):  # NOQA N805
+        # Manually parse JSON strings if they are coming from the env via `VISYN_CORE__CLIENT_CONFIG='{"...": ...}'`.
+        # See https://github.com/pydantic/pydantic/issues/831 for details.
+        if isinstance(v, str):
+            with contextlib.suppress(ValueError):
+                return json.loads(v)
+        return v
+
 
 class GlobalSettings(BaseSettings):
-    env: Literal["development", "production"] = "development"
+    env: Literal["development", "production"] = "production"
     secret_key: str = "VERY_SECRET_STUFF_T0IB84wlQrdMH8RVT28w"
 
     # JWT options mostly inspired by flask-jwt-extended: https://flask-jwt-extended.readthedocs.io/en/stable/options/#general-options
@@ -135,7 +166,6 @@ class GlobalSettings(BaseSettings):
     jwt_cookie_samesite: Literal["lax", "strict", "none"] | None = "strict"
     jwt_access_cookie_path: str = "/"
 
-    # General settings for core
     visyn_core: VisynCoreSettings = VisynCoreSettings()  # type: ignore
 
     @property

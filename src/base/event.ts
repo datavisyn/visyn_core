@@ -137,7 +137,7 @@ export class EventHandler implements IEventHandler {
    * @param events either one event string (multiple are supported using , as separator) or a map of event handlers
    * @param handler the handler in case of a given string
    */
-  on = (events: string | { [key: string]: IEventListener }, handler?: IEventListener) => {
+  on(events: string | { [key: string]: IEventListener }, handler?: IEventListener) {
     if (typeof events === 'string') {
       events.split(EventHandler.MULTI_EVENT_SEPARATOR).forEach((event) => {
         if (!this.handlers.has(event)) {
@@ -152,14 +152,14 @@ export class EventHandler implements IEventHandler {
       });
     }
     return this;
-  };
+  }
 
   /**
    * unregister a global event handler
    * @param events
    * @param handler
    */
-  off = (events: string | { [key: string]: IEventListener }, handler?: IEventListener) => {
+  off(events: string | { [key: string]: IEventListener }, handler?: IEventListener) {
     if (typeof events === 'string') {
       events.split(EventHandler.MULTI_EVENT_SEPARATOR).forEach((event) => {
         if (this.handlers.has(event)) {
@@ -177,7 +177,7 @@ export class EventHandler implements IEventHandler {
       });
     }
     return this;
-  };
+  }
 
   /**
    * list for each registered event the number of listeners
@@ -195,12 +195,12 @@ export class EventHandler implements IEventHandler {
    * @param events name(s) of the event
    * @param args additional arguments
    */
-  fire = (events: string, ...args: any[]) => {
+  fire(events: string, ...args: any[]) {
     events.split(EventHandler.MULTI_EVENT_SEPARATOR).forEach((event) => {
       this.fireEvent(createEvent(event, args, this));
     });
     return this;
-  };
+  }
 
   private fireEvent = (event: Event) => {
     if (this.handlers.has(event.type)) {
