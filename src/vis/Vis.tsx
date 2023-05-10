@@ -17,12 +17,13 @@ import {
   EAggregateTypes,
 } from './interfaces';
 import { isScatter, scatterMergeDefaultConfig, ScatterVis } from './scatter';
-import { barMergeDefaultConfig, isBar, BarVis } from './bar';
+import { barMergeDefaultConfig, isBar } from './bar';
 import { isViolin, violinMergeDefaultConfig, ViolinVis } from './violin';
 import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
+import { BarVis } from './barGood/BarVis';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 

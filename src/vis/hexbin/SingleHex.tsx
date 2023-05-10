@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as hex from 'd3-hexbin';
 import * as d3v7 from 'd3v7';
 import { useMemo } from 'react';
-import { Tooltip } from '@mantine/core';
 import { PieChart } from './PieChart';
 import { cutHex } from './utils';
 import { EHexbinOptions } from '../interfaces';
