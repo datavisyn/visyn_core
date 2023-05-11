@@ -148,7 +148,6 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   // resize observer for setting size of the svg and updating on size change
   useEffect(() => {
     const ro = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-      console.log(entries);
       setHeight(entries[0].contentRect.height - margin.top - margin.bottom);
       setWidth(entries[0].contentRect.width - margin.left - margin.right);
     });
