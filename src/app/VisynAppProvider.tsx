@@ -22,6 +22,15 @@ export function VisynAppProvider({
   const { status: initStatus } = useInitVisynApp();
 
   const { value: clientConfig, status: clientConfigStatus, execute } = useAsync(loadClientConfig, []);
+  const [successfulClientConfigInit, setSuccessfulClientConfigInit] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    // Once the client config is loaded, we can set the successful client config init.
+    // This is required as when the user changes, we reload the client config but don't want to trigger a complete unmount.
+    if (clientConfigStatus === 'success') {
+      setSuccessfulClientConfigInit(true);
+    }
+  }, [clientConfigStatus]);
 
   React.useEffect(() => {
     // Whenever the user changes, we want to reload the client config to get the latest permissions.
@@ -41,7 +50,7 @@ export function VisynAppProvider({
 
   return (
     <MantineProvider {...mergedMantineProviderProps}>
-      <VisynAppContext.Provider value={context}>{initStatus === 'success' && clientConfigStatus === 'success' ? children : null}</VisynAppContext.Provider>
+      <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
     </MantineProvider>
   );
 }
