@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { all, desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
-import { Box, SimpleGrid } from '@mantine/core';
+import { Box, Container, SimpleGrid } from '@mantine/core';
 import { EBarGroupingType, IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { useAsync } from '../../hooks/useAsync';
@@ -13,7 +13,7 @@ import { GroupedBars } from './GroupedBars';
 
 const margin = {
   top: 25,
-  bottom: 25,
+  bottom: 50,
   left: 25,
   right: 100,
 };
@@ -21,8 +21,8 @@ const margin = {
 export function SimpleBars({ config, columns }: { config: IBarConfig; columns: VisColumn[] }) {
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [columns, config.catColumnSelected, config.group, config.multiples]);
 
-  const [height, setHeight] = useState<number>(600);
-  const [width, setWidth] = useState<number>(600);
+  const [height, setHeight] = useState<number>(0);
+  const [width, setWidth] = useState<number>(0);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -92,17 +92,30 @@ export function SimpleBars({ config, columns }: { config: IBarConfig; columns: V
 
   return (
     <Box ref={ref} style={{ width: '100%', height: '100%' }}>
-      <svg width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
-        <g>
-          {countScale && categoryScale ? (
-            <YAxis yScale={countScale} xRange={[categoryScale.range()[1], categoryScale.range()[0]]} horizontalPosition={margin.left} />
-          ) : null}
-          {categoryScale && countScale ? (
-            <XAxis xScale={categoryScale} yRange={[countScale.range()[1], countScale.range()[0]]} vertPosition={height + margin.top} />
-          ) : null}
-          {bars}
-        </g>
-      </svg>
+      <Container
+        fluid
+        pl={0}
+        pr={0}
+        sx={{
+          height: height + margin.top + margin.bottom,
+          width: '100%',
+          '.overlay': {
+            cursor: 'default !important',
+          },
+        }}
+      >
+        <svg width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
+          <g>
+            {countScale && categoryScale ? (
+              <YAxis yScale={countScale} xRange={[categoryScale.range()[1], categoryScale.range()[0]]} horizontalPosition={margin.left} />
+            ) : null}
+            {categoryScale && countScale ? (
+              <XAxis xScale={categoryScale} yRange={[countScale.range()[1], countScale.range()[0]]} vertPosition={height + margin.top} />
+            ) : null}
+            {bars}
+          </g>
+        </svg>
+      </Container>
     </Box>
   );
 }
