@@ -6,7 +6,7 @@ import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
 import { i18n } from '../../i18n/I18nextManager';
-import { SimpleBars } from './SimpleBars';
+import { BarChart } from './BarChart';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { BarVisSidebar } from '../bar/BarVisSidebar';
 
@@ -96,7 +96,7 @@ export function BarVis({
           </ActionIcon>
         </Tooltip>
       ) : null}
-      <SimpleBars config={config} columns={columns} />
+      <BarChart config={config} columns={columns} />
       {showSidebar ? (
         <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
           <BarVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />

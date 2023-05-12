@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { all, desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
-import { IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
+import { Box, SimpleGrid } from '@mantine/core';
+import { EBarGroupingType, IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { useAsync } from '../../hooks/useAsync';
 import { getBarData } from './utils';
@@ -20,24 +21,38 @@ const margin = {
   top: 25,
   bottom: 25,
   left: 25,
-  right: 25,
+  right: 100,
 };
 
-const barPadding = 10;
-
-export function SimpleBars({ config, columns }: { config: IBarConfig; columns: VisColumn[] }) {
-  const { value: allColumns, status: colsStatus } = useAsync(getBarData, [columns, config.catColumnSelected, config.group]);
-
-  console.log(allColumns);
+export function GroupedBars({ config, columns }: { config: IBarConfig; columns: VisColumn[] }) {
+  const { value: allColumns, status: colsStatus } = useAsync(getBarData, [columns, config.catColumnSelected, config.group, config.multiples]);
 
   const [height, setHeight] = useState<number>(600);
   const [width, setWidth] = useState<number>(600);
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  // resize observer for setting size of the svg and updating on size change
+  useEffect(() => {
+    const ro = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+      setHeight(entries[0].contentRect.height - margin.top - margin.bottom);
+      setWidth(entries[0].contentRect.width - margin.left - margin.right);
+    });
+
+    if (ref) {
+      ro.observe(ref.current);
+    }
+
+    return () => {
+      ro.disconnect();
+    };
+  }, []);
 
   const aggregatedTable = useMemo(() => {
     if (colsStatus === 'success') {
       const myTable = table({ category: allColumns.catColVals.resolvedValues.map((val) => val.val) });
 
-      const grouped = myTable.groupby('category').count();
+      const grouped = myTable.groupby('category').count().orderby('category');
 
       return grouped;
     }
@@ -58,33 +73,75 @@ export function SimpleBars({ config, columns }: { config: IBarConfig; columns: V
     return d3
       .scaleBand()
       .range([width + margin.left, margin.left])
-      .domain(aggregatedTable.array('category'));
+      .domain(aggregatedTable.array('category'))
+      .padding(0.2);
   }, [aggregatedTable, width]);
 
+  const groupedTable = useMemo(() => {
+    if (colsStatus === 'success' && allColumns.groupColVals) {
+      const myTable = table({
+        category: allColumns.catColVals.resolvedValues.map((val) => val.val),
+        group: allColumns.groupColVals.resolvedValues.map((val) => val.val),
+      });
+
+      const grouped = myTable.groupby('category', 'group').count().orderby('category');
+
+      return grouped;
+    }
+
+    return null;
+  }, [allColumns, colsStatus]);
+
+  const groupColorScale = useMemo(() => {
+    if (!groupedTable) return null;
+
+    const newGroup = groupedTable.ungroup().groupby('group').count();
+
+    return d3.scaleOrdinal<string>().domain(newGroup.array('group')).range(d3.schemeCategory10);
+  }, [groupedTable]);
+
+  const groupScale = useMemo(() => {
+    if (!groupedTable) return null;
+    const newGroup = groupedTable.ungroup().groupby('category', 'group').count();
+
+    return d3.scaleBand().range([0, categoryScale.bandwidth()]).domain(newGroup.array('group')).padding(0.1);
+  }, [categoryScale, groupedTable]);
+
+  const bars = useMemo(() => {
+    if (groupedTable) {
+      return groupedTable
+        .groupby('category')
+        .objects()
+        .map((row: { category: string; group: string; count: number }) => {
+          return (
+            <SingleBar
+              key={row.category + row.group}
+              x={categoryScale(row.category) + groupScale(row.group)}
+              width={groupScale.bandwidth()}
+              y={countScale(row.count)}
+              value={row.count}
+              height={height + margin.top - countScale(row.count)}
+              color={groupColorScale(row.group)}
+            />
+          );
+        });
+    }
+    return null;
+  }, [categoryScale, countScale, groupColorScale, groupScale, groupedTable, height]);
+
   return (
-    <svg width={width + 100} height={height + 100}>
-      <g>
-        {countScale && categoryScale ? (
-          <YAxis yScale={countScale} xRange={[categoryScale.range()[1], categoryScale.range()[0]]} horizontalPosition={margin.left} />
-        ) : null}
-        {categoryScale && countScale ? (
-          <XAxis xScale={categoryScale} yRange={[countScale.range()[1], countScale.range()[0]]} vertPosition={height + margin.top} />
-        ) : null}
-        {aggregatedTable
-          ? aggregatedTable.objects().map((row: { category: string; count: number }) => {
-              return (
-                <SingleBar
-                  key={row.category}
-                  x={categoryScale(row.category) + barPadding}
-                  width={categoryScale.bandwidth() - barPadding * 2}
-                  y={countScale(row.count)}
-                  value={row.count}
-                  height={height + margin.top - countScale(row.count)}
-                />
-              );
-            })
-          : null}
-      </g>
-    </svg>
+    <Box ref={ref} style={{ width: '100%', height: '100%' }}>
+      <svg width={width} height={height}>
+        <g>
+          {countScale && categoryScale ? (
+            <YAxis yScale={countScale} xRange={[categoryScale.range()[1], categoryScale.range()[0]]} horizontalPosition={margin.left} />
+          ) : null}
+          {categoryScale && countScale ? (
+            <XAxis xScale={categoryScale} yRange={[countScale.range()[1], countScale.range()[0]]} vertPosition={height + margin.top} />
+          ) : null}
+          {bars}
+        </g>
+      </svg>
+    </Box>
   );
 }

@@ -15,7 +15,9 @@ import {
 } from '../interfaces';
 
 export function fetchIrisData(): VisColumn[] {
-  const dataPromise = import('./irisData.js').then((m) => m.iris);
+  const dataPromise = import('./irisData.js').then((m) =>
+    m.iris.map((currIris) => ({ ...currIris, randomCategory: Math.round(Math.random() * 4), anotherRandomCategory: Math.round(Math.random() * 4) })),
+  );
 
   return [
     {
@@ -43,7 +45,16 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Random Thing',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
+      values: () => dataPromise.then((data) => data.map((r) => r.randomCategory).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
+    },
+    {
+      info: {
+        description: '',
+        id: 'randomThing2',
+        name: 'Random Thing2',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.then((data) => data.map((r) => r.anotherRandomCategory).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
     },
     {
       info: {

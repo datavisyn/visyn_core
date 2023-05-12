@@ -5,7 +5,6 @@ import * as d3 from 'd3v7';
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({ xScale, yRange, vertPosition }: { xScale: d3.ScaleBand<string>; yRange: [number, number]; vertPosition: number }) {
   const ticks = useMemo(() => {
-    console.log(xScale);
     return xScale.domain().map((value) => ({
       value,
       xOffset: xScale(value) + xScale.bandwidth() / 2,
