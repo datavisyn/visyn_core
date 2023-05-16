@@ -119,5 +119,5 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     }
   }, [selection]);
 
-  return <Box ref={divRef} style={{ flex: 1 }} {...(innerProps || {})} />;
+  return <Box ref={divRef} style={{ flex: 1, width: '100%' }} {...(innerProps || {})} />;
 }

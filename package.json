@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "1.2.1-SNAPSHOT",
+  "version": "2.0.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -179,8 +179,7 @@
     "@types/react": "~18.2.0",
     "@types/react-dom": "~18.2.0",
     "react": "~18.2.0",
-    "react-dom": "~18.2.0",
-    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#react18"
+    "react-dom": "~18.2.0"
   },
   "visyn": {
     "entries": {
