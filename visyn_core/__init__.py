@@ -19,7 +19,7 @@ class VisynPlugin(AVisynPlugin):
 
         from .settings.router import create as create_settings_router
 
-        app.include_router(create_settings_router(app))
+        app.include_router(create_settings_router())
 
     def register(self, registry: RegHelper):
         # phovea_server
