@@ -138,10 +138,6 @@ def create_visyn_server(
     # Load all namespace plugins as WSGIMiddleware plugins
     for p in router_plugins:
         app.include_router(p.load().factory())
-    from ..middleware.request_context_plugin import RequestContextPlugin
-
-    # Use starlette-context to store the current request globally, i.e. accessible via context['request']
-    app.add_middleware(RawContextMiddleware, plugins=(RequestContextPlugin(),))
 
     class UvicornAccessLogFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
@@ -180,5 +176,10 @@ def create_visyn_server(
     from ..settings.client_config import init_client_config
 
     init_client_config(app)
+
+    from ..middleware.request_context_plugin import RequestContextPlugin
+
+    # Use starlette-context to store the current request globally, i.e. accessible via context['request']
+    app.add_middleware(RawContextMiddleware, plugins=(RequestContextPlugin(),))
 
     return app
