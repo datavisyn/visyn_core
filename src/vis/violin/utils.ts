@@ -14,6 +14,7 @@ import {
 } from '../interfaces';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { i18n } from '../../i18n';
+import { SELECT_COLOR } from '../general/constants';
 
 export function isViolin(s: IVisConfig): s is IViolinConfig {
   return s.type === ESupportedPlotlyVis.VIOLIN;
@@ -65,6 +66,8 @@ export async function createViolinTraces(
   const numColValues = await resolveColumnValues(numCols);
   const catColValues = await resolveColumnValues(catCols);
 
+  console.log(selectedList, selectedMap)
+
   // if we onl have numerical columns, add them individually.
   if (catColValues.length === 0) {
     for (const numCurr of numColValues) {
@@ -84,8 +87,7 @@ export async function createViolinTraces(
             visible: config.violinOverlay === EViolinOverlay.BOX,
           },
           marker: {
-            color: '#878E95',
-            opacity: selectedList.length === 0 || numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? 1 : 0.3,
+            color: selectedList.length === 0 || numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
           },
 
           spanmode: 'hard',

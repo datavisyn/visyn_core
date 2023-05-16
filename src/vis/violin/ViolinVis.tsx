@@ -80,14 +80,16 @@ export function ViolinVis({
   const plotlyDivRef = React.useRef(null);
 
   const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
-    if (!e) {
+    console.log(e);
+    if (!e || !e.points || !e.points[0]) {
       selectionCallback([]);
       return;
     }
 
     // @ts-ignore
     const shiftPressed = e.event.shiftKey;
-    const eventIds = e.points[0]?.data.ids;
+    // @ts-ignore
+    const eventIds = e.points[0]?.fullData.ids;
 
     // Multiselect enabled
     if (shiftPressed) {
@@ -98,12 +100,15 @@ export function ViolinVis({
       if (newSelected.length === selectedList.length) {
         newSelected.push(...eventIds);
       }
+
+      console.log(newSelected);
       selectionCallback(newSelected);
     }
     // Multiselect disabled
     else if (eventIds.every((tempId) => selectedList.includes(tempId))) {
       selectionCallback([]);
     } else {
+      console.log(eventIds);
       selectionCallback(eventIds);
     }
   };
@@ -144,6 +149,7 @@ export function ViolinVis({
       font: {
         family: 'Roboto, sans-serif',
       },
+      clickmode: 'event+select',
       autosize: true,
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { Vis } from '../LazyVis';
 import {
@@ -86,10 +86,12 @@ export default {
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchIrisData(), []);
+
+  const [selection, setSelection] = useState<string[]>([]);
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} />
+        <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
       </div>
     </div>
   );
