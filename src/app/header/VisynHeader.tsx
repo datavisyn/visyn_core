@@ -54,12 +54,11 @@ export function VisynHeader({
   }>;
 }) {
   const { appName, user } = useVisynAppContext();
-  const theme = useMantineTheme();
   const { classes } = useStyles();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
 
   return (
-    <Header height={height} style={{ backgroundColor: backgroundColor || '#495057' }}>
+    <Header height={height} style={{ backgroundColor: backgroundColor || '#495057' }} withBorder={false}>
       <Group
         sx={{
           height,

@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { SimpleGrid, Text } from '@mantine/core';
+import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { VisynRanking } from '../ranking';
+import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
+import { MyNumberScore, MyStringScore } from './scoresUtils';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -36,6 +38,8 @@ export function MainApp() {
   const [selection, setSelection] = React.useState<typeof iris>([]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${iris.indexOf(s)}`), [selection]);
+  const createScoreColumnFunc = React.useRef<IBuiltVisynRanking['createScoreColumn']>(null);
+  const [loading, setLoading] = React.useState(false);
 
   return (
     <VisynApp
@@ -50,8 +54,32 @@ export function MainApp() {
       }
     >
       {user ? (
-        <SimpleGrid cols={2} style={{ height: '100%' }}>
-          <VisynRanking data={iris} selection={selection} setSelection={setSelection} />
+        <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
+          <Stack>
+            <Select
+              placeholder="Add a score column"
+              onChange={async (value) => {
+                setLoading(true);
+                // eslint-disable-next-line no-promise-executor-return
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                createScoreColumnFunc.current(({ data }) => {
+                  return value === 'number' ? MyNumberScore(value) : MyStringScore(value);
+                });
+                setLoading(false);
+              }}
+              rightSection={loading ? <Loader /> : null}
+              data={[
+                { value: 'number', label: 'Number' },
+                { value: 'category', label: 'Category' },
+              ]}
+            />
+            <VisynRanking
+              data={iris}
+              selection={selection}
+              setSelection={setSelection}
+              onBuiltLineUp={({ createScoreColumn }) => (createScoreColumnFunc.current = createScoreColumn)}
+            />
+          </Stack>
           <Vis
             columns={columns}
             showSidebarDefault

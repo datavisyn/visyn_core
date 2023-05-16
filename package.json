@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "1.1.2-SNAPSHOT",
+  "version": "1.2.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -144,17 +144,17 @@
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
-    "@types/react": "^16.9.23",
-    "@types/react-dom": "^16.9.5",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "@types/react-plotly.js": "^2.5.0",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.4.0",
-    "i18next": "^19.8.4",
+    "i18next": "^22.4.15",
     "lineupjs": "4.7.0",
     "lodash": "~4.17.20",
     "plotly.js-dist-min": "~2.12.0",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-highlight-words": "^0.17.0",
     "react-plotly.js": "^2.5.1",
     "use-deep-compare-effect": "^1.8.0",
@@ -176,11 +176,10 @@
     "storybook-addon-swc": "^1.1.9"
   },
   "resolutions": {
-    "@types/react": "^16.9.23",
-    "@types/react-dom": "^16.9.5",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
-    "webpack": "5.74.0"
+    "@types/react": "~18.2.0",
+    "@types/react-dom": "~18.2.0",
+    "react": "~18.2.0",
+    "react-dom": "~18.2.0"
   },
   "visyn": {
     "entries": {
