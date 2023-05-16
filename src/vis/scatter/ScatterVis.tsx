@@ -221,7 +221,7 @@ export function ScatterVis({
           onInitialized={() => {
             d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
           }}
-          onRedraw={() => {
+          onUpdate={() => {
             d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
           }}
           onSelected={(sel) => {
