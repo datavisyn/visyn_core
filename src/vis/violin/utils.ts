@@ -38,7 +38,13 @@ export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinCo
   return merged;
 }
 
-export async function createViolinTraces(columns: VisColumn[], config: IViolinConfig, scales: Scales): Promise<PlotlyInfo> {
+export async function createViolinTraces(
+  columns: VisColumn[],
+  config: IViolinConfig,
+  scales: Scales,
+  selectedList: string[],
+  selectedMap: { [key: string]: boolean },
+): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
   if (!config.numColumnsSelected || !config.catColumnsSelected) {
@@ -65,6 +71,7 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
       plots.push({
         data: {
           y: numCurr.resolvedValues.map((v) => v.val),
+          ids: numCurr.resolvedValues.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           type: 'violin',
@@ -77,7 +84,8 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
             visible: config.violinOverlay === EViolinOverlay.BOX,
           },
           marker: {
-            color: 'gray',
+            color: '#878E95',
+            opacity: selectedList.length === 0 || numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? 1 : 0.3,
           },
 
           spanmode: 'hard',
@@ -98,13 +106,11 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
       plots.push({
         data: {
           x: catCurr.resolvedValues.map((v) => v.val),
+          ids: catCurr.resolvedValues.map((v) => v.id),
           y: numCurr.resolvedValues.map((v) => v.val),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           type: 'violin',
-          marker: {
-            color: 'gray',
-          },
           // @ts-ignore
           hoveron: 'violins',
           hoverinfo: 'y',
@@ -123,7 +129,7 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
               type: 'groupby',
               groups: catCurr.resolvedValues.map((v) => v.val) as string[],
               styles: [...new Set<string>(catCurr.resolvedValues.map((v) => v.val) as string[])].map((c) => {
-                return { target: c, value: { line: { color: scales.color(c) } } };
+                return { target: c, value: { line: { color: '#878E95', opacity:  } } };
               }),
             },
           ],
@@ -135,6 +141,7 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
     }
   }
 
+  console.log(plots);
   return {
     plots,
     legendPlots: [],

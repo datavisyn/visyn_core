@@ -7,7 +7,7 @@ import { ActionIcon, Container, Space, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { Scales, VisColumn, IVisConfig, IViolinConfig } from '../interfaces';
-import { PlotlyComponent } from '../../plotly';
+import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
@@ -34,6 +34,9 @@ export function ViolinVis({
   scales,
   showSidebar,
   setShowSidebar,
+  selectedList,
+  selectedMap,
+  selectionCallback,
   enableSidebar,
   showCloseButton = false,
   closeButtonCallback = () => null,
@@ -54,7 +57,10 @@ export function ViolinVis({
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
   closeButtonCallback?: () => void;
+  selectionCallback: (ids: string[]) => void;
 
+  selectedMap: { [key: string]: boolean };
+  selectedList: string[];
   scales: Scales;
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
@@ -65,7 +71,7 @@ export function ViolinVis({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales]);
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('ViolinVis'), []);
 
@@ -73,9 +79,41 @@ export function ViolinVis({
 
   const plotlyDivRef = React.useRef(null);
 
+  const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
+    if (!e) {
+      selectionCallback([]);
+      return;
+    }
+
+    // @ts-ignore
+    const shiftPressed = e.event.shiftKey;
+    const eventIds = e.points[0]?.data.ids;
+
+    // Multiselect enabled
+    if (shiftPressed) {
+      // Filter out incoming ids in order to deselect violin/box element
+      const newSelected = selectedList.filter((s) => !eventIds.includes(s));
+
+      // If incoming ids were not in selected already, add them
+      if (newSelected.length === selectedList.length) {
+        newSelected.push(...eventIds);
+      }
+      selectionCallback(newSelected);
+    }
+    // Multiselect disabled
+    else if (eventIds.every((tempId) => selectedList.includes(tempId))) {
+      selectionCallback([]);
+    } else {
+      selectionCallback(eventIds);
+    }
+  };
+
   useEffect(() => {
     const ro = new ResizeObserver(() => {
-      Plotly.Plots.resize(document.getElementById(`plotlyDiv${id}`));
+      const plotDiv = document.getElementById(`plotlyDiv${id}`);
+      if (plotDiv) {
+        Plotly.Plots.resize(plotDiv);
+      }
     });
 
     if (plotlyDivRef) {
@@ -153,6 +191,7 @@ export function ViolinVis({
           config={{ responsive: true, displayModeBar: false }}
           useResizeHandler
           style={{ width: '100%', height: '100%' }}
+          onClick={onClick}
           // plotly redraws everything on updates, so you need to reappend title and
           onUpdate={() => {
             for (const p of traces.plots) {

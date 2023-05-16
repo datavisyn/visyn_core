@@ -20,7 +20,7 @@ export function fetchIrisData(): VisColumn[] {
   return [
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'sepalLength',
         name: 'Sepal Length',
       },
@@ -29,7 +29,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'sepalWidth',
         name: 'Sepal Width',
       },
@@ -47,7 +47,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'petalLength',
         name: 'Petal Length PEtal length petal length',
       },
@@ -56,7 +56,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'petalWidth',
         name: 'Petal Width',
       },
@@ -65,7 +65,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'species',
         name: 'Species',
       },

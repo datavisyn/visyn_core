@@ -241,6 +241,9 @@ export function EagerVis({
       {isViolin(visConfig) ? (
         <ViolinVis
           config={visConfig}
+          selectedList={selected}
+          selectedMap={selectedMap}
+          selectionCallback={selectionCallback}
           optionsConfig={{
             overlay: {
               enable: true,
