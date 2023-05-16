@@ -129,7 +129,7 @@ export async function createViolinTraces(
               type: 'groupby',
               groups: catCurr.resolvedValues.map((v) => v.val) as string[],
               styles: [...new Set<string>(catCurr.resolvedValues.map((v) => v.val) as string[])].map((c) => {
-                return { target: c, value: { line: { color: '#878E95', opacity:  } } };
+                return { target: c, value: { line: { color: '#878E95' } } };
               }),
             },
           ],

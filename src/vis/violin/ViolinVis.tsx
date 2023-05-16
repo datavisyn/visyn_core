@@ -71,7 +71,7 @@ export function ViolinVis({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedMap]);
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('ViolinVis'), []);
 
