@@ -155,10 +155,6 @@ def create_visyn_server(
     app.add_api_route("/health", health)  # type: ignore
     app.add_api_route("/api/buildInfo.json", build_info)  # type: ignore
 
-    from ..settings.client_config import init_client_config
-
-    init_client_config(app)
-
     @app.on_event("startup")
     async def change_anyio_total_tokens():
         # FastAPI uses anyio threads to handle sync endpoint concurrently.
@@ -180,5 +176,9 @@ def create_visyn_server(
     t = threading.Thread(target=load_after_server_started_hooks)
     t.daemon = True
     t.start()
+
+    from ..settings.client_config import init_client_config
+
+    init_client_config(app)
 
     return app
