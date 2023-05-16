@@ -111,7 +111,7 @@ export function ViolinVis({
       shapes: [],
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout) });
+    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, true) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [traces]);

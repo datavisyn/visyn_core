@@ -180,7 +180,7 @@ export function BarVis({
       dragmode: false,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(finalTraces, innerLayout, null) });
+    setLayout({ ...layout, ...beautifyLayout(finalTraces, innerLayout, null, true) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalTraces, config.groupType]);

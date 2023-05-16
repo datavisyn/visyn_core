@@ -76,10 +76,11 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
           box: {
             visible: config.violinOverlay === EViolinOverlay.BOX,
           },
-          spanmode: 'hard',
-          meanline: {
-            visible: true,
+          marker: {
+            color: 'gray',
           },
+
+          spanmode: 'hard',
           name: `${columnNameWithDescription(numCurr.info)}`,
           hoverinfo: 'y',
           scalemode: 'width',
@@ -101,18 +102,17 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           type: 'violin',
+          marker: {
+            color: 'gray',
+          },
           // @ts-ignore
           hoveron: 'violins',
           hoverinfo: 'y',
-          meanline: {
-            visible: true,
-          },
           name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
           scalemode: 'width',
           pointpos: 0,
           jitter: 0.3,
           spanmode: 'hard',
-
           points: false,
           box: {
             visible: config.violinOverlay === EViolinOverlay.BOX,
