@@ -6,7 +6,7 @@ import { Ajax } from './ajax';
  * Can be extended globally by other repositories:
  *
  * ```ts
- * declare module 'visyn_core' {
+ * declare module 'visyn_core/base' {
  *   export interface IClientConfig {
  *     customProperty: string;
  *   }
