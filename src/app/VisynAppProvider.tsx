@@ -21,7 +21,7 @@ export function VisynAppProvider({
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
 
-  const { value: clientConfig, status: clientConfigStatus, execute } = useAsync(loadClientConfig, []);
+  const { value: clientConfig, status: clientConfigStatus, execute } = useAsync(loadClientConfig);
   const [successfulClientConfigInit, setSuccessfulClientConfigInit] = React.useState<boolean>(false);
 
   React.useEffect(() => {

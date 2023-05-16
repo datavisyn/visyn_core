@@ -19,11 +19,11 @@ export interface IClientConfig {
 }
 
 /**
- * Loads the app config from '/api/clientConfig'.
+ * Loads the app config from '/api/v1/visyn/clientConfig'.
  */
 export async function loadClientConfig(): Promise<IClientConfig | null> {
-  return Ajax.getJSON('/api/clientConfig').catch((e) => {
-    console.error('Error loading /api/clientConfig', e);
+  return Ajax.getJSON('/api/v1/visyn/clientConfig').catch((e) => {
+    console.error('Error loading /api/v1/visyn/clientConfig', e);
     return null;
   });
 }
