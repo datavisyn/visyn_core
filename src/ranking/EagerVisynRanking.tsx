@@ -121,5 +121,18 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     }
   }, [selection]);
 
-  return <Box ref={divRef} style={{ flex: 1, width: '100%' }} {...(innerProps || {})} />;
+  return (
+    <Box
+      ref={divRef}
+      sx={{
+        flex: 1,
+        width: '100%',
+        // Make the side panel scrollable
+        '> .lu-side-panel-main': {
+          overflowY: 'auto',
+        },
+      }}
+      {...(innerProps || {})}
+    />
+  );
 }
