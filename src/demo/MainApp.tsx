@@ -4,9 +4,9 @@ import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSetti
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
-import { VisynRanking } from '../ranking';
-import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
-import { MyNumberScore, MyStringScore } from './scoresUtils';
+import { VisynRanking, autosizeWithSMILESColumn } from '../ranking';
+import { IBuiltVisynRanking, defaultBuilder } from '../ranking/EagerVisynRanking';
+import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -63,7 +63,16 @@ export function MainApp() {
                 // eslint-disable-next-line no-promise-executor-return
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 createScoreColumnFunc.current(({ data }) => {
-                  return value === 'number' ? MyNumberScore(value) : MyStringScore(value);
+                  if (value === 'number') {
+                    return MyNumberScore(value);
+                  }
+                  if (value === 'category') {
+                    return MyStringScore(value);
+                  }
+                  if (value === 'smiles') {
+                    return MySMILESScore(value);
+                  }
+                  throw new Error('Unknown score type');
                 });
                 setLoading(false);
               }}
@@ -71,13 +80,18 @@ export function MainApp() {
               data={[
                 { value: 'number', label: 'Number' },
                 { value: 'category', label: 'Category' },
+                { value: 'smiles', label: 'SMILES' },
               ]}
             />
             <VisynRanking
               data={iris}
               selection={selection}
               setSelection={setSelection}
-              onBuiltLineUp={({ createScoreColumn }) => (createScoreColumnFunc.current = createScoreColumn)}
+              getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
+              onBuiltLineUp={({ createScoreColumn, provider, lineup }) => {
+                createScoreColumnFunc.current = createScoreColumn;
+                autosizeWithSMILESColumn({ provider, lineup });
+              }}
             />
           </Stack>
           <Vis

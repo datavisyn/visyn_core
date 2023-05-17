@@ -3,11 +3,20 @@ import LineUp, { builder, buildRanking, Taggle, Ranking, DataBuilder, LocalDataP
 import isEqual from 'lodash/isEqual';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
-import '../scss/vendors/_lineup.scss';
 import { createScoreColumn, IScoreResult } from './score/interfaces';
+import { registerSMILESColumn } from './smiles/utils';
 
-export const defaultBuilder = ({ data }) => {
+import '../scss/vendors/_lineup.scss';
+
+export const defaultBuilder = ({
+  data,
+  smilesOptions = { setDynamicHeight: false },
+}: {
+  data: Record<string, unknown>[];
+  smilesOptions?: Parameters<typeof registerSMILESColumn>[1];
+}) => {
   const b = builder(data).deriveColumns().animated(true);
+  registerSMILESColumn(b, smilesOptions);
   const rankingBuilder = buildRanking();
   rankingBuilder.supportTypes();
   rankingBuilder.allColumns();
@@ -53,7 +62,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   ...innerProps
 }: {
   data: T[];
-  getBuilder?: (props: { data: T[] }) => DataBuilder;
+  getBuilder?: (props: { data: Record<string, unknown>[] }) => DataBuilder;
   setSelection: (selection: T[]) => void;
   selection: T[];
   onBuiltLineUp?: (props: IBuiltVisynRanking) => void;
