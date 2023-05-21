@@ -80,7 +80,6 @@ export function ViolinVis({
   const plotlyDivRef = React.useRef(null);
 
   const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
-    console.log(e);
     if (!e || !e.points || !e.points[0]) {
       selectionCallback([]);
       return;

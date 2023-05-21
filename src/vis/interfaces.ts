@@ -145,10 +145,12 @@ export interface VisCommonColumn {
 export interface VisNumericalColumn extends VisCommonColumn {
   type: EColumnTypes.NUMERICAL;
   domain?: [number | undefined, number | undefined];
+  color?: Record<string, string>;
 }
 
 export interface VisCategoricalColumn extends VisCommonColumn {
   type: EColumnTypes.CATEGORICAL;
+  color?: Record<string, string>;
 }
 
 export type VisColumn = VisNumericalColumn | VisCategoricalColumn;

@@ -59,6 +59,7 @@ export async function getHexData(
   colorColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    color?: Record<string, string>;
     info: ColumnInfo;
   };
 }> {

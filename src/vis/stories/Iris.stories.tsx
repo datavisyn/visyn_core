@@ -43,6 +43,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Random Thing',
       },
       type: EColumnTypes.CATEGORICAL,
+      color: { 1: 'cornflowerblue' },
       values: () => dataPromise.then((data) => data.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
     },
     {

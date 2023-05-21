@@ -201,7 +201,7 @@ async function setPlotsWithGroupsAndMultiples(
           type: 'bar',
           name: uniqueGroup,
           marker: {
-            color: scales.color(uniqueGroup),
+            color: currGroupColumn.color ? currGroupColumn.color[uniqueGroup] : scales.color(uniqueGroup),
           },
           // @ts-ignore
           selected: {
@@ -298,7 +298,7 @@ async function setPlotsWithGroups(
         type: 'bar',
         name: uniqueVal,
         marker: {
-          color: scales.color(uniqueVal),
+          color: groupColumn.color ? groupColumn.color[uniqueVal] : scales.color(uniqueVal),
         },
         // @ts-ignore
         selected: {
