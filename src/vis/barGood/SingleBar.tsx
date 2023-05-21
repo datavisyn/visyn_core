@@ -1,5 +1,5 @@
 import { Tooltip } from '@mantine/core';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React from 'react';
 
 export function SingleBar({
   x,

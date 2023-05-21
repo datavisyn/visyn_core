@@ -1,5 +1,5 @@
-import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
-import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalColumn, VisNumericalValue } from '../interfaces';
+import { resolveSingleColumn } from '../general/layoutUtils';
+import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 
 export async function getBarData(
   columns: VisColumn[],
