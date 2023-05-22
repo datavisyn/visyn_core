@@ -130,7 +130,7 @@ export function EagerVis({
   useEffect(() => {
     setExternalConfigRef.current?.(visConfig);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visConfig, setExternalConfigRef]);
+  }, [JSON.stringify(visConfig), setExternalConfigRef]);
 
   const setVisConfig = React.useCallback((newConfig: IVisConfig) => {
     _setVisConfig((oldConfig) => {

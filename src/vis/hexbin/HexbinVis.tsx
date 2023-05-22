@@ -1,7 +1,7 @@
 import * as React from 'react';
 import uniqueId from 'lodash/uniqueId';
 import merge from 'lodash/merge';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Center, Container, Group, SimpleGrid, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
@@ -51,17 +51,18 @@ export function HexbinVis({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const setShowSidebarRef = useSyncedRef(setShowSidebar);
+  const [sidebarMounted, setSidebarMounted] = useState<boolean>(false);
+
   // Cheating to open the sidebar after the first render, since it requires the container to be mounted
   useEffect(() => {
-    setShowSidebarRef.current(true);
-  }, [setShowSidebarRef]);
+    setSidebarMounted(true);
+  }, [setSidebarMounted]);
 
   const ref = useRef();
   const id = React.useMemo(() => uniqueId('HexbinVis'), []);
 
   return (
-    <Container p={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
+    <Container pl={0} pr={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
       {enableSidebar ? (
         <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
           <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
@@ -124,7 +125,7 @@ export function HexbinVis({
           )}
         </SimpleGrid>
       </Stack>
-      {showSidebar ? (
+      {showSidebar && sidebarMounted ? (
         <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
           <HexbinVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
