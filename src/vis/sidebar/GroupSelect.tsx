@@ -28,6 +28,7 @@ export function GroupSelect({
     <Stack spacing="sm">
       <Select
         withinPortal
+        clearable
         itemComponent={SelectDropdownItem}
         placeholder="Select Column"
         label="Group"

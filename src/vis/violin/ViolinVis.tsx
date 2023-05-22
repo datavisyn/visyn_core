@@ -85,6 +85,8 @@ export function ViolinVis({
       return;
     }
 
+    console.log(e);
+
     // @ts-ignore
     const shiftPressed = e.event.shiftKey;
     // @ts-ignore
@@ -100,7 +102,6 @@ export function ViolinVis({
         newSelected.push(...eventIds);
       }
 
-      console.log(newSelected);
       selectionCallback(newSelected);
     }
     // Multiselect disabled

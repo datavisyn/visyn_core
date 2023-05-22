@@ -66,7 +66,7 @@ export async function createViolinTraces(
   const numColValues = await resolveColumnValues(numCols);
   const catColValues = await resolveColumnValues(catCols);
 
-  console.log(selectedList, selectedMap)
+  console.log(selectedList, selectedMap);
 
   // if we onl have numerical columns, add them individually.
   if (catColValues.length === 0) {
@@ -87,7 +87,7 @@ export async function createViolinTraces(
             visible: config.violinOverlay === EViolinOverlay.BOX,
           },
           marker: {
-            color: selectedList.length === 0 || numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
+            color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
           },
 
           spanmode: 'hard',
@@ -131,7 +131,17 @@ export async function createViolinTraces(
               type: 'groupby',
               groups: catCurr.resolvedValues.map((v) => v.val) as string[],
               styles: [...new Set<string>(catCurr.resolvedValues.map((v) => v.val) as string[])].map((c) => {
-                return { target: c, value: { line: { color: '#878E95' } } };
+                return {
+                  target: c,
+                  value: {
+                    line: {
+                      color:
+                        selectedList.length !== 0 && catCurr.resolvedValues.filter((val) => val.val === c).find((val) => selectedMap[val.id])
+                          ? SELECT_COLOR
+                          : '#878E95',
+                    },
+                  },
+                };
               }),
             },
           ],
