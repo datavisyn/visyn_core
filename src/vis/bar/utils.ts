@@ -45,6 +45,7 @@ const defaultConfig: IBarConfig = {
 };
 
 const TICK_LABEL_LENGTH = 8;
+const DEFAULT_GRAY = '#878E95';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IVisConfig {
   const merged = merge({}, defaultConfig, config);
@@ -201,7 +202,7 @@ async function setPlotsWithGroupsAndMultiples(
           type: 'bar',
           name: uniqueGroup,
           marker: {
-            color: currGroupColumn.color ? currGroupColumn.color[uniqueGroup] : scales.color(uniqueGroup),
+            color: currGroupColumn.color ? currGroupColumn.color[uniqueGroup] || DEFAULT_GRAY : scales.color(uniqueGroup),
           },
           // @ts-ignore
           selected: {
@@ -298,7 +299,7 @@ async function setPlotsWithGroups(
         type: 'bar',
         name: uniqueVal,
         marker: {
-          color: groupColumn.color ? groupColumn.color[uniqueVal] : scales.color(uniqueVal),
+          color: groupColumn.color ? groupColumn.color[uniqueVal] || DEFAULT_GRAY : scales.color(uniqueVal),
         },
         // @ts-ignore
         selected: {
@@ -379,7 +380,7 @@ async function setPlotsWithMultiples(
         type: 'bar',
         name: uniqueVal,
         marker: {
-          color: '#878E95',
+          color: DEFAULT_GRAY,
         },
         // @ts-ignore
         selected: {
@@ -448,7 +449,7 @@ async function setPlotsBasic(
       hoverinfo: vertFlag ? 'y+text' : 'x+text',
       ids: valArr,
       marker: {
-        color: '#878E95',
+        color: DEFAULT_GRAY,
       },
       // @ts-ignore
       selected: {
