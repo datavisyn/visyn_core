@@ -76,6 +76,7 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
           box: {
             visible: config.violinOverlay === EViolinOverlay.BOX,
           },
+          spanmode: 'hard',
           meanline: {
             visible: true,
           },
@@ -110,6 +111,8 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
           scalemode: 'width',
           pointpos: 0,
           jitter: 0.3,
+          spanmode: 'hard',
+
           points: false,
           box: {
             visible: config.violinOverlay === EViolinOverlay.BOX,

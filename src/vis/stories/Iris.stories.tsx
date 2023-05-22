@@ -39,8 +39,17 @@ export function fetchIrisData(): VisColumn[] {
     {
       info: {
         description: '',
+        id: 'randomThing',
+        name: 'Random Thing',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.then((data) => data.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
+    },
+    {
+      info: {
+        description: '',
         id: 'petalLength',
-        name: 'Petal Length',
+        name: 'Petal Length PEtal length petal length',
       },
       type: EColumnTypes.NUMERICAL,
       values: () => dataPromise.then((data) => data.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),

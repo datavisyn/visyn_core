@@ -215,6 +215,7 @@ async function setPlotsWithGroupsAndMultiples(
             },
           },
         },
+        title: uniqueMultiples,
         xLabel: vertFlag ? columnNameWithDescription(catColValues.info) : normalizedFlag ? 'Percent of Total' : plotAggregateAxisName,
         yLabel: vertFlag ? (normalizedFlag ? 'Percent of Total' : plotAggregateAxisName) : columnNameWithDescription(catColValues.info),
         xTicks: vertFlag ? uniqueColVals : null,
@@ -377,6 +378,9 @@ async function setPlotsWithMultiples(
         showlegend: false,
         type: 'bar',
         name: uniqueVal,
+        marker: {
+          color: '#878E95',
+        },
         // @ts-ignore
         selected: {
           marker: {
@@ -395,6 +399,7 @@ async function setPlotsWithMultiples(
       xTickLabels: vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
       yTicks: !vertFlag ? uniqueColVals : null,
       yTickLabels: !vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
+      title: uniqueVal,
     });
     plotCounterEdit += 1;
   });
@@ -442,6 +447,9 @@ async function setPlotsBasic(
       textposition: 'none',
       hoverinfo: vertFlag ? 'y+text' : 'x+text',
       ids: valArr,
+      marker: {
+        color: '#878E95',
+      },
       // @ts-ignore
       selected: {
         marker: {
