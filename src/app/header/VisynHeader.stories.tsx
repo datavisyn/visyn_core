@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
 import { Menu, Text, createStyles, Group, Button } from '@mantine/core';
 import { VisynHeader } from './VisynHeader';
 import { VisynAppContext } from '../VisynAppContext';
@@ -10,7 +10,7 @@ export default {
   title: 'Example/Ui/VisynHeader',
   component: VisynHeader,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} as ComponentMeta<typeof VisynHeader>;
+};
 
 const useStyles = createStyles((theme) => ({
   customComponentGroup: {
@@ -89,7 +89,7 @@ const Template: ComponentStory<typeof VisynHeader> = (args) => {
   );
 };
 
-export const Basic = Template.bind({}) as typeof Template;
+export const Basic: typeof Template = Template.bind({});
 Basic.args = {
   components: {
     aboutAppModal: {
@@ -98,7 +98,7 @@ Basic.args = {
   },
 };
 
-export const BurgerMenu = Template.bind({}) as typeof Template;
+export const BurgerMenu: typeof Template = Template.bind({});
 BurgerMenu.args = {
   components: {
     aboutAppModal: {
@@ -115,7 +115,7 @@ BurgerMenu.args = {
   },
 };
 
-export const CustomerLogo = Template.bind({}) as typeof Template;
+export const CustomerLogo: typeof Template = Template.bind({});
 CustomerLogo.args = {
   components: {
     beforeRight: customerLogo,
@@ -126,7 +126,7 @@ CustomerLogo.args = {
   },
 };
 
-export const ProjectName = Template.bind({}) as typeof Template;
+export const ProjectName: typeof Template = Template.bind({});
 ProjectName.args = {
   components: {
     center: (
@@ -154,7 +154,7 @@ function TabGroup() {
   );
 }
 
-export const Tabs = Template.bind({}) as typeof Template;
+export const Tabs: typeof Template = Template.bind({});
 Tabs.args = {
   components: {
     aboutAppModal: {
@@ -164,7 +164,7 @@ Tabs.args = {
   },
 };
 
-export const ExtendedUserMenu = Template.bind({}) as typeof Template;
+export const ExtendedUserMenu: typeof Template = Template.bind({});
 ExtendedUserMenu.args = {
   components: {
     userMenu: (
@@ -178,7 +178,7 @@ ExtendedUserMenu.args = {
   },
 };
 
-export const ExtendedConfigurationMenu = Template.bind({}) as typeof Template;
+export const ExtendedConfigurationMenu: typeof Template = Template.bind({});
 ExtendedConfigurationMenu.args = {
   components: {
     aboutAppModal: {
@@ -195,7 +195,7 @@ ExtendedConfigurationMenu.args = {
   },
 };
 
-export const AllExtensionPoints = Template.bind({}) as typeof Template;
+export const AllExtensionPoints: typeof Template = Template.bind({});
 AllExtensionPoints.args = {
   components: {
     title: (

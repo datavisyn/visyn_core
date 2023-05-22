@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
 import { Vis } from '../LazyVis';
 import {
   EAggregateTypes,
@@ -91,7 +91,7 @@ export default {
   title: 'Example/Vis/IrisData',
   component: Vis,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} as ComponentMeta<typeof Vis>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
