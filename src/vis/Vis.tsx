@@ -268,6 +268,7 @@ export function EagerVis({
           scales={scales}
           showCloseButton={showCloseButton}
           closeButtonCallback={closeCallback}
+          filterCallback={filterCallback}
           {...commonProps}
         />
       ) : null}

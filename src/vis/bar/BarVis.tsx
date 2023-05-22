@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActionIcon, Space, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType } from '../interfaces';
+import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType, EFilterOptions } from '../interfaces';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
@@ -41,6 +41,7 @@ export function BarVis({
   setShowSidebar,
   showCloseButton = false,
   closeButtonCallback = () => null,
+  filterCallback = () => null,
 }: {
   config: IBarConfig;
   optionsConfig?: {
@@ -65,6 +66,7 @@ export function BarVis({
       customComponent?: React.ReactNode;
     };
   };
+  filterCallback?: (s: EFilterOptions) => void;
   extensions?: {
     prePlot?: React.ReactNode;
     postPlot?: React.ReactNode;
@@ -271,7 +273,14 @@ export function BarVis({
       {mergedExtensions.postPlot}
       {showSidebar ? (
         <VisSidebarWrapper id={id} target={plotlyDivRef.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
-          <BarVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
+          <BarVisSidebar
+            config={config}
+            optionsConfig={optionsConfig}
+            extensions={extensions}
+            columns={columns}
+            setConfig={setConfig}
+            filterCallback={filterCallback}
+          />
         </VisSidebarWrapper>
       ) : null}
     </Stack>

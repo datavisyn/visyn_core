@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { ActionIcon, Container, Space, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IViolinConfig } from '../interfaces';
+import { Scales, VisColumn, IVisConfig, IViolinConfig, EFilterOptions } from '../interfaces';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
@@ -39,6 +39,7 @@ export function ViolinVis({
   selectionCallback,
   enableSidebar,
   showCloseButton = false,
+  filterCallback = () => null,
   closeButtonCallback = () => null,
 }: {
   config: IViolinConfig;
@@ -54,6 +55,7 @@ export function ViolinVis({
     preSidebar?: React.ReactNode;
     postSidebar?: React.ReactNode;
   };
+  filterCallback?: (s: EFilterOptions) => void;
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
   closeButtonCallback?: () => void;
