@@ -17,7 +17,6 @@ export function Legend({
   height: number;
   left: number;
 }) {
-  console.log(categories);
   return (
     <ScrollArea style={{ height, position: 'absolute', left }}>
       <Group sx={{ width: '100%' }} spacing={10}>
