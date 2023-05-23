@@ -54,26 +54,33 @@ export function SingleBarChart({
     config.groupType,
   );
 
-  const countTicks = useMemo(() => {
-    if (config.direction !== EBarDirection.VERTICAL) {
-      const newScale = countScale.copy().domain([countScale.domain()[1], countScale.domain()[0]]);
-      return newScale.ticks(5).map((value) => ({
-        value,
-        offset: newScale(value),
-      }));
-    }
-    return countScale.ticks(5).map((value) => ({
-      value,
-      offset: countScale(value),
-    }));
-  }, [config.direction, countScale]);
-
   const categoryTicks = useMemo(() => {
     return categoryScale.domain().map((value) => ({
       value,
       offset: categoryScale(value) + categoryScale.bandwidth() / 2,
     }));
   }, [categoryScale]);
+
+  const normalizedCountScale = useMemo(() => {
+    if (config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group) {
+      return countScale.copy().domain([0, 1]);
+    }
+    return countScale;
+  }, [config.display, config.group, config.groupType, countScale]);
+
+  const countTicks = useMemo(() => {
+    if (config.direction !== EBarDirection.VERTICAL) {
+      const newScale = normalizedCountScale.copy().domain([normalizedCountScale.domain()[1], normalizedCountScale.domain()[0]]);
+      return newScale.ticks(5).map((value) => ({
+        value,
+        offset: newScale(value),
+      }));
+    }
+    return normalizedCountScale.ticks(5).map((value) => ({
+      value,
+      offset: normalizedCountScale(value),
+    }));
+  }, [config.direction, normalizedCountScale]);
 
   return (
     <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -119,7 +126,7 @@ export function SingleBarChart({
                   xRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   horizontalPosition={margin.left}
                   showLines
-                  label="Count"
+                  label={config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group ? 'Count %' : 'Count'}
                   ticks={countTicks}
                 />
               ) : (
@@ -148,7 +155,7 @@ export function SingleBarChart({
                   xScale={countScale}
                   yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   vertPosition={height - margin.bottom}
-                  label="Count"
+                  label={config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group ? 'Count %' : 'Count'}
                   showLines
                   ticks={countTicks}
                 />

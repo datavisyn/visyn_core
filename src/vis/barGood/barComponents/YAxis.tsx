@@ -22,7 +22,13 @@ export function YAxis({
 }) {
   return (
     <>
-      <text dominantBaseline="middle" textAnchor="middle" transform={`translate(${horizontalPosition - 40}, ${yScale.range()[0] / 2}) rotate(-90)`}>
+      <text
+        style={{ fill: '#878E95' }}
+        fontSize={14}
+        dominantBaseline="middle"
+        textAnchor="middle"
+        transform={`translate(${horizontalPosition - 40}, ${yScale.range()[0] / 2}) rotate(-90)`}
+      >
         {label}
       </text>
       <path

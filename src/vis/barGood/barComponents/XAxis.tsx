@@ -20,7 +20,13 @@ export function XAxis({
 }) {
   return (
     <>
-      <text dominantBaseline="center" textAnchor="middle" transform={`translate(${(xScale.range()[0] + xScale.range()[1]) / 2}, ${vertPosition + 40})`}>
+      <text
+        style={{ fill: '#878E95' }}
+        fontSize={14}
+        dominantBaseline="center"
+        textAnchor="middle"
+        transform={`translate(${(xScale.range()[0] + xScale.range()[1]) / 2}, ${vertPosition + 40})`}
+      >
         {label}
       </text>
       <path transform={`translate(0, ${vertPosition})`} d={['M', xScale.range()[0], 0, 'H', xScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
