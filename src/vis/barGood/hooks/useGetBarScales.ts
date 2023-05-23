@@ -15,7 +15,6 @@ export function useGetBarScales(
   selectedMap: Record<string, boolean>,
 ): { aggregatedTable: ColumnTable; countScale: d3.ScaleLinear<number, number>; categoryScale: d3.ScaleBand<string> } {
   const aggregatedTable = useMemo(() => {
-    console.log(selectedMap);
     if (allColumns?.catColVals) {
       let myTable = table({
         category: allColumns.catColVals.resolvedValues.map((val) => val.val),
@@ -23,8 +22,6 @@ export function useGetBarScales(
         selected: allColumns.catColVals.resolvedValues.map((val) => (selectedMap[val.id] ? 1 : 0)),
         id: allColumns.catColVals.resolvedValues.map((val) => val.id),
       });
-
-      myTable.print();
 
       if (categoryFilter && allColumns?.multiplesColVals) {
         myTable = myTable.params({ categoryFilter }).filter((d) => d.multiples === categoryFilter);
@@ -34,8 +31,6 @@ export function useGetBarScales(
         .groupby('category')
         .rollup({ count: (d) => op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('category');
-
-      grouped.print();
 
       return grouped;
     }

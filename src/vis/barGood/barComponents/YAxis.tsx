@@ -11,12 +11,14 @@ export function YAxis({
   horizontalPosition,
   label,
   ticks,
+  showLines,
 }: {
   yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
   xRange: [number, number];
   horizontalPosition: number;
   label: string;
   ticks: { value: string | number; offset: number }[];
+  showLines?: boolean;
 }) {
   return (
     <>
@@ -33,7 +35,7 @@ export function YAxis({
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${offset})`}>
           <line x2="-6" stroke="currentColor" />
-          <line x2={`${xRange[1] - xRange[0]}`} stroke="lightgray" />
+          {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke="lightgray" /> : null}
           <text
             key={value}
             style={{

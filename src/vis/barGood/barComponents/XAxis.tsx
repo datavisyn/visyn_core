@@ -9,7 +9,9 @@ export function XAxis({
   vertPosition,
   label,
   ticks,
+  showLines,
 }: {
+  showLines?: boolean;
   xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
   yRange: [number, number];
   vertPosition: number;
@@ -27,7 +29,7 @@ export function XAxis({
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${offset}, ${vertPosition})`}>
           <line y2="6" stroke="currentColor" />
-          <line y2={`${-(yRange[1] - yRange[0])}`} stroke="lightgray" />
+          {showLines ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke="lightgray" /> : null}
           <text
             key={value}
             fontSize="10px"

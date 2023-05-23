@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import * as d3 from 'd3v7';
 import { useGetBarScales } from './useGetBarScales';
 import { getBarData } from '../utils';
+import { EBarGroupingType } from '../../interfaces';
 
 export function useGetGroupedBarScales(
   allColumns: Awaited<ReturnType<typeof getBarData>>,
@@ -14,6 +15,7 @@ export function useGetGroupedBarScales(
   categoryFilter: string | null,
   isVertical: boolean,
   selectedMap: Record<string, boolean>,
+  groupType: EBarGroupingType,
 ): {
   aggregatedTable: ColumnTable;
   countScale: d3.ScaleLinear<number, number>;
@@ -56,7 +58,7 @@ export function useGetGroupedBarScales(
 
     const newGroup = groupedTable.ungroup().groupby('group').count();
 
-    return d3.scaleOrdinal<string>().domain(newGroup.array('group')).range(d3.schemeCategory10);
+    return d3.scaleOrdinal<string>().domain(newGroup.array('group')).range(d3.schemeTableau10);
   }, [groupedTable]);
 
   const groupScale = useMemo(() => {
@@ -66,5 +68,22 @@ export function useGetGroupedBarScales(
     return d3.scaleBand().range([0, categoryScale.bandwidth()]).domain(newGroup.array('group')).padding(0.1);
   }, [categoryScale, groupedTable]);
 
-  return { aggregatedTable, countScale, categoryScale, groupColorScale, groupScale, groupedTable };
+  const newCountScale = useMemo(() => {
+    if (!groupedTable || groupType === EBarGroupingType.STACK) {
+      return countScale;
+    }
+
+    const tempScale = countScale.copy().domain([0, +d3.max(groupedTable.array('count'))]);
+
+    return tempScale;
+  }, [countScale, groupType, groupedTable]);
+
+  return {
+    aggregatedTable,
+    countScale: newCountScale,
+    categoryScale,
+    groupColorScale,
+    groupScale,
+    groupedTable,
+  };
 }

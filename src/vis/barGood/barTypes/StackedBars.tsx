@@ -35,6 +35,7 @@ export function StackedBars({
       let currentCategory = '';
 
       return groupedTable
+        .groupby('category')
         .objects()
         .map((row: { category: string; group: string; count: number; categoryCount: number; selectedCount: number; ids: string[] }) => {
           if (currentCategory !== row.category) {

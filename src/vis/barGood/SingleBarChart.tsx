@@ -51,6 +51,7 @@ export function SingleBarChart({
     categoryFilter,
     config.direction === EBarDirection.VERTICAL,
     selectedMap,
+    config.groupType,
   );
 
   const countTicks = useMemo(() => {
@@ -117,6 +118,7 @@ export function SingleBarChart({
                   yScale={countScale}
                   xRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   horizontalPosition={margin.left}
+                  showLines
                   label="Count"
                   ticks={countTicks}
                 />
@@ -125,6 +127,7 @@ export function SingleBarChart({
                   yScale={categoryScale}
                   xRange={[countScale.range()[1], countScale.range()[0]]}
                   horizontalPosition={margin.left}
+                  showLines={false}
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
                 />
@@ -137,6 +140,7 @@ export function SingleBarChart({
                   yRange={[countScale.range()[1], countScale.range()[0]]}
                   vertPosition={height - margin.bottom}
                   label={config.catColumnSelected.name}
+                  showLines={false}
                   ticks={categoryTicks}
                 />
               ) : (
@@ -145,6 +149,7 @@ export function SingleBarChart({
                   yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   vertPosition={height - margin.bottom}
                   label="Count"
+                  showLines
                   ticks={countTicks}
                 />
               )
