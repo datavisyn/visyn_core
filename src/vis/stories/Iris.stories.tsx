@@ -96,11 +96,12 @@ export default {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
+  const [selected, setSelected] = React.useState<string[]>([]);
   const columns = React.useMemo(() => fetchIrisData(), []);
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} />
+        <Vis {...args} columns={columns} selected={selected} selectionCallback={setSelected} />
       </div>
     </div>
   );
@@ -148,8 +149,8 @@ BarChart.args = {
     numColumnsSelected: [],
     catColumnSelected: {
       description: '',
-      id: 'species',
-      name: 'Species',
+      id: 'randomThing',
+      name: 'Random Thing',
     },
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,

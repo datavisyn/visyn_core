@@ -1,0 +1,53 @@
+import React, { useMemo } from 'react';
+
+import * as d3 from 'd3v7';
+
+import ColumnTable from 'arquero/dist/types/table/column-table';
+
+import { SingleBar } from '../barComponents/SingleBar';
+
+export function SimpleBars({
+  aggregatedTable,
+  categoryScale,
+  countScale,
+  height,
+  width,
+  margin,
+  isVertical = true,
+  selectionCallback,
+  hasSelected = false,
+}: {
+  aggregatedTable: ColumnTable;
+  categoryScale: d3.ScaleBand<string>;
+  countScale: d3.ScaleLinear<number, number>;
+  height: number;
+  width: number;
+  margin: { top: number; bottom: number; left: number; right: number };
+  isVertical?: boolean;
+  selectionCallback: (ids: string[]) => void;
+  hasSelected?: boolean;
+}) {
+  const bars = useMemo(() => {
+    if (aggregatedTable && categoryScale && countScale) {
+      return aggregatedTable.objects().map((row: { category: string; count: number; selectedCount: number; ids: string[] }) => {
+        return (
+          <SingleBar
+            onClick={() => (row.count === row.selectedCount ? selectionCallback([]) : selectionCallback(row.ids))}
+            isVertical={isVertical}
+            selectedPercent={hasSelected ? row.selectedCount / row.count : null}
+            key={row.category}
+            x={isVertical ? categoryScale(row.category) : margin.left}
+            width={isVertical ? categoryScale.bandwidth() : width - margin.left - countScale(row.count)}
+            y={isVertical ? countScale(row.count) : categoryScale(row.category)}
+            value={row.count}
+            height={isVertical ? height - margin.bottom - countScale(row.count) : categoryScale.bandwidth()}
+          />
+        );
+      });
+    }
+
+    return null;
+  }, [aggregatedTable, categoryScale, countScale, isVertical, hasSelected, margin.left, margin.bottom, width, height, selectionCallback]);
+
+  return <g>{bars}</g>;
+}

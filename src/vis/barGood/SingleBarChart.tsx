@@ -1,41 +1,91 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { all, desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
-import { Box, Container, SimpleGrid } from '@mantine/core';
+import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { EBarGroupingType, IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, VisColumn } from '../interfaces';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { useAsync } from '../../hooks/useAsync';
 import { getBarData } from './utils';
-import { YAxis } from './YAxis';
-import { XAxis } from './XAxis';
-import { GroupedBars } from './GroupedBars';
+import { YAxis } from './barComponents/YAxis';
+import { XAxis } from './barComponents/XAxis';
+import { GroupedBars } from './barTypes/GroupedBars';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { SimpleBars } from './SimpleBars';
-import { StackedBars } from './StackedBars';
+import { SimpleBars } from './barTypes/SimpleBars';
+import { StackedBars } from './barTypes/StackedBars';
+import { Legend } from './barComponents/Legend';
 
 const margin = {
-  top: 25,
-  bottom: 50,
-  left: 25,
-  right: 100,
+  top: 40,
+  bottom: 60,
+  left: 50,
+  right: 25,
 };
 
-export function SingleBarChart({ config, columns }: { config: IBarConfig; columns: VisColumn[] }) {
-  const { value: allColumns, status: colsStatus } = useAsync(getBarData, [columns, config.catColumnSelected, config.group, config.multiples]);
-
+export function SingleBarChart({
+  allColumns,
+  config,
+  columns,
+  categoryFilter,
+  title,
+  selectedMap,
+  selectedList,
+  selectionCallback,
+}: {
+  allColumns: Awaited<ReturnType<typeof getBarData>>;
+  config: IBarConfig;
+  columns: VisColumn[];
+  selectedMap: Record<string, boolean>;
+  selectedList: string[];
+  categoryFilter?: string;
+  title?: string;
+  selectionCallback?: (ids: string[]) => void;
+}) {
   const [ref, { height, width }] = useResizeObserver();
 
   const { aggregatedTable, categoryScale, countScale, groupColorScale, groupScale, groupedTable } = useGetGroupedBarScales(
     allColumns,
-    colsStatus,
     height,
     width,
     margin,
+    categoryFilter,
+    config.direction === EBarDirection.VERTICAL,
+    selectedMap,
   );
 
+  const countTicks = useMemo(() => {
+    if (config.direction !== EBarDirection.VERTICAL) {
+      const newScale = countScale.copy().domain([countScale.domain()[1], countScale.domain()[0]]);
+      return newScale.ticks(5).map((value) => ({
+        value,
+        offset: newScale(value),
+      }));
+    }
+    return countScale.ticks(5).map((value) => ({
+      value,
+      offset: countScale(value),
+    }));
+  }, [config.direction, countScale]);
+
+  const categoryTicks = useMemo(() => {
+    return categoryScale.domain().map((value) => ({
+      value,
+      offset: categoryScale(value) + categoryScale.bandwidth() / 2,
+    }));
+  }, [categoryScale]);
+
   return (
-    <Box ref={ref} style={{ width: '100%', height: '100%' }}>
+    <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative' }}>
+      {groupColorScale ? (
+        <Legend
+          left={margin.left}
+          categories={groupColorScale.domain()}
+          filteredCategories={[]}
+          colorScale={groupColorScale}
+          height={margin.top}
+          onClick={() => console.log('hello')}
+        />
+      ) : null}
       <Container
         fluid
         pl={0}
@@ -50,35 +100,97 @@ export function SingleBarChart({ config, columns }: { config: IBarConfig; column
       >
         <svg width={width} height={height}>
           <g>
+            <text
+              dominantBaseline="middle"
+              textAnchor="middle"
+              transform={`translate(${
+                config.direction === EBarDirection.VERTICAL
+                  ? (categoryScale.range()[0] + categoryScale.range()[1]) / 2
+                  : (countScale.range()[0] + countScale.range()[1]) / 2
+              }, 10)`}
+            >
+              {title}
+            </text>
             {countScale && categoryScale ? (
-              <YAxis yScale={countScale} xRange={[categoryScale.range()[1], categoryScale.range()[0]]} horizontalPosition={margin.left} />
+              config.direction === EBarDirection.VERTICAL ? (
+                <YAxis
+                  yScale={countScale}
+                  xRange={[categoryScale.range()[1], categoryScale.range()[0]]}
+                  horizontalPosition={margin.left}
+                  label="Count"
+                  ticks={countTicks}
+                />
+              ) : (
+                <YAxis
+                  yScale={categoryScale}
+                  xRange={[countScale.range()[1], countScale.range()[0]]}
+                  horizontalPosition={margin.left}
+                  label={config.catColumnSelected.name}
+                  ticks={categoryTicks}
+                />
+              )
             ) : null}
             {categoryScale && countScale ? (
-              <XAxis xScale={categoryScale} yRange={[countScale.range()[1], countScale.range()[0]]} vertPosition={height - margin.bottom} />
+              config.direction === EBarDirection.VERTICAL ? (
+                <XAxis
+                  xScale={categoryScale}
+                  yRange={[countScale.range()[1], countScale.range()[0]]}
+                  vertPosition={height - margin.bottom}
+                  label={config.catColumnSelected.name}
+                  ticks={categoryTicks}
+                />
+              ) : (
+                <XAxis
+                  xScale={countScale}
+                  yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
+                  vertPosition={height - margin.bottom}
+                  label="Count"
+                  ticks={countTicks}
+                />
+              )
             ) : null}
             {config.group ? (
               config.groupType === EBarGroupingType.GROUP ? (
                 <GroupedBars
+                  selectionCallback={selectionCallback}
+                  hasSelected={selectedList.length > 0}
                   groupedTable={groupedTable}
                   groupScale={groupScale}
                   categoryScale={categoryScale}
                   countScale={countScale}
                   groupColorScale={groupColorScale}
+                  width={width}
                   height={height}
                   margin={margin}
+                  isVertical={config.direction === EBarDirection.VERTICAL}
                 />
               ) : (
                 <StackedBars
+                  selectionCallback={selectionCallback}
+                  hasSelected={selectedList.length > 0}
                   groupedTable={groupedTable}
                   categoryScale={categoryScale}
                   countScale={countScale}
                   groupColorScale={groupColorScale}
                   height={height}
                   margin={margin}
+                  width={width}
+                  isVertical={config.direction === EBarDirection.VERTICAL}
+                  normalized={config.display === EBarDisplayType.NORMALIZED}
                 />
               )
             ) : (
-              <SimpleBars aggregatedTable={aggregatedTable} categoryScale={categoryScale} countScale={countScale} height={height} margin={margin} />
+              <SimpleBars
+                hasSelected={selectedList.length > 0}
+                selectionCallback={selectionCallback}
+                aggregatedTable={aggregatedTable}
+                categoryScale={categoryScale}
+                countScale={countScale}
+                height={height}
+                margin={margin}
+                width={width}
+                isVertical={config.direction === EBarDirection.VERTICAL}
+              />
             )}
           </g>
         </svg>

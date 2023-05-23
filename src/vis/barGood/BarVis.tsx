@@ -96,7 +96,7 @@ export function BarVis({
           </ActionIcon>
         </Tooltip>
       ) : null}
-      <BarChart config={config} columns={columns} />
+      <BarChart config={config} columns={columns} selectedMap={selectedMap} selectionCallback={selectionCallback} selectedList={selectedList} />
       {showSidebar ? (
         <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
           <BarVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />

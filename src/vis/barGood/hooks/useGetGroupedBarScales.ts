@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import ColumnTable from 'arquero/dist/types/table/column-table';
-import { table } from 'arquero';
+import { op, table } from 'arquero';
 import { useMemo } from 'react';
 import * as d3 from 'd3v7';
 import { useGetBarScales } from './useGetBarScales';
+import { getBarData } from '../utils';
 
 export function useGetGroupedBarScales(
-  allColumns: any,
-  colsStatus: any,
+  allColumns: Awaited<ReturnType<typeof getBarData>>,
   height: number,
   width: number,
   margin: { top: number; left: number; bottom: number; right: number },
+  categoryFilter: string | null,
+  isVertical: boolean,
+  selectedMap: Record<string, boolean>,
 ): {
   aggregatedTable: ColumnTable;
   countScale: d3.ScaleLinear<number, number>;
@@ -19,22 +22,34 @@ export function useGetGroupedBarScales(
   groupColorScale: d3.ScaleOrdinal<string, string>;
   groupScale: d3.ScaleBand<string>;
 } {
-  const { aggregatedTable, categoryScale, countScale } = useGetBarScales(allColumns, colsStatus, height, width, margin);
+  const { aggregatedTable, categoryScale, countScale } = useGetBarScales(allColumns, height, width, margin, categoryFilter, isVertical, selectedMap);
 
   const groupedTable = useMemo(() => {
-    if (colsStatus === 'success' && allColumns.groupColVals) {
-      const myTable = table({
+    if (allColumns?.groupColVals) {
+      let myTable = table({
         category: allColumns.catColVals.resolvedValues.map((val) => val.val),
         group: allColumns.groupColVals.resolvedValues.map((val) => val.val),
+        multiples: allColumns?.multiplesColVals?.resolvedValues.map((val) => val.val) || [],
+        selected: allColumns.catColVals.resolvedValues.map((val) => (selectedMap[val.id] ? 1 : 0)),
+        id: allColumns.catColVals.resolvedValues.map((val) => val.id),
       });
 
-      const grouped = myTable.groupby('category', 'group').count().orderby('category');
+      if (categoryFilter && allColumns?.multiplesColVals) {
+        myTable = myTable.params({ categoryFilter }).filter((d) => d.multiples === categoryFilter);
+      }
+
+      const grouped = myTable
+        .groupby('category', 'group')
+        .rollup({ count: () => op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .orderby('category')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
 
       return grouped;
     }
 
     return null;
-  }, [allColumns, colsStatus]);
+  }, [allColumns, categoryFilter, selectedMap]);
 
   const groupColorScale = useMemo(() => {
     if (!groupedTable) return null;
