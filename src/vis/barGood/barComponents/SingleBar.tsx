@@ -7,7 +7,7 @@ export function SingleBar({
   width,
   y,
   height,
-  value,
+  tooltip,
   color = '#878E95',
   isVertical = true,
   onClick,
@@ -17,13 +17,13 @@ export function SingleBar({
   width: number;
   y: number;
   height: number;
-  value: number;
+  tooltip?: JSX.Element;
   color?: string;
   isVertical?: boolean;
   onClick?: () => void;
 }) {
   return (
-    <Tooltip.Floating withinPortal label={value}>
+    <Tooltip.Floating withinPortal label={tooltip}>
       <g onClick={(e) => onClick()}>
         {selectedPercent === null ? (
           <rect x={x} width={width} y={y} height={height} fill={color} />

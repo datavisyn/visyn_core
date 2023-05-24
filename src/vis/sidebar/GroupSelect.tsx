@@ -31,7 +31,9 @@ export function GroupSelect({
         placeholder="Select Column"
         label="Group"
         onChange={(e) => groupColumnSelectCallback(columns.find((c) => c.info.id === e)?.info)}
-        data={columns.filter((c) => c.type === EColumnTypes.CATEGORICAL).map((c) => ({ value: c.info.id, label: c.info.name }))}
+        data={columns
+          .filter((c) => c.type === EColumnTypes.CATEGORICAL || c.type === EColumnTypes.NUMERICAL)
+          .map((c) => ({ value: c.info.id, label: c.info.name }))}
         value={currentSelected?.id}
       />
       {currentSelected ? (

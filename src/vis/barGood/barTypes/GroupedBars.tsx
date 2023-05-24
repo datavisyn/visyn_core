@@ -3,12 +3,15 @@ import * as d3 from 'd3v7';
 
 import ColumnTable from 'arquero/dist/types/table/column-table';
 
+import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
 
 export function GroupedBars({
   groupedTable,
   categoryScale,
   countScale,
+  categoryName,
+  groupName,
   height,
   margin,
   width,
@@ -21,6 +24,8 @@ export function GroupedBars({
   groupedTable: ColumnTable;
   categoryScale: d3.ScaleBand<string>;
   countScale: d3.ScaleLinear<number, number>;
+  categoryName: string;
+  groupName: string;
   groupScale: d3.ScaleBand<string>;
   groupColorScale: d3.ScaleOrdinal<string, string>;
   height: number;
@@ -33,7 +38,7 @@ export function GroupedBars({
   const bars = useMemo(() => {
     if (groupedTable) {
       return groupedTable
-        .groupby('category')
+        .orderby('category', 'group')
         .objects()
         .map((row: { category: string; group: string; count: number; selectedCount: number; ids: string[] }) => {
           return (
@@ -43,9 +48,15 @@ export function GroupedBars({
               selectedPercent={hasSelected ? row.selectedCount / row.count : null}
               key={row.category + row.group}
               x={isVertical ? categoryScale(row.category) + groupScale(row.group) : margin.left}
-              width={isVertical ? groupScale.bandwidth() : width - margin.left - countScale(row.count)}
+              width={isVertical ? groupScale.bandwidth() : width - margin.right - countScale(row.count)}
               y={isVertical ? countScale(row.count) : categoryScale(row.category) + groupScale(row.group)}
-              value={row.count}
+              tooltip={
+                <Stack spacing={0}>
+                  <Text>{`${categoryName}: ${row.category}`}</Text>
+                  <Text>{`${groupName}: ${row.group}`}</Text>
+                  <Text>{`Count: ${row.count}`}</Text>
+                </Stack>
+              }
               height={isVertical ? height - margin.bottom - countScale(row.count) : groupScale.bandwidth()}
               color={groupColorScale(row.group)}
             />
@@ -60,9 +71,12 @@ export function GroupedBars({
     categoryScale,
     groupScale,
     margin.left,
+    margin.right,
     margin.bottom,
     width,
     countScale,
+    categoryName,
+    groupName,
     height,
     groupColorScale,
     selectionCallback,

@@ -16,7 +16,7 @@ import {
 
 export function fetchIrisData(): VisColumn[] {
   const dataPromise = import('./irisData.js').then((m) =>
-    m.iris.map((currIris) => ({ ...currIris, randomCategory: Math.round(Math.random() * 4), anotherRandomCategory: Math.round(Math.random() * 4) })),
+    m.iris.map((currIris) => ({ ...currIris, randomCategory: Math.round(Math.random() * 20), anotherRandomCategory: Math.round(Math.random() * 4) })),
   );
 
   return [

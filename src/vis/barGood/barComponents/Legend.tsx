@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import * as d3v7 from 'd3v7';
-import { Stack, Chip, Tooltip, Box, ScrollArea, Group } from '@mantine/core';
+import { Stack, Chip, Tooltip, Box, ScrollArea, Group, Text, Center } from '@mantine/core';
 
 export function Legend({
   categories,
@@ -9,6 +9,8 @@ export function Legend({
   onClick,
   height,
   left,
+  isNumerical = false,
+  stepSize = 0,
 }: {
   categories: string[];
   filteredCategories: string[];
@@ -16,35 +18,25 @@ export function Legend({
   onClick: (string) => void;
   height: number;
   left: number;
+  isNumerical?: boolean;
+  stepSize?: number;
 }) {
   return (
-    <ScrollArea style={{ height, position: 'absolute', left }}>
-      <Group sx={{ width: '100%' }} spacing={10}>
+    <ScrollArea style={{ height, marginLeft: left, flexShrink: 0 }}>
+      <Group sx={{ width: '100%' }} spacing={2}>
         {categories.map((c) => {
           return (
             <Tooltip withinPortal key={c} label={c} withArrow arrowSize={6}>
-              <Box>
-                <Chip
-                  variant="filled"
-                  onClick={() => onClick(c)}
-                  checked={false}
-                  size="xs"
-                  styles={{
-                    label: {
-                      width: '100%',
-                      backgroundColor: filteredCategories.includes(c) ? 'lightgrey' : `${colorScale(c)} !important`,
-                      textAlign: 'center',
-                      paddingLeft: '10px',
-                      paddingRight: '10px',
-                      overflow: 'hidden',
-                      color: filteredCategories.includes(c) ? 'black' : 'white',
-                      textOverflow: 'ellipsis',
-                    },
-                  }}
-                >
-                  {c}
-                </Chip>
-              </Box>
+              <Stack spacing={0}>
+                <svg width="60px" height="10px">
+                  <rect width="60px" height="10px" fill={colorScale(c)} />
+                </svg>
+                <Center>
+                  <Text size={12} onClick={() => onClick(c)}>
+                    {isNumerical ? `${c} - ${+c + stepSize}` : c}
+                  </Text>
+                </Center>
+              </Stack>
             </Tooltip>
           );
         })}

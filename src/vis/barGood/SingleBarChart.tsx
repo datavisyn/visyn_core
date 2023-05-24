@@ -3,7 +3,7 @@ import { all, desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, VisColumn } from '../interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EColumnTypes, IBarConfig, VisColumn } from '../interfaces';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { useAsync } from '../../hooks/useAsync';
 import { getBarData } from './utils';
@@ -16,7 +16,7 @@ import { StackedBars } from './barTypes/StackedBars';
 import { Legend } from './barComponents/Legend';
 
 const margin = {
-  top: 40,
+  top: 30,
   bottom: 60,
   left: 50,
   right: 25,
@@ -31,6 +31,7 @@ export function SingleBarChart({
   selectedMap,
   selectedList,
   selectionCallback,
+  isSmall = false,
 }: {
   allColumns: Awaited<ReturnType<typeof getBarData>>;
   config: IBarConfig;
@@ -40,6 +41,7 @@ export function SingleBarChart({
   categoryFilter?: string;
   title?: string;
   selectionCallback?: (ids: string[]) => void;
+  isSmall?: boolean;
 }) {
   const [ref, { height, width }] = useResizeObserver();
 
@@ -83,17 +85,7 @@ export function SingleBarChart({
   }, [config.direction, normalizedCountScale]);
 
   return (
-    <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative' }}>
-      {groupColorScale ? (
-        <Legend
-          left={margin.left}
-          categories={groupColorScale.domain()}
-          filteredCategories={[]}
-          colorScale={groupColorScale}
-          height={margin.top}
-          onClick={() => console.log('hello')}
-        />
-      ) : null}
+    <Box ref={ref} style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}>
       <Container
         fluid
         pl={0}
@@ -110,18 +102,20 @@ export function SingleBarChart({
           <g>
             <text
               dominantBaseline="middle"
+              style={{ fontWeight: 500, fill: '#505459' }}
               textAnchor="middle"
               transform={`translate(${
                 config.direction === EBarDirection.VERTICAL
                   ? (categoryScale.range()[0] + categoryScale.range()[1]) / 2
                   : (countScale.range()[0] + countScale.range()[1]) / 2
-              }, 10)`}
+              }, ${margin.top - 20})`}
             >
               {title}
             </text>
             {countScale && categoryScale ? (
               config.direction === EBarDirection.VERTICAL ? (
                 <YAxis
+                  compact={isSmall}
                   yScale={countScale}
                   xRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   horizontalPosition={margin.left}
@@ -131,6 +125,7 @@ export function SingleBarChart({
                 />
               ) : (
                 <YAxis
+                  compact={isSmall}
                   yScale={categoryScale}
                   xRange={[countScale.range()[1], countScale.range()[0]]}
                   horizontalPosition={margin.left}
@@ -143,6 +138,7 @@ export function SingleBarChart({
             {categoryScale && countScale ? (
               config.direction === EBarDirection.VERTICAL ? (
                 <XAxis
+                  compact={isSmall}
                   xScale={categoryScale}
                   yRange={[countScale.range()[1], countScale.range()[0]]}
                   vertPosition={height - margin.bottom}
@@ -152,6 +148,7 @@ export function SingleBarChart({
                 />
               ) : (
                 <XAxis
+                  compact={isSmall}
                   xScale={countScale}
                   yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   vertPosition={height - margin.bottom}
@@ -164,6 +161,8 @@ export function SingleBarChart({
             {config.group ? (
               config.groupType === EBarGroupingType.GROUP ? (
                 <GroupedBars
+                  categoryName={config.catColumnSelected.name}
+                  groupName={config.group.name}
                   selectionCallback={selectionCallback}
                   hasSelected={selectedList.length > 0}
                   groupedTable={groupedTable}
@@ -178,6 +177,8 @@ export function SingleBarChart({
                 />
               ) : (
                 <StackedBars
+                  categoryName={config.catColumnSelected.name}
+                  groupName={config.group.name}
                   selectionCallback={selectionCallback}
                   hasSelected={selectedList.length > 0}
                   groupedTable={groupedTable}
@@ -193,6 +194,7 @@ export function SingleBarChart({
               )
             ) : (
               <SimpleBars
+                categoryName={config.catColumnSelected.name}
                 hasSelected={selectedList.length > 0}
                 selectionCallback={selectionCallback}
                 aggregatedTable={aggregatedTable}

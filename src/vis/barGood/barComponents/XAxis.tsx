@@ -10,6 +10,7 @@ export function XAxis({
   label,
   ticks,
   showLines,
+  compact = false,
 }: {
   showLines?: boolean;
   xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
@@ -17,12 +18,13 @@ export function XAxis({
   vertPosition: number;
   label: string;
   ticks: { value: string | number; offset: number }[];
+  compact?: boolean;
 }) {
   return (
     <>
       <text
         style={{ fill: '#878E95' }}
-        fontSize={14}
+        fontSize={compact ? 10 : 14}
         dominantBaseline="center"
         textAnchor="middle"
         transform={`translate(${(xScale.range()[0] + xScale.range()[1]) / 2}, ${vertPosition + 40})`}

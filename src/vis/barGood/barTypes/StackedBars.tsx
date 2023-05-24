@@ -2,12 +2,15 @@ import React, { useMemo } from 'react';
 import * as d3 from 'd3v7';
 
 import ColumnTable from 'arquero/dist/types/table/column-table';
+import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
 
 export function StackedBars({
   groupedTable,
   categoryScale,
   countScale,
+  categoryName,
+  groupName,
   height,
   margin,
   groupColorScale,
@@ -19,6 +22,8 @@ export function StackedBars({
 }: {
   groupedTable: ColumnTable;
   categoryScale: d3.ScaleBand<string>;
+  categoryName: string;
+  groupName: string;
   countScale: d3.ScaleLinear<number, number>;
   groupColorScale: d3.ScaleOrdinal<string, string>;
   height: number;
@@ -35,7 +40,7 @@ export function StackedBars({
       let currentCategory = '';
 
       return groupedTable
-        .groupby('category')
+        .orderby('category', 'group')
         .objects()
         .map((row: { category: string; group: string; count: number; categoryCount: number; selectedCount: number; ids: string[] }) => {
           if (currentCategory !== row.category) {
@@ -48,7 +53,7 @@ export function StackedBars({
           if (isVertical) {
             heightSoFar = myHeight + height - margin.bottom - normalizedCount;
           } else {
-            heightSoFar = myHeight + width - margin.left - normalizedCount;
+            heightSoFar = myHeight + width - margin.right - normalizedCount;
           }
 
           return (
@@ -58,9 +63,15 @@ export function StackedBars({
               selectedPercent={hasSelected ? row.selectedCount / row.count : null}
               key={row.category + row.group}
               x={isVertical ? categoryScale(row.category) : margin.left + myHeight}
-              width={isVertical ? categoryScale.bandwidth() : width - margin.left - normalizedCount}
+              width={isVertical ? categoryScale.bandwidth() : width - margin.right - normalizedCount}
               y={isVertical ? normalizedCount - myHeight : categoryScale(row.category)}
-              value={row.count}
+              tooltip={
+                <Stack spacing={0}>
+                  <Text>{`${categoryName}: ${row.category}`}</Text>
+                  <Text>{`${groupName}: ${row.group}`}</Text>
+                  <Text>{`Count: ${row.count}`}</Text>
+                </Stack>
+              }
               height={isVertical ? height - margin.bottom - normalizedCount : categoryScale.bandwidth()}
               color={groupColorScale(row.group)}
             />
@@ -69,15 +80,18 @@ export function StackedBars({
     }
     return null;
   }, [
+    categoryName,
     categoryScale,
     countScale,
     groupColorScale,
+    groupName,
     groupedTable,
     hasSelected,
     height,
     isVertical,
     margin.bottom,
     margin.left,
+    margin.right,
     normalized,
     selectionCallback,
     width,

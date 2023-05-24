@@ -12,6 +12,7 @@ export function YAxis({
   label,
   ticks,
   showLines,
+  compact = false,
 }: {
   yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
   xRange: [number, number];
@@ -19,15 +20,16 @@ export function YAxis({
   label: string;
   ticks: { value: string | number; offset: number }[];
   showLines?: boolean;
+  compact?: boolean;
 }) {
   return (
     <>
       <text
         style={{ fill: '#878E95' }}
-        fontSize={14}
+        fontSize={compact ? 10 : 14}
         dominantBaseline="middle"
         textAnchor="middle"
-        transform={`translate(${horizontalPosition - 40}, ${yScale.range()[0] / 2}) rotate(-90)`}
+        transform={`translate(${horizontalPosition - 30}, ${yScale.range()[1] + yScale.range()[0] / 2}) rotate(-90)`}
       >
         {label}
       </text>

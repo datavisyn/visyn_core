@@ -36,14 +36,14 @@ export function useGetBarScales(
     }
 
     return null;
-  }, [allColumns.catColVals, allColumns?.multiplesColVals, categoryFilter, selectedMap]);
+  }, [allColumns, categoryFilter, selectedMap]);
 
   const countScale = useMemo(() => {
     if (!aggregatedTable) return null;
     return d3
       .scaleLinear()
       .range(isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left])
-      .domain([0, +d3.max(aggregatedTable.array('count'))]);
+      .domain([0, +d3.max(aggregatedTable.array('count')) + +d3.max(aggregatedTable.array('count')) / 25]);
   }, [aggregatedTable, height, isVertical, margin, width]);
 
   const categoryScale = useMemo(() => {

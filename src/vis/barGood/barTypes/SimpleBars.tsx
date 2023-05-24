@@ -4,11 +4,13 @@ import * as d3 from 'd3v7';
 
 import ColumnTable from 'arquero/dist/types/table/column-table';
 
+import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
 
 export function SimpleBars({
   aggregatedTable,
   categoryScale,
+  categoryName,
   countScale,
   height,
   width,
@@ -19,6 +21,7 @@ export function SimpleBars({
 }: {
   aggregatedTable: ColumnTable;
   categoryScale: d3.ScaleBand<string>;
+  categoryName: string;
   countScale: d3.ScaleLinear<number, number>;
   height: number;
   width: number;
@@ -37,9 +40,14 @@ export function SimpleBars({
             selectedPercent={hasSelected ? row.selectedCount / row.count : null}
             key={row.category}
             x={isVertical ? categoryScale(row.category) : margin.left}
-            width={isVertical ? categoryScale.bandwidth() : width - margin.left - countScale(row.count)}
+            width={isVertical ? categoryScale.bandwidth() : width - margin.right - countScale(row.count)}
             y={isVertical ? countScale(row.count) : categoryScale(row.category)}
-            value={row.count}
+            tooltip={
+              <Stack spacing={0}>
+                <Text>{`${categoryName}: ${row.category}`}</Text>
+                <Text>{`Count: ${row.count}`}</Text>
+              </Stack>
+            }
             height={isVertical ? height - margin.bottom - countScale(row.count) : categoryScale.bandwidth()}
           />
         );
@@ -47,7 +55,20 @@ export function SimpleBars({
     }
 
     return null;
-  }, [aggregatedTable, categoryScale, countScale, isVertical, hasSelected, margin.left, margin.bottom, width, height, selectionCallback]);
+  }, [
+    aggregatedTable,
+    categoryScale,
+    countScale,
+    isVertical,
+    hasSelected,
+    margin.left,
+    margin.right,
+    margin.bottom,
+    width,
+    categoryName,
+    height,
+    selectionCallback,
+  ]);
 
   return <g>{bars}</g>;
 }
