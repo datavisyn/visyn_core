@@ -44,8 +44,6 @@ export function useGetGroupedBarScales(
         filteredTable = baseTable.params({ categoryFilter }).filter((d) => d.multiples === categoryFilter);
       }
 
-      baseTable.groupby('category', 'group', 'multiples').count().print();
-
       const grouped = filteredTable
         .groupby('category', 'group')
         .rollup({ count: () => op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
@@ -71,12 +69,16 @@ export function useGetGroupedBarScales(
 
     const newGroup = groupedTable.ungroup().groupby('group').count();
 
+    newGroup.print();
+
+    console.log(newGroup.array('group').sort())
+
     return d3
       .scaleOrdinal<string>()
       .domain(newGroup.array('group').sort())
       .range(
         allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-          ? d3.schemeBlues[newGroup.array('group').length]
+          ? d3.schemeBlues[newGroup.array('group').length > 3 ? newGroup.array('group').length : 3]
           : ['#337ab7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044', '#7b7b7b'],
       );
   }, [groupedTable, allColumns]);
