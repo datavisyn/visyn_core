@@ -129,18 +129,21 @@ export function SingleBarChart({
       >
         <svg width={width} height={height}>
           <g>
-            <text
-              dominantBaseline="middle"
-              style={{ fontWeight: 500, fill: '#505459' }}
-              textAnchor="middle"
-              transform={`translate(${
-                config.direction === EBarDirection.VERTICAL
-                  ? (categoryScale.range()[0] + categoryScale.range()[1]) / 2
-                  : (countScale.range()[0] + countScale.range()[1]) / 2
-              }, ${margin.top - 20})`}
-            >
-              {title}
-            </text>
+            {countScale && categoryScale ? (
+              <text
+                dominantBaseline="middle"
+                style={{ fontWeight: 500, fill: '#505459' }}
+                textAnchor="middle"
+                transform={`translate(${
+                  config.direction === EBarDirection.VERTICAL
+                    ? (categoryScale.range()[0] + categoryScale.range()[1]) / 2
+                    : (countScale.range()[0] + countScale.range()[1]) / 2
+                }, ${margin.top - 20})`}
+              >
+                {title}
+              </text>
+            ) : null}
+
             {countScale && categoryScale ? (
               config.direction === EBarDirection.VERTICAL ? (
                 <YAxis
