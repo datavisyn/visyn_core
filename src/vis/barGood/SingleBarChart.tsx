@@ -62,7 +62,7 @@ export function SingleBarChart({
   );
 
   const categoryTicks = useMemo(() => {
-    return categoryScale.domain().map((value) => ({
+    return categoryScale?.domain().map((value) => ({
       value,
       offset: categoryScale(value) + categoryScale.bandwidth() / 2,
     }));
