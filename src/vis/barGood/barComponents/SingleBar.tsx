@@ -1,5 +1,6 @@
 import { Tooltip } from '@mantine/core';
 import React from 'react';
+import { animated, useSpring, easings } from 'react-spring';
 
 export function SingleBar({
   selectedPercent,
@@ -20,23 +21,43 @@ export function SingleBar({
   tooltip?: JSX.Element;
   color?: string;
   isVertical?: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<SVGGElement, MouseEvent>) => void;
 }) {
+  const style = useSpring({
+    config: {
+      duration: 500,
+      easing: easings.easeOutSine,
+    },
+    to: {
+      x,
+      y,
+      width,
+      height,
+    },
+  });
+
+  const selectedRectStyle = useSpring({
+    config: {
+      duration: 500,
+      easing: easings.easeOutSine,
+    },
+    to: {
+      x,
+      y: isVertical ? y + height - height * selectedPercent : y,
+      width: isVertical ? width : width * selectedPercent,
+      height: isVertical ? height * selectedPercent : height,
+    },
+  });
+
   return (
     <Tooltip.Floating withinPortal label={tooltip}>
-      <g onClick={(e) => onClick()}>
+      <g onClick={(e) => onClick(e)}>
         {selectedPercent === null ? (
-          <rect x={x} width={width} y={y} height={height} fill={color} />
+          <animated.rect {...style} fill={color} />
         ) : (
           <g>
-            <rect x={x} width={width} y={y} height={height} fill={color} opacity={0.5} />
-            <rect
-              x={x}
-              width={isVertical ? width : width * selectedPercent}
-              y={isVertical ? y + height - height * selectedPercent : y}
-              height={isVertical ? height * selectedPercent : height}
-              fill={color}
-            />
+            <animated.rect {...style} fill={color} opacity={0.5} />
+            <animated.rect {...selectedRectStyle} fill={color} />
           </g>
         )}
       </g>

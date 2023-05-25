@@ -27,15 +27,15 @@ export function SimpleBars({
   width: number;
   margin: { top: number; bottom: number; left: number; right: number };
   isVertical?: boolean;
-  selectionCallback: (ids: string[]) => void;
+  selectionCallback: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
   hasSelected?: boolean;
 }) {
   const bars = useMemo(() => {
-    if (aggregatedTable && categoryScale && countScale) {
+    if (aggregatedTable && categoryScale && countScale && width !== 0 && height !== 0) {
       return aggregatedTable.objects().map((row: { category: string; count: number; selectedCount: number; ids: string[] }) => {
         return (
           <SingleBar
-            onClick={() => (row.count === row.selectedCount ? selectionCallback([]) : selectionCallback(row.ids))}
+            onClick={(e) => selectionCallback(e, row.ids)}
             isVertical={isVertical}
             selectedPercent={hasSelected ? row.selectedCount / row.count : null}
             key={row.category}

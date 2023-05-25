@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { all, desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import { Box, Container } from '@mantine/core';
@@ -6,7 +6,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EColumnTypes, IBarConfig, VisColumn } from '../interfaces';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { useAsync } from '../../hooks/useAsync';
-import { getBarData } from './utils';
+import { SortTypes, getBarData } from './utils';
 import { YAxis } from './barComponents/YAxis';
 import { XAxis } from './barComponents/XAxis';
 import { GroupedBars } from './barTypes/GroupedBars';
@@ -18,7 +18,7 @@ import { Legend } from './barComponents/Legend';
 const margin = {
   top: 30,
   bottom: 60,
-  left: 50,
+  left: 60,
   right: 25,
 };
 
@@ -32,6 +32,8 @@ export function SingleBarChart({
   selectedList,
   selectionCallback,
   isSmall = false,
+  sortType,
+  setSortType,
 }: {
   allColumns: Awaited<ReturnType<typeof getBarData>>;
   config: IBarConfig;
@@ -40,8 +42,10 @@ export function SingleBarChart({
   selectedList: string[];
   categoryFilter?: string;
   title?: string;
-  selectionCallback?: (ids: string[]) => void;
+  selectionCallback?: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
   isSmall?: boolean;
+  sortType: SortTypes;
+  setSortType: (sortType: SortTypes) => void;
 }) {
   const [ref, { height, width }] = useResizeObserver();
 
@@ -54,6 +58,7 @@ export function SingleBarChart({
     config.direction === EBarDirection.VERTICAL,
     selectedMap,
     config.groupType,
+    sortType,
   );
 
   const categoryTicks = useMemo(() => {
@@ -83,6 +88,27 @@ export function SingleBarChart({
       offset: normalizedCountScale(value),
     }));
   }, [config.direction, normalizedCountScale]);
+
+  const sortTypeCallback = useCallback(
+    (label: string) => {
+      if (label === config.catColumnSelected.name) {
+        if (sortType === SortTypes.CAT_ASC) {
+          setSortType(SortTypes.CAT_DESC);
+        } else if (sortType === SortTypes.CAT_DESC) {
+          setSortType(SortTypes.NONE);
+        } else {
+          setSortType(SortTypes.CAT_ASC);
+        }
+      } else if (sortType === SortTypes.COUNT_ASC) {
+        setSortType(SortTypes.COUNT_DESC);
+      } else if (sortType === SortTypes.COUNT_DESC) {
+        setSortType(SortTypes.NONE);
+      } else {
+        setSortType(SortTypes.COUNT_ASC);
+      }
+    },
+    [config.catColumnSelected.name, setSortType, sortType],
+  );
 
   return (
     <Box ref={ref} style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}>
@@ -122,6 +148,10 @@ export function SingleBarChart({
                   showLines
                   label={config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group ? 'Count %' : 'Count'}
                   ticks={countTicks}
+                  arrowDesc={sortType === SortTypes.COUNT_DESC}
+                  arrowAsc={sortType === SortTypes.COUNT_ASC}
+                  sortType={sortType}
+                  setSortType={sortTypeCallback}
                 />
               ) : (
                 <YAxis
@@ -132,6 +162,10 @@ export function SingleBarChart({
                   showLines={false}
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
+                  arrowDesc={sortType === SortTypes.CAT_DESC}
+                  arrowAsc={sortType === SortTypes.CAT_ASC}
+                  sortType={sortType}
+                  setSortType={sortTypeCallback}
                 />
               )
             ) : null}
@@ -145,6 +179,10 @@ export function SingleBarChart({
                   label={config.catColumnSelected.name}
                   showLines={false}
                   ticks={categoryTicks}
+                  arrowDesc={sortType === SortTypes.CAT_DESC}
+                  arrowAsc={sortType === SortTypes.CAT_ASC}
+                  sortType={sortType}
+                  setSortType={sortTypeCallback}
                 />
               ) : (
                 <XAxis
@@ -155,6 +193,10 @@ export function SingleBarChart({
                   label={config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group ? 'Count %' : 'Count'}
                   showLines
                   ticks={countTicks}
+                  arrowDesc={sortType === SortTypes.COUNT_DESC}
+                  arrowAsc={sortType === SortTypes.COUNT_ASC}
+                  sortType={sortType}
+                  setSortType={sortTypeCallback}
                 />
               )
             ) : null}

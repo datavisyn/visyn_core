@@ -1,5 +1,30 @@
+import ColumnTable from 'arquero/dist/types/table/column-table';
+import { desc } from 'arquero';
 import { resolveSingleColumn } from '../general/layoutUtils';
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+
+export enum SortTypes {
+  NONE = 'NONE',
+  CAT_ASC = 'CAT_ASC',
+  CAT_DESC = 'CAT_DESC',
+  COUNT_ASC = 'COUNT_ASC',
+  COUNT_DESC = 'COUNT_DESC',
+}
+
+export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes) {
+  switch (sortType) {
+    case SortTypes.CAT_ASC:
+      return tempTable.orderby('category');
+    case SortTypes.CAT_DESC:
+      return tempTable.orderby(desc('category'));
+    case SortTypes.COUNT_ASC:
+      return tempTable.orderby('count');
+    case SortTypes.COUNT_DESC:
+      return tempTable.orderby(desc('count'));
+    default:
+      return tempTable;
+  }
+}
 
 export async function getBarData(
   columns: VisColumn[],

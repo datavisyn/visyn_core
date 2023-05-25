@@ -31,11 +31,11 @@ export function StackedBars({
   width: number;
   normalized?: boolean;
   isVertical;
-  selectionCallback: (ids: string[]) => void;
+  selectionCallback: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
   hasSelected?: boolean;
 }) {
   const bars = useMemo(() => {
-    if (groupedTable) {
+    if (groupedTable && width !== 0 && height !== 0) {
       let heightSoFar = 0;
       let currentCategory = '';
 
@@ -58,7 +58,7 @@ export function StackedBars({
 
           return (
             <SingleBar
-              onClick={() => selectionCallback(row.ids)}
+              onClick={(e) => selectionCallback(e, row.ids)}
               isVertical={isVertical}
               selectedPercent={hasSelected ? row.selectedCount / row.count : null}
               key={row.category + row.group}
