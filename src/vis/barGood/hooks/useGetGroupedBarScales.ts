@@ -69,10 +69,6 @@ export function useGetGroupedBarScales(
 
     const newGroup = groupedTable.ungroup().groupby('group').count();
 
-    newGroup.print();
-
-    console.log(newGroup.array('group').sort())
-
     return d3
       .scaleOrdinal<string>()
       .domain(newGroup.array('group').sort())
