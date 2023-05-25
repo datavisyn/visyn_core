@@ -172,6 +172,7 @@ export type PlotlyData = {
   yTickLabels?: string[];
   xDomain?: [number | undefined, number | undefined];
   yDomain?: [number | undefined, number | undefined];
+  title?: string;
 };
 
 export type ColumnInfo = {
