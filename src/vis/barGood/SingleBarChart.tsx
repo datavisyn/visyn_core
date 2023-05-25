@@ -76,6 +76,9 @@ export function SingleBarChart({
   }, [config.display, config.group, config.groupType, countScale]);
 
   const countTicks = useMemo(() => {
+    if (!normalizedCountScale) {
+      return null;
+    }
     if (config.direction !== EBarDirection.VERTICAL) {
       const newScale = normalizedCountScale.copy().domain([normalizedCountScale.domain()[1], normalizedCountScale.domain()[0]]);
       return newScale.ticks(5).map((value) => ({
