@@ -167,7 +167,6 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
               name="permission_group_name"
               data={roles}
               clearable
-              className="form-select form-select-sm"
               value={group === '' ? undefined : group}
               onChange={(e) => setGroup(e ?? '')}
             />
