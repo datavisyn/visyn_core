@@ -129,15 +129,18 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       disableLineUpSelectionListener.current = false;
     }
   }, [selection]);
-
+  console.log('hey');
   return (
     <Box
       ref={divRef}
       sx={{
         flex: 1,
         width: '100%',
+        display: 'block',
         // Make the side panel scrollable
-        '> .lu-side-panel-main': {
+        '.lu-side-panel-main': {
+          // Probably should move to _ranking.scss?
+          flexBasis: 0,
           overflowY: 'auto',
         },
       }}
