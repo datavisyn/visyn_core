@@ -14,14 +14,13 @@ function PermissionsEntry({
   setPermission: (permission: Permission) => void;
   setGetter: (permission: Permission) => Set<EPermission>;
 }) {
-  let value = '';
+  let value: 'none' | 'read' | 'write' = 'none';
+
   if (!setGetter(permission).has(EPermission.READ)) {
     value = 'none';
-  }
-  if (setGetter(permission).has(EPermission.READ) && !setGetter(permission).has(EPermission.WRITE)) {
+  } else if (setGetter(permission).has(EPermission.READ) && !setGetter(permission).has(EPermission.WRITE)) {
     value = 'read';
-  }
-  if (setGetter(permission).has(EPermission.WRITE)) {
+  } else if (setGetter(permission).has(EPermission.WRITE)) {
     value = 'write';
   }
 
@@ -29,21 +28,30 @@ function PermissionsEntry({
     <SegmentedControl
       value={value}
       onChange={(newValue) => {
-        if (newValue === 'none') {
-          const p = permission.clone();
-          setGetter(p).clear();
-          setPermission(p);
-        } else if (newValue === 'read') {
-          const p = permission.clone();
-          setGetter(p).clear();
-          setGetter(p).add(EPermission.READ);
-          setPermission(p);
-        } else if (newValue === 'write') {
-          const p = permission.clone();
-          setGetter(p).clear();
-          setGetter(p).add(EPermission.READ);
-          setGetter(p).add(EPermission.WRITE);
-          setPermission(p);
+        switch (newValue) {
+          case 'none': {
+            const p = permission.clone();
+            setGetter(p).clear();
+            setPermission(p);
+            break;
+          }
+          case 'read': {
+            const p = permission.clone();
+            setGetter(p).clear();
+            setGetter(p).add(EPermission.READ);
+            setPermission(p);
+            break;
+          }
+          case 'write': {
+            const p = permission.clone();
+            setGetter(p).clear();
+            setGetter(p).add(EPermission.READ);
+            setGetter(p).add(EPermission.WRITE);
+            setPermission(p);
+            break;
+          }
+          default:
+            break;
         }
       }}
       data={[
