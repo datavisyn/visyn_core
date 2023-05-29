@@ -241,10 +241,12 @@ export function BarVis({
 
             let removeSelectionFlag = true;
 
-            for (const pointId of selectedPoints) {
-              if (!selectedMap[pointId]) {
-                removeSelectionFlag = false;
-                break;
+            if (selectedPoints.length === selectedList.length) {
+              for (const pointId of selectedPoints) {
+                if (!selectedMap[pointId]) {
+                  removeSelectionFlag = false;
+                  break;
+                }
               }
             }
 
