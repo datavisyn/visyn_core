@@ -105,7 +105,7 @@ export function ViolinVis({
       selectionCallback(newSelected);
     }
     // Multiselect disabled
-    else if (eventIds.every((tempId) => selectedList.includes(tempId))) {
+    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
       selectionCallback([]);
     } else {
       selectionCallback(eventIds);
