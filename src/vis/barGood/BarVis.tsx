@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { merge, uniqueId } from 'lodash';
 import { ActionIcon, Container, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -78,14 +78,15 @@ export function BarVis({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const setShowSidebarRef = useSyncedRef(setShowSidebar);
-  // Cheating to open the sidebar after the first render, since it requires the container to be mounted
-  useEffect(() => {
-    setShowSidebarRef.current(true);
-  }, [setShowSidebarRef]);
-
   const ref = useRef();
   const id = React.useMemo(() => uniqueId('HexbinVis'), []);
+
+  const [sidebarMounted, setSidebarMounted] = useState<boolean>(false);
+
+  // Cheating to open the sidebar after the first render, since it requires the container to be mounted
+  useEffect(() => {
+    setSidebarMounted(true);
+  }, [setSidebarMounted]);
 
   return (
     <Container p={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
@@ -97,7 +98,7 @@ export function BarVis({
         </Tooltip>
       ) : null}
       <BarChart config={config} columns={columns} selectedMap={selectedMap} selectionCallback={selectionCallback} selectedList={selectedList} />
-      {showSidebar ? (
+      {showSidebar && sidebarMounted ? (
         <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
           <BarVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
