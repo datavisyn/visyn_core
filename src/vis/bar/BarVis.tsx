@@ -267,11 +267,11 @@ export function BarVis({
             }
           }}
         />
-      ) : traceStatus !== 'pending' ? (
+      ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
         <InvalidCols headerMessage={finalTraces?.errorMessageHeader} bodyMessage={traceError?.message || finalTraces?.errorMessage} />
       ) : null}
       {mergedExtensions.postPlot}
-      {showSidebar ? (
+      {showSidebar && plotlyDivRef?.current ? (
         <VisSidebarWrapper id={id} target={plotlyDivRef.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
           <BarVisSidebar
             config={config}

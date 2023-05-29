@@ -206,11 +206,11 @@ export function ViolinVis({
             }
           }}
         />
-      ) : traceStatus !== 'pending' ? (
+      ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
         <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
       ) : null}
       {mergedExtensions.postPlot}
-      {showSidebar ? (
+      {showSidebar && plotlyDivRef?.current ? (
         <VisSidebarWrapper id={id} target={plotlyDivRef.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
           <ViolinVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
