@@ -35,7 +35,7 @@ describe('package.json exports', () => {
     expect(exported.types).toBe(`./dist/${p}/index.d.ts`);
     expect(exported.import).toBe(`./dist/${p}/index.js`);
     expect(exported.default).toBe(`./dist/${p}/index.js`);
-    expect(rootIndexTs).toContain(`export * from './${p}';`);
+    expect(rootIndexTs).toBeFalsy();
   });
 
   it('exports the package.json and phovea_registry', () => {

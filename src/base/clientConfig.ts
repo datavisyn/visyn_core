@@ -6,7 +6,7 @@ import { Ajax } from './ajax';
  * Can be extended globally by other repositories:
  *
  * ```ts
- * declare module 'visyn_core' {
+ * declare module 'visyn_core/base' {
  *   export interface IClientConfig {
  *     customProperty: string;
  *   }
@@ -19,11 +19,11 @@ export interface IClientConfig {
 }
 
 /**
- * Loads the app config from '/api/clientConfig'.
+ * Loads the app config from '/api/v1/visyn/clientConfig'.
  */
 export async function loadClientConfig(): Promise<IClientConfig | null> {
-  return Ajax.getJSON('/api/clientConfig').catch((e) => {
-    console.error('Error loading /api/clientConfig', e);
+  return Ajax.getJSON('/api/v1/visyn/clientConfig').catch((e) => {
+    console.error('Error loading /api/v1/visyn/clientConfig', e);
     return null;
   });
 }
