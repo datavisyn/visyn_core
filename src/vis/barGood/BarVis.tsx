@@ -4,7 +4,7 @@ import { ActionIcon, Container, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
-import { IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
+import { EFilterOptions, IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
 import { i18n } from '../../i18n/I18nextManager';
 import { BarChart } from './BarChart';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
@@ -32,6 +32,7 @@ export function BarVis({
   setShowSidebar,
   showCloseButton = false,
   closeButtonCallback = () => null,
+  filterCallback = () => null,
 }: {
   config: IBarConfig;
   optionsConfig?: {
@@ -73,6 +74,7 @@ export function BarVis({
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
   enableSidebar?: boolean;
+  filterCallback?: (s: EFilterOptions) => void;
 }) {
   const mergedExtensions = useMemo(() => {
     return merge({}, defaultExtensions, extensions);
@@ -100,7 +102,7 @@ export function BarVis({
       <BarChart config={config} columns={columns} selectedMap={selectedMap} selectionCallback={selectionCallback} selectedList={selectedList} />
       {showSidebar && sidebarMounted ? (
         <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
-          <BarVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />
+          <BarVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} filterCallback={filterCallback} />
         </VisSidebarWrapper>
       ) : null}
     </Container>
