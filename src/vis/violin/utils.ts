@@ -66,8 +66,6 @@ export async function createViolinTraces(
   const numColValues = await resolveColumnValues(numCols);
   const catColValues = await resolveColumnValues(catCols);
 
-  console.log(selectedList, selectedMap);
-
   // if we onl have numerical columns, add them individually.
   if (catColValues.length === 0) {
     for (const numCurr of numColValues) {
@@ -153,7 +151,6 @@ export async function createViolinTraces(
     }
   }
 
-  console.log(plots);
   return {
     plots,
     legendPlots: [],

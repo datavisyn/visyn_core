@@ -87,8 +87,6 @@ export function ViolinVis({
       return;
     }
 
-    console.log(e);
-
     // @ts-ignore
     const shiftPressed = e.event.shiftKey;
     // @ts-ignore
@@ -110,7 +108,6 @@ export function ViolinVis({
     else if (eventIds.every((tempId) => selectedList.includes(tempId))) {
       selectionCallback([]);
     } else {
-      console.log(eventIds);
       selectionCallback(eventIds);
     }
   };
