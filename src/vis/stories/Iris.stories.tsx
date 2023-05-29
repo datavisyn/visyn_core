@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
 import { Vis } from '../LazyVis';
 import {
@@ -22,7 +22,7 @@ export function fetchIrisData(): VisColumn[] {
   return [
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'sepalLength',
         name: 'Sepal Length',
       },
@@ -31,7 +31,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'sepalWidth',
         name: 'Sepal Width',
       },
@@ -58,7 +58,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'petalLength',
         name: 'Petal Length PEtal length petal length',
       },
@@ -67,7 +67,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'petalWidth',
         name: 'Petal Width',
       },
@@ -76,7 +76,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'species',
         name: 'Species',
       },
@@ -96,12 +96,13 @@ export default {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
-  const [selected, setSelected] = React.useState<string[]>([]);
   const columns = React.useMemo(() => fetchIrisData(), []);
+
+  const [selection, setSelection] = useState<string[]>([]);
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} selected={selected} selectionCallback={setSelected} />
+        <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
       </div>
     </div>
   );

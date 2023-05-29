@@ -242,6 +242,9 @@ export function EagerVis({
       {isViolin(visConfig) ? (
         <ViolinVis
           config={visConfig}
+          selectedList={selected}
+          selectedMap={selectedMap}
+          selectionCallback={selectionCallback}
           optionsConfig={{
             overlay: {
               enable: true,
@@ -266,6 +269,7 @@ export function EagerVis({
           scales={scales}
           showCloseButton={showCloseButton}
           closeButtonCallback={closeCallback}
+          filterCallback={filterCallback}
           {...commonProps}
         />
       ) : null}

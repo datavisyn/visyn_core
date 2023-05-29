@@ -2,7 +2,7 @@ import * as React from 'react';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Center, Container, Group, Stack, Tooltip } from '@mantine/core';
+import { ActionIcon, Center, Container, Group, Loader, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import * as d3 from 'd3v7';
@@ -270,15 +270,15 @@ export function ScatterVis({
         ) : null}
 
         {mergedExtensions.prePlot}
-        {traceStatus === 'success' && layout && plotsWithSelectedPoints.length > 0 ? (
+        {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
           plotly
-        ) : traceStatus !== 'pending' ? (
+        ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
           <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
         ) : null}
 
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar ? (
+      {showSidebar && plotlyDivRef?.current ? (
         <VisSidebarWrapper id={id} target={plotlyDivRef.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
           <ScatterVisSidebar
             config={config}
