@@ -239,9 +239,10 @@ export function BarVis({
             // plotly types here are just wrong. So have to convert to unknown first.
             const selectedPoints: string[] = e.points[0].customdata as unknown as string[];
 
-            let removeSelectionFlag = true;
+            let removeSelectionFlag = false;
 
             if (selectedPoints.length === selectedList.length) {
+              removeSelectionFlag = true;
               for (const pointId of selectedPoints) {
                 if (!selectedMap[pointId]) {
                   removeSelectionFlag = false;
