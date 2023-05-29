@@ -28,6 +28,7 @@ export function SingleBar({
       duration: 500,
       easing: easings.easeOutSine,
     },
+    immediate: true,
     to: {
       x,
       y,
@@ -41,6 +42,7 @@ export function SingleBar({
       duration: 500,
       easing: easings.easeOutSine,
     },
+    immediate: true,
     to: {
       x,
       y: isVertical ? y + height - height * selectedPercent : y,
