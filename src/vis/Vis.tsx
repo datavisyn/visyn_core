@@ -280,6 +280,7 @@ export function EagerVis({
           setConfig={setVisConfig}
           selectionCallback={selectionCallback}
           columns={columns}
+          showDragModeOptions={showDragModeOptions}
           {...commonProps}
         />
       ) : null}
