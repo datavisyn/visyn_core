@@ -145,7 +145,7 @@ export function ScatterVis({
         family: 'Roboto, sans-serif',
       },
       margin: {
-        t: 25,
+        t: showDragModeOptions ? 25 : 50,
         r: 25,
         l: 100,
         b: 100,

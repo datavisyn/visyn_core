@@ -100,7 +100,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     return {
       left: 52,
       right: config.color ? 80 : 25,
-      top: 25,
+      top: 50,
       bottom: 53,
     };
   }, [config.color]);
