@@ -18,6 +18,7 @@ import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
 import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterButtons } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -146,6 +147,7 @@ export function ViolinVis({
         {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
         {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
+        <VisFilterButtons onClick={() => console.log('hello')} isOpen />
 
         {mergedExtensions.prePlot}
 

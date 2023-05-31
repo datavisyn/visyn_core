@@ -20,6 +20,7 @@ import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
 import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterAndSelectSettings } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -259,11 +260,15 @@ export function ScatterVis({
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {showDragModeOptions ? (
-          <Center>
-            <Group mt="lg">
-              <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
-            </Group>
-          </Center>
+          <Group mt="md" position="center" style={{ width: '100%' }}>
+            <VisFilterAndSelectSettings
+              onBrushOptionsCallback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+              onFilterCallback={filterCallback}
+              isOpen
+              dragMode={config.dragMode}
+              showSelect
+            />
+          </Group>
         ) : null}
 
         {mergedExtensions.prePlot}

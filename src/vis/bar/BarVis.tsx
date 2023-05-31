@@ -19,6 +19,7 @@ import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
 import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterButtons } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -214,6 +215,7 @@ export function BarVis({
       ref={plotlyDivRef}
     >
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
+      <VisFilterButtons onClick={() => console.log('hello')} isOpen />
 
       <Stack
         spacing={0}
@@ -229,7 +231,6 @@ export function BarVis({
 
         {mergedExtensions.prePlot}
         <Space h="xl" />
-
         {traceStatus === 'success' && layout && finalTraces?.plots.length > 0 ? (
           <PlotlyComponent
             divId={`plotlyDiv${id}`}
