@@ -8,7 +8,8 @@ import { FilterEmpty } from '../assets/icons/FilterEmpty';
 import { FilterClear } from '../assets/icons/FilterClear';
 import { FilterFilled } from '../assets/icons/FilterFilled';
 import { BarGroupTypeButtons } from './sidebar/BarGroupTypeButtons';
-import { BrushOptionButtons, EFilterOptions, EScatterSelectSettings } from '.';
+import { EFilterOptions, EScatterSelectSettings } from './interfaces';
+import { BrushOptionButtons } from './sidebar/BrushOptionButtons';
 
 export function VisFilterAndSelectSettings({
   isOpen,
