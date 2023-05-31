@@ -88,7 +88,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchIrisData(), []);
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-      <div style={{ width: '70%', height: '80%' }}>
+      <div style={{ width: '70%', height: '80%', border: '1px solid black' }}>
         <Vis {...args} columns={columns} />
       </div>
     </div>
