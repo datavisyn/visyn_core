@@ -7,7 +7,7 @@ import { i18n } from '../i18n';
 
 export function VisSidebarOpenButton({ isOpen, onClick }: { isOpen?: boolean; onClick: () => void }) {
   return (
-    <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
+    <Tooltip withinPortal label={isOpen ? i18n.t('visyn:vis.closeSettings') : i18n.t('visyn:vis.openSettings')}>
       <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={onClick}>
         <FontAwesomeIcon icon={isOpen ? faClose : faGear} />
       </ActionIcon>
