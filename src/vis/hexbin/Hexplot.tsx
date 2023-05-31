@@ -100,7 +100,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     return {
       left: 52,
       right: config.color ? 80 : 25,
-      top: 25,
+      top: 50,
       bottom: 53,
     };
   }, [config.color]);
@@ -261,8 +261,10 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
 
     const colorOptions = currentColorColumn.allValues.map((val) => val.val as string);
 
-    return d3v7.scaleOrdinal<string, string>(d3v7.schemeCategory10).domain(Array.from(new Set<string>(colorOptions)));
-  }, [colsStatus, currentColorColumn?.allValues]);
+    return d3v7
+      .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : d3v7.schemeCategory10)
+      .domain(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
+  }, [allColumns, colsStatus, currentColorColumn]);
 
   // memoize the actual hexes since they do not need to change on zoom/drag
   const hexObjects = React.useMemo(() => {

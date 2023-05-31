@@ -14,6 +14,7 @@ import {
 } from '../interfaces';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { i18n } from '../../i18n';
+import { SELECT_COLOR } from '../general/constants';
 
 export function isViolin(s: IVisConfig): s is IViolinConfig {
   return s.type === ESupportedPlotlyVis.VIOLIN;
@@ -38,7 +39,13 @@ export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinCo
   return merged;
 }
 
-export async function createViolinTraces(columns: VisColumn[], config: IViolinConfig, scales: Scales): Promise<PlotlyInfo> {
+export async function createViolinTraces(
+  columns: VisColumn[],
+  config: IViolinConfig,
+  scales: Scales,
+  selectedList: string[],
+  selectedMap: { [key: string]: boolean },
+): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
   if (!config.numColumnsSelected || !config.catColumnsSelected) {
@@ -65,6 +72,7 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
       plots.push({
         data: {
           y: numCurr.resolvedValues.map((v) => v.val),
+          ids: numCurr.resolvedValues.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           type: 'violin',
@@ -76,10 +84,11 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
           box: {
             visible: config.violinOverlay === EViolinOverlay.BOX,
           },
-          spanmode: 'hard',
-          meanline: {
-            visible: true,
+          marker: {
+            color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
           },
+
+          spanmode: 'hard',
           name: `${columnNameWithDescription(numCurr.info)}`,
           hoverinfo: 'y',
           scalemode: 'width',
@@ -97,6 +106,7 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
       plots.push({
         data: {
           x: catCurr.resolvedValues.map((v) => v.val),
+          ids: catCurr.resolvedValues.map((v) => v.id),
           y: numCurr.resolvedValues.map((v) => v.val),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
@@ -104,15 +114,11 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
           // @ts-ignore
           hoveron: 'violins',
           hoverinfo: 'y',
-          meanline: {
-            visible: true,
-          },
           name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
           scalemode: 'width',
           pointpos: 0,
           jitter: 0.3,
           spanmode: 'hard',
-
           points: false,
           box: {
             visible: config.violinOverlay === EViolinOverlay.BOX,
@@ -123,7 +129,17 @@ export async function createViolinTraces(columns: VisColumn[], config: IViolinCo
               type: 'groupby',
               groups: catCurr.resolvedValues.map((v) => v.val) as string[],
               styles: [...new Set<string>(catCurr.resolvedValues.map((v) => v.val) as string[])].map((c) => {
-                return { target: c, value: { line: { color: scales.color(c) } } };
+                return {
+                  target: c,
+                  value: {
+                    line: {
+                      color:
+                        selectedList.length !== 0 && catCurr.resolvedValues.filter((val) => val.val === c).find((val) => selectedMap[val.id])
+                          ? SELECT_COLOR
+                          : '#878E95',
+                    },
+                  },
+                };
               }),
             },
           ],
