@@ -253,11 +253,12 @@ export function ScatterVis({
           cursor: 'pointer !important',
         },
       }}
+      ref={plotlyDivRef}
     >
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
       {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%', width: '100%' }} ref={plotlyDivRef}>
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {showDragModeOptions ? (
           <Group mt="md" position="center" style={{ width: '100%' }}>
             <VisFilterAndSelectSettings
