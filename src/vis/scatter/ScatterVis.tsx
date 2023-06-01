@@ -6,6 +6,7 @@ import { ActionIcon, Center, Container, Group, Loader, Stack, Tooltip } from '@m
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import * as d3 from 'd3v7';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings } from '../interfaces';
 import { InvalidCols } from '../general/InvalidCols';
 import { createScatterTraces } from './utils';
@@ -18,6 +19,7 @@ import { useAsync } from '../../hooks';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
 import { i18n } from '../../i18n';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 
 const defaultExtensions = {
   prePlot: null,
@@ -233,9 +235,10 @@ export function ScatterVis({
     return null;
   }, [id, plotsWithSelectedPoints, layout, selectedMap, selectionCallback, selectedList, traces?.plots, plotlyData, scrollZoom]);
 
+  console.log(showSidebar);
   return (
-    <Container
-      fluid
+    <Group
+      noWrap
       pl={0}
       pr={0}
       sx={{
@@ -251,16 +254,10 @@ export function ScatterVis({
       }}
       ref={plotlyDivRef}
     >
-      {enableSidebar ? (
-        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
-            <FontAwesomeIcon icon={faGear} />
-          </ActionIcon>
-        </Tooltip>
-      ) : null}
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
       {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%' }}>
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {showDragModeOptions ? (
           <Center>
             <Group mt="lg">
@@ -278,8 +275,8 @@ export function ScatterVis({
 
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar && plotlyDivRef?.current ? (
-        <VisSidebarWrapper id={id} target={plotlyDivRef.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
+      {showSidebar ? (
+        <VisSidebarWrapper>
           <ScatterVisSidebar
             config={config}
             optionsConfig={optionsConfig}
@@ -290,6 +287,6 @@ export function ScatterVis({
           />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Group>
   );
 }
