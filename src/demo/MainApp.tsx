@@ -1,12 +1,15 @@
 import * as React from 'react';
-import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Button, Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Ranking, LocalDataProvider } from 'lineupjs';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
-import { VisynRanking, autosizeWithSMILESColumn } from '../ranking';
+import { VisynRanking, autosizeWithSMILESColumn, createFromDescRefWithScoreColumns, createToDescRefWithScoreColumns, isScoreColumnDesc } from '../ranking';
 import { IBuiltVisynRanking, defaultBuilder } from '../ranking/EagerVisynRanking';
 import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { PermissionChooser } from '../components/PermissionChooser';
+import { Permission } from '../security/Permission';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -40,6 +43,10 @@ export function MainApp() {
   const visSelection = React.useMemo(() => selection.map((s) => `${iris.indexOf(s)}`), [selection]);
   const createScoreColumnFunc = React.useRef<IBuiltVisynRanking['createScoreColumn']>(null);
   const [loading, setLoading] = React.useState(false);
+  const rankingRef = React.useRef<Ranking>();
+  const providerRef = React.useRef<LocalDataProvider>();
+
+  const [dump, setDump] = React.useState();
 
   return (
     <VisynApp
@@ -83,13 +90,33 @@ export function MainApp() {
                 { value: 'smiles', label: 'SMILES' },
               ]}
             />
+            <Button.Group>
+              <Button
+                onClick={() => {
+                  providerRef.current.restore(JSON.parse(JSON.stringify(providerRef.current.dump())));
+                  console.log(rankingRef.current.flatColumns);
+                }}
+              >
+                Dump
+              </Button>
+              <Button
+                onClick={() => {
+                  providerRef.current.restore(JSON.parse(JSON.stringify(providerRef.current.dump())));
+                }}
+              >
+                Restore
+              </Button>
+            </Button.Group>
             <VisynRanking
               data={iris}
               selection={selection}
               setSelection={setSelection}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
-              onBuiltLineUp={({ createScoreColumn, provider, lineup }) => {
+              onBuiltLineUp={({ createScoreColumn, provider, lineup, ranking }) => {
+                console.log("build");
                 createScoreColumnFunc.current = createScoreColumn;
+                providerRef.current = provider;
+                rankingRef.current = ranking;
                 autosizeWithSMILESColumn({ provider, lineup });
               }}
             />

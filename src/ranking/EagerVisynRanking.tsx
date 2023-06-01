@@ -3,7 +3,7 @@ import LineUp, { builder, buildRanking, Taggle, Ranking, DataBuilder, LocalDataP
 import isEqual from 'lodash/isEqual';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
-import { createScoreColumn, IScoreResult } from './score/interfaces';
+import { createFromDescRefWithScoreColumns, createScoreColumn, createToDescRefWithScoreColumns, IScoreResult } from './score/interfaces';
 import { registerSMILESColumn } from './smiles/utils';
 
 import '../scss/vendors/_lineup.scss';
@@ -101,8 +101,14 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       return acc;
     }, new Map());
 
+    const provider = lineupRef.current.data as LocalDataProvider;
+
+    // Patch toDescRef/fromDescRef for score columns
+    provider.toDescRef = createToDescRefWithScoreColumns(provider.toDescRef.bind(provider));
+    provider.fromDescRef = createFromDescRefWithScoreColumns(provider.fromDescRef.bind(provider));
+
     onBuiltLineupRef.current?.({
-      provider: lineupRef.current.data as LocalDataProvider,
+      provider,
       ranking: rankingRef.current,
       lineup: lineupRef.current,
       createScoreColumn: async (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => {
@@ -129,7 +135,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       disableLineUpSelectionListener.current = false;
     }
   }, [selection]);
-  console.log('hey');
+
   return (
     <Box
       ref={divRef}
