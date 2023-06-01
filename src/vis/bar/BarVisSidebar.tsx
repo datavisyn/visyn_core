@@ -14,14 +14,14 @@ import {
   ICommonVisSideBarProps,
   EAggregateTypes,
   EColumnTypes,
+  EFilterOptions,
 } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { GroupSelect } from '../sidebar/GroupSelect';
 import { BarDirectionButtons } from '../sidebar/BarDirectionButtons';
-import { BarGroupTypeButtons } from '../sidebar/BarGroupTypeButtons';
-import { BarDisplayButtons } from '../sidebar/BarDisplayTypeButtons';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
+import { FilterButtons } from '../sidebar/FilterButtons';
 
 const defaultConfig = {
   group: {
@@ -33,6 +33,10 @@ const defaultConfig = {
     customComponent: null,
   },
   direction: {
+    enable: true,
+    customComponent: null,
+  },
+  filter: {
     enable: true,
     customComponent: null,
   },
@@ -58,6 +62,7 @@ export function BarVisSidebar({
   optionsConfig,
   extensions,
   columns,
+  filterCallback = () => null,
   setConfig,
   className = '',
   style: { width = '20em', ...style } = {},
@@ -80,6 +85,10 @@ export function BarVisSidebar({
       enable?: boolean;
       customComponent?: React.ReactNode;
     };
+    filter?: {
+      enable?: boolean;
+      customComponent?: React.ReactNode;
+    };
     display?: {
       enable?: boolean;
       customComponent?: React.ReactNode;
@@ -91,6 +100,7 @@ export function BarVisSidebar({
     preSidebar?: React.ReactNode;
     postSidebar?: React.ReactNode;
   };
+  filterCallback?: (s: EFilterOptions) => void;
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
 } & ICommonVisSideBarProps) {
@@ -170,6 +180,7 @@ export function BarVisSidebar({
             <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
           )
         : null}
+      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
 
       {mergedExtensions.postSidebar}
     </Container>

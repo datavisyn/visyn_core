@@ -176,7 +176,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
 }
 
 export function resolveColumnValues(columns: VisColumn[]) {
-  return Promise.all(columns.map(async (col) => ({ ...col, resolvedValues: await col.values() })));
+  return Promise.all(columns.map(async (col) => ({ ...col, resolvedValues: (await col?.values()) || [] })));
 }
 
 export async function resolveSingleColumn(column: VisColumn) {
