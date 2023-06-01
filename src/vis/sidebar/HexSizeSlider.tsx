@@ -21,7 +21,7 @@ export function HexSizeSlider({ callback, currentValue }: OpacitySliderProps) {
       <Text weight={500} size={14}>
         Size
       </Text>
-      <Box sx={{ width: '200px' }}>
+      <Box sx={{ width: '180px' }}>
         <Slider
           step={1}
           value={currentValue}
