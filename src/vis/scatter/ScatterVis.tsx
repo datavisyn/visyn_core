@@ -148,7 +148,7 @@ export function ScatterVis({
         family: 'Roboto, sans-serif',
       },
       margin: {
-        t: showDragModeOptions ? 25 : 50,
+        t: 25,
         r: 25,
         l: 100,
         b: 100,
@@ -202,41 +202,6 @@ export function ScatterVis({
     return [];
   }, [plotsWithSelectedPoints, traces]);
 
-  const plotly = useMemo(() => {
-    if (traces?.plots && plotsWithSelectedPoints && layout) {
-      return (
-        <PlotlyComponent
-          key={id}
-          divId={`plotlyDiv${id}`}
-          data={plotlyData}
-          layout={layout}
-          config={{ responsive: true, displayModeBar: false, scrollZoom }}
-          useResizeHandler
-          style={{ width: '100%', height: '100%' }}
-          onClick={(event) => {
-            const clickedId = (event.points[0] as any).id;
-            if (selectedMap[clickedId]) {
-              selectionCallback(selectedList.filter((s) => s !== clickedId));
-            } else {
-              selectionCallback([...selectedList, clickedId]);
-            }
-          }}
-          onInitialized={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onUpdate={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onSelected={(sel) => {
-            selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
-          }}
-        />
-      );
-    }
-    return null;
-  }, [id, plotsWithSelectedPoints, layout, selectedMap, selectionCallback, selectedList, traces?.plots, plotlyData, scrollZoom]);
-
-  console.log(showSidebar);
   return (
     <Group
       noWrap
@@ -248,7 +213,7 @@ export function ScatterVis({
         width: '100%',
         overflow: 'hidden',
         position: 'relative',
-        // Disable plotly crosshair cursor
+        // Disable plotly crosshair curs or
         '.nsewdrag': {
           cursor: 'pointer !important',
         },
@@ -272,9 +237,33 @@ export function ScatterVis({
         ) : null}
 
         {mergedExtensions.prePlot}
-        {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
-          plotly
-        ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
+        {traceStatus === 'success' && layout && plotsWithSelectedPoints.length > 0 ? (
+          <PlotlyComponent
+            divId={`plotlyDiv${id}`}
+            data={plotlyData}
+            layout={layout}
+            config={{ responsive: true, displayModeBar: false, scrollZoom }}
+            useResizeHandler
+            style={{ width: '100%', height: '100%' }}
+            onClick={(event) => {
+              const clickedId = (event.points[0] as any).id;
+              if (selectedMap[clickedId]) {
+                selectionCallback(selectedList.filter((s) => s !== clickedId));
+              } else {
+                selectionCallback([...selectedList, clickedId]);
+              }
+            }}
+            onInitialized={() => {
+              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onUpdate={() => {
+              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onSelected={(sel) => {
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+            }}
+          />
+        ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
           <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
         ) : null}
 

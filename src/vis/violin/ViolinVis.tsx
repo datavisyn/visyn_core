@@ -18,7 +18,6 @@ import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
 import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
-import { VisFilterButtons } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -171,6 +170,7 @@ export function ViolinVis({
         flexGrow: 1,
         height: '100%',
         width: '100%',
+        overflow: 'hidden',
         position: 'relative',
         // Disable plotly crosshair cursor
         '.nsewdrag': {
@@ -179,18 +179,22 @@ export function ViolinVis({
       }}
       ref={plotlyDivRef}
     >
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
+
       <Stack
         spacing={0}
         sx={{
+          flexGrow: 1,
           height: '100%',
           width: '100%',
+          overflow: 'hidden',
+          position: 'relative',
         }}
       >
         <Space h="xl" />
         {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
-        {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
-        <VisFilterButtons onClick={() => console.log('hello')} isOpen />
+        {/* <VisFilterButtons onClick={() => console.log('hello')} isOpen /> */}
 
         {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
           <PlotlyComponent

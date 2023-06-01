@@ -223,17 +223,14 @@ export function BarVis({
       <Stack
         spacing={0}
         sx={{
-          flexGrow: 1,
           height: '100%',
           width: '100%',
-          overflow: 'hidden',
-          position: 'relative',
         }}
       >
         {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
         {mergedExtensions.prePlot}
-        <Space h="xl" />
+        {/* <Space h="xl" /> */}
         {traceStatus === 'success' && layout && finalTraces?.plots.length > 0 ? (
           <PlotlyComponent
             divId={`plotlyDiv${id}`}
@@ -283,7 +280,7 @@ export function BarVis({
         ) : null}
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar && plotlyDivRef?.current ? (
+      {showSidebar ? (
         <VisSidebarWrapper>
           <BarVisSidebar
             config={config}
