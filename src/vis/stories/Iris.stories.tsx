@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
 import { Vis } from '../LazyVis';
 import {
   EAggregateTypes,
@@ -80,7 +80,7 @@ export default {
   title: 'Example/Vis/IrisData',
   component: Vis,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} as ComponentMeta<typeof Vis>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
@@ -88,7 +88,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchIrisData(), []);
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-      <div style={{ width: '70%', height: '80%' }}>
+      <div style={{ width: '70%', height: '80%', border: '1px solid black' }}>
         <Vis {...args} columns={columns} />
       </div>
     </div>
@@ -97,7 +97,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const ScatterPlot = Template.bind({}) as typeof Template;
+export const ScatterPlot: typeof Template = Template.bind({});
 ScatterPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
@@ -125,7 +125,7 @@ ScatterPlot.args = {
   },
 };
 
-export const BarChart = Template.bind({}) as typeof Template;
+export const BarChart: typeof Template = Template.bind({});
 BarChart.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
@@ -145,7 +145,7 @@ BarChart.args = {
   },
 };
 
-export const ViolinPlot = Template.bind({}) as typeof Template;
+export const ViolinPlot: typeof Template = Template.bind({});
 ViolinPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.VIOLIN,
