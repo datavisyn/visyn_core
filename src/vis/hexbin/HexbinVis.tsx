@@ -13,6 +13,7 @@ import { HexbinVisSidebar } from './HexbinVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { BrushOptionButtons } from '../sidebar';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 
 const defaultExtensions = {
   prePlot: null,
@@ -51,27 +52,13 @@ export function HexbinVis({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const [sidebarMounted, setSidebarMounted] = useState<boolean>(false);
-
-  // Cheating to open the sidebar after the first render, since it requires the container to be mounted
-  useEffect(() => {
-    setSidebarMounted(true);
-  }, [setSidebarMounted]);
-
   const ref = useRef();
-  const id = React.useMemo(() => uniqueId('HexbinVis'), []);
 
   return (
-    <Container pl={0} pr={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
-      {enableSidebar ? (
-        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
-            <FontAwesomeIcon icon={faGear} />
-          </ActionIcon>
-        </Tooltip>
-      ) : null}
+    <Group noWrap pl={0} pr={0} sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%' }}>
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         <Center>
           <Group mt="lg">
             <BrushOptionButtons
@@ -125,11 +112,11 @@ export function HexbinVis({
           )}
         </SimpleGrid>
       </Stack>
-      {showSidebar && sidebarMounted ? (
-        <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
+      {showSidebar ? (
+        <VisSidebarWrapper>
           <HexbinVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Group>
   );
 }

@@ -86,7 +86,7 @@ export default {
   args: {
     pointCount: 100000,
   },
-} as ComponentMeta<typeof Vis>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
@@ -104,7 +104,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const ScatterPlot = Template.bind({}) as typeof Template;
+export const ScatterPlot: typeof Template = Template.bind({});
 ScatterPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
@@ -128,7 +128,7 @@ ScatterPlot.args = {
   },
 };
 
-export const BarChart = Template.bind({}) as typeof Template;
+export const BarChart: typeof Template = Template.bind({});
 BarChart.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
@@ -148,7 +148,7 @@ BarChart.args = {
   },
 };
 
-export const ViolinPlot = Template.bind({}) as typeof Template;
+export const ViolinPlot: typeof Template = Template.bind({});
 ViolinPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.VIOLIN,
