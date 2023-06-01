@@ -60,7 +60,7 @@ export function HexbinVis({
     <Group noWrap pl={0} pr={0} sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%' }}>
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {showDragModeOptions ? (
           <Center>
             <Group mt="lg">
