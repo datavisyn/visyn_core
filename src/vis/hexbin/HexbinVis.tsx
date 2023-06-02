@@ -1,7 +1,7 @@
 import * as React from 'react';
 import uniqueId from 'lodash/uniqueId';
 import merge from 'lodash/merge';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Center, Container, Group, SimpleGrid, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
@@ -13,6 +13,7 @@ import { HexbinVisSidebar } from './HexbinVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { BrushOptionButtons } from '../sidebar';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 
 const defaultExtensions = {
   prePlot: null,
@@ -31,6 +32,7 @@ export function HexbinVis({
   enableSidebar,
   setShowSidebar,
   showSidebar,
+  showDragModeOptions = true,
 }: {
   config: IHexbinConfig;
   extensions?: {
@@ -45,41 +47,31 @@ export function HexbinVis({
   selected?: { [key: string]: boolean };
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
+  showDragModeOptions?: boolean;
   enableSidebar?: boolean;
 }) {
   const mergedExtensions = useMemo(() => {
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const setShowSidebarRef = useSyncedRef(setShowSidebar);
-  // Cheating to open the sidebar after the first render, since it requires the container to be mounted
-  useEffect(() => {
-    setShowSidebarRef.current(true);
-  }, [setShowSidebarRef]);
-
   const ref = useRef();
-  const id = React.useMemo(() => uniqueId('HexbinVis'), []);
 
   return (
-    <Container p={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
-      {enableSidebar ? (
-        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
-            <FontAwesomeIcon icon={faGear} />
-          </ActionIcon>
-        </Tooltip>
-      ) : null}
+    <Group noWrap pl={0} pr={0} sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%' }}>
-        <Center>
-          <Group mt="lg">
-            <BrushOptionButtons
-              callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
-              options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
-              dragMode={config.dragMode}
-            />
-          </Group>
-        </Center>
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+        {showDragModeOptions ? (
+          <Center>
+            <Group mt="lg">
+              <BrushOptionButtons
+                callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+                options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
+                dragMode={config.dragMode}
+              />
+            </Group>
+          </Center>
+        ) : null}
         <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
           {config.numColumnsSelected.length < 2 ? (
             <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={i18n.t('visyn:vis.hexbinError')} />
@@ -125,10 +117,10 @@ export function HexbinVis({
         </SimpleGrid>
       </Stack>
       {showSidebar ? (
-        <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
+        <VisSidebarWrapper>
           <HexbinVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Group>
   );
 }

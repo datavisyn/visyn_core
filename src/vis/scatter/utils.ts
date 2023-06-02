@@ -179,8 +179,12 @@ export async function createScatterTraces(
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),
 
         marker: {
+          symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+
           color: colorCol
-            ? colorCol.resolvedValues.map((v) => (colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : scales.color(v.val)))
+            ? colorCol.resolvedValues.map((v) =>
+                colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : colorCol.color ? colorCol.color[v.val] : scales.color(v.val),
+              )
             : SELECT_COLOR,
         },
         // plotly is stupid and doesnt know its own types
@@ -190,7 +194,6 @@ export async function createScatterTraces(
             line: {
               width: 0,
             },
-            symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: 1,
             size: 8,
           },
@@ -200,7 +203,6 @@ export async function createScatterTraces(
             line: {
               width: 0,
             },
-            symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             color: DEFAULT_COLOR,
             opacity: alphaSliderVal,
             size: 8,
@@ -267,7 +269,13 @@ export async function createScatterTraces(
               text: validCols[0].resolvedValues.map((v) => v.id.toString()),
               marker: {
                 color: colorCol
-                  ? colorCol.resolvedValues.map((v) => (colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : scales.color(v.val)))
+                  ? colorCol.resolvedValues.map((v) =>
+                      colorCol.type === EColumnTypes.NUMERICAL
+                        ? numericalColorScale(v.val as number)
+                        : colorCol.color
+                        ? colorCol.color[v.val]
+                        : scales.color(v.val),
+                    )
                   : SELECT_COLOR,
               },
               // plotly is stupid and doesnt know its own types
@@ -332,7 +340,7 @@ export async function createScatterTraces(
           },
           symbol: 'circle',
           size: 8,
-          color: colorCol ? colorCol.resolvedValues.map((v) => scales.color(v.val)) : DEFAULT_COLOR,
+          color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : DEFAULT_COLOR,
           opacity: 1,
         },
         transforms: [

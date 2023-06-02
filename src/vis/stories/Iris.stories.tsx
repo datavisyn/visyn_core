@@ -1,5 +1,5 @@
-import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import React, { useState } from 'react';
+import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
 import { Vis } from '../LazyVis';
 import {
   EAggregateTypes,
@@ -20,7 +20,7 @@ export function fetchIrisData(): VisColumn[] {
   return [
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'sepalLength',
         name: 'Sepal Length',
       },
@@ -29,7 +29,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'sepalWidth',
         name: 'Sepal Width',
       },
@@ -39,15 +39,25 @@ export function fetchIrisData(): VisColumn[] {
     {
       info: {
         description: '',
+        id: 'randomThing',
+        name: 'Random Thing',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      color: { 1: 'cornflowerblue' },
+      values: () => dataPromise.then((data) => data.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
+    },
+    {
+      info: {
+        description: 'data from description',
         id: 'petalLength',
-        name: 'Petal Length',
+        name: 'Petal Length PEtal length petal length',
       },
       type: EColumnTypes.NUMERICAL,
       values: () => dataPromise.then((data) => data.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'petalWidth',
         name: 'Petal Width',
       },
@@ -56,7 +66,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'data from description',
         id: 'species',
         name: 'Species',
       },
@@ -71,16 +81,18 @@ export default {
   title: 'Example/Vis/IrisData',
   component: Vis,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} as ComponentMeta<typeof Vis>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchIrisData(), []);
+
+  const [selection, setSelection] = useState<string[]>([]);
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} />
+        <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
       </div>
     </div>
   );
@@ -88,8 +100,9 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const ScatterPlot = Template.bind({}) as typeof Template;
+export const ScatterPlot: typeof Template = Template.bind({});
 ScatterPlot.args = {
+  showDragModeOptions: false,
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
@@ -116,7 +129,7 @@ ScatterPlot.args = {
   },
 };
 
-export const BarChart = Template.bind({}) as typeof Template;
+export const BarChart: typeof Template = Template.bind({});
 BarChart.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
@@ -136,7 +149,7 @@ BarChart.args = {
   },
 };
 
-export const ViolinPlot = Template.bind({}) as typeof Template;
+export const ViolinPlot: typeof Template = Template.bind({});
 ViolinPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.VIOLIN,
