@@ -80,10 +80,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   const getBuilderRef = useSyncedRef(getBuilder);
   const onBuiltLineupRef = useSyncedRef(onBuiltLineUp);
 
-  const getRanking = React.useCallback(() => lineupRef.current?.data.getRankings()[0], []);
-  const getProvider = React.useCallback(() => lineupRef.current.data as LocalDataProvider, []);
-
-  const ranking = getRanking();
+  const ranking = lineupRef.current?.data.getRankings()[0];
 
   React.useEffect(() => {
     lineupRef.current?.destroy();
@@ -128,7 +125,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     return () => {
       lineupRef.current?.destroy();
     };
-  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef, getRanking, getProvider]);
+  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef]);
 
   React.useEffect(() => {
     // Sync the selection back to lineup
