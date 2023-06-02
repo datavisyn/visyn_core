@@ -1,5 +1,5 @@
 import * as React from 'react';
-import LineUp, { builder, buildRanking, Taggle, Ranking, DataBuilder, LocalDataProvider } from 'lineupjs';
+import LineUp, { builder, buildRanking, Taggle, Ranking, DataBuilder, LocalDataProvider, IRankingDump } from 'lineupjs';
 import isEqual from 'lodash/isEqual';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
@@ -7,6 +7,7 @@ import { createFromDescRefWithScoreColumns, createScoreColumn, createToDescRefWi
 import { registerSMILESColumn } from './smiles/utils';
 
 import '../scss/vendors/_lineup.scss';
+import { DatavisynTaggle } from './DatavisynTaggle';
 
 export const defaultBuilder = ({
   data,
@@ -47,10 +48,12 @@ export const defaultBuilder = ({
  *
  */
 export interface IBuiltVisynRanking {
-  provider: LocalDataProvider;
-  ranking: Ranking;
-  lineup: Taggle;
+  lineup: DatavisynTaggle;
   createScoreColumn: (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => Promise<void>;
+}
+
+export interface DVTaggle extends Taggle {
+  testMethod();
 }
 
 export function EagerVisynRanking<T extends Record<string, unknown>>({
@@ -68,7 +71,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   onBuiltLineUp?: (props: IBuiltVisynRanking) => void;
 } & BoxProps) {
   const divRef = React.useRef<HTMLDivElement>(null);
-  const lineupRef = React.useRef<Taggle | null>(null);
+  const lineupRef = React.useRef<DatavisynTaggle | null>(null);
   const rankingRef = React.useRef<Ranking | null>(null);
   const indexMapRef = React.useRef<Map<T, number> | null>(null);
   const disableLineUpSelectionListener = React.useRef<boolean>(false);
@@ -77,13 +80,20 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   const getBuilderRef = useSyncedRef(getBuilder);
   const onBuiltLineupRef = useSyncedRef(onBuiltLineUp);
 
+  const getRanking = React.useCallback(() => lineupRef.current?.data.getRankings()[0], []);
+  const getProvider = React.useCallback(() => lineupRef.current.data as LocalDataProvider, []);
+
+  const ranking = getRanking();
+
   React.useEffect(() => {
     lineupRef.current?.destroy();
 
     const b = getBuilderRef.current({ data });
 
     // Build the ranking
-    lineupRef.current = b.buildTaggle(divRef.current);
+    // @ts-ignore
+    lineupRef.current = new DatavisynTaggle(divRef.current, b.buildData(), b.options);
+    // lineupRef.current = b.buildTaggle(divRef.current);
 
     // Listen to selections
     lineupRef.current.on(LineUp.EVENT_SELECTION_CHANGED, async () => {
@@ -108,23 +118,21 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     provider.fromDescRef = createFromDescRefWithScoreColumns(provider.fromDescRef.bind(provider));
 
     onBuiltLineupRef.current?.({
-      provider,
-      ranking: rankingRef.current,
       lineup: lineupRef.current,
       createScoreColumn: async (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => {
         const desc = await functionToCall({ data });
-        createScoreColumn(desc, lineupRef.current, rankingRef.current);
+        createScoreColumn(desc, lineupRef.current);
       },
     });
 
     return () => {
       lineupRef.current?.destroy();
     };
-  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef]);
+  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef, getRanking, getProvider]);
 
   React.useEffect(() => {
     // Sync the selection back to lineup
-    if (lineupRef.current && rankingRef.current && indexMapRef.current) {
+    if (lineupRef.current && ranking && indexMapRef.current) {
       disableLineUpSelectionListener.current = true;
       const selectedIndices = selection?.map((s) => indexMapRef.current.get(s)).filter((i) => i != null);
       if (!selectedIndices) {
@@ -134,7 +142,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       }
       disableLineUpSelectionListener.current = false;
     }
-  }, [selection]);
+  }, [selection, ranking]);
 
   return (
     <Box

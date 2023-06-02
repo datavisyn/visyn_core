@@ -113,11 +113,15 @@ export function MainApp() {
               setSelection={setSelection}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
               onBuiltLineUp={({ createScoreColumn, provider, lineup, ranking }) => {
-                console.log("build");
+                console.log('build');
                 createScoreColumnFunc.current = createScoreColumn;
                 providerRef.current = provider;
                 rankingRef.current = ranking;
                 autosizeWithSMILESColumn({ provider, lineup });
+
+                setInterval(() => {
+                  lineup.restore(JSON.parse(JSON.stringify(lineup.dump())));
+                }, 8000);
               }}
             />
           </Stack>

@@ -73,7 +73,7 @@ export function createFromDescRefWithScoreColumns(defaultFromDescRef: (value) =>
  * @param lineup the lineup instance
  * @param ranking the ranking to which the score column should be added
  */
-export async function createScoreColumn(desc: IScoreResult, lineup: LineUp | Taggle, ranking: Ranking): Promise<void> {
+export async function createScoreColumn(desc: IScoreResult, lineup: LineUp | Taggle): Promise<void> {
   castArray(desc).forEach(({ data, builder }) => {
     const colDesc = builder.build(data.map((d) => ({ [(builder as any).desc.column]: d }))) as IScoreColumnDesc<unknown>;
 
@@ -83,6 +83,6 @@ export async function createScoreColumn(desc: IScoreResult, lineup: LineUp | Tag
 
     const col = lineup.data.create(colDesc);
 
-    ranking.push(col);
+    lineup.data.getRankings()[0].push(col);
   });
 }
