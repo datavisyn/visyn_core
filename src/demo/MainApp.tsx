@@ -1,15 +1,13 @@
 import * as React from 'react';
 import { Button, Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
-import { Ranking, LocalDataProvider } from 'lineupjs';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
-import { VisynRanking, autosizeWithSMILESColumn, createFromDescRefWithScoreColumns, createToDescRefWithScoreColumns, isScoreColumnDesc } from '../ranking';
-import { IBuiltVisynRanking, defaultBuilder } from '../ranking/EagerVisynRanking';
+import { VisynRanking, autosizeWithSMILESColumn } from '../ranking';
+import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
-import { PermissionChooser } from '../components/PermissionChooser';
-import { Permission } from '../security/Permission';
+import { DatavisynTaggle } from '../ranking/overrides';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -41,12 +39,11 @@ export function MainApp() {
   const [selection, setSelection] = React.useState<typeof iris>([]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${iris.indexOf(s)}`), [selection]);
-  const createScoreColumnFunc = React.useRef<IBuiltVisynRanking['createScoreColumn']>(null);
   const [loading, setLoading] = React.useState(false);
-  const rankingRef = React.useRef<Ranking>();
-  const providerRef = React.useRef<LocalDataProvider>();
+  const lineupRef = React.useRef<DatavisynTaggle>();
 
-  const [dump, setDump] = React.useState();
+  const [rankingDump, setRankingDump] = React.useState('');
+  const [dump, setDump] = React.useState('');
 
   return (
     <VisynApp
@@ -69,7 +66,8 @@ export function MainApp() {
                 setLoading(true);
                 // eslint-disable-next-line no-promise-executor-return
                 await new Promise((resolve) => setTimeout(resolve, 1000));
-                createScoreColumnFunc.current(({ data }) => {
+
+                const data = await (() => {
                   if (value === 'number') {
                     return MyNumberScore(value);
                   }
@@ -80,7 +78,9 @@ export function MainApp() {
                     return MySMILESScore(value);
                   }
                   throw new Error('Unknown score type');
-                });
+                })();
+
+                lineupRef.current.createScoreColumn(data);
                 setLoading(false);
               }}
               rightSection={loading ? <Loader /> : null}
@@ -93,18 +93,31 @@ export function MainApp() {
             <Button.Group>
               <Button
                 onClick={() => {
-                  providerRef.current.restore(JSON.parse(JSON.stringify(providerRef.current.dump())));
-                  console.log(rankingRef.current.flatColumns);
+                  setDump(JSON.stringify(lineupRef.current.dump()));
                 }}
               >
                 Dump
               </Button>
               <Button
                 onClick={() => {
-                  providerRef.current.restore(JSON.parse(JSON.stringify(providerRef.current.dump())));
+                  lineupRef.current.restore(JSON.parse(dump));
                 }}
               >
                 Restore
+              </Button>
+              <Button
+                onClick={() => {
+                  setRankingDump(JSON.stringify(lineupRef.current.dumpRanking()));
+                }}
+              >
+                Dump Ranking
+              </Button>
+              <Button
+                onClick={() => {
+                  console.log(lineupRef.current.restoreRanking(JSON.parse(rankingDump)));
+                }}
+              >
+                Restore Ranking
               </Button>
             </Button.Group>
             <VisynRanking
@@ -112,16 +125,9 @@ export function MainApp() {
               selection={selection}
               setSelection={setSelection}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
-              onBuiltLineUp={({ createScoreColumn, provider, lineup, ranking }) => {
-                console.log('build');
-                createScoreColumnFunc.current = createScoreColumn;
-                providerRef.current = provider;
-                rankingRef.current = ranking;
-                autosizeWithSMILESColumn({ provider, lineup });
-
-                setInterval(() => {
-                  lineup.restore(JSON.parse(JSON.stringify(lineup.dump())));
-                }, 8000);
+              onBuiltLineUp={({ lineup }) => {
+                lineupRef.current = lineup;
+                autosizeWithSMILESColumn({ provider: lineup.data, lineup });
               }}
             />
           </Stack>

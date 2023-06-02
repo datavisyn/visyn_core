@@ -1,13 +1,13 @@
 import * as React from 'react';
-import LineUp, { builder, buildRanking, Taggle, Ranking, DataBuilder, LocalDataProvider, IRankingDump } from 'lineupjs';
+import LineUp, { buildRanking, Taggle, Ranking } from 'lineupjs';
 import isEqual from 'lodash/isEqual';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
-import { createFromDescRefWithScoreColumns, createScoreColumn, createToDescRefWithScoreColumns, IScoreResult } from './score/interfaces';
 import { registerSMILESColumn } from './smiles/utils';
 
 import '../scss/vendors/_lineup.scss';
-import { DatavisynTaggle } from './DatavisynTaggle';
+import { DatavisynTaggle } from './overrides/DatavisynTaggle';
+import { DatavisynLineUpBuilder } from './overrides/DatavisynLineUpBuilder';
 
 export const defaultBuilder = ({
   data,
@@ -16,7 +16,7 @@ export const defaultBuilder = ({
   data: Record<string, unknown>[];
   smilesOptions?: Parameters<typeof registerSMILESColumn>[1];
 }) => {
-  const b = builder(data).deriveColumns().animated(true);
+  const b = new DatavisynLineUpBuilder(data).deriveColumns().animated(true);
   registerSMILESColumn(b, smilesOptions);
   const rankingBuilder = buildRanking();
   rankingBuilder.supportTypes();
@@ -49,7 +49,6 @@ export const defaultBuilder = ({
  */
 export interface IBuiltVisynRanking {
   lineup: DatavisynTaggle;
-  createScoreColumn: (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => Promise<void>;
 }
 
 export interface DVTaggle extends Taggle {
@@ -65,7 +64,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   ...innerProps
 }: {
   data: T[];
-  getBuilder?: (props: { data: Record<string, unknown>[] }) => DataBuilder;
+  getBuilder?: (props: { data: Record<string, unknown>[] }) => DatavisynLineUpBuilder;
   setSelection: (selection: T[]) => void;
   selection: T[];
   onBuiltLineUp?: (props: IBuiltVisynRanking) => void;
@@ -88,9 +87,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     const b = getBuilderRef.current({ data });
 
     // Build the ranking
-    // @ts-ignore
-    lineupRef.current = new DatavisynTaggle(divRef.current, b.buildData(), b.options);
-    // lineupRef.current = b.buildTaggle(divRef.current);
+    lineupRef.current = b.buildDatavisynTaggle(divRef.current);
 
     // Listen to selections
     lineupRef.current.on(LineUp.EVENT_SELECTION_CHANGED, async () => {
@@ -108,18 +105,8 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       return acc;
     }, new Map());
 
-    const provider = lineupRef.current.data as LocalDataProvider;
-
-    // Patch toDescRef/fromDescRef for score columns
-    provider.toDescRef = createToDescRefWithScoreColumns(provider.toDescRef.bind(provider));
-    provider.fromDescRef = createFromDescRefWithScoreColumns(provider.fromDescRef.bind(provider));
-
     onBuiltLineupRef.current?.({
       lineup: lineupRef.current,
-      createScoreColumn: async (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => {
-        const desc = await functionToCall({ data });
-        createScoreColumn(desc, lineupRef.current);
-      },
     });
 
     return () => {
