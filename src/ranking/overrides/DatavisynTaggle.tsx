@@ -1,13 +1,13 @@
-import { IRankingDump, LocalDataProvider, Ranking, Taggle } from 'lineupjs';
+import { IRankingDump, Ranking, Taggle, DataProvider, LocalDataProvider } from 'lineupjs';
 import castArray from 'lodash/castArray';
 import { IScoreColumnDesc, IScoreResult } from '../score/interfaces';
 
-export class DatavisynTaggle extends Taggle {
+export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends Taggle {
   /**
    * Quality of life getter that returns the data provider correctly typed
    */
   override get data() {
-    return super.data as LocalDataProvider;
+    return super.data as T;
   }
 
   /**

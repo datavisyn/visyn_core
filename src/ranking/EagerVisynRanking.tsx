@@ -51,10 +51,6 @@ export interface IBuiltVisynRanking {
   lineup: DatavisynTaggle;
 }
 
-export interface DVTaggle extends Taggle {
-  testMethod();
-}
-
 export function EagerVisynRanking<T extends Record<string, unknown>>({
   data,
   getBuilder = defaultBuilder,
@@ -71,15 +67,12 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
 } & BoxProps) {
   const divRef = React.useRef<HTMLDivElement>(null);
   const lineupRef = React.useRef<DatavisynTaggle | null>(null);
-  const rankingRef = React.useRef<Ranking | null>(null);
   const indexMapRef = React.useRef<Map<T, number> | null>(null);
   const disableLineUpSelectionListener = React.useRef<boolean>(false);
 
   const setSelectionRef = useSyncedRef(setSelection);
   const getBuilderRef = useSyncedRef(getBuilder);
   const onBuiltLineupRef = useSyncedRef(onBuiltLineUp);
-
-  const ranking = lineupRef.current?.data.getRankings()[0];
 
   React.useEffect(() => {
     lineupRef.current?.destroy();
@@ -97,8 +90,6 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       }
     });
 
-    rankingRef.current = lineupRef.current.data.getRankings()?.[0];
-
     // Store a lookup map for fast selection restoration
     indexMapRef.current = data.reduce((acc, cur, i) => {
       acc.set(cur, i);
@@ -112,11 +103,11 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     return () => {
       lineupRef.current?.destroy();
     };
-  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef]);
+  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef, lineupRef]);
 
   React.useEffect(() => {
     // Sync the selection back to lineup
-    if (lineupRef.current && ranking && indexMapRef.current) {
+    if (lineupRef.current && lineupRef.current?.ranking && indexMapRef.current) {
       disableLineUpSelectionListener.current = true;
       const selectedIndices = selection?.map((s) => indexMapRef.current.get(s)).filter((i) => i != null);
       if (!selectedIndices) {
@@ -126,7 +117,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       }
       disableLineUpSelectionListener.current = false;
     }
-  }, [selection, ranking]);
+  }, [selection, lineupRef.current?.ranking, lineupRef]);
 
   return (
     <Box
