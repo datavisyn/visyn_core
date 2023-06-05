@@ -287,14 +287,7 @@ export function BarVis({
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>
-          <BarVisSidebar
-            config={config}
-            optionsConfig={optionsConfig}
-            extensions={extensions}
-            columns={columns}
-            setConfig={setConfig}
-            filterCallback={filterCallback}
-          />
+          <BarVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
     </Group>

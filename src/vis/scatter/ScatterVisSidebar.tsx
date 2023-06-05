@@ -47,7 +47,6 @@ export function ScatterVisSidebar({
   optionsConfig,
   extensions,
   columns,
-  filterCallback = () => null,
   setConfig,
 }: {
   config: IScatterConfig;
@@ -72,7 +71,6 @@ export function ScatterVisSidebar({
     postSidebar?: React.ReactNode;
   };
   columns: VisColumn[];
-  filterCallback?: (s: EFilterOptions) => void;
   setConfig: (config: IVisConfig) => void;
 } & ICommonVisSideBarProps) {
   const mergedOptionsConfig = useMemo(() => {
@@ -132,7 +130,6 @@ export function ScatterVisSidebar({
           />
           <Divider my="sm" />
         </Stack>
-        {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
         {mergedExtensions.postSidebar}
       </Stack>
     </Container>

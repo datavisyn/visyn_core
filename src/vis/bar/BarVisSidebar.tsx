@@ -62,7 +62,6 @@ export function BarVisSidebar({
   optionsConfig,
   extensions,
   columns,
-  filterCallback = () => null,
   setConfig,
   className = '',
   style: { width = '20em', ...style } = {},
@@ -100,7 +99,6 @@ export function BarVisSidebar({
     preSidebar?: React.ReactNode;
     postSidebar?: React.ReactNode;
   };
-  filterCallback?: (s: EFilterOptions) => void;
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
 } & ICommonVisSideBarProps) {
@@ -180,7 +178,6 @@ export function BarVisSidebar({
             <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
           )
         : null}
-      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
 
       {mergedExtensions.postSidebar}
     </Container>

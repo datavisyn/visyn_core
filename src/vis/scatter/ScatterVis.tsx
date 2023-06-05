@@ -267,14 +267,7 @@ export function ScatterVis({
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>
-          <ScatterVisSidebar
-            config={config}
-            optionsConfig={optionsConfig}
-            extensions={extensions}
-            columns={columns}
-            filterCallback={filterCallback}
-            setConfig={setConfig}
-          />
+          <ScatterVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
     </Group>

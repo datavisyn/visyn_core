@@ -63,6 +63,7 @@ export function HexbinVis({
         {showDragModeOptions ? (
           <Group mt="md" position="center" style={{ width: '100%' }}>
             <VisFilterAndSelectSettings
+              selectOptions={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
               onBrushOptionsCallback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
               onFilterCallback={filterCallback}
               dragMode={config.dragMode}

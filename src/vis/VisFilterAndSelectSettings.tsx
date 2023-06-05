@@ -16,13 +16,14 @@ export function VisFilterAndSelectSettings({
   onFilterCallback,
   dragMode,
   showSelect,
+  selectOptions = [EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.LASSO, EScatterSelectSettings.PAN, EScatterSelectSettings.ZOOM],
 }: {
   onBrushOptionsCallback: (dragMode: EScatterSelectSettings) => void;
   onFilterCallback: (opt: EFilterOptions) => void;
   dragMode: EScatterSelectSettings;
   showSelect: boolean;
+  selectOptions?: EScatterSelectSettings[];
 }) {
-  console.log(showSelect);
   return (
     <Group sx={{ zIndex: 10 }}>
       <Group p={2} spacing={2} sx={{ background: '#f1f3f5', borderRadius: '3px' }}>
@@ -46,7 +47,7 @@ export function VisFilterAndSelectSettings({
           </ActionIcon>
         </Tooltip>
       </Group>
-      {showSelect ? <BrushOptionButtons callback={onBrushOptionsCallback} dragMode={dragMode} /> : null}
+      {showSelect ? <BrushOptionButtons callback={onBrushOptionsCallback} dragMode={dragMode} options={selectOptions} /> : null}
     </Group>
   );
 }
