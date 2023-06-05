@@ -5,6 +5,7 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 
 import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
+import { EAggregateTypes } from '../../interfaces';
 
 export function GroupedBars({
   groupedTable,
@@ -20,6 +21,8 @@ export function GroupedBars({
   isVertical = true,
   hasSelected = false,
   selectionCallback,
+  aggregateType,
+  aggregateColumnName = null,
 }: {
   groupedTable: ColumnTable;
   categoryScale: d3.ScaleBand<string>;
@@ -34,13 +37,15 @@ export function GroupedBars({
   isVertical?: boolean;
   selectionCallback: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
   hasSelected?: boolean;
+  aggregateType?: EAggregateTypes;
+  aggregateColumnName?: string;
 }) {
   const bars = useMemo(() => {
     if (groupedTable && width !== 0 && height !== 0) {
       return groupedTable
         .orderby('category', 'group')
         .objects()
-        .map((row: { category: string; group: string; count: number; selectedCount: number; ids: string[] }) => {
+        .map((row: { category: string; group: string; count: number; aggregateVal: number; selectedCount: number; ids: string[] }) => {
           return (
             <SingleBar
               onClick={(e) => selectionCallback(e, row.ids)}
@@ -48,16 +53,16 @@ export function GroupedBars({
               selectedPercent={hasSelected ? row.selectedCount / row.count : null}
               key={row.category + row.group}
               x={isVertical ? categoryScale(row.category) + groupScale(row.group) : margin.left}
-              width={isVertical ? groupScale.bandwidth() : width - margin.right - countScale(row.count)}
-              y={isVertical ? countScale(row.count) : categoryScale(row.category) + groupScale(row.group)}
+              width={isVertical ? groupScale.bandwidth() : width - margin.right - countScale(row.aggregateVal)}
+              y={isVertical ? countScale(row.aggregateVal) : categoryScale(row.category) + groupScale(row.group)}
               tooltip={
                 <Stack spacing={0}>
                   <Text>{`${categoryName}: ${row.category}`}</Text>
                   <Text>{`${groupName}: ${row.group}`}</Text>
-                  <Text>{`Count: ${row.count}`}</Text>
+                  <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>
                 </Stack>
               }
-              height={isVertical ? height - margin.bottom - countScale(row.count) : groupScale.bandwidth()}
+              height={isVertical ? height - margin.bottom - countScale(row.aggregateVal) : groupScale.bandwidth()}
               color={groupColorScale(row.group)}
             />
           );
@@ -66,6 +71,8 @@ export function GroupedBars({
     return null;
   }, [
     groupedTable,
+    width,
+    height,
     isVertical,
     hasSelected,
     categoryScale,
@@ -73,11 +80,11 @@ export function GroupedBars({
     margin.left,
     margin.right,
     margin.bottom,
-    width,
     countScale,
     categoryName,
     groupName,
-    height,
+    aggregateType,
+    aggregateColumnName,
     groupColorScale,
     selectionCallback,
   ]);

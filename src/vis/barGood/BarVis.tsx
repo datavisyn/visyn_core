@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { merge, uniqueId } from 'lodash';
-import { ActionIcon, Container, Tooltip } from '@mantine/core';
+import { ActionIcon, Container, Group, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { useSyncedRef } from '../../hooks/useSyncedRef';
@@ -9,6 +9,7 @@ import { i18n } from '../../i18n/I18nextManager';
 import { BarChart } from './BarChart';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { BarVisSidebar } from '../bar/BarVisSidebar';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 
 const defaultExtensions = {
   prePlot: null,
@@ -83,28 +84,16 @@ export function BarVis({
   const ref = useRef();
   const id = React.useMemo(() => uniqueId('HexbinVis'), []);
 
-  const [sidebarMounted, setSidebarMounted] = useState<boolean>(false);
-
-  // Cheating to open the sidebar after the first render, since it requires the container to be mounted
-  useEffect(() => {
-    setSidebarMounted(true);
-  }, [setSidebarMounted]);
-
   return (
-    <Container p={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
-      {enableSidebar ? (
-        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
-            <FontAwesomeIcon icon={faGear} />
-          </ActionIcon>
-        </Tooltip>
-      ) : null}
+    <Group noWrap p={0} sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
+
       <BarChart config={config} columns={columns} selectedMap={selectedMap} selectionCallback={selectionCallback} selectedList={selectedList} />
-      {showSidebar && sidebarMounted ? (
-        <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
-          <BarVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} filterCallback={filterCallback} />
+      {showSidebar ? (
+        <VisSidebarWrapper>
+          <BarVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Group>
   );
 }

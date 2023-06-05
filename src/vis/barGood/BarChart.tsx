@@ -21,7 +21,13 @@ export function BarChart({
   selectedList: string[];
   selectionCallback?: (ids: string[]) => void;
 }) {
-  const { value: allColumns, status: colsStatus } = useAsync(getBarData, [columns, config.catColumnSelected, config.group, config.multiples]);
+  const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
+    columns,
+    config.catColumnSelected,
+    config.group,
+    config.multiples,
+    config.aggregateColumn,
+  ]);
 
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
@@ -39,6 +45,7 @@ export function BarChart({
     selectedMap,
     config.groupType,
     sortType,
+    config.aggregateType,
   );
 
   const groupedIds = useMemo(() => {
@@ -91,7 +98,6 @@ export function BarChart({
         ) : !config.multiples || !allColumns.multiplesColVals ? (
           <SingleBarChart
             config={config}
-            columns={columns}
             allColumns={allColumns}
             selectedMap={selectedMap}
             selectionCallback={customSelectionCallback}
@@ -107,7 +113,6 @@ export function BarChart({
               selectedMap={selectedMap}
               key={multiplesVal as string}
               config={config}
-              columns={columns}
               allColumns={allColumns}
               categoryFilter={multiplesVal}
               title={multiplesVal}

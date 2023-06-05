@@ -3,9 +3,10 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import { op, table, bin } from 'arquero';
 import { useMemo } from 'react';
 import * as d3 from 'd3v7';
+import { aggregate } from 'lineupjs';
 import { useGetBarScales } from './useGetBarScales';
-import { SortTypes, getBarData, sortTableBySortType } from '../utils';
-import { EBarGroupingType, EColumnTypes } from '../../interfaces';
+import { SortTypes, binByAggregateType, getBarData, groupByAggregateType, sortTableBySortType, rollupByAggregateType } from '../utils';
+import { EAggregateTypes, EBarGroupingType, EColumnTypes } from '../../interfaces';
 
 export function useGetGroupedBarScales(
   allColumns: Awaited<ReturnType<typeof getBarData>>,
@@ -17,6 +18,7 @@ export function useGetGroupedBarScales(
   selectedMap: Record<string, boolean>,
   groupType: EBarGroupingType,
   sortType: SortTypes,
+  aggregateType: EAggregateTypes,
 ): {
   aggregatedTable: ColumnTable;
   countScale: d3.ScaleLinear<number, number>;
@@ -34,6 +36,7 @@ export function useGetGroupedBarScales(
     isVertical,
     selectedMap,
     sortType,
+    aggregateType,
   );
 
   const groupedTable = useMemo(() => {
@@ -44,25 +47,13 @@ export function useGetGroupedBarScales(
         filteredTable = baseTable.params({ categoryFilter }).filter((d) => d.multiples === categoryFilter);
       }
 
-      const grouped = filteredTable
-        .groupby('category', 'group')
-        .rollup({ count: () => op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('category')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-
-      const binnedTable = filteredTable
-        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({ count: () => op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('group')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-
-      return allColumns.groupColVals.type === EColumnTypes.NUMERICAL ? binnedTable : grouped;
+      return allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+        ? binByAggregateType(filteredTable, aggregateType)
+        : groupByAggregateType(filteredTable, aggregateType);
     }
 
     return null;
-  }, [allColumns, baseTable, categoryFilter]);
+  }, [aggregateType, allColumns?.groupColVals, allColumns?.multiplesColVals, baseTable, categoryFilter]);
 
   const groupColorScale = useMemo(() => {
     if (!groupedTable) return null;
@@ -88,25 +79,35 @@ export function useGetGroupedBarScales(
 
   const newCountScale = useMemo(() => {
     if (!allColumns?.multiplesColVals) {
-      if (!groupedTable || groupType === EBarGroupingType.STACK) {
+      if (!groupedTable || (groupType === EBarGroupingType.STACK && aggregateType === EAggregateTypes.COUNT)) {
         return countScale;
       }
 
-      const max = +d3.max(groupedTable.array('count'));
+      if (groupType === EBarGroupingType.STACK) {
+        const max = +d3.max(
+          groupedTable
+            .groupby('category')
+            .rollup({ sum: (d) => op.sum(d.aggregateVal) })
+            .array('sum'),
+        );
+        return countScale.copy().domain([0, max + max / 25]);
+      }
+
+      const max = +d3.max(groupedTable.array('aggregateVal'));
       return countScale.copy().domain([0, max + max / 25]);
     }
 
     if (!groupedTable || groupType === EBarGroupingType.STACK) {
-      const max = +d3.max(baseTable.groupby('category', 'multiples').count().array('count'));
+      const max = +d3.max(rollupByAggregateType(baseTable.groupby('category', 'multiples'), aggregateType).array('aggregateVal'));
       return countScale.copy().domain([0, max + max / 25]);
     }
 
-    const max = +d3.max(baseTable.groupby('group', 'category', 'multiples').count().array('count'));
+    const max = +d3.max(rollupByAggregateType(baseTable.groupby('group', 'category', 'multiples'), aggregateType).array('aggregateVal'));
 
     const tempScale = countScale.copy().domain([0, max + max / 25]);
 
     return tempScale;
-  }, [allColumns, baseTable, countScale, groupType, groupedTable]);
+  }, [aggregateType, allColumns?.multiplesColVals, baseTable, countScale, groupType, groupedTable]);
 
   return {
     aggregatedTable,

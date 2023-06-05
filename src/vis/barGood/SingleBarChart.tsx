@@ -1,11 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { all, desc, op, table } from 'arquero';
-import * as d3 from 'd3v7';
+import React, { useCallback, useMemo } from 'react';
 import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EColumnTypes, IBarConfig, VisColumn } from '../interfaces';
-import { useSyncedRef } from '../../hooks/useSyncedRef';
-import { useAsync } from '../../hooks/useAsync';
+import { EAggregateTypes, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, VisColumn } from '../interfaces';
 import { SortTypes, getBarData } from './utils';
 import { YAxis } from './barComponents/YAxis';
 import { XAxis } from './barComponents/XAxis';
@@ -13,7 +9,6 @@ import { GroupedBars } from './barTypes/GroupedBars';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { SimpleBars } from './barTypes/SimpleBars';
 import { StackedBars } from './barTypes/StackedBars';
-import { Legend } from './barComponents/Legend';
 
 const margin = {
   top: 30,
@@ -25,7 +20,6 @@ const margin = {
 export function SingleBarChart({
   allColumns,
   config,
-  columns,
   categoryFilter,
   title,
   selectedMap,
@@ -37,7 +31,6 @@ export function SingleBarChart({
 }: {
   allColumns: Awaited<ReturnType<typeof getBarData>>;
   config: IBarConfig;
-  columns: VisColumn[];
   selectedMap: Record<string, boolean>;
   selectedList: string[];
   categoryFilter?: string;
@@ -59,6 +52,7 @@ export function SingleBarChart({
     selectedMap,
     config.groupType,
     sortType,
+    config.aggregateType,
   );
 
   const categoryTicks = useMemo(() => {
@@ -152,7 +146,11 @@ export function SingleBarChart({
                   xRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   horizontalPosition={margin.left}
                   showLines
-                  label={config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group ? 'Count %' : 'Count'}
+                  label={
+                    config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
+                      ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
+                      : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
+                  }
                   ticks={countTicks}
                   arrowDesc={sortType === SortTypes.COUNT_DESC}
                   arrowAsc={sortType === SortTypes.COUNT_ASC}
@@ -196,7 +194,11 @@ export function SingleBarChart({
                   xScale={countScale}
                   yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
                   vertPosition={height - margin.bottom}
-                  label={config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group ? 'Count %' : 'Count'}
+                  label={
+                    config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
+                      ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
+                      : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
+                  }
                   showLines
                   ticks={countTicks}
                   arrowDesc={sortType === SortTypes.COUNT_DESC}
@@ -221,7 +223,9 @@ export function SingleBarChart({
                   width={width}
                   height={height}
                   margin={margin}
+                  aggregateType={config.aggregateType}
                   isVertical={config.direction === EBarDirection.VERTICAL}
+                  aggregateColumnName={config.aggregateColumn?.name}
                 />
               ) : (
                 <StackedBars
@@ -238,6 +242,8 @@ export function SingleBarChart({
                   width={width}
                   isVertical={config.direction === EBarDirection.VERTICAL}
                   normalized={config.display === EBarDisplayType.NORMALIZED}
+                  aggregateType={config.aggregateType}
+                  aggregateColumnName={config.aggregateColumn?.name}
                 />
               )
             ) : (
@@ -251,7 +257,9 @@ export function SingleBarChart({
                 height={height}
                 margin={margin}
                 width={width}
+                aggregateType={config.aggregateType}
                 isVertical={config.direction === EBarDirection.VERTICAL}
+                aggregateColumnName={config.aggregateColumn?.name}
               />
             )}
           </g>

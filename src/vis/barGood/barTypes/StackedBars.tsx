@@ -4,6 +4,7 @@ import * as d3 from 'd3v7';
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
+import { EAggregateTypes } from '../../interfaces';
 
 export function StackedBars({
   groupedTable,
@@ -19,6 +20,8 @@ export function StackedBars({
   isVertical,
   selectionCallback,
   hasSelected,
+  aggregateType,
+  aggregateColumnName,
 }: {
   groupedTable: ColumnTable;
   categoryScale: d3.ScaleBand<string>;
@@ -33,6 +36,8 @@ export function StackedBars({
   isVertical;
   selectionCallback: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
   hasSelected?: boolean;
+  aggregateType: EAggregateTypes;
+  aggregateColumnName?: string;
 }) {
   const bars = useMemo(() => {
     if (groupedTable && width !== 0 && height !== 0) {
@@ -42,14 +47,14 @@ export function StackedBars({
       return groupedTable
         .orderby('category', 'group')
         .objects()
-        .map((row: { category: string; group: string; count: number; categoryCount: number; selectedCount: number; ids: string[] }) => {
+        .map((row: { category: string; group: string; count: number; aggregateVal: number; categoryCount: number; selectedCount: number; ids: string[] }) => {
           if (currentCategory !== row.category) {
             heightSoFar = 0;
             currentCategory = row.category;
           }
 
           const myHeight = heightSoFar;
-          const normalizedCount = normalized ? countScale((countScale.domain()[1] / row.categoryCount) * row.count) : countScale(row.count);
+          const normalizedCount = normalized ? countScale((countScale.domain()[1] / row.categoryCount) * row.aggregateVal) : countScale(row.aggregateVal);
           if (isVertical) {
             heightSoFar = myHeight + height - margin.bottom - normalizedCount;
           } else {
@@ -69,7 +74,7 @@ export function StackedBars({
                 <Stack spacing={0}>
                   <Text>{`${categoryName}: ${row.category}`}</Text>
                   <Text>{`${groupName}: ${row.group}`}</Text>
-                  <Text>{`Count: ${row.count}`}</Text>
+                  <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>
                 </Stack>
               }
               height={isVertical ? height - margin.bottom - normalizedCount : categoryScale.bandwidth()}
@@ -80,6 +85,8 @@ export function StackedBars({
     }
     return null;
   }, [
+    aggregateColumnName,
+    aggregateType,
     categoryName,
     categoryScale,
     countScale,
