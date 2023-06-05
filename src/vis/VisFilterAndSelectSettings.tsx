@@ -12,42 +12,39 @@ import { EFilterOptions, EScatterSelectSettings } from './interfaces';
 import { BrushOptionButtons } from './sidebar/BrushOptionButtons';
 
 export function VisFilterAndSelectSettings({
-  isOpen,
   onBrushOptionsCallback,
   onFilterCallback,
   dragMode,
   showSelect,
 }: {
-  isOpen?: boolean;
   onBrushOptionsCallback: (dragMode: EScatterSelectSettings) => void;
   onFilterCallback: (opt: EFilterOptions) => void;
   dragMode: EScatterSelectSettings;
   showSelect: boolean;
 }) {
+  console.log(showSelect);
   return (
     <Group sx={{ zIndex: 10 }}>
       <Group p={2} spacing={2} sx={{ background: '#f1f3f5', borderRadius: '3px' }}>
-        <Tooltip withinPortal label={isOpen ? i18n.t('visyn:vis.closeSettings') : i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon onClick={() => onFilterCallback(EFilterOptions.IN)}>
+        <Tooltip withinPortal withArrow arrowSize={6} label="Remove current selection">
+          <ActionIcon onClick={() => onFilterCallback(EFilterOptions.OUT)}>
             <FilterEmpty width={18} height={18} color="#495057" />
           </ActionIcon>
         </Tooltip>
 
         <Divider my={3} orientation="vertical" color="gray.3" />
-        <Tooltip withinPortal label={isOpen ? i18n.t('visyn:vis.closeSettings') : i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon onClick={() => onFilterCallback(EFilterOptions.OUT)}>
+        <Tooltip withinPortal withArrow arrowSize={6} label="Remove all points that are not currently selected">
+          <ActionIcon onClick={() => onFilterCallback(EFilterOptions.IN)}>
             <FilterFilled width={18} height={18} color="#495057" />
           </ActionIcon>
         </Tooltip>
 
         <Divider my={3} orientation="vertical" color="gray.3" />
-        <Tooltip withinPortal label={isOpen ? i18n.t('visyn:vis.closeSettings') : i18n.t('visyn:vis.openSettings')}>
+        <Tooltip withinPortal withArrow arrowSize={6} label="Clear all filters">
           <ActionIcon onClick={() => onFilterCallback(EFilterOptions.CLEAR)}>
             <FilterClear width={18} height={18} color="#495057" />
           </ActionIcon>
         </Tooltip>
-
-        <Divider my={3} orientation="vertical" color="gray.3" />
       </Group>
       {showSelect ? <BrushOptionButtons callback={onBrushOptionsCallback} dragMode={dragMode} /> : null}
     </Group>

@@ -16,6 +16,7 @@ import { BarVisSidebar } from './BarVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterAndSelectSettings } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -40,6 +41,7 @@ export function BarVis({
   showCloseButton = false,
   closeButtonCallback = () => null,
   filterCallback = () => null,
+  showDragModeOptions = true,
 }: {
   config: IBarConfig;
   optionsConfig?: {
@@ -82,6 +84,7 @@ export function BarVis({
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
   enableSidebar?: boolean;
+  showDragModeOptions?: boolean;
 }) {
   const mergedExtensions = React.useMemo(() => {
     return merge({}, defaultExtensions, extensions);
@@ -225,6 +228,11 @@ export function BarVis({
         }}
       >
         {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
+        {showDragModeOptions ? (
+          <Group mt="md" position="center" style={{ width: '100%' }}>
+            <VisFilterAndSelectSettings onBrushOptionsCallback={null} onFilterCallback={filterCallback} dragMode={null} showSelect={false} />
+          </Group>
+        ) : null}
 
         {mergedExtensions.prePlot}
         {/* <Space h="xl" /> */}
@@ -277,7 +285,7 @@ export function BarVis({
         ) : null}
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar && plotlyDivRef?.current ? (
+      {showSidebar ? (
         <VisSidebarWrapper>
           <BarVisSidebar
             config={config}

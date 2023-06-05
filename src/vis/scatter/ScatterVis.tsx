@@ -2,23 +2,19 @@ import * as React from 'react';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Center, Container, Group, Loader, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+import { Group, Stack } from '@mantine/core';
+
 import * as d3 from 'd3v7';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings } from '../interfaces';
 import { InvalidCols } from '../general/InvalidCols';
 import { createScatterTraces } from './utils';
 import { beautifyLayout } from '../general/layoutUtils';
-import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { ScatterVisSidebar } from './ScatterVisSidebar';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { useAsync } from '../../hooks';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 import { VisFilterAndSelectSettings } from '../VisFilterAndSelectSettings';
 
@@ -229,7 +225,6 @@ export function ScatterVis({
             <VisFilterAndSelectSettings
               onBrushOptionsCallback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
               onFilterCallback={filterCallback}
-              isOpen
               dragMode={config.dragMode}
               showSelect
             />

@@ -1,19 +1,16 @@
 import * as React from 'react';
-import uniqueId from 'lodash/uniqueId';
 import merge from 'lodash/merge';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActionIcon, Center, Container, Group, SimpleGrid, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { VisColumn, IVisConfig, IHexbinConfig, EScatterSelectSettings } from '../interfaces';
+import { useMemo, useRef } from 'react';
+import { Group, SimpleGrid, Stack } from '@mantine/core';
+
+import { VisColumn, IVisConfig, IHexbinConfig, EScatterSelectSettings, EFilterOptions } from '../interfaces';
 import { InvalidCols } from '../general';
 import { i18n } from '../../i18n';
 import { Hexplot } from './Hexplot';
 import { HexbinVisSidebar } from './HexbinVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { BrushOptionButtons } from '../sidebar';
-import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterAndSelectSettings } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -33,6 +30,7 @@ export function HexbinVis({
   setShowSidebar,
   showSidebar,
   showDragModeOptions = true,
+  filterCallback = () => null,
 }: {
   config: IHexbinConfig;
   extensions?: {
@@ -49,6 +47,7 @@ export function HexbinVis({
   setShowSidebar?(show: boolean): void;
   showDragModeOptions?: boolean;
   enableSidebar?: boolean;
+  filterCallback?: (s: EFilterOptions) => void;
 }) {
   const mergedExtensions = useMemo(() => {
     return merge({}, defaultExtensions, extensions);
@@ -62,15 +61,14 @@ export function HexbinVis({
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {showDragModeOptions ? (
-          <Center>
-            <Group mt="lg">
-              <BrushOptionButtons
-                callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
-                options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
-                dragMode={config.dragMode}
-              />
-            </Group>
-          </Center>
+          <Group mt="md" position="center" style={{ width: '100%' }}>
+            <VisFilterAndSelectSettings
+              onBrushOptionsCallback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+              onFilterCallback={filterCallback}
+              dragMode={config.dragMode}
+              showSelect
+            />
+          </Group>
         ) : null}
         <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
           {config.numColumnsSelected.length < 2 ? (

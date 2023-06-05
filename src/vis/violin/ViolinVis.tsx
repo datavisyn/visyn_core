@@ -18,6 +18,7 @@ import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
 import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterAndSelectSettings } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -42,6 +43,7 @@ export function ViolinVis({
   showCloseButton = false,
   filterCallback = () => null,
   closeButtonCallback = () => null,
+  showDragModeOptions = true,
 }: {
   config: IViolinConfig;
   optionsConfig?: {
@@ -69,6 +71,7 @@ export function ViolinVis({
   setShowSidebar?(show: boolean): void;
   enableSidebar?: boolean;
   showCloseButton?: boolean;
+  showDragModeOptions?: boolean;
 }) {
   const mergedExtensions = React.useMemo(() => {
     return merge({}, defaultExtensions, extensions);
@@ -191,6 +194,11 @@ export function ViolinVis({
           position: 'relative',
         }}
       >
+        {showDragModeOptions ? (
+          <Group mt="md" position="center" style={{ width: '100%' }}>
+            <VisFilterAndSelectSettings onBrushOptionsCallback={null} onFilterCallback={filterCallback} dragMode={null} showSelect={false} />
+          </Group>
+        ) : null}
         <Space h="xl" />
         {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
@@ -219,7 +227,7 @@ export function ViolinVis({
         ) : null}
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar && plotlyDivRef?.current ? (
+      {showSidebar ? (
         <VisSidebarWrapper>
           <ViolinVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>

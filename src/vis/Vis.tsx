@@ -254,6 +254,7 @@ export function EagerVis({
           scales={scales}
           showCloseButton={showCloseButton}
           closeButtonCallback={closeCallback}
+          showDragModeOptions={showDragModeOptions}
           {...commonProps}
         />
       ) : null}
@@ -270,6 +271,7 @@ export function EagerVis({
           closeButtonCallback={closeCallback}
           filterCallback={filterCallback}
           {...commonProps}
+          showDragModeOptions={showDragModeOptions}
         />
       ) : null}
 
