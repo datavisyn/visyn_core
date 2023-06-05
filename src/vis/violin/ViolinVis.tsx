@@ -194,7 +194,7 @@ export function ViolinVis({
         <Space h="xl" />
         {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
-        {/* <VisFilterButtons onClick={() => console.log('hello')} isOpen /> */}
+        {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
         {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
           <PlotlyComponent

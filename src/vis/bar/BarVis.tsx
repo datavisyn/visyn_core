@@ -4,9 +4,7 @@ import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Container, Group, Space, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+import { Group, Stack } from '@mantine/core';
 import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType, EFilterOptions } from '../interfaces';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
@@ -17,7 +15,6 @@ import { createBarTraces } from './utils';
 import { BarVisSidebar } from './BarVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 
 const defaultExtensions = {
@@ -280,7 +277,7 @@ export function BarVis({
         ) : null}
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar ? (
+      {showSidebar && plotlyDivRef?.current ? (
         <VisSidebarWrapper>
           <BarVisSidebar
             config={config}

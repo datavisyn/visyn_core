@@ -102,6 +102,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
 export const ScatterPlot: typeof Template = Template.bind({});
 ScatterPlot.args = {
+  showDragModeOptions: false,
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [

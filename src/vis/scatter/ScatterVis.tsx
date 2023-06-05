@@ -148,7 +148,7 @@ export function ScatterVis({
         family: 'Roboto, sans-serif',
       },
       margin: {
-        t: 25,
+        t: showDragModeOptions ? 25 : 50,
         r: 25,
         l: 100,
         b: 100,
@@ -237,8 +237,9 @@ export function ScatterVis({
         ) : null}
 
         {mergedExtensions.prePlot}
-        {traceStatus === 'success' && layout && plotsWithSelectedPoints.length > 0 ? (
+        {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
           <PlotlyComponent
+            key={id}
             divId={`plotlyDiv${id}`}
             data={plotlyData}
             layout={layout}
