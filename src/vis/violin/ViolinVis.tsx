@@ -202,8 +202,6 @@ export function ViolinVis({
         <Space h="xl" />
         {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
-        {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
-
         {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
           <PlotlyComponent
             divId={`plotlyDiv${id}`}

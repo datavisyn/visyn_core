@@ -235,7 +235,6 @@ export function BarVis({
         ) : null}
 
         {mergedExtensions.prePlot}
-        {/* <Space h="xl" /> */}
         {traceStatus === 'success' && layout && finalTraces?.plots.length > 0 ? (
           <PlotlyComponent
             divId={`plotlyDiv${id}`}

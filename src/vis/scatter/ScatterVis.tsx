@@ -209,7 +209,7 @@ export function ScatterVis({
         width: '100%',
         overflow: 'hidden',
         position: 'relative',
-        // Disable plotly crosshair curs or
+        // Disable plotly crosshair cursor
         '.nsewdrag': {
           cursor: 'pointer !important',
         },
