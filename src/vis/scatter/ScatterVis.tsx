@@ -2,22 +2,21 @@ import * as React from 'react';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Center, Container, Group, Loader, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+import { Group, Stack } from '@mantine/core';
+
 import * as d3 from 'd3v7';
 import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings } from '../interfaces';
 import { InvalidCols } from '../general/InvalidCols';
 import { createScatterTraces } from './utils';
 import { beautifyLayout } from '../general/layoutUtils';
-import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { ScatterVisSidebar } from './ScatterVisSidebar';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { useAsync } from '../../hooks';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterAndSelectSettings } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -145,7 +144,7 @@ export function ScatterVis({
         family: 'Roboto, sans-serif',
       },
       margin: {
-        t: 25,
+        t: showDragModeOptions ? 25 : 50,
         r: 25,
         l: 100,
         b: 100,
@@ -199,43 +198,9 @@ export function ScatterVis({
     return [];
   }, [plotsWithSelectedPoints, traces]);
 
-  const plotly = useMemo(() => {
-    if (traces?.plots && plotsWithSelectedPoints && layout) {
-      return (
-        <PlotlyComponent
-          key={id}
-          divId={`plotlyDiv${id}`}
-          data={plotlyData}
-          layout={layout}
-          config={{ responsive: true, displayModeBar: false, scrollZoom }}
-          useResizeHandler
-          style={{ width: '100%', height: '100%' }}
-          onClick={(event) => {
-            const clickedId = (event.points[0] as any).id;
-            if (selectedMap[clickedId]) {
-              selectionCallback(selectedList.filter((s) => s !== clickedId));
-            } else {
-              selectionCallback([...selectedList, clickedId]);
-            }
-          }}
-          onInitialized={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onUpdate={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onSelected={(sel) => {
-            selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
-          }}
-        />
-      );
-    }
-    return null;
-  }, [id, plotsWithSelectedPoints, layout, selectedMap, selectionCallback, selectedList, traces?.plots, plotlyData, scrollZoom]);
-
   return (
-    <Container
-      fluid
+    <Group
+      noWrap
       pl={0}
       pr={0}
       sx={{
@@ -251,45 +216,60 @@ export function ScatterVis({
       }}
       ref={plotlyDivRef}
     >
-      {enableSidebar ? (
-        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
-            <FontAwesomeIcon icon={faGear} />
-          </ActionIcon>
-        </Tooltip>
-      ) : null}
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
       {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%' }}>
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {showDragModeOptions ? (
-          <Center>
-            <Group mt="lg">
-              <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
-            </Group>
-          </Center>
+          <Group mt="md" position="center" style={{ width: '100%' }}>
+            <VisFilterAndSelectSettings
+              onBrushOptionsCallback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+              onFilterCallback={filterCallback}
+              dragMode={config.dragMode}
+              showSelect
+            />
+          </Group>
         ) : null}
 
         {mergedExtensions.prePlot}
         {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
-          plotly
-        ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
+          <PlotlyComponent
+            key={id}
+            divId={`plotlyDiv${id}`}
+            data={plotlyData}
+            layout={layout}
+            config={{ responsive: true, displayModeBar: false, scrollZoom }}
+            useResizeHandler
+            style={{ width: '100%', height: '100%' }}
+            onClick={(event) => {
+              const clickedId = (event.points[0] as any).id;
+              if (selectedMap[clickedId]) {
+                selectionCallback(selectedList.filter((s) => s !== clickedId));
+              } else {
+                selectionCallback([...selectedList, clickedId]);
+              }
+            }}
+            onInitialized={() => {
+              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onUpdate={() => {
+              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onSelected={(sel) => {
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+            }}
+          />
+        ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
           <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
         ) : null}
 
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar && plotlyDivRef?.current ? (
-        <VisSidebarWrapper id={id} target={plotlyDivRef.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
-          <ScatterVisSidebar
-            config={config}
-            optionsConfig={optionsConfig}
-            extensions={extensions}
-            columns={columns}
-            filterCallback={filterCallback}
-            setConfig={setConfig}
-          />
+      {showSidebar ? (
+        <VisSidebarWrapper>
+          <ScatterVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Group>
   );
 }

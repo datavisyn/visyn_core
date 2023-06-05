@@ -30,7 +30,6 @@ export function ViolinVisSidebar({
   optionsConfig,
   extensions,
   columns,
-  filterCallback = () => null,
   setConfig,
   className = '',
   style: { width = '20em', ...style } = {},
@@ -46,7 +45,6 @@ export function ViolinVisSidebar({
       customComponent?: React.ReactNode;
     };
   };
-  filterCallback?: (s: EFilterOptions) => void;
   extensions?: {
     prePlot?: React.ReactNode;
     postPlot?: React.ReactNode;
@@ -91,8 +89,6 @@ export function ViolinVisSidebar({
             />
           )
         : null}
-
-      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
 
       {mergedExtensions.postSidebar}
     </Container>

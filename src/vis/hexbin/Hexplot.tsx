@@ -100,7 +100,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     return {
       left: 52,
       right: config.color ? 80 : 25,
-      top: 25,
+      top: 50,
       bottom: 53,
     };
   }, [config.color]);
@@ -381,7 +381,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   }, [width, height, id, hexes, selectionCallback, config.dragMode, xScale, yScale, margin]);
 
   return (
-    <Box style={{ height: '100%', width: '100%' }} ref={ref}>
+    <Box style={{ height: '100%', width: '100%', position: 'relative' }} ref={ref}>
       <Container
         fluid
         pl={0}

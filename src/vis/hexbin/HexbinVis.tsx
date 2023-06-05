@@ -1,18 +1,16 @@
 import * as React from 'react';
-import uniqueId from 'lodash/uniqueId';
 import merge from 'lodash/merge';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActionIcon, Center, Container, Group, SimpleGrid, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { VisColumn, IVisConfig, IHexbinConfig, EScatterSelectSettings } from '../interfaces';
+import { useMemo, useRef } from 'react';
+import { Group, SimpleGrid, Stack } from '@mantine/core';
+
+import { VisColumn, IVisConfig, IHexbinConfig, EScatterSelectSettings, EFilterOptions } from '../interfaces';
 import { InvalidCols } from '../general';
 import { i18n } from '../../i18n';
 import { Hexplot } from './Hexplot';
 import { HexbinVisSidebar } from './HexbinVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { BrushOptionButtons } from '../sidebar';
-import { useSyncedRef } from '../../hooks/useSyncedRef';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisFilterAndSelectSettings } from '../VisFilterAndSelectSettings';
 
 const defaultExtensions = {
   prePlot: null,
@@ -31,6 +29,8 @@ export function HexbinVis({
   enableSidebar,
   setShowSidebar,
   showSidebar,
+  showDragModeOptions = true,
+  filterCallback = () => null,
 }: {
   config: IHexbinConfig;
   extensions?: {
@@ -45,42 +45,32 @@ export function HexbinVis({
   selected?: { [key: string]: boolean };
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
+  showDragModeOptions?: boolean;
   enableSidebar?: boolean;
+  filterCallback?: (s: EFilterOptions) => void;
 }) {
   const mergedExtensions = useMemo(() => {
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const [sidebarMounted, setSidebarMounted] = useState<boolean>(false);
-
-  // Cheating to open the sidebar after the first render, since it requires the container to be mounted
-  useEffect(() => {
-    setSidebarMounted(true);
-  }, [setSidebarMounted]);
-
   const ref = useRef();
-  const id = React.useMemo(() => uniqueId('HexbinVis'), []);
 
   return (
-    <Container pl={0} pr={0} fluid sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
-      {enableSidebar ? (
-        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
-            <FontAwesomeIcon icon={faGear} />
-          </ActionIcon>
-        </Tooltip>
-      ) : null}
+    <Group noWrap pl={0} pr={0} sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%' }}>
-        <Center>
-          <Group mt="lg">
-            <BrushOptionButtons
-              callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
-              options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+        {showDragModeOptions ? (
+          <Group mt="md" position="center" style={{ width: '100%' }}>
+            <VisFilterAndSelectSettings
+              selectOptions={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
+              onBrushOptionsCallback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+              onFilterCallback={filterCallback}
               dragMode={config.dragMode}
+              showSelect
             />
           </Group>
-        </Center>
+        ) : null}
         <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
           {config.numColumnsSelected.length < 2 ? (
             <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={i18n.t('visyn:vis.hexbinError')} />
@@ -125,11 +115,11 @@ export function HexbinVis({
           )}
         </SimpleGrid>
       </Stack>
-      {showSidebar && sidebarMounted ? (
-        <VisSidebarWrapper id={id} target={ref.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
+      {showSidebar ? (
+        <VisSidebarWrapper>
           <HexbinVisSidebar config={config} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>
       ) : null}
-    </Container>
+    </Group>
   );
 }
