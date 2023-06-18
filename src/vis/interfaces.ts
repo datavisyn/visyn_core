@@ -94,7 +94,6 @@ export interface IScatterConfig {
   shape: ColumnInfo | null;
   dragMode: EScatterSelectSettings;
   alphaSliderVal: number;
-  aggregated: boolean;
 }
 
 export interface IBarConfig {
