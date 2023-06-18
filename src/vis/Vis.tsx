@@ -16,13 +16,14 @@ import {
   EScatterSelectSettings,
   EAggregateTypes,
 } from './interfaces';
-import { isScatter, scatterMergeDefaultConfig, ScatterVis } from './scatter';
+import { isScatter, scatterMergeDefaultConfig } from './scatter';
 import { barMergeDefaultConfig, isBar, BarVis } from './bar';
 import { isViolin, violinMergeDefaultConfig, ViolinVis } from './violin';
 import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
+import { ScatterVis } from './svgScatter/ScatterVis';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -221,19 +222,9 @@ export function EagerVis({
               enable: true,
             },
           }}
-          showDragModeOptions={showDragModeOptions}
-          shapes={shapes}
           setConfig={setVisConfig}
-          filterCallback={filterCallback}
-          selectionCallback={selectionCallback}
-          selectedMap={selectedMap}
-          selectedList={selected}
           columns={columns}
-          scales={scales}
           showSidebar={showSidebar}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          scrollZoom={scrollZoom}
           {...commonProps}
         />
       ) : null}

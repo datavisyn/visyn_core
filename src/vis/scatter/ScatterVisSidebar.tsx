@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useMemo } from 'react';
 import merge from 'lodash/merge';
-import { Container, Divider, Stack } from '@mantine/core';
+import { Container, Divider, Stack, Switch } from '@mantine/core';
 import {
   ColumnInfo,
   EFilterOptions,
@@ -121,6 +121,7 @@ export function ScatterVisSidebar({
             : null}
         </Stack>
         <Divider my="sm" />
+        <Switch checked={config.aggregated} onChange={(event) => setConfig({ ...config, aggregated: event.currentTarget.checked })} label="aggregate vals" />
         <Stack spacing={30}>
           <OpacitySlider
             callback={(e) => {

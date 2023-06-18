@@ -1,31 +1,12 @@
 import * as React from 'react';
-import merge from 'lodash/merge';
-import uniqueId from 'lodash/uniqueId';
-import { useEffect, useState } from 'react';
-import { Center, Group, Stack } from '@mantine/core';
-import * as d3 from 'd3v7';
-import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings } from '../interfaces';
-import { InvalidCols } from '../general/InvalidCols';
-import { beautifyLayout } from '../general/layoutUtils';
-import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { PlotlyComponent } from '../../plotly';
-import { Plotly } from '../../plotly/full';
-import { useAsync } from '../../hooks';
+import { Group, Stack } from '@mantine/core';
+import { IVisConfig, IScatterConfig, VisColumn } from '../interfaces';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
-import { Scatterplot } from './Scatterplot';
 import { ScatterVisSidebar } from '../scatter/ScatterVisSidebar';
+import { Heatmap } from './Heatmap';
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
-export function ScatterVis({
+export function HeatmapVis({
   config,
   optionsConfig,
   extensions,
@@ -82,7 +63,7 @@ export function ScatterVis({
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-        {config.numColumnsSelected.length > 1 ? <Scatterplot config={config} columns={columns} /> : null}
+        {config.numColumnsSelected.length > 1 ? <Heatmap config={config} columns={columns} /> : null}
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>

@@ -47,6 +47,7 @@ const defaultConfig: IScatterConfig = {
   shape: null,
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
+  aggregated: false,
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IVisConfig {
