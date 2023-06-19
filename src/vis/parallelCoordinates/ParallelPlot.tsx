@@ -8,13 +8,6 @@ import { ParallelYAxis } from './YAxis';
 import { useAsync } from '../../hooks';
 import { getParallelData } from './utils';
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
 const margin = {
   top: 30,
   right: 10,
@@ -32,8 +25,6 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
     const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
     if (all.length === 0) return null;
     const dt = table(all.reduce((acc, col) => ({ ...acc, [removeSpace(col.info.name)]: col.resolvedValues.map((v) => v.val) }), {}));
-    console.log('table: ', dt);
-    console.log(dt.objects());
     return dt.objects();
   }, [allColumns]);
 
@@ -73,24 +64,30 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
   }, [allColumns?.catColVals, allColumns?.numColVals, width]);
 
   const paths = React.useMemo(() => {
-    const r = rows?.[0];
-    if (!r) return null;
-    const yPositions = Object.keys(r).map((col) => {
-      const xPos = xScale(col);
-      const yPos = yScales?.find((yScale) => yScale.id === col)?.scale(r[col]) || 0;
-      return [xPos, yPos];
+    return rows?.map((r) => {
+      if (!r) return null;
+      const yPositions = Object.keys(r).map((col) => {
+        const xPos = xScale(col);
+        const yPos = yScales?.find((yScale) => yScale.id === col)?.scale(r[col]) || 0;
+        return [xPos, yPos];
+      });
+
+      let svgPath = '';
+      yPositions.forEach((yPos, i) => {
+        if (i === 0) {
+          svgPath += `M ${yPos[0]},${yPos[1]}`;
+        } else {
+          svgPath += `L ${yPos[0]},${yPos[1]}`;
+        }
+      });
+      return svgPath;
     });
-    // yScales?.map((yScale) => {
-    //   return r[yScale.id];
-    // });
-    console.log('yPositions: ', yPositions);
-    return yPositions;
-    // const xPos = xScale(col) || 0;
   }, [rows, xScale, yScales]);
-  console.log('paths: ', paths);
 
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%' }}>
+      {paths ? paths?.map((path, i) => <path key={`path:-${i}`} fill="none" stroke="#337ab7" strokeWidth={0.5} d={path} />) : null}
+
       {allColumns && yScales && xScale
         ? yScales.map((yScale) => {
             return (
@@ -104,7 +101,6 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
             );
           })
         : null}
-      {rows ? <path stroke="black" strokeWidth={2} d="M 2,2 h 20 " /> : null}
       {/* <path stroke="black" strokeWidth={2} d=" M 2,2 h 20 " /> */}
     </svg>
   );

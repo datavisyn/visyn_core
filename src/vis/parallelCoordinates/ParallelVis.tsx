@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import { Group, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
+import { Text } from '@mantine/core';
 import { IVisConfig, VisColumn, IParallelCoordinatesConfig } from '../interfaces';
 import { useAsync } from '../../hooks';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
@@ -10,13 +11,6 @@ import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 import { ParallelVisSidebar } from './ParallelVisSidebar';
 import { ParallelPlot } from './ParallelPlot';
 import { getParallelData } from './utils';
-
-const margin = {
-  top: 30,
-  right: 10,
-  bottom: 10,
-  left: 10,
-};
 
 const defaultExtensions = {
   prePlot: null,
@@ -83,6 +77,7 @@ export function ParallelVis({
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {config?.numColumnsSelected?.length > 1 ? <ParallelPlot config={config} columns={columns} /> : null}
+        <Text>test</Text>
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>
