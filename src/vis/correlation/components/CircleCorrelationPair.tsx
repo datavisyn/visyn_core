@@ -1,40 +1,56 @@
+import { useMantineTheme } from '@mantine/core';
 import * as React from 'react';
 
-const padding = { top: 16, right: 16, bottom: 16, left: 16 };
-
 export interface CorrelationPairProps {
-  cx: number;
-  cy: number;
+  cxLT: number;
+  cyLT: number;
+  cxUT: number;
+  cyUT: number;
   correlation: number;
+  tStatistic: number;
   pValue: number;
   xName: string;
   yName: string;
+  radius: number;
 }
 
-export function CircleCorrelationPair({ value, fill, hover }: { value: CorrelationPairProps; fill: string; hover: boolean }) {
-  return null;
-  // const cx = xScale(value.xname) + xScale.bandwidth() / 2;
-  // const cy = yScale(value.yname) + yScale.bandwidth() / 2;
+export function CircleCorrelationPair({
+  value,
+  fill,
+  boundingRect,
+}: {
+  value: CorrelationPairProps;
+  fill: string;
+  boundingRect: { width: number; height: number };
+}) {
+  const [hovered, setHovered] = React.useState(false);
+  const theme = useMantineTheme();
+  const hoverColor = theme.colors.gray[3];
 
-  // return (
-  //   <>
-  //     <circle
-  //       cx={cx}
-  //       cy={cy}
-  //       r={Math.min(xScale.bandwidth() / 2 - padding.left, yScale.bandwidth() / 2 - padding.top)}
-  //       fill={fill}
-  //       {...(hover ? { stroke: 'black', strokeWidth: 3 } : {})}
-  //     />
-  //     <text
-  //       x={xScale(value.yname) + xScale.bandwidth() / 2}
-  //       y={yScale(value.xname) + yScale.bandwidth() / 2}
-  //       fontSize={24}
-  //       dominantBaseline="middle"
-  //       textAnchor="middle"
-  //       fontWeight={hover ? 'bold' : 'initial'}
-  //     >
-  //       {value.correlation.toFixed(2)}
-  //     </text>
-  //   </>
-  // );
+  return (
+    <>
+      <rect
+        width={boundingRect.width}
+        height={boundingRect.height}
+        x={value.cxUT - boundingRect.width / 2}
+        y={value.cyUT - boundingRect.height / 2}
+        fill={hovered ? hoverColor : 'transparent'}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      />
+      <circle cx={value.cxUT} cy={value.cyUT} r={value.radius} fill={fill} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} />
+      <rect
+        width={boundingRect.width}
+        height={boundingRect.height}
+        x={value.cxLT - boundingRect.width / 2}
+        y={value.cyLT - boundingRect.height / 2}
+        fill={hovered ? hoverColor : 'transparent'}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      />
+      <text x={value.cxLT} y={value.cyLT} fontSize={24} dominantBaseline="middle" textAnchor="middle" fontWeight={hovered ? 'bold' : 'initial'}>
+        {value.correlation.toFixed(2)}
+      </text>
+    </>
+  );
 }

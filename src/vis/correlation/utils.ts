@@ -22,7 +22,6 @@ const defaultConfig: ICorrelationConfig = {
 
 export function correlationMergeDefaultConfig(columns: VisColumn[], config: ICorrelationConfig): IVisConfig {
   const merged = merge({}, defaultConfig, config);
-
   return merged;
 }
 
