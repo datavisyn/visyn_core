@@ -89,9 +89,7 @@ export function ParallelVisSidebar({
         />
         <Divider my="sm" />
         {mergedExtensions.preSidebar}
-
         <Divider my="sm" />
-
         {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
         {mergedExtensions.postSidebar}
       </Stack>

@@ -17,6 +17,7 @@ import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 import { ScatterVisSidebar } from '../scatter/ScatterVisSidebar';
 import { ParallelVisSidebar } from './ParallelVisSidebar';
+import { ParallelPlot } from './ParallelPlot';
 
 const defaultExtensions = {
   prePlot: null,
@@ -62,6 +63,8 @@ export function ParallelVis({
   setShowSidebar?(show: boolean): void;
   enableSidebar?: boolean;
 }) {
+  const { value: allColumns, status: colsStatus } = useAsync(getParallelData, [columns, config.numColumnsSelected, config.color]);
+
   return (
     <Group
       noWrap
@@ -82,7 +85,7 @@ export function ParallelVis({
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-        {config.numColumnsSelected.length > 1 ? 'hello world' : null}
+        {config.numColumnsSelected.length > 1 ? <ParallelPlot /> : null}
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>
