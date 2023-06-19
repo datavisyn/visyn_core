@@ -8,6 +8,7 @@ import { VisColumn, IScatterConfig } from '../interfaces';
 import { getScatterData } from './utils';
 import { XAxis } from '../hexbin/XAxis';
 import { YAxis } from '../hexbin/YAxis';
+import { Circle } from './components/Circle';
 
 const margin = {
   top: 20,
@@ -15,6 +16,73 @@ const margin = {
   bottom: 20,
   left: 20,
 };
+
 export function Scatterplot({ config, columns }: { config: IScatterConfig; columns: VisColumn[] }) {
-  return <svg style={{ width: '100%', height: '100%' }} />;
+  const { value: data } = useAsync(getScatterData, [columns, config.numColumnsSelected, config.color]);
+
+  const [ref, { width, height }] = useResizeObserver();
+
+  const xScale = useMemo(() => {
+    if (!data) return null;
+
+    return d3
+      .scaleLinear()
+      .range([margin.left, width - margin.right])
+      .domain(d3.extent(data.numericalColumns[0].resolvedValues.map((val) => val.val as number)));
+  }, [data, width]);
+
+  const yScale = useMemo(() => {
+    if (!data) return null;
+
+    return d3
+      .scaleLinear()
+      .range([height - margin.bottom, margin.top])
+      .domain(d3.extent(data.numericalColumns[1].resolvedValues.map((val) => val.val as number)));
+  }, [data, height]);
+
+  const colorScale = useMemo(() => {
+    if (!data) return null;
+
+    return d3
+      .scaleOrdinal()
+      .range(d3.schemeCategory10)
+      .domain(data.colorColumn.resolvedValues.map((val) => val.val as string));
+  }, [data]);
+
+  const circlePositions = useMemo(() => {
+    if (!data) return null;
+
+    return data.numericalColumns[0].resolvedValues.map((val, i) => ({
+      id: val.id,
+      x: val.val as number,
+      y: data.numericalColumns[1].resolvedValues[i].val as number,
+      color: data.colorColumn.resolvedValues[i].val as string,
+    }));
+  }, [data]);
+
+  console.log(xScale?.range(), xScale?.domain());
+  console.log(yScale?.range(), yScale?.domain());
+  console.log(colorScale?.range(), colorScale?.domain());
+
+  console.log(data);
+
+  return (
+    <svg ref={ref} style={{ width: '100%', height: '100%' }}>
+      {xScale && yScale ? <XAxis xScale={xScale} yRange={[yScale.range()[1], yScale.range()[0]]} vertPosition={height - margin.bottom} /> : null}
+      {xScale && yScale ? <YAxis yScale={yScale} xRange={xScale.range()} horizontalPosition={margin.left} /> : null}
+
+      {circlePositions?.map((circle) => {
+        return (
+          <Circle
+            key={circle.id}
+            x={xScale(circle.x)}
+            y={yScale(circle.y)}
+            label={`${circle.x}, ${circle.y}, ${circle.color}`}
+            opacity={config.alphaSliderVal}
+            color={colorScale(circle.color) as string}
+          />
+        );
+      })}
+    </svg>
+  );
 }

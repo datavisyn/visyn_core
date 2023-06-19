@@ -14,7 +14,6 @@ export function XAxis({ xScale, yRange, vertPosition }) {
     <>
       <path transform={`translate(0, ${vertPosition})`} d={['M', xScale.range()[0], 0, 'H', xScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
       <path transform={`translate(0, ${yRange[0]})`} d={['M', xScale.range()[0], 0, 'H', xScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
-
       {ticks.map(({ value, xOffset }) => (
         <g key={value} transform={`translate(${xOffset}, ${vertPosition})`}>
           <line y2="6" stroke="currentColor" />
