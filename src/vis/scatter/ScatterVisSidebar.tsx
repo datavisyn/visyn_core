@@ -121,6 +121,7 @@ export function ScatterVisSidebar({
             : null}
         </Stack>
         <Divider my="sm" />
+        <Switch checked={config.aggregated} onChange={(event) => setConfig({ ...config, aggregated: event.currentTarget.checked })} label="Aggregate points" />
         <Stack spacing={30}>
           <OpacitySlider
             callback={(e) => {

@@ -49,6 +49,17 @@ export function Scatterplot({ config, columns }: { config: IScatterConfig; colum
       .domain(data.colorColumn.resolvedValues.map((val) => val.val as string));
   }, [data]);
 
+  const aggregatedTable = useMemo(() => {
+    if (!data) return null;
+    const myTable = table({
+      x: data?.numericalColumns[0].resolvedValues.map((val) => val.val as number),
+      y: data?.numericalColumns[1].resolvedValues.map((val) => val.val as number),
+      color: data?.colorColumn.resolvedValues.map((val) => val.val as string),
+    });
+
+    return myTable.groupby('color').rollup({ xMean: (d) => op.mean(d.x), yMean: (d) => op.mean(d.y) });
+  }, [data]);
+
   const circlePositions = useMemo(() => {
     if (!data) return null;
 
@@ -57,8 +68,18 @@ export function Scatterplot({ config, columns }: { config: IScatterConfig; colum
       x: val.val as number,
       y: data.numericalColumns[1].resolvedValues[i].val as number,
       color: data.colorColumn.resolvedValues[i].val as string,
+      aggregatedX: (aggregatedTable.objects() as { color: string; xMean: number; yMean: number }[]).find(
+        (obj) => obj.color === (data.colorColumn.resolvedValues[i].val as string),
+      )?.xMean,
+      aggregatedY: (aggregatedTable.objects() as { color: string; xMean: number; yMean: number }[]).find(
+        (obj) => obj.color === (data.colorColumn.resolvedValues[i].val as string),
+      )?.yMean,
     }));
-  }, [data]);
+  }, [aggregatedTable, data]);
+
+  aggregatedTable?.print();
+
+  console.log(circlePositions);
 
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%' }}>
@@ -68,9 +89,10 @@ export function Scatterplot({ config, columns }: { config: IScatterConfig; colum
       {circlePositions?.map((circle) => {
         return (
           <Circle
+            radius={config.aggregated ? 10 : 4}
             key={circle.id}
-            x={xScale(circle.x)}
-            y={yScale(circle.y)}
+            x={config.aggregated ? xScale(circle.aggregatedX) : xScale(circle.x)}
+            y={config.aggregated ? yScale(circle.aggregatedY) : yScale(circle.y)}
             label={`${circle.x}, ${circle.y}, ${circle.color}`}
             opacity={config.alphaSliderVal}
             color={colorScale(circle.color) as string}

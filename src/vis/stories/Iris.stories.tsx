@@ -126,6 +126,7 @@ ScatterPlot.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
+    aggregated: false,
   },
 };
 
