@@ -8,6 +8,7 @@ import { ParallelYAxis } from './YAxis';
 
 import { useAsync } from '../../hooks';
 import { getParallelData } from './utils';
+import { ParallelPath } from './ParallelPath';
 
 const margin = {
   top: 30,
@@ -22,12 +23,32 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
   const [ref, { width, height }] = useResizeObserver();
   const { value: allColumns, status: colsStatus, error } = useAsync(getParallelData, [columns, config?.numColumnsSelected, config?.catColumnsSelected]);
 
+  const [showTooltip, setShowTooltip] = React.useState<boolean>(false);
+  const [tooltipContent, setTooltipContent] = React.useState<string>('');
+
   const rows = React.useMemo(() => {
     const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
     if (all.length === 0) return null;
     const dt = table(all.reduce((acc, col) => ({ ...acc, [removeSpace(col.info.name)]: col.resolvedValues.map((v) => v.val) }), {}));
     return dt.objects();
   }, [allColumns]);
+
+  const onPathHover = React.useCallback(
+    (e: React.MouseEvent<SVGPathElement, MouseEvent>) => {
+      const { index } = e.currentTarget.dataset;
+      setShowTooltip(true);
+      setTooltipContent(
+        Object.keys(rows[index])
+          .map((label) => `${label}: ${rows[index][label]}`)
+          .join('; '),
+      );
+    },
+    [rows],
+  );
+
+  const onPathLeave = React.useCallback((e: React.MouseEvent<SVGPathElement, MouseEvent>) => {
+    setShowTooltip(false);
+  }, []);
 
   const yScales = React.useMemo(() => {
     const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
@@ -86,29 +107,24 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
   }, [rows, xScale, yScales]);
 
   return (
-    <svg ref={ref} style={{ width: '100%', height: '100%' }}>
-      {paths
-        ? paths.slice(0, 2)?.map((path, i) => (
-            <Tooltip key={path + i} withinPortal label="hello world">
-              <path fill="none" stroke="#337ab7" strokeWidth={5} d={path} />
-            </Tooltip>
-          ))
-        : null}
-
-      {allColumns && yScales && xScale
-        ? yScales.map((yScale) => {
-            return (
-              <ParallelYAxis
-                key={yScale.id}
-                yScale={yScale.scale}
-                xRange={[margin.left, width + margin.left]}
-                type={yScale.type}
-                horizontalPosition={xScale(yScale.id)}
-              />
-            );
-          })
-        : null}
-      {/* <path stroke="black" strokeWidth={2} d=" M 2,2 h 20 " /> */}
-    </svg>
+    <Tooltip withinPortal multiline label={tooltipContent} color="dark" opened={showTooltip}>
+      <svg ref={ref} style={{ width: '100%', height: '100%' }}>
+        {paths ? paths.slice(0, 2)?.map((path, i) => <ParallelPath key={path} index={i} path={path} onHover={onPathHover} onLeave={onPathLeave} />) : null}
+        {allColumns && yScales && xScale
+          ? yScales.map((yScale) => {
+              return (
+                <ParallelYAxis
+                  key={yScale.id}
+                  yScale={yScale.scale}
+                  xRange={[margin.left, width + margin.left]}
+                  type={yScale.type}
+                  horizontalPosition={xScale(yScale.id)}
+                />
+              );
+            })
+          : null}
+        {/* <path stroke="black" strokeWidth={2} d=" M 2,2 h 20 " /> */}
+      </svg>
+    </Tooltip>
   );
 }
