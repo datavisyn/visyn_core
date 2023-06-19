@@ -20,65 +20,47 @@ export function fetchIrisData(): VisColumn[] {
 
   const heatmapData = data;
 
-  heatmapData.forEach();
+  const myData: Record<number, { year: string; state: string }> = {};
 
-  // return [
-  //   {
-  //     info: {
-  //       description: 'data from description',
-  //       id: 'sepalLength',
-  //       name: 'Sepal Length',
-  //     },
-  //     type: EColumnTypes.NUMERICAL,
-  //     values: () => dataPromise.then((data) => data.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val }))),
-  //   },
-  //   {
-  //     info: {
-  //       description: 'data from description',
-  //       id: 'sepalWidth',
-  //       name: 'Sepal Width',
-  //     },
-  //     type: EColumnTypes.NUMERICAL,
-  //     values: () => dataPromise.then((data) => data.map((r) => r.sepalWidth).map((val, i) => ({ id: i.toString(), val }))),
-  //   },
-  //   {
-  //     info: {
-  //       description: '',
-  //       id: 'randomThing',
-  //       name: 'Random Thing',
-  //     },
-  //     type: EColumnTypes.CATEGORICAL,
-  //     color: { 1: 'cornflowerblue' },
-  //     values: () => dataPromise.then((data) => data.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
-  //   },
-  //   {
-  //     info: {
-  //       description: 'data from description',
-  //       id: 'petalLength',
-  //       name: 'Petal Length PEtal length petal length',
-  //     },
-  //     type: EColumnTypes.NUMERICAL,
-  //     values: () => dataPromise.then((data) => data.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),
-  //   },
-  //   {
-  //     info: {
-  //       description: 'data from description',
-  //       id: 'petalWidth',
-  //       name: 'Petal Width',
-  //     },
-  //     type: EColumnTypes.NUMERICAL,
-  //     values: () => dataPromise.then((data) => data.map((r) => r.petalWidth).map((val, i) => ({ id: i.toString(), val }))),
-  //   },
-  //   {
-  //     info: {
-  //       description: 'data from description',
-  //       id: 'species',
-  //       name: 'Species',
-  //     },
-  //     type: EColumnTypes.CATEGORICAL,
-  //     values: () => dataPromise.then((data) => data.map((r) => r.species).map((val, i) => ({ id: i.toString(), val }))),
-  //   },
-  // ];
+  let counter = 0;
+  heatmapData.forEach((state) => {
+    for (let i = 0; i < Math.round(state.value / 100); i++) {
+      myData[counter] = { year: state.x.toString(), state: state.y };
+      counter += 1;
+    }
+  });
+
+  console.log(myData);
+
+  return [
+    {
+      info: {
+        description: '',
+        id: 'state',
+        name: 'US States',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => Object.keys(myData).map((d) => ({ val: myData[d].state, id: d })),
+    },
+    {
+      info: {
+        description: 'data from description',
+        id: 'petalLength',
+        name: 'Petal Length PEtal length petal length',
+      },
+      type: EColumnTypes.NUMERICAL,
+      values: () => dataPromise.then((d) => d.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),
+    },
+    {
+      info: {
+        description: '',
+        id: 'year',
+        name: 'Years',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => Object.keys(myData).map((d) => ({ val: myData[d].year, id: d })),
+    },
+  ];
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -160,23 +142,12 @@ ViolinPlot.args = {
     type: ESupportedPlotlyVis.VIOLIN,
     numColumnsSelected: [
       {
-        description: '',
-        id: 'sepalLength',
-        name: 'Sepal Length',
-      },
-      {
-        description: '',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
+        description: 'data from description',
+        id: 'petalLength',
+        name: 'Petal Length PEtal length petal length',
       },
     ],
-    catColumnsSelected: [
-      {
-        description: '',
-        id: 'species',
-        name: 'Species',
-      },
-    ],
+    catColumnsSelected: [],
     violinOverlay: EViolinOverlay.NONE,
   },
 };
