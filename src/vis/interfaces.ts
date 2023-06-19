@@ -5,6 +5,7 @@ export enum ESupportedPlotlyVis {
   VIOLIN = 'Violin plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
+  PARALLEL_COORDINATES = 'Parallel plot',
 }
 
 export const allVisTypes: ESupportedPlotlyVis[] = [
@@ -77,6 +78,13 @@ export enum EScatterSelectSettings {
   LASSO = 'lasso',
   ZOOM = 'zoom',
   PAN = 'pan',
+}
+
+export interface IParallelCoordinatesConfig {
+  type: ESupportedPlotlyVis.PARALLEL_COORDINATES
+  numColumnsSelected: ColumnInfo[];
+  catColumnsSelected: ColumnInfo[];
+  color: ColumnInfo | null;
 }
 
 export interface IViolinConfig {
