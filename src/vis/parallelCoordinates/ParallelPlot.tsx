@@ -1,22 +1,11 @@
 import * as React from 'react';
-import merge from 'lodash/merge';
-import uniqueId from 'lodash/uniqueId';
-import { useEffect, useState } from 'react';
-import { Center, Group, Stack } from '@mantine/core';
-import * as d3 from 'd3v7';
-import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings, IParallelCoordinatesConfig } from '../interfaces';
-import { InvalidCols } from '../general/InvalidCols';
-import { beautifyLayout } from '../general/layoutUtils';
-import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { PlotlyComponent } from '../../plotly';
-import { Plotly } from '../../plotly/full';
+import * as d3v7 from 'd3v7';
+import { useResizeObserver } from '@mantine/hooks';
+import { Group, Stack } from '@mantine/core';
+import { IParallelCoordinatesConfig, VisColumn } from '../interfaces';
+
 import { useAsync } from '../../hooks';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
-import { ScatterVisSidebar } from '../scatter/ScatterVisSidebar';
-import { ParallelVisSidebar } from './ParallelVisSidebar';
+import { getParallelData } from './utils';
 
 const defaultExtensions = {
   prePlot: null,
@@ -32,9 +21,36 @@ const margin = {
   left: 10,
 };
 
-export function ParallelPlot() {
+export function ParallelPlot({ columns, config }: { config: IParallelCoordinatesConfig; columns: VisColumn[] }) {
+  const [ref, { width, height }] = useResizeObserver();
+  const { value: allColumns, status: colsStatus } = useAsync(getParallelData, [columns, config?.numColumnsSelected, config?.catColumnsSelected]);
+
+  // // create y scale
+  // const yScales = React.useMemo(() => {
+  //   if (!allColumns?.numColValues?.length) return;
+  //   allColumns?.numColVals.map((c) => {
+  //     console.log(
+  //       'inside',
+  //       c.resolvedValues.map((v) => v.val),
+  //     );
+  //     return d3v7
+  //       .scaleLinear()
+  //       .domain(c.resolvedValues.map((v) => v.val))
+  //       .range([height - margin.bottom, margin.top]);
+  //   });
+  // }, [allColumns, height]);
+  const yScale = React.useMemo(() => {
+    if (!allColumns?.numColVals?.length) return () => null;
+    console.log('inside');
+    return d3v7
+      .scaleLinear()
+      .domain(allColumns.numColVals[0].resolvedValues.map((v) => v.val))
+      .range([height - margin.bottom, margin.top]);
+  }, [allColumns, height]);
+
+  console.log('HERE', allColumns, yScale(allColumns?.numColValues?.[0]?.resolvedValues?.[0]?.id));
   return (
-    <svg>
+    <svg ref={ref} style={{ width: '100%', height: '100%' }}>
       <path stroke="black" strokeWidth={2} d=" M 2,2 h 20 " />
     </svg>
   );
