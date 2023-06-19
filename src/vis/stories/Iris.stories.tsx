@@ -175,3 +175,33 @@ ViolinPlot.args = {
     violinOverlay: EViolinOverlay.NONE,
   },
 };
+
+export const CorrelationPlot: typeof Template = Template.bind({});
+CorrelationPlot.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.CORRELATION,
+    numColumnsSelected: [
+      {
+        description: '',
+        id: 'sepalLength',
+        name: 'Sepal Length',
+      },
+      {
+        description: '',
+        id: 'sepalWidth',
+        name: 'Sepal Width',
+      },
+      {
+        description: '',
+        id: 'petalWidth',
+        name: 'Sepal Width',
+      },
+      {
+        description: '',
+        id: 'petalLength',
+        name: 'Sepal Width',
+      },
+    ],
+  },
+  enableSidebar: true,
+};

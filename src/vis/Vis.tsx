@@ -286,7 +286,7 @@ export function EagerVis({
         />
       ) : null}
 
-      {isCorrelation(visConfig) ? <CorrelationMatrix config={visConfig} columns={columns} setConfig={setConfig} /> : null}
+      {isCorrelation(visConfig) ? <CorrelationMatrix config={visConfig} columns={columns} setConfig={setVisConfig} {...commonProps} /> : null}
     </>
   );
 }

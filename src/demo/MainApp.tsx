@@ -54,8 +54,6 @@ export function MainApp() {
         />
       }
     >
-      <CorrelationMatrix />
-      <Vis  />
     </VisynApp>
   );
 }
