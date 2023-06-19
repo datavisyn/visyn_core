@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import { useResizeObserver } from '@mantine/hooks';
 import { table } from 'arquero';
+import { Tooltip } from '@mantine/core';
 import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
 import { ParallelYAxis } from './YAxis';
 
@@ -86,7 +87,13 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
 
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%' }}>
-      {paths ? paths?.map((path, i) => <path key={`path:-${i}`} fill="none" stroke="#337ab7" strokeWidth={0.5} d={path} />) : null}
+      {paths
+        ? paths.slice(0, 2)?.map((path, i) => (
+            <Tooltip key={path + i} withinPortal label="hello world">
+              <path fill="none" stroke="#337ab7" strokeWidth={5} d={path} />
+            </Tooltip>
+          ))
+        : null}
 
       {allColumns && yScales && xScale
         ? yScales.map((yScale) => {
