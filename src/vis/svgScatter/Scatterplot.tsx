@@ -60,12 +60,6 @@ export function Scatterplot({ config, columns }: { config: IScatterConfig; colum
     }));
   }, [data]);
 
-  console.log(xScale?.range(), xScale?.domain());
-  console.log(yScale?.range(), yScale?.domain());
-  console.log(colorScale?.range(), colorScale?.domain());
-
-  console.log(data);
-
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%' }}>
       {xScale && yScale ? <XAxis xScale={xScale} yRange={[yScale.range()[1], yScale.range()[0]]} vertPosition={height - margin.bottom} /> : null}

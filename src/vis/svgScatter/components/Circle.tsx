@@ -8,7 +8,7 @@ export function Circle({ x, y, label, opacity, color }: { x: number; y: number; 
 
   return (
     <Tooltip withinPortal label={label}>
-      <animated.circle onClick={() => console.log(x, y)} fill={color} r={4} opacity={opacity} {...spring} />
+      <animated.circle fill={color} r={4} opacity={opacity} {...spring} />
     </Tooltip>
   );
 }
