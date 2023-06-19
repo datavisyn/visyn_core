@@ -23,6 +23,8 @@ import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
+import { isParallelCoordinates, parallelCoordinatesMergeDefaultConfig } from './parallelCoordinates/utils';
+import { ParallelVis } from './parallelCoordinates/ParallelVis';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -157,6 +159,11 @@ export function EagerVis({
       const newConfig = hexinbMergeDefaultConfig(columns, inconsistentVisConfig);
       _setVisConfig({ current: newConfig, consistent: newConfig });
     }
+    if (isParallelCoordinates(inconsistentVisConfig)) {
+      // todo
+      const newConfig = parallelCoordinatesMergeDefaultConfig(columns, inconsistentVisConfig);
+      _setVisConfig({ current: newConfig, consistent: newConfig });
+    }
     // DANGER:: this useEffect should only occur when the visConfig.type changes. adding visconfig into the dep array will cause an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inconsistentVisConfig.type]);
@@ -215,6 +222,31 @@ export function EagerVis({
     <>
       {isScatter(visConfig) ? (
         <ScatterVis
+          config={visConfig}
+          optionsConfig={{
+            color: {
+              enable: true,
+            },
+          }}
+          showDragModeOptions={showDragModeOptions}
+          shapes={shapes}
+          setConfig={setVisConfig}
+          filterCallback={filterCallback}
+          selectionCallback={selectionCallback}
+          selectedMap={selectedMap}
+          selectedList={selected}
+          columns={columns}
+          scales={scales}
+          showSidebar={showSidebar}
+          showCloseButton={showCloseButton}
+          closeButtonCallback={closeCallback}
+          scrollZoom={scrollZoom}
+          {...commonProps}
+        />
+      ) : null}
+
+      {isParallelCoordinates(visConfig) ? (
+        <ParallelVis
           config={visConfig}
           optionsConfig={{
             color: {

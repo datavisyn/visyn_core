@@ -175,3 +175,30 @@ ViolinPlot.args = {
     violinOverlay: EViolinOverlay.NONE,
   },
 };
+
+export const ParallelPlot: typeof Template = Template.bind({});
+ParallelPlot.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.PARALLEL_COORDINATES,
+    color: null, // todo
+    numColumnsSelected: [
+      {
+        description: '',
+        id: 'sepalLength',
+        name: 'Sepal Length',
+      },
+      {
+        description: '',
+        id: 'sepalWidth',
+        name: 'Sepal Width',
+      },
+    ],
+    catColumnsSelected: [
+      {
+        description: '',
+        id: 'species',
+        name: 'Species',
+      },
+    ],
+  },
+};
