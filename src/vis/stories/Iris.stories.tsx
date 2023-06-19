@@ -24,7 +24,7 @@ export function fetchIrisData(): VisColumn[] {
 
   let counter = 0;
   heatmapData.forEach((state) => {
-    for (let i = 0; i < Math.round(state.value / 100) + 1; i++) {
+    for (let i = 0; i < Math.round(state.value / 10) + 1; i++) {
       if (!state.x || !state.y) {
         console.log('danger');
       }
@@ -196,5 +196,30 @@ ViolinPlot.args = {
     ],
     catColumnsSelected: [],
     violinOverlay: EViolinOverlay.NONE,
+  },
+};
+
+export const Heatmap: typeof Template = Template.bind({});
+Heatmap.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.HEATMAP,
+    colorScale: null,
+    catColumnsSelected: [
+      {
+        description: '',
+        id: 'state',
+        name: 'US States',
+      },
+      {
+        description: '',
+        id: 'randomThing',
+        name: 'Random Thing',
+      },
+      {
+        description: '',
+        id: 'year',
+        name: 'Years',
+      },
+    ],
   },
 };

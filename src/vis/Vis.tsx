@@ -23,6 +23,8 @@ import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
+import { HeatmapVis } from './heatmap/HeatmapVis';
+import { heatmapMergeDefaultConfig, isHeatmap } from './heatmap/utils';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -157,6 +159,10 @@ export function EagerVis({
       const newConfig = hexinbMergeDefaultConfig(columns, inconsistentVisConfig);
       _setVisConfig({ current: newConfig, consistent: newConfig });
     }
+    if (isHeatmap(inconsistentVisConfig)) {
+      const newConfig = heatmapMergeDefaultConfig(columns, inconsistentVisConfig);
+      _setVisConfig({ current: newConfig, consistent: newConfig });
+    }
     // DANGER:: this useEffect should only occur when the visConfig.type changes. adding visconfig into the dep array will cause an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inconsistentVisConfig.type]);
@@ -281,6 +287,19 @@ export function EagerVis({
           selectionCallback={selectionCallback}
           columns={columns}
           showDragModeOptions={showDragModeOptions}
+          {...commonProps}
+        />
+      ) : null}
+
+      {isHeatmap(visConfig) ? (
+        <HeatmapVis
+          selected={selectedMap}
+          showSidebar={showSidebar}
+          config={visConfig}
+          columns={columns}
+          setConfig={setVisConfig}
+          selectionCallback={selectionCallback}
+          enableSidebar
           {...commonProps}
         />
       ) : null}

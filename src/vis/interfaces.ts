@@ -5,6 +5,7 @@ export enum ESupportedPlotlyVis {
   VIOLIN = 'Violin plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
+  HEATMAP = 'Heatmap plot',
 }
 
 export const allVisTypes: ESupportedPlotlyVis[] = [
@@ -12,9 +13,10 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.BAR,
   ESupportedPlotlyVis.VIOLIN,
   ESupportedPlotlyVis.HEXBIN,
+  ESupportedPlotlyVis.HEATMAP,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IHeatmapConfig;
 
 export enum EBarDisplayType {
   ABSOLUTE = 'Absolute',
@@ -118,6 +120,12 @@ export interface IHexbinConfig {
   isSizeScale: boolean;
   dragMode: EScatterSelectSettings;
   hexbinOptions: EHexbinOptions;
+}
+
+export interface IHeatmapConfig {
+  type: ESupportedPlotlyVis.HEATMAP;
+  colorScale: Scales;
+  catColumnsSelected: ColumnInfo[];
 }
 
 type ValueGetter<T> = () => T | Promise<T>;
