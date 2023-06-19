@@ -13,9 +13,10 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.BAR,
   ESupportedPlotlyVis.VIOLIN,
   ESupportedPlotlyVis.HEXBIN,
+  ESupportedPlotlyVis.PARALLEL_COORDINATES,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IParallelCoordinatesConfig;
 
 export enum EBarDisplayType {
   ABSOLUTE = 'Absolute',
