@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import { useResizeObserver } from '@mantine/hooks';
-import { Group, Stack } from '@mantine/core';
+import { table } from 'arquero';
 import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
 import { ParallelYAxis } from './YAxis';
 
@@ -28,6 +28,15 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
   const [ref, { width, height }] = useResizeObserver();
   const { value: allColumns, status: colsStatus, error } = useAsync(getParallelData, [columns, config?.numColumnsSelected, config?.catColumnsSelected]);
 
+  const rows = React.useMemo(() => {
+    const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
+    if (all.length === 0) return null;
+    const dt = table(all.reduce((acc, col) => ({ ...acc, [removeSpace(col.info.name)]: col.resolvedValues.map((v) => v.val) }), {}));
+    console.log('table: ', dt);
+    console.log(dt.objects());
+    return dt.objects();
+  }, [allColumns]);
+
   const yScales = React.useMemo(() => {
     const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
     if (all.length === 0) return null;
@@ -52,7 +61,6 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
       };
     });
   }, [allColumns, height]);
-  console.log(yScales);
 
   const xScale = React.useMemo(() => {
     const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
@@ -63,6 +71,23 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
       .domain(all.map((c) => removeSpace(c.info.name)))
       .range([margin.left, width - margin.right]);
   }, [allColumns?.catColVals, allColumns?.numColVals, width]);
+
+  const paths = React.useMemo(() => {
+    const r = rows?.[0];
+    if (!r) return null;
+    const yPositions = Object.keys(r).map((col) => {
+      const xPos = xScale(col);
+      const yPos = yScales?.find((yScale) => yScale.id === col)?.scale(r[col]) || 0;
+      return [xPos, yPos];
+    });
+    // yScales?.map((yScale) => {
+    //   return r[yScale.id];
+    // });
+    console.log('yPositions: ', yPositions);
+    return yPositions;
+    // const xPos = xScale(col) || 0;
+  }, [rows, xScale, yScales]);
+  console.log('paths: ', paths);
 
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%' }}>
@@ -79,6 +104,7 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
             );
           })
         : null}
+      {rows ? <path stroke="black" strokeWidth={2} d="M 2,2 h 20 " /> : null}
       {/* <path stroke="black" strokeWidth={2} d=" M 2,2 h 20 " /> */}
     </svg>
   );

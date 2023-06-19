@@ -150,6 +150,7 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/react-plotly.js": "^2.5.0",
+    "arquero": "^5.2.0",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.4.0",
     "i18next": "^22.4.15",
