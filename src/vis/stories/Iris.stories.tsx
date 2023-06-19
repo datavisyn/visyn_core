@@ -194,12 +194,12 @@ CorrelationPlot.args = {
       {
         description: '',
         id: 'petalWidth',
-        name: 'Sepal Width',
+        name: 'Petal Width',
       },
       {
         description: '',
         id: 'petalLength',
-        name: 'Sepal Width',
+        name: 'Petal Length',
       },
     ],
   },

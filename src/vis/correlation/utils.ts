@@ -26,7 +26,7 @@ export function correlationMergeDefaultConfig(columns: VisColumn[], config: ICor
   return merged;
 }
 
-export async function getScatterData(
+export async function getCorrelationMatrixData(
   columns: VisColumn[],
   numericalColumnDescs: ColumnInfo[],
 ): Promise<{

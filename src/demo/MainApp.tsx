@@ -7,7 +7,6 @@ import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
 import { MyNumberScore, MyStringScore } from './scoresUtils';
-import { CorrelationMatrix } from '../vis/correlation/CorrelationMatrix';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -53,7 +52,6 @@ export function MainApp() {
           }}
         />
       }
-    >
-    </VisynApp>
+    />
   );
 }
