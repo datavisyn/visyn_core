@@ -28,7 +28,7 @@ export function HeatmapVis({
   enableSidebar?: boolean;
 }) {
   return (
-    <Group sx={{ height: '100%' }} noWrap>
+    <Group sx={{ height: '100%', width: '100%' }} noWrap>
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
       <Heatmap config={config} columns={columns} />
       {showSidebar ? (

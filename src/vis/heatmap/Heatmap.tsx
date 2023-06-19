@@ -53,39 +53,45 @@ export function Heatmap({ config, columns }: { config: IHeatmapConfig; columns: 
     return d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(groupedValues, (d) => d.count as number));
   }, [hasEnoughCatCols, groupedValues]);
 
-  return !hasEnoughCatCols ? (
-    <Text color="dimmed">Select at least 2 categorical columns to display heatmap</Text>
-  ) : (
+  return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
-      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0}>
-        <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>
-          {allColumns.catColumn[1].info.name}
+      {!hasEnoughCatCols ? (
+        <Text align="center" color="dimmed">
+          Select at least 2 categorical columns to display heatmap
         </Text>
-        <Tooltip.Floating label={tooltipText} disabled={!tooltipText} withinPortal>
-          <svg width="100%" height="100%" ref={ref}>
-            {xValues.map((x: string, iX: number) =>
-              yValues.map((y: string, iY: number) => {
-                const count = groupedValues?.find((d) => d.x === x && d.y === y)?.count ?? 0;
-                return (
-                  <HeatmapRect
-                    key={`${x}-${y}`}
-                    x={(rectWidth + interRectDistance) * iX}
-                    y={(rectHeight + interRectDistance) * iY}
-                    width={rectWidth}
-                    height={rectHeight}
-                    color={colorScale(count)}
-                    setTooltipText={() => setTooltipText(`${x} - ${y} (${count})`)}
-                    unsetTooltipText={() => setTooltipText(null)}
-                  />
-                );
-              }),
-            )}
-          </svg>
-        </Tooltip.Floating>
-      </Group>
-      <Text color="dimmed" sx={{ whiteSpace: 'nowrap' }}>
-        {allColumns.catColumn[0].info.name ?? ''}
-      </Text>
+      ) : (
+        <>
+          <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0}>
+            <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>
+              {allColumns.catColumn[1].info.name}
+            </Text>
+            <Tooltip.Floating label={tooltipText} disabled={!tooltipText} withinPortal>
+              <svg width="100%" height="100%" ref={ref}>
+                {xValues.map((x: string, iX: number) =>
+                  yValues.map((y: string, iY: number) => {
+                    const count = groupedValues?.find((d) => d.x === x && d.y === y)?.count ?? 0;
+                    return (
+                      <HeatmapRect
+                        key={`${x}-${y}`}
+                        x={(rectWidth + interRectDistance) * iX}
+                        y={(rectHeight + interRectDistance) * iY}
+                        width={rectWidth}
+                        height={rectHeight}
+                        color={colorScale(count)}
+                        setTooltipText={() => setTooltipText(`${x} - ${y} (${count})`)}
+                        unsetTooltipText={() => setTooltipText(null)}
+                      />
+                    );
+                  }),
+                )}
+              </svg>
+            </Tooltip.Floating>
+          </Group>
+          <Text color="dimmed" sx={{ whiteSpace: 'nowrap' }}>
+            {allColumns.catColumn[0].info.name ?? ''}
+          </Text>
+        </>
+      )}
     </Stack>
   );
 }
