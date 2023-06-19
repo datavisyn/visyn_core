@@ -81,7 +81,7 @@ export enum EScatterSelectSettings {
 }
 
 export interface IParallelCoordinatesConfig {
-  type: ESupportedPlotlyVis.PARALLEL_COORDINATES
+  type: ESupportedPlotlyVis.PARALLEL_COORDINATES;
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
