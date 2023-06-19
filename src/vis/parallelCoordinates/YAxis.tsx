@@ -2,14 +2,14 @@ import * as React from 'react';
 import { useMemo } from 'react';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
-export function YAxis({ yScale, xRange, horizontalPosition }) {
+export function ParallelYAxis({ yScale, xRange, horizontalPosition }) {
   const ticks = useMemo(() => {
     return yScale.ticks(5).map((value) => ({
       value,
       yOffset: yScale(value),
     }));
   }, [yScale]);
-
+  console.log('ticks: ', ticks);
   return (
     <>
       <path
@@ -22,7 +22,7 @@ export function YAxis({ yScale, xRange, horizontalPosition }) {
       {ticks.map(({ value, yOffset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${yOffset})`}>
           <line x2="-6" stroke="currentColor" />
-          <line x2={`${xRange[1] - xRange[0]}`} stroke={`${value === 0 ? 'black' : 'lightgray'}`} />
+          {/* <line x2={`${xRange[1] - xRange[0]}`} stroke={`${value === 0 ? 'black' : 'lightgray'}`} /> */}
           <text
             key={value}
             style={{
