@@ -11,6 +11,41 @@ import { CorrelationVisSidebar } from './CorrelationVisSidebar';
 import { useAsync } from '../../hooks/useAsync';
 import { getScatterData } from './utils';
 
+interface CircleProps {
+  cx: number;
+  cy: number;
+  correlation: number;
+  xname: string;
+  yname: string;
+}
+
+function SCircle({ value, fill, xScale, yScale, hover }: { value: CircleProps; fill: string; xScale; yScale; hover: boolean }) {
+  const cx = xScale(value.xname) + xScale.bandwidth() / 2;
+  const cy = yScale(value.yname) + yScale.bandwidth() / 2;
+
+  return (
+    <>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={Math.min(xScale.bandwidth() / 2 - 16, yScale.bandwidth() / 2 - 16)}
+        fill={fill}
+        {...(hover ? { stroke: 'black', strokeWidth: 3 } : {})}
+      />
+      <text
+        x={xScale(value.yname) + xScale.bandwidth() / 2}
+        y={yScale(value.xname) + yScale.bandwidth() / 2}
+        fontSize={24}
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fontWeight={hover ? 'bold' : 'initial'}
+      >
+        {value.correlation.toFixed(2)}
+      </text>
+    </>
+  );
+}
+
 export function CorrelationMatrix({
   config,
   columns,
@@ -37,7 +72,9 @@ export function CorrelationMatrix({
   const data = useAsync(getScatterData, [columns, config.numColumnsSelected]);
 
   const theme = useMantineTheme();
-  const borderColor = theme.colors.gray[7];
+  const borderColor = theme.colors.gray[4];
+
+  const [hover, setHover] = React.useState<{ xi: number; yi: number }>(undefined);
 
   const [ref, { width, height }] = useResizeObserver<HTMLDivElement>();
 
@@ -60,7 +97,7 @@ export function CorrelationMatrix({
   const memoized = React.useMemo(() => {
     if (!data?.value?.numericalColumns) return null;
 
-    const circles = [] as { cx: number; cy: number; correlation: number }[];
+    const circles = [] as CircleProps[];
     const texts = [] as { cx: number; cy: number; correlation: number }[];
 
     data.value.numericalColumns.forEach((column, i) => {
@@ -75,7 +112,7 @@ export function CorrelationMatrix({
         );
 
         if (i > j) {
-          circles.push({ cx: xScale(xname) + xScale.bandwidth() / 2, cy: yScale(yname) + yScale.bandwidth() / 2, correlation });
+          circles.push({ cx: i, cy: j, correlation, xname: column.info.name, yname: column2.info.name });
         }
         if (j > i) {
           texts.push({ cx: xScale(xname) + xScale.bandwidth() / 2, cy: yScale(yname) + yScale.bandwidth() / 2, correlation });
@@ -119,28 +156,41 @@ export function CorrelationMatrix({
           position: 'relative',
         }}
       >
-        <svg style={{ width: '100%', height: '100%', shapeRendering: 'crispEdges' }}>
+        <svg
+          style={{ width: '100%', height: '100%', shapeRendering: 'crispEdges' }}
+          onMouseMove={(event) => {
+            console.log(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
+
+            const xi = Math.floor(event.nativeEvent.offsetX / (width / data.value.numericalColumns.length));
+            const yi = Math.floor(event.nativeEvent.offsetY / (height / data.value.numericalColumns.length));
+
+            setHover({ xi, yi });
+          }}
+          onMouseLeave={() => {
+            setHover(undefined);
+          }}
+        >
           {data.value?.numericalColumns.map((column) => {
             return (
               <>
-                <line x1={xScale(column.info.name) + 0.5} y1={0} x2={xScale(column.info.name) + 0.5} y2={height} stroke={'red'} />
-                <line x1={0} y1={yScale(column.info.name) + 0.5} x2={width} y2={yScale(column.info.name) + 0.5} stroke={'red'} />
+                <line x1={xScale(column.info.name) + 0.5} y1={0} x2={xScale(column.info.name) + 0.5} y2={height} stroke={borderColor} />
+                <line x1={0} y1={yScale(column.info.name) + 0.5} x2={width} y2={yScale(column.info.name) + 0.5} stroke={borderColor} />
               </>
             );
           })}
 
-          <line x1={width - 0.5} y1={0} x2={width - 0.5} y2={height} stroke={'red'} />
-          <line x1={0} y1={height - 0.5} x2={width} y2={height - 0.5} stroke={'red'} />
+          <line x1={width - 0.5} y1={0} x2={width - 0.5} y2={height} stroke={borderColor} />
+          <line x1={0} y1={height - 0.5} x2={width} y2={height - 0.5} stroke={borderColor} />
 
           {memoized?.circle.map((value) => {
-            return <circle cx={value.cx} cy={value.cy} r={50} fill={colorScale(value.correlation)} />;
-          })}
-
-          {memoized?.text.map((value) => {
             return (
-              <text x={value.cx} y={value.cy}>
-                {value.correlation.toFixed(2)}
-              </text>
+              <SCircle
+                hover={(value.cx === hover?.xi && value.cy === hover?.yi) || (value.cx === hover?.yi && value.cy === hover?.xi)}
+                fill={colorScale(value.correlation)}
+                value={value}
+                xScale={xScale}
+                yScale={yScale}
+              />
             );
           })}
         </svg>
