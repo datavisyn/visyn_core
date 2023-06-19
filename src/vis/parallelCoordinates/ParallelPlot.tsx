@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import { useResizeObserver } from '@mantine/hooks';
 import { Group, Stack } from '@mantine/core';
-import { IParallelCoordinatesConfig, VisColumn } from '../interfaces';
+import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
 import { ParallelYAxis } from './YAxis';
 
 import { useAsync } from '../../hooks';
@@ -22,42 +22,63 @@ const margin = {
   left: 30,
 };
 
+const removeSpace = (col: string) => col.replace(' ', '');
+
 export function ParallelPlot({ columns, config }: { config: IParallelCoordinatesConfig; columns: VisColumn[] }) {
   const [ref, { width, height }] = useResizeObserver();
-  const { value: allColumns, status: colsStatus } = useAsync(getParallelData, [columns, config?.numColumnsSelected, config?.catColumnsSelected]);
+  const { value: allColumns, status: colsStatus, error } = useAsync(getParallelData, [columns, config?.numColumnsSelected, config?.catColumnsSelected]);
 
-  const oneNumCol = allColumns?.numColVals?.[0];
   const yScales = React.useMemo(() => {
-    if (allColumns?.numColVals.length === 0) return null;
-    const allNuimericalScales = allColumns?.numColVals?.map((col) => {
-      const scale = d3v7
-        .scaleLinear()
-        .domain(d3v7.extent(col.resolvedValues.map((v) => v.val as number)))
-        .range([height, margin.top]);
+    const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
+    if (all.length === 0) return null;
+    return all?.map((col) => {
+      let scale;
+      if (col.type === EColumnTypes.NUMERICAL) {
+        scale = d3v7
+          .scaleLinear()
+          .domain(d3v7.extent(col.resolvedValues.map((v) => v.val as number)))
+          .range([height, margin.top]);
+      } else {
+        scale = d3v7
+          .scaleBand()
+          .domain(col.resolvedValues.map((c) => c.val as string))
+          .range([height, margin.top]);
+      }
+
       return {
-        id: col.info.name,
+        id: removeSpace(col.info.name),
+        type: col.type,
         scale,
       };
     });
-  }, [allColumns?.numColVals, height]);
+  }, [allColumns, height]);
+  console.log(yScales);
 
   const xScale = React.useMemo(() => {
+    const all = [...(allColumns?.numColVals || []), ...(allColumns?.catColVals || [])];
+    if (all.length === 0) return null;
+
     return d3v7
       .scaleBand()
-      .domain(allColumns?.numColVals.map((col) => col.info.name as string))
+      .domain(all.map((c) => removeSpace(c.info.name)))
       .range([margin.left, width - margin.right]);
-  }, [allColumns?.numColVals, width]);
-  // const yScale = React.useMemo(() => {
-  //   if (!oneNumCol) return null;
-  //   return d3v7
-  //     .scaleLinear()
-  //     .domain(d3v7.extent(oneNumCol.resolvedValues.map((v) => v.val as number)))
-  //     .range([height, margin.top]);
-  // }, [height, oneNumCol]);
+  }, [allColumns?.catColVals, allColumns?.numColVals, width]);
+
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%' }}>
-      {xScale ? xScale() : null}
-      {yScales ? yScales.map((yScale, index) => <ParallelYAxis key={index} yScale={yScale} xRange={[0, 0]} horizontalPosition={xScale()} />) : null}
+      {allColumns && yScales && xScale
+        ? yScales.map((yScale) => {
+            return (
+              <ParallelYAxis
+                key={yScale.id}
+                yScale={yScale.scale}
+                xRange={[margin.left, width + margin.left]}
+                type={yScale.type}
+                horizontalPosition={xScale(yScale.id)}
+              />
+            );
+          })
+        : null}
       {/* <path stroke="black" strokeWidth={2} d=" M 2,2 h 20 " /> */}
     </svg>
   );

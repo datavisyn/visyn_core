@@ -1,15 +1,22 @@
 import * as React from 'react';
 import { useMemo } from 'react';
-
+import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
 // code taken from https://wattenberger.com/blog/react-and-d3
-export function ParallelYAxis({ yScale, xRange, horizontalPosition }) {
+export function ParallelYAxis({ yScale, xRange, horizontalPosition, type }) {
+  console.log(yScale);
   const ticks = useMemo(() => {
-    return yScale.ticks(5).map((value) => ({
+    if (type === EColumnTypes.NUMERICAL) {
+      return yScale.ticks(5).map((value) => ({
+        value,
+        yOffset: yScale(value),
+      }));
+    }
+    return yScale.domain().map((value) => ({
       value,
       yOffset: yScale(value),
     }));
-  }, [yScale]);
-  console.log('ticks: ', ticks);
+  }, [type, yScale]);
+
   return (
     <>
       <path
@@ -22,7 +29,6 @@ export function ParallelYAxis({ yScale, xRange, horizontalPosition }) {
       {ticks.map(({ value, yOffset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${yOffset})`}>
           <line x2="-6" stroke="currentColor" />
-          {/* <line x2={`${xRange[1] - xRange[0]}`} stroke={`${value === 0 ? 'black' : 'lightgray'}`} /> */}
           <text
             key={value}
             style={{
