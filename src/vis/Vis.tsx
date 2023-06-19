@@ -23,6 +23,7 @@ import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
+import { CorrelationMatrix, isCorrelation } from './correlation';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -284,6 +285,8 @@ export function EagerVis({
           {...commonProps}
         />
       ) : null}
+
+      {isCorrelation(visConfig) ? <CorrelationMatrix config={visConfig} columns={columns} setConfig={setConfig} /> : null}
     </>
   );
 }

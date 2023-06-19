@@ -5,6 +5,7 @@ export enum ESupportedPlotlyVis {
   VIOLIN = 'Violin plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
+  CORRELATION = 'Correlation plot',
 }
 
 export const allVisTypes: ESupportedPlotlyVis[] = [
@@ -12,9 +13,10 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.BAR,
   ESupportedPlotlyVis.VIOLIN,
   ESupportedPlotlyVis.HEXBIN,
+  ESupportedPlotlyVis.CORRELATION,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | ICorrelationConfig;
 
 export enum EBarDisplayType {
   ABSOLUTE = 'Absolute',
@@ -84,6 +86,11 @@ export interface IViolinConfig {
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
+}
+
+export interface ICorrelationConfig {
+  type: ESupportedPlotlyVis.CORRELATION;
+  numColumnsSelected: ColumnInfo[];
 }
 
 export interface IScatterConfig {

@@ -7,6 +7,7 @@ import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
 import { MyNumberScore, MyStringScore } from './scoresUtils';
+import { CorrelationMatrix } from '../vis/correlation/CorrelationMatrix';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -53,45 +54,8 @@ export function MainApp() {
         />
       }
     >
-      {user ? (
-        <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
-          <Stack>
-            <Select
-              placeholder="Add a score column"
-              onChange={async (value) => {
-                setLoading(true);
-                // eslint-disable-next-line no-promise-executor-return
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                createScoreColumnFunc.current(({ data }) => {
-                  return value === 'number' ? MyNumberScore(value) : MyStringScore(value);
-                });
-                setLoading(false);
-              }}
-              rightSection={loading ? <Loader /> : null}
-              data={[
-                { value: 'number', label: 'Number' },
-                { value: 'category', label: 'Category' },
-              ]}
-            />
-            <VisynRanking
-              data={iris}
-              selection={selection}
-              setSelection={setSelection}
-              onBuiltLineUp={({ createScoreColumn }) => (createScoreColumnFunc.current = createScoreColumn)}
-            />
-          </Stack>
-          <Vis
-            columns={columns}
-            showSidebarDefault
-            externalConfig={visConfig}
-            setExternalConfig={setVisConfig}
-            selected={visSelection}
-            selectionCallback={(s) => {
-              setSelection(s.map((i) => iris[+i]));
-            }}
-          />
-        </SimpleGrid>
-      ) : null}
+      <CorrelationMatrix />
+      <Vis  />
     </VisynApp>
   );
 }
