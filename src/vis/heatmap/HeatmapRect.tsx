@@ -18,6 +18,6 @@ export function HeatmapRect({
   setTooltipText(): void;
   unsetTooltipText(): void;
 }) {
-  const spring = useSpring({ from: { opacity: 0, width: 0, height: 0 }, to: { opacity: 1, width, height }, duration: 50 });
-  return <animated.rect {...spring} x={x} y={y} fill={color} onMouseEnter={setTooltipText} onMouseLeave={unsetTooltipText} />;
+  const spring = useSpring({ from: { opacity: 0 }, to: { opacity: 1 } });
+  return <animated.rect {...spring} width={width} height={height} x={x} y={y} fill={color} onMouseEnter={setTooltipText} onMouseLeave={unsetTooltipText} />;
 }
