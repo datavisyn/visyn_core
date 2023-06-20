@@ -6,11 +6,11 @@ import { ICorrelationConfig, VisColumn } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
 import { CircleCorrelationPair, CorrelationPairProps } from './components/CircleCorrelationPair';
-import { AxisTop, AxisLeft } from './components/CorrelationMatrixAxis';
+import { Grid, Ticks } from './components/CorrelationMatrixAxis';
 
 const padding = { top: 16, right: 16, bottom: 16, left: 16 };
 const margin = {
-  top: 20,
+  top: 60,
   right: 20,
   bottom: 20,
   left: 20,
@@ -25,7 +25,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const boundsWidth = width - margin.left - margin.right;
   const boundsHeight = height - margin.top - margin.bottom;
 
-  const colorScale = scaleLinear().domain([-1, 0, 1]).range(['#003367', '#ffffff', '#6f0000']);
+  const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#003367', '#ffffff', '#6f0000']);
 
   // Scales
   const xScale = React.useMemo(() => {
@@ -128,8 +128,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%', shapeRendering: 'crispEdges' }}>
       <g width={boundsWidth} height={boundsHeight} transform={`translate(${[margin.left, margin.top].join(',')})`}>
-        <AxisLeft yScale={yScale} ticks={data?.value?.numericalColumns?.map((c) => ({ value: c.info.name, offset: 0 }))} width={boundsWidth} />
-        <AxisTop xScale={xScale} ticks={data?.value?.numericalColumns?.map((c) => ({ value: c.info.name, offset: 0 }))} height={boundsHeight} />
+        <Grid width={boundsWidth} height={boundsHeight} cells={data.value?.numericalColumns.length} />
+        <Ticks />
         {filteredCorrelationPairs}
         {labelsDiagonal}
       </g>
