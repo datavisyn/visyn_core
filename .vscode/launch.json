@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug Storybook",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:6006",
+            "webRoot": "${workspaceFolder}"
+        },
+
+        {
             "name": "Python: Module",
             "type": "python",
             "request": "launch",

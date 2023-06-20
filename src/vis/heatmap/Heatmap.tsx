@@ -5,7 +5,7 @@ import * as d3 from 'd3v7';
 import * as React from 'react';
 
 import { useAsync } from '../../hooks';
-import { IHeatmapConfig, VisColumn } from '../interfaces';
+import { ENumericalColorScaleType, IHeatmapConfig, VisColumn } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
 import { getHeatmapData } from './utils';
 
@@ -73,8 +73,12 @@ export function Heatmap({ config, columns }: { config: IHeatmapConfig; columns: 
 
   const colorScale = React.useMemo(() => {
     if (!hasAtLeast2CatCols) return d3.scaleSequential(d3.interpolateReds);
-    return d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(groupedValues, (d) => d.count as number));
-  }, [hasAtLeast2CatCols, groupedValues]);
+    return config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
+      ? d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(groupedValues, (d) => d.count as number))
+      : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
+      ? d3.scaleDiverging<string, string>(d3.interpolatePiYG).domain(d3.extent(groupedValues, (d) => d.count as number))
+      : null;
+  }, [config?.numColorScaleType, hasAtLeast2CatCols, groupedValues]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
