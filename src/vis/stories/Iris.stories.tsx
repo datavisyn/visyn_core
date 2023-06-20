@@ -180,7 +180,7 @@ export const CorrelationPlot: typeof Template = Template.bind({});
 CorrelationPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.CORRELATION,
-    showSignificant: false,
+    highlightSignificant: false,
     numColumnsSelected: [
       {
         description: '',

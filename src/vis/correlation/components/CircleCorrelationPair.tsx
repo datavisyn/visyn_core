@@ -22,12 +22,14 @@ export function CircleCorrelationPair({
   boundingRect,
   hover,
   setHovered,
+  highlightSignificant,
 }: {
   value: CorrelationPairProps;
   fill: string;
   boundingRect: { width: number; height: number };
   hover: boolean;
   setHovered: ({ x, y }: { x: number; y: number }) => void;
+  highlightSignificant: boolean;
 }) {
   const theme = useMantineTheme();
   const hoverColor = theme.colors.gray[2];
@@ -53,7 +55,14 @@ export function CircleCorrelationPair({
           y={value.cyLT - boundingRect.height / 2}
           fill={hover ? hoverColor : 'transparent'}
         />
-        <text x={value.cxLT} y={value.cyLT} dominantBaseline="middle" textAnchor="middle">
+        <text
+          x={value.cxLT}
+          y={value.cyLT}
+          dominantBaseline="middle"
+          textAnchor="middle"
+          fontWeight={highlightSignificant && value.pValue < 0.05 ? 'bold' : 'normal'}
+          stroke={highlightSignificant && value.pValue >= 0.05 ? theme.colors.gray[2] : 'none'}
+        >
           {value.correlation.toFixed(2)}
         </text>
       </g>

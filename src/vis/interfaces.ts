@@ -91,7 +91,7 @@ export interface IViolinConfig {
 export interface ICorrelationConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   numColumnsSelected: ColumnInfo[];
-  showSignificant: boolean;
+  highlightSignificant: boolean;
 }
 
 export interface IScatterConfig {

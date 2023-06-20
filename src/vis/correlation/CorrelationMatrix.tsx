@@ -31,7 +31,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
   const [hover, setHover] = React.useState<{ x: number; y: number } | null>(null);
 
-  const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#003367', '#ffffff', '#6f0000']);
+  const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#000080', '#fff', '#B22222']);
 
   const names = React.useMemo(() => {
     return data.value?.numericalColumns.map((column) => column.info.name);
@@ -52,12 +52,18 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       .domain(data.value.numericalColumns.map((column) => column.info.name));
   }, [data, availableSize]);
 
-  // Build correlation pairs
-  const memoizedCorrelationPairs = React.useMemo(() => {
+  const circleSizeScale = React.useMemo(() => {
+    if (!data?.value?.numericalColumns) return null;
+    const maxSize = Math.min(xScale.bandwidth() / 2 - 4, yScale.bandwidth() / 2 - 4);
+    return scaleLinear().domain([-1, 1]).range([CIRCLE_MIN_SIZE, maxSize]);
+  }, [data, xScale, yScale]);
+
+  // Calculate correlation results
+  const memoizedCorrelationResults = React.useMemo(() => {
     if (!data?.value?.numericalColumns) return null;
 
     const cols = data.value.numericalColumns;
-    const correlationPairs = [] as CorrelationPairProps[];
+    const correlationResults = [] as CorrelationPairProps[];
 
     for (let x = 1; x < cols.length; x++) {
       for (let y = 0; y < x; y++) {
@@ -85,23 +91,14 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           pValue,
           xName,
           yName,
-          radius: Math.min(xScale.bandwidth() / 2 - 4, yScale.bandwidth() / 2 - 4),
+          radius: circleSizeScale(Math.abs(correlation)),
         };
-        correlationPairs.push(value);
+        correlationResults.push(value);
       }
     }
 
-    return correlationPairs;
-  }, [data, xScale, yScale]);
-
-  const filteredCorrelationPairs = React.useMemo(() => {
-    if (!memoizedCorrelationPairs) return null;
-
-    if (config.showSignificant) {
-      return memoizedCorrelationPairs.filter((pair) => pair.pValue < 0.05);
-    }
-    return memoizedCorrelationPairs;
-  }, [config.showSignificant, memoizedCorrelationPairs]);
+    return correlationResults;
+  }, [circleSizeScale, data, xScale, yScale]);
 
   // Show labels on diagonal of matrix
   const labelsDiagonal = React.useMemo(() => {
@@ -142,7 +139,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
               </Popover.Target>
               <Popover.Dropdown>
                 <CorrelationTooltip
-                  value={filteredCorrelationPairs.find(
+                  value={memoizedCorrelationResults.find(
                     (value) => (value.xi === hover.x && value.yi === hover.y) || (value.xi === hover.y && value.yi === hover.x),
                   )}
                 />
@@ -150,7 +147,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
             </Popover>
           ) : null}
 
-          {filteredCorrelationPairs?.map((value) => {
+          {memoizedCorrelationResults?.map((value) => {
             return (
               <CircleCorrelationPair
                 key={`${value.xName}-${value.yName}`}
@@ -159,6 +156,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
                 setHovered={setHover}
                 fill={colorScale(value.correlation)}
                 boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
+                highlightSignificant={config.highlightSignificant}
               />
             );
           })}

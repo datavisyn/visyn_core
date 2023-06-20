@@ -106,9 +106,9 @@ export function CorrelationVisSidebar({
           currentSelected={config.numColumnsSelected || []}
         />
         <Switch
-          label="Significant only"
-          checked={config.showSignificant || false}
-          onChange={() => setConfig({ ...config, showSignificant: !config.showSignificant })}
+          label="Significant"
+          checked={config.highlightSignificant || false}
+          onChange={() => setConfig({ ...config, highlightSignificant: !config.highlightSignificant })}
         />
       </Stack>
     </Container>
