@@ -1,43 +1,15 @@
 import * as React from 'react';
-import { useMemo } from 'react';
-import merge from 'lodash/merge';
 import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, ESupportedPlotlyVis, IScatterConfig, IVisConfig, VisColumn, ICommonVisSideBarProps, EColumnTypes, IRaincloudConfig } from '../interfaces';
+import { ColumnInfo, ESupportedPlotlyVis, IVisConfig, VisColumn, ICommonVisSideBarProps, IRaincloudConfig } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
-import { ColorSelect } from '../sidebar/ColorSelect';
-import { FilterButtons } from '../sidebar/FilterButtons';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
-import { OpacitySlider } from '../sidebar/OpacitySlider';
 
 export function RaincloudVisSidebar({
   config,
-  optionsConfig,
-  extensions,
   columns,
   setConfig,
 }: {
   config: IRaincloudConfig;
-  optionsConfig?: {
-    color?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    shape?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    filter?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
 } & ICommonVisSideBarProps) {

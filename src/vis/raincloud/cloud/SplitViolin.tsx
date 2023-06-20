@@ -7,8 +7,8 @@ import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNum
 import { useXScale } from '../hooks/useXScale';
 
 const margin = {
-  top: 20,
-  bottom: 20,
+  top: 30,
+  bottom: 0,
   left: 20,
   right: 20,
 };
@@ -63,8 +63,6 @@ export function SplitViolin({
     return scale;
   }, [height, kdeVal]);
 
-  console.log(kdeVal, yScale.domain());
-
   const line = useMemo(() => {
     const myLine = d3
       .line()
@@ -74,5 +72,5 @@ export function SplitViolin({
 
     return `${myLine(kdeVal)}L${xScale.range()[1]},${yScale.range()[1]}L${xScale.range()[0]},${yScale.range()[1]}Z`;
   }, [kdeVal, xScale, yScale]);
-  return <path fill="cornflowerblue" stroke="cornflowerblue" strokeWidth={1} d={line} />;
+  return <path fill="lightgray" stroke="lightgray" strokeWidth={1} d={line} />;
 }

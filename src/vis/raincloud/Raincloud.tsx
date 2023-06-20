@@ -1,33 +1,45 @@
-import React, { useCallback, useMemo } from 'react';
-import { Box, Container } from '@mantine/core';
+import React from 'react';
 import { useResizeObserver } from '@mantine/hooks';
-import { EAggregateTypes, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IRaincloudConfig, VisColumn } from '../interfaces';
-import { getRaincloudData } from './utils';
+import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
-import { useAsync } from '../../hooks/useAsync';
 import { SplitViolin } from './cloud/SplitViolin';
 import { DotPlot } from './rain/DotPlot';
+import { MeanAndInterval } from './lightning/MeanAndInterval';
+import { useXScale } from './hooks/useXScale';
+import { XAxis } from '../hexbin/XAxis';
 
 const margin = {
-  top: 30,
-  bottom: 60,
-  left: 60,
-  right: 25,
+  top: 0,
+  left: 20,
+  right: 20,
+  bottom: 0,
 };
-
-export function Raincloud({ columns, config }: { columns: VisColumn[]; config: IRaincloudConfig }) {
+export function Raincloud({
+  column,
+  config,
+}: {
+  column: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes;
+    info: ColumnInfo;
+  };
+  config: IRaincloudConfig;
+}) {
   const [ref, { width, height }] = useResizeObserver();
 
-  const { value: data } = useAsync(getRaincloudData, [columns, config.numColumnsSelected]);
+  const xScale = useXScale({ range: [margin.left, width - margin.right], column });
 
   return (
-    <svg ref={ref} style={{ width: '100%', height: '100%' }}>
-      {data ? (
-        <g>
-          <SplitViolin width={width} height={height} config={config} numCol={data.numColVals[0]} />
-          <DotPlot width={width} height={height} config={config} numCol={data.numColVals[0]} />
-        </g>
-      ) : null}
+    <svg key={column.info.id} ref={ref} style={{ width: '100%', height: '100%' }}>
+      <text textAnchor="middle" dominantBaseline="middle" x={width / 2} y={15}>
+        {column.info.name}
+      </text>
+      <g>
+        <SplitViolin width={width} height={height / 2} config={config} numCol={column} />
+        <DotPlot yPos={height / 2} width={width} height={height} config={config} numCol={column} />
+        <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} />
+        <XAxis xScale={xScale} vertPosition={height / 2} yRange={[height / 2, height / 2]} />
+      </g>
     </svg>
   );
 }
