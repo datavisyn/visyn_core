@@ -25,9 +25,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const boundsWidth = width - margin.left - margin.right;
   const boundsHeight = height - margin.top - margin.bottom;
 
-  // TODO: Use vis color scale
-  // @ts-ignore
-  const colorScale = scaleLinear().domain([-1, 0, 1]).range(['#B22222', '#fff', '#000080']);
+  const colorScale = scaleLinear().domain([-1, 0, 1]).range(['#003367', '#ffffff', '#6f0000']);
 
   // Scales
   const xScale = React.useMemo(() => {

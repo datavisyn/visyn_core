@@ -25,7 +25,7 @@ export function CircleCorrelationPair({
 }) {
   const [hovered, setHovered] = React.useState(false);
   const theme = useMantineTheme();
-  const hoverColor = theme.colors.gray[3];
+  const hoverColor = theme.colors.gray[2];
 
   return (
     <g>
@@ -48,7 +48,7 @@ export function CircleCorrelationPair({
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       />
-      <text x={value.cxLT} y={value.cyLT} fontSize={24} dominantBaseline="middle" textAnchor="middle" fontWeight={hovered ? 'bold' : 'initial'}>
+      <text x={value.cxLT} y={value.cyLT} fontSize={24} dominantBaseline="middle" textAnchor="middle">
         {value.correlation.toFixed(2)}
       </text>
     </g>
