@@ -55,7 +55,7 @@ export function SplitViolin({
   }, [numCol.resolvedValues, width]);
 
   const kdeVal: [number, number][] = useMemo(() => {
-    const kde = kernelDensityEstimator(kernelEpanechnikov(0.2), xScale.ticks(50));
+    const kde = kernelDensityEstimator(kernelEpanechnikov(0.3), xScale.ticks(50));
 
     return kde(numCol.resolvedValues.map((val) => val.val as number));
   }, [numCol.resolvedValues, xScale]);
@@ -78,8 +78,7 @@ export function SplitViolin({
       .x((d) => xScale(d[0]))
       .y((d) => yScale(d[1]));
 
-    return myLine(kdeVal);
+    return `${myLine(kdeVal)}L${xScale.range()[1]},${yScale.range()[1]}L${xScale.range()[0]},${yScale.range()[1]}Z`;
   }, [kdeVal, xScale, yScale]);
-
-  return <path fill={'cornflowerblue'} stroke="cornflowerblue" strokeWidth={1} d={line} />;
+  return <path fill="cornflowerblue" stroke="cornflowerblue" strokeWidth={1} d={line} />;
 }
