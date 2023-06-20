@@ -59,7 +59,7 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
         scale = d3v7
           .scaleLinear()
           .domain(d3v7.extent(col.resolvedValues.map((v) => v.val as number)))
-          .range([height, margin.top]);
+          .range([height - margin.bottom, margin.top]);
       } else {
         scale = d3v7
           .scaleBand()

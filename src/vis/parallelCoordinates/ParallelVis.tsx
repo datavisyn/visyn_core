@@ -77,7 +77,6 @@ export function ParallelVis({
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {config?.numColumnsSelected?.length > 1 ? <ParallelPlot config={config} columns={columns} /> : null}
-        <Text>test</Text>
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>
