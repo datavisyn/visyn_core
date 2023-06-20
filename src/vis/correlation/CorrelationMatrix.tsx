@@ -10,10 +10,10 @@ import { Grid, Ticks } from './components/CorrelationMatrixAxis';
 
 const padding = { top: 16, right: 16, bottom: 16, left: 16 };
 const margin = {
-  top: 60,
+  top: 100,
   right: 20,
   bottom: 20,
-  left: 20,
+  left: 100,
 };
 const CIRCLE_MIN_SIZE = 10;
 
@@ -26,6 +26,10 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const boundsHeight = height - margin.top - margin.bottom;
 
   const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#003367', '#ffffff', '#6f0000']);
+
+  const names = React.useMemo(() => {
+    return data.value?.numericalColumns.map((column) => column.info.name);
+  }, [data]);
 
   // Scales
   const xScale = React.useMemo(() => {
@@ -128,8 +132,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%', shapeRendering: 'crispEdges' }}>
       <g width={boundsWidth} height={boundsHeight} transform={`translate(${[margin.left, margin.top].join(',')})`}>
-        <Grid width={boundsWidth} height={boundsHeight} cells={data.value?.numericalColumns.length} />
-        <Ticks />
+        {names ? <Grid width={boundsWidth} height={boundsHeight} names={names} /> : null}
+
         {filteredCorrelationPairs}
         {labelsDiagonal}
       </g>
