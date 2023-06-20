@@ -1,138 +1,106 @@
 import { Group, Stack, Text, Tooltip } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { table, op } from 'arquero';
+import { table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
-
-import { useAsync } from '../../hooks';
-import { IHeatmapConfig, VisColumn } from '../interfaces';
+import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
-import { getHeatmapData } from './utils';
 
 const interRectDistance = 1;
-const margin = {
-  top: 20,
-  right: 20,
-  bottom: 100,
-  left: 100,
+
+type CatColumn = {
+  resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+  type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+  info: ColumnInfo;
 };
 
-export function Heatmap({ config, columns }: { config: IHeatmapConfig; columns: VisColumn[] }) {
-  const { value: allColumns } = useAsync(getHeatmapData, [columns, config?.catColumnsSelected]);
+export function Heatmap({
+  column1,
+  column2,
+  margin,
+}: {
+  column1: CatColumn;
+  column2: CatColumn;
+  margin: { top: number; right: number; bottom: number; left: number };
+}) {
   const [ref, { width, height }] = useResizeObserver();
   const [tooltipText, setTooltipText] = React.useState<string | null>(null);
 
-  const hasAtLeast2CatCols = allColumns?.catColumn && allColumns?.catColumn?.length > 1;
-
-  const { xValues, yValues, groupedValues } = React.useMemo(() => {
-    if (!hasAtLeast2CatCols) return { xValues: [], yValues: [], groupedValues: [] };
+  const { xValues, yValues, groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
     const myTable = table({
-      x: allColumns.catColumn[0]?.resolvedValues.map(({ val }) => val),
-      y: allColumns.catColumn[1]?.resolvedValues.map(({ val }) => val),
+      x: column1?.resolvedValues.map(({ val }) => val),
+      y: column2?.resolvedValues.map(({ val }) => val),
     });
-    const xVals = [...new Set(allColumns.catColumn[0]?.resolvedValues.map(({ val }) => val))];
-    const yVals = [...new Set(allColumns.catColumn[1]?.resolvedValues.map(({ val }) => val))];
+    const xVals = [...new Set(column1?.resolvedValues.map(({ val }) => val))] as string[];
+    const yVals = [...new Set(column2?.resolvedValues.map(({ val }) => val))] as string[];
+
+    const gropuedVals = myTable
+      .groupby('x', 'y')
+      .count()
+      .impute({ count: () => 0 }, { expand: ['x', 'y'] })
+      .objects() as { x: string; y: string; count: number }[];
 
     return {
-      xValues: xVals as string[],
-      yValues: yVals as string[],
-      groupedValues: myTable
-        .groupby('x', 'y')
-        .count()
-        .impute({ count: () => 0 }, { expand: ['x', 'y'] })
-        .objects() as { x: string; y: string; count: number }[],
-    };
-  }, [allColumns?.catColumn, hasAtLeast2CatCols]);
-
-  const rectWidth = React.useMemo(
-    () => (groupedValues.length && xValues.length && width ? (width - margin.left - margin.right - interRectDistance * xValues.length) / xValues.length : 0),
-    [groupedValues?.length, width, xValues],
-  );
-  const rectHeight = React.useMemo(
-    () => (groupedValues.length && yValues.length && height ? (height - margin.bottom - margin.top - interRectDistance * yValues.length) / yValues.length : 0),
-    [groupedValues?.length, height, yValues],
-  );
-
-  const xScale = React.useMemo(
-    () =>
-      d3
+      xValues: xVals,
+      yValues: yVals,
+      groupedValues: gropuedVals,
+      rectWidth: (width - margin.left - margin.right - interRectDistance * xVals.length) / xVals.length,
+      rectHeight: (height - margin.bottom - margin.top - interRectDistance * yVals.length) / yVals.length,
+      xScale: d3
         .scaleBand()
-        .domain(xValues)
+        .domain(xVals)
         .range([0, width - margin.left - margin.right]),
-    [xValues, width],
-  );
-
-  const yScale = React.useMemo(
-    () =>
-      d3
+      yScale: d3
         .scaleBand()
-        .domain(yValues)
+        .domain(yVals)
         .range([0, height - margin.top - margin.bottom]),
-    [yValues, height],
-  );
-
-  const colorScale = React.useMemo(() => {
-    if (!hasAtLeast2CatCols) return d3.scaleSequential(d3.interpolateReds);
-    return d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(groupedValues, (d) => d.count as number));
-  }, [hasAtLeast2CatCols, groupedValues]);
+      colorScale: d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(gropuedVals, (d) => d.count as number)),
+    };
+  }, [column1?.resolvedValues, column2?.resolvedValues, height, margin, width]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
-      {!hasAtLeast2CatCols ? (
-        <Text align="center" color="dimmed">
-          Select at least 2 categorical columns to display heatmap
+      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0}>
+        <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>
+          {column2.info.name}
         </Text>
-      ) : null}
-      <>
-        <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0}>
-          {hasAtLeast2CatCols && (
-            <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>
-              {allColumns.catColumn[1].info.name}
-            </Text>
-          )}
-          <Tooltip.Floating label={tooltipText} disabled={!tooltipText} withinPortal>
-            <svg style={{ width: '100%', height: '100%' }} ref={ref}>
-              {hasAtLeast2CatCols &&
-                groupedValues.map((d) => {
-                  const x = xScale(d.x) + margin.left;
-                  const y = yScale(d.y) + margin.top;
-                  const { count } = d;
-                  return (
-                    <HeatmapRect
-                      key={`${d.x}-${d.y}`}
-                      x={x}
-                      y={y}
-                      width={rectWidth}
-                      height={rectHeight}
-                      color={colorScale(count)}
-                      setTooltipText={() => setTooltipText(`${d.x} - ${d.y} (${count})`)}
-                      unsetTooltipText={() => setTooltipText(null)}
-                    />
-                  );
-                })}
-              {hasAtLeast2CatCols &&
-                xValues.map((xVal) => (
-                  <g key={xVal} transform={`translate(${xScale(xVal) + rectWidth / 2 + margin.left}, ${height - margin.bottom + 15})`}>
-                    <text color="gray" fontSize={10} transform="rotate(45)">
-                      {xVal}
-                    </text>
-                  </g>
-                ))}
-              {hasAtLeast2CatCols &&
-                yValues.map((yVal) => (
-                  <text x={0} y={yScale(yVal) + rectHeight / 2 + margin.top} key={yVal} color="gray" fontSize={10}>
-                    {yVal}
-                  </text>
-                ))}
-            </svg>
-          </Tooltip.Floating>
-        </Group>
-        {hasAtLeast2CatCols && (
-          <Text color="dimmed" sx={{ whiteSpace: 'nowrap' }}>
-            {allColumns.catColumn[0].info.name ?? ''}
-          </Text>
-        )}
-      </>
+        <Tooltip.Floating label={tooltipText} disabled={!tooltipText} withinPortal>
+          <svg style={{ width: '100%', height: '100%' }} ref={ref}>
+            {groupedValues.map((d) => {
+              const x = xScale(d.x) + margin.left;
+              const y = yScale(d.y) + margin.top;
+              const { count } = d;
+              return (
+                <HeatmapRect
+                  key={`${d.x}-${d.y}`}
+                  x={x}
+                  y={y}
+                  width={rectWidth}
+                  height={rectHeight}
+                  color={colorScale(count)}
+                  setTooltipText={() => setTooltipText(`${d.x} - ${d.y} (${count})`)}
+                  unsetTooltipText={() => setTooltipText(null)}
+                />
+              );
+            })}
+            {xValues.map((xVal) => (
+              <g key={xVal} transform={`translate(${xScale(xVal) + rectWidth / 2 + margin.left}, ${height - margin.bottom + 15})`}>
+                <text color="gray" fontSize={10} transform="rotate(45)">
+                  {xVal}
+                </text>
+              </g>
+            ))}
+            {yValues.map((yVal) => (
+              <text x={0} y={yScale(yVal) + rectHeight / 2 + margin.top} key={yVal} color="gray" fontSize={10}>
+                {yVal}
+              </text>
+            ))}
+          </svg>
+        </Tooltip.Floating>
+      </Group>
+      <Text color="dimmed" sx={{ whiteSpace: 'nowrap' }}>
+        {column1.info.name}
+      </Text>
     </Stack>
   );
 }
