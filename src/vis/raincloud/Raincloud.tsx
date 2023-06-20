@@ -6,6 +6,7 @@ import { getRaincloudData } from './utils';
 
 import { useAsync } from '../../hooks/useAsync';
 import { SplitViolin } from './cloud/SplitViolin';
+import { DotPlot } from './rain/DotPlot';
 
 const margin = {
   top: 30,
@@ -21,7 +22,12 @@ export function Raincloud({ columns, config }: { columns: VisColumn[]; config: I
 
   return (
     <svg ref={ref} style={{ width: '100%', height: '100%' }}>
-      {data ? <SplitViolin width={width} height={height} config={config} numCol={data.numColVals[0]} /> : null}
+      {data ? (
+        <g>
+          <SplitViolin width={width} height={height} config={config} numCol={data.numColVals[0]} />
+          <DotPlot width={width} height={height} config={config} numCol={data.numColVals[0]} />
+        </g>
+      ) : null}
     </svg>
   );
 }

@@ -4,6 +4,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
+import { useXScale } from '../hooks/useXScale';
 
 const margin = {
   top: 20,
@@ -45,14 +46,7 @@ export function SplitViolin({
   width: number;
   height: number;
 }) {
-  const xScale = useMemo(() => {
-    const scale = d3
-      .scaleLinear()
-      .domain(d3.extent(numCol.resolvedValues.map((val) => val.val as number)))
-      .range([margin.left, width - margin.right]);
-
-    return scale;
-  }, [numCol.resolvedValues, width]);
+  const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
   const kdeVal: [number, number][] = useMemo(() => {
     const kde = kernelDensityEstimator(kernelEpanechnikov(0.3), xScale.ticks(50));
