@@ -5,6 +5,7 @@ export enum ESupportedPlotlyVis {
   VIOLIN = 'Violin plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
+  RAINCLOUD = 'Raincloud plot',
 }
 
 export const allVisTypes: ESupportedPlotlyVis[] = [
@@ -12,9 +13,10 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.BAR,
   ESupportedPlotlyVis.VIOLIN,
   ESupportedPlotlyVis.HEXBIN,
+  ESupportedPlotlyVis.RAINCLOUD,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IRaincloudConfig;
 
 export enum EBarDisplayType {
   ABSOLUTE = 'Absolute',
@@ -84,6 +86,11 @@ export interface IViolinConfig {
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
+}
+
+export interface IRaincloudConfig {
+  type: ESupportedPlotlyVis.RAINCLOUD;
+  numColumnsSelected: ColumnInfo[];
 }
 
 export interface IScatterConfig {

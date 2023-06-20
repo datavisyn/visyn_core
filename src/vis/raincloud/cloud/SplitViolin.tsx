@@ -1,0 +1,85 @@
+import React, { useCallback, useMemo } from 'react';
+import { Box, Container } from '@mantine/core';
+import { useResizeObserver } from '@mantine/hooks';
+import * as d3 from 'd3v7';
+
+import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
+
+const margin = {
+  top: 20,
+  bottom: 20,
+  left: 20,
+  right: 20,
+};
+
+function kernelDensityEstimator(kernel, X) {
+  return function (V) {
+    return X.map(function (x) {
+      return [
+        x,
+        d3.mean(V, function (v) {
+          return kernel(x - v);
+        }),
+      ];
+    });
+  };
+}
+function kernelEpanechnikov(k) {
+  return function (v) {
+    return Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0;
+  };
+}
+
+export function SplitViolin({
+  numCol,
+  config,
+  width,
+  height,
+}: {
+  numCol: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes;
+    info: ColumnInfo;
+  };
+  config: IRaincloudConfig;
+  width: number;
+  height: number;
+}) {
+  const xScale = useMemo(() => {
+    const scale = d3
+      .scaleLinear()
+      .domain(d3.extent(numCol.resolvedValues.map((val) => val.val as number)))
+      .range([margin.left, width - margin.right]);
+
+    return scale;
+  }, [numCol.resolvedValues, width]);
+
+  const kdeVal: [number, number][] = useMemo(() => {
+    const kde = kernelDensityEstimator(kernelEpanechnikov(0.2), xScale.ticks(50));
+
+    return kde(numCol.resolvedValues.map((val) => val.val as number));
+  }, [numCol.resolvedValues, xScale]);
+
+  const yScale = useMemo(() => {
+    const scale = d3
+      .scaleLinear()
+      .domain([d3.max(kdeVal.map((val) => val[1] as number)), 0])
+      .range([margin.top, height - margin.bottom]);
+
+    return scale;
+  }, [height, kdeVal]);
+
+  console.log(kdeVal, yScale.domain());
+
+  const line = useMemo(() => {
+    const myLine = d3
+      .line()
+      .curve(d3.curveBasis)
+      .x((d) => xScale(d[0]))
+      .y((d) => yScale(d[1]));
+
+    return myLine(kdeVal);
+  }, [kdeVal, xScale, yScale]);
+
+  return <path fill={'cornflowerblue'} stroke="cornflowerblue" strokeWidth={1} d={line} />;
+}

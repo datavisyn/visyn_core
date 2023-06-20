@@ -138,6 +138,25 @@ ScatterPlot.args = {
   },
 };
 
+export const RaincloudPlot: typeof Template = Template.bind({});
+RaincloudPlot.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.RAINCLOUD,
+    numColumnsSelected: [
+      {
+        description: '',
+        id: 'sepalLength',
+        name: 'Sepal Length',
+      },
+      {
+        description: '',
+        id: 'sepalWidth',
+        name: 'Sepal Width',
+      },
+    ],
+  },
+};
+
 export const BarChart: typeof Template = Template.bind({});
 BarChart.args = {
   externalConfig: {

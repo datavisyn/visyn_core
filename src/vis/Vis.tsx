@@ -24,6 +24,8 @@ import { useSyncedRef } from '../hooks/useSyncedRef';
 import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
 import { BarVis } from './barGood/BarVis';
+import { isRaincloud } from './raincloud/utils';
+import { RaincloudVis } from './raincloud/RaincloudVis';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -239,6 +241,19 @@ export function EagerVis({
         />
       ) : null}
 
+      {isRaincloud(visConfig) ? (
+        <RaincloudVis
+          config={visConfig}
+          showDragModeOptions={showDragModeOptions}
+          setConfig={setVisConfig}
+          filterCallback={filterCallback}
+          selectionCallback={selectionCallback}
+          columns={columns}
+          showSidebar={showSidebar}
+          {...commonProps}
+        />
+      ) : null}
+
       {isViolin(visConfig) ? (
         <ViolinVis
           config={visConfig}
@@ -272,7 +287,6 @@ export function EagerVis({
           closeButtonCallback={closeCallback}
           filterCallback={filterCallback}
           {...commonProps}
-          showDragModeOptions={showDragModeOptions}
         />
       ) : null}
 
