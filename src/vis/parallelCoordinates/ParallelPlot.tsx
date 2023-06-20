@@ -65,7 +65,6 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
           .scaleBand()
           .domain(col.resolvedValues.map((c) => c.val as string))
           .range([height, margin.top]);
-        console.log('scale: ', scale.bandwidth());
       }
       return {
         id: removeSpace(col.info.name),
@@ -87,11 +86,16 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
   }, [allColumns?.catColVals, allColumns?.numColVals, width]);
 
   const paths = React.useMemo(() => {
-    return rows?.map((r) => {
-      if (!r) return null;
-      const yPositions = Object.keys(r).map((col) => {
+    return rows?.map((row) => {
+      if (!row) return null;
+      const yPositions = Object.keys(row).map((col) => {
         const xPos = xScale(col);
-        const yPos = yScales?.find((yScale) => yScale.id === col)?.scale(r[col]) || 0;
+        let yPos = yScales?.find((yScale) => yScale.id === col)?.scale(row[col]) || 0;
+        // if the column is categorical, we need to offset the y position by half the bandwidth
+        if (allColumns?.catColVals.map((c) => c.info.name).includes(col)) {
+          const yScale = yScales?.find((scale) => scale.id === col).scale;
+          yPos += yScale.bandwidth() / 2 || 0;
+        }
         return [xPos, yPos];
       });
 

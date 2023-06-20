@@ -13,7 +13,8 @@ export function ParallelYAxis({ yScale, xRange, horizontalPosition, type, axisLa
     }
     return yScale.domain().map((value) => ({
       value,
-      yOffset: yScale(value),
+      // if we have a categorical column, we want to center the label
+      yOffset: yScale(value) + yScale.bandwidth() / 2,
     }));
   }, [type, yScale]);
 
