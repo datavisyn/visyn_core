@@ -86,7 +86,12 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           radius: radiusScale(pValue),
         };
         correlationPairs.push(
-          <CircleCorrelationPair value={value} fill={colorScale(correlation)} boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }} />,
+          <CircleCorrelationPair
+            key={`${value.xName}-${value.yName}`}
+            value={value}
+            fill={colorScale(correlation)}
+            boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
+          />,
         );
       }
     }
@@ -105,7 +110,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       const currentX = xScale(col.info.name) + xScale.bandwidth() / 2;
       const currentY = yScale(col.info.name) + yScale.bandwidth() / 2;
       labels.push(
-        <text x={currentX} y={currentY} dominantBaseline="middle" textAnchor="middle">
+        <text x={currentX} y={currentY} dominantBaseline="middle" textAnchor="middle" key={`label-${col.info.name}`}>
           {col.info.name}
         </text>,
       );

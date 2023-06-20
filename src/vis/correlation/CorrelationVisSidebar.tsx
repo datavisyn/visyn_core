@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useMemo } from 'react';
 import merge from 'lodash/merge';
-import { Container, Divider } from '@mantine/core';
+import { Container, Divider, Stack, Switch } from '@mantine/core';
 import { ColumnInfo, ESupportedPlotlyVis, IVisConfig, VisColumn, ICommonVisSideBarProps, EFilterOptions, ICorrelationConfig } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
@@ -99,11 +99,18 @@ export function CorrelationVisSidebar({
     <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
-      <NumericalColumnSelect
-        callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
-        columns={columns}
-        currentSelected={config.numColumnsSelected || []}
-      />
+      <Stack spacing={30}>
+        <NumericalColumnSelect
+          callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
+          columns={columns}
+          currentSelected={config.numColumnsSelected || []}
+        />
+        <Switch
+          label="Significant only"
+          checked={config.showSignificant || false}
+          onChange={() => setConfig({ ...config, showSignificant: !config.showSignificant })}
+        />
+      </Stack>
     </Container>
   );
 }

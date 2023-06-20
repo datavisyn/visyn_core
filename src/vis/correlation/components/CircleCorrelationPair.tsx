@@ -28,7 +28,7 @@ export function CircleCorrelationPair({
   const hoverColor = theme.colors.gray[3];
 
   return (
-    <>
+    <g>
       <rect
         width={boundingRect.width}
         height={boundingRect.height}
@@ -51,6 +51,6 @@ export function CircleCorrelationPair({
       <text x={value.cxLT} y={value.cyLT} fontSize={24} dominantBaseline="middle" textAnchor="middle" fontWeight={hovered ? 'bold' : 'initial'}>
         {value.correlation.toFixed(2)}
       </text>
-    </>
+    </g>
   );
 }

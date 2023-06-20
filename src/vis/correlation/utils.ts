@@ -18,6 +18,7 @@ export function isCorrelation(s: IVisConfig): s is ICorrelationConfig {
 const defaultConfig: ICorrelationConfig = {
   type: ESupportedPlotlyVis.CORRELATION,
   numColumnsSelected: [],
+  showSignificant: false,
 };
 
 export function correlationMergeDefaultConfig(columns: VisColumn[], config: ICorrelationConfig): IVisConfig {
