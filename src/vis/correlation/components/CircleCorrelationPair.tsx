@@ -34,28 +34,29 @@ export function CircleCorrelationPair({
 
   return (
     <g>
-      <rect
-        width={boundingRect.width}
-        height={boundingRect.height}
-        x={value.cxUT - boundingRect.width / 2}
-        y={value.cyUT - boundingRect.height / 2}
-        fill={hover ? hoverColor : 'transparent'}
-        onMouseEnter={() => setHovered({ x: value.xi, y: value.yi })}
-        onMouseLeave={() => setHovered(null)}
-      />
-      <circle cx={value.cxUT} cy={value.cyUT} r={value.radius} fill={fill} />
-      <rect
-        width={boundingRect.width}
-        height={boundingRect.height}
-        x={value.cxLT - boundingRect.width / 2}
-        y={value.cyLT - boundingRect.height / 2}
-        fill={hover ? hoverColor : 'transparent'}
-        onMouseEnter={() => setHovered({ x: value.yi, y: value.xi })}
-        onMouseLeave={() => setHovered(null)}
-      />
-      <text x={value.cxLT} y={value.cyLT} fontSize={24} dominantBaseline="middle" textAnchor="middle">
-        {value.correlation.toFixed(2)}
-      </text>
+      <g onMouseEnter={() => setHovered({ x: value.xi, y: value.yi })} onMouseLeave={() => setHovered(null)}>
+        {' '}
+        <rect
+          width={boundingRect.width}
+          height={boundingRect.height}
+          x={value.cxUT - boundingRect.width / 2}
+          y={value.cyUT - boundingRect.height / 2}
+          fill={hover ? hoverColor : 'transparent'}
+        />
+        <circle cx={value.cxUT} cy={value.cyUT} r={value.radius} fill={fill} />
+      </g>
+      <g onMouseEnter={() => setHovered({ x: value.yi, y: value.xi })} onMouseLeave={() => setHovered(null)}>
+        <rect
+          width={boundingRect.width}
+          height={boundingRect.height}
+          x={value.cxLT - boundingRect.width / 2}
+          y={value.cyLT - boundingRect.height / 2}
+          fill={hover ? hoverColor : 'transparent'}
+        />
+        <text x={value.cxLT} y={value.cyLT} dominantBaseline="middle" textAnchor="middle">
+          {value.correlation.toFixed(2)}
+        </text>
+      </g>
     </g>
   );
 }
