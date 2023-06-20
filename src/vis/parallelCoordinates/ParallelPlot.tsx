@@ -65,8 +65,8 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
           .scaleBand()
           .domain(col.resolvedValues.map((c) => c.val as string))
           .range([height, margin.top]);
+        console.log('scale: ', scale.bandwidth());
       }
-
       return {
         id: removeSpace(col.info.name),
         axisLabel: col.info.name,
@@ -110,7 +110,7 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
   return (
     <Tooltip position="bottom" offset={15} withinPortal multiline label={tooltipContent} color="dark" opened={showTooltip}>
       <svg ref={ref} style={{ width: '100%', height: '100%' }}>
-        {paths ? paths.slice(0, 2)?.map((path, i) => <ParallelPath key={path} index={i} path={path} onHover={onPathHover} onLeave={onPathLeave} />) : null}
+        {paths ? paths?.map((path, i) => <ParallelPath key={path + i} index={i} path={path} onHover={onPathHover} onLeave={onPathLeave} />) : null}
         {allColumns && yScales && xScale
           ? yScales.map((yScale) => {
               return (

@@ -49,13 +49,11 @@ export async function getParallelData(
     info: ColumnInfo;
   }[];
 }> {
-  console.log('num');
   const numCols: VisNumericalColumn[] = numColumnsSelected.map((col) => columns.find((c) => c.info.id === col.id)) as VisNumericalColumn[];
   const catCols: VisCategoricalColumn[] = catColumnsSelected.map((col) => columns.find((c) => c.info.id === col.id)) as VisCategoricalColumn[];
 
   const numColVals = await resolveColumnValues(numCols);
   const catColVals = await resolveColumnValues(catCols);
-  console.log('num', numColVals);
   // const colorColVals = await resolveSingleColumn(colorColumn ? columns.find((col) => col.info.id === colorColumn.id) : null);
 
   return { numColVals, catColVals };

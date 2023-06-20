@@ -11,5 +11,5 @@ export function ParallelPath({
   onLeave: (e: React.MouseEvent<SVGPathElement, MouseEvent>) => void;
   onHover: (e: React.MouseEvent<SVGPathElement, MouseEvent>) => void;
 }) {
-  return <path onMouseEnter={onHover} onMouseLeave={onLeave} fill="none" stroke="#337ab7" strokeWidth={5} data-index={index} d={path} />;
+  return <path onMouseEnter={onHover} onMouseLeave={onLeave} fill="none" stroke="#337ab7" strokeWidth={0.5} data-index={index} d={path} />;
 }
