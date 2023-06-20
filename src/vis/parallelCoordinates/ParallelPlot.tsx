@@ -107,7 +107,7 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
   }, [rows, xScale, yScales]);
 
   return (
-    <Tooltip withinPortal multiline label={tooltipContent} color="dark" opened={showTooltip}>
+    <Tooltip position="bottom" offset={15} withinPortal multiline label={tooltipContent} color="dark" opened={showTooltip}>
       <svg ref={ref} style={{ width: '100%', height: '100%' }}>
         {paths ? paths.slice(0, 2)?.map((path, i) => <ParallelPath key={path} index={i} path={path} onHover={onPathHover} onLeave={onPathLeave} />) : null}
         {allColumns && yScales && xScale
@@ -123,7 +123,6 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
               );
             })
           : null}
-        {/* <path stroke="black" strokeWidth={2} d=" M 2,2 h 20 " /> */}
       </svg>
     </Tooltip>
   );
