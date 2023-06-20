@@ -9,12 +9,13 @@ import { getCorrelationMatrixData } from './utils';
 import { CircleCorrelationPair, CorrelationPairProps } from './components/CircleCorrelationPair';
 import { Grid } from './components/CorrelationMatrixAxis';
 import { CorrelationTooltip } from './components/CorrelationTooltip';
+import { Legend } from './components/CorrelationLegend';
 
 const padding = { top: 16, right: 16, bottom: 16, left: 16 };
 const margin = {
   top: 100,
-  right: 20,
-  bottom: 20,
+  right: 80,
+  bottom: 10,
   left: 100,
 };
 const CIRCLE_MIN_SIZE = 10;
@@ -168,6 +169,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           );
         })}
         {labelsDiagonal}
+
+        <Legend xPos={boundsWidth + 20} height={boundsHeight} colorScale={colorScale} margin={margin} />
       </g>
     </svg>
   );
