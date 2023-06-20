@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { Tooltip } from '@mantine/core';
 import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
+import { YAxisTickLabel } from './YAxisTickLabels';
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function ParallelYAxis({ yScale, xRange, horizontalPosition, type, axisLabel }) {
   const ticks = useMemo(() => {
@@ -38,19 +39,7 @@ export function ParallelYAxis({ yScale, xRange, horizontalPosition, type, axisLa
       {ticks.map(({ value, yOffset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${yOffset})`}>
           <line x2="-6" stroke="currentColor" />
-          <Tooltip withinPortal label="test">
-            <text
-              key={value}
-              style={{
-                dominantBaseline: 'middle',
-                fontSize: '10px',
-                textAnchor: 'end',
-                transform: 'translateX(-8px)',
-              }}
-            >
-              {value}
-            </text>
-          </Tooltip>
+          <YAxisTickLabel value={value} />
         </g>
       ))}
     </>
