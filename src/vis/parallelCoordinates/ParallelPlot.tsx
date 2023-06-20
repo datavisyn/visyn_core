@@ -12,9 +12,9 @@ import { ParallelPath } from './ParallelPath';
 
 const margin = {
   top: 30,
-  right: 10,
+  right: 40,
   bottom: 10,
-  left: 30,
+  left: 40,
 };
 
 const removeSpace = (col: string) => col.replace(' ', '');
@@ -69,6 +69,7 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
 
       return {
         id: removeSpace(col.info.name),
+        axisLabel: col.info.name,
         type: col.type,
         scale,
       };
@@ -118,6 +119,7 @@ export function ParallelPlot({ columns, config }: { config: IParallelCoordinates
                   yScale={yScale.scale}
                   xRange={[margin.left, width + margin.left]}
                   type={yScale.type}
+                  axisLabel={yScale.axisLabel}
                   horizontalPosition={xScale(yScale.id)}
                 />
               );

@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useMemo } from 'react';
 import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
+import { Tooltip } from '@mantine/core';
 // code taken from https://wattenberger.com/blog/react-and-d3
-export function ParallelYAxis({ yScale, xRange, horizontalPosition, type }) {
+export function ParallelYAxis({ yScale, xRange, horizontalPosition, type, axisLabel }) {
   console.log(yScale);
   const ticks = useMemo(() => {
     if (type === EColumnTypes.NUMERICAL) {
@@ -17,8 +18,15 @@ export function ParallelYAxis({ yScale, xRange, horizontalPosition, type }) {
     }));
   }, [type, yScale]);
 
+  const labelYOffset = 7; // offset for vertical position
+  const labelXOffset = 40; // magic number to center label horizontally
   return (
     <>
+      <Tooltip position="bottom" offset={15} withinPortal multiline label={axisLabel} color="dark">
+        <text x={horizontalPosition - labelXOffset} y={yScale.range()[1] - labelYOffset}>
+          {axisLabel}
+        </text>
+      </Tooltip>
       <path
         transform={`translate(${horizontalPosition}, 0)`}
         d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')}
