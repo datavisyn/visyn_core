@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { table } from 'arquero';
+import { table, op } from 'arquero';
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
 
@@ -38,7 +38,7 @@ export function DotPlot({
   // }, [height, kdeVal]);
 
   const dt = useMemo(() => {
-    return table({ values: numCol.resolvedValues.map((v) => v.val) });
+    return table({ values: numCol.resolvedValues.map((v) => v.val) }).rollup({ bins: (d) => op.bins(d.values) });
   }, [numCol.resolvedValues]);
   dt.print();
   return null;
