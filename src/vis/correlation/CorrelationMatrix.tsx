@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3v7';
+import { Popover } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { corrcoeff, studentt } from 'jstat';
 import { ICorrelationConfig, VisColumn } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
 import { CircleCorrelationPair, CorrelationPairProps } from './components/CircleCorrelationPair';
-import { Grid, Ticks } from './components/CorrelationMatrixAxis';
+import { Grid } from './components/CorrelationMatrixAxis';
+import { CorrelationTooltip } from './components/CorrelationTooltip';
 
 const padding = { top: 16, right: 16, bottom: 16, left: 16 };
 const margin = {
@@ -24,6 +26,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
   const boundsWidth = width - margin.left - margin.right;
   const boundsHeight = height - margin.top - margin.bottom;
+
+  const [hover, setHover] = React.useState<{ x: number; y: number } | null>(null);
 
   const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#003367', '#ffffff', '#6f0000']);
 
@@ -59,7 +63,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     if (!data?.value?.numericalColumns) return null;
 
     const cols = data.value.numericalColumns;
-    const correlationPairs = [];
+    const correlationPairs = [] as CorrelationPairProps[];
 
     for (let x = 1; x < cols.length; x++) {
       for (let y = 0; y < x; y++) {
@@ -76,6 +80,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
         const yName = cols[y].info.name;
 
         const value: CorrelationPairProps = {
+          xi: x,
+          yi: y,
           cxLT: xScale(yName) + xScale.bandwidth() / 2,
           cyLT: yScale(xName) + yScale.bandwidth() / 2,
           cxUT: xScale(xName) + xScale.bandwidth() / 2,
@@ -87,25 +93,18 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           yName,
           radius: radiusScale(pValue),
         };
-        correlationPairs.push(
-          <CircleCorrelationPair
-            key={`${value.xName}-${value.yName}`}
-            value={value}
-            fill={colorScale(correlation)}
-            boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
-          />,
-        );
+        correlationPairs.push(value);
       }
     }
 
     return correlationPairs;
-  }, [colorScale, data, radiusScale, xScale, yScale]);
+  }, [data, radiusScale, xScale, yScale]);
 
   const filteredCorrelationPairs = React.useMemo(() => {
     if (!memoizedCorrelationPairs) return null;
 
     if (config.showSignificant) {
-      return memoizedCorrelationPairs.filter((pair) => pair.props.value.pValue < 0.05);
+      return memoizedCorrelationPairs.filter((pair) => pair.pValue < 0.05);
     }
     return memoizedCorrelationPairs;
   }, [config.showSignificant, memoizedCorrelationPairs]);
@@ -134,7 +133,40 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       <g width={boundsWidth} height={boundsHeight} transform={`translate(${[margin.left, margin.top].join(',')})`}>
         {names ? <Grid width={boundsWidth} height={boundsHeight} names={names} /> : null}
 
-        {filteredCorrelationPairs}
+        {hover ? (
+          <Popover withArrow shadow="md" withinPortal opened>
+            <Popover.Target>
+              <rect
+                fill="transparent"
+                key={`${hover.x}${hover.y}`}
+                x={hover.x * xScale.bandwidth()}
+                y={hover.y * yScale.bandwidth()}
+                width={xScale.bandwidth()}
+                height={yScale.bandwidth()}
+              />
+            </Popover.Target>
+            <Popover.Dropdown>
+              <CorrelationTooltip
+                value={filteredCorrelationPairs.find(
+                  (value) => (value.xi === hover.x && value.yi === hover.y) || (value.xi === hover.y && value.yi === hover.x),
+                )}
+              />
+            </Popover.Dropdown>
+          </Popover>
+        ) : null}
+
+        {filteredCorrelationPairs?.map((value) => {
+          return (
+            <CircleCorrelationPair
+              key={`${value.xName}-${value.yName}`}
+              value={value}
+              hover={(hover?.x === value.xi && hover?.y === value.yi) || (hover?.y === value.xi && hover?.x === value.yi)}
+              setHovered={setHover}
+              fill={colorScale(value.correlation)}
+              boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
+            />
+          );
+        })}
         {labelsDiagonal}
       </g>
     </svg>
