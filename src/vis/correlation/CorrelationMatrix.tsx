@@ -99,6 +99,15 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     return correlationPairs;
   }, [colorScale, data, radiusScale, xScale, yScale]);
 
+  const filteredCorrelationPairs = React.useMemo(() => {
+    if (!memoizedCorrelationPairs) return null;
+
+    if (config.showSignificant) {
+      return memoizedCorrelationPairs.filter((pair) => pair.props.value.pValue < 0.05);
+    }
+    return memoizedCorrelationPairs;
+  }, [config.showSignificant, memoizedCorrelationPairs]);
+
   // Show labels on diagonal of matrix
   const labelsDiagonal = React.useMemo(() => {
     if (!data?.value?.numericalColumns) return null;
@@ -123,7 +132,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       <g width={boundsWidth} height={boundsHeight} transform={`translate(${[margin.left, margin.top].join(',')})`}>
         <AxisLeft yScale={yScale} ticks={data?.value?.numericalColumns?.map((c) => ({ value: c.info.name, offset: 0 }))} width={boundsWidth} />
         <AxisTop xScale={xScale} ticks={data?.value?.numericalColumns?.map((c) => ({ value: c.info.name, offset: 0 }))} height={boundsHeight} />
-        {memoizedCorrelationPairs}
+        {filteredCorrelationPairs}
         {labelsDiagonal}
       </g>
     </svg>
