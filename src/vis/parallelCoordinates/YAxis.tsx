@@ -1,21 +1,63 @@
 import * as React from 'react';
 import { useMemo } from 'react';
+import * as d3v7 from 'd3v7';
 import { Tooltip } from '@mantine/core';
-import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
 import { YAxisTickLabel } from './YAxisTickLabels';
+import { EColumnTypes } from '../interfaces';
+
 // code taken from https://wattenberger.com/blog/react-and-d3
-export function ParallelYAxis({ yScale, xRange, horizontalPosition, type, axisLabel }) {
+export function ParallelYAxis({
+  id,
+  yScale,
+  xRange,
+  horizontalPosition,
+  type,
+  axisLabel,
+  onSelectionChanged,
+}: {
+  id: string;
+  yScale: d3v7.ScaleLinear<number, number, never> | d3v7.ScaleBand<string>;
+  xRange: number[];
+  type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+  horizontalPosition: number | number;
+  axisLabel: string;
+  onSelectionChanged: (scaleId: string, selection: [number, number]) => void;
+}) {
+  const ref = React.useRef(null);
+  const extent = useMemo(
+    () =>
+      [
+        [horizontalPosition - 10, yScale.range()[1]],
+        [horizontalPosition + 10, yScale.range()[0]],
+      ] as [[number, number], [number, number]],
+    [horizontalPosition, yScale],
+  );
+
+  React.useEffect(() => {
+    if (extent && ref.current) {
+      d3v7
+        .select(ref.current)
+        .attr('class', 'brush')
+        .call(
+          d3v7
+            .brushY()
+            .extent(extent)
+            .on('brush', (e) => onSelectionChanged(id, e.selection)),
+        );
+    }
+  });
+
   const ticks = useMemo(() => {
     if (type === EColumnTypes.NUMERICAL) {
-      return yScale.ticks(5).map((value) => ({
+      return (yScale as d3v7.ScaleLinear<number, number, never>).ticks(5).map((value) => ({
         value,
-        yOffset: yScale(value),
+        yOffset: yScale(value as any),
       }));
     }
-    return yScale.domain().map((value) => ({
+    return (yScale as d3v7.ScaleBand<string>).domain().map((value) => ({
       value,
       // if we have a categorical column, we want to center the label
-      yOffset: yScale(value) + yScale.bandwidth() / 2,
+      yOffset: yScale(value as any) + (yScale as d3v7.ScaleBand<string>).bandwidth() / 2,
     }));
   }, [type, yScale]);
 
@@ -28,6 +70,7 @@ export function ParallelYAxis({ yScale, xRange, horizontalPosition, type, axisLa
           {axisLabel}
         </text>
       </Tooltip>
+      <g ref={ref} />
       <path
         transform={`translate(${horizontalPosition}, 0)`}
         d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')}
