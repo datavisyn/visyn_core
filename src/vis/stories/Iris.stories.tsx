@@ -102,7 +102,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
 export const ScatterPlot: typeof Template = Template.bind({});
 ScatterPlot.args = {
-  showDragModeOptions: false,
+  showDragModeOptions: true,
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
@@ -173,5 +173,19 @@ ViolinPlot.args = {
       },
     ],
     violinOverlay: EViolinOverlay.NONE,
+  },
+};
+
+export const SankeyPlot: typeof Template = Template.bind({});
+SankeyPlot.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.SANKEY,
+    catColumnsSelected: [
+      {
+        description: '',
+        id: 'species',
+        name: 'Species',
+      },
+    ],
   },
 };

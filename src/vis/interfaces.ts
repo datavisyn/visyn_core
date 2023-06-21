@@ -5,6 +5,7 @@ export enum ESupportedPlotlyVis {
   VIOLIN = 'Violin plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
+  SANKEY = 'Sankey',
 }
 
 export const allVisTypes: ESupportedPlotlyVis[] = [
@@ -12,9 +13,14 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.BAR,
   ESupportedPlotlyVis.VIOLIN,
   ESupportedPlotlyVis.HEXBIN,
+  ESupportedPlotlyVis.SANKEY,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | ISankeyConfig;
+
+export interface BaseConfig<T extends string> {
+  type: T;
+}
 
 export enum EBarDisplayType {
   ABSOLUTE = 'Absolute',
@@ -79,15 +85,13 @@ export enum EScatterSelectSettings {
   PAN = 'pan',
 }
 
-export interface IViolinConfig {
-  type: ESupportedPlotlyVis.VIOLIN;
+export interface IViolinConfig extends BaseConfig<ESupportedPlotlyVis.VIOLIN> {
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
 }
 
-export interface IScatterConfig {
-  type: ESupportedPlotlyVis.SCATTER;
+export interface IScatterConfig extends BaseConfig<ESupportedPlotlyVis.SCATTER> {
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
   numColorScaleType: ENumericalColorScaleType;
@@ -96,8 +100,7 @@ export interface IScatterConfig {
   alphaSliderVal: number;
 }
 
-export interface IBarConfig {
-  type: ESupportedPlotlyVis.BAR;
+export interface IBarConfig extends BaseConfig<ESupportedPlotlyVis.BAR> {
   multiples: ColumnInfo | null;
   group: ColumnInfo | null;
   direction: EBarDirection;
@@ -109,8 +112,11 @@ export interface IBarConfig {
   aggregateColumn: ColumnInfo | null;
 }
 
-export interface IHexbinConfig {
-  type: ESupportedPlotlyVis.HEXBIN;
+export interface ISankeyConfig extends BaseConfig<ESupportedPlotlyVis.SANKEY> {
+  catColumnsSelected: ColumnInfo[];
+}
+
+export interface IHexbinConfig extends BaseConfig<ESupportedPlotlyVis.HEXBIN> {
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
   hexRadius: number;
@@ -193,4 +199,36 @@ export type Scales = {
 export interface ICommonVisSideBarProps {
   style?: React.CSSProperties | undefined;
   className?: string | undefined;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  filterCallback?: (s: EFilterOptions) => void;
+  externalConfig: IVisConfig;
+  setExternalConfig: (c: IVisConfig) => void;
+}
+
+export interface ICommonVisProps<T> {
+  config: T;
+  setConfig: (config: T) => void;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  shapes?: string[];
+  filterCallback?: (s: EFilterOptions) => void;
+  selectionCallback?: (s: string[]) => void;
+  selectedMap?: { [key: string]: boolean };
+  selectedList?: string[];
+  showCloseButton?: boolean;
+  closeButtonCallback?: () => void;
+  scales?: Scales;
+  enableSidebar?: boolean;
+  showSidebar?: boolean;
+  setShowSidebar?: (s: boolean) => void;
+  extensions?: {
+    prePlot?: React.ReactNode;
+    postPlot?: React.ReactNode;
+    preSidebar?: React.ReactNode;
+    postSidebar?: React.ReactNode;
+  };
+  scrollZoom?: boolean;
+  showDragModeOptions?: boolean;
+  dimensions: { width: number; height: number };
 }
