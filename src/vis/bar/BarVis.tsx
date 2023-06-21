@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as d3v7 from 'd3v7';
-import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
@@ -13,16 +12,8 @@ import { beautifyLayout } from '../general/layoutUtils';
 import { useAsync } from '../../hooks';
 import { createBarTraces } from './utils';
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
 export function BarVis({
   externalConfig,
-  extensions,
   columns,
   scales,
   selectionCallback = () => null,
@@ -30,10 +21,6 @@ export function BarVis({
   selectedList = [],
   dimensions,
 }: ICommonVisProps<IBarConfig>) {
-  const mergedExtensions = React.useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
-
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createBarTraces, [columns, externalConfig, scales]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ColumnInfo, ESupportedPlotlyVis, ICommonVisSideBarProps, ISankeyConfig, IVisConfig, VisColumn } from '../interfaces';
+import { ColumnInfo, ESupportedPlotlyVis, ICommonVisSideBarProps, ISankeyConfig } from '../interfaces';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 
@@ -9,11 +9,7 @@ export function SankeyVisSidebar({
   className = '',
   columns,
   style: { width = '20em', ...style } = {},
-}: ICommonVisSideBarProps & {
-  config: ISankeyConfig;
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-}) {
+}: ICommonVisSideBarProps<ISankeyConfig>) {
   return (
     <div className={`container pb-3 pt-2 ${className}`} style={{ width, ...style }}>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />

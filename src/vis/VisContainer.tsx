@@ -218,13 +218,7 @@ export function EagerVis({
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>
-          <VisSidebar
-            optionsConfig={optionsConfig}
-            externalConfig={visConfig}
-            columns={columns}
-            filterCallback={filterCallback}
-            setExternalConfig={setVisConfig}
-          />
+          <VisSidebar optionsConfig={optionsConfig} config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
       ) : null}
     </Group>

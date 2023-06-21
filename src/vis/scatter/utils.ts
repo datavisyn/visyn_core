@@ -45,7 +45,7 @@ const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
 };
 
-export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IVisConfig {
+export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
   const merged = merge({}, defaultConfig, config);
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BaseConfig, ESupportedPlotlyVis, ICommonVisProps, IVisConfig, VisColumn } from '../interfaces';
+import { BaseConfig, ESupportedPlotlyVis, ICommonVisProps, ICommonVisSideBarProps, IVisConfig, VisColumn } from '../interfaces';
 import { ScatterVis } from '../scatter/ScatterVis';
 import { BarVis, barMergeDefaultConfig } from '../bar';
 import { HexbinVis } from '../hexbin/HexbinVis';
@@ -13,17 +13,10 @@ import { ViolinVisSidebar } from '../violin/ViolinVisSidebar';
 import { scatterMergeDefaultConfig } from '../scatter';
 import { hexinbMergeDefaultConfig } from '../hexbin/utils';
 
-interface GeneralVis<T = unknown> {
-  type: T;
-  renderer: (props: ICommonVisProps<T>) => React.JSX.Element;
-  sidebarRenderer: (props) => React.JSX.Element;
-  mergeConfig?: (columns: VisColumn[], config: T) => IVisConfig;
-}
-
 export function createVis<N extends string, T extends BaseConfig<N>>(
   type: string,
   renderer: (props: ICommonVisProps<T>) => React.JSX.Element,
-  sidebarRenderer: (props) => React.JSX.Element,
+  sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element,
   mergeConfig?: (columns: VisColumn[], config: T) => IVisConfig,
 ) {
   const vis = {
@@ -35,7 +28,14 @@ export function createVis<N extends string, T extends BaseConfig<N>>(
   return vis;
 }
 
-const visMap: { [key: string]: GeneralVis } = {};
+interface GeneralVis<T extends string> {
+  type: string;
+  renderer: (props: ICommonVisProps<T>) => React.JSX.Element;
+  sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element;
+  mergeConfig?: (columns: VisColumn[], config: T) => IVisConfig;
+}
+
+const visMap: { [key: string]: any } = {};
 visMap[ESupportedPlotlyVis.BAR] = createVis(ESupportedPlotlyVis.BAR, BarVis, BarVisSidebar, barMergeDefaultConfig);
 visMap[ESupportedPlotlyVis.SCATTER] = createVis(ESupportedPlotlyVis.SCATTER, ScatterVis, ScatterVisSidebar, scatterMergeDefaultConfig);
 visMap[ESupportedPlotlyVis.HEXBIN] = createVis(ESupportedPlotlyVis.HEXBIN, HexbinVis, HexbinVisSidebar, hexinbMergeDefaultConfig);

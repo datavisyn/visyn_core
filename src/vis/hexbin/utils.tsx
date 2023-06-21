@@ -25,7 +25,7 @@ export const defaultDensityConfig: IHexbinConfig = {
   hexbinOptions: EHexbinOptions.COLOR,
 };
 
-export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinConfig): IVisConfig {
+export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinConfig): IHexbinConfig {
   const merged = merge({}, defaultDensityConfig, config);
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
 

@@ -196,14 +196,14 @@ export type Scales = {
 /**
  * Common props for all vis sidebars.
  */
-export interface ICommonVisSideBarProps {
+export interface ICommonVisSideBarProps<T> {
   style?: React.CSSProperties | undefined;
   className?: string | undefined;
   columns: VisColumn[];
   optionsConfig?: any;
   filterCallback?: (s: EFilterOptions) => void;
-  externalConfig: IVisConfig;
-  setExternalConfig: (c: IVisConfig) => void;
+  config: T;
+  setConfig: (c: IVisConfig) => void;
 }
 
 export interface ICommonVisProps<T> {

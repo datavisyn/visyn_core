@@ -43,7 +43,7 @@ const defaultConfig: IBarConfig = {
 const TICK_LABEL_LENGTH = 8;
 const DEFAULT_GRAY = '#878E95';
 
-export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IVisConfig {
+export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
 
   const catCols = columns.filter((c) => c.type === EColumnTypes.CATEGORICAL);

@@ -23,7 +23,7 @@ const defaultConfig: IViolinConfig = {
   violinOverlay: EViolinOverlay.NONE,
 };
 
-export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IVisConfig {
+export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IViolinConfig {
   const merged = merge({}, defaultConfig, config);
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);

@@ -6,22 +6,22 @@ export function VisSidebar({
   columns,
   filterCallback = () => null,
   optionsConfig,
-  externalConfig = null,
-  setExternalConfig = null,
+  config = null,
+  setConfig = null,
   className,
   style,
-}: ICommonVisSideBarProps) {
-  if (!externalConfig) {
+}: ICommonVisSideBarProps<typeof config>) {
+  if (!config) {
     return null;
   }
 
-  const Renderer = getVisByConfig(externalConfig)?.sidebarRenderer;
+  const Renderer = getVisByConfig(config)?.sidebarRenderer;
 
   return Renderer ? (
     <Renderer
-      config={externalConfig}
+      config={config}
       optionsConfig={optionsConfig}
-      setConfig={setExternalConfig}
+      setConfig={setConfig}
       filterCallback={filterCallback}
       columns={columns}
       className={className}
