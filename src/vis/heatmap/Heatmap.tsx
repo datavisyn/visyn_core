@@ -4,6 +4,9 @@ import { table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+
+import { useAsync } from '../../hooks';
+import { ENumericalColorScaleType, IHeatmapConfig, VisColumn } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
 
 const interRectDistance = 1;
@@ -18,10 +21,12 @@ export function Heatmap({
   column1,
   column2,
   margin,
+  config,
 }: {
   column1: CatColumn;
   column2: CatColumn;
   margin: { top: number; right: number; bottom: number; left: number };
+  config: IHeatmapConfig;
 }) {
   const [ref, { width, height }] = useResizeObserver();
   const [tooltipText, setTooltipText] = React.useState<string | null>(null);
@@ -54,9 +59,14 @@ export function Heatmap({
         .scaleBand()
         .domain(yVals)
         .range([0, height - margin.top - margin.bottom]),
-      colorScale: d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(gropuedVals, (d) => d.count as number)),
+      colorScale:
+        config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
+          ? d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(gropuedVals, (d) => d.count as number))
+          : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
+          ? d3.scaleDiverging<string, string>(d3.interpolatePiYG).domain(d3.extent(gropuedVals, (d) => d.count as number))
+          : null,
     };
-  }, [column1?.resolvedValues, column2?.resolvedValues, height, margin, width]);
+  }, [column1?.resolvedValues, column2?.resolvedValues, height, margin, width, config]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">

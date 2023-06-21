@@ -124,8 +124,9 @@ export interface IHexbinConfig {
 
 export interface IHeatmapConfig {
   type: ESupportedPlotlyVis.HEATMAP;
-  colorScale: Scales;
+  color: ColumnInfo | null;
   catColumnsSelected: ColumnInfo[];
+  numColorScaleType: ENumericalColorScaleType;
 }
 
 type ValueGetter<T> = () => T | Promise<T>;

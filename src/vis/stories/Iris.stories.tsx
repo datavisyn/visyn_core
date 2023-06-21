@@ -203,7 +203,11 @@ export const Heatmap: typeof Template = Template.bind({});
 Heatmap.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.HEATMAP,
-    colorScale: null,
+    color: {
+      description: '',
+      id: 'sepalWidth',
+      name: 'Sepal Width',
+    },
     catColumnsSelected: [
       {
         description: '',
@@ -212,14 +216,10 @@ Heatmap.args = {
       },
       {
         description: '',
-        id: 'randomThing',
-        name: 'Random Thing',
-      },
-      {
-        description: '',
         id: 'year',
         name: 'Years',
       },
     ],
+    numColorScaleType: ENumericalColorScaleType.DIVERGENT,
   },
 };
