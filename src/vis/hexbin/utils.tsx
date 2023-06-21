@@ -14,10 +14,6 @@ import {
 } from '../interfaces';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 
-export function isHexbin(s: IVisConfig): s is IHexbinConfig {
-  return s.type === ESupportedPlotlyVis.HEXBIN;
-}
-
 export const defaultDensityConfig: IHexbinConfig = {
   type: ESupportedPlotlyVis.HEXBIN,
   numColumnsSelected: [],

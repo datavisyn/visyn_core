@@ -16,10 +16,6 @@ import { columnNameWithDescription, resolveColumnValues } from '../general/layou
 import { i18n } from '../../i18n';
 import { SELECT_COLOR } from '../general/constants';
 
-export function isViolin(s: IVisConfig): s is IViolinConfig {
-  return s.type === ESupportedPlotlyVis.VIOLIN;
-}
-
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
   numColumnsSelected: [],

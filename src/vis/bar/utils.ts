@@ -26,10 +26,6 @@ import {
 import { columnNameWithDescription, resolveSingleColumn, truncateText } from '../general/layoutUtils';
 import { getCol } from '../sidebar';
 
-export function isBar(s: IVisConfig): s is IBarConfig {
-  return s.type === ESupportedPlotlyVis.BAR;
-}
-
 const UNSELECTED_OPACITY = '0.2';
 const defaultConfig: IBarConfig = {
   type: ESupportedPlotlyVis.BAR,

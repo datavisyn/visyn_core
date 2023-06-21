@@ -10,7 +10,7 @@ export function VisSidebar({
   setExternalConfig = null,
   className,
   style,
-}: ICommonVisSideBarProps<unknown>) {
+}: ICommonVisSideBarProps) {
   if (!externalConfig) {
     return null;
   }

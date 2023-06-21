@@ -21,14 +21,14 @@ const defaultExtensions = {
 };
 
 export function ScatterVis({
-  config,
+  externalConfig,
   extensions,
   columns,
   shapes = ['circle', 'square', 'triangle-up', 'star'],
   selectionCallback = () => null,
   selectedMap = {},
   selectedList = [],
-  setConfig,
+  setExternalConfig,
   dimensions,
   showDragModeOptions,
   scales,
@@ -51,7 +51,7 @@ export function ScatterVis({
 
   useEffect(() => {
     setLayout(null);
-  }, [config.numColumnsSelected.length]);
+  }, [externalConfig.numColumnsSelected.length]);
 
   const {
     value: traces,
@@ -59,11 +59,11 @@ export function ScatterVis({
     error: traceError,
   } = useAsync(createScatterTraces, [
     columns,
-    config.numColumnsSelected,
-    config.shape,
-    config.color,
-    config.alphaSliderVal,
-    config.numColorScaleType,
+    externalConfig.numColumnsSelected,
+    externalConfig.shape,
+    externalConfig.color,
+    externalConfig.alphaSliderVal,
+    externalConfig.numColorScaleType,
     scales,
     shapes,
   ]);
@@ -95,13 +95,13 @@ export function ScatterVis({
       },
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
-      dragmode: config.dragMode,
+      dragmode: externalConfig.dragMode,
     };
 
     setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces, config.dragMode]);
+  }, [traces, externalConfig.dragMode]);
 
   const plotsWithSelectedPoints = useMemo(() => {
     if (traces) {
@@ -112,16 +112,16 @@ export function ScatterVis({
           const temp = [];
 
           (p.data.ids as any).forEach((currId, index) => {
-            if (selectedMap[currId] || (selectedList.length === 0 && config.color)) {
+            if (selectedMap[currId] || (selectedList.length === 0 && externalConfig.color)) {
               temp.push(index);
             }
           });
 
           p.data.selectedpoints = temp;
 
-          if (selectedList.length === 0 && config.color) {
+          if (selectedList.length === 0 && externalConfig.color) {
             // @ts-ignore
-            p.data.selected.marker.opacity = config.alphaSliderVal;
+            p.data.selected.marker.opacity = externalConfig.alphaSliderVal;
           } else {
             // @ts-ignore
             p.data.selected.marker.opacity = 1;
@@ -132,7 +132,7 @@ export function ScatterVis({
     }
 
     return [];
-  }, [selectedMap, traces, selectedList, config.color, config.alphaSliderVal]);
+  }, [selectedMap, traces, selectedList, externalConfig.color, externalConfig.alphaSliderVal]);
 
   const plotlyData = useMemo(() => {
     if (traces) {
@@ -163,7 +163,10 @@ export function ScatterVis({
         {showDragModeOptions ? (
           <Center>
             <Group mt="lg">
-              <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
+              <BrushOptionButtons
+                callback={(dragMode: EScatterSelectSettings) => setExternalConfig({ ...externalConfig, dragMode })}
+                dragMode={externalConfig.dragMode}
+              />
             </Group>
           </Center>
         ) : null}

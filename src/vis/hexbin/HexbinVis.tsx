@@ -16,10 +16,10 @@ const defaultExtensions = {
 };
 
 export function HexbinVis({
-  config,
+  externalConfig,
   extensions,
   columns,
-  setConfig,
+  setExternalConfig,
   selectionCallback = () => null,
   selectedMap = {},
   showDragModeOptions = true,
@@ -34,32 +34,32 @@ export function HexbinVis({
         <Center>
           <Group mt="lg">
             <BrushOptionButtons
-              callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+              callback={(dragMode: EScatterSelectSettings) => setExternalConfig({ ...externalConfig, dragMode })}
               options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
-              dragMode={config.dragMode}
+              dragMode={externalConfig.dragMode}
             />
           </Group>
         </Center>
       ) : null}
-      <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
-        {config.numColumnsSelected.length < 2 ? (
+      <SimpleGrid style={{ height: '100%' }} cols={externalConfig.numColumnsSelected.length > 2 ? externalConfig.numColumnsSelected.length : 1}>
+        {externalConfig.numColumnsSelected.length < 2 ? (
           <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={i18n.t('visyn:vis.hexbinError')} />
         ) : (
           <>
-            {config.numColumnsSelected.length > 2 ? (
-              config.numColumnsSelected.map((xCol) => {
-                return config.numColumnsSelected.map((yCol) => {
+            {externalConfig.numColumnsSelected.length > 2 ? (
+              externalConfig.numColumnsSelected.map((xCol) => {
+                return externalConfig.numColumnsSelected.map((yCol) => {
                   if (xCol.id !== yCol.id) {
                     return (
                       <Hexplot
                         key={yCol.id + xCol.id}
                         selectionCallback={selectionCallback}
                         selected={selectedMap}
-                        config={config}
+                        config={externalConfig}
                         columns={[
                           columns.find((col) => col.info.id === yCol.id),
                           columns.find((col) => col.info.id === xCol.id),
-                          columns.find((col) => col.info.id === config.color?.id),
+                          columns.find((col) => col.info.id === externalConfig.color?.id),
                         ]}
                       />
                     );
@@ -72,11 +72,11 @@ export function HexbinVis({
               <Hexplot
                 selectionCallback={selectionCallback}
                 selected={selectedMap}
-                config={config}
+                config={externalConfig}
                 columns={[
-                  columns.find((col) => col.info.id === config.numColumnsSelected[0].id),
-                  columns.find((col) => col.info.id === config.numColumnsSelected[1].id),
-                  columns.find((col) => col.info.id === config.color?.id),
+                  columns.find((col) => col.info.id === externalConfig.numColumnsSelected[0].id),
+                  columns.find((col) => col.info.id === externalConfig.numColumnsSelected[1].id),
+                  columns.find((col) => col.info.id === externalConfig.color?.id),
                 ]}
               />
             )}

@@ -22,10 +22,6 @@ import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } f
 import { i18n } from '../../i18n';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
 
-export function isScatter(s: IVisConfig): s is IScatterConfig {
-  return s.type === ESupportedPlotlyVis.SCATTER;
-}
-
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
   if (domain[0] !== undefined && domain[1] !== undefined) {

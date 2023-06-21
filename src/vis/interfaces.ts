@@ -207,10 +207,11 @@ export interface ICommonVisSideBarProps {
 }
 
 export interface ICommonVisProps<T> {
-  config: T;
-  setConfig: (config: T) => void;
+  externalConfig?: T;
+  setExternalConfig?: (config: T) => void;
   columns: VisColumn[];
   optionsConfig?: any;
+  colors?: string[];
   shapes?: string[];
   filterCallback?: (s: EFilterOptions) => void;
   selectionCallback?: (s: string[]) => void;
@@ -221,6 +222,7 @@ export interface ICommonVisProps<T> {
   scales?: Scales;
   enableSidebar?: boolean;
   showSidebar?: boolean;
+  showSidebarDefault?: boolean;
   setShowSidebar?: (s: boolean) => void;
   extensions?: {
     prePlot?: React.ReactNode;

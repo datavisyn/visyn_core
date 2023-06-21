@@ -19,12 +19,21 @@ const defaultExtensions = {
   postSidebar: null,
 };
 
-export function ViolinVis({ config, extensions, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
+export function ViolinVis({
+  externalConfig,
+  extensions,
+  columns,
+  scales,
+  dimensions,
+  selectedList,
+  selectedMap,
+  selectionCallback,
+}: ICommonVisProps<IViolinConfig>) {
   const mergedExtensions = React.useMemo(() => {
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, externalConfig, scales, selectedList, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('ViolinVis'), []);
 

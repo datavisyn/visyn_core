@@ -7,8 +7,6 @@ import {
   ESupportedPlotlyVis,
   IVisConfig,
   Scales,
-  VisColumn,
-  EFilterOptions,
   ENumericalColorScaleType,
   EColumnTypes,
   EBarDirection,
@@ -18,29 +16,25 @@ import {
   EAggregateTypes,
   ICommonVisProps,
 } from './interfaces';
-import { isScatter, scatterMergeDefaultConfig } from './scatter';
-import { barMergeDefaultConfig, isBar } from './bar';
-import { isViolin, violinMergeDefaultConfig } from './violin';
 import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
-import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
 import { getVisByConfig } from './provider/Provider';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
 
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
-import { VisSidebar } from '.';
+import { VisSidebar } from './VisSidebar';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
 export function EagerVis({
   columns,
-  selected = [],
+  selectedList = [],
   colors = null,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
   filterCallback = () => null,
   setExternalConfig = () => null,
-  closeCallback = () => null,
+  closeButtonCallback = () => null,
   showCloseButton = false,
   externalConfig = null,
   enableSidebar = true,
@@ -50,7 +44,7 @@ export function EagerVis({
   showSidebarDefault = false,
   scrollZoom = true,
   optionsConfig,
-}: ICommonVisProps) {
+}: Omit<ICommonVisProps<IVisConfig>, 'dimensions'>) {
   const [showSidebar, setShowSidebar] = useUncontrolled<boolean>({
     value: internalShowSidebar,
     defaultValue: showSidebarDefault,
@@ -115,20 +109,9 @@ export function EagerVis({
   }, []);
 
   React.useEffect(() => {
-    if (isScatter(inconsistentVisConfig)) {
-      const newConfig = scatterMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isViolin(inconsistentVisConfig)) {
-      const newConfig = violinMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isBar(inconsistentVisConfig)) {
-      const newConfig = barMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isHexbin(inconsistentVisConfig)) {
-      const newConfig = hexinbMergeDefaultConfig(columns, inconsistentVisConfig);
+    const mergeConfig = getVisByConfig(inconsistentVisConfig)?.mergeConfig;
+    if (mergeConfig) {
+      const newConfig = mergeConfig(columns, inconsistentVisConfig);
       _setVisConfig({ current: newConfig, consistent: newConfig });
     }
     // DANGER:: this useEffect should only occur when the visConfig.type changes. adding visconfig into the dep array will cause an infinite loop.
@@ -145,12 +128,12 @@ export function EagerVis({
   const selectedMap: { [key: string]: boolean } = useMemo(() => {
     const currMap: { [key: string]: boolean } = {};
 
-    selected.forEach((s) => {
+    selectedList.forEach((s) => {
       currMap[s] = true;
     });
 
     return currMap;
-  }, [selected]);
+  }, [selectedList]);
 
   const scales: Scales = useMemo(() => {
     const colorScale = d3v7
@@ -186,7 +169,6 @@ export function EagerVis({
   };
 
   const Renderer = getVisByConfig(visConfig)?.renderer;
-  const SidebarRenderer = getVisByConfig(visConfig)?.sidebarRenderer;
 
   return (
     <Group
@@ -210,7 +192,7 @@ export function EagerVis({
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {Renderer ? (
           <Renderer
-            config={visConfig}
+            externalConfig={visConfig}
             dimensions={dimensions}
             optionsConfig={{
               color: {
@@ -219,16 +201,16 @@ export function EagerVis({
             }}
             showDragModeOptions={showDragModeOptions}
             shapes={shapes}
-            setConfig={setVisConfig}
+            setExternalConfig={setVisConfig}
             filterCallback={filterCallback}
             selectionCallback={selectionCallback}
             selectedMap={selectedMap}
-            selectedList={selected}
+            selectedList={selectedList}
             columns={columns}
             scales={scales}
             showSidebar={showSidebar}
             showCloseButton={showCloseButton}
-            closeButtonCallback={closeCallback}
+            closeButtonCallback={closeButtonCallback}
             scrollZoom={scrollZoom}
             {...commonProps}
           />
