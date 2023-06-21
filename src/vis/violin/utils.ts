@@ -5,7 +5,6 @@ import {
   VisCategoricalColumn,
   EColumnTypes,
   ESupportedPlotlyVis,
-  IVisConfig,
   VisNumericalColumn,
   Scales,
   VisColumn,

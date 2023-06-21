@@ -11,7 +11,6 @@ import {
   VisCategoricalColumn,
   EColumnTypes,
   ESupportedPlotlyVis,
-  IVisConfig,
   Scales,
   VisColumn,
   VisCategoricalValue,

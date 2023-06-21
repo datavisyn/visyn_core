@@ -18,8 +18,8 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
 
 export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | ISankeyConfig;
 
-export interface BaseConfig<T extends string> {
-  type: T;
+export interface BaseConfig {
+  type: string;
 }
 
 export enum EBarDisplayType {
@@ -85,13 +85,15 @@ export enum EScatterSelectSettings {
   PAN = 'pan',
 }
 
-export interface IViolinConfig extends BaseConfig<ESupportedPlotlyVis.VIOLIN> {
+export interface IViolinConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
 }
 
-export interface IScatterConfig extends BaseConfig<ESupportedPlotlyVis.SCATTER> {
+export interface IScatterConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.SCATTER;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
   numColorScaleType: ENumericalColorScaleType;
@@ -100,7 +102,8 @@ export interface IScatterConfig extends BaseConfig<ESupportedPlotlyVis.SCATTER> 
   alphaSliderVal: number;
 }
 
-export interface IBarConfig extends BaseConfig<ESupportedPlotlyVis.BAR> {
+export interface IBarConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.BAR;
   multiples: ColumnInfo | null;
   group: ColumnInfo | null;
   direction: EBarDirection;
@@ -112,11 +115,13 @@ export interface IBarConfig extends BaseConfig<ESupportedPlotlyVis.BAR> {
   aggregateColumn: ColumnInfo | null;
 }
 
-export interface ISankeyConfig extends BaseConfig<ESupportedPlotlyVis.SANKEY> {
+export interface ISankeyConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.SANKEY;
   catColumnsSelected: ColumnInfo[];
 }
 
-export interface IHexbinConfig extends BaseConfig<ESupportedPlotlyVis.HEXBIN> {
+export interface IHexbinConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.HEXBIN;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
   hexRadius: number;
@@ -203,7 +208,7 @@ export interface ICommonVisSideBarProps<T> {
   optionsConfig?: any;
   filterCallback?: (s: EFilterOptions) => void;
   config: T;
-  setConfig: (c: IVisConfig) => void;
+  setConfig: (c: T) => void;
 }
 
 export interface ICommonVisProps<T> {

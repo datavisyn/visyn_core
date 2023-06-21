@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, ICommonVisSideBarProps, IHexbinConfig, IVisConfig, VisColumn } from '../interfaces';
+import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, ICommonVisSideBarProps, IHexbinConfig, VisColumn } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';

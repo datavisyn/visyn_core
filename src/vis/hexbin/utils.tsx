@@ -2,7 +2,6 @@ import merge from 'lodash/merge';
 import {
   EColumnTypes,
   ESupportedPlotlyVis,
-  IVisConfig,
   VisColumn,
   IHexbinConfig,
   VisNumericalValue,

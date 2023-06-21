@@ -5,7 +5,6 @@ import {
   PlotlyData,
   EColumnTypes,
   VisNumericalColumn,
-  IVisConfig,
   Scales,
   ESupportedPlotlyVis,
   VisColumn,
