@@ -8,16 +8,17 @@ export function CorrelationTooltip({ value }: { value: CorrelationPairProps }) {
       <thead>
         <tr>
           <th>{`${value.xName} -> ${value.yName}`}</th>
+          <th />
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>t-Statistic</td>
-          <td>{value.tStatistic.toFixed(2)}</td>
-        </tr>
-        <tr>
           <td>Correlation</td>
           <td>{value.correlation.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td>t-Statistic</td>
+          <td>{value.tStatistic.toFixed(2)}</td>
         </tr>
         <tr>
           <td>pValue</td>
