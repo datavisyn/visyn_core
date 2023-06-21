@@ -91,6 +91,7 @@ export interface IViolinConfig {
 export enum ECloudType {
   SPLIT_VIOLIN = 'Split violin',
   HEATMAP = 'Heatmap',
+  HISTOGRAM = 'Histogram',
 }
 
 export enum ELightningType {

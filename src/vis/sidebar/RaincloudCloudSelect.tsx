@@ -10,8 +10,9 @@ interface HexbinOptionSelectProps {
 
 export function RaincloudCloudSelect({ callback, currentSelected }: HexbinOptionSelectProps) {
   const options = [
-    { value: ECloudType.HEATMAP, label: ECloudType.HEATMAP },
     { value: ECloudType.SPLIT_VIOLIN, label: ECloudType.SPLIT_VIOLIN },
+    { value: ECloudType.HEATMAP, label: ECloudType.HEATMAP },
+    { value: ECloudType.HISTOGRAM, label: ECloudType.HISTOGRAM },
   ];
   return <Select withinPortal label={i18n.t('visyn:vis.hexbinOptions')} onChange={(e) => callback(e as ECloudType)} data={options} value={currentSelected} />;
 }

@@ -157,7 +157,7 @@ RaincloudPlot.args = {
         name: 'Sepal Width',
       },
     ],
-    cloudType: ECloudType.HEATMAP,
+    cloudType: ECloudType.HISTOGRAM,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.DOTPLOT,
   },

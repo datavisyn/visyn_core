@@ -8,6 +8,7 @@ import { MeanAndInterval } from './lightning/MeanAndInterval';
 import { useXScale } from './hooks/useXScale';
 import { XAxis } from '../hexbin/XAxis';
 import { Heatmap } from './cloud/Heatmap';
+import { Histogram } from './cloud/Histogram';
 
 const margin = {
   top: 0,
@@ -38,6 +39,8 @@ export function Raincloud({
       <g>
         {config.cloudType === ECloudType.HEATMAP ? (
           <Heatmap width={width} height={height / 2} config={config} numCol={column} />
+        ) : config.cloudType === ECloudType.HISTOGRAM ? (
+          <Histogram width={width} height={height / 2} config={config} numCol={column} />
         ) : (
           <SplitViolin width={width} height={height / 2} config={config} numCol={column} />
         )}
