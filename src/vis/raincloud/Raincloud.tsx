@@ -1,6 +1,6 @@
 import React from 'react';
 import { useResizeObserver } from '@mantine/hooks';
-import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, ECloudType, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
 import { SplitViolin } from './cloud/SplitViolin';
 import { DotPlot } from './rain/DotPlot';
@@ -36,8 +36,12 @@ export function Raincloud({
         {column.info.name}
       </text>
       <g>
-        {/* <SplitViolin width={width} height={height / 2} config={config} numCol={column} /> */}
-        <Heatmap width={width} height={height / 2} config={config} numCol={column} />
+        {config.cloudType === ECloudType.HEATMAP ? (
+          <Heatmap width={width} height={height / 2} config={config} numCol={column} />
+        ) : (
+          <SplitViolin width={width} height={height / 2} config={config} numCol={column} />
+        )}
+
         <DotPlot yPos={height / 2} width={width} height={height} config={config} numCol={column} />
         <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} />
         <XAxis xScale={xScale} vertPosition={height / 2} yRange={[height / 2, height / 2]} />
