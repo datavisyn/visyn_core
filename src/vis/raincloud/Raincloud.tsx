@@ -7,6 +7,7 @@ import { DotPlot } from './rain/DotPlot';
 import { MeanAndInterval } from './lightning/MeanAndInterval';
 import { useXScale } from './hooks/useXScale';
 import { XAxis } from '../hexbin/XAxis';
+import { Heatmap } from './cloud/Heatmap';
 
 const margin = {
   top: 0,
@@ -35,7 +36,8 @@ export function Raincloud({
         {column.info.name}
       </text>
       <g>
-        <SplitViolin width={width} height={height / 2} config={config} numCol={column} />
+        {/* <SplitViolin width={width} height={height / 2} config={config} numCol={column} /> */}
+        <Heatmap width={width} height={height / 2} config={config} numCol={column} />
         <DotPlot yPos={height / 2} width={width} height={height} config={config} numCol={column} />
         <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} />
         <XAxis xScale={xScale} vertPosition={height / 2} yRange={[height / 2, height / 2]} />
