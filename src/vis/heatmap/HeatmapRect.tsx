@@ -9,6 +9,7 @@ export function HeatmapRect({
   color,
   setTooltipText,
   unsetTooltipText,
+  setSelected,
 }: {
   x: number;
   y: number;
@@ -17,7 +18,21 @@ export function HeatmapRect({
   color: string;
   setTooltipText(): void;
   unsetTooltipText(): void;
+  setSelected?: () => void;
 }) {
   const spring = useSpring({ from: { opacity: 0 }, to: { opacity: 1 } });
-  return <animated.rect {...spring} width={width} height={height} x={x} y={y} fill={color} onMouseEnter={setTooltipText} onMouseLeave={unsetTooltipText} />;
+  if (x < 0 || y < 0 || height < 0 || width < 0) return null;
+  return (
+    <animated.rect
+      {...spring}
+      width={width}
+      height={height}
+      x={x}
+      y={y}
+      fill={color}
+      onMouseEnter={setTooltipText}
+      onMouseLeave={unsetTooltipText}
+      onClick={setSelected}
+    />
+  );
 }

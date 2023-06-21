@@ -30,7 +30,7 @@ export function HeatmapVis({
   return (
     <Group sx={{ height: '100%', width: '100%' }} noWrap>
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
-      <HeatmapGrid config={config} columns={columns} />
+      <HeatmapGrid config={config} columns={columns} selected={selected} selectionCallback={selectionCallback} />
       {showSidebar ? (
         <VisSidebarWrapper>
           <HeatmapVisSidebar config={config} columns={columns} setConfig={setConfig} />
