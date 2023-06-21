@@ -156,7 +156,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
                 setHovered={setHover}
                 fill={colorScale(value.correlation)}
                 boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
-                highlightSignificant={config.highlightSignificant}
+                config={config}
               />
             );
           })}

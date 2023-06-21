@@ -81,6 +81,11 @@ export enum EScatterSelectSettings {
   PAN = 'pan',
 }
 
+export enum ECorrelationPlotMode {
+  PVALUE = 'p-value',
+  CORRELATION = 'correlation',
+}
+
 export interface IViolinConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
@@ -92,6 +97,7 @@ export interface ICorrelationConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   numColumnsSelected: ColumnInfo[];
   highlightSignificant: boolean;
+  mode: ECorrelationPlotMode;
 }
 
 export interface IScatterConfig {

@@ -1,8 +1,17 @@
 import * as React from 'react';
 import { useMemo } from 'react';
 import merge from 'lodash/merge';
-import { Container, Divider, Stack, Switch } from '@mantine/core';
-import { ColumnInfo, ESupportedPlotlyVis, IVisConfig, VisColumn, ICommonVisSideBarProps, EFilterOptions, ICorrelationConfig } from '../interfaces';
+import { Container, Divider, SegmentedControl, Stack, Switch } from '@mantine/core';
+import {
+  ColumnInfo,
+  ESupportedPlotlyVis,
+  IVisConfig,
+  VisColumn,
+  ICommonVisSideBarProps,
+  EFilterOptions,
+  ICorrelationConfig,
+  ECorrelationPlotMode,
+} from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 
@@ -109,6 +118,12 @@ export function CorrelationVisSidebar({
           label="Significant"
           checked={config.highlightSignificant || false}
           onChange={() => setConfig({ ...config, highlightSignificant: !config.highlightSignificant })}
+        />
+        <SegmentedControl
+          size="sm"
+          data={Object.values(ECorrelationPlotMode)}
+          value={config.mode}
+          onChange={(v) => setConfig({ ...config, mode: ECorrelationPlotMode[v] })}
         />
       </Stack>
     </Container>

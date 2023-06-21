@@ -7,6 +7,7 @@ import {
   EBarDisplayType,
   EBarGroupingType,
   EColumnTypes,
+  ECorrelationPlotMode,
   ENumericalColorScaleType,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
@@ -181,6 +182,7 @@ CorrelationPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.CORRELATION,
     highlightSignificant: false,
+    mode: ECorrelationPlotMode.CORRELATION,
     numColumnsSelected: [
       {
         description: '',
