@@ -4,6 +4,8 @@ import { ColumnInfo, ESupportedPlotlyVis, IVisConfig, VisColumn, ICommonVisSideB
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { RaincloudCloudSelect } from '../sidebar/RaincloudCloudSelect';
+import { RaincloudLightningSelect } from '../sidebar/RaincloudLightningSelect';
+import { RaincloudRainSelect } from '../sidebar/RaincloudRainSelect';
 
 export function RaincloudVisSidebar({
   config,
@@ -25,6 +27,8 @@ export function RaincloudVisSidebar({
           currentSelected={config.numColumnsSelected || []}
         />
         <RaincloudCloudSelect callback={(cloud) => setConfig({ ...config, cloudType: cloud })} currentSelected={config.cloudType} />
+        <RaincloudLightningSelect callback={(lightning) => setConfig({ ...config, lightningType: lightning })} currentSelected={config.lightningType} />
+        <RaincloudRainSelect callback={(rain) => setConfig({ ...config, rainType: rain })} currentSelected={config.rainType} />
       </Stack>
     </Container>
   );

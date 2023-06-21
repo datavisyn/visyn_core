@@ -3,6 +3,8 @@ import {
   ColumnInfo,
   ECloudType,
   EColumnTypes,
+  ELightningType,
+  ERainType,
   ESupportedPlotlyVis,
   IRaincloudConfig,
   IVisConfig,
@@ -21,6 +23,8 @@ const defaultConfig: IRaincloudConfig = {
   type: ESupportedPlotlyVis.RAINCLOUD,
   numColumnsSelected: [],
   cloudType: ECloudType.SPLIT_VIOLIN,
+  rainType: ERainType.DOTPLOT,
+  lightningType: ELightningType.MEAN_AND_DEV,
 };
 
 export function raincloudMergeDefaultConfig(columns: VisColumn[], config: IRaincloudConfig): IVisConfig {

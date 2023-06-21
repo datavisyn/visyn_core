@@ -8,7 +8,9 @@ import {
   EBarGroupingType,
   ECloudType,
   EColumnTypes,
+  ELightningType,
   ENumericalColorScaleType,
+  ERainType,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
   EViolinOverlay,
@@ -156,6 +158,8 @@ RaincloudPlot.args = {
       },
     ],
     cloudType: ECloudType.HEATMAP,
+    lightningType: ELightningType.MEAN_AND_DEV,
+    rainType: ERainType.DOTPLOT,
   },
 };
 

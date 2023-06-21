@@ -105,6 +105,9 @@ export interface IRaincloudConfig {
   type: ESupportedPlotlyVis.RAINCLOUD;
   numColumnsSelected: ColumnInfo[];
   cloudType: ECloudType;
+  rainType: ERainType;
+  lightningType: ELightningType;
+
 }
 
 export interface IScatterConfig {

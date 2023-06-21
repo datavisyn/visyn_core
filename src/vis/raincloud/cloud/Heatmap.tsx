@@ -57,11 +57,19 @@ export function Heatmap({
 
   // @ts-ignore
   const binWidth = useMemo(() => xScale(kdeVal[1][0]) - xScale(kdeVal[0][0]), [kdeVal, xScale]);
-  console.log(kdeVal);
   return (
     <g>
       {kdeVal.map((val) => {
-        return <rect key={val[0]} x={xScale(val[0])} y={margin.top} width={binWidth} height={height - margin.top} fill={colorScale(val[1])} />;
+        return (
+          <rect
+            key={val[0]}
+            x={xScale(val[0])}
+            y={height - (height > 100 + margin.top ? 100 : height - margin.top)}
+            width={binWidth}
+            height={height > 100 + margin.top ? 100 : height - margin.top}
+            fill={colorScale(val[1])}
+          />
+        );
       })}
     </g>
   );
