@@ -1,6 +1,6 @@
 import React from 'react';
 import { useResizeObserver } from '@mantine/hooks';
-import { ColumnInfo, ECloudType, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, ECloudType, EColumnTypes, ERainType, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
 import { SplitViolin } from './cloud/SplitViolin';
 import { DotPlot } from './rain/DotPlot';
@@ -9,6 +9,7 @@ import { useXScale } from './hooks/useXScale';
 import { XAxis } from '../hexbin/XAxis';
 import { Heatmap } from './cloud/Heatmap';
 import { Histogram } from './cloud/Histogram';
+import { BeeSwarm } from './rain/BeeSwarm';
 
 const margin = {
   top: 0,
@@ -45,7 +46,12 @@ export function Raincloud({
           <SplitViolin width={width} height={height / 2} config={config} numCol={column} />
         )}
 
-        <DotPlot yPos={height / 2} width={width} height={height} config={config} numCol={column} />
+        {config.rainType === ERainType.DOTPLOT ? (
+          <DotPlot yPos={height / 2} width={width} height={height} config={config} numCol={column} />
+        ) : config.rainType === ERainType.BEESWARM ? (
+          <BeeSwarm yPos={height / 2} width={width} height={height / 2} config={config} numCol={column} />
+        ) : null}
+
         <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} />
         <XAxis xScale={xScale} vertPosition={height / 2} yRange={[height / 2, height / 2]} />
       </g>

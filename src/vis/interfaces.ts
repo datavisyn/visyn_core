@@ -100,6 +100,7 @@ export enum ELightningType {
 
 export enum ERainType {
   DOTPLOT = 'Dot plot',
+  BEESWARM = 'Beeswarm',
 }
 
 export interface IRaincloudConfig {
