@@ -1,11 +1,11 @@
-import { Group, Stack, Switch, Text, Tooltip } from '@mantine/core';
+import { Group, Stack, Text, Tooltip } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
+import { useEvent } from '../../hooks/useEvent';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, IHeatmapConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
-import { useEvent } from '../../hooks/useEvent';
 
 const interRectDistance = 1;
 
@@ -53,6 +53,7 @@ export function Heatmap({
   const brush = React.useRef<d3.BrushBehavior<unknown>>(null);
   const brushGElement = React.useRef<d3.Selection<SVGGElement, unknown, HTMLElement, any>>(null);
   const resetBrush = useEvent(() => (brush.current && brushGElement.current ? brush.current.clear(brushGElement.current) : null));
+  const [isBrushing, setIsBrushing] = React.useState<boolean>(false);
 
   const { xValues, yValues, groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
     const xVals = [...new Set(column1?.resolvedValues.map(({ val }) => val))] as string[];
@@ -110,9 +111,8 @@ export function Heatmap({
 
   React.useEffect(() => {
     selectionCallback([]);
-    // resetBrush(); TODO:
     if (isBrushEnabled) {
-      brushGElement.current = d3.select('#heatmap-brush');
+      brushGElement.current = d3.select(`#heatmap-brush-${column1.info.id}-${column2.info.id}`);
       if (brushGElement) {
         brush.current = d3
           .brush()
@@ -120,20 +120,26 @@ export function Heatmap({
             [margin.left, margin.top],
             [width - margin.right, height - margin.bottom],
           ])
-          .on('brush', (a) => {
-            const [[x1, y1], [x2, y2]] = a.selection;
-            const newSelection = [];
-            groupedValues.forEach((gV) => {
-              if (doOverlap({ x1: gV.x, x2: gV.x + rectWidth, y1: gV.y, y2: gV.y + rectHeight }, { x1, x2, y1, y2 })) {
-                newSelection.push(...gV.ids);
-              }
-            });
-            selectionCallback(newSelection);
-          });
+          .on('brush', (e) => {
+            if (e?.selection) {
+              const [[x1, y1], [x2, y2]] = e.selection;
+              const newSelection = [];
+              groupedValues.forEach((gV) => {
+                if (doOverlap({ x1: gV.x, x2: gV.x + rectWidth, y1: gV.y, y2: gV.y + rectHeight }, { x1, x2, y1, y2 })) {
+                  newSelection.push(...gV.ids);
+                }
+              });
+              selectionCallback(newSelection);
+            }
+          })
+          .on('start', () => setIsBrushing(true))
+          .on('end', () => setIsBrushing(false));
         brushGElement.current.call(brush.current);
       }
     }
   }, [
+    column1.info.id,
+    column2.info.id,
     groupedValues,
     height,
     isBrushEnabled,
@@ -143,10 +149,15 @@ export function Heatmap({
     margin.top,
     rectHeight,
     rectWidth,
-    resetBrush,
     selectionCallback,
     width,
   ]);
+
+  React.useEffect(() => {
+    if (!isBrushing) {
+      resetBrush();
+    }
+  }, [resetBrush, selected, isBrushing]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
@@ -186,11 +197,10 @@ export function Heatmap({
             ))}
             {isBrushEnabled && (
               <g
-                id="heatmap-brush"
-                onClick={(event) => {
-                  if (event.detail === 2) {
+                id={`heatmap-brush-${column1.info.id}-${column2.info.id}`}
+                onClick={(e) => {
+                  if (e.detail === 2) {
                     selectionCallback([]);
-                    resetBrush();
                   }
                 }}
               />
