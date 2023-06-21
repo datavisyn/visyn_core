@@ -123,7 +123,7 @@ export function CorrelationVisSidebar({
           size="sm"
           data={Object.values(ECorrelationPlotMode)}
           value={config.mode}
-          onChange={(v) => setConfig({ ...config, mode: ECorrelationPlotMode[v] })}
+          onChange={(v) => setConfig({ ...config, mode: v as ECorrelationPlotMode })}
         />
       </Stack>
     </Container>
