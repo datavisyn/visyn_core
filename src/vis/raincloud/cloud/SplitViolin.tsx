@@ -1,6 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
-import { Box, Container } from '@mantine/core';
-import { useResizeObserver } from '@mantine/hooks';
+import React, { useMemo } from 'react';
 import * as d3 from 'd3v7';
 
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';

@@ -6,6 +6,7 @@ import {
   EBarDirection,
   EBarDisplayType,
   EBarGroupingType,
+  ECloudType,
   EColumnTypes,
   ENumericalColorScaleType,
   EScatterSelectSettings,
@@ -154,6 +155,7 @@ RaincloudPlot.args = {
         name: 'Sepal Width',
       },
     ],
+    cloudType: ECloudType.HEATMAP,
   },
 };
 

@@ -88,9 +88,23 @@ export interface IViolinConfig {
   violinOverlay: EViolinOverlay;
 }
 
+export enum ECloudType {
+  SPLIT_VIOLIN = 'Split violin',
+  HEATMAP = 'Heatmap',
+}
+
+export enum ELightningType {
+  MEAN_AND_DEV = 'Mean and deviation',
+}
+
+export enum ERainType {
+  DOTPLOT = 'Dot plot',
+}
+
 export interface IRaincloudConfig {
   type: ESupportedPlotlyVis.RAINCLOUD;
   numColumnsSelected: ColumnInfo[];
+  cloudType: ECloudType;
 }
 
 export interface IScatterConfig {

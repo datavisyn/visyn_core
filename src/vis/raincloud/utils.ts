@@ -1,6 +1,7 @@
 import { merge } from 'lodash';
 import {
   ColumnInfo,
+  ECloudType,
   EColumnTypes,
   ESupportedPlotlyVis,
   IRaincloudConfig,
@@ -19,6 +20,7 @@ export function isRaincloud(s: IVisConfig): s is IRaincloudConfig {
 const defaultConfig: IRaincloudConfig = {
   type: ESupportedPlotlyVis.RAINCLOUD,
   numColumnsSelected: [],
+  cloudType: ECloudType.SPLIT_VIOLIN,
 };
 
 export function raincloudMergeDefaultConfig(columns: VisColumn[], config: IRaincloudConfig): IVisConfig {

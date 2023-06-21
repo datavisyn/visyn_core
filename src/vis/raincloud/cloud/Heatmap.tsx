@@ -53,22 +53,16 @@ export function Heatmap({
     return kde(numCol.resolvedValues.map((val) => val.val as number));
   }, [numCol.resolvedValues, xScale]);
 
-  const bins = useMemo(() => {
-    return table({ values: numCol.resolvedValues.map((v) => v.val) })
-      .groupby('values', { bin: bin('values', { maxbins: 100 }) })
-      .count()
-      .groupby('bin')
-      .rollup({ count: op.sum('count'), average: op.mean('values') })
-      .orderby('bin');
-  }, [numCol.resolvedValues]);
-
-  const colorScale = d3.scaleSequential(d3.interpolateGreys).domain([d3.max(kdeVal.map((val) => val[1] as number)), 0]);
+  const colorScale = d3.scaleSequential(d3.interpolateGreys).domain([d3.max(kdeVal.map((val) => val[1] as number)), 0].reverse());
 
   // @ts-ignore
-  const binWidth = useMemo(() => xScale(bins.objects()[1].bin) - xScale(bins.objects()[0].bin), [bins, xScale]);
-  console.log(binWidth);
-  console.log(bins.objects());
-  return bins.objects().map((singleBin: { bin: number; count: number; average: number }) => {
-    return <rect key={singleBin.bin} x={xScale(singleBin.bin)} y={0} width={binWidth} height={30} fill={colorScale(singleBin.count)} />;
-  });
+  const binWidth = useMemo(() => xScale(kdeVal[1][0]) - xScale(kdeVal[0][0]), [kdeVal, xScale]);
+  console.log(kdeVal);
+  return (
+    <g>
+      {kdeVal.map((val) => {
+        return <rect key={val[0]} x={xScale(val[0])} y={margin.top} width={binWidth} height={height - margin.top} fill={colorScale(val[1])} />;
+      })}
+    </g>
+  );
 }

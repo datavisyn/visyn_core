@@ -3,6 +3,7 @@ import { Container, Divider, Stack } from '@mantine/core';
 import { ColumnInfo, ESupportedPlotlyVis, IVisConfig, VisColumn, ICommonVisSideBarProps, IRaincloudConfig } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { RaincloudCloudSelect } from '../sidebar/RaincloudCloudSelect';
 
 export function RaincloudVisSidebar({
   config,
@@ -23,6 +24,7 @@ export function RaincloudVisSidebar({
           columns={columns}
           currentSelected={config.numColumnsSelected || []}
         />
+        <RaincloudCloudSelect callback={(cloud) => setConfig({ ...config, cloudType: cloud })} currentSelected={config.cloudType} />
       </Stack>
     </Container>
   );
