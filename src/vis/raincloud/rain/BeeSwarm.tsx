@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { table, op, bin } from 'arquero';
 import * as d3 from 'd3v7';
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
+import { Circle } from './Circle';
 
 const margin = {
   top: 30,
@@ -18,6 +19,7 @@ export function BeeSwarm({
   width,
   height,
   yPos,
+  circleCallback,
 }: {
   numCol: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
@@ -28,13 +30,14 @@ export function BeeSwarm({
   width: number;
   height: number;
   yPos: number;
+  circleCallback: (circles: { id: string; x: number; y: number }[]) => void;
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
   const forceDirectedNode = useMemo(() => {
     if (xScale) {
       const force = d3
-        .forceSimulation(numCol.resolvedValues.map((col) => col.val as number).map((d) => ({ x: xScale(d), y: (height - margin.bottom + margin.top) / 2 })))
+        .forceSimulation(numCol.resolvedValues.map((d) => ({ id: d.id, x: xScale(d.val as number), y: (height - margin.bottom + margin.top) / 2 })))
         .force(
           'y',
           d3
@@ -60,19 +63,13 @@ export function BeeSwarm({
     return null;
   }, [height, numCol.resolvedValues, xScale]);
 
-  console.log(forceDirectedNode);
+  useEffect(() => {
+    const circles = forceDirectedNode.map((circle) => {
+      return { id: circle.id, x: circle.x, y: circle.y + yPos };
+    });
 
-  const circles = useMemo(() => {
-    return (
-      <g transform={`translate(0, ${yPos})`}>
-        {forceDirectedNode.map((circle) => {
-          return <circle fill="cornflowerblue" key={circle.index} r={4} cx={circle.x} cy={circle.y} />;
-        })}
-      </g>
-    );
-  }, [forceDirectedNode, yPos]);
+    circleCallback(circles);
+  }, [circleCallback, forceDirectedNode, yPos]);
 
-  console.log(circles);
-
-  return circles;
+  return null;
 }

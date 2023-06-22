@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import * as d3 from 'd3v7';
+import { table, op } from 'arquero';
 
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
@@ -29,6 +30,18 @@ function kernelEpanechnikov(k) {
   };
 }
 
+function toSampleVariance(variance: number, len: number) {
+  return (variance * len) / (len - 1);
+}
+
+function silvermans(iqr: number, variance: number, len: number) {
+  let s = Math.sqrt(toSampleVariance(variance, len));
+  if (typeof iqr === 'number') {
+    s = Math.min(s, iqr / 1.34);
+  }
+  return 1.06 * s * len ** -0.2;
+}
+
 export function SplitViolin({
   numCol,
   config,
@@ -46,11 +59,24 @@ export function SplitViolin({
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
+  const silvermansInfo: { variance: number; q1: number; q3: number } = useMemo(() => {
+    return table({ values: numCol.resolvedValues.map((val) => val.val as number) })
+      .rollup({
+        variance: op.variance('values'),
+        q1: op.quantile('values', 0.25),
+        q3: op.quantile('values', 0.75),
+      })
+      .objects()[0] as { variance: number; q1: number; q3: number };
+  }, [numCol.resolvedValues]);
+
   const kdeVal: [number, number][] = useMemo(() => {
-    const kde = kernelDensityEstimator(kernelEpanechnikov(0.3), xScale.ticks(50));
+    const kde = kernelDensityEstimator(
+      kernelEpanechnikov(silvermans(silvermansInfo.q3 - silvermansInfo.q1, silvermansInfo.variance, numCol.resolvedValues.length)),
+      xScale.ticks(25),
+    );
 
     return kde(numCol.resolvedValues.map((val) => val.val as number));
-  }, [numCol.resolvedValues, xScale]);
+  }, [numCol.resolvedValues, silvermansInfo.q1, silvermansInfo.q3, silvermansInfo.variance, xScale]);
 
   const yScale = useMemo(() => {
     const scale = d3

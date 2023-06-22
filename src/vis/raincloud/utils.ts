@@ -47,3 +47,9 @@ export async function getRaincloudData(
 
   return { numColVals };
 }
+
+export interface IRaindropCircle {
+  id: string;
+  x: number;
+  y: number;
+}

@@ -88,7 +88,6 @@ export function BarChart({
           isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
           colorScale={groupColorScale}
           height={30}
-          onClick={() => console.log('hello')}
           stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
         />
       ) : null}

@@ -101,6 +101,7 @@ export enum ELightningType {
 export enum ERainType {
   DOTPLOT = 'Dot plot',
   BEESWARM = 'Beeswarm',
+  WHEATPLOT = 'Wheat plot',
 }
 
 export interface IRaincloudConfig {
@@ -109,7 +110,6 @@ export interface IRaincloudConfig {
   cloudType: ECloudType;
   rainType: ERainType;
   lightningType: ELightningType;
-
 }
 
 export interface IScatterConfig {

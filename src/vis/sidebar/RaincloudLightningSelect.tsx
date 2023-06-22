@@ -10,7 +10,5 @@ interface HexbinOptionSelectProps {
 
 export function RaincloudLightningSelect({ callback, currentSelected }: HexbinOptionSelectProps) {
   const options = [{ value: ELightningType.MEAN_AND_DEV, label: ELightningType.MEAN_AND_DEV }];
-  return (
-    <Select withinPortal label={i18n.t('visyn:vis.hexbinOptions')} onChange={(e) => callback(e as ELightningType)} data={options} value={currentSelected} />
-  );
+  return <Select withinPortal label="Lightning options" onChange={(e) => callback(e as ELightningType)} data={options} value={currentSelected} />;
 }

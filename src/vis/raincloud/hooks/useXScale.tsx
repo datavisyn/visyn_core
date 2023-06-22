@@ -19,14 +19,17 @@ export function useXScale({
     info: ColumnInfo;
   };
 }) {
+  const range1 = range[0];
+  const range2 = range[1];
+
   const xScale = React.useMemo(() => {
     const scale = d3
       .scaleLinear()
       .domain(d3.extent(column.resolvedValues.map((val) => val.val as number)))
-      .range(range);
+      .range([range1, range2]);
 
     return scale;
-  }, [column, range]);
+  }, [column, range1, range2]);
 
   return xScale;
 }

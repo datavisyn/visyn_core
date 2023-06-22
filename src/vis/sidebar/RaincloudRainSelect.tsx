@@ -12,6 +12,7 @@ export function RaincloudRainSelect({ callback, currentSelected }: HexbinOptionS
   const options = [
     { value: ERainType.DOTPLOT, label: ERainType.DOTPLOT },
     { value: ERainType.BEESWARM, label: ERainType.BEESWARM },
+    { value: ERainType.WHEATPLOT, label: ERainType.WHEATPLOT },
   ];
-  return <Select withinPortal label={i18n.t('visyn:vis.hexbinOptions')} onChange={(e) => callback(e as ERainType)} data={options} value={currentSelected} />;
+  return <Select withinPortal label="Rain options" onChange={(e) => callback(e as ERainType)} data={options} value={currentSelected} />;
 }

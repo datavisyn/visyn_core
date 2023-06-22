@@ -12,7 +12,7 @@ const margin = {
   right: 20,
 };
 
-export function DotPlot({
+export function WheatPlot({
   numCol,
   config,
   width,
@@ -37,21 +37,22 @@ export function DotPlot({
     const temp = table({ id: numCol.resolvedValues.map((v) => v.id), values: numCol.resolvedValues.map((v) => v.val) })
       .orderby('values')
       .groupby('values', { bins: bin('values', { maxbins: 20 }) })
-      .rollup({ ids: op.array_agg('id'), count: op.count() });
+      .rollup({ count: op.count(), ids: op.entries_agg('id', 'values') });
 
-    return temp.groupby('bins').rollup({ ids: op.array_agg('ids'), count: op.sum('count'), average: op.mean('values') });
+    return temp.groupby('bins').rollup({ count: op.sum('count'), ids: op.array_agg('ids') });
   }, [numCol]);
 
   useEffect(() => {
-    console.log('circles getting drawn');
-    const circles = bins.objects().map((singleBin: { ids: string[][]; binVal: number; count: number; average: number }) => {
+    const circles = bins.objects().map((singleBin: { binVal: number; count: number; ids: [string, number][] }) => {
       return singleBin.ids
         .flat()
-        .sort()
+        .sort((a, b) => {
+          return a[1] - b[1];
+        })
         .map((val, i) => {
           return (
             // TODO:: What happens when we run out of space
-            { id: val, x: xScale(singleBin.average), y: yPos + margin.top + i * 10 }
+            { id: val[0], x: xScale(val[1]), y: yPos + margin.top + i * 10 }
           );
         });
     });

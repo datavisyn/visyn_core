@@ -18,7 +18,6 @@ export function useGetBarScales(
   aggregateType: EAggregateTypes,
 ): { aggregatedTable: ColumnTable; baseTable: ColumnTable; countScale: d3.ScaleLinear<number, number>; categoryScale: d3.ScaleBand<string> } {
   const baseTable = useMemo(() => {
-    console.log(allColumns);
     if (allColumns?.catColVals) {
       return table({
         category: allColumns.catColVals.resolvedValues.map((val) => val.val),

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useResizeObserver } from '@mantine/hooks';
 import { ColumnInfo, ECloudType, EColumnTypes, ERainType, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
@@ -10,6 +10,9 @@ import { XAxis } from '../hexbin/XAxis';
 import { Heatmap } from './cloud/Heatmap';
 import { Histogram } from './cloud/Histogram';
 import { BeeSwarm } from './rain/BeeSwarm';
+import { IRaindropCircle } from './utils';
+import { Circle } from './rain/Circle';
+import { WheatPlot } from './rain/WheatPlot';
 
 const margin = {
   top: 0,
@@ -30,7 +33,21 @@ export function Raincloud({
 }) {
   const [ref, { width, height }] = useResizeObserver();
 
+  const [circles, setCircles] = useState<IRaindropCircle[]>([]);
+
   const xScale = useXScale({ range: [margin.left, width - margin.right], column });
+
+  const circlesCallback = useCallback((callbackCircles: IRaindropCircle[]) => {
+    setCircles(callbackCircles);
+  }, []);
+
+  const circlesRendered = useMemo(() => {
+    return circles.map((circle) => {
+      return <Circle key={circle.id} x={circle.x} y={circle.y} id={circle.id} raincloudType={config.rainType} />;
+    });
+    // Hacking a bit here so the circles dont render twice, which would disable the animation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [circles]);
 
   return (
     <svg key={column.info.id} ref={ref} style={{ width: '100%', height: '100%' }}>
@@ -47,10 +64,13 @@ export function Raincloud({
         )}
 
         {config.rainType === ERainType.DOTPLOT ? (
-          <DotPlot yPos={height / 2} width={width} height={height} config={config} numCol={column} />
+          <DotPlot yPos={height / 2} width={width} height={height} config={config} numCol={column} circleCallback={circlesCallback} />
         ) : config.rainType === ERainType.BEESWARM ? (
-          <BeeSwarm yPos={height / 2} width={width} height={height / 2} config={config} numCol={column} />
+          <BeeSwarm yPos={height / 2} width={width} height={height / 2} config={config} numCol={column} circleCallback={circlesCallback} />
+        ) : config.rainType === ERainType.WHEATPLOT ? (
+          <WheatPlot yPos={height / 2} width={width} height={height / 2} config={config} numCol={column} circleCallback={circlesCallback} />
         ) : null}
+        {circlesRendered}
 
         <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} />
         <XAxis xScale={xScale} vertPosition={height / 2} yRange={[height / 2, height / 2]} />
