@@ -41,7 +41,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Sepal Length',
       },
       type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val }))),
+      values: () => dataPromise.then((d) => d.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val }))),
     },
     {
       info: {
@@ -50,7 +50,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Sepal Width',
       },
       type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.sepalWidth).map((val, i) => ({ id: i.toString(), val }))),
+      values: () => dataPromise.then((d) => d.map((r) => r.sepalWidth).map((val, i) => ({ id: i.toString(), val }))),
     },
     {
       info: {
@@ -60,7 +60,7 @@ export function fetchIrisData(): VisColumn[] {
       },
       type: EColumnTypes.CATEGORICAL,
       color: { 1: 'cornflowerblue' },
-      values: () => dataPromise.then((data) => data.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
+      values: () => dataPromise.then((d) => d.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
     },
     {
       info: {
@@ -69,7 +69,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Petal Length PEtal length petal length',
       },
       type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),
+      values: () => dataPromise.then((d) => d.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),
     },
     {
       info: {
@@ -78,7 +78,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Petal Width',
       },
       type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.petalWidth).map((val, i) => ({ id: i.toString(), val }))),
+      values: () => dataPromise.then((d) => d.map((r) => r.petalWidth).map((val, i) => ({ id: i.toString(), val }))),
     },
     {
       info: {
@@ -87,7 +87,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Species',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.species).map((val, i) => ({ id: i.toString(), val }))),
+      values: () => dataPromise.then((d) => d.map((r) => r.species).map((val, i) => ({ id: i.toString(), val }))),
     },
     {
       info: {
