@@ -1,4 +1,4 @@
-import { IRankingDump, Ranking, Taggle, DataProvider, LocalDataProvider } from 'lineupjs';
+import { IRankingDump, Ranking, Taggle, DataProvider, LocalDataProvider, TaggleRenderer } from 'lineupjs';
 import castArray from 'lodash/castArray';
 import { IScoreColumnDesc, IScoreResult } from '../score/interfaces';
 
@@ -54,5 +54,20 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
 
       return ranking.push(col);
     });
+  }
+
+  /**
+   * Makes the underlying enableHighlighListening function public.
+   */
+  override enableHighlightListening(enable: boolean): void {
+    super.enableHighlightListening(enable);
+  }
+
+  /**
+   * Hack that exposes the internal and private renderer.
+   */
+  get taggleRenderer(): TaggleRenderer {
+    // @ts-ignore
+    return super.renderer;
   }
 }
