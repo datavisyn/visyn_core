@@ -4,10 +4,8 @@ import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Container, Group, Space, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType } from '../interfaces';
+import { Group, Space, Stack } from '@mantine/core';
+import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType, EFilterOptions } from '../interfaces';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
@@ -17,7 +15,6 @@ import { createBarTraces } from './utils';
 import { BarVisSidebar } from './BarVisSidebar';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 
 const defaultExtensions = {
@@ -42,6 +39,7 @@ export function BarVis({
   setShowSidebar,
   showCloseButton = false,
   closeButtonCallback = () => null,
+  filterCallback = () => null,
 }: {
   config: IBarConfig;
   optionsConfig?: {
@@ -66,6 +64,7 @@ export function BarVis({
       customComponent?: React.ReactNode;
     };
   };
+  filterCallback?: (s: EFilterOptions) => void;
   extensions?: {
     prePlot?: React.ReactNode;
     postPlot?: React.ReactNode;
@@ -143,7 +142,10 @@ export function BarVis({
 
   useEffect(() => {
     const ro = new ResizeObserver(() => {
-      Plotly.Plots.resize(document.getElementById(`plotlyDiv${id}`));
+      const plotDiv = document.getElementById(`plotlyDiv${id}`);
+      if (plotDiv) {
+        Plotly.Plots.resize(plotDiv);
+      }
     });
 
     if (plotlyDivRef) {
@@ -181,7 +183,7 @@ export function BarVis({
       dragmode: false,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(finalTraces, innerLayout, null) });
+    setLayout({ ...layout, ...beautifyLayout(finalTraces, innerLayout, null, true) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalTraces, config.groupType]);
@@ -242,12 +244,16 @@ export function BarVis({
               // plotly types here are just wrong. So have to convert to unknown first.
               const selectedPoints: string[] = e.points[0].customdata as unknown as string[];
 
-              let removeSelectionFlag = true;
+              let removeSelectionFlag = false;
 
-              for (const pointId of selectedPoints) {
-                if (!selectedMap[pointId]) {
-                  removeSelectionFlag = false;
-                  break;
+              if (selectedPoints.length === selectedList.length) {
+                removeSelectionFlag = true;
+
+                for (const pointId of selectedPoints) {
+                  if (!selectedMap[pointId]) {
+                    removeSelectionFlag = false;
+                    break;
+                  }
                 }
               }
 
@@ -270,14 +276,21 @@ export function BarVis({
               }
             }}
           />
-        ) : traceStatus !== 'pending' ? (
+        ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
           <InvalidCols headerMessage={finalTraces?.errorMessageHeader} bodyMessage={traceError?.message || finalTraces?.errorMessage} />
         ) : null}
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar ? (
+      {showSidebar && plotlyDivRef?.current ? (
         <VisSidebarWrapper>
-          <BarVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
+          <BarVisSidebar
+            config={config}
+            optionsConfig={optionsConfig}
+            extensions={extensions}
+            columns={columns}
+            setConfig={setConfig}
+            filterCallback={filterCallback}
+          />
         </VisSidebarWrapper>
       ) : null}
     </Group>

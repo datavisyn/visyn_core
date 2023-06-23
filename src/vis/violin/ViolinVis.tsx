@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 import { ActionIcon, Container, Group, Space, Stack, Tooltip } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IViolinConfig } from '../interfaces';
-import { PlotlyComponent } from '../../plotly';
+import { Scales, VisColumn, IVisConfig, IViolinConfig, EFilterOptions } from '../interfaces';
+import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
@@ -35,8 +35,12 @@ export function ViolinVis({
   scales,
   showSidebar,
   setShowSidebar,
+  selectedList,
+  selectedMap,
+  selectionCallback,
   enableSidebar,
   showCloseButton = false,
+  filterCallback = () => null,
   closeButtonCallback = () => null,
 }: {
   config: IViolinConfig;
@@ -52,10 +56,14 @@ export function ViolinVis({
     preSidebar?: React.ReactNode;
     postSidebar?: React.ReactNode;
   };
+  filterCallback?: (s: EFilterOptions) => void;
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
   closeButtonCallback?: () => void;
+  selectionCallback: (ids: string[]) => void;
 
+  selectedMap: { [key: string]: boolean };
+  selectedList: string[];
   scales: Scales;
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
@@ -66,7 +74,7 @@ export function ViolinVis({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales]);
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('ViolinVis'), []);
 
@@ -74,9 +82,43 @@ export function ViolinVis({
 
   const plotlyDivRef = React.useRef(null);
 
+  const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
+    if (!e || !e.points || !e.points[0]) {
+      selectionCallback([]);
+      return;
+    }
+
+    // @ts-ignore
+    const shiftPressed = e.event.shiftKey;
+    // @ts-ignore
+    const eventIds = e.points[0]?.fullData.ids;
+
+    // Multiselect enabled
+    if (shiftPressed) {
+      // Filter out incoming ids in order to deselect violin/box element
+      const newSelected = selectedList.filter((s) => !eventIds.includes(s));
+
+      // If incoming ids were not in selected already, add them
+      if (newSelected.length === selectedList.length) {
+        newSelected.push(...eventIds);
+      }
+
+      selectionCallback(newSelected);
+    }
+    // Multiselect disabled
+    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
+      selectionCallback([]);
+    } else {
+      selectionCallback(eventIds);
+    }
+  };
+
   useEffect(() => {
     const ro = new ResizeObserver(() => {
-      Plotly.Plots.resize(document.getElementById(`plotlyDiv${id}`));
+      const plotDiv = document.getElementById(`plotlyDiv${id}`);
+      if (plotDiv) {
+        Plotly.Plots.resize(plotDiv);
+      }
     });
 
     if (plotlyDivRef) {
@@ -107,12 +149,13 @@ export function ViolinVis({
       font: {
         family: 'Roboto, sans-serif',
       },
+      clickmode: 'event+select',
       autosize: true,
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout) });
+    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, true) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [traces]);
@@ -128,6 +171,7 @@ export function ViolinVis({
         height: '100%',
         width: '100%',
         position: 'relative',
+        overflow: 'hidden',
         // Disable plotly crosshair cursor
         '.nsewdrag': {
           cursor: 'pointer !important',
@@ -147,8 +191,6 @@ export function ViolinVis({
 
         {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-        {mergedExtensions.prePlot}
-
         {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
           <PlotlyComponent
             divId={`plotlyDiv${id}`}
@@ -157,6 +199,7 @@ export function ViolinVis({
             config={{ responsive: true, displayModeBar: false }}
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
+            onClick={onClick}
             // plotly redraws everything on updates, so you need to reappend title and
             onUpdate={() => {
               for (const p of traces.plots) {
@@ -166,12 +209,13 @@ export function ViolinVis({
               }
             }}
           />
-        ) : traceStatus !== 'pending' ? (
+        ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
           <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
         ) : null}
         {mergedExtensions.postPlot}
       </Stack>
-      {showSidebar ? (
+
+      {showSidebar && plotlyDivRef?.current ? (
         <VisSidebarWrapper>
           <ViolinVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
         </VisSidebarWrapper>

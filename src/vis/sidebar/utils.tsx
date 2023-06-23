@@ -1,5 +1,7 @@
 import * as React from 'react';
 import Highlighter from 'react-highlight-words';
+import { Stack, Tooltip, Text, Box, MultiSelectValueProps, CloseButton } from '@mantine/core';
+import { forwardRef } from 'react';
 import { ColumnInfo, VisNumericalColumn, VisCategoricalColumn, VisColumn } from '../interfaces';
 
 export const formatOptionLabel = (option, ctx) => {
@@ -16,4 +18,65 @@ export function getCol(columns: VisColumn[], info: ColumnInfo | null): VisNumeri
     return null;
   }
   return columns.filter((c) => c.info.id === info.id)[0];
+}
+
+interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
+  value: string;
+  label: string;
+  description: string;
+}
+
+// eslint-disable-next-line react/display-name
+export const SelectDropdownItem = forwardRef<HTMLDivElement, ItemProps>(({ value, label, description, ...others }: ItemProps, ref) => (
+  <div ref={ref} {...others}>
+    <Stack spacing={0}>
+      <Text>{label}</Text>
+      <Text size="xs" opacity={0.5}>
+        {description}
+      </Text>
+    </Stack>
+  </div>
+));
+
+export function SelectLabelComponent({
+  value,
+  label,
+  description,
+  onRemove,
+  classNames,
+  ...others
+}: MultiSelectValueProps & { value: string; description: string }) {
+  return (
+    <div {...others}>
+      <Tooltip
+        withinPortal
+        withArrow
+        arrowSize={6}
+        label={
+          <Stack spacing={0}>
+            <Text>{label}</Text>
+            <Text size="xs" color="dimmed">
+              {description}
+            </Text>
+          </Stack>
+        }
+      >
+        <Box
+          sx={(theme) => ({
+            display: 'flex',
+            cursor: 'default',
+            alignItems: 'center',
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[1],
+            paddingLeft: theme.spacing.xs,
+            borderRadius: theme.radius.sm,
+          })}
+        >
+          <Text weight={500} sx={{ lineHeight: 1, fontSize: 12, color: '#495057' }}>
+            {label}
+          </Text>
+          <CloseButton onMouseDown={onRemove} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />
+        </Box>
+      </Tooltip>
+    </div>
+  );
 }

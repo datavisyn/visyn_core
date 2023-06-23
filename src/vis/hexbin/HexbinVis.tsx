@@ -32,6 +32,7 @@ export function HexbinVis({
   enableSidebar,
   setShowSidebar,
   showSidebar,
+  showDragModeOptions = true,
 }: {
   config: IHexbinConfig;
   extensions?: {
@@ -46,6 +47,7 @@ export function HexbinVis({
   selected?: { [key: string]: boolean };
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
+  showDragModeOptions?: boolean;
   enableSidebar?: boolean;
 }) {
   const mergedExtensions = useMemo(() => {
@@ -59,15 +61,17 @@ export function HexbinVis({
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-        <Center>
-          <Group mt="lg">
-            <BrushOptionButtons
-              callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
-              options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
-              dragMode={config.dragMode}
-            />
-          </Group>
-        </Center>
+        {showDragModeOptions ? (
+          <Center>
+            <Group mt="lg">
+              <BrushOptionButtons
+                callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+                options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
+                dragMode={config.dragMode}
+              />
+            </Group>
+          </Center>
+        ) : null}
         <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
           {config.numColumnsSelected.length < 2 ? (
             <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={i18n.t('visyn:vis.hexbinError')} />
