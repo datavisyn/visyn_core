@@ -76,7 +76,7 @@ export function SplitViolin({
     );
 
     return kde(numCol.resolvedValues.map((val) => val.val as number));
-  }, [numCol.resolvedValues, silvermansInfo.q1, silvermansInfo.q3, silvermansInfo.variance, xScale]);
+  }, [numCol.resolvedValues, silvermansInfo, xScale]);
 
   const yScale = useMemo(() => {
     const scale = d3

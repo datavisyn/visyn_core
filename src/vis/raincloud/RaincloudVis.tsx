@@ -12,15 +12,17 @@ export function RaincloudVis({
   config,
   columns,
   setConfig,
-
+  selectionCallback = () => null,
   enableSidebar,
+  selected = {},
   setShowSidebar,
   showSidebar,
 }: {
   config: IRaincloudConfig;
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
-
+  selectionCallback?: (ids: string[]) => void;
+  selected?: { [key: string]: boolean };
   showSidebar?: boolean;
   setShowSidebar?(show: boolean): void;
   enableSidebar?: boolean;
@@ -32,7 +34,7 @@ export function RaincloudVis({
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-        <RaincloudGrid columns={columns} config={config} />
+        <RaincloudGrid columns={columns} config={config} selectionCallback={selectionCallback} selected={selected} />
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>

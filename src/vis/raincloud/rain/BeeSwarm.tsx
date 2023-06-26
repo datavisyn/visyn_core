@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 
 import { table, op, bin } from 'arquero';
 import * as d3 from 'd3v7';
+import forceBoundary from 'd3-force-boundary';
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
 import { Circle } from './Circle';
@@ -37,14 +38,10 @@ export function BeeSwarm({
   const forceDirectedNode = useMemo(() => {
     if (xScale) {
       const force = d3
-        .forceSimulation(numCol.resolvedValues.map((d) => ({ id: d.id, x: xScale(d.val as number), y: (height - margin.bottom + margin.top) / 2 })))
-        .force(
-          'y',
-          d3
-            .forceY()
-            .strength(0.1)
-            .y((height - margin.bottom - margin.top) / 2),
-        )
+        .forceSimulation(numCol.resolvedValues.map((d) => ({ id: d.id, x: xScale(d.val as number), y: margin.top })))
+        .force('boundary', forceBoundary(margin.left, margin.top, width, height - margin.bottom))
+
+        .force('y', d3.forceY().strength(0.1).y(Math.max(margin.top, margin.top)))
         .force(
           'x',
           d3
@@ -61,7 +58,7 @@ export function BeeSwarm({
       return newSim.nodes();
     }
     return null;
-  }, [height, numCol.resolvedValues, xScale]);
+  }, [height, numCol.resolvedValues, width, xScale]);
 
   useEffect(() => {
     const circles = forceDirectedNode.map((circle) => {

@@ -25,6 +25,7 @@ const defaultConfig: IRaincloudConfig = {
   cloudType: ECloudType.SPLIT_VIOLIN,
   rainType: ERainType.DOTPLOT,
   lightningType: ELightningType.MEAN_AND_DEV,
+  aggregateRain: false,
 };
 
 export function raincloudMergeDefaultConfig(columns: VisColumn[], config: IRaincloudConfig): IVisConfig {

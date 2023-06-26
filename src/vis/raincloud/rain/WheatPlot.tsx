@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 
 import { table, op, bin } from 'arquero';
+import ColumnTable from 'arquero/dist/types/table/column-table';
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
 import { Circle } from './Circle';
@@ -18,6 +19,7 @@ export function WheatPlot({
   width,
   height,
   yPos,
+  baseTable,
   circleCallback,
 }: {
   numCol: {
@@ -29,18 +31,20 @@ export function WheatPlot({
   width: number;
   height: number;
   yPos: number;
+  baseTable: ColumnTable;
+
   circleCallback: (circles: { id: string; x: number; y: number }[]) => void;
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
   const bins = useMemo(() => {
-    const temp = table({ id: numCol.resolvedValues.map((v) => v.id), values: numCol.resolvedValues.map((v) => v.val) })
+    const temp = baseTable
       .orderby('values')
       .groupby('values', { bins: bin('values', { maxbins: 20 }) })
-      .rollup({ count: op.count(), ids: op.entries_agg('id', 'values') });
+      .rollup({ count: op.count(), ids: op.entries_agg('ids', 'values') });
 
     return temp.groupby('bins').rollup({ count: op.sum('count'), ids: op.array_agg('ids') });
-  }, [numCol]);
+  }, [baseTable]);
 
   useEffect(() => {
     const circles = bins.objects().map((singleBin: { binVal: number; count: number; ids: [string, number][] }) => {

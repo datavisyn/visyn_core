@@ -1,29 +1,34 @@
-import { Tooltip } from '@mantine/core';
-import React, { useEffect, useState } from 'react';
-import { useSpring, easings, animated } from 'react-spring';
-import { ERainType } from '..';
+import React, { useCallback, useEffect } from 'react';
+import * as d3 from 'd3v7';
 
-export function Circle({ x, y, id, raincloudType }: { x: number; y: number; id: string; raincloudType: ERainType }) {
-  const [currentRaincloudType, setRaincloudType] = useState<ERainType>(raincloudType);
-  const spring = useSpring({
-    immediate: currentRaincloudType === raincloudType,
-    cx: x,
-    cy: y,
-    config: {
-      duration: 750,
-      easing: easings.easeInOutSine,
-    },
-  });
-
+export function Brush({
+  x,
+  y,
+  height,
+  width,
+  id,
+  onBrush,
+}: {
+  y: number;
+  x: number;
+  height: number;
+  width: number;
+  id: string;
+  onBrush: (brushArea: [number, number]) => void;
+}) {
   useEffect(() => {
-    setRaincloudType(raincloudType);
-  }, [raincloudType]);
+    const brush = d3
+      .brushX()
+      .extent([
+        [x, y],
+        [x + width, y + height],
+      ])
+      .on('brush', (e) => {
+        onBrush(e.selection as [number, number]);
+      });
 
-  return (
-    <g>
-      <Tooltip withinPortal label={id}>
-        <animated.circle key={id} r={4} {...spring} fill="cornflowerblue" />
-      </Tooltip>
-    </g>
-  );
+    d3.select(`#brush${id}`).call(brush);
+  }, [height, id, onBrush, width, x, y]);
+
+  return <g id={`brush${id}`} />;
 }

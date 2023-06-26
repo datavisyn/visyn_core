@@ -110,6 +110,7 @@ export interface IRaincloudConfig {
   cloudType: ECloudType;
   rainType: ERainType;
   lightningType: ELightningType;
+  aggregateRain: boolean;
 }
 
 export interface IScatterConfig {

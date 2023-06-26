@@ -6,6 +6,7 @@ import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { RaincloudCloudSelect } from '../sidebar/RaincloudCloudSelect';
 import { RaincloudLightningSelect } from '../sidebar/RaincloudLightningSelect';
 import { RaincloudRainSelect } from '../sidebar/RaincloudRainSelect';
+import { AggregateRainSwitch } from '../sidebar/AggregateRainSwitch';
 
 export function RaincloudVisSidebar({
   config,
@@ -29,6 +30,7 @@ export function RaincloudVisSidebar({
         <RaincloudCloudSelect callback={(cloud) => setConfig({ ...config, cloudType: cloud })} currentSelected={config.cloudType} />
         <RaincloudLightningSelect callback={(lightning) => setConfig({ ...config, lightningType: lightning })} currentSelected={config.lightningType} />
         <RaincloudRainSelect callback={(rain) => setConfig({ ...config, rainType: rain })} currentSelected={config.rainType} />
+        <AggregateRainSwitch callback={(aggregateRain) => setConfig({ ...config, aggregateRain })} currentValue={config.aggregateRain} />
       </Stack>
     </Container>
   );

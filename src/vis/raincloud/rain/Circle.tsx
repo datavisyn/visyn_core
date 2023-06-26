@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSpring, easings, animated } from 'react-spring';
 import { ERainType } from '../../interfaces';
 
-export function Circle({ x, y, id, raincloudType }: { x: number; y: number; id: string; raincloudType: ERainType }) {
+export function Circle({ x, y, id, raincloudType, color }: { x: number; y: number; id: string; raincloudType: ERainType; color: string }) {
   const raincloudTypeRef = useRef<ERainType>(raincloudType);
   const [props] = useSpring(
     () => ({
@@ -25,9 +25,7 @@ export function Circle({ x, y, id, raincloudType }: { x: number; y: number; id: 
 
   return (
     <g>
-      <Tooltip withinPortal label={id}>
-        <animated.circle key={id} r={4} {...props} fill="cornflowerblue" />
-      </Tooltip>
+      <animated.circle key={id} r={4} {...props} fill={color} />
     </g>
   );
 }

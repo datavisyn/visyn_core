@@ -244,9 +244,8 @@ export function EagerVis({
       {isRaincloud(visConfig) ? (
         <RaincloudVis
           config={visConfig}
-          showDragModeOptions={showDragModeOptions}
+          selected={selectedMap}
           setConfig={setVisConfig}
-          filterCallback={filterCallback}
           selectionCallback={selectionCallback}
           columns={columns}
           showSidebar={showSidebar}
