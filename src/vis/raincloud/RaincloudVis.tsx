@@ -2,31 +2,22 @@ import * as React from 'react';
 import { useRef } from 'react';
 import { Group, Stack } from '@mantine/core';
 
-import { VisColumn, IVisConfig, IRaincloudConfig } from '../interfaces';
+import { VisColumn, IVisConfig, IRaincloudConfig, ICommonVisProps } from '../interfaces';
 import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 import { RaincloudVisSidebar } from './RaincloudVisSidebar';
 import { RaincloudGrid } from './RaincloudGrid';
 
 export function RaincloudVis({
-  config,
+  externalConfig,
   columns,
-  setConfig,
+  setExternalConfig,
   selectionCallback = () => null,
   enableSidebar,
-  selected = {},
+  selectedMap = {},
   setShowSidebar,
   showSidebar,
-}: {
-  config: IRaincloudConfig;
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-  selectionCallback?: (ids: string[]) => void;
-  selected?: { [key: string]: boolean };
-  showSidebar?: boolean;
-  setShowSidebar?(show: boolean): void;
-  enableSidebar?: boolean;
-}) {
+}: ICommonVisProps<IRaincloudConfig>) {
   const ref = useRef();
 
   return (
@@ -34,13 +25,8 @@ export function RaincloudVis({
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-        <RaincloudGrid columns={columns} config={config} selectionCallback={selectionCallback} selected={selected} />
+        <RaincloudGrid columns={columns} config={externalConfig} selectionCallback={selectionCallback} selected={selectedMap} />
       </Stack>
-      {showSidebar ? (
-        <VisSidebarWrapper>
-          <RaincloudVisSidebar config={config} columns={columns} setConfig={setConfig} />
-        </VisSidebarWrapper>
-      ) : null}
     </Group>
   );
 }
