@@ -23,6 +23,9 @@ const margin = {
   right: 20,
   bottom: 0,
 };
+
+const MAX_NON_AGGREGATED_COUNT = 400;
+
 export function Raincloud({
   column,
   config,
@@ -112,7 +115,7 @@ export function Raincloud({
             config={config}
             numCol={column}
             circleCallback={circlesCallback}
-            baseTable={config.aggregateRain ? aggregatedTable : baseTable}
+            baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
           />
         ) : config.rainType === ERainType.BEESWARM ? (
           <BeeSwarm yPos={height / 2} width={width} height={height / 2} config={config} numCol={column} circleCallback={circlesCallback} />
@@ -124,7 +127,7 @@ export function Raincloud({
             config={config}
             numCol={column}
             circleCallback={circlesCallback}
-            baseTable={config.aggregateRain ? aggregatedTable : baseTable}
+            baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
           />
         ) : null}
         {circlesRendered}

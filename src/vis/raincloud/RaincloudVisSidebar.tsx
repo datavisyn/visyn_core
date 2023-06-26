@@ -16,7 +16,7 @@ export function RaincloudVisSidebar({
   config: IRaincloudConfig;
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
-} & ICommonVisSideBarProps) {
+} & ICommonVisSideBarProps<IRaincloudConfig>) {
   return (
     <Container fluid p={10}>
       <Stack spacing={0}>
