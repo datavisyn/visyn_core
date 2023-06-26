@@ -13,7 +13,6 @@ const LINK_SELECTION_COLOR = 'rgba(51, 122, 183, 0.2)';
 const LINK_DEFAULT_COLOR = 'rgba(68, 68, 68, 0.2)';
 
 const layout = {
-  title: 'Basic Sankey',
   font: {
     size: 10,
   },
