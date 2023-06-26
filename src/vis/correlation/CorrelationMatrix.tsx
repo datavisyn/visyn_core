@@ -1,24 +1,24 @@
 import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3v7';
-import { AspectRatio, Box, Group, Popover } from '@mantine/core';
+import { Group, Popover } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { corrcoeff, studentt } from 'jstat';
-import { ICorrelationConfig, VisColumn } from '../interfaces';
+import { corrcoeff, spearmancoeff, studentt } from 'jstat';
+import { ECorrelationType, ICorrelationConfig, VisColumn } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
-import { CircleCorrelationPair, CorrelationPairProps } from './components/CircleCorrelationPair';
+import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { CorrelationGrid } from './components/CorrelationGrid';
 import { CorrelationTooltip } from './components/CorrelationTooltip';
 import { Legend } from './components/CorrelationLegend';
 
-const padding = { top: 16, right: 16, bottom: 16, left: 16 };
+const paddingCircle = { top: 6, right: 6, bottom: 6, left: 6 };
+const CIRCLE_MIN_SIZE = 4;
 const margin = {
   top: 100,
   right: 80,
   bottom: 10,
   left: 100,
 };
-const CIRCLE_MIN_SIZE = 10;
 
 export function CorrelationMatrix({ config, columns }: { config: ICorrelationConfig; columns: VisColumn[] }) {
   const data = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
@@ -31,7 +31,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
   const [hover, setHover] = React.useState<{ x: number; y: number } | null>(null);
 
-  const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#000080', '#fff', '#B22222']);
+  const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#387dfc', '#fffef5', '#db1849']);
 
   const names = React.useMemo(() => {
     return data.value?.numericalColumns.map((column) => column.info.name);
@@ -54,7 +54,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
   const circleSizeScale = React.useMemo(() => {
     if (!data?.value?.numericalColumns) return null;
-    const maxSize = Math.min(xScale.bandwidth() / 2 - 4, yScale.bandwidth() / 2 - 4);
+    const maxSize = Math.min(xScale.bandwidth() / 2 - paddingCircle.left, yScale.bandwidth() / 2 - paddingCircle.top);
     return scaleLinear().domain([-1, 1]).range([CIRCLE_MIN_SIZE, maxSize]);
   }, [data, xScale, yScale]);
 
@@ -62,12 +62,19 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const memoizedCorrelationResults = React.useMemo(() => {
     if (!data?.value?.numericalColumns) return null;
 
+    let coefffunc = (x: number[], y: number[]) => null;
+    if (config.correlationType === ECorrelationType.PEARSON) {
+      coefffunc = corrcoeff;
+    } else if (config.correlationType === ECorrelationType.SPEARMAN) {
+      coefffunc = spearmancoeff;
+    }
+
     const cols = data.value.numericalColumns;
     const correlationResults = [] as CorrelationPairProps[];
 
     for (let x = 1; x < cols.length; x++) {
       for (let y = 0; y < x; y++) {
-        const correlation = corrcoeff(
+        const correlation = coefffunc(
           cols[x].resolvedValues.map((resolved) => resolved.val as number),
           cols[y].resolvedValues.map((resolved) => resolved.val as number),
         );
@@ -98,7 +105,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     }
 
     return correlationResults;
-  }, [circleSizeScale, data, xScale, yScale]);
+  }, [circleSizeScale, config.correlationType, data, xScale, yScale]);
 
   // Show labels on diagonal of matrix
   const labelsDiagonal = React.useMemo(() => {
@@ -112,7 +119,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       const currentY = yScale(col.info.name) + yScale.bandwidth() / 2;
       labels.push(
         <text x={currentX} y={currentY} dominantBaseline="middle" textAnchor="middle" key={`label-${col.info.name}`}>
-          {col.info.name}
+          {/* {col.info.name} */}
+          &#x23BC;
         </text>,
       );
     });
@@ -149,7 +157,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
           {memoizedCorrelationResults?.map((value) => {
             return (
-              <CircleCorrelationPair
+              <CorrelationPair
                 key={`${value.xName}-${value.yName}`}
                 value={value}
                 hover={(hover?.x === value.xi && hover?.y === value.yi) || (hover?.y === value.xi && hover?.x === value.yi)}
@@ -160,7 +168,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
               />
             );
           })}
-
+          {labelsDiagonal}
           <Legend xPos={availableSize + 20} height={boundsHeight} colorScale={colorScale} margin={margin} />
         </g>
       </svg>

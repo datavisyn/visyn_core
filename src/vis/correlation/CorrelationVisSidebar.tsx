@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useMemo } from 'react';
 import merge from 'lodash/merge';
-import { Container, Divider, SegmentedControl, Stack, Switch } from '@mantine/core';
+import { Container, Divider, SegmentedControl, Stack, Switch, Text } from '@mantine/core';
 import {
   ColumnInfo,
   ESupportedPlotlyVis,
@@ -11,9 +11,13 @@ import {
   EFilterOptions,
   ICorrelationConfig,
   ECorrelationPlotMode,
+  EColumnTypes,
+  ECorrelationType,
 } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
+import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 
 const defaultConfig = {
   group: {
@@ -108,22 +112,46 @@ export function CorrelationVisSidebar({
     <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
-      <Stack spacing={30}>
+      <SingleColumnSelect
+        callback={(catColumnSelected: ColumnInfo) => setConfig({ ...config, catColumnSelected })}
+        columns={columns}
+        currentSelected={config.catColumnSelected || null}
+        label="Filter by"
+        type={[EColumnTypes.CATEGORICAL]}
+      />
+      <Divider my="sm" />
+      <Stack spacing={25}>
         <NumericalColumnSelect
           callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
           columns={columns}
           currentSelected={config.numColumnsSelected || []}
         />
+        <Stack spacing="xs">
+          <Text size="sm" fw={500}>
+            Correlation type
+          </Text>
+          <SegmentedControl
+            size="sm"
+            data={Object.values(ECorrelationType)}
+            value={config.correlationType}
+            onChange={(v) => setConfig({ ...config, correlationType: v as ECorrelationType })}
+          />
+        </Stack>
+        <Stack spacing="xs">
+          <Text size="sm" fw={500}>
+            Lower triangle
+          </Text>
+          <SegmentedControl
+            size="sm"
+            data={Object.values(ECorrelationPlotMode)}
+            value={config.mode}
+            onChange={(v) => setConfig({ ...config, mode: v as ECorrelationPlotMode })}
+          />
+        </Stack>
         <Switch
           label="Significant"
           checked={config.highlightSignificant || false}
           onChange={() => setConfig({ ...config, highlightSignificant: !config.highlightSignificant })}
-        />
-        <SegmentedControl
-          size="sm"
-          data={Object.values(ECorrelationPlotMode)}
-          value={config.mode}
-          onChange={(v) => setConfig({ ...config, mode: v as ECorrelationPlotMode })}
         />
       </Stack>
     </Container>

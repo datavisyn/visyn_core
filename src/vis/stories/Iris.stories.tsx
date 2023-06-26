@@ -8,6 +8,7 @@ import {
   EBarGroupingType,
   EColumnTypes,
   ECorrelationPlotMode,
+  ECorrelationType,
   ENumericalColorScaleType,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
@@ -181,8 +182,10 @@ export const CorrelationPlot: typeof Template = Template.bind({});
 CorrelationPlot.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.CORRELATION,
+    correlationType: ECorrelationType.PEARSON,
     highlightSignificant: false,
     mode: ECorrelationPlotMode.CORRELATION,
+    catColumnSelected: null,
     numColumnsSelected: [
       {
         description: '',

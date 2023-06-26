@@ -2,6 +2,8 @@ import merge from 'lodash/merge';
 import {
   ColumnInfo,
   EColumnTypes,
+  ECorrelationPlotMode,
+  ECorrelationType,
   ESupportedPlotlyVis,
   ICorrelationConfig,
   IVisConfig,
@@ -9,7 +11,7 @@ import {
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
-import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
+import { resolveColumnValues } from '../general/layoutUtils';
 
 export function isCorrelation(s: IVisConfig): s is ICorrelationConfig {
   return s.type === ESupportedPlotlyVis.CORRELATION;
@@ -17,8 +19,11 @@ export function isCorrelation(s: IVisConfig): s is ICorrelationConfig {
 
 const defaultConfig: ICorrelationConfig = {
   type: ESupportedPlotlyVis.CORRELATION,
+  correlationType: ECorrelationType.PEARSON,
   numColumnsSelected: [],
+  catColumnSelected: null,
   highlightSignificant: false,
+  mode: ECorrelationPlotMode.CORRELATION,
 };
 
 export function correlationMergeDefaultConfig(columns: VisColumn[], config: ICorrelationConfig): IVisConfig {

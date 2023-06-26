@@ -86,6 +86,11 @@ export enum ECorrelationPlotMode {
   CORRELATION = 'correlation',
 }
 
+export enum ECorrelationType {
+  PEARSON = 'Pearson',
+  SPEARMAN = 'Spearman',
+}
+
 export interface IViolinConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
@@ -95,7 +100,9 @@ export interface IViolinConfig {
 
 export interface ICorrelationConfig {
   type: ESupportedPlotlyVis.CORRELATION;
+  correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
+  catColumnSelected: ColumnInfo | null;
   highlightSignificant: boolean;
   mode: ECorrelationPlotMode;
 }
