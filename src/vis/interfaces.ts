@@ -18,6 +18,10 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
 
 export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IHeatmapConfig;
 
+export interface BaseConfig {
+  type: string;
+}
+
 export enum EBarDisplayType {
   ABSOLUTE = 'Absolute',
   NORMALIZED = 'Normalized',
@@ -81,14 +85,14 @@ export enum EScatterSelectSettings {
   PAN = 'pan',
 }
 
-export interface IViolinConfig {
+export interface IViolinConfig extends BaseConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
 }
 
-export interface IScatterConfig {
+export interface IScatterConfig extends BaseConfig {
   type: ESupportedPlotlyVis.SCATTER;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
@@ -98,7 +102,7 @@ export interface IScatterConfig {
   alphaSliderVal: number;
 }
 
-export interface IBarConfig {
+export interface IBarConfig extends BaseConfig {
   type: ESupportedPlotlyVis.BAR;
   multiples: ColumnInfo | null;
   group: ColumnInfo | null;
@@ -111,7 +115,12 @@ export interface IBarConfig {
   aggregateColumn: ColumnInfo | null;
 }
 
-export interface IHexbinConfig {
+export interface ISankeyConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.SANKEY;
+  catColumnsSelected: ColumnInfo[];
+}
+
+export interface IHexbinConfig extends BaseConfig {
   type: ESupportedPlotlyVis.HEXBIN;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
@@ -199,7 +208,41 @@ export type Scales = {
 /**
  * Common props for all vis sidebars.
  */
-export interface ICommonVisSideBarProps {
+export interface ICommonVisSideBarProps<T> {
   style?: React.CSSProperties | undefined;
   className?: string | undefined;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  filterCallback?: (s: EFilterOptions) => void;
+  config: T;
+  setConfig: (c: T) => void;
+}
+
+export interface ICommonVisProps<T> {
+  externalConfig?: T;
+  setExternalConfig?: (config: T) => void;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  colors?: string[];
+  shapes?: string[];
+  filterCallback?: (s: EFilterOptions) => void;
+  selectionCallback?: (s: string[]) => void;
+  selectedMap?: { [key: string]: boolean };
+  selectedList?: string[];
+  showCloseButton?: boolean;
+  closeButtonCallback?: () => void;
+  scales?: Scales;
+  enableSidebar?: boolean;
+  showSidebar?: boolean;
+  showSidebarDefault?: boolean;
+  setShowSidebar?: (s: boolean) => void;
+  extensions?: {
+    prePlot?: React.ReactNode;
+    postPlot?: React.ReactNode;
+    preSidebar?: React.ReactNode;
+    postSidebar?: React.ReactNode;
+  };
+  scrollZoom?: boolean;
+  showDragModeOptions?: boolean;
+  dimensions: { width: number; height: number };
 }

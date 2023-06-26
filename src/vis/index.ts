@@ -10,3 +10,4 @@ export * from './interfaces';
 export * from './VisSidebar';
 export * from './sidebar';
 export * from './LineupVisWrapper';
+export * from './provider';

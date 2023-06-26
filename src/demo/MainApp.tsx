@@ -85,7 +85,7 @@ export function MainApp() {
             showSidebarDefault
             externalConfig={visConfig}
             setExternalConfig={setVisConfig}
-            selected={visSelection}
+            selectedList={visSelection}
             selectionCallback={(s) => {
               setSelection(s.map((i) => iris[+i]));
             }}

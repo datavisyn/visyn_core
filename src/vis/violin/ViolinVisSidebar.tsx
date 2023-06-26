@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import merge from 'lodash/merge';
 import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, ESupportedPlotlyVis, EViolinOverlay, IViolinConfig, IVisConfig, VisColumn, ICommonVisSideBarProps, EFilterOptions } from '../interfaces';
+import { ColumnInfo, ESupportedPlotlyVis, EViolinOverlay, IViolinConfig, ICommonVisSideBarProps } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
@@ -19,50 +19,19 @@ const defaultConfig = {
     customComponent: null,
   },
 };
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
+
 export function ViolinVisSidebar({
   config,
   optionsConfig,
-  extensions,
   columns,
   filterCallback = () => null,
   setConfig,
   className = '',
   style: { width = '20em', ...style } = {},
-}: {
-  config: IViolinConfig;
-  optionsConfig?: {
-    overlay?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    filter?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  filterCallback?: (s: EFilterOptions) => void;
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-} & ICommonVisSideBarProps) {
+}: ICommonVisSideBarProps<IViolinConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
-
-  const mergedExtensions = useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
 
   return (
     <Container fluid p={10}>
@@ -81,7 +50,6 @@ export function ViolinVisSidebar({
         />
       </Stack>
       <Divider my="sm" />
-      {mergedExtensions.preSidebar}
 
       {mergedOptionsConfig.overlay.enable
         ? mergedOptionsConfig.overlay.customComponent || (
@@ -93,8 +61,6 @@ export function ViolinVisSidebar({
         : null}
 
       {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
-
-      {mergedExtensions.postSidebar}
     </Container>
   );
 }

@@ -5,7 +5,6 @@ import {
   PlotlyData,
   EColumnTypes,
   VisNumericalColumn,
-  IVisConfig,
   Scales,
   ESupportedPlotlyVis,
   VisColumn,
@@ -21,10 +20,6 @@ import { getCssValue } from '../../utils';
 import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import { i18n } from '../../i18n';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
-
-export function isScatter(s: IVisConfig): s is IScatterConfig {
-  return s.type === ESupportedPlotlyVis.SCATTER;
-}
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -49,7 +44,7 @@ const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
 };
 
-export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IVisConfig {
+export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
   const merged = merge({}, defaultConfig, config);
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
