@@ -23,8 +23,11 @@ import { VisSidebarWrapper } from './VisSidebarWrapper';
 
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { VisSidebar } from './VisSidebar';
+import { registerAllVis } from './provider/utils';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
+
+registerAllVis();
 
 export function EagerVis({
   columns,

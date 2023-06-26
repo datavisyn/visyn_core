@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { BaseConfig, ICommonVisProps, ICommonVisSideBarProps, VisColumn } from '../interfaces';
-import { registerAllVis } from './utils';
 
 export function createVis<T extends BaseConfig>(
   type: string,
@@ -25,7 +24,6 @@ interface GeneralVis<T extends BaseConfig> {
 }
 
 export const visMap: { [key: string]: GeneralVis<BaseConfig> } = {};
-registerAllVis();
 
 export function getVisByConfig<T extends BaseConfig>(config: T) {
   return visMap[config.type] as GeneralVis<T>;
