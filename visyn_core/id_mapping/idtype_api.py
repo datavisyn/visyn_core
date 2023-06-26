@@ -25,7 +25,7 @@ def _list_idtypes():
 
     # also include the known elements from the mapping graph
     for idtype_id in manager.id_mapping.known_idtypes():
-        tmp[idtype_id] = {"id": id, "name": id, "names": to_plural(id)}
+        tmp[idtype_id] = {"id": idtype_id, "name": idtype_id, "names": to_plural(idtype_id)}
     return jsonify(list(tmp.values()))
 
 
