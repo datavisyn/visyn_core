@@ -3,6 +3,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import { op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
+import { useMemo } from 'react';
 import { useEvent } from '../../hooks/useEvent';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, IHeatmapConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
@@ -87,7 +88,7 @@ export function Heatmap({
       config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
         ? d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(groupedVals, (d) => d.count as number))
         : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
-        ? d3.scaleDiverging<string, string>(d3.interpolatePiYG).domain(d3.extent(groupedVals, (d) => d.count as number))
+        ? d3.scaleSequential<string, string>(d3.interpolatePuOr).domain(d3.extent(groupedVals, (d) => d.count as number))
         : null;
 
     const extGroupedVals = groupedVals.map((gV) => ({
@@ -159,6 +160,25 @@ export function Heatmap({
     }
   }, [resetBrush, selected, isBrushing]);
 
+  const rects = useMemo(() => {
+    return groupedValues.map((d) => {
+      const { count, ids, x, y, xVal, yVal, color } = d;
+      return (
+        <HeatmapRect
+          key={`${xVal}-${yVal}`}
+          x={x}
+          y={y}
+          width={rectWidth}
+          height={rectHeight}
+          color={selected && ids.some((id) => selected[id]) ? 'orange' : color}
+          setTooltipText={() => setTooltipText(`${xVal} - ${yVal} (${count})`)}
+          unsetTooltipText={() => setTooltipText(null)}
+          setSelected={() => selectionCallback(ids)}
+        />
+      );
+    });
+  }, [groupedValues, rectHeight, rectWidth, selected, selectionCallback]);
+
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
       <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0}>
@@ -167,22 +187,7 @@ export function Heatmap({
         </Text>
         <Tooltip.Floating label={tooltipText} disabled={!tooltipText} withinPortal>
           <svg style={{ width: '100%', height: '100%' }} ref={ref}>
-            {groupedValues.map((d) => {
-              const { count, ids, x, y, xVal, yVal, color } = d;
-              return (
-                <HeatmapRect
-                  key={`${xVal}-${yVal}`}
-                  x={x}
-                  y={y}
-                  width={rectWidth}
-                  height={rectHeight}
-                  color={selected && ids.some((id) => selected[id]) ? 'orange' : color}
-                  setTooltipText={() => setTooltipText(`${xVal} - ${yVal} (${count})`)}
-                  unsetTooltipText={() => setTooltipText(null)}
-                  setSelected={() => selectionCallback(ids)}
-                />
-              );
-            })}
+            {rects}
             {xValues.map((xVal) => (
               <g key={xVal} transform={`translate(${xScale(xVal) + rectWidth / 2 + margin.left}, ${height - margin.bottom + 15})`}>
                 <text color="gray" fontSize={10} transform="rotate(45)">
