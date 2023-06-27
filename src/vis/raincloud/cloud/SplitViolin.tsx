@@ -96,5 +96,5 @@ export function SplitViolin({
 
     return `${myLine(kdeVal)}L${xScale.range()[1]},${yScale.range()[1]}L${xScale.range()[0]},${yScale.range()[1]}Z`;
   }, [kdeVal, xScale, yScale]);
-  return <path fill="lightgray" stroke="lightgray" strokeWidth={1} d={line} />;
+  return <path fill="gray" stroke="gray" strokeWidth={1} d={line} />;
 }

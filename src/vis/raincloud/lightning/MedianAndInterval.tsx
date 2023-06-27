@@ -15,7 +15,7 @@ const margin = {
   right: 20,
 };
 
-export function MeanAndInterval({
+export function MedianAndInterval({
   numCol,
   config,
   width,
@@ -37,17 +37,19 @@ export function MeanAndInterval({
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
   const vals = useMemo(() => {
-    return baseTable.rollup({ mean: op.mean('values'), stdev: op.stdev('values') });
+    return baseTable.rollup({ median: op.median('values'), stdev: op.stdev('values') });
   }, [baseTable]);
 
   return (
     <g>
-      {vals.objects().map((val: { mean: number; stdev: number }) => {
+      {vals.objects().map((val: { median: number; stdev: number }) => {
         return (
-          <g key={val.mean}>
-            <circle cx={xScale(val.mean)} r={8} fill="#f4c430" cy={yPos} />
-            <line strokeLinecap="round" stroke="#f4c430" strokeWidth={8} x1={xScale(val.mean)} x2={xScale(val.mean - val.stdev)} y1={yPos} y2={yPos} />
-            <line strokeLinecap="round" stroke="#f4c430" strokeWidth={8} x1={xScale(val.mean)} x2={xScale(val.mean + val.stdev)} y1={yPos} y2={yPos} />
+          <g key={val.median}>
+            <circle cx={xScale(val.median)} r={8} fill="#f4c430" cy={yPos} />
+            <line strokeLinecap="round" stroke="#f4c430" strokeWidth={10} x1={xScale(val.median)} x2={xScale(val.median - val.stdev)} y1={yPos} y2={yPos} />
+            <line strokeLinecap="round" stroke="#f4c430" strokeWidth={10} x1={xScale(val.median)} x2={xScale(val.median + val.stdev)} y1={yPos} y2={yPos} />
+            <line strokeLinecap="round" stroke="#f4c430" strokeWidth={6} x1={xScale(val.median)} x2={xScale(val.median - val.stdev * 2)} y1={yPos} y2={yPos} />
+            <line strokeLinecap="round" stroke="#f4c430" strokeWidth={6} x1={xScale(val.median)} x2={xScale(val.median + val.stdev * 2)} y1={yPos} y2={yPos} />
           </g>
         );
       })}

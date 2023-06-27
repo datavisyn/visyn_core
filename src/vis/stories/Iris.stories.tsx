@@ -152,15 +152,11 @@ RaincloudPlot.args = {
         id: 'sepalLength',
         name: 'Sepal Length',
       },
-      {
-        description: '',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
-      },
     ],
-    cloudType: ECloudType.HISTOGRAM,
+    cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.DOTPLOT,
+    aggregateRain: false,
   },
 };
 

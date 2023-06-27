@@ -101,12 +101,16 @@ export enum ECloudType {
 
 export enum ELightningType {
   MEAN_AND_DEV = 'Mean and deviation',
+  MEDIAN_AND_DEV = 'Median and deviation',
+  MEAN = 'Mean',
+  BOXPLOT = 'Boxplot',
 }
 
 export enum ERainType {
   DOTPLOT = 'Dot plot',
   BEESWARM = 'Beeswarm',
   WHEATPLOT = 'Wheat plot',
+  STRIPPLOT = 'Strip plot',
 }
 
 export interface IRaincloudConfig {

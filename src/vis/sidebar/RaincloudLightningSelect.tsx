@@ -9,6 +9,11 @@ interface HexbinOptionSelectProps {
 }
 
 export function RaincloudLightningSelect({ callback, currentSelected }: HexbinOptionSelectProps) {
-  const options = [{ value: ELightningType.MEAN_AND_DEV, label: ELightningType.MEAN_AND_DEV }];
+  const options = [
+    { value: ELightningType.MEAN_AND_DEV, label: ELightningType.MEAN_AND_DEV },
+    { value: ELightningType.MEAN, label: ELightningType.MEAN },
+    { value: ELightningType.MEDIAN_AND_DEV, label: ELightningType.MEDIAN_AND_DEV },
+    { value: ELightningType.BOXPLOT, label: ELightningType.BOXPLOT },
+  ];
   return <Select withinPortal label="Lightning options" onChange={(e) => callback(e as ELightningType)} data={options} value={currentSelected} />;
 }

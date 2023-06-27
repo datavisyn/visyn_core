@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useResizeObserver } from '@mantine/hooks';
 import { op, table } from 'arquero';
-import { select } from 'lineupjs';
-import { ColumnInfo, ECloudType, EColumnTypes, ERainType, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, ECloudType, EColumnTypes, ELightningType, ERainType, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
 import { SplitViolin } from './cloud/SplitViolin';
 import { DotPlot } from './rain/DotPlot';
@@ -16,6 +15,10 @@ import { IRaindropCircle } from './utils';
 import { Circle } from './rain/Circle';
 import { WheatPlot } from './rain/WheatPlot';
 import { Brush } from './Brush';
+import { StripPlot } from './rain/StripPlot';
+import { Mean } from './lightning/Mean';
+import { MedianAndInterval } from './lightning/MedianAndInterval';
+import { Boxplot } from './lightning/Boxplot';
 
 const margin = {
   top: 0,
@@ -61,6 +64,7 @@ export function Raincloud({
         <Circle
           key={circle.id}
           x={circle.x}
+          isStrip={config.rainType === ERainType.STRIPPLOT}
           y={circle.y}
           id={circle.id}
           raincloudType={config.rainType}
@@ -129,11 +133,29 @@ export function Raincloud({
             circleCallback={circlesCallback}
             baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
           />
+        ) : config.rainType === ERainType.STRIPPLOT ? (
+          <StripPlot
+            yPos={height / 2}
+            width={width}
+            height={height / 2}
+            config={config}
+            numCol={column}
+            circleCallback={circlesCallback}
+            baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
+          />
         ) : null}
         {circlesRendered}
+        {config.lightningType === ELightningType.MEAN_AND_DEV ? (
+          <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+        ) : config.lightningType === ELightningType.MEAN ? (
+          <Mean yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+        ) : config.lightningType === ELightningType.MEDIAN_AND_DEV ? (
+          <MedianAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+        ) : config.lightningType === ELightningType.BOXPLOT ? (
+          <Boxplot yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+        ) : null}
 
-        <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} />
-        <XAxis xScale={xScale} vertPosition={height / 2} yRange={[height / 2, height / 2]} />
+        <XAxis xScale={xScale} vertPosition={height / 2} yRange={null} />
         <Brush y={height / 2 - 20} x={margin.left} height={40} width={width - margin.left} onBrush={brushCallback} id={column.info.id} />
       </g>
     </svg>

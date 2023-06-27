@@ -53,7 +53,22 @@ export function Heatmap({
     return kde(numCol.resolvedValues.map((val) => val.val as number));
   }, [numCol.resolvedValues, xScale]);
 
-  const colorScale = d3.scaleSequential(d3.interpolateGreys).domain([d3.max(kdeVal.map((val) => val[1] as number)), 0].reverse());
+  const colorScale = d3
+    .scaleSequential(
+      d3.piecewise(d3.interpolateRgb.gamma(2.2), [
+        '#E9ECEF',
+        '#DEE2E6',
+        '#C8CED3',
+        '#BCC3C9',
+        '#ACB4BC',
+        '#99A1A9',
+        '#878E95',
+        '#71787E',
+        '#62686F',
+        '#505459',
+      ]),
+    )
+    .domain([d3.max(kdeVal.map((val) => val[1] as number)), 0].reverse());
 
   // @ts-ignore
   const binWidth = useMemo(() => xScale(kdeVal[1][0]) - xScale(kdeVal[0][0]), [kdeVal, xScale]);
