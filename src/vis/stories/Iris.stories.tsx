@@ -185,7 +185,9 @@ CorrelationPlot.args = {
     correlationType: ECorrelationType.PEARSON,
     highlightSignificant: false,
     mode: ECorrelationPlotMode.CORRELATION,
-    catColumnSelected: null,
+    filterCriteria: null,
+    availableFilterValues: [],
+    filterValue: null,
     numColumnsSelected: [
       {
         description: '',

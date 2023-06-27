@@ -18,6 +18,8 @@ import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { SingleValueSelect } from '../sidebar/SingleValueSelect';
+import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 
 const defaultConfig = {
   group: {
@@ -108,17 +110,45 @@ export function CorrelationVisSidebar({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
+  const onFilterCriteriaChange = (filterCriteria: ColumnInfo) => {
+    if (filterCriteria === undefined && config.filterCriteria) {
+      setConfig({ ...config, filterCriteria: null, filterValue: null, availableFilterValues: [] });
+    }
+
+    if (filterCriteria) {
+      const getPossibleFilterValues = async (): Promise<string[]> => {
+        const columnResolved = await resolveSingleColumn(columns.find((col) => col.info.id === filterCriteria.id));
+        return [...new Set(columnResolved.resolvedValues.map((v) => v.val as string))];
+      };
+      getPossibleFilterValues().then((values) => {
+        setConfig({
+          ...config,
+          filterCriteria,
+          availableFilterValues: values,
+        });
+      });
+    }
+  };
+
   return (
     <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
-      <SingleColumnSelect
-        callback={(catColumnSelected: ColumnInfo) => setConfig({ ...config, catColumnSelected })}
-        columns={columns}
-        currentSelected={config.catColumnSelected || null}
-        label="Filter by"
-        type={[EColumnTypes.CATEGORICAL]}
-      />
+      <Stack>
+        <SingleColumnSelect
+          callback={(filterCriteria: ColumnInfo) => onFilterCriteriaChange(filterCriteria)}
+          columns={columns}
+          currentSelected={config.filterCriteria}
+          label="Filter by"
+          type={[EColumnTypes.CATEGORICAL]}
+        />
+        <SingleValueSelect
+          callback={(filterValue: string) => setConfig({ ...config, filterValue })}
+          availableFilterValues={config.availableFilterValues}
+          currentSelected={config.filterValue}
+          placeholder={config.filterCriteria ? `Select ${config.filterCriteria.name}` : '---'}
+        />
+      </Stack>
       <Divider my="sm" />
       <Stack spacing={25}>
         <NumericalColumnSelect

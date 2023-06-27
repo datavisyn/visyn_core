@@ -102,7 +102,9 @@ export interface ICorrelationConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
-  catColumnSelected: ColumnInfo | null;
+  filterCriteria: ColumnInfo | null;
+  availableFilterValues: string[];
+  filterValue: string | null;
   highlightSignificant: boolean;
   mode: ECorrelationPlotMode;
 }
