@@ -1,10 +1,8 @@
 import { Group } from '@mantine/core';
 import * as React from 'react';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { ICommonVisProps, IHeatmapConfig, IVisConfig, VisColumn } from '../interfaces';
+import { ICommonVisProps, IHeatmapConfig } from '../interfaces';
 import { HeatmapGrid } from './HeatmapGrid';
-import { HeatmapVisSidebar } from './HeatmapVisSidebar';
 
 export function HeatmapVis({
   externalConfig,

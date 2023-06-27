@@ -82,7 +82,7 @@ export function Heatmap({
       .impute({ count: () => 0 }, { expand: ['xVal', 'yVal'] });
     const idTable = valueTable.groupby('xVal', 'yVal').rollup({ ids: op.array_agg('id') });
 
-    const groupedVals = countTable.join(idTable).objects() as { xVal: string; yVal: string; count: number; ids: string[] }[];
+    const groupedVals = countTable.join_left(idTable).objects() as { xVal: string; yVal: string; count: number; ids: string[] }[];
 
     const colorSc =
       config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
@@ -170,7 +170,7 @@ export function Heatmap({
           y={y}
           width={rectWidth}
           height={rectHeight}
-          color={selected && ids.some((id) => selected[id]) ? 'orange' : color}
+          color={selected && ids?.some((id) => selected[id]) ? 'orange' : color}
           setTooltipText={() => setTooltipText(`${xVal} - ${yVal} (${count})`)}
           unsetTooltipText={() => setTooltipText(null)}
           setSelected={() => selectionCallback(ids)}
