@@ -11,7 +11,6 @@ import {
   VisCategoricalColumn,
   EColumnTypes,
   ESupportedPlotlyVis,
-  IVisConfig,
   Scales,
   VisColumn,
   VisCategoricalValue,
@@ -25,10 +24,6 @@ import {
 } from '../interfaces';
 import { columnNameWithDescription, resolveSingleColumn, truncateText } from '../general/layoutUtils';
 import { getCol } from '../sidebar';
-
-export function isBar(s: IVisConfig): s is IBarConfig {
-  return s.type === ESupportedPlotlyVis.BAR;
-}
 
 const UNSELECTED_OPACITY = '0.2';
 const defaultConfig: IBarConfig = {
@@ -47,7 +42,7 @@ const defaultConfig: IBarConfig = {
 const TICK_LABEL_LENGTH = 8;
 const DEFAULT_GRAY = '#878E95';
 
-export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IVisConfig {
+export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
 
   const catCols = columns.filter((c) => c.type === EColumnTypes.CATEGORICAL);
