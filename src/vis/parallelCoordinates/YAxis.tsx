@@ -16,7 +16,7 @@ export function ParallelYAxis({
   onSelectionChanged,
 }: {
   id: string;
-  yScale: d3v7.ScaleLinear<number, number, never> | d3v7.ScaleBand<string>;
+  yScale: d3v7.ScaleLinear<number, number, never> | d3v7.ScalePoint<string>;
   xRange: number[];
   type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
   horizontalPosition: number | number;

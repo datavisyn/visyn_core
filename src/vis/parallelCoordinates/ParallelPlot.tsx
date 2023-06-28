@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import { useResizeObserver } from '@mantine/hooks';
 import { escape, table } from 'arquero';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EColumnTypes, IParallelCoordinatesConfig, VisColumn } from '../interfaces';
 import { ParallelYAxis } from './YAxis';
 
@@ -121,9 +121,8 @@ export function ParallelPlot({
       const { scale } = yScales[id];
 
       if (yScales[id].type === EColumnTypes.CATEGORICAL) {
-        const vals = yScales[id].scale.domain().filter((d) => yScales[id].scale(d) >= range[0] && yScales[id].scale(d) <= range[1]);
-
-        console.log(vals);
+        const currScale = yScales[id].scale as d3.ScalePoint<string>;
+        const vals = currScale.domain().filter((d) => currScale(d) >= range[0] && currScale(d) <= range[1]);
 
         filteredTable = filteredTable.filter(escape((d) => vals.includes(d[id])));
       } else {
