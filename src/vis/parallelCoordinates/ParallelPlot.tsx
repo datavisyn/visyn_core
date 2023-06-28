@@ -65,6 +65,7 @@ export function ParallelPlot({
       } else {
         scale = d3v7
           .scalePoint()
+          .padding(0.5)
           .domain(col.resolvedValues.map((c) => c.val as string))
           .range([height - margin.bottom, margin.top]);
       }
