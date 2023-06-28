@@ -62,7 +62,7 @@ export function ParallelVisSidebar({
   columns: VisColumn[];
   filterCallback?: (s: EFilterOptions) => void;
   setConfig: (config: IVisConfig) => void;
-} & ICommonVisSideBarProps) {
+} & ICommonVisSideBarProps<IParallelCoordinatesConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
@@ -87,9 +87,7 @@ export function ParallelVisSidebar({
           columns={columns}
           currentSelected={config.catColumnsSelected || []}
         />
-        <Divider my="sm" />
         {mergedExtensions.preSidebar}
-        <Divider my="sm" />
         {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
         {mergedExtensions.postSidebar}
       </Stack>

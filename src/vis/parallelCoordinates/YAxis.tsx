@@ -42,7 +42,7 @@ export function ParallelYAxis({
           d3v7
             .brushY()
             .extent(extent)
-            .on('brush', (e) => onSelectionChanged(id, e.selection)),
+            .on('brush end', (e) => onSelectionChanged(id, e.selection)),
         );
     }
   });

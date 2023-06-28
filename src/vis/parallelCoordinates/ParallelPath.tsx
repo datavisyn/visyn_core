@@ -1,15 +1,47 @@
+import { Tooltip } from '@mantine/core';
 import * as React from 'react';
+import { useMemo, useState } from 'react';
 
 export function ParallelPath({
   path,
-  index,
-  onHover,
-  onLeave,
+  hovered,
+  id,
+  onHover = () => null,
+  onLeave = () => null,
+  isSelected,
 }: {
   path: string;
-  index: number;
-  onLeave: (e: React.MouseEvent<SVGPathElement, MouseEvent>) => void;
-  onHover: (e: React.MouseEvent<SVGPathElement, MouseEvent>) => void;
+  hovered: string | null;
+  id: string;
+  onLeave?: () => void;
+  onHover?: () => void;
+  isSelected?: boolean | null;
 }) {
-  return <path onMouseEnter={onHover} onMouseLeave={onLeave} fill="none" stroke="#337ab7" strokeWidth={0.5} data-index={index} d={path} />;
+  const pathEle = useMemo(() => {
+    return (
+      <g>
+        <path
+          onMouseEnter={() => {
+            onHover();
+          }}
+          onMouseOut={() => {
+            onLeave();
+          }}
+          fill="none"
+          stroke="cornflowerblue"
+          opacity={isSelected === null ? 0.7 : isSelected ? 0.7 : 0.05}
+          strokeWidth={2}
+          d={path}
+        />
+      </g>
+    );
+  }, [isSelected, onHover, onLeave, path]);
+
+  return hovered && hovered === id ? (
+    <Tooltip.Floating withinPortal label="hello world">
+      {pathEle}
+    </Tooltip.Floating>
+  ) : (
+    pathEle
+  );
 }

@@ -54,7 +54,6 @@ export async function getParallelData(
 
   const numColVals = await resolveColumnValues(numCols);
   const catColVals = await resolveColumnValues(catCols);
-  // const colorColVals = await resolveSingleColumn(colorColumn ? columns.find((col) => col.info.id === colorColumn.id) : null);
 
   return { numColVals, catColVals };
 }

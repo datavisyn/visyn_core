@@ -19,14 +19,12 @@ const defaultExtensions = {
   postSidebar: null,
 };
 
-export function ParallelVis({
-  externalConfig,
-
-  columns,
-}: ICommonVisProps<IParallelCoordinatesConfig>) {
+export function ParallelVis({ externalConfig, selectionCallback, columns, selectedMap }: ICommonVisProps<IParallelCoordinatesConfig>) {
   return (
     <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-      {externalConfig?.numColumnsSelected?.length > 1 ? <ParallelPlot config={externalConfig} columns={columns} /> : null}
+      {externalConfig?.numColumnsSelected?.length > 1 ? (
+        <ParallelPlot selectionCallback={selectionCallback} config={externalConfig} columns={columns} selectedMap={selectedMap} />
+      ) : null}
     </Stack>
   );
 }
