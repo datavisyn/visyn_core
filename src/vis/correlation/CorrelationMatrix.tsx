@@ -16,7 +16,7 @@ const CIRCLE_MIN_SIZE = 4;
 const margin = {
   top: 100,
   right: 80,
-  bottom: 10,
+  bottom: 40,
   left: 100,
 };
 
