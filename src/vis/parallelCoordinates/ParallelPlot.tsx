@@ -115,7 +115,7 @@ export function ParallelPlot({
 
   useEffect(() => {
     let filteredTable = myTable;
-    if (!brushes) return;
+    if (!brushes || Object.keys(brushes).length === 0) return;
     Object.keys(brushes).forEach((id) => {
       const range = brushes[id];
       if (range === null) return;
