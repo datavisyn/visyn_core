@@ -25,7 +25,7 @@ export function NumericalColumnSelect({ callback, columns, currentSelected }: Nu
       itemComponent={SelectDropdownItem}
       label="Numerical columns"
       onChange={(e: string[]) => {
-        callback(columns.filter((c) => e.includes(c.info.id)).map((c) => c.info));
+        callback(e.map((id) => columns.find((c) => c.info.id === id).info));
       }}
       name="numColumns"
       data={selectNumOptions}
