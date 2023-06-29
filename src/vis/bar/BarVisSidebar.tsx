@@ -9,12 +9,9 @@ import {
   EBarGroupingType,
   ESupportedPlotlyVis,
   IBarConfig,
-  IVisConfig,
-  VisColumn,
   ICommonVisSideBarProps,
   EAggregateTypes,
   EColumnTypes,
-  EFilterOptions,
 } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { GroupSelect } from '../sidebar/GroupSelect';
@@ -50,65 +47,18 @@ const defaultConfig = {
   },
 };
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
 export function BarVisSidebar({
   config,
   optionsConfig,
-  extensions,
   columns,
   setConfig,
   className = '',
+  filterCallback,
   style: { width = '20em', ...style } = {},
-}: {
-  config: IBarConfig;
-  optionsConfig?: {
-    group?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    multiples?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    direction?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    groupingType?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    filter?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    display?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-} & ICommonVisSideBarProps) {
+}: ICommonVisSideBarProps<IBarConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
-
-  const mergedExtensions = useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
 
   return (
     <Container p={10} fluid>
@@ -144,7 +94,6 @@ export function BarVisSidebar({
         />
       </Stack>
       <Divider my="sm" />
-      {mergedExtensions.preSidebar}
 
       <Stack spacing="sm">
         {mergedOptionsConfig.group.enable
@@ -178,8 +127,7 @@ export function BarVisSidebar({
             <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
           )
         : null}
-
-      {mergedExtensions.postSidebar}
+      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </Container>
   );
 }

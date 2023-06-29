@@ -2,17 +2,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import merge from 'lodash/merge';
 import { Container, Divider, Stack } from '@mantine/core';
-import {
-  ColumnInfo,
-  EFilterOptions,
-  ENumericalColorScaleType,
-  ESupportedPlotlyVis,
-  IScatterConfig,
-  IVisConfig,
-  VisColumn,
-  ICommonVisSideBarProps,
-  EColumnTypes,
-} from '../interfaces';
+import { ColumnInfo, ENumericalColorScaleType, ESupportedPlotlyVis, IScatterConfig, ICommonVisSideBarProps, EColumnTypes } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { ColorSelect } from '../sidebar/ColorSelect';
@@ -35,51 +25,10 @@ const defaultConfig = {
   },
 };
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
-export function ScatterVisSidebar({
-  config,
-  optionsConfig,
-  extensions,
-  columns,
-  setConfig,
-}: {
-  config: IScatterConfig;
-  optionsConfig?: {
-    color?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    shape?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    filter?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-} & ICommonVisSideBarProps) {
+export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback = () => null, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
-
-  const mergedExtensions = useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
 
   return (
     <Container fluid p={10}>
@@ -92,7 +41,6 @@ export function ScatterVisSidebar({
           currentSelected={config.numColumnsSelected || []}
         />
         <Divider my="sm" />
-        {mergedExtensions.preSidebar}
 
         <Stack>
           {mergedOptionsConfig.color.enable
@@ -130,7 +78,7 @@ export function ScatterVisSidebar({
           />
           <Divider my="sm" />
         </Stack>
-        {mergedExtensions.postSidebar}
+        {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
       </Stack>
     </Container>
   );

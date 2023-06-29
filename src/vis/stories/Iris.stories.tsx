@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 import { Vis } from '../LazyVis';
 import {
   EAggregateTypes,
@@ -102,7 +102,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
+        <Vis {...args} columns={columns} selectedList={selection} selectionCallback={setSelection} />
       </div>
     </div>
   );
@@ -112,6 +112,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
 export const ScatterPlot: typeof Template = Template.bind({});
 ScatterPlot.args = {
+  showDragModeOptions: true,
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
@@ -182,5 +183,19 @@ ViolinPlot.args = {
       },
     ],
     violinOverlay: EViolinOverlay.NONE,
+  },
+};
+
+export const SankeyPlot: typeof Template = Template.bind({});
+SankeyPlot.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.SANKEY,
+    catColumnsSelected: [
+      {
+        description: '',
+        id: 'species',
+        name: 'Species',
+      },
+    ],
   },
 };
