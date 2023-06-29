@@ -11,6 +11,7 @@ export enum SortTypes {
   COUNT_DESC = 'COUNT_DESC',
 }
 
+// Helper function for the bar chart which sorts the data depending on the sort type.
 export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes) {
   switch (sortType) {
     case SortTypes.CAT_ASC:
@@ -26,6 +27,7 @@ export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes)
   }
 }
 
+// Helper function for the bar chart which bins the data depending on the aggregate type. Used for numerical column grouping
 export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
   switch (aggregateType) {
     case EAggregateTypes.COUNT:
@@ -78,7 +80,8 @@ export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggre
       return null;
   }
 }
-
+// Helper function for the bar chart which aggregates the data based on the aggregate type.
+// Mostly just code duplication with the different aggregate types.
 export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
   switch (aggregateType) {
     case EAggregateTypes.COUNT:
@@ -132,6 +135,8 @@ export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAgg
   }
 }
 
+// Helper function for the bar chart which rolls up the data depending on the aggregate type.
+// Mostly just code duplication with the different aggregate types.
 export function rollupByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
   switch (aggregateType) {
     case EAggregateTypes.COUNT:

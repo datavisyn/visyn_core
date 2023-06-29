@@ -78,20 +78,22 @@ export function BarChart({
 
   return (
     <Stack style={{ width: '100%', height: '100%', position: 'relative' }} spacing={0}>
-      {groupColorScale ? (
-        <Legend
-          groupedIds={groupedIds}
-          selectedList={selectedList}
-          selectionCallback={customSelectionCallback}
-          left={50}
-          categories={groupColorScale.domain()}
-          isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
-          colorScale={groupColorScale}
-          height={30}
-          onClick={() => console.log('hello')}
-          stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
-        />
-      ) : null}
+      <Box style={{ height: '30px' }}>
+        {groupColorScale ? (
+          <Legend
+            groupedIds={groupedIds}
+            selectedList={selectedList}
+            selectionCallback={customSelectionCallback}
+            left={50}
+            categories={groupColorScale.domain()}
+            isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
+            colorScale={groupColorScale}
+            height={30}
+            onClick={() => console.log('hello')}
+            stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
+          />
+        ) : null}
+      </Box>
       <SimpleGrid cols={Math.round(Math.sqrt(uniqueMultiplesVals.length))} spacing={0} style={{ height: 'inherit', overflow: 'hidden' }}>
         {colsStatus !== 'success' ? (
           <Loader />

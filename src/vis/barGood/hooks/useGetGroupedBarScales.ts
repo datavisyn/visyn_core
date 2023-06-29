@@ -40,10 +40,12 @@ export function useGetGroupedBarScales(
   );
 
   const groupedTable = useMemo(() => {
-    if (allColumns?.groupColVals) {
+    if (!allColumns) return null;
+
+    if (allColumns.groupColVals) {
       let filteredTable = baseTable;
 
-      if (categoryFilter && allColumns?.multiplesColVals) {
+      if (categoryFilter && allColumns.multiplesColVals) {
         filteredTable = baseTable.params({ categoryFilter }).filter((d) => d.multiples === categoryFilter);
       }
 
@@ -53,7 +55,7 @@ export function useGetGroupedBarScales(
     }
 
     return null;
-  }, [aggregateType, allColumns?.groupColVals, allColumns?.multiplesColVals, baseTable, categoryFilter]);
+  }, [aggregateType, allColumns, baseTable, categoryFilter]);
 
   const groupColorScale = useMemo(() => {
     if (!groupedTable) return null;
@@ -78,11 +80,17 @@ export function useGetGroupedBarScales(
   }, [categoryScale, groupedTable]);
 
   const newCountScale = useMemo(() => {
-    if (!allColumns?.multiplesColVals) {
+    if (!allColumns) return null;
+
+
+    // No multiples, only group
+    if (!allColumns.multiplesColVals) {
+      // No group or group is a stack of count, dont need to change scale
       if (!groupedTable || (groupType === EBarGroupingType.STACK && aggregateType === EAggregateTypes.COUNT)) {
         return countScale;
       }
 
+      // Group is a stack of something other than count, change max.
       if (groupType === EBarGroupingType.STACK) {
         const max = +d3.max(
           groupedTable
@@ -93,21 +101,35 @@ export function useGetGroupedBarScales(
         return countScale.copy().domain([0, max + max / 25]);
       }
 
+      // Group is not stacked, change max.
       const max = +d3.max(groupedTable.array('aggregateVal'));
       return countScale.copy().domain([0, max + max / 25]);
     }
 
-    if (!groupedTable || groupType === EBarGroupingType.STACK) {
+    // Multiples only, or multiples and stacked.
+    if (!groupedTable || (groupType === EBarGroupingType.STACK && aggregateType === EAggregateTypes.COUNT)) {
       const max = +d3.max(rollupByAggregateType(baseTable.groupby('category', 'multiples'), aggregateType).array('aggregateVal'));
       return countScale.copy().domain([0, max + max / 25]);
     }
 
+    // Multiples + stacking with something other than count. Tricky one. Change max
+    if (groupType === EBarGroupingType.STACK) {
+      const max = +d3.max(
+        rollupByAggregateType(baseTable.groupby('category', 'group', 'multiples'), aggregateType)
+          .groupby('category', 'multiples')
+          .rollup({ sum: (d) => op.sum(d.aggregateVal) })
+          .array('sum'),
+      );
+      return countScale.copy().domain([0, max + max / 25]);
+    }
+
+    // Multiples + grouped but not stacked. Change max.
     const max = +d3.max(rollupByAggregateType(baseTable.groupby('group', 'category', 'multiples'), aggregateType).array('aggregateVal'));
 
     const tempScale = countScale.copy().domain([0, max + max / 25]);
 
     return tempScale;
-  }, [aggregateType, allColumns?.multiplesColVals, baseTable, countScale, groupType, groupedTable]);
+  }, [aggregateType, allColumns, baseTable, countScale, groupType, groupedTable]);
 
   return {
     aggregatedTable,

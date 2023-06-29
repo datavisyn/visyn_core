@@ -24,7 +24,7 @@ export function ColorSelect({ callback, numTypeCallback = () => null, currentNum
         onChange={(e) => callback(columns.find((c) => c.info.id === e)?.info)}
         name="colorSelect"
         data={columns.map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }))}
-        value={currentSelected?.id}
+        value={currentSelected?.id || null}
       />
       {currentNumType && currentSelected && getCol(columns, currentSelected).type === EColumnTypes.NUMERICAL ? (
         <NumericalColorButtons callback={numTypeCallback} currentSelected={currentNumType} />

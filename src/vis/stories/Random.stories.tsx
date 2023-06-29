@@ -28,6 +28,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     category: Array(numberOfPoints)
       .fill(null)
       .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
+    category2: Array(numberOfPoints)
+      .fill(null)
+      .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
   });
 
   const dataPromise = dataGetter();
@@ -72,6 +75,15 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       },
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.then((data) => data.category.map((val, i) => ({ id: i.toString(), val }))),
+    },
+    {
+      info: {
+        description: '',
+        id: 'category2',
+        name: 'category2',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.then((data) => data.category2.map((val, i) => ({ id: i.toString(), val }))),
     },
   ];
 }
