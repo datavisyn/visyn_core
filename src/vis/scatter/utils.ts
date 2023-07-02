@@ -5,7 +5,6 @@ import {
   PlotlyData,
   EColumnTypes,
   VisNumericalColumn,
-  IVisConfig,
   Scales,
   ESupportedPlotlyVis,
   VisColumn,
@@ -21,10 +20,6 @@ import { getCssValue } from '../../utils';
 import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import { i18n } from '../../i18n';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
-
-export function isScatter(s: IVisConfig): s is IScatterConfig {
-  return s.type === ESupportedPlotlyVis.SCATTER;
-}
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -49,7 +44,7 @@ const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
 };
 
-export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IVisConfig {
+export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
   const merged = merge({}, defaultConfig, config);
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
@@ -179,8 +174,12 @@ export async function createScatterTraces(
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),
 
         marker: {
+          symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+
           color: colorCol
-            ? colorCol.resolvedValues.map((v) => (colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : scales.color(v.val)))
+            ? colorCol.resolvedValues.map((v) =>
+                colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : colorCol.color ? colorCol.color[v.val] : scales.color(v.val),
+              )
             : SELECT_COLOR,
         },
         // plotly is stupid and doesnt know its own types
@@ -190,7 +189,6 @@ export async function createScatterTraces(
             line: {
               width: 0,
             },
-            symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: 1,
             size: 8,
           },
@@ -200,7 +198,6 @@ export async function createScatterTraces(
             line: {
               width: 0,
             },
-            symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             color: DEFAULT_COLOR,
             opacity: alphaSliderVal,
             size: 8,
@@ -267,7 +264,13 @@ export async function createScatterTraces(
               text: validCols[0].resolvedValues.map((v) => v.id.toString()),
               marker: {
                 color: colorCol
-                  ? colorCol.resolvedValues.map((v) => (colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : scales.color(v.val)))
+                  ? colorCol.resolvedValues.map((v) =>
+                      colorCol.type === EColumnTypes.NUMERICAL
+                        ? numericalColorScale(v.val as number)
+                        : colorCol.color
+                        ? colorCol.color[v.val]
+                        : scales.color(v.val),
+                    )
                   : SELECT_COLOR,
               },
               // plotly is stupid and doesnt know its own types
@@ -332,7 +335,7 @@ export async function createScatterTraces(
           },
           symbol: 'circle',
           size: 8,
-          color: colorCol ? colorCol.resolvedValues.map((v) => scales.color(v.val)) : DEFAULT_COLOR,
+          color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : DEFAULT_COLOR,
           opacity: 1,
         },
         transforms: [

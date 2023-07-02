@@ -36,6 +36,7 @@ export function AggregateTypeSelect({
   return (
     <>
       <Select
+        withinPortal
         label="Aggregate type"
         onChange={(option) => aggregateTypeSelectCallback(option as EAggregateTypes)}
         name="numColumns"
@@ -45,6 +46,7 @@ export function AggregateTypeSelect({
       {currentSelected !== EAggregateTypes.COUNT ? (
         <SingleColumnSelect
           type={[EColumnTypes.NUMERICAL]}
+          isClearable={false}
           label="Aggregate Column"
           callback={(c: ColumnInfo) => aggregateColumnSelectCallback(c)}
           columns={columns}

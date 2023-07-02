@@ -31,21 +31,15 @@ export class LoginUtils {
    * @return {Promise<any>} when done also from the server side
    */
   static logout(): Promise<any> {
-    if (!appContext.offline) {
-      return Ajax.send('/logout', {}, 'post')
-        .then((r) => {
-          userSession.logout(r);
-        })
-        .catch(() => {
-          userSession.logout({
-            msg: 'Error logging out via server. Logging out manually.',
-          });
+    return Ajax.send('/logout', {}, 'post')
+      .then((r) => {
+        userSession.logout(r);
+      })
+      .catch(() => {
+        userSession.logout({
+          msg: 'Error logging out via server. Logging out manually.',
         });
-    }
-    userSession.logout({
-      msg: 'Logging out in offline mode',
-    });
-    return Promise.resolve(true);
+      });
   }
 
   static loggedInAs(): Promise<IUser> {

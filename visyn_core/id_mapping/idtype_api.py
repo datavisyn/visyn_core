@@ -25,7 +25,7 @@ def _list_idtypes():
 
     # also include the known elements from the mapping graph
     for idtype_id in manager.id_mapping.known_idtypes():
-        tmp[idtype_id] = {"id": id, "name": id, "names": to_plural(id)}
+        tmp[idtype_id] = {"id": idtype_id, "name": idtype_id, "names": to_plural(idtype_id)}
     return jsonify(list(tmp.values()))
 
 
@@ -43,7 +43,7 @@ def _mapping_to(idtype, to_idtype):
 @app_idtype.route("/<idtype>/<to_idtype>/search")
 def _mapping_to_search(idtype, to_idtype):
     query = request.args.get("q", None)
-    max_results = int(request.args.get("limit", 10))
+    max_results = int(request.args.get("limit", 10))  # type: ignore
     if hasattr(manager.id_mapping, "search"):
         return jsonify(manager.id_mapping.search(idtype, to_idtype, query, max_results))
     return jsonify([])

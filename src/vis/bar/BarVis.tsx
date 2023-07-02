@@ -1,93 +1,27 @@
 import * as React from 'react';
 import * as d3v7 from 'd3v7';
-import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import difference from 'lodash/difference';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Container, Space, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType } from '../interfaces';
+import { Stack } from '@mantine/core';
+import { IBarConfig, EBarGroupingType, ICommonVisProps } from '../interfaces';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
 import { useAsync } from '../../hooks';
 import { createBarTraces } from './utils';
-import { BarVisSidebar } from './BarVisSidebar';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
-
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
 
 export function BarVis({
-  config,
-  optionsConfig,
-  extensions,
+  externalConfig,
   columns,
-  setConfig,
   scales,
   selectionCallback = () => null,
   selectedMap = {},
   selectedList = [],
-  enableSidebar,
-  showSidebar,
-  setShowSidebar,
-  showCloseButton = false,
-  closeButtonCallback = () => null,
-}: {
-  config: IBarConfig;
-  optionsConfig?: {
-    group?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    multiples?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    direction?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    groupingType?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    display?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  columns: VisColumn[];
-  closeButtonCallback?: () => void;
-  showCloseButton?: boolean;
-  selectionCallback?: (ids: string[]) => void;
-  selectedMap?: { [key: string]: boolean };
-  selectedList: string[];
-  setConfig: (config: IVisConfig) => void;
-  scales: Scales;
-  showSidebar?: boolean;
-  setShowSidebar?(show: boolean): void;
-  enableSidebar?: boolean;
-}) {
-  const mergedExtensions = React.useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
-
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createBarTraces, [columns, config, scales]);
+  dimensions,
+}: ICommonVisProps<IBarConfig>) {
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createBarTraces, [columns, externalConfig, scales]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
@@ -107,17 +41,15 @@ export function BarVis({
 
       const selectedIndices = [];
       tracePoints.forEach((points, index) => {
-        if (points.length === 0 || selectedList.length < points.length) {
+        if (points.length === 0) {
           return;
         }
         for (const point of points) {
-          if (!selectedMap[point]) {
-            return;
+          if (selectedMap[point]) {
+            isTraceSelected = true;
+            selectedIndices.push(index);
           }
         }
-
-        selectedIndices.push(index);
-        isTraceSelected = true;
       });
 
       if (selectedIndices.length > 0) {
@@ -136,23 +68,16 @@ export function BarVis({
     }
 
     return editedTraces;
-  }, [traces, selectedMap, selectedList]);
+  }, [traces, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('BarVis'), []);
 
-  const plotlyDivRef = React.useRef(null);
-
   useEffect(() => {
-    const ro = new ResizeObserver(() => {
-      Plotly.Plots.resize(document.getElementById(`plotlyDiv${id}`));
-    });
-
-    if (plotlyDivRef) {
-      ro.observe(plotlyDivRef.current);
+    const plotDiv = document.getElementById(`plotlyDiv${id}`);
+    if (plotDiv) {
+      Plotly.Plots.resize(plotDiv);
     }
-
-    return () => ro.disconnect();
-  }, [id, plotlyDivRef]);
+  }, [id, dimensions]);
 
   React.useEffect(() => {
     if (!finalTraces) {
@@ -170,7 +95,7 @@ export function BarVis({
         family: 'Roboto, sans-serif',
       },
       margin: {
-        t: 25,
+        t: 40,
         r: 25,
         l: 25,
         b: 25,
@@ -178,14 +103,14 @@ export function BarVis({
       autosize: true,
       grid: { rows: finalTraces.rows, columns: finalTraces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
-      barmode: config.groupType === EBarGroupingType.STACK ? 'stack' : 'group',
+      barmode: externalConfig.groupType === EBarGroupingType.STACK ? 'stack' : 'group',
       dragmode: false,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(finalTraces, innerLayout, null) });
+    setLayout({ ...layout, ...beautifyLayout(finalTraces, innerLayout, null, true) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finalTraces, config.groupType]);
+  }, [finalTraces, externalConfig.groupType]);
 
   const traceData = useMemo(() => {
     if (!finalTraces) {
@@ -196,34 +121,16 @@ export function BarVis({
   }, [finalTraces]);
 
   return (
-    <Container
-      fluid
-      pl={0}
-      pr={0}
+    <Stack
+      spacing={0}
       sx={{
         flexGrow: 1,
         height: '100%',
         width: '100%',
         overflow: 'hidden',
         position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
       }}
-      ref={plotlyDivRef}
     >
-      {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
-
-      {mergedExtensions.prePlot}
-      <Space h="xl" />
-      {enableSidebar ? (
-        <Tooltip withinPortal label={i18n.t('visyn:vis.openSettings')}>
-          <ActionIcon sx={{ zIndex: 10, position: 'absolute', top: '10px', right: '10px' }} onClick={() => setShowSidebar(true)}>
-            <FontAwesomeIcon icon={faGear} />
-          </ActionIcon>
-        </Tooltip>
-      ) : null}
       {traceStatus === 'success' && layout && finalTraces?.plots.length > 0 ? (
         <PlotlyComponent
           divId={`plotlyDiv${id}`}
@@ -236,12 +143,16 @@ export function BarVis({
             // plotly types here are just wrong. So have to convert to unknown first.
             const selectedPoints: string[] = e.points[0].customdata as unknown as string[];
 
-            let removeSelectionFlag = true;
+            let removeSelectionFlag = false;
 
-            for (const pointId of selectedPoints) {
-              if (!selectedMap[pointId]) {
-                removeSelectionFlag = false;
-                break;
+            if (selectedPoints.length === selectedList.length) {
+              removeSelectionFlag = true;
+
+              for (const pointId of selectedPoints) {
+                if (!selectedMap[pointId]) {
+                  removeSelectionFlag = false;
+                  break;
+                }
               }
             }
 
@@ -264,15 +175,9 @@ export function BarVis({
             }
           }}
         />
-      ) : traceStatus !== 'pending' ? (
+      ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
         <InvalidCols headerMessage={finalTraces?.errorMessageHeader} bodyMessage={traceError?.message || finalTraces?.errorMessage} />
       ) : null}
-      {mergedExtensions.postPlot}
-      {showSidebar ? (
-        <VisSidebarWrapper id={id} target={plotlyDivRef.current} open={showSidebar} onClose={() => setShowSidebar(false)}>
-          <BarVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
-        </VisSidebarWrapper>
-      ) : null}
-    </Container>
+    </Stack>
   );
 }

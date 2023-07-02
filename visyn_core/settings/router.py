@@ -5,7 +5,7 @@ from ..security.dependencies import get_current_user
 
 router = APIRouter(tags=["Configuration"], prefix="/api/tdp/config", dependencies=[Depends(get_current_user)])
 
-
+# TODO: Move to tdp_core
 @router.get("/{path:path}")
 def get_config_path(path: str):
     split_path = path.split("/")

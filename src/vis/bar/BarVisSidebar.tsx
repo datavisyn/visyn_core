@@ -9,8 +9,6 @@ import {
   EBarGroupingType,
   ESupportedPlotlyVis,
   IBarConfig,
-  IVisConfig,
-  VisColumn,
   ICommonVisSideBarProps,
   EAggregateTypes,
   EColumnTypes,
@@ -18,10 +16,9 @@ import {
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { GroupSelect } from '../sidebar/GroupSelect';
 import { BarDirectionButtons } from '../sidebar/BarDirectionButtons';
-import { BarGroupTypeButtons } from '../sidebar/BarGroupTypeButtons';
-import { BarDisplayButtons } from '../sidebar/BarDisplayTypeButtons';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
+import { FilterButtons } from '../sidebar/FilterButtons';
 
 const defaultConfig = {
   group: {
@@ -36,6 +33,10 @@ const defaultConfig = {
     enable: true,
     customComponent: null,
   },
+  filter: {
+    enable: true,
+    customComponent: null,
+  },
   groupType: {
     enable: true,
     customComponent: null,
@@ -46,64 +47,21 @@ const defaultConfig = {
   },
 };
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
 export function BarVisSidebar({
   config,
   optionsConfig,
-  extensions,
   columns,
   setConfig,
   className = '',
+  filterCallback,
   style: { width = '20em', ...style } = {},
-}: {
-  config: IBarConfig;
-  optionsConfig?: {
-    group?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    multiples?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    direction?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    groupingType?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    display?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-} & ICommonVisSideBarProps) {
+}: ICommonVisSideBarProps<IBarConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
 
-  const mergedExtensions = useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
-
   return (
-    <Container p={10} fluid sx={{ width: '100%' }}>
+    <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
       <Stack spacing="sm">
@@ -124,9 +82,14 @@ export function BarVisSidebar({
         <AggregateTypeSelect
           aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
             if (config.aggregateColumn === null) {
-              setConfig({ ...config, aggregateType, aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info });
+              setConfig({
+                ...config,
+                aggregateType,
+                aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+                display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
+              });
             } else {
-              setConfig({ ...config, aggregateType });
+              setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
             }
           }}
           aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
@@ -136,12 +99,12 @@ export function BarVisSidebar({
         />
       </Stack>
       <Divider my="sm" />
-      {mergedExtensions.preSidebar}
 
       <Stack spacing="sm">
         {mergedOptionsConfig.group.enable
           ? mergedOptionsConfig.group.customComponent || (
               <GroupSelect
+                aggregateType={config.aggregateType}
                 groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
                 groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
                 groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
@@ -170,8 +133,7 @@ export function BarVisSidebar({
             <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
           )
         : null}
-
-      {mergedExtensions.postSidebar}
+      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </Container>
   );
 }

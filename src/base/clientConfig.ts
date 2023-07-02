@@ -1,14 +1,29 @@
 import { Ajax } from './ajax';
 
-export interface ITDPClientConfig {
-  [key: string]: any;
+/**
+ * Interface for the visyn app config.
+ *
+ * Can be extended globally by other repositories:
+ *
+ * ```ts
+ * declare module 'visyn_core/base' {
+ *   export interface IClientConfig {
+ *     customProperty: string;
+ *   }
+ * }
+ *
+ * ```
+ */
+export interface IClientConfig {
+  env?: 'development' | 'production';
 }
 
 /**
- * Loads the client config from '/clientConfig.json' and parses it.
+ * Loads the app config from '/api/v1/visyn/clientConfig'.
  */
-export async function loadClientConfig<T = any>(): Promise<T | null> {
-  return Ajax.getJSON('/clientConfig.json').catch(() => {
+export async function loadClientConfig(): Promise<IClientConfig | null> {
+  return Ajax.getJSON('/api/v1/visyn/clientConfig').catch((e) => {
+    console.error('Error loading /api/v1/visyn/clientConfig', e);
     return null;
   });
 }

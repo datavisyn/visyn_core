@@ -28,6 +28,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     category: Array(numberOfPoints)
       .fill(null)
       .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
+    category2: Array(numberOfPoints)
+      .fill(null)
+      .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
   });
 
   const dataPromise = dataGetter();
@@ -73,6 +76,15 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.then((data) => data.category.map((val, i) => ({ id: i.toString(), val }))),
     },
+    {
+      info: {
+        description: '',
+        id: 'category2',
+        name: 'category2',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.then((data) => data.category2.map((val, i) => ({ id: i.toString(), val }))),
+    },
   ];
 }
 
@@ -86,7 +98,7 @@ export default {
   args: {
     pointCount: 100000,
   },
-} as ComponentMeta<typeof Vis>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
@@ -104,7 +116,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const LargeData = Template.bind({}) as typeof Template;
+export const LargeData: typeof Template = Template.bind({}) as typeof Template;
 LargeData.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
@@ -128,7 +140,7 @@ LargeData.args = {
   },
 };
 
-export const LargeDataMuliples = Template.bind({}) as typeof Template;
+export const LargeDataMuliples: typeof Template = Template.bind({}) as typeof Template;
 LargeDataMuliples.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,

@@ -100,7 +100,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     return {
       left: 52,
       right: config.color ? 80 : 25,
-      top: 25,
+      top: 50,
       bottom: 53,
     };
   }, [config.color]);
@@ -261,8 +261,10 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
 
     const colorOptions = currentColorColumn.allValues.map((val) => val.val as string);
 
-    return d3v7.scaleOrdinal<string, string>(d3v7.schemeCategory10).domain(Array.from(new Set<string>(colorOptions)));
-  }, [colsStatus, currentColorColumn?.allValues]);
+    return d3v7
+      .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : d3v7.schemeCategory10)
+      .domain(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
+  }, [allColumns, colsStatus, currentColorColumn]);
 
   // memoize the actual hexes since they do not need to change on zoom/drag
   const hexObjects = React.useMemo(() => {
@@ -379,74 +381,76 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   }, [width, height, id, hexes, selectionCallback, config.dragMode, xScale, yScale, margin]);
 
   return (
-    <Container
-      ref={ref}
-      fluid
-      pl={0}
-      pr={0}
-      sx={{
-        width: '100%',
-        '.overlay': {
-          cursor: 'default !important',
-        },
-      }}
-    >
-      <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
-        <defs>
-          <clipPath id="clip">
-            <rect style={{ transform: `translate(${margin.left}px, ${margin.top}px)` }} width={width} height={height} />
-          </clipPath>
-        </defs>
-        <g clipPath="url(#clip)">
-          <g id={`${id}brush`}>
-            <g style={{ transform: `translate(${xZoomTransform}px, ${yZoomTransform}px) scale(${zoomScale})` }}>
-              <g>{hexObjects}</g>
+    <Box style={{ height: '100%', width: '100%', position: 'relative' }} ref={ref}>
+      <Container
+        fluid
+        pl={0}
+        pr={0}
+        sx={{
+          height: height + margin.top + margin.bottom,
+          width: '100%',
+          '.overlay': {
+            cursor: 'default !important',
+          },
+        }}
+      >
+        <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
+          <defs>
+            <clipPath id="clip">
+              <rect style={{ transform: `translate(${margin.left}px, ${margin.top}px)` }} width={width} height={height} />
+            </clipPath>
+          </defs>
+          <g clipPath="url(#clip)">
+            <g id={`${id}brush`}>
+              <g style={{ transform: `translate(${xZoomTransform}px, ${yZoomTransform}px) scale(${zoomScale})` }}>
+                <g>{hexObjects}</g>
+              </g>
             </g>
           </g>
-        </g>
-        {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xZoomedScale.current || xScale} /> : null}
-        {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yZoomedScale.current || yScale} /> : null}
+          {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xZoomedScale.current || xScale} /> : null}
+          {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yZoomedScale.current || yScale} /> : null}
 
-        <text
-          dominantBaseline="middle"
-          textAnchor="middle"
-          style={{
-            transform: `translate(${margin.left + width / 2}px, ${margin.top + height + 30}px)`,
-          }}
-        >
-          {allColumns?.numColVals[0]?.info.name}
-        </text>
-        <text
-          dominantBaseline="middle"
-          textAnchor="middle"
-          style={{
-            transform: `translate(10px, ${margin.top + height / 2}px) rotate(-90deg)`,
-          }}
-        >
-          {allColumns?.numColVals[1]?.info.name}
-        </text>
-        <rect
-          transform={`translate(${margin.left}, ${margin.top})`}
-          id={`${id}zoom`}
-          width={width}
-          height={height}
-          opacity={0}
-          pointerEvents={config.dragMode === EScatterSelectSettings.PAN ? 'auto' : 'none'}
-        />
-      </svg>
-      <div className="position-absolute" style={{ right: 0, top: margin.top + 60 }}>
-        <Legend
-          categories={colorScale ? colorScale.domain() : []}
-          filteredCategories={colorScale ? filteredCategories : []}
-          colorScale={colorScale || null}
-          onClick={(s) =>
-            filteredCategories.includes(s)
-              ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
-              : setFilteredCategories([...filteredCategories, s])
-          }
-          height={height}
-        />
-      </div>
-    </Container>
+          <text
+            dominantBaseline="middle"
+            textAnchor="middle"
+            style={{
+              transform: `translate(${margin.left + width / 2}px, ${margin.top + height + 30}px)`,
+            }}
+          >
+            {allColumns?.numColVals[0]?.info.name}
+          </text>
+          <text
+            dominantBaseline="middle"
+            textAnchor="middle"
+            style={{
+              transform: `translate(10px, ${margin.top + height / 2}px) rotate(-90deg)`,
+            }}
+          >
+            {allColumns?.numColVals[1]?.info.name}
+          </text>
+          <rect
+            transform={`translate(${margin.left}, ${margin.top})`}
+            id={`${id}zoom`}
+            width={width}
+            height={height}
+            opacity={0}
+            pointerEvents={config.dragMode === EScatterSelectSettings.PAN ? 'auto' : 'none'}
+          />
+        </svg>
+        <div style={{ right: 0, top: margin.top + 60, position: 'absolute' }}>
+          <Legend
+            categories={colorScale ? colorScale.domain() : []}
+            filteredCategories={colorScale ? filteredCategories : []}
+            colorScale={colorScale || null}
+            onClick={(s) =>
+              filteredCategories.includes(s)
+                ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
+                : setFilteredCategories([...filteredCategories, s])
+            }
+            height={200}
+          />
+        </div>
+      </Container>
+    </Box>
   );
 }

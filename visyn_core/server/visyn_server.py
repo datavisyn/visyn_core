@@ -139,31 +139,14 @@ def create_visyn_server(
     for p in router_plugins:
         app.include_router(p.load().factory())
 
-    # load `after_server_started` extension points which are run immediately after server started,
-    # so all plugins should have been loaded at this point of time
-    # the hooks are run in a separate (single) thread to not block the main execution of the server
-    # TODO: Use FastAPI mechanism for that
-    t = threading.Thread(target=load_after_server_started_hooks)
-    t.daemon = True
-    t.start()
-
-    # TODO: Check mainapp.py what it does and transfer them here. Currently, we cannot mount a flask app at root, such that the flask app is now mounted at /app/
-    from .mainapp import build_info, health
-
-    # Call init_app callback for every plugin
-    for p in plugins:
-        p.plugin.init_app(app)
-
-    from ..middleware.request_context_plugin import RequestContextPlugin
-
-    # Use starlette-context to store the current request globally, i.e. accessible via context['request']
-    app.add_middleware(RawContextMiddleware, plugins=(RequestContextPlugin(),))
-
     class UvicornAccessLogFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
             return 'GET /health HTTP/1.1" 200' not in record.getMessage()
 
     logging.getLogger("uvicorn.access").addFilter(UvicornAccessLogFilter())
+
+    # TODO: Check mainapp.py what it does and transfer them here. Currently, we cannot mount a flask app at root, such that the flask app is now mounted at /app/
+    from .mainapp import build_info, health
 
     app.add_api_route("/health", health)  # type: ignore
     app.add_api_route("/api/buildInfo.json", build_info)  # type: ignore
@@ -174,5 +157,29 @@ def create_visyn_server(
         # This is a workaround to increase the number of threads to 100, as the default is only 40.
         limiter = anyio.to_thread.current_default_thread_limiter()
         limiter.total_tokens = manager.settings.visyn_core.total_anyio_tokens
+
+    if manager.settings.visyn_core.cypress:
+        _log.info("Cypress mode is enabled. This should only be used in a Cypress testing environment or CI.")
+
+    # As a last step, call init_app callback for every plugin. This is last to ensure everything we need is already initialized.
+    for p in plugins:
+        p.plugin.init_app(app)
+
+    # Load `after_server_started` extension points which are run immediately after server started,
+    # so all plugins should have been loaded at this point of time
+    # the hooks are run in a separate (single) thread to not block the main execution of the server
+    # TODO: Use FastAPI mechanism for that
+    t = threading.Thread(target=load_after_server_started_hooks)
+    t.daemon = True
+    t.start()
+
+    from ..settings.client_config import init_client_config
+
+    init_client_config(app)
+
+    from ..middleware.request_context_plugin import RequestContextPlugin
+
+    # Use starlette-context to store the current request globally, i.e. accessible via context['request']
+    app.add_middleware(RawContextMiddleware, plugins=(RequestContextPlugin(),))
 
     return app

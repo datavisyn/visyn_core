@@ -17,6 +17,10 @@ class VisynPlugin(AVisynPlugin):
                 "RDKit is not installed, corresponding API could not be loaded. Consider installing visyn_core[full] or visyn_core[rdkit]."
             )
 
+        from .settings.router import create as create_settings_router
+
+        app.include_router(create_settings_router())
+
     def register(self, registry: RegHelper):
         # phovea_server
         registry.append(
@@ -28,7 +32,6 @@ class VisynPlugin(AVisynPlugin):
 
         # General routers
         registry.append("namespace", "visyn_core_main", "visyn_core.server.mainapp", {"namespace": "/app"})
-        registry.append_router("visyn_config_router", "visyn_core.settings.router", {})
         registry.append_router("visyn_plugin_router", "visyn_core.plugin.router", {})
         registry.append("namespace", "visyn_xlsx2json", "visyn_core.xlsx", {"namespace": "/api/tdp/xlsx"})
 

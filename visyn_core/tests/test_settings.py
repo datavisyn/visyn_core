@@ -1,6 +1,9 @@
 import os
 from unittest import mock
 
+from starlette.testclient import TestClient
+
+from visyn_core import manager
 from visyn_core.settings.model import GlobalSettings
 
 
@@ -38,3 +41,14 @@ def test_env_substitution():
             env_settings.get_nested("visyn_core.logging.version") == "2"
         )  # Note that this is a string, as it cannot infer the type of Dict
         assert env_settings.get_nested("visyn_core.logging.root.level") == "DEBUG"
+
+
+def test_client_config(client: TestClient):
+    # By default, we always return null for the clientConfig
+    assert client.get("/api/v1/visyn/clientConfig").json() == {"demo_from_function": False, "demo_from_class": False}
+
+    # Update the clientConfig in the settings
+    manager.settings.visyn_core.client_config = {"demo_from_function": True, "demo_from_class": True}
+
+    # Assert we receive exactly the client_config as result
+    assert client.get("/api/v1/visyn/clientConfig").json() == {"demo_from_function": True, "demo_from_class": True}

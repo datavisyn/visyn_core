@@ -3,5 +3,6 @@
         "visyn_core"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "typescript.tsdk": "node_modules/typescript/lib"
 }
