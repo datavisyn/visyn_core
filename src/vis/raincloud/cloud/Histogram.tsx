@@ -4,6 +4,7 @@ import * as d3 from 'd3v7';
 import { bin, op, table } from 'arquero';
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
+import { useKdeCalc } from './useKdeCalc';
 
 const margin = {
   top: 30,
@@ -11,24 +12,6 @@ const margin = {
   left: 20,
   right: 20,
 };
-
-function kernelDensityEstimator(kernel, X) {
-  return function (V) {
-    return X.map(function (x) {
-      return [
-        x,
-        d3.mean(V, function (v) {
-          return kernel(x - v);
-        }),
-      ];
-    });
-  };
-}
-function kernelEpanechnikov(k) {
-  return function (v) {
-    return Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0;
-  };
-}
 
 export function Histogram({
   numCol,
@@ -47,11 +30,11 @@ export function Histogram({
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
-  const kdeVal: [number, number][] = useMemo(() => {
-    const kde = kernelDensityEstimator(kernelEpanechnikov(0.3), xScale.ticks(10));
-
-    return kde(numCol.resolvedValues.map((val) => val.val as number));
-  }, [numCol.resolvedValues, xScale]);
+  const kdeVal = useKdeCalc({
+    values: numCol.resolvedValues.map((val) => val.val as number),
+    xScale,
+    ticks: 10,
+  });
 
   const yScale = useMemo(() => {
     const scale = d3

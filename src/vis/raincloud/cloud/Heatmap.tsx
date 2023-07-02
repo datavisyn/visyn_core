@@ -4,6 +4,7 @@ import * as d3 from 'd3v7';
 import { bin, op, table } from 'arquero';
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
+import { useKdeCalc } from './useKdeCalc';
 
 const margin = {
   top: 30,
@@ -11,24 +12,6 @@ const margin = {
   left: 20,
   right: 20,
 };
-
-function kernelDensityEstimator(kernel, X) {
-  return function (V) {
-    return X.map(function (x) {
-      return [
-        x,
-        d3.mean(V, function (v) {
-          return kernel(x - v);
-        }),
-      ];
-    });
-  };
-}
-function kernelEpanechnikov(k) {
-  return function (v) {
-    return Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0;
-  };
-}
 
 export function Heatmap({
   numCol,
@@ -47,28 +30,30 @@ export function Heatmap({
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
-  const kdeVal: [number, number][] = useMemo(() => {
-    const kde = kernelDensityEstimator(kernelEpanechnikov(0.3), xScale.ticks(100));
+  const kdeVal = useKdeCalc({
+    values: numCol.resolvedValues.map((val) => val.val as number),
+    xScale,
+    ticks: 50,
+  });
 
-    return kde(numCol.resolvedValues.map((val) => val.val as number));
-  }, [numCol.resolvedValues, xScale]);
-
-  const colorScale = d3
-    .scaleSequential(
-      d3.piecewise(d3.interpolateRgb.gamma(2.2), [
-        '#E9ECEF',
-        '#DEE2E6',
-        '#C8CED3',
-        '#BCC3C9',
-        '#ACB4BC',
-        '#99A1A9',
-        '#878E95',
-        '#71787E',
-        '#62686F',
-        '#505459',
-      ]),
-    )
-    .domain([d3.max(kdeVal.map((val) => val[1] as number)), 0].reverse());
+  const colorScale = useMemo(() => {
+    return d3
+      .scaleSequential(
+        d3.piecewise(d3.interpolateRgb.gamma(2.2), [
+          '#E9ECEF',
+          '#DEE2E6',
+          '#C8CED3',
+          '#BCC3C9',
+          '#ACB4BC',
+          '#99A1A9',
+          '#878E95',
+          '#71787E',
+          '#62686F',
+          '#505459',
+        ]),
+      )
+      .domain([0, d3.max(kdeVal.map((val) => val[1] as number))]);
+  }, [kdeVal]);
 
   // @ts-ignore
   const binWidth = useMemo(() => xScale(kdeVal[1][0]) - xScale(kdeVal[0][0]), [kdeVal, xScale]);
