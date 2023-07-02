@@ -82,7 +82,6 @@ export function useGetGroupedBarScales(
   const newCountScale = useMemo(() => {
     if (!allColumns) return null;
 
-
     // No multiples, only group
     if (!allColumns.multiplesColVals) {
       // No group or group is a stack of count, dont need to change scale
