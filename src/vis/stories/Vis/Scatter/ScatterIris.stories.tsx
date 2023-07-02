@@ -136,17 +136,3 @@ SmallMultiples.args = {
     alphaSliderVal: 0.5,
   },
 };
-
-export const SankeyPlot: typeof Template = Template.bind({});
-SankeyPlot.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SANKEY,
-    catColumnsSelected: [
-      {
-        description: '',
-        id: 'species',
-        name: 'Species',
-      },
-    ],
-  },
-};
