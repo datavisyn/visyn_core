@@ -22,11 +22,13 @@ export function ParallelPlot({
   config,
   selectionCallback,
   selectedMap,
+  hasSelected,
 }: {
   config: IParallelCoordinatesConfig;
   columns: VisColumn[];
   selectionCallback: (ids: string[]) => void;
   selectedMap: Record<string, boolean>;
+  hasSelected: boolean;
 }) {
   const [ref, { width, height }] = useResizeObserver();
   const { value: allColumns } = useAsync(getParallelData, [columns, config?.numColumnsSelected, config?.catColumnsSelected]);
@@ -144,7 +146,7 @@ export function ParallelPlot({
               key={pathId}
               path={paths[pathId]}
               onHover={() => setHovered(pathId)}
-              isSelected={selectedMap[pathId]}
+              isSelected={hasSelected ? selectedMap[pathId] : true}
               onLeave={() => setHovered(null)}
               hovered={hovered}
               id={pathId}
