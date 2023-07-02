@@ -53,8 +53,8 @@ export function BarVisSidebar({
   columns,
   setConfig,
   className = '',
-  style: { width = '20em', ...style } = {},
   filterCallback,
+  style: { width = '20em', ...style } = {},
 }: ICommonVisSideBarProps<IBarConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
@@ -82,9 +82,14 @@ export function BarVisSidebar({
         <AggregateTypeSelect
           aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
             if (config.aggregateColumn === null) {
-              setConfig({ ...config, aggregateType, aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info });
+              setConfig({
+                ...config,
+                aggregateType,
+                aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+                display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
+              });
             } else {
-              setConfig({ ...config, aggregateType });
+              setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
             }
           }}
           aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
@@ -99,6 +104,7 @@ export function BarVisSidebar({
         {mergedOptionsConfig.group.enable
           ? mergedOptionsConfig.group.customComponent || (
               <GroupSelect
+                aggregateType={config.aggregateType}
                 groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
                 groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
                 groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}

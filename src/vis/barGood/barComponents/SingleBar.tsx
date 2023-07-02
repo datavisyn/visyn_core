@@ -58,7 +58,7 @@ export function SingleBar({
           <animated.rect {...style} fill={color} />
         ) : (
           <g>
-            <animated.rect {...style} fill={color} opacity={0.5} />
+            <animated.rect {...style} fill={color} opacity={0.3} />
             <animated.rect {...selectedRectStyle} fill={color} />
           </g>
         )}
