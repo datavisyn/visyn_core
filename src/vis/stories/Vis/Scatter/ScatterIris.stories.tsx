@@ -1,18 +1,7 @@
 import React, { useState } from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 import { Vis } from '../../../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../../../interfaces';
+import { ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

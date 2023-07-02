@@ -1,19 +1,7 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta, Meta } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 import { Vis } from '../../../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  EHexbinOptions,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../../../interfaces';
+import { EColumnTypes, EHexbinOptions, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function fetchData(numberOfPoints: number): VisColumn[] {
   const dataGetter = async () => ({
@@ -87,7 +75,7 @@ export default {
   args: {
     pointCount: 10000,
   },
-} as ComponentMeta<typeof Vis>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
@@ -105,7 +93,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const LargeData = Template.bind({}) as typeof Template;
+export const LargeData: typeof Template = Template.bind({}) as typeof Template;
 LargeData.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.HEXBIN,
@@ -130,7 +118,7 @@ LargeData.args = {
   },
 };
 
-export const LargeDataMultiples = Template.bind({}) as typeof Template;
+export const LargeDataMultiples: typeof Template = Template.bind({}) as typeof Template;
 LargeDataMultiples.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.HEXBIN,
@@ -160,7 +148,7 @@ LargeDataMultiples.args = {
   },
 };
 
-export const ColorByCategory = Template.bind({}) as typeof Template;
+export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
 ColorByCategory.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.HEXBIN,
@@ -189,7 +177,7 @@ ColorByCategory.args = {
   },
 };
 
-export const PieCharts = Template.bind({}) as typeof Template;
+export const PieCharts: typeof Template = Template.bind({}) as typeof Template;
 PieCharts.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.HEXBIN,
@@ -218,7 +206,7 @@ PieCharts.args = {
   },
 };
 
-export const ColorBins = Template.bind({}) as typeof Template;
+export const ColorBins: typeof Template = Template.bind({}) as typeof Template;
 ColorBins.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.HEXBIN,

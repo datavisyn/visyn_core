@@ -1,18 +1,7 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta, Meta } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 import { Vis } from '../../../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../../../interfaces';
+import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function fetchData(numberOfPoints: number): VisColumn[] {
   const dataGetter = async () => ({

@@ -1,40 +1,38 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta, Meta } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 import { Vis } from '../../../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  EHexbinOptions,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../../../interfaces';
+import { EAggregateTypes, EBarDirection, EBarDisplayType, EBarGroupingType, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+
+function RNG(seed) {
+  const m = 2 ** 35 - 31;
+  const a = 185852;
+  let s = seed % m;
+  return function () {
+    return (s = (s * a) % m) / m;
+  };
+}
 
 function fetchData(numberOfPoints: number): VisColumn[] {
+  const rng = RNG(10);
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     pca_x: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     pca_y: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     category: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
+      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
     category2: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((Math.random() * 5).toString(), 5).toString()),
+      .map(() => parseInt((rng() * 5).toString(), 5).toString()),
     category3: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((Math.random() * 2).toString(), 2).toString()),
+      .map(() => parseInt((rng() * 2).toString(), 2).toString()),
   });
 
   const dataPromise = dataGetter();
@@ -111,7 +109,7 @@ export default {
   args: {
     pointCount: 10000,
   },
-} as ComponentMeta<typeof Vis>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
@@ -129,7 +127,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const Basic = Template.bind({}) as typeof Template;
+export const Basic: typeof Template = Template.bind({}) as typeof Template;
 Basic.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
@@ -149,7 +147,7 @@ Basic.args = {
   },
 };
 
-export const Vertical = Template.bind({}) as typeof Template;
+export const Vertical: typeof Template = Template.bind({}) as typeof Template;
 Vertical.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
@@ -169,7 +167,7 @@ Vertical.args = {
   },
 };
 
-export const Grouped = Template.bind({}) as typeof Template;
+export const Grouped: typeof Template = Template.bind({}) as typeof Template;
 Grouped.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
@@ -193,7 +191,79 @@ Grouped.args = {
   },
 };
 
-export const Multiples = Template.bind({}) as typeof Template;
+export const GroupedStack: typeof Template = Template.bind({}) as typeof Template;
+GroupedStack.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    multiples: null,
+    group: {
+      description: '',
+      id: 'category2',
+      name: 'category2',
+    },
+    groupType: EBarGroupingType.STACK,
+    direction: EBarDirection.HORIZONTAL,
+    display: EBarDisplayType.ABSOLUTE,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+  },
+};
+
+export const GroupedNumerical: typeof Template = Template.bind({}) as typeof Template;
+GroupedNumerical.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    multiples: null,
+    group: {
+      description: '',
+      id: 'pca_y',
+      name: 'pca_y',
+    },
+    groupType: EBarGroupingType.GROUP,
+    direction: EBarDirection.HORIZONTAL,
+    display: EBarDisplayType.ABSOLUTE,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+  },
+};
+
+export const GroupedNumericalStack: typeof Template = Template.bind({}) as typeof Template;
+GroupedNumericalStack.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    multiples: null,
+    group: {
+      description: '',
+      id: 'pca_y',
+      name: 'pca_y',
+    },
+    groupType: EBarGroupingType.STACK,
+    direction: EBarDirection.HORIZONTAL,
+    display: EBarDisplayType.ABSOLUTE,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+  },
+};
+
+export const Multiples: typeof Template = Template.bind({}) as typeof Template;
 Multiples.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
@@ -217,7 +287,63 @@ Multiples.args = {
   },
 };
 
-export const AggregateAverage = Template.bind({}) as typeof Template;
+export const MultiplesAndGrouped: typeof Template = Template.bind({}) as typeof Template;
+MultiplesAndGrouped.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    multiples: {
+      description: '',
+      id: 'category2',
+      name: 'category2',
+    },
+    group: {
+      description: '',
+      id: 'category3',
+      name: 'category3',
+    },
+    groupType: EBarGroupingType.GROUP,
+    direction: EBarDirection.HORIZONTAL,
+    display: EBarDisplayType.ABSOLUTE,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+  },
+};
+
+export const MultiplesAndGroupedStack: typeof Template = Template.bind({}) as typeof Template;
+MultiplesAndGroupedStack.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    multiples: {
+      description: '',
+      id: 'category2',
+      name: 'category2',
+    },
+    group: {
+      description: '',
+      id: 'category3',
+      name: 'category3',
+    },
+    groupType: EBarGroupingType.STACK,
+    direction: EBarDirection.HORIZONTAL,
+    display: EBarDisplayType.ABSOLUTE,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+  },
+};
+
+export const AggregateAverage: typeof Template = Template.bind({}) as typeof Template;
 AggregateAverage.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,

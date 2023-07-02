@@ -35,7 +35,7 @@ export function XAxis({
   return (
     <>
       <g transform={`translate(${xScale.range()[1]}, ${vertPosition + 25})`}>
-        <foreignObject width={xScale.range()[0] - xScale.range()[1]} height={20}>
+        <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
           <Center>
             <Group spacing={3}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}

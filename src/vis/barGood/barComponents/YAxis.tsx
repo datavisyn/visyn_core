@@ -42,10 +42,11 @@ export function YAxis({
 
     return maxLabelLength > 5 ? 30 : maxLabelLength * 6;
   }, [ticks]);
+
   return (
     <>
       <g transform={`translate(${horizontalPosition - labelSpacing - 30}, ${yScale.range()[0]}) rotate(-90)`}>
-        <foreignObject width={yScale.range()[0] - yScale.range()[1]} height={20}>
+        <foreignObject width={Math.abs(yScale.range()[0] - yScale.range()[1])} height={20}>
           <Center>
             <Group spacing={3}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
