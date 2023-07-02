@@ -115,6 +115,12 @@ export function ViolinVis({
       sx={{
         height: '100%',
         width: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        // Disable plotly crosshair cursor
+        '.nsewdrag': {
+          cursor: 'pointer !important',
+        },
       }}
     >
       {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (

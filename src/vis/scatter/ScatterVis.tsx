@@ -198,7 +198,7 @@ export function ScatterVis({
               selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
             }}
           />
-        ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
+        ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
           <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
         ) : null}
       </Stack>

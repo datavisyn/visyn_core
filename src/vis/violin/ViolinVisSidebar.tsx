@@ -24,10 +24,10 @@ export function ViolinVisSidebar({
   config,
   optionsConfig,
   columns,
-  filterCallback = () => null,
   setConfig,
   className = '',
   style: { width = '20em', ...style } = {},
+  filterCallback,
 }: ICommonVisSideBarProps<IViolinConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);

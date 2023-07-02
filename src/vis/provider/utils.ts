@@ -6,12 +6,15 @@ import { SankeyVisSidebar } from '../sankey/SankeyVisSidebar';
 import { ViolinVisSidebar } from '../violin/ViolinVisSidebar';
 import { ScatterVis, scatterMergeDefaultConfig } from '../scatter';
 import { hexinbMergeDefaultConfig } from '../hexbin/utils';
-import { BarVis } from '../bar/BarVis';
 import { barMergeDefaultConfig } from '../bar/utils';
 import { BarVisSidebar } from '../bar/BarVisSidebar';
 import { HexbinVis } from '../hexbin/HexbinVis';
 import { ESupportedPlotlyVis } from '../interfaces';
 import { createVis, visMap } from './Provider';
+import { RaincloudVis } from '../raincloud/RaincloudVis';
+import { RaincloudVisSidebar } from '../raincloud/RaincloudVisSidebar';
+import { raincloudMergeDefaultConfig } from '../raincloud/utils';
+import { BarVis } from '../barGood/BarVis';
 import { ParallelVis } from '../parallelCoordinates/ParallelVis';
 import { ParallelVisSidebar } from '../parallelCoordinates/ParallelVisSidebar';
 import { parallelCoordinatesMergeDefaultConfig } from '../parallelCoordinates/utils';
@@ -27,6 +30,7 @@ export function registerAllVis() {
     ParallelVisSidebar,
     parallelCoordinatesMergeDefaultConfig,
   );
+  visMap[ESupportedPlotlyVis.RAINCLOUD] = createVis(ESupportedPlotlyVis.RAINCLOUD, RaincloudVis, RaincloudVisSidebar, raincloudMergeDefaultConfig);
 
   // visMap[ESupportedPlotlyVis.SANKEY] = createVis(ESupportedPlotlyVis.SANKEY, SankeyVis, SankeyVisSidebar);
 }

@@ -151,6 +151,8 @@
     "@types/react-dom": "^18.2.0",
     "@types/react-plotly.js": "^2.5.0",
     "arquero": "^5.2.0",
+    "chromatic": "^6.19.9",
+    "d3-force-boundary": "^0.0.3",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.4.0",
     "i18next": "^22.4.15",
@@ -161,6 +163,7 @@
     "react-dom": "^18.2.0",
     "react-highlight-words": "^0.17.0",
     "react-plotly.js": "^2.5.1",
+    "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
     "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#develop"
   },

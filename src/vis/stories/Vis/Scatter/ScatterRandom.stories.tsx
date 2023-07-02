@@ -1,18 +1,7 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { Vis } from '../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../interfaces';
+import { ComponentStory } from '@storybook/react';
+import { Vis } from '../../../LazyVis';
+import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function fetchData(numberOfPoints: number): VisColumn[] {
   const dataGetter = async () => ({
@@ -26,6 +15,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       .fill(null)
       .map(() => Math.random() * 100),
     category: Array(numberOfPoints)
+      .fill(null)
+      .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
+    category2: Array(numberOfPoints)
       .fill(null)
       .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
   });
@@ -73,12 +65,21 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.then((data) => data.category.map((val, i) => ({ id: i.toString(), val }))),
     },
+    {
+      info: {
+        description: '',
+        id: 'category2',
+        name: 'category2',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.then((data) => data.category2.map((val, i) => ({ id: i.toString(), val }))),
+    },
   ];
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Example/Vis/RandomData',
+  title: 'Vis/Scatter',
   component: Vis,
   argTypes: {
     pointCount: { control: 'number' },
@@ -106,8 +107,8 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const ScatterPlot: typeof Template = Template.bind({});
-ScatterPlot.args = {
+export const LargeData: typeof Template = Template.bind({}) as typeof Template;
+LargeData.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
@@ -126,34 +127,14 @@ ScatterPlot.args = {
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
+    alphaSliderVal: 0.2,
   },
 };
 
-export const BarChart: typeof Template = Template.bind({});
-BarChart.args = {
+export const LargeDataMuliples: typeof Template = Template.bind({}) as typeof Template;
+LargeDataMuliples.args = {
   externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    multiples: null,
-    group: null,
-    direction: EBarDirection.VERTICAL,
-    display: EBarDisplayType.ABSOLUTE,
-    groupType: EBarGroupingType.GROUP,
-    numColumnsSelected: [],
-    catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
-    },
-    aggregateColumn: null,
-    aggregateType: EAggregateTypes.COUNT,
-  },
-};
-
-export const ViolinPlot: typeof Template = Template.bind({});
-ViolinPlot.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.VIOLIN,
+    type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
       {
         description: '',
@@ -165,8 +146,16 @@ ViolinPlot.args = {
         id: 'pca_y',
         name: 'pca_y',
       },
+      {
+        description: '',
+        id: 'value',
+        name: 'value',
+      },
     ],
-    catColumnsSelected: [],
-    violinOverlay: EViolinOverlay.NONE,
+    color: null,
+    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    shape: null,
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    alphaSliderVal: 0.2,
   },
 };
