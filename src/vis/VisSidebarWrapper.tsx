@@ -1,9 +1,8 @@
-import { Box, Divider, Drawer, Group, ScrollArea } from '@mantine/core';
+import { Box, Group, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 import { ReactNode } from 'react';
 
 const sidebarSize = 200;
-const padding = 10;
 
 export function VisSidebarWrapper({ children }: { children: ReactNode }) {
   return (

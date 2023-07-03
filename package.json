@@ -129,7 +129,8 @@
     "storybook": "NODE_OPTIONS=--max_old_space_size=4096 storybook dev -p 6006",
     "test": "visyn_scripts test",
     "webpack:dev": "visyn_scripts build --mode development --env workspace_mode=single",
-    "webpack:prod": "visyn_scripts build --mode production --env workspace_mode=single"
+    "webpack:prod": "visyn_scripts build --mode production --env workspace_mode=single",
+    "build-chromatic": "npx chromatic --build-script-name storybook:build"
   },
   "dependencies": {
     "@emotion/react": "^11.0.0",
@@ -150,7 +151,9 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/react-plotly.js": "^2.5.0",
-    "arquero": "^5.0.0",
+    "arquero": "^5.2.0",
+    "chromatic": "^6.19.9",
+    "d3-force-boundary": "^0.0.3",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.4.0",
     "i18next": "^22.4.15",
@@ -161,7 +164,7 @@
     "react-dom": "^18.2.0",
     "react-highlight-words": "^0.17.0",
     "react-plotly.js": "^2.5.1",
-    "react-spring": "^9.3.0",
+    "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
     "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#develop"
   },

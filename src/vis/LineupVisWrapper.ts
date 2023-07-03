@@ -117,11 +117,11 @@ export class LineupVisWrapper {
     createRoot(this.node).render(
       React.createElement(Vis, {
         columns: cols,
-        selectedList,
+        selected: selectedList,
         selectionCallback: (visynIds) => this.props.selectionCallback(visynIds),
         filterCallback: (s: string) => this.filterCallback(s),
         showCloseButton: true,
-        closeButtonCallback: () => this.hide(),
+        closeCallback: () => this.hide(),
       }),
     );
   };

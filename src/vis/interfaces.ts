@@ -6,6 +6,9 @@ export enum ESupportedPlotlyVis {
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
   HEATMAP = 'Heatmap plot',
+  PARALLEL_COORDINATES = 'Parallel plot',
+  RAINCLOUD = 'Raincloud plot',
+  SANKEY = 'Sankey',
 }
 
 export const allVisTypes: ESupportedPlotlyVis[] = [
@@ -13,10 +16,10 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.BAR,
   ESupportedPlotlyVis.VIOLIN,
   ESupportedPlotlyVis.HEXBIN,
-  ESupportedPlotlyVis.HEATMAP,
+  ESupportedPlotlyVis.PARALLEL_COORDINATES,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IHeatmapConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IParallelCoordinatesConfig | IRaincloudConfig | IHeatmapConfig;
 
 export interface BaseConfig {
   type: string;
@@ -85,11 +88,47 @@ export enum EScatterSelectSettings {
   PAN = 'pan',
 }
 
+export interface IParallelCoordinatesConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.PARALLEL_COORDINATES;
+  numColumnsSelected: ColumnInfo[];
+  catColumnsSelected: ColumnInfo[];
+  color: ColumnInfo | null;
+}
+
 export interface IViolinConfig extends BaseConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
+}
+
+export enum ECloudType {
+  SPLIT_VIOLIN = 'Split violin',
+  HEATMAP = 'Heatmap',
+  HISTOGRAM = 'Histogram',
+}
+
+export enum ELightningType {
+  MEAN_AND_DEV = 'Mean and deviation',
+  MEDIAN_AND_DEV = 'Median and deviation',
+  MEAN = 'Mean',
+  BOXPLOT = 'Boxplot',
+}
+
+export enum ERainType {
+  DOTPLOT = 'Dot plot',
+  BEESWARM = 'Beeswarm',
+  WHEATPLOT = 'Wheat plot',
+  STRIPPLOT = 'Strip plot',
+}
+
+export interface IRaincloudConfig {
+  type: ESupportedPlotlyVis.RAINCLOUD;
+  numColumnsSelected: ColumnInfo[];
+  cloudType: ECloudType;
+  rainType: ERainType;
+  lightningType: ELightningType;
+  aggregateRain: boolean;
 }
 
 export interface IScatterConfig extends BaseConfig {

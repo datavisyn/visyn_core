@@ -15,6 +15,8 @@ import {
   EScatterSelectSettings,
   EAggregateTypes,
   ICommonVisProps,
+  VisColumn,
+  EFilterOptions,
 } from './interfaces';
 import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
@@ -31,13 +33,13 @@ registerAllVis();
 
 export function EagerVis({
   columns,
-  selectedList = [],
+  selected = [],
   colors = null,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
   filterCallback = () => null,
   setExternalConfig = () => null,
-  closeButtonCallback = () => null,
+  closeCallback = () => null,
   showCloseButton = false,
   externalConfig = null,
   enableSidebar = true,
@@ -46,8 +48,42 @@ export function EagerVis({
   setShowSidebar: internalSetShowSidebar,
   showSidebarDefault = false,
   scrollZoom = true,
-  optionsConfig,
-}: Omit<ICommonVisProps<IVisConfig>, 'dimensions'>) {
+}: {
+  /**
+   * Required data columns which are displayed.
+   */
+  columns: VisColumn[];
+  /**
+   * Optional Prop for identifying which points are selected. Any ids that are in this array will be considered selected.
+   */
+  selected?: string[];
+  /**
+   * Optional Prop for changing the colors that are used in color mapping. Defaults to the Datavisyn categorical color scheme
+   */
+  colors?: string[];
+  /**
+   * Optional Prop for changing the shapes that are used in shape mapping. Defaults to the circle, square, triangle, star.
+   */
+  shapes?: string[];
+  /**
+   * Optional Prop which is called when a selection is made in the scatterplot visualization. Passes in the selected points.
+   */
+  selectionCallback?: (s: string[]) => void;
+  /**
+   * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
+   */
+  filterCallback?: (s: EFilterOptions) => void;
+  setExternalConfig?: (config: IVisConfig) => void;
+  closeCallback?: () => void;
+  showCloseButton?: boolean;
+  externalConfig?: IVisConfig;
+  enableSidebar?: boolean;
+  showSidebar?: boolean;
+  showDragModeOptions?: boolean;
+  setShowSidebar?(show: boolean): void;
+  showSidebarDefault?: boolean;
+  scrollZoom?: boolean;
+}) {
   const [showSidebar, setShowSidebar] = useUncontrolled<boolean>({
     value: internalShowSidebar,
     defaultValue: showSidebarDefault,
@@ -131,12 +167,12 @@ export function EagerVis({
   const selectedMap: { [key: string]: boolean } = useMemo(() => {
     const currMap: { [key: string]: boolean } = {};
 
-    selectedList.forEach((s) => {
+    selected.forEach((s) => {
       currMap[s] = true;
     });
 
     return currMap;
-  }, [selectedList]);
+  }, [selected]);
 
   const scales: Scales = useMemo(() => {
     const colorScale = d3v7
@@ -208,12 +244,12 @@ export function EagerVis({
             filterCallback={filterCallback}
             selectionCallback={selectionCallback}
             selectedMap={selectedMap}
-            selectedList={selectedList}
+            selectedList={selected}
             columns={columns}
             scales={scales}
             showSidebar={showSidebar}
             showCloseButton={showCloseButton}
-            closeButtonCallback={closeButtonCallback}
+            closeButtonCallback={closeCallback}
             scrollZoom={scrollZoom}
             {...commonProps}
           />
@@ -221,7 +257,7 @@ export function EagerVis({
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper>
-          <VisSidebar optionsConfig={optionsConfig} config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
+          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
       ) : null}
     </Group>

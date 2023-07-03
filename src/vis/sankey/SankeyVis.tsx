@@ -207,7 +207,6 @@ export function SankeyVis({ externalConfig, columns }: ICommonVisProps<ISankeyCo
               }
 
               const element = sel.points[0];
-              console.log(element.pointIndex, element);
 
               if ('sourceLinks' in element) {
                 // @ts-ignore
