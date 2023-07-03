@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComponentStory } from '@storybook/react';
 import { Slider, Stack, Text } from '@mantine/core';
-import { fromNow, getMostRelevantTimeUnitFromNow } from '../../utils/fromNow';
+import { fromNow, getMostRelevantTimeUnitFromNow } from './fromNow';
 
 function TimeUtil() {
   const [value, setValue] = React.useState(0);
@@ -49,8 +49,8 @@ const Template: ComponentStory<typeof TimeUtil> = (args) => {
   return <TimeUtil />;
 };
 
-export const Basic: typeof Template = Template.bind({});
-Basic.args = {
+export const TimeFromNow: typeof Template = Template.bind({});
+TimeFromNow.args = {
   components: {
     aboutAppModal: {
       content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
