@@ -3,23 +3,32 @@ import { ComponentStory } from '@storybook/react';
 import { Vis } from '../../../LazyVis';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
+function RNG(seed) {
+  const m = 2 ** 35 - 31;
+  const a = 185852;
+  let s = seed % m;
+  return function () {
+    return (s = (s * a) % m) / m;
+  };
+}
 function fetchData(numberOfPoints: number): VisColumn[] {
+  const rng = RNG(10);
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     pca_x: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     pca_y: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     category: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
+      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
     category2: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
+      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
   });
 
   const dataPromise = dataGetter();
