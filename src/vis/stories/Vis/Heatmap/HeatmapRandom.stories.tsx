@@ -29,6 +29,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     category2: Array(numberOfPoints)
       .fill(null)
       .map(() => parseInt((rng() * 10).toString(), 10).toString()),
+    category3: Array(numberOfPoints)
+      .fill(null)
+      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
   });
 
   const dataPromise = dataGetter();
@@ -83,12 +86,21 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.then((data) => data.category2.map((val, i) => ({ id: i.toString(), val }))),
     },
+    {
+      info: {
+        description: '',
+        id: 'category3',
+        name: 'category3',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.then((data) => data.category3.map((val, i) => ({ id: i.toString(), val }))),
+    },
   ];
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Vis/Scatter',
+  title: 'Vis/Heatmap',
   component: Vis,
   argTypes: {
     pointCount: { control: 'number' },
@@ -116,55 +128,49 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const LargeData: typeof Template = Template.bind({}) as typeof Template;
-LargeData.args = {
+export const Basic: typeof Template = Template.bind({}) as typeof Template;
+Basic.args = {
   externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
+    type: ESupportedPlotlyVis.HEATMAP,
+    catColumnsSelected: [
       {
         description: '',
-        id: 'pca_x',
-        name: 'pca_x',
+        id: 'category',
+        name: 'category',
       },
       {
         description: '',
-        id: 'pca_y',
-        name: 'pca_y',
+        id: 'category2',
+        name: 'category2',
       },
     ],
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.2,
   },
 };
 
-export const LargeDataMuliples: typeof Template = Template.bind({}) as typeof Template;
-LargeDataMuliples.args = {
+export const Multiples: typeof Template = Template.bind({}) as typeof Template;
+Multiples.args = {
   externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
+    type: ESupportedPlotlyVis.HEATMAP,
+    catColumnsSelected: [
       {
         description: '',
-        id: 'pca_x',
-        name: 'pca_x',
+        id: 'category',
+        name: 'category',
       },
       {
         description: '',
-        id: 'pca_y',
-        name: 'pca_y',
+        id: 'category2',
+        name: 'category2',
       },
       {
         description: '',
-        id: 'value',
-        name: 'value',
+        id: 'category3',
+        name: 'category3',
       },
     ],
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.2,
   },
 };
