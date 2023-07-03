@@ -22,10 +22,10 @@ export function CategoricalColumnSelect({ callback, columns, currentSelected }: 
       placeholder="Select Column"
       label="Categorical columns"
       clearable
-      onChange={(e) => callback(columns.filter((c) => e.includes(c.info.id)).map((c) => c.info))}
+      onChange={(e) => callback(e.map((id) => columns.find((c) => c.info.id === id).info))}
       name="numColumns"
       data={selectCatOptions}
-      value={selectCatOptions.filter((c) => currentSelected.filter((d) => d.id === c.value).length > 0).map((c) => c.value)}
+      value={currentSelected.map((c) => c.id)}
     />
   );
 }

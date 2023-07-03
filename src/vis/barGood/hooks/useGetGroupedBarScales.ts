@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import ColumnTable from 'arquero/dist/types/table/column-table';
-import { op, table, bin } from 'arquero';
+import { op, table, bin, escape } from 'arquero';
 import { useMemo } from 'react';
 import * as d3 from 'd3v7';
 import { aggregate } from 'lineupjs';
@@ -46,7 +46,7 @@ export function useGetGroupedBarScales(
       let filteredTable = baseTable;
 
       if (categoryFilter && allColumns.multiplesColVals) {
-        filteredTable = baseTable.params({ categoryFilter }).filter((d) => d.multiples === categoryFilter);
+        filteredTable = baseTable.filter(escape((d) => d.multiples === categoryFilter));
       }
 
       return allColumns.groupColVals.type === EColumnTypes.NUMERICAL
