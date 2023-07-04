@@ -6,6 +6,12 @@ function currentPlusSeconds(seconds: number) {
 }
 
 describe('fromNow integration tests', () => {
+  test('Null check', () => {
+    expect(() => {
+      fromNow(null);
+    }).toThrow();
+  });
+
   test('Basic', () => {
     expect(fromNow(currentPlusSeconds(1))).toBe('in 1 second');
 
