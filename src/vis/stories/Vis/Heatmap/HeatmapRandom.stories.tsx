@@ -1,5 +1,6 @@
 import React from 'react';
 import { ComponentStory } from '@storybook/react';
+import * as d3 from 'd3v7';
 import { Vis } from '../../../LazyVis';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
@@ -12,7 +13,7 @@ function RNG(seed) {
   };
 }
 function fetchData(numberOfPoints: number): VisColumn[] {
-  const rng = RNG(10);
+  const rng = d3.randomNormal(0.5, 0.1);
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)

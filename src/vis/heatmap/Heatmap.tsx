@@ -86,10 +86,19 @@ export function Heatmap({
 
     const colorSc =
       config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
-        ? d3.scaleSequential<string, string>(d3.interpolateBlues).domain(d3.extent(groupedVals, (d) => d.count as number))
+        ? d3
+            .scaleSequential<string, string>(
+              d3.piecewise(
+                d3.interpolateRgb.gamma(2.2),
+                ['#002245', '#023a60', '#23527a', '#406a94', '#5c84af', '#779ecb', '#93b9e8', '#b0d6fe', '#cff6ff'].reverse(),
+              ),
+            )
+            .domain([0, d3.max(groupedVals, (d) => d.count as number)])
         : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
         ? d3.scaleSequential<string, string>(d3.interpolatePuOr).domain(d3.extent(groupedVals, (d) => d.count as number))
         : null;
+
+    console.log(colorSc.domain());
 
     const extGroupedVals = groupedVals.map((gV) => ({
       ...gV,
