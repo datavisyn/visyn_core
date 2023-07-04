@@ -1,6 +1,16 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues } from '../general/layoutUtils';
-import { ColumnInfo, EColumnTypes, ESupportedPlotlyVis, IHeatmapConfig, IVisConfig, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import {
+  ColumnInfo,
+  EColumnTypes,
+  ESortTypes,
+  ESupportedPlotlyVis,
+  IHeatmapConfig,
+  IVisConfig,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalValue,
+} from '../interfaces';
 
 export function isHeatmap(vis: IVisConfig): vis is IHeatmapConfig {
   return vis.type === ESupportedPlotlyVis.HEATMAP;
@@ -11,6 +21,7 @@ const defaultConfig: IHeatmapConfig = {
   color: null,
   catColumnsSelected: [],
   numColorScaleType: null,
+  sortedBy: ESortTypes.CAT_ASC,
 };
 
 export function heatmapMergeDefaultConfig(columns: VisColumn[], config: IHeatmapConfig): IVisConfig {

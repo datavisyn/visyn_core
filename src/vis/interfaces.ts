@@ -159,6 +159,14 @@ export interface ISankeyConfig extends BaseConfig {
   catColumnsSelected: ColumnInfo[];
 }
 
+export enum ESortTypes {
+  NONE = 'NONE',
+  CAT_ASC = 'CAT_ASC',
+  CAT_DESC = 'CAT_DESC',
+  COUNT_ASC = 'COUNT_ASC',
+  COUNT_DESC = 'COUNT_DESC',
+}
+
 export interface IHexbinConfig extends BaseConfig {
   type: ESupportedPlotlyVis.HEXBIN;
   numColumnsSelected: ColumnInfo[];
@@ -175,6 +183,7 @@ export interface IHeatmapConfig {
   color: ColumnInfo | null;
   catColumnsSelected: ColumnInfo[];
   numColorScaleType: ENumericalColorScaleType;
+  sortedBy: ESortTypes;
 }
 
 type ValueGetter<T> = () => T | Promise<T>;

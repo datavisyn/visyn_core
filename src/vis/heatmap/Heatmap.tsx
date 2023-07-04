@@ -1,12 +1,14 @@
-import { Group, Stack, Text, Tooltip } from '@mantine/core';
+import { Group, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { op, table } from 'arquero';
+import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { useEvent } from '../../hooks/useEvent';
-import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, IHeatmapConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ESortTypes, IHeatmapConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
+import { ColorLegend } from '../legend/ColorLegend';
+import { HeatmapText } from './HeatmapText';
 
 const interRectDistance = 1;
 
@@ -40,6 +42,7 @@ export function Heatmap({
   isBrushEnabled,
   selected,
   selectionCallback,
+  setExternalConfig,
 }: {
   column1: CatColumn;
   column2: CatColumn;
@@ -48,41 +51,53 @@ export function Heatmap({
   isBrushEnabled: boolean;
   selectionCallback: (ids: string[]) => void;
   selected?: { [key: string]: boolean };
+  setExternalConfig?: (config: IHeatmapConfig) => void;
 }) {
   const [ref, { width, height }] = useResizeObserver();
-  const [tooltipText, setTooltipText] = React.useState<string | null>(null);
   const brush = React.useRef<d3.BrushBehavior<unknown>>(null);
   const brushGElement = React.useRef<d3.Selection<SVGGElement, unknown, HTMLElement, any>>(null);
   const resetBrush = useEvent(() => (brush.current && brushGElement.current ? brush.current.clear(brushGElement.current) : null));
   const [isBrushing, setIsBrushing] = React.useState<boolean>(false);
 
-  const { xValues, yValues, groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
-    const xVals = [...new Set(column1?.resolvedValues.map(({ val }) => val))] as string[];
-    const yVals = [...new Set(column2?.resolvedValues.map(({ val }) => val))] as string[];
+  const aggregatedTable = useMemo(() => {
+    if (!column1 || !column2) return null;
+
+    const valueTable = table({
+      xVal: column1.resolvedValues.map(({ val }) => val),
+      yVal: column2.resolvedValues.map(({ val }) => val),
+      id: column1.resolvedValues.map(({ id }) => id),
+    });
+
+    let idTable = valueTable
+      .groupby('xVal', 'yVal')
+      .rollup({ ids: op.array_agg('id'), count: op.count() })
+      .impute({ count: () => 0 }, { expand: ['xVal', 'yVal'] })
+      .groupby('xVal')
+      .derive({ colTotal: op.sum('count') })
+      .groupby('yVal')
+      .derive({ rowTotal: op.sum('count') });
+
+    if (config.sortedBy === ESortTypes.COUNT_ASC) {
+      idTable = idTable.orderby('colTotal', desc('rowTotal'));
+    } else {
+      idTable = idTable.orderby('xVal', 'yVal');
+    }
+
+    return idTable;
+  }, [column1, column2, config.sortedBy]);
+
+  const { groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
+    const groupedVals = aggregatedTable.objects() as { xVal: string; yVal: string; count: number; ids: string[] }[];
 
     const xSc = d3
       .scaleBand()
-      .domain(xVals)
+      .domain(groupedVals.map((gV) => gV.xVal))
       .range([0, width - margin.left - margin.right]);
 
     const ySc = d3
       .scaleBand()
-      .domain(yVals)
+      .domain(groupedVals.map((gV) => gV.yVal))
       .range([0, height - margin.top - margin.bottom]);
-
-    const valueTable = table({
-      xVal: column1?.resolvedValues.map(({ val }) => val),
-      yVal: column2?.resolvedValues.map(({ val }) => val),
-      id: column1?.resolvedValues.map(({ id }) => id),
-    });
-
-    const countTable = valueTable
-      .groupby('xVal', 'yVal')
-      .count()
-      .impute({ count: () => 0 }, { expand: ['xVal', 'yVal'] });
-    const idTable = valueTable.groupby('xVal', 'yVal').rollup({ ids: op.array_agg('id') });
-
-    const groupedVals = countTable.join_left(idTable).objects() as { xVal: string; yVal: string; count: number; ids: string[] }[];
 
     const colorSc =
       config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
@@ -90,15 +105,34 @@ export function Heatmap({
             .scaleSequential<string, string>(
               d3.piecewise(
                 d3.interpolateRgb.gamma(2.2),
-                ['#002245', '#023a60', '#23527a', '#406a94', '#5c84af', '#779ecb', '#93b9e8', '#b0d6fe', '#cff6ff'].reverse(),
+                ['#24528d', '#2d67a0', '#3b7bb2', '#4d90c3', '#65a5d3', '#80bae0', '#a0ceeb', '#c6e1f2', '#f1f3f5'].reverse(),
               ),
             )
             .domain([0, d3.max(groupedVals, (d) => d.count as number)])
         : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
-        ? d3.scaleSequential<string, string>(d3.interpolatePuOr).domain(d3.extent(groupedVals, (d) => d.count as number))
+        ? d3
+            .scaleSequential<string, string>(
+              d3.piecewise(
+                d3.interpolateRgb.gamma(2.2),
+                [
+                  '#003367',
+                  '#16518a',
+                  '#2e72ae',
+                  '#5093cd',
+                  '#77b5ea',
+                  '#aad7fd',
+                  '#F1F3F5',
+                  '#fac7a9',
+                  '#f99761',
+                  '#e06d3b',
+                  '#c2451a',
+                  '#99230d',
+                  '#6f0000',
+                ].reverse(),
+              ),
+            )
+            .domain(d3.extent(groupedVals, (d) => d.count as number))
         : null;
-
-    console.log(colorSc.domain());
 
     const extGroupedVals = groupedVals.map((gV) => ({
       ...gV,
@@ -108,16 +142,14 @@ export function Heatmap({
     }));
 
     return {
-      xValues: xVals,
-      yValues: yVals,
       groupedValues: extGroupedVals,
-      rectWidth: (width - margin.left - margin.right - interRectDistance * xVals.length) / xVals.length,
-      rectHeight: (height - margin.bottom - margin.top - interRectDistance * yVals.length) / yVals.length,
+      rectWidth: (width - margin.left - margin.right - interRectDistance * xSc.domain().length) / xSc.domain().length,
+      rectHeight: (height - margin.bottom - margin.top - interRectDistance * ySc.domain().length) / ySc.domain().length,
       xScale: xSc,
       yScale: ySc,
       colorScale: colorSc,
     };
-  }, [column1?.resolvedValues, column2?.resolvedValues, height, margin, width, config]);
+  }, [aggregatedTable, width, margin, height, config?.numColorScaleType]);
 
   React.useEffect(() => {
     selectionCallback([]);
@@ -170,59 +202,53 @@ export function Heatmap({
   }, [resetBrush, selected, isBrushing]);
 
   const rects = useMemo(() => {
-    return groupedValues.map((d) => {
+    return groupedValues.map((d, i) => {
       const { count, ids, x, y, xVal, yVal, color } = d;
       return (
         <HeatmapRect
+          xOrder={1 - Math.floor(i / xScale.domain().length) / xScale.domain().length}
+          yOrder={(i % yScale.domain().length) / yScale.domain().length}
           key={`${xVal}-${yVal}`}
           x={x}
           y={y}
           width={rectWidth}
           height={rectHeight}
           color={selected && ids?.some((id) => selected[id]) ? 'orange' : color}
-          setTooltipText={() => setTooltipText(`${xVal} - ${yVal} (${count})`)}
-          unsetTooltipText={() => setTooltipText(null)}
+          label={`${count}`}
           setSelected={() => selectionCallback(ids)}
         />
       );
     });
-  }, [groupedValues, rectHeight, rectWidth, selected, selectionCallback]);
+  }, [groupedValues, rectHeight, rectWidth, selected, selectionCallback, xScale, yScale]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
       <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0}>
-        <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>
+        <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '50px' }}>
           {column2.info.name}
         </Text>
-        <Tooltip.Floating label={tooltipText} disabled={!tooltipText} withinPortal>
-          <svg style={{ width: '100%', height: '100%' }} ref={ref}>
-            {rects}
-            {xValues.map((xVal) => (
-              <g key={xVal} transform={`translate(${xScale(xVal) + rectWidth / 2 + margin.left}, ${height - margin.bottom + 15})`}>
-                <text color="gray" fontSize={10} transform="rotate(45)">
-                  {xVal}
-                </text>
-              </g>
-            ))}
-            {yValues.map((yVal) => (
-              <text x={0} y={yScale(yVal) + rectHeight / 2 + margin.top} key={yVal} color="gray" fontSize={10}>
-                {yVal}
-              </text>
-            ))}
-            {isBrushEnabled && (
-              <g
-                id={`heatmap-brush-${column1.info.id}-${column2.info.id}`}
-                onClick={(e) => {
-                  if (e.detail === 2) {
-                    selectionCallback([]);
-                  }
-                }}
-              />
-            )}
-          </svg>
-        </Tooltip.Floating>
+        <svg style={{ width: '100%', height: '100%' }} ref={ref}>
+          <rect x={margin.left} y={margin.top} height={height - margin.top - margin.bottom} width={width - margin.left - margin.right} fill="#F1F3F5" />
+          {rects}
+          <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />
+          {isBrushEnabled && (
+            <g
+              id={`heatmap-brush-${column1.info.id}-${column2.info.id}`}
+              onClick={(e) => {
+                if (e.detail === 2) {
+                  selectionCallback([]);
+                }
+              }}
+            />
+          )}
+        </svg>
+        <ColorLegend width={25} scale={colorScale} height={height - margin.top - margin.bottom} range={[...colorScale.domain()]} />
       </Group>
-      <Text color="dimmed" sx={{ whiteSpace: 'nowrap' }}>
+      <Text
+        color="dimmed"
+        sx={{ whiteSpace: 'nowrap' }}
+        onClick={() => setExternalConfig({ ...config, sortedBy: config.sortedBy === ESortTypes.CAT_ASC ? ESortTypes.COUNT_ASC : ESortTypes.CAT_ASC })}
+      >
         {column1.info.name}
       </Text>
     </Stack>

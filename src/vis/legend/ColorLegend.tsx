@@ -1,12 +1,25 @@
 import * as React from 'react';
-import { range } from 'lodash';
+import { range as rangeFunc } from 'lodash';
 import { Group, Stack, Text, Box } from '@mantine/core';
 import * as d3 from 'd3v7';
 import { useEffect, useRef } from 'react';
 
-export function ColorLegend({ scale, width = 250, height = 20 }: { scale: (t: number) => string; width?: number; height?: number }) {
-  const colors = range(0, 1.1, 0.1).map((score) => {
-    return { color: scale(score), score };
+export function ColorLegend({
+  scale,
+  width = 250,
+  height = 20,
+  range = [0, 1.1],
+  tickCount = 5,
+}: {
+  scale: (t: number) => string;
+  width?: number;
+  height?: number;
+  range?: [number, number];
+  tickCount?: number;
+}) {
+  const colors = d3.range(tickCount).map((score) => {
+    const num = (range[1] - range[0]) * (score / (tickCount - 1));
+    return { color: scale(num), score: num };
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,26 +35,24 @@ export function ColorLegend({ scale, width = 250, height = 20 }: { scale: (t: nu
     canvas.style.height = `${height}px`;
     canvas.style.imageRendering = 'pixelated';
 
-    const t = d3.range(width).map((i) => i / width);
+    const t = d3.range(height).map((i) => (i / height) * range[1]);
 
     for (let i = 0; i < t.length; ++i) {
       context.fillStyle = scale(t[i]);
-      context.fillRect(i, 0, 1, height);
+      context.fillRect(0, i, width, 1);
     }
-
-    // context.();
-  }, [scale, width, height]);
+  }, [scale, width, height, range]);
 
   return (
-    <Stack spacing={5}>
+    <Group spacing={5} noWrap>
       <canvas id="proteomicsLegendCanvas" ref={canvasRef} />
-      <Group position="apart" style={{ width: `${width}px` }} spacing={0} align="flex-start" ml="0">
-        {colors.map((color, i) => (
+      <Stack align="stretch" justify="space-between" style={{ height: `${height}px` }} spacing={0} ml="0">
+        {colors.map((color) => (
           <Text size="xs" key={color.color}>
-            {i % 2 === 0 ? color.score.toFixed(1) : ''}
+            {color.score.toFixed(1)}
           </Text>
         ))}
-      </Group>
-    </Stack>
+      </Stack>
+    </Group>
   );
 }

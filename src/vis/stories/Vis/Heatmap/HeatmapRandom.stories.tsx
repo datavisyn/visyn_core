@@ -2,7 +2,7 @@ import React from 'react';
 import { ComponentStory } from '@storybook/react';
 import * as d3 from 'd3v7';
 import { Vis } from '../../../LazyVis';
-import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESortTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -13,7 +13,8 @@ function RNG(seed) {
   };
 }
 function fetchData(numberOfPoints: number): VisColumn[] {
-  const rng = d3.randomNormal(0.5, 0.1);
+  d3.randomNormal.source(d3.randomLcg(0.5));
+  const rng = d3.randomNormal(0.5, 0.3);
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
@@ -145,6 +146,7 @@ Basic.args = {
         name: 'category2',
       },
     ],
+    sortedBy: ESortTypes.CAT_ASC,
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
   },
@@ -171,6 +173,7 @@ Multiples.args = {
         name: 'category3',
       },
     ],
+    sortedBy: ESortTypes.CAT_ASC,
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
   },

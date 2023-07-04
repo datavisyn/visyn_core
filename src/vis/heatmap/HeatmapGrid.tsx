@@ -9,11 +9,13 @@ export function HeatmapGrid({
   config,
   columns,
   selected,
+  setExternalConfig,
   selectionCallback,
 }: {
   config: IHeatmapConfig;
   columns: VisColumn[];
   selectionCallback?: (ids: string[]) => void;
+  setExternalConfig?: (config: IHeatmapConfig) => void;
   selected?: { [key: string]: boolean };
 }) {
   const [isBrushEnabled, setIsBrushEnabled] = React.useState<boolean>(false);
@@ -21,14 +23,13 @@ export function HeatmapGrid({
   const hasAtLeast2CatCols = allColumns?.catColumn && allColumns?.catColumn?.length > 1;
 
   const margin = React.useMemo(() => {
-    if (!hasAtLeast2CatCols) return { top: 0, right: 0, bottom: 0, left: 0 };
     return {
-      top: 20 / allColumns.catColumn.length,
-      right: 20 / allColumns.catColumn.length,
-      bottom: 100 / allColumns.catColumn.length,
-      left: 100 / allColumns.catColumn.length,
+      top: 20,
+      right: 20,
+      bottom: 20,
+      left: 20,
     };
-  }, [allColumns?.catColumn?.length, hasAtLeast2CatCols]);
+  }, []);
 
   return (
     <Stack align="center" justify="center" sx={{ width: '100%', height: '100%' }}>
@@ -43,39 +44,16 @@ export function HeatmapGrid({
           <Group position="right" sx={{ width: '100%' }} mr={margin.right}>
             <Switch size="xs" label="Enable brush" checked={isBrushEnabled} onChange={(event) => setIsBrushEnabled(event.currentTarget.checked)} />
           </Group>
-          {allColumns.catColumn.length > 2 ? (
-            <SimpleGrid cols={allColumns.catColumn.length} sx={{ width: '100%', height: '100%' }}>
-              {allColumns.catColumn.map((col1) =>
-                allColumns.catColumn.map((col2) => {
-                  if (col1.info.id === col2.info.id) {
-                    return <div key={`${col1.info.id}-${col2.info.id}`} />;
-                  }
-                  return (
-                    <Heatmap
-                      key={`${col1.info.id}-${col2.info.id}`}
-                      column1={col1}
-                      column2={col2}
-                      margin={margin}
-                      config={config}
-                      isBrushEnabled={isBrushEnabled}
-                      selected={selected}
-                      selectionCallback={selectionCallback}
-                    />
-                  );
-                }),
-              )}
-            </SimpleGrid>
-          ) : (
-            <Heatmap
-              column1={allColumns.catColumn[0]}
-              column2={allColumns.catColumn[1]}
-              margin={margin}
-              config={config}
-              isBrushEnabled={isBrushEnabled}
-              selected={selected}
-              selectionCallback={selectionCallback}
-            />
-          )}
+          <Heatmap
+            column1={allColumns.catColumn[0]}
+            column2={allColumns.catColumn[1]}
+            margin={margin}
+            config={config}
+            isBrushEnabled={isBrushEnabled}
+            selected={selected}
+            setExternalConfig={setExternalConfig}
+            selectionCallback={selectionCallback}
+          />
         </>
       )}
     </Stack>

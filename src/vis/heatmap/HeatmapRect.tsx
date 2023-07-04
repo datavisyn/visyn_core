@@ -1,38 +1,58 @@
+import { Tooltip } from '@mantine/core';
 import * as React from 'react';
-import { useSpring, animated } from 'react-spring';
+import { useMemo, useState } from 'react';
+import { useSpring, animated, easings } from 'react-spring';
 
+const DELAY = 2000;
 export function HeatmapRect({
   x,
   y,
   width,
   height,
   color,
-  setTooltipText,
-  unsetTooltipText,
+  label,
   setSelected,
+  xOrder = 1,
+  yOrder = 1,
+  isSelected = false,
 }: {
   x: number;
   y: number;
   width: number;
   height: number;
   color: string;
-  setTooltipText(): void;
-  unsetTooltipText(): void;
+  label: string;
   setSelected?: () => void;
+  xOrder?: number;
+  yOrder?: number;
+  isSelected?: boolean;
 }) {
-  const spring = useSpring({ from: { opacity: 0 }, to: { opacity: 1 } });
-  if (x < 0 || y < 0 || height < 0 || width < 0) return null;
-  return (
-    <animated.rect
-      {...spring}
-      width={width}
-      height={height}
-      x={x}
-      y={y}
-      fill={color}
-      onMouseEnter={setTooltipText}
-      onMouseLeave={unsetTooltipText}
-      onClick={setSelected}
-    />
+  const [isHovered, setIsHovered] = useState<boolean>();
+
+  const xSpring = useSpring({ fill: color, x, y, config: { duration: DELAY, easing: easings.easeInOutSine }, delay: DELAY * xOrder });
+  const ySpring = useSpring({ y, config: { duration: DELAY, easing: easings.easeInOutSine }, delay: DELAY * yOrder });
+
+  const rect = useMemo(() => {
+    return (
+      <animated.rect
+        {...xSpring}
+        {...ySpring}
+        // stroke="white"
+        // strokeWidth="1px"
+        width={width}
+        height={height}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={setSelected}
+      />
+    );
+  }, [height, setSelected, width, xSpring, ySpring]);
+
+  return isHovered ? (
+    <Tooltip withArrow arrowSize={6} withinPortal label={label}>
+      {rect}
+    </Tooltip>
+  ) : (
+    rect
   );
 }
