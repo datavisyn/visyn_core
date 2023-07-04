@@ -1,9 +1,29 @@
 import React from 'react';
 import { ComponentStory } from '@storybook/react';
 import { Slider, Stack, Text } from '@mantine/core';
+import { DateTimePicker } from '@mantine/dates';
 import { fromNow, getMostRelevantTimeUnitFromNow } from './fromNow';
 
-function TimeUtil() {
+function PickerExample() {
+  const [value, setValue] = React.useState(new Date());
+
+  return (
+    <Stack spacing="xs">
+      <Text fz="xl" fw={500}>
+        Interactive DateTimePicker example
+      </Text>
+      <DateTimePicker value={value} onChange={setValue} label="Reference date" placeholder="Reference date" maw={200} />
+      <Text>
+        Generated label from reference date to the current date:{' '}
+        <Text display="inline-block" fw={700} color="red">
+          {fromNow(value)}
+        </Text>
+      </Text>
+    </Stack>
+  );
+}
+
+function SliderExample() {
   const [value, setValue] = React.useState(0);
 
   const transform = (v: number) => {
@@ -13,25 +33,46 @@ function TimeUtil() {
   const d = new Date(new Date().getTime() + transform(value));
 
   return (
-    <Stack p="lg">
-      <Text>Some sanity checks...</Text>
-      <Text>{fromNow(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3))}</Text>
-      <Text>{fromNow(new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 7 * 3))}</Text>
-      <Text>{fromNow(new Date(new Date().getTime() - 1000 * 60 * 60 * 2))}</Text>
-      <Text>{fromNow(new Date(new Date().getTime() + 1000 * 60 * 2))}</Text>
-      <Text>{fromNow(new Date(new Date().getTime() - 1000 * 5))}</Text>
+    <Stack spacing="xs">
+      <Text fz="xl" fw={500}>
+        Interactive Slider example
+      </Text>
       <Slider
-        py="xl"
         scale={transform}
         step={1}
         value={value}
         onChange={setValue}
         min={-30}
         max={30}
-        labelAlwaysOn
+        maw={400}
         label={() => `${Math.round(getMostRelevantTimeUnitFromNow(d).amount)} ${getMostRelevantTimeUnitFromNow(d).name}`}
       />
-      {fromNow(d)}
+      <Text>
+        Generated label from current date -/+ the slider value:{' '}
+        <Text display="inline-block" fw={700} color="red">
+          {fromNow(d)}
+        </Text>
+      </Text>
+    </Stack>
+  );
+}
+
+function TimeUtil() {
+  return (
+    <Stack p="xl" spacing="xl">
+      <Stack spacing={0}>
+        <Text fz="xl" fw={500}>
+          Some basic examples (see code)
+        </Text>
+        <Text>{fromNow(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3))}</Text>
+        <Text>{fromNow(new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 7 * 3))}</Text>
+        <Text>{fromNow(new Date(new Date().getTime() - 1000 * 60 * 60 * 2))}</Text>
+        <Text>{fromNow(new Date(new Date().getTime() + 1000 * 60 * 2))}</Text>
+        <Text>{fromNow(new Date(new Date().getTime() - 1000 * 5))}</Text>
+      </Stack>
+
+      <SliderExample />
+      <PickerExample />
     </Stack>
   );
 }
