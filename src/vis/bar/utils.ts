@@ -45,6 +45,7 @@ const defaultConfig: IBarConfig = {
 };
 
 const TICK_LABEL_LENGTH = 8;
+const DEFAULT_GRAY = '#878E95';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IVisConfig {
   const merged = merge({}, defaultConfig, config);
@@ -201,7 +202,7 @@ async function setPlotsWithGroupsAndMultiples(
           type: 'bar',
           name: uniqueGroup,
           marker: {
-            color: scales.color(uniqueGroup),
+            color: currGroupColumn.color ? currGroupColumn.color[uniqueGroup] || DEFAULT_GRAY : scales.color(uniqueGroup),
           },
           // @ts-ignore
           selected: {
@@ -215,6 +216,7 @@ async function setPlotsWithGroupsAndMultiples(
             },
           },
         },
+        title: uniqueMultiples,
         xLabel: vertFlag ? columnNameWithDescription(catColValues.info) : normalizedFlag ? 'Percent of Total' : plotAggregateAxisName,
         yLabel: vertFlag ? (normalizedFlag ? 'Percent of Total' : plotAggregateAxisName) : columnNameWithDescription(catColValues.info),
         xTicks: vertFlag ? uniqueColVals : null,
@@ -297,7 +299,7 @@ async function setPlotsWithGroups(
         type: 'bar',
         name: uniqueVal,
         marker: {
-          color: scales.color(uniqueVal),
+          color: groupColumn.color ? groupColumn.color[uniqueVal] || DEFAULT_GRAY : scales.color(uniqueVal),
         },
         // @ts-ignore
         selected: {
@@ -377,6 +379,9 @@ async function setPlotsWithMultiples(
         showlegend: false,
         type: 'bar',
         name: uniqueVal,
+        marker: {
+          color: DEFAULT_GRAY,
+        },
         // @ts-ignore
         selected: {
           marker: {
@@ -395,6 +400,7 @@ async function setPlotsWithMultiples(
       xTickLabels: vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
       yTicks: !vertFlag ? uniqueColVals : null,
       yTickLabels: !vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
+      title: uniqueVal,
     });
     plotCounterEdit += 1;
   });
@@ -442,6 +448,9 @@ async function setPlotsBasic(
       textposition: 'none',
       hoverinfo: vertFlag ? 'y+text' : 'x+text',
       ids: valArr,
+      marker: {
+        color: DEFAULT_GRAY,
+      },
       // @ts-ignore
       selected: {
         marker: {

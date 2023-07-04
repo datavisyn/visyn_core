@@ -138,7 +138,7 @@ class VisynCoreSettings(BaseModel):
     security: SecuritySettings = SecuritySettings()
 
     client_config: dict[str, Any] | None = None
-    """Client config to be loaded via /api/clientConfig"""
+    """Client config to be loaded via /api/v1/visyn/clientConfig"""
 
     @validator("client_config", pre=True)
     def json_decode_client_config(cls, v):  # NOQA N805

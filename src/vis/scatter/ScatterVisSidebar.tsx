@@ -130,8 +130,9 @@ export function ScatterVisSidebar({
             }}
             currentValue={config.alphaSliderVal}
           />
-          {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+          <Divider my="sm" />
         </Stack>
+        {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
         {mergedExtensions.postSidebar}
       </Stack>
     </Container>

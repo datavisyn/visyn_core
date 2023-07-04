@@ -129,7 +129,7 @@ export function EagerVis({
   useEffect(() => {
     setExternalConfigRef.current?.(visConfig);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visConfig, setExternalConfigRef]);
+  }, [JSON.stringify(visConfig), setExternalConfigRef]);
 
   const setVisConfig = React.useCallback((newConfig: IVisConfig) => {
     _setVisConfig((oldConfig) => {
@@ -241,6 +241,9 @@ export function EagerVis({
       {isViolin(visConfig) ? (
         <ViolinVis
           config={visConfig}
+          selectedList={selected}
+          selectedMap={selectedMap}
+          selectionCallback={selectionCallback}
           optionsConfig={{
             overlay: {
               enable: true,
@@ -265,6 +268,7 @@ export function EagerVis({
           scales={scales}
           showCloseButton={showCloseButton}
           closeButtonCallback={closeCallback}
+          filterCallback={filterCallback}
           {...commonProps}
         />
       ) : null}
@@ -276,6 +280,7 @@ export function EagerVis({
           setConfig={setVisConfig}
           selectionCallback={selectionCallback}
           columns={columns}
+          showDragModeOptions={showDragModeOptions}
           {...commonProps}
         />
       ) : null}

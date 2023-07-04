@@ -2,14 +2,19 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import merge from 'lodash/merge';
 import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, ESupportedPlotlyVis, EViolinOverlay, IViolinConfig, IVisConfig, VisColumn, ICommonVisSideBarProps } from '../interfaces';
+import { ColumnInfo, ESupportedPlotlyVis, EViolinOverlay, IViolinConfig, IVisConfig, VisColumn, ICommonVisSideBarProps, EFilterOptions } from '../interfaces';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { ViolinOverlayButtons } from '../sidebar/ViolinOverlayButtons';
+import { FilterButtons } from '../sidebar/FilterButtons';
 
 const defaultConfig = {
   overlay: {
+    enable: true,
+    customComponent: null,
+  },
+  filter: {
     enable: true,
     customComponent: null,
   },
@@ -25,6 +30,7 @@ export function ViolinVisSidebar({
   optionsConfig,
   extensions,
   columns,
+  filterCallback = () => null,
   setConfig,
   className = '',
   style: { width = '20em', ...style } = {},
@@ -35,7 +41,12 @@ export function ViolinVisSidebar({
       enable?: boolean;
       customComponent?: React.ReactNode;
     };
+    filter?: {
+      enable?: boolean;
+      customComponent?: React.ReactNode;
+    };
   };
+  filterCallback?: (s: EFilterOptions) => void;
   extensions?: {
     prePlot?: React.ReactNode;
     postPlot?: React.ReactNode;
@@ -80,6 +91,8 @@ export function ViolinVisSidebar({
             />
           )
         : null}
+
+      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
 
       {mergedExtensions.postSidebar}
     </Container>

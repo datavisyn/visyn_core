@@ -1,46 +1,20 @@
-import { Box, Drawer, ScrollArea } from '@mantine/core';
+import { Box, Divider, Drawer, Group, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 import { ReactNode } from 'react';
 
-export function VisSidebarWrapper({
-  id,
-  children,
-  open = true,
-  target,
-  onClose,
-}: {
-  id: string;
-  children: ReactNode;
-  open?: boolean;
-  target: HTMLElement;
-  onClose: () => void;
-}) {
+const sidebarSize = 200;
+const padding = 10;
+
+export function VisSidebarWrapper({ children }: { children: ReactNode }) {
   return (
-    <Drawer
-      closeOnClickOutside
-      padding="sm"
-      lockScroll={false}
-      overlayOpacity={0}
-      zIndex={50}
-      styles={{
-        drawer: { position: 'absolute', overflow: 'hidden' },
-        root: { position: 'absolute', padding: 0, overflow: 'hidden' },
-        header: { margin: 0 },
-        body: { height: '100%' },
-      }}
-      position="right"
-      withinPortal
-      shadow="xl"
-      target={target}
-      opened={open}
-      onClose={() => onClose()}
-      size="sm"
-    >
-      <ScrollArea p={0} w="100%" h="100%">
-        <Box pb="xl" style={{ height: '100%', width: '100%' }}>
-          {children}
-        </Box>
-      </ScrollArea>
-    </Drawer>
+    <Box pt="sm" style={{ height: '100%', boxShadow: '2px 0px 15px 0px lightgray', zIndex: 5 }}>
+      <Group spacing={0} style={{ width: '100%', height: '100%' }} noWrap>
+        <ScrollArea p={0} w={`${sidebarSize}px`} h="100%">
+          <Box pb="xl" style={{ height: '100%', width: `${sidebarSize}px` }}>
+            {children}
+          </Box>
+        </ScrollArea>
+      </Group>
+    </Box>
   );
 }

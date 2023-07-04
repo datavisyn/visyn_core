@@ -1,6 +1,7 @@
 import { MultiSelect } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
+import { SelectDropdownItem, SelectLabelComponent } from './utils';
 
 interface CategoricalColumnSelectProps {
   callback: (s: ColumnInfo[]) => void;
@@ -10,19 +11,21 @@ interface CategoricalColumnSelectProps {
 
 export function CategoricalColumnSelect({ callback, columns, currentSelected }: CategoricalColumnSelectProps) {
   const selectCatOptions = React.useMemo(() => {
-    return columns.filter((c) => c.type === EColumnTypes.CATEGORICAL).map((c) => ({ value: c.info.id, label: c.info.name }));
+    return columns.filter((c) => c.type === EColumnTypes.CATEGORICAL).map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }));
   }, [columns]);
 
   return (
     <MultiSelect
       withinPortal
+      valueComponent={SelectLabelComponent}
+      itemComponent={SelectDropdownItem}
       placeholder="Select Column"
       label="Categorical columns"
       clearable
-      onChange={(e) => callback(columns.filter((c) => e.includes(c.info.id)).map((c) => c.info))}
+      onChange={(e) => callback(e.map((id) => columns.find((c) => c.info.id === id).info))}
       name="numColumns"
       data={selectCatOptions}
-      value={selectCatOptions.filter((c) => currentSelected.filter((d) => d.id === c.value).length > 0).map((c) => c.value)}
+      value={currentSelected.map((c) => c.id)}
     />
   );
 }
