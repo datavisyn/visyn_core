@@ -18,7 +18,6 @@ export function HeatmapGrid({
   setExternalConfig?: (config: IHeatmapConfig) => void;
   selected?: { [key: string]: boolean };
 }) {
-  const [isBrushEnabled, setIsBrushEnabled] = React.useState<boolean>(false);
   const { value: allColumns, status } = useAsync(getHeatmapData, [columns, config?.catColumnsSelected]);
   const hasAtLeast2CatCols = allColumns?.catColumn && allColumns?.catColumn?.length > 1;
 
@@ -40,21 +39,15 @@ export function HeatmapGrid({
           Select at least 2 categorical columns to display heatmap
         </Text>
       ) : (
-        <>
-          <Group position="right" sx={{ width: '100%' }} mr={margin.right}>
-            <Switch size="xs" label="Enable brush" checked={isBrushEnabled} onChange={(event) => setIsBrushEnabled(event.currentTarget.checked)} />
-          </Group>
-          <Heatmap
-            column1={allColumns.catColumn[0]}
-            column2={allColumns.catColumn[1]}
-            margin={margin}
-            config={config}
-            isBrushEnabled={isBrushEnabled}
-            selected={selected}
-            setExternalConfig={setExternalConfig}
-            selectionCallback={selectionCallback}
-          />
-        </>
+        <Heatmap
+          column1={allColumns.catColumn[0]}
+          column2={allColumns.catColumn[1]}
+          margin={margin}
+          config={config}
+          selected={selected}
+          setExternalConfig={setExternalConfig}
+          selectionCallback={selectionCallback}
+        />
       )}
     </Stack>
   );

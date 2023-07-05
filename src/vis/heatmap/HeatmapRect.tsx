@@ -15,6 +15,7 @@ export function HeatmapRect({
   xOrder = 1,
   yOrder = 1,
   isSelected = false,
+  onClick = () => null,
 }: {
   x: number;
   y: number;
@@ -26,10 +27,11 @@ export function HeatmapRect({
   xOrder?: number;
   yOrder?: number;
   isSelected?: boolean;
+  onClick?: (e: any) => void;
 }) {
   const [isHovered, setIsHovered] = useState<boolean>();
 
-  const xSpring = useSpring({ fill: color, x, y, config: { duration: DELAY, easing: easings.easeInOutSine }, delay: DELAY * xOrder });
+  const xSpring = useSpring({ fill: color, x, config: { duration: DELAY, easing: easings.easeInOutSine }, delay: DELAY * xOrder });
   const ySpring = useSpring({ y, config: { duration: DELAY, easing: easings.easeInOutSine }, delay: DELAY * yOrder });
 
   const rect = useMemo(() => {
@@ -37,16 +39,23 @@ export function HeatmapRect({
       <animated.rect
         {...xSpring}
         {...ySpring}
-        // stroke="white"
-        // strokeWidth="1px"
         width={width}
+        stroke={isSelected ? 'orange' : 'none'}
+        strokeWidth={3}
         height={height}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={setSelected}
+        onMouseEnter={() => {
+          setIsHovered(true);
+        }}
+        onMouseLeave={() => {
+          setIsHovered(false);
+        }}
+        onMouseDown={(e) => {
+          setSelected();
+          onClick(e);
+        }}
       />
     );
-  }, [height, setSelected, width, xSpring, ySpring]);
+  }, [height, isSelected, onClick, setSelected, width, xSpring, ySpring]);
 
   return isHovered ? (
     <Tooltip withArrow arrowSize={6} withinPortal label={label}>

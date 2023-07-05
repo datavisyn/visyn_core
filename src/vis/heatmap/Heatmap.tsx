@@ -4,7 +4,6 @@ import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { useEvent } from '../../hooks/useEvent';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ESortTypes, IHeatmapConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
 import { ColorLegend } from '../legend/ColorLegend';
@@ -39,7 +38,6 @@ export function Heatmap({
   column2,
   margin,
   config,
-  isBrushEnabled,
   selected,
   selectionCallback,
   setExternalConfig,
@@ -48,16 +46,11 @@ export function Heatmap({
   column2: CatColumn;
   margin: { top: number; right: number; bottom: number; left: number };
   config: IHeatmapConfig;
-  isBrushEnabled: boolean;
   selectionCallback: (ids: string[]) => void;
   selected?: { [key: string]: boolean };
   setExternalConfig?: (config: IHeatmapConfig) => void;
 }) {
   const [ref, { width, height }] = useResizeObserver();
-  const brush = React.useRef<d3.BrushBehavior<unknown>>(null);
-  const brushGElement = React.useRef<d3.Selection<SVGGElement, unknown, HTMLElement, any>>(null);
-  const resetBrush = useEvent(() => (brush.current && brushGElement.current ? brush.current.clear(brushGElement.current) : null));
-  const [isBrushing, setIsBrushing] = React.useState<boolean>(false);
 
   const aggregatedTable = useMemo(() => {
     if (!column1 || !column2) return null;
@@ -151,56 +144,6 @@ export function Heatmap({
     };
   }, [aggregatedTable, width, margin, height, config?.numColorScaleType]);
 
-  React.useEffect(() => {
-    selectionCallback([]);
-    if (isBrushEnabled) {
-      brushGElement.current = d3.select(`#heatmap-brush-${column1.info.id}-${column2.info.id}`);
-      if (brushGElement) {
-        brush.current = d3
-          .brush()
-          .extent([
-            [margin.left, margin.top],
-            [width - margin.right, height - margin.bottom],
-          ])
-          .on('brush', (e) => {
-            if (e?.selection) {
-              const [[x1, y1], [x2, y2]] = e.selection;
-              const newSelection = [];
-              groupedValues.forEach((gV) => {
-                if (doOverlap({ x1: gV.x, x2: gV.x + rectWidth, y1: gV.y, y2: gV.y + rectHeight }, { x1, x2, y1, y2 })) {
-                  newSelection.push(...gV.ids);
-                }
-              });
-              selectionCallback(newSelection);
-            }
-          })
-          .on('start', () => setIsBrushing(true))
-          .on('end', () => setIsBrushing(false));
-        brushGElement.current.call(brush.current);
-      }
-    }
-  }, [
-    column1.info.id,
-    column2.info.id,
-    groupedValues,
-    height,
-    isBrushEnabled,
-    margin.bottom,
-    margin.left,
-    margin.right,
-    margin.top,
-    rectHeight,
-    rectWidth,
-    selectionCallback,
-    width,
-  ]);
-
-  React.useEffect(() => {
-    if (!isBrushing) {
-      resetBrush();
-    }
-  }, [resetBrush, selected, isBrushing]);
-
   const rects = useMemo(() => {
     return groupedValues.map((d, i) => {
       const { count, ids, x, y, xVal, yVal, color } = d;
@@ -211,15 +154,20 @@ export function Heatmap({
           key={`${xVal}-${yVal}`}
           x={x}
           y={y}
+          isSelected={selected && ids?.some((id) => selected[id])}
           width={rectWidth}
           height={rectHeight}
-          color={selected && ids?.some((id) => selected[id]) ? 'orange' : color}
+          color={color}
           label={`${count}`}
           setSelected={() => selectionCallback(ids)}
         />
       );
     });
   }, [groupedValues, rectHeight, rectWidth, selected, selectionCallback, xScale, yScale]);
+
+  const text = useMemo(() => {
+    return <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />;
+  }, [height, margin, rectHeight, rectWidth, width, xScale, yScale]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
@@ -230,17 +178,7 @@ export function Heatmap({
         <svg style={{ width: '100%', height: '100%' }} ref={ref}>
           <rect x={margin.left} y={margin.top} height={height - margin.top - margin.bottom} width={width - margin.left - margin.right} fill="#F1F3F5" />
           {rects}
-          <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />
-          {isBrushEnabled && (
-            <g
-              id={`heatmap-brush-${column1.info.id}-${column2.info.id}`}
-              onClick={(e) => {
-                if (e.detail === 2) {
-                  selectionCallback([]);
-                }
-              }}
-            />
-          )}
+          {text}
         </svg>
         <ColorLegend width={25} scale={colorScale} height={height - margin.top - margin.bottom} range={[...colorScale.domain()]} />
       </Group>
