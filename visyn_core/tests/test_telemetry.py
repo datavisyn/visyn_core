@@ -11,6 +11,7 @@ from prometheus_client.parser import text_string_to_metric_families
                 "enabled_plugins": ["tdp_core"],
                 "telemetry": {
                     "enabled": True,
+                    "app_name": "visyn.app.datavisyn.io",
                     "metrics": {"enabled": True, "export_endpoint": None},
                     "metrics_middleware": {"enabled": True},
                     "traces": {"enabled": False, "export_endpoint": None},
@@ -30,7 +31,7 @@ def test_fastapi_metrics(client: TestClient):
     # Check for app info
     fastapi_app_info_metric = parsed["fastapi_app_info_1"]  # TODO: Why _1?
     assert len(fastapi_app_info_metric.samples) == 1
-    assert fastapi_app_info_metric.samples[0].labels["app_name"] == "app"
+    assert fastapi_app_info_metric.samples[0].labels["app_name"] == "visyn.app.datavisyn.io"
 
     # Check for request counts
     fastapi_requests_metric = parsed["fastapi_requests_1"]  # TODO: Why _1?

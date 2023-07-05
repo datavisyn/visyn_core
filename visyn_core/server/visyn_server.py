@@ -83,10 +83,10 @@ def create_visyn_server(
     # Store all globals also in app.state.<manager> to allow access in FastAPI routes via request.app.state.<manager>.
     app.state.settings = manager.settings
 
-    if manager.settings.visyn_core.telemetry.enabled:
+    if manager.settings.visyn_core.telemetry and manager.settings.visyn_core.telemetry.enabled:
         from ..telemetry import init_telemetry
 
-        init_telemetry(app, app_name="app")
+        init_telemetry(app, settings=manager.settings.visyn_core.telemetry)
 
     # Initialize global managers.
     from ..plugin.registry import Registry

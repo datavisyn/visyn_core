@@ -77,21 +77,43 @@ class BaseTelemetrySettings(BaseModel):
     enabled: bool = False
 
 
+class MetricsExporterTelemetrySettings(BaseModel):
+    endpoint: AnyHttpUrl  # could be "http://localhost:4317"
+    headers: dict[str, str] | None = None
+    timeout: int | None = None
+    kwargs: dict[str, Any] = {}
+
+
 class MetricsTelemetrySettings(BaseTelemetrySettings):
-    export_endpoint: AnyHttpUrl | None = None  # could be "http://localhost:4317"
+    exporter: MetricsExporterTelemetrySettings | None = None
+
+
+class TracesExporterTelemetrySettings(BaseModel):
+    endpoint: AnyHttpUrl  # could be "http://localhost:4317"
+    headers: dict[str, str] | None = None
+    timeout: int | None = None
+    kwargs: dict[str, Any] = {}
 
 
 class TracesTelemetrySettings(BaseTelemetrySettings):
-    export_endpoint: AnyHttpUrl | None = None
+    exporter: TracesExporterTelemetrySettings | None = None
+
+
+class LogsExporterTelemetrySettings(BaseModel):
+    endpoint: AnyHttpUrl  # could be "http://localhost:4317"
+    headers: dict[str, str] | None = None
+    timeout: int | None = None
+    username: str | None = None
+    password: str | None = None
+    kwargs: dict[str, Any] = {}
 
 
 class LogsTelemetrySettings(BaseTelemetrySettings):
-    export_endpoint: AnyHttpUrl | None = None  # could be "http://localhost:3100/loki/api/v1/push"
-    username: str | None = None
-    password: str | None = None
+    exporter: LogsExporterTelemetrySettings | None = None
 
 
 class TelemetrySettings(BaseTelemetrySettings):
+    app_name: str
     metrics: MetricsTelemetrySettings = MetricsTelemetrySettings()
     traces: TracesTelemetrySettings = TracesTelemetrySettings()
     logs: LogsTelemetrySettings = LogsTelemetrySettings()
@@ -103,7 +125,7 @@ class VisynCoreSettings(BaseModel):
     """
     The total number of threads to use for anyio. FastAPI uses these threads to run sync routes concurrently.
     """
-    telemetry: TelemetrySettings = TelemetrySettings()
+    telemetry: TelemetrySettings | None = None
     """
     Settings for telemetry using OpenTelemetry, prometheus, ...
     """

@@ -26,8 +26,8 @@ exporters:
   # prometheusremotewrite:
   #   endpoint: https://...@prometheus-prod-01-eu-west-0.grafana.net/api/prom/push
 
-  # loki:
-  #   endpoint: http://loki:3100/loki/api/v1/push
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
 
   otlp:
     endpoint: http://tempo:4317
@@ -55,12 +55,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp, logging]
+      exporters: [logging, otlp]
     metrics:
       receivers: [otlp, prometheus]
       processors: [batch]
-      exporters: [logging, prometheus, prometheusremotewrite]
-    # logs:
-    #   receivers: [otlp]
-    #   processors: [batch]
-    #   exporters: [logging, loki]
+      exporters: [logging, prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, loki]

@@ -23,7 +23,7 @@ def _mock_plugins(monkeypatch):
 @pytest.fixture()
 def workspace_config() -> dict:
     return {
-        "visyn_core": {"enabled_plugins": ["visyn_core"], "telemetry": {"enabled": False}},
+        "visyn_core": {"enabled_plugins": ["visyn_core"]},
     }
 
 
