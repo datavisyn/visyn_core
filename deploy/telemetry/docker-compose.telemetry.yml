@@ -21,13 +21,13 @@ services:
       - "host.docker.internal:host-gateway"
 
   loki:
-    image: grafana/loki:2.6.1
+    image: grafana/loki:2.8.2
     command: -config.file=/etc/loki/local-config.yaml
     ports:
       - "3100:3100"
 
   prometheus:
-    image: prom/prometheus:v2.39.1
+    image: prom/prometheus:v2.45.0
     ports:
       - "9090:9090"
     volumes:
@@ -37,6 +37,7 @@ services:
       - --enable-feature=exemplar-storage
 
   tempo:
+    # Latest version of tempo 2.1.0 doesn't work with grafana
     image: grafana/tempo:1.5.0
     command:
       [
@@ -51,7 +52,7 @@ services:
     #   - "4317:4317"
 
   grafana:
-    image: grafana/grafana:9.1.7
+    image: grafana/grafana:10.0.1
     # network_mode: host
     ports:
       - "3000:3000"
@@ -102,7 +103,7 @@ services:
   #     - tempo
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.6.0
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro

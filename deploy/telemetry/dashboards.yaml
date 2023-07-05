@@ -8,3 +8,11 @@ providers:
   editable: true
   options:
     path: '/etc/grafana/dashboards'
+- name: 'Node Exporter Full'
+  orgId: 1
+  folder: ''
+  type: 'file'
+  disableDeletion: true
+  editable: true
+  options:
+    path: '/etc/grafana/dashboards'
