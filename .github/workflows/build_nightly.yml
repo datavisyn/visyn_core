@@ -8,7 +8,6 @@ on:
         required: false
         type: boolean
         default: false
-  push:
   schedule:
     - cron: '15 1 * * *'
 
@@ -18,12 +17,12 @@ jobs:
     secrets: inherit
     with:
       cypress_enable: true
-      cypress_run_because_flag: ${{ inputs.cypress == true }}
+      cypress_run_because_flag: ${{ github.event_name == 'schedule' || inputs.cypress == true }}
       branch: main
   build-develop:
     uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@new_deployment
     secrets: inherit
     with:
       cypress_enable: true
-      cypress_run_because_flag: ${{ inputs.cypress == true }}
+      cypress_run_because_flag: ${{ github.event_name == 'schedule' || inputs.cypress == true }}
       branch: develop
