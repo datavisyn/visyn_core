@@ -2,10 +2,7 @@ import * as React from 'react';
 import { useRef } from 'react';
 import { Group, Stack } from '@mantine/core';
 
-import { VisColumn, IVisConfig, IRaincloudConfig, ICommonVisProps } from '../interfaces';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
-import { RaincloudVisSidebar } from './RaincloudVisSidebar';
+import { IRaincloudConfig, ICommonVisProps } from '../interfaces';
 import { RaincloudGrid } from './RaincloudGrid';
 
 export function RaincloudVis({
