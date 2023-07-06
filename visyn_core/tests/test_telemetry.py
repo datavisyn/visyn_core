@@ -11,7 +11,7 @@ from prometheus_client.parser import text_string_to_metric_families
                 "enabled_plugins": ["tdp_core"],
                 "telemetry": {
                     "enabled": True,
-                    "app_name": "visyn.app.datavisyn.io",
+                    "service_name": "visyn.app.datavisyn.io",
                     "metrics": {"enabled": True, "export_endpoint": None},
                     "metrics_middleware": {"enabled": True},
                     "traces": {"enabled": False, "export_endpoint": None},

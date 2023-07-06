@@ -74,50 +74,63 @@ class SecuritySettings(BaseModel):
 
 
 class BaseTelemetrySettings(BaseModel):
-    enabled: bool = False
+    enabled: bool = True
 
 
-class MetricsExporterTelemetrySettings(BaseModel):
-    endpoint: AnyHttpUrl  # could be "http://localhost:4317"
+class BaseExporterTelemetrySettings(BaseModel):
+    endpoint: AnyHttpUrl  # could be "http://localhost:4318"
     headers: dict[str, str] | None = None
     timeout: int | None = None
     kwargs: dict[str, Any] = {}
+
+    @validator("headers", pre=True)
+    def json_decode_headers(cls, v):  # NOQA N805
+        # Manually parse JSON strings if they are coming from the env via `VISYN_CORE__...='{"...": ...}'`.
+        # See https://github.com/pydantic/pydantic/issues/831 for details.
+        if isinstance(v, str):
+            with contextlib.suppress(ValueError):
+                return json.loads(v)
+        return v
+
+
+class MetricsExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
 
 
 class MetricsTelemetrySettings(BaseTelemetrySettings):
     exporter: MetricsExporterTelemetrySettings | None = None
 
 
-class TracesExporterTelemetrySettings(BaseModel):
-    endpoint: AnyHttpUrl  # could be "http://localhost:4317"
-    headers: dict[str, str] | None = None
-    timeout: int | None = None
-    kwargs: dict[str, Any] = {}
+class TracesExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
 
 
 class TracesTelemetrySettings(BaseTelemetrySettings):
     exporter: TracesExporterTelemetrySettings | None = None
 
 
-class LogsExporterTelemetrySettings(BaseModel):
-    endpoint: AnyHttpUrl  # could be "http://localhost:4317"
-    headers: dict[str, str] | None = None
-    timeout: int | None = None
-    username: str | None = None
-    password: str | None = None
-    kwargs: dict[str, Any] = {}
+class LogsExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
 
 
 class LogsTelemetrySettings(BaseTelemetrySettings):
     exporter: LogsExporterTelemetrySettings | None = None
 
 
-class TelemetrySettings(BaseTelemetrySettings):
-    app_name: str
+class TelemetrySettings(BaseModel):
+    enabled: bool = False
+    """
+    Globally enable or disable telemetry.
+    """
+    service_name: str
+    global_exporter: BaseExporterTelemetrySettings | None = None
+    """
+    Global exporter to be used if metrics.exporter, traces.exporter or logs.exporter are not set.
+    """
     metrics: MetricsTelemetrySettings = MetricsTelemetrySettings()
     traces: TracesTelemetrySettings = TracesTelemetrySettings()
     logs: LogsTelemetrySettings = LogsTelemetrySettings()
-    metrics_middleware: BaseTelemetrySettings = BaseTelemetrySettings(enabled=True)
+    metrics_middleware: BaseTelemetrySettings = BaseTelemetrySettings()
 
 
 class VisynCoreSettings(BaseModel):

@@ -35,10 +35,10 @@ requests_in_progress = meter.create_observable_gauge(name="requests", descriptio
 
 # TODO: This middleware is quite slow, it should be replaced with one similar to the ASGI instrumentor middleware
 class FastAPIMetricsMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app: ASGIApp, app_name: str) -> None:
+    def __init__(self, app: ASGIApp, service_name: str) -> None:
         super().__init__(app)
-        self.app_name = app_name
-        apps_counter.add(1, {"app_name": app_name})
+        self.app_name = service_name
+        apps_counter.add(1, {"app_name": service_name})
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         method = request.method

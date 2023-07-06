@@ -4,9 +4,9 @@ import opentelemetry._logs as _logs
 import opentelemetry.metrics as metrics
 import opentelemetry.trace as trace
 from fastapi import FastAPI, Response
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
@@ -38,9 +38,9 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
     logging.getLogger("opentelemetry.sdk.metrics._internal").addFilter(InstrumentWarningFilter())
 
     # Create a resource based on the spec: https://github.com/open-telemetry/semantic-conventions/blob/main/specification/resource/semantic_conventions/README.md#service
-    resource = Resource.create(attributes={SERVICE_NAME: settings.app_name, "compose_service": settings.app_name})
+    resource = Resource.create(attributes={SERVICE_NAME: settings.service_name, "compose_service": settings.service_name})
 
-    metrics_exporter_settings = settings.metrics.exporter
+    global_exporter_settings = settings.global_exporter
 
     meter_provider: MeterProvider | None = None
     if settings.metrics.enabled:
@@ -48,14 +48,17 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
 
         metric_readers: list[MetricReader] = [PrometheusMetricReader()]
 
-        if metrics_exporter_settings:
+        # Use the global exporter settings if no exporter settings are defined for the metrics
+        exporter_settings = settings.metrics.exporter or global_exporter_settings
+
+        if exporter_settings:
             metric_readers.append(
                 PeriodicExportingMetricReader(
                     exporter=OTLPMetricExporter(
-                        endpoint=metrics_exporter_settings.endpoint,
-                        headers=metrics_exporter_settings.headers,
-                        timeout=metrics_exporter_settings.timeout,
-                        **metrics_exporter_settings.kwargs,
+                        endpoint=exporter_settings.endpoint,
+                        headers=exporter_settings.headers,
+                        timeout=exporter_settings.timeout,
+                        **exporter_settings.kwargs,
                     ),
                     export_interval_millis=5_000,
                     export_timeout_millis=1_000,
@@ -91,22 +94,24 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
             return CustomMetricsResponse(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
 
     tracer_provider: TracerProvider | None = None
-    traces_exporter_settings = settings.traces.exporter
     if settings.traces.enabled:
         _log.info("Enabling OpenTelemetry traces")
         # Create TracerProvider and set it as the global tracer provider
         tracer_provider = TracerProvider(resource=resource)
         trace.set_tracer_provider(tracer_provider)
 
-        if traces_exporter_settings:
+        # Use the global exporter settings if no exporter settings are defined for the metrics
+        exporter_settings = settings.traces.exporter or global_exporter_settings
+
+        if exporter_settings:
             # Add the exporter to the tracer
             tracer_provider.add_span_processor(
                 BatchSpanProcessor(
                     OTLPSpanExporter(
-                        endpoint=traces_exporter_settings.endpoint,
-                        headers=traces_exporter_settings.headers,
-                        timeout=traces_exporter_settings.timeout,
-                        **traces_exporter_settings.kwargs,
+                        endpoint=exporter_settings.endpoint,
+                        headers=exporter_settings.headers,
+                        timeout=exporter_settings.timeout,
+                        **exporter_settings.kwargs,
                     )
                 )
             )
@@ -129,22 +134,24 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
         # Add FastAPI instrumentor which adds trace ids to all requests
         FastAPIInstrumentor.instrument_app(app, meter_provider=meter_provider, tracer_provider=tracer_provider)
 
-    logs_exporter_settings = settings.logs.exporter
     if settings.logs.enabled:
         _log.info("Enabling OpenTelemetry logs")
         # Create TracerProvider and set it as the global tracer provider
         logs_provider = LoggerProvider(resource=resource)
         _logs.set_logger_provider(logs_provider)
 
-        if logs_exporter_settings:
+        # Use the global exporter settings if no exporter settings are defined for the metrics
+        exporter_settings = settings.logs.exporter or global_exporter_settings
+
+        if exporter_settings:
             # Add the exporter to the logs provider
             logs_provider.add_log_record_processor(
                 BatchLogRecordProcessor(
                     OTLPLogExporter(
-                        endpoint=logs_exporter_settings.endpoint,
-                        headers=logs_exporter_settings.headers,
-                        timeout=logs_exporter_settings.timeout,
-                        **logs_exporter_settings.kwargs,
+                        endpoint=exporter_settings.endpoint,
+                        headers=exporter_settings.headers,
+                        timeout=exporter_settings.timeout,
+                        **exporter_settings.kwargs,
                     )
                 )
             )
@@ -167,4 +174,4 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
         # Metrics middleware
         from ..middleware.fastapi_metrics_middleware import FastAPIMetricsMiddleware
 
-        app.add_middleware(FastAPIMetricsMiddleware, app_name=settings.app_name)
+        app.add_middleware(FastAPIMetricsMiddleware, service_name=settings.service_name)
