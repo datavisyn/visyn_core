@@ -71,6 +71,8 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
         # Use the global exporter settings if no exporter settings are defined for the metrics
         exporter_settings = settings.metrics.exporter or global_exporter_settings
 
+        _log.info("Metrics exporter settings: %s", exporter_settings)
+
         if exporter_settings:
             metric_readers.append(
                 PeriodicExportingMetricReader(
@@ -123,6 +125,8 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
         # Use the global exporter settings if no exporter settings are defined for the metrics
         exporter_settings = settings.traces.exporter or global_exporter_settings
 
+        _log.info("Traces exporter settings: %s", exporter_settings)
+
         if exporter_settings:
             # Add the exporter to the tracer
             tracer_provider.add_span_processor(
@@ -162,6 +166,8 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
 
         # Use the global exporter settings if no exporter settings are defined for the metrics
         exporter_settings = settings.logs.exporter or global_exporter_settings
+
+        _log.info("Logs exporter settings: %s", exporter_settings)
 
         if exporter_settings:
             # Add the exporter to the logs provider
