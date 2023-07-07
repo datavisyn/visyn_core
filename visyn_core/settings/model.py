@@ -123,6 +123,9 @@ class TelemetrySettings(BaseModel):
     Globally enable or disable telemetry.
     """
     service_name: str
+    """
+    Service name must be a unique, fully qualified name (e.g., myapp.app.datavisyn.io)
+    """
     global_exporter: BaseExporterTelemetrySettings | None = None
     """
     Global exporter to be used if metrics.exporter, traces.exporter or logs.exporter are not set.
