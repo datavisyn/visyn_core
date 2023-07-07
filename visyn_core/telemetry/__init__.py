@@ -37,8 +37,28 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
 
     logging.getLogger("opentelemetry.sdk.metrics._internal").addFilter(InstrumentWarningFilter())
 
+    merged = dict()
+    for name in ["dt_metadata_e617c525669e072eebe3d0f08212e8f2.json", "/var/lib/dynatrace/enrichment/dt_metadata.json"]:
+        try:
+            data = ''
+            with open(name) as f:
+                data = json.load(f if name.startswith("/var") else open(f.read()))
+                merged.update(data)
+        except:
+            _log.error("Failed to load Dynatrace metadata from %s", name)
+            pass
+
+    merged.update({
+        "service.name": settings.service_name,
+        "service.version": settings.service_version,
+    })
+
+    _log.info("Dynatrace metadata: %s", merged)
+
+    resource = Resource.create(merged)
+
     # Create a resource based on the spec: https://github.com/open-telemetry/semantic-conventions/blob/main/specification/resource/semantic_conventions/README.md#service
-    resource = Resource.create(attributes={SERVICE_NAME: settings.service_name, "compose_service": settings.service_name})
+    # resource = Resource.create(attributes={SERVICE_NAME: settings.service_name, "compose_service": settings.service_name})
 
     global_exporter_settings = settings.global_exporter
 
