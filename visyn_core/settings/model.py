@@ -126,6 +126,10 @@ class TelemetrySettings(BaseModel):
     """
     Service name must be a unique, fully qualified name (e.g., myapp.app.datavisyn.io)
     """
+    service_version: str | None = "0.0.1"
+    """
+    Service version is the version string of the service.
+    """
     global_exporter: BaseExporterTelemetrySettings | None = None
     """
     Global exporter to be used if metrics.exporter, traces.exporter or logs.exporter are not set.
