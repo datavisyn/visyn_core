@@ -18,7 +18,6 @@ def requirements(file):
 
 requirements_extras = {
     "rdkit": requirements("requirements_extras_rdkit.txt"),
-    "telemetry": requirements("requirements_extras_telemetry.txt"),
 }
 requirements_extras_all = [d for extras in requirements_extras.values() for d in extras]
 
