@@ -1,9 +1,10 @@
 import { Container, Stack } from '@mantine/core';
 import * as React from 'react';
-import { ColumnInfo, ESupportedPlotlyVis, IHeatmapConfig, IVisConfig, VisColumn } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, IHeatmapConfig, IVisConfig, VisColumn } from '../interfaces';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 
 export function HeatmapVisSidebar({ config, columns, setConfig }: { config: IHeatmapConfig; columns: VisColumn[]; setConfig: (config: IVisConfig) => void }) {
   return (
@@ -18,6 +19,23 @@ export function HeatmapVisSidebar({ config, columns, setConfig }: { config: IHea
         {config?.catColumnsSelected?.length > 1 ? (
           <NumericalColorButtons callback={(numColorScaleType) => setConfig({ ...config, numColorScaleType })} currentSelected={config.numColorScaleType} />
         ) : null}
+        <AggregateTypeSelect
+          aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
+            if (config.aggregateColumn === null) {
+              setConfig({
+                ...config,
+                aggregateType,
+                aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+              });
+            } else {
+              setConfig({ ...config, aggregateType });
+            }
+          }}
+          aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
+          columns={columns}
+          currentSelected={config.aggregateType}
+          aggregateColumn={config.aggregateColumn}
+        />
       </Stack>
     </Container>
   );

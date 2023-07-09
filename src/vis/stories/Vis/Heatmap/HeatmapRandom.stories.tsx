@@ -2,7 +2,15 @@ import React from 'react';
 import { ComponentStory } from '@storybook/react';
 import * as d3 from 'd3v7';
 import { Vis } from '../../../LazyVis';
-import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESortTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import {
+  EAggregateTypes,
+  EColumnTypes,
+  ENumericalColorScaleType,
+  EScatterSelectSettings,
+  ESortTypes,
+  ESupportedPlotlyVis,
+  VisColumn,
+} from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -149,6 +157,8 @@ Basic.args = {
     sortedBy: ESortTypes.CAT_ASC,
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    aggregateColumn: null,
+    aggregateType: EAggregateTypes.COUNT,
   },
 };
 
@@ -176,5 +186,7 @@ Multiples.args = {
     sortedBy: ESortTypes.CAT_ASC,
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    aggregateColumn: null,
+    aggregateType: EAggregateTypes.COUNT,
   },
 };

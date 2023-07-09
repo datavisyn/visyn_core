@@ -1,6 +1,6 @@
 import { Tooltip } from '@mantine/core';
 import * as React from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSpring, animated, easings } from 'react-spring';
 
 const DELAY = 2000;
@@ -30,13 +30,30 @@ export function HeatmapRect({
   onClick?: (e: any) => void;
 }) {
   const [isHovered, setIsHovered] = useState<boolean>();
+  const currXOrder = useRef(xOrder);
+  const currYOrder = useRef(yOrder);
 
-  const xSpring = useSpring({ fill: color, x, config: { duration: DELAY, easing: easings.easeInOutSine }, delay: DELAY * xOrder });
-  const ySpring = useSpring({ y, config: { duration: DELAY, easing: easings.easeInOutSine }, delay: DELAY * yOrder });
+  const isImmediate = currXOrder.current === xOrder && currYOrder.current === yOrder;
+
+  const colorSpring = useSpring({ fill: color, config: { duration: 750, easing: easings.easeInOutSine } });
+
+  const xSpring = useSpring({
+    x,
+    config: { duration: DELAY, easing: easings.easeInOutSine },
+    delay: isImmediate ? 0 : DELAY * xOrder,
+    immediate: isImmediate,
+  });
+  const ySpring = useSpring({
+    y,
+    config: { duration: DELAY, easing: easings.easeInOutSine },
+    delay: isImmediate ? 0 : DELAY * yOrder,
+    immediate: isImmediate,
+  });
 
   const rect = useMemo(() => {
     return (
       <animated.rect
+        {...colorSpring}
         {...xSpring}
         {...ySpring}
         width={width}
@@ -55,7 +72,12 @@ export function HeatmapRect({
         }}
       />
     );
-  }, [height, isSelected, onClick, setSelected, width, xSpring, ySpring]);
+  }, [colorSpring, height, isSelected, onClick, setSelected, width, xSpring, ySpring]);
+
+  useEffect(() => {
+    currXOrder.current = xOrder;
+    currYOrder.current = yOrder;
+  }, [xOrder, yOrder]);
 
   return isHovered ? (
     <Tooltip withArrow arrowSize={6} withinPortal label={label}>

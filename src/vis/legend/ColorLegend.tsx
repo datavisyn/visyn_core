@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { range as rangeFunc } from 'lodash';
-import { Group, Stack, Text, Box } from '@mantine/core';
+import { Group, Stack, Text } from '@mantine/core';
 import * as d3 from 'd3v7';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 export function ColorLegend({
   scale,
@@ -17,10 +16,13 @@ export function ColorLegend({
   range?: [number, number];
   tickCount?: number;
 }) {
-  const colors = d3.range(tickCount).map((score) => {
-    const num = (range[1] - range[0]) * (score / (tickCount - 1));
-    return { color: scale(num), score: num };
-  });
+  const colors = d3
+    .range(tickCount)
+    .reverse()
+    .map((score) => {
+      const num = (range[1] - range[0]) * (score / (tickCount - 1)) + range[0];
+      return { color: scale(num), score: num };
+    });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -35,21 +37,28 @@ export function ColorLegend({
     canvas.style.height = `${height}px`;
     canvas.style.imageRendering = 'pixelated';
 
-    const t = d3.range(height).map((i) => (i / height) * range[1]);
+    const t = d3
+      .range(height)
+      .map((i) => (i / height) * (range[1] - range[0]))
+      .reverse();
 
-    for (let i = 0; i < t.length; ++i) {
-      context.fillStyle = scale(t[i]);
+    for (let i = t.length - 1; i >= 0; i--) {
+      context.fillStyle = scale(t[i] + range[0]);
       context.fillRect(0, i, width, 1);
     }
   }, [scale, width, height, range]);
 
+  const format = useMemo(() => {
+    return d3.format('.3s');
+  }, []);
+
   return (
-    <Group spacing={5} noWrap>
+    <Group spacing={5} noWrap style={{ width: `${width + 40}px` }}>
       <canvas id="proteomicsLegendCanvas" ref={canvasRef} />
       <Stack align="stretch" justify="space-between" style={{ height: `${height}px` }} spacing={0} ml="0">
-        {colors.map((color) => (
-          <Text size="xs" key={color.color}>
-            {color.score.toFixed(1)}
+        {colors.map((color, i) => (
+          <Text size="xs" key={i}>
+            {format(color.score)}
           </Text>
         ))}
       </Stack>

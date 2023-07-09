@@ -4,10 +4,20 @@ import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ESortTypes, IHeatmapConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import {
+  ColumnInfo,
+  EAggregateTypes,
+  EColumnTypes,
+  ENumericalColorScaleType,
+  ESortTypes,
+  IHeatmapConfig,
+  VisCategoricalValue,
+  VisNumericalValue,
+} from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
 import { ColorLegend } from '../legend/ColorLegend';
 import { HeatmapText } from './HeatmapText';
+import { rollupByAggregateType } from '../barGood/utils';
 
 const interRectDistance = 1;
 
@@ -36,6 +46,8 @@ function doOverlap(rect1: { x1: number; x2: number; y1: number; y2: number }, re
 export function Heatmap({
   column1,
   column2,
+  aggregateColumn,
+  sizeColumn,
   margin,
   config,
   selected,
@@ -44,6 +56,8 @@ export function Heatmap({
 }: {
   column1: CatColumn;
   column2: CatColumn;
+  aggregateColumn: CatColumn;
+  sizeColumn: CatColumn;
   margin: { top: number; right: number; bottom: number; left: number };
   config: IHeatmapConfig;
   selectionCallback: (ids: string[]) => void;
@@ -55,32 +69,42 @@ export function Heatmap({
   const aggregatedTable = useMemo(() => {
     if (!column1 || !column2) return null;
 
-    const valueTable = table({
+    let valueTable = table({
       xVal: column1.resolvedValues.map(({ val }) => val),
       yVal: column2.resolvedValues.map(({ val }) => val),
+      aggregateValues: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
+      sizeValues: sizeColumn?.resolvedValues.map(({ val }) => val) || [],
       id: column1.resolvedValues.map(({ id }) => id),
     });
 
-    let idTable = valueTable
-      .groupby('xVal', 'yVal')
-      .rollup({ ids: op.array_agg('id'), count: op.count() })
-      .impute({ count: () => 0 }, { expand: ['xVal', 'yVal'] })
-      .groupby('xVal')
-      .derive({ colTotal: op.sum('count') })
-      .groupby('yVal')
-      .derive({ rowTotal: op.sum('count') });
+    valueTable = valueTable.groupby('xVal', 'yVal');
 
-    if (config.sortedBy === ESortTypes.COUNT_ASC) {
-      idTable = idTable.orderby('colTotal', desc('rowTotal'));
+    valueTable = rollupByAggregateType(valueTable, config.aggregateType);
+
+    if (config.aggregateType === EAggregateTypes.COUNT) {
+      valueTable.impute({ aggregateVal: () => 0 }, { expand: ['xVal', 'yVal'] });
     } else {
-      idTable = idTable.orderby('xVal', 'yVal');
+      valueTable.impute({ aggregateVal: () => null }, { expand: ['xVal', 'yVal'] });
     }
 
-    return idTable;
-  }, [column1, column2, config.sortedBy]);
+    valueTable = valueTable
+      .impute({ aggregateVal: () => 0 }, { expand: ['xVal', 'yVal'] })
+      .groupby('xVal')
+      .derive({ colTotal: op.sum('aggregateVal') })
+      .groupby('yVal')
+      .derive({ rowTotal: op.sum('aggregateVal') });
+
+    if (config.sortedBy === ESortTypes.COUNT_ASC) {
+      valueTable = valueTable.orderby('colTotal', desc('rowTotal'));
+    } else {
+      valueTable = valueTable.orderby('xVal', 'yVal');
+    }
+
+    return valueTable;
+  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.sortedBy, sizeColumn?.resolvedValues]);
 
   const { groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
-    const groupedVals = aggregatedTable.objects() as { xVal: string; yVal: string; count: number; ids: string[] }[];
+    const groupedVals = aggregatedTable.objects() as { xVal: string; yVal: string; aggregateVal: number; ids: string[] }[];
 
     const xSc = d3
       .scaleBand()
@@ -101,7 +125,11 @@ export function Heatmap({
                 ['#24528d', '#2d67a0', '#3b7bb2', '#4d90c3', '#65a5d3', '#80bae0', '#a0ceeb', '#c6e1f2', '#f1f3f5'].reverse(),
               ),
             )
-            .domain([0, d3.max(groupedVals, (d) => d.count as number)])
+            .domain(
+              config.aggregateType === EAggregateTypes.COUNT
+                ? [0, d3.max(groupedVals, (d) => d.aggregateVal as number)]
+                : d3.extent(groupedVals, (d) => d.aggregateVal as number),
+            )
         : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
         ? d3
             .scaleSequential<string, string>(
@@ -124,12 +152,12 @@ export function Heatmap({
                 ].reverse(),
               ),
             )
-            .domain(d3.extent(groupedVals, (d) => d.count as number))
+            .domain(d3.extent(groupedVals, (d) => d.aggregateVal as number))
         : null;
 
     const extGroupedVals = groupedVals.map((gV) => ({
       ...gV,
-      color: colorSc(gV.count),
+      color: colorSc(gV.aggregateVal),
       x: xSc(gV.xVal) + margin.left,
       y: ySc(gV.yVal) + margin.top,
     }));
@@ -142,11 +170,11 @@ export function Heatmap({
       yScale: ySc,
       colorScale: colorSc,
     };
-  }, [aggregatedTable, width, margin, height, config?.numColorScaleType]);
+  }, [aggregatedTable, width, margin.left, margin.right, margin.top, margin.bottom, height, config?.numColorScaleType, config.aggregateType]);
 
   const rects = useMemo(() => {
     return groupedValues.map((d, i) => {
-      const { count, ids, x, y, xVal, yVal, color } = d;
+      const { aggregateVal, ids, x, y, xVal, yVal, color } = d;
       return (
         <HeatmapRect
           xOrder={1 - Math.floor(i / xScale.domain().length) / xScale.domain().length}
@@ -158,7 +186,7 @@ export function Heatmap({
           width={rectWidth}
           height={rectHeight}
           color={color}
-          label={`${count}`}
+          label={`${aggregateVal}`}
           setSelected={() => selectionCallback(ids)}
         />
       );
@@ -171,8 +199,8 @@ export function Heatmap({
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
-      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0}>
-        <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '50px' }}>
+      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0} pr="50px">
+        <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px' }}>
           {column2.info.name}
         </Text>
         <svg style={{ width: '100%', height: '100%' }} ref={ref}>

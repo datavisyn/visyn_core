@@ -184,6 +184,10 @@ export interface IHeatmapConfig {
   catColumnsSelected: ColumnInfo[];
   numColorScaleType: ENumericalColorScaleType;
   sortedBy: ESortTypes;
+  aggregateType: EAggregateTypes;
+  aggregateColumn: ColumnInfo | null;
+  sizeColumn: ColumnInfo | null;
+  sizeAggregateType: EAggregateTypes;
 }
 
 type ValueGetter<T> = () => T | Promise<T>;
