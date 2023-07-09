@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3v7';
+import * as d3 from 'd3v7';
 import { Group, Popover } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { corrcoeff, spearmancoeff, studentt } from 'jstat';
@@ -8,7 +9,6 @@ import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { CorrelationGrid } from './components/CorrelationGrid';
-import { CorrelationTooltip } from './components/CorrelationTooltip';
 import { Legend } from './components/CorrelationLegend';
 
 const paddingCircle = { top: 6, right: 6, bottom: 6, left: 6 };
@@ -46,9 +46,28 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const boundsHeight = height - margin.top - margin.bottom;
   const availableSize = Math.min(boundsWidth, boundsHeight);
 
-  const [hover, setHover] = React.useState<{ x: number; y: number } | null>(null);
-
-  const colorScale = scaleLinear<string, string>().domain([-1, 0, 1]).range(['#387dfc', '#fffef5', '#db1849']);
+  const colorScale = d3
+    .scaleSequential<string, string>(
+      d3.piecewise(
+        d3.interpolateRgb.gamma(2.2),
+        [
+          '#003367',
+          '#16518a',
+          '#2e72ae',
+          '#5093cd',
+          '#77b5ea',
+          '#aad7fd',
+          '#F1F3F5',
+          '#fac7a9',
+          '#f99761',
+          '#e06d3b',
+          '#c2451a',
+          '#99230d',
+          '#6f0000',
+        ].reverse(),
+      ),
+    )
+    .domain([-1, 1]);
 
   const names = React.useMemo(() => {
     return data?.map((column) => column.info.name);
@@ -150,35 +169,11 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
         <g width={availableSize} height={availableSize} transform={`translate(${[margin.left, margin.top].join(',')})`}>
           {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
 
-          {hover ? (
-            <Popover withArrow shadow="md" withinPortal opened>
-              <Popover.Target>
-                <rect
-                  fill="transparent"
-                  key={`${hover.x}${hover.y}`}
-                  x={hover.x * xScale.bandwidth()}
-                  y={hover.y * yScale.bandwidth()}
-                  width={xScale.bandwidth()}
-                  height={yScale.bandwidth()}
-                />
-              </Popover.Target>
-              <Popover.Dropdown>
-                <CorrelationTooltip
-                  value={memoizedCorrelationResults.find(
-                    (value) => (value.xi === hover.x && value.yi === hover.y) || (value.xi === hover.y && value.yi === hover.x),
-                  )}
-                />
-              </Popover.Dropdown>
-            </Popover>
-          ) : null}
-
           {memoizedCorrelationResults?.map((value) => {
             return (
               <CorrelationPair
                 key={`${value.xName}-${value.yName}`}
                 value={value}
-                hover={(hover?.x === value.xi && hover?.y === value.yi) || (hover?.y === value.xi && hover?.x === value.yi)}
-                setHovered={setHover}
                 fill={colorScale(value.correlation)}
                 boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
                 config={config}

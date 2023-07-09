@@ -9,7 +9,7 @@ export function Legend({
 }: {
   xPos: number;
   height: number;
-  colorScale: d3.ScaleLinear<string, string>;
+  colorScale: d3.ScaleSequential<string, string>;
   margin: { top: number; right: number; bottom: number; left: number };
 }) {
   const legendYScale = scaleLinear().range([0, height]).domain([1, -1]);
