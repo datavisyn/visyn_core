@@ -9,12 +9,14 @@ export function ColorLegend({
   height = 20,
   range = [0, 1.1],
   tickCount = 5,
+  format = '.3s',
 }: {
   scale: (t: number) => string;
   width?: number;
   height?: number;
   range?: [number, number];
   tickCount?: number;
+  format?: string;
 }) {
   const colors = d3
     .range(tickCount)
@@ -48,9 +50,9 @@ export function ColorLegend({
     }
   }, [scale, width, height, range]);
 
-  const format = useMemo(() => {
-    return d3.format('.3s');
-  }, []);
+  const formatFunc = useMemo(() => {
+    return d3.format(format);
+  }, [format]);
 
   return (
     <Group spacing={5} noWrap style={{ width: `${width + 40}px` }}>
@@ -58,7 +60,7 @@ export function ColorLegend({
       <Stack align="stretch" justify="space-between" style={{ height: `${height}px` }} spacing={0} ml="0">
         {colors.map((color, i) => (
           <Text size="xs" key={i}>
-            {format(color.score)}
+            {formatFunc(color.score)}
           </Text>
         ))}
       </Stack>

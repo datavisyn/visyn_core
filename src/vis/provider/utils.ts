@@ -21,6 +21,9 @@ import { ParallelVis } from '../parallelCoordinates/ParallelVis';
 import { ParallelVisSidebar } from '../parallelCoordinates/ParallelVisSidebar';
 import { parallelCoordinatesMergeDefaultConfig } from '../parallelCoordinates/utils';
 import { ESupportedPlotlyVis } from '../interfaces';
+import { CorrelationVis } from '../correlation/CorrelationVis';
+import { CorrelationVisSidebar } from '../correlation/CorrelationVisSidebar';
+import { correlationMergeDefaultConfig } from '../correlation/utils';
 
 export function registerAllVis() {
   visMap[ESupportedPlotlyVis.SCATTER] = createVis(ESupportedPlotlyVis.SCATTER, ScatterVis, ScatterVisSidebar, scatterMergeDefaultConfig);
@@ -28,6 +31,8 @@ export function registerAllVis() {
   visMap[ESupportedPlotlyVis.VIOLIN] = createVis(ESupportedPlotlyVis.VIOLIN, ViolinVis, ViolinVisSidebar, violinMergeDefaultConfig);
   visMap[ESupportedPlotlyVis.HEXBIN] = createVis(ESupportedPlotlyVis.HEXBIN, HexbinVis, HexbinVisSidebar, hexinbMergeDefaultConfig);
   visMap[ESupportedPlotlyVis.HEATMAP] = createVis(ESupportedPlotlyVis.HEATMAP, HeatmapVis, HeatmapVisSidebar, heatmapMergeDefaultConfig);
+  visMap[ESupportedPlotlyVis.CORRELATION] = createVis(ESupportedPlotlyVis.CORRELATION, CorrelationVis, CorrelationVisSidebar, correlationMergeDefaultConfig);
+
   visMap[ESupportedPlotlyVis.PARALLEL_COORDINATES] = createVis(
     ESupportedPlotlyVis.PARALLEL_COORDINATES,
     ParallelVis,

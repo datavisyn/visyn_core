@@ -9,41 +9,38 @@ import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { CorrelationGrid } from './components/CorrelationGrid';
-import { Legend } from './components/CorrelationLegend';
+import { ColorLegend } from '../legend/ColorLegend';
 
-const paddingCircle = { top: 6, right: 6, bottom: 6, left: 6 };
+const paddingCircle = { top: 10, right: 10, bottom: 10, left: 10 };
 const CIRCLE_MIN_SIZE = 4;
 const margin = {
-  top: 100,
-  right: 80,
-  bottom: 40,
-  left: 100,
+  top: 20,
+  right: 20,
+  bottom: 20,
+  left: 20,
 };
 
 export function CorrelationMatrix({ config, columns }: { config: ICorrelationConfig; columns: VisColumn[] }) {
-  const dataAll = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected, config.filterCriteria]);
+  const dataAll = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
   const [data, setData] = React.useState<{ resolvedValues: (VisNumericalValue | VisCategoricalValue)[]; type: EColumnTypes; info: ColumnInfo }[]>(null);
 
   // Set data used for calculation and apply filter if given
   React.useEffect(() => {
-    if (dataAll?.value && config.filterValue === null) {
-      // setData(dataAll.value.numericalColumns);
-      setData(dataAll.value.numericalColumns);
-    } else if (dataAll?.value && config.filterValue !== null) {
+    if (dataAll?.value) {
       const cols = [];
-      const idsFiltered = dataAll.value.filterColumn.resolvedValues.filter((v) => v.val === config.filterValue).map((v) => v.id);
       dataAll.value.numericalColumns.forEach((col) => {
-        const valuesFiltered = col.resolvedValues.filter((v) => idsFiltered.includes(v.id));
-        cols.push({ ...col, resolvedValues: valuesFiltered });
+        cols.push(col);
       });
       setData(cols);
     }
-  }, [dataAll.value, config.filterValue]);
+  }, [dataAll.value]);
 
   const [ref, { width, height }] = useResizeObserver();
 
-  const boundsWidth = width - margin.left - margin.right;
-  const boundsHeight = height - margin.top - margin.bottom;
+  console.log(width, height);
+
+  const boundsWidth = width;
+  const boundsHeight = height;
   const availableSize = Math.min(boundsWidth, boundsHeight);
 
   const colorScale = d3
@@ -91,7 +88,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const circleSizeScale = React.useMemo(() => {
     if (!data) return null;
     const maxSize = Math.min(xScale.bandwidth() / 2 - paddingCircle.left, yScale.bandwidth() / 2 - paddingCircle.top);
-    return scaleLinear().domain([-1, 1]).range([CIRCLE_MIN_SIZE, maxSize]);
+    return d3.scaleSqrt().domain([0, 1]).range([CIRCLE_MIN_SIZE, maxSize]);
   }, [data, xScale, yScale]);
 
   // Calculate correlation results
@@ -154,9 +151,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       const currentX = xScale(col.info.name) + xScale.bandwidth() / 2;
       const currentY = yScale(col.info.name) + yScale.bandwidth() / 2;
       labels.push(
-        <text x={currentX} y={currentY} dominantBaseline="middle" textAnchor="middle" key={`label-${col.info.name}`}>
-          {/* {col.info.name} */}
-          &#x23BC;
+        <text x={currentX} y={currentY} fontSize={14} fontWeight={600} dominantBaseline="middle" textAnchor="middle" key={`label-${col.info.name}`}>
+          {col.info.name}
         </text>,
       );
     });
@@ -164,9 +160,9 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   }, [data, xScale, yScale]);
 
   return (
-    <Group ref={ref} style={{ width: '100%', height: '100%' }} position="center">
-      <svg style={{ width: availableSize + margin.left + margin.right, height: availableSize + margin.top + margin.bottom }}>
-        <g width={availableSize} height={availableSize} transform={`translate(${[margin.left, margin.top].join(',')})`}>
+    <Group noWrap style={{ width: '100%', height: '100%' }} position="right" align="start" spacing="xs" pr="40px">
+      <svg ref={ref} style={{ height: '100%', width: '100%' }}>
+        <g width={availableSize} height={availableSize}>
           {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
 
           {memoizedCorrelationResults?.map((value) => {
@@ -181,9 +177,9 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
             );
           })}
           {labelsDiagonal}
-          <Legend xPos={availableSize + 20} height={boundsHeight} colorScale={colorScale} margin={margin} />
         </g>
       </svg>
+      <ColorLegend format=".3~g" scale={colorScale} width={25} height={availableSize} range={[-1, 1]} />
     </Group>
   );
 }

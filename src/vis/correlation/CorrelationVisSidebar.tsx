@@ -101,7 +101,7 @@ export function CorrelationVisSidebar({
   filterCallback?: (s: EFilterOptions) => void;
   columns: VisColumn[];
   setConfig: (config: IVisConfig) => void;
-} & ICommonVisSideBarProps) {
+} & ICommonVisSideBarProps<ICorrelationConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
@@ -110,45 +110,11 @@ export function CorrelationVisSidebar({
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const onFilterCriteriaChange = (filterCriteria: ColumnInfo) => {
-    if (filterCriteria === undefined && config.filterCriteria) {
-      setConfig({ ...config, filterCriteria: null, filterValue: null, availableFilterValues: [] });
-    }
-
-    if (filterCriteria) {
-      const getPossibleFilterValues = async (): Promise<string[]> => {
-        const columnResolved = await resolveSingleColumn(columns.find((col) => col.info.id === filterCriteria.id));
-        return [...new Set(columnResolved.resolvedValues.map((v) => v.val as string))];
-      };
-      getPossibleFilterValues().then((values) => {
-        setConfig({
-          ...config,
-          filterCriteria,
-          availableFilterValues: values,
-        });
-      });
-    }
-  };
-
   return (
     <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
-      <Stack>
-        <SingleColumnSelect
-          callback={(filterCriteria: ColumnInfo) => onFilterCriteriaChange(filterCriteria)}
-          columns={columns}
-          currentSelected={config.filterCriteria}
-          label="Filter by"
-          type={[EColumnTypes.CATEGORICAL]}
-        />
-        <SingleValueSelect
-          callback={(filterValue: string) => setConfig({ ...config, filterValue })}
-          availableFilterValues={config.availableFilterValues}
-          currentSelected={config.filterValue}
-          placeholder={config.filterCriteria ? `Select ${config.filterCriteria.name}` : '---'}
-        />
-      </Stack>
+
       <Divider my="sm" />
       <Stack spacing={25}>
         <NumericalColumnSelect
@@ -165,17 +131,6 @@ export function CorrelationVisSidebar({
             data={Object.values(ECorrelationType)}
             value={config.correlationType}
             onChange={(v) => setConfig({ ...config, correlationType: v as ECorrelationType })}
-          />
-        </Stack>
-        <Stack spacing="xs">
-          <Text size="sm" fw={500}>
-            Lower triangle
-          </Text>
-          <SegmentedControl
-            size="sm"
-            data={Object.values(ECorrelationPlotMode)}
-            value={config.mode}
-            onChange={(v) => setConfig({ ...config, mode: v as ECorrelationPlotMode })}
           />
         </Stack>
         <Switch

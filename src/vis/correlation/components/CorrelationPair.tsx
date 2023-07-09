@@ -1,10 +1,10 @@
-import { Group, useMantineTheme, Text, Tooltip, Stack } from '@mantine/core';
+import { useMantineTheme, Text, Tooltip, Stack } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
 import * as d3 from 'd3v7';
-import { ECorrelationPlotMode, ICorrelationConfig } from '../../interfaces';
+import { ICorrelationConfig } from '../../interfaces';
 
-const marginRect = { top: 4, right: 4, bottom: 4, left: 4 };
+const marginRect = { top: 0, right: 0, bottom: 0, left: 0 };
 
 export interface CorrelationPairProps {
   xi: number;
@@ -37,11 +37,11 @@ export function CorrelationPair({
   const hoverColor = theme.colors.gray[1];
 
   const format = useMemo(() => {
-    return d3.format('e');
+    return d3.format('.3g');
   }, []);
 
   const correlationFormat = useMemo(() => {
-    return d3.format('.3e');
+    return d3.format('.3g');
   }, []);
 
   const topRect = useMemo(() => {
@@ -69,21 +69,37 @@ export function CorrelationPair({
           y={value.cyLT - boundingRect.height / 2 + marginRect.top}
           fill={isHover || (config.highlightSignificant && value.pValue < 0.05) ? hoverColor : 'transparent'}
         />
-        <text x={value.cxLT} y={value.cyLT} dominantBaseline="middle" textAnchor="middle" fontWeight="bold" fill="black">
-          {config.mode === ECorrelationPlotMode.CORRELATION ? value.correlation.toFixed(2) : value.pValue < 0.001 ? '< 0.001' : value.pValue.toFixed(3)}
-        </text>
+        <foreignObject
+          x={value.cxLT - boundingRect.width / 2 + marginRect.left}
+          y={value.cyLT - boundingRect.height / 2 + marginRect.top}
+          width={boundingRect.width - marginRect.left - marginRect.right}
+          height={boundingRect.height - marginRect.top - marginRect.bottom}
+        >
+          <Stack style={{ height: '100%', width: '100%' }} align="center" justify="center">
+            <Text size={12}>r: {correlationFormat(value.correlation)}</Text>
+            <Text size={12}>p: {format(value.pValue)}</Text>
+          </Stack>
+        </foreignObject>
       </g>
     );
-  }, [boundingRect.height, boundingRect.width, config.highlightSignificant, config.mode, hoverColor, isHover, value]);
+  }, [
+    boundingRect.height,
+    boundingRect.width,
+    config.highlightSignificant,
+    correlationFormat,
+    format,
+    hoverColor,
+    isHover,
+    value.correlation,
+    value.cxLT,
+    value.cyLT,
+    value.pValue,
+  ]);
 
   const label = useMemo(() => {
     return (
-      <Stack>
-        <Group>
-          {`${value.xName}`}
-          <Text>&#x27F6;</Text>
-          {`${value.yName}`}
-        </Group>
+      <Stack spacing={2}>
+        <Text>{`${value.xName} / ${value.yName}`}</Text>
         <Text>Correlation: {correlationFormat(value.correlation)}</Text>
         <Text>P-value: {format(value.pValue)}</Text>
       </Stack>
@@ -91,7 +107,7 @@ export function CorrelationPair({
   }, [correlationFormat, format, value]);
 
   return (
-    <g onMouseEnter={() => setIsHover(true)} onMouseOut={() => setIsHover(false)}>
+    <g onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
       {isHover ? (
         <Tooltip withinPortal label={label}>
           {topRect}

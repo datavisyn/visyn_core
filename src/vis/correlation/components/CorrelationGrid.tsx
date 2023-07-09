@@ -19,20 +19,6 @@ export function CorrelationGrid({ width, height, names }: { width: number; heigh
 
         return (
           <g key={x}>
-            {i !== names.length ? (
-              <g transform={`translate(${xtick}, -10)`}>
-                <text x={0} y={0} textAnchor="end" transform="rotate(45)">
-                  {names[i]}
-                </text>
-              </g>
-            ) : null}
-            {i !== names.length ? (
-              <g transform={`translate(-10, ${ytick})`}>
-                <text x={0} y={0} textAnchor="end" transform="rotate(45)">
-                  {names[i]}
-                </text>
-              </g>
-            ) : null}
             <line x1={x} x2={x} y1={0} y2={height} stroke={borderColor} />
             <line x1={0} x2={width} y1={y} y2={y} stroke={borderColor} />
           </g>

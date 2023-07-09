@@ -23,7 +23,15 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.RAINCLOUD,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IParallelCoordinatesConfig | IRaincloudConfig | IHeatmapConfig;
+export type IVisConfig =
+  | IScatterConfig
+  | IViolinConfig
+  | IBarConfig
+  | IHexbinConfig
+  | IParallelCoordinatesConfig
+  | IRaincloudConfig
+  | IHeatmapConfig
+  | ICorrelationConfig;
 
 export interface BaseConfig {
   type: string;
@@ -120,11 +128,7 @@ export interface ICorrelationConfig extends BaseConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
-  filterCriteria: ColumnInfo | null;
-  availableFilterValues: string[];
-  filterValue: string | null;
   highlightSignificant: boolean;
-  mode: ECorrelationPlotMode;
 }
 
 export enum ECloudType {
