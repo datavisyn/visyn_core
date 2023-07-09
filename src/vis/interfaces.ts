@@ -5,6 +5,10 @@ export enum ESupportedPlotlyVis {
   VIOLIN = 'Violin plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
+  HEATMAP = 'Heatmap plot',
+  PARALLEL_COORDINATES = 'Parallel plot',
+  RAINCLOUD = 'Raincloud plot',
+  SANKEY = 'Sankey',
   CORRELATION = 'Correlation plot',
 }
 
@@ -14,9 +18,16 @@ export const allVisTypes: ESupportedPlotlyVis[] = [
   ESupportedPlotlyVis.VIOLIN,
   ESupportedPlotlyVis.HEXBIN,
   ESupportedPlotlyVis.CORRELATION,
+  ESupportedPlotlyVis.HEATMAP,
+  ESupportedPlotlyVis.PARALLEL_COORDINATES,
+  ESupportedPlotlyVis.RAINCLOUD,
 ];
 
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | ICorrelationConfig;
+export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig | IParallelCoordinatesConfig | IRaincloudConfig | IHeatmapConfig;
+
+export interface BaseConfig {
+  type: string;
+}
 
 export enum EBarDisplayType {
   ABSOLUTE = 'Absolute',
@@ -91,14 +102,21 @@ export enum ECorrelationType {
   SPEARMAN = 'Spearman',
 }
 
-export interface IViolinConfig {
+export interface IParallelCoordinatesConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.PARALLEL_COORDINATES;
+  numColumnsSelected: ColumnInfo[];
+  catColumnsSelected: ColumnInfo[];
+  color: ColumnInfo | null;
+}
+
+export interface IViolinConfig extends BaseConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
 }
 
-export interface ICorrelationConfig {
+export interface ICorrelationConfig extends BaseConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
@@ -109,7 +127,36 @@ export interface ICorrelationConfig {
   mode: ECorrelationPlotMode;
 }
 
-export interface IScatterConfig {
+export enum ECloudType {
+  SPLIT_VIOLIN = 'Split violin',
+  HEATMAP = 'Heatmap',
+  HISTOGRAM = 'Histogram',
+}
+
+export enum ELightningType {
+  MEAN_AND_DEV = 'Mean and deviation',
+  MEDIAN_AND_DEV = 'Median and deviation',
+  MEAN = 'Mean',
+  BOXPLOT = 'Boxplot',
+}
+
+export enum ERainType {
+  DOTPLOT = 'Dot plot',
+  BEESWARM = 'Beeswarm',
+  WHEATPLOT = 'Wheat plot',
+  STRIPPLOT = 'Strip plot',
+}
+
+export interface IRaincloudConfig {
+  type: ESupportedPlotlyVis.RAINCLOUD;
+  numColumnsSelected: ColumnInfo[];
+  cloudType: ECloudType;
+  rainType: ERainType;
+  lightningType: ELightningType;
+  aggregateRain: boolean;
+}
+
+export interface IScatterConfig extends BaseConfig {
   type: ESupportedPlotlyVis.SCATTER;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
@@ -119,7 +166,7 @@ export interface IScatterConfig {
   alphaSliderVal: number;
 }
 
-export interface IBarConfig {
+export interface IBarConfig extends BaseConfig {
   type: ESupportedPlotlyVis.BAR;
   multiples: ColumnInfo | null;
   group: ColumnInfo | null;
@@ -132,7 +179,20 @@ export interface IBarConfig {
   aggregateColumn: ColumnInfo | null;
 }
 
-export interface IHexbinConfig {
+export interface ISankeyConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.SANKEY;
+  catColumnsSelected: ColumnInfo[];
+}
+
+export enum ESortTypes {
+  NONE = 'NONE',
+  CAT_ASC = 'CAT_ASC',
+  CAT_DESC = 'CAT_DESC',
+  COUNT_ASC = 'COUNT_ASC',
+  COUNT_DESC = 'COUNT_DESC',
+}
+
+export interface IHexbinConfig extends BaseConfig {
   type: ESupportedPlotlyVis.HEXBIN;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;
@@ -141,6 +201,18 @@ export interface IHexbinConfig {
   isSizeScale: boolean;
   dragMode: EScatterSelectSettings;
   hexbinOptions: EHexbinOptions;
+}
+
+export interface IHeatmapConfig {
+  type: ESupportedPlotlyVis.HEATMAP;
+  color: ColumnInfo | null;
+  catColumnsSelected: ColumnInfo[];
+  numColorScaleType: ENumericalColorScaleType;
+  sortedBy: ESortTypes;
+  aggregateType: EAggregateTypes;
+  aggregateColumn: ColumnInfo | null;
+  sizeColumn: ColumnInfo | null;
+  sizeAggregateType: EAggregateTypes;
 }
 
 type ValueGetter<T> = () => T | Promise<T>;
@@ -213,7 +285,41 @@ export type Scales = {
 /**
  * Common props for all vis sidebars.
  */
-export interface ICommonVisSideBarProps {
+export interface ICommonVisSideBarProps<T> {
   style?: React.CSSProperties | undefined;
   className?: string | undefined;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  filterCallback?: (s: EFilterOptions) => void;
+  config: T;
+  setConfig: (c: T) => void;
+}
+
+export interface ICommonVisProps<T> {
+  externalConfig?: T;
+  setExternalConfig?: (config: T) => void;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  colors?: string[];
+  shapes?: string[];
+  filterCallback?: (s: EFilterOptions) => void;
+  selectionCallback?: (s: string[]) => void;
+  selectedMap?: { [key: string]: boolean };
+  selectedList?: string[];
+  showCloseButton?: boolean;
+  closeButtonCallback?: () => void;
+  scales?: Scales;
+  enableSidebar?: boolean;
+  showSidebar?: boolean;
+  showSidebarDefault?: boolean;
+  setShowSidebar?: (s: boolean) => void;
+  extensions?: {
+    prePlot?: React.ReactNode;
+    postPlot?: React.ReactNode;
+    preSidebar?: React.ReactNode;
+    postSidebar?: React.ReactNode;
+  };
+  scrollZoom?: boolean;
+  showDragModeOptions?: boolean;
+  dimensions: { width: number; height: number };
 }

@@ -1,33 +1,33 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { Vis } from '../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../interfaces';
+import { ComponentStory } from '@storybook/react';
+import { Vis } from '../../../LazyVis';
+import { EColumnTypes, EHexbinOptions, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+
+function RNG(seed) {
+  const m = 2 ** 35 - 31;
+  const a = 185852;
+  let s = seed % m;
+  return function () {
+    return (s = (s * a) % m) / m;
+  };
+}
 
 function fetchData(numberOfPoints: number): VisColumn[] {
+  const rng = RNG(10);
+
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     pca_x: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     pca_y: Array(numberOfPoints)
       .fill(null)
-      .map(() => Math.random() * 100),
+      .map(() => rng() * 100),
     category: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((Math.random() * 10).toString(), 10).toString()),
+      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
   });
 
   const dataPromise = dataGetter();
@@ -78,13 +78,13 @@ function fetchData(numberOfPoints: number): VisColumn[] {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Example/Vis/RandomData',
+  title: 'Vis/Hexbin',
   component: Vis,
   argTypes: {
     pointCount: { control: 'number' },
   },
   args: {
-    pointCount: 100000,
+    pointCount: 10000,
   },
 };
 
@@ -104,10 +104,10 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const ScatterPlot: typeof Template = Template.bind({});
-ScatterPlot.args = {
+export const LargeData: typeof Template = Template.bind({}) as typeof Template;
+LargeData.args = {
   externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
+    type: ESupportedPlotlyVis.HEXBIN,
     numColumnsSelected: [
       {
         description: '',
@@ -121,37 +121,48 @@ ScatterPlot.args = {
       },
     ],
     color: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
+    hexRadius: 20,
+    isOpacityScale: true,
+    isSizeScale: false,
+    hexbinOptions: EHexbinOptions.COLOR,
   },
 };
 
-export const BarChart: typeof Template = Template.bind({});
-BarChart.args = {
+export const LargeDataMultiples: typeof Template = Template.bind({}) as typeof Template;
+LargeDataMultiples.args = {
   externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    multiples: null,
-    group: null,
-    direction: EBarDirection.VERTICAL,
-    display: EBarDisplayType.ABSOLUTE,
-    groupType: EBarGroupingType.GROUP,
-    numColumnsSelected: [],
-    catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
-    },
-    aggregateColumn: null,
-    aggregateType: EAggregateTypes.COUNT,
+    type: ESupportedPlotlyVis.HEXBIN,
+    numColumnsSelected: [
+      {
+        description: '',
+        id: 'pca_x',
+        name: 'pca_x',
+      },
+      {
+        description: '',
+        id: 'pca_y',
+        name: 'pca_y',
+      },
+      {
+        description: '',
+        id: 'value',
+        name: 'value',
+      },
+    ],
+    color: null,
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    hexRadius: 20,
+    isOpacityScale: true,
+    isSizeScale: false,
+    hexbinOptions: EHexbinOptions.COLOR,
   },
 };
 
-export const ViolinPlot: typeof Template = Template.bind({});
-ViolinPlot.args = {
+export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
+ColorByCategory.args = {
   externalConfig: {
-    type: ESupportedPlotlyVis.VIOLIN,
+    type: ESupportedPlotlyVis.HEXBIN,
     numColumnsSelected: [
       {
         description: '',
@@ -164,7 +175,73 @@ ViolinPlot.args = {
         name: 'pca_y',
       },
     ],
-    catColumnsSelected: [],
-    violinOverlay: EViolinOverlay.NONE,
+    color: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    hexRadius: 20,
+    isOpacityScale: true,
+    isSizeScale: false,
+    hexbinOptions: EHexbinOptions.COLOR,
+  },
+};
+
+export const PieCharts: typeof Template = Template.bind({}) as typeof Template;
+PieCharts.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.HEXBIN,
+    numColumnsSelected: [
+      {
+        description: '',
+        id: 'pca_x',
+        name: 'pca_x',
+      },
+      {
+        description: '',
+        id: 'pca_y',
+        name: 'pca_y',
+      },
+    ],
+    color: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    hexRadius: 20,
+    isOpacityScale: true,
+    isSizeScale: false,
+    hexbinOptions: EHexbinOptions.PIE,
+  },
+};
+
+export const ColorBins: typeof Template = Template.bind({}) as typeof Template;
+ColorBins.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.HEXBIN,
+    numColumnsSelected: [
+      {
+        description: '',
+        id: 'pca_x',
+        name: 'pca_x',
+      },
+      {
+        description: '',
+        id: 'pca_y',
+        name: 'pca_y',
+      },
+    ],
+    color: {
+      description: '',
+      id: 'category',
+      name: 'category',
+    },
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    hexRadius: 20,
+    isOpacityScale: true,
+    isSizeScale: false,
+    hexbinOptions: EHexbinOptions.BINS,
   },
 };

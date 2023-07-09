@@ -1,13 +1,12 @@
 import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import { useMemo, useEffect } from 'react';
-import { useUncontrolled } from '@mantine/hooks';
+import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
+import { Group, Stack } from '@mantine/core';
 import {
   ESupportedPlotlyVis,
   IVisConfig,
   Scales,
-  VisColumn,
-  EFilterOptions,
   ENumericalColorScaleType,
   EColumnTypes,
   EBarDirection,
@@ -15,18 +14,22 @@ import {
   EBarGroupingType,
   EScatterSelectSettings,
   EAggregateTypes,
+  ICommonVisProps,
+  VisColumn,
+  EFilterOptions,
 } from './interfaces';
-import { isScatter, scatterMergeDefaultConfig, ScatterVis } from './scatter';
-import { barMergeDefaultConfig, isBar, BarVis } from './bar';
-import { isViolin, violinMergeDefaultConfig, ViolinVis } from './violin';
 import { getCssValue } from '../utils';
 import { useSyncedRef } from '../hooks/useSyncedRef';
-import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
-import { HexbinVis } from './hexbin/HexbinVis';
-import { correlationMergeDefaultConfig, isCorrelation } from './correlation';
-import { CorrelationVis } from './correlation/CorrelationVis';
+import { getVisByConfig } from './provider/Provider';
+import { VisSidebarWrapper } from './VisSidebarWrapper';
+
+import { VisSidebarOpenButton } from './VisSidebarOpenButton';
+import { VisSidebar } from './VisSidebar';
+import { registerAllVis } from './provider/utils';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
+
+registerAllVis();
 
 export function EagerVis({
   columns,
@@ -88,6 +91,8 @@ export function EagerVis({
     onChange: internalSetShowSidebar,
   });
 
+  const [ref, dimensions] = useResizeObserver();
+
   // Each time you switch between vis config types, there is one render where the config is inconsistent with the type before the merge functions in the useEffect below can be called.
   // To ensure that we never render an incosistent config, keep a consistent and a current in the config. Always render the consistent.
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -143,24 +148,9 @@ export function EagerVis({
   }, []);
 
   React.useEffect(() => {
-    if (isScatter(inconsistentVisConfig)) {
-      const newConfig = scatterMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isViolin(inconsistentVisConfig)) {
-      const newConfig = violinMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isBar(inconsistentVisConfig)) {
-      const newConfig = barMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isHexbin(inconsistentVisConfig)) {
-      const newConfig = hexinbMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isCorrelation(inconsistentVisConfig)) {
-      const newConfig = correlationMergeDefaultConfig(columns, inconsistentVisConfig);
+    const mergeConfig = getVisByConfig(inconsistentVisConfig)?.mergeConfig;
+    if (mergeConfig) {
+      const newConfig = mergeConfig(columns, inconsistentVisConfig);
       _setVisConfig({ current: newConfig, consistent: newConfig });
     }
     // DANGER:: this useEffect should only occur when the visConfig.type changes. adding visconfig into the dep array will cause an infinite loop.
@@ -217,81 +207,59 @@ export function EagerVis({
     enableSidebar,
   };
 
+  const Renderer = getVisByConfig(visConfig)?.renderer;
+
   return (
-    <>
-      {isScatter(visConfig) ? (
-        <ScatterVis
-          config={visConfig}
-          optionsConfig={{
-            color: {
-              enable: true,
-            },
-          }}
-          showDragModeOptions={showDragModeOptions}
-          shapes={shapes}
-          setConfig={setVisConfig}
-          filterCallback={filterCallback}
-          selectionCallback={selectionCallback}
-          selectedMap={selectedMap}
-          selectedList={selected}
-          columns={columns}
-          scales={scales}
-          showSidebar={showSidebar}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          scrollZoom={scrollZoom}
-          {...commonProps}
-        />
-      ) : null}
+    <Group
+      noWrap
+      pl={0}
+      pr={0}
+      sx={{
+        flexGrow: 1,
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        // Disable plotly crosshair cursor
+        '.nsewdrag': {
+          cursor: 'pointer !important',
+        },
+      }}
+    >
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-      {isViolin(visConfig) ? (
-        <ViolinVis
-          config={visConfig}
-          selectedList={selected}
-          selectedMap={selectedMap}
-          selectionCallback={selectionCallback}
-          optionsConfig={{
-            overlay: {
-              enable: true,
-            },
-          }}
-          setConfig={setVisConfig}
-          columns={columns}
-          scales={scales}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          {...commonProps}
-        />
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+        {Renderer ? (
+          <Renderer
+            externalConfig={visConfig}
+            dimensions={dimensions}
+            optionsConfig={{
+              color: {
+                enable: true,
+              },
+            }}
+            showDragModeOptions={showDragModeOptions}
+            shapes={shapes}
+            setExternalConfig={setVisConfig}
+            filterCallback={filterCallback}
+            selectionCallback={selectionCallback}
+            selectedMap={selectedMap}
+            selectedList={selected}
+            columns={columns}
+            scales={scales}
+            showSidebar={showSidebar}
+            showCloseButton={showCloseButton}
+            closeButtonCallback={closeCallback}
+            scrollZoom={scrollZoom}
+            {...commonProps}
+          />
+        ) : null}
+      </Stack>
+      {showSidebar ? (
+        <VisSidebarWrapper>
+          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
+        </VisSidebarWrapper>
       ) : null}
-      {isBar(visConfig) ? (
-        <BarVis
-          config={visConfig}
-          setConfig={setVisConfig}
-          selectionCallback={selectionCallback}
-          selectedMap={selectedMap}
-          selectedList={selected}
-          columns={columns}
-          scales={scales}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          filterCallback={filterCallback}
-          {...commonProps}
-        />
-      ) : null}
-
-      {isHexbin(visConfig) ? (
-        <HexbinVis
-          config={visConfig}
-          selected={selectedMap}
-          setConfig={setVisConfig}
-          selectionCallback={selectionCallback}
-          columns={columns}
-          showDragModeOptions={showDragModeOptions}
-          {...commonProps}
-        />
-      ) : null}
-
-      {isCorrelation(visConfig) ? <CorrelationVis config={visConfig} columns={columns} setConfig={setVisConfig} {...commonProps} /> : null}
-    </>
+    </Group>
   );
 }

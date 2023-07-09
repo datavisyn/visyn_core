@@ -3,21 +3,14 @@ import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import { useEffect, useState } from 'react';
-import { ActionIcon, Container, Group, Space, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IViolinConfig, EFilterOptions } from '../interfaces';
+import { Stack } from '@mantine/core';
+import { IViolinConfig, ICommonVisProps } from '../interfaces';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
 import { createViolinTraces } from './utils';
 import { useAsync } from '../../hooks';
-import { ViolinVisSidebar } from './ViolinVisSidebar';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 
 const defaultExtensions = {
   prePlot: null,
@@ -27,60 +20,24 @@ const defaultExtensions = {
 };
 
 export function ViolinVis({
-  config,
-  optionsConfig,
+  externalConfig,
   extensions,
   columns,
-  setConfig,
   scales,
-  showSidebar,
-  setShowSidebar,
+  dimensions,
   selectedList,
   selectedMap,
   selectionCallback,
-  enableSidebar,
-  showCloseButton = false,
-  filterCallback = () => null,
-  closeButtonCallback = () => null,
-}: {
-  config: IViolinConfig;
-  optionsConfig?: {
-    overlay?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  filterCallback?: (s: EFilterOptions) => void;
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-  closeButtonCallback?: () => void;
-  selectionCallback: (ids: string[]) => void;
-
-  selectedMap: { [key: string]: boolean };
-  selectedList: string[];
-  scales: Scales;
-  showSidebar?: boolean;
-  setShowSidebar?(show: boolean): void;
-  enableSidebar?: boolean;
-  showCloseButton?: boolean;
-}) {
+}: ICommonVisProps<IViolinConfig>) {
   const mergedExtensions = React.useMemo(() => {
     return merge({}, defaultExtensions, extensions);
   }, [extensions]);
 
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, externalConfig, scales, selectedList, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('ViolinVis'), []);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
-
-  const plotlyDivRef = React.useRef(null);
 
   const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
     if (!e || !e.points || !e.points[0]) {
@@ -114,19 +71,11 @@ export function ViolinVis({
   };
 
   useEffect(() => {
-    const ro = new ResizeObserver(() => {
-      const plotDiv = document.getElementById(`plotlyDiv${id}`);
-      if (plotDiv) {
-        Plotly.Plots.resize(plotDiv);
-      }
-    });
-
-    if (plotlyDivRef) {
-      ro.observe(plotlyDivRef.current);
+    const plotDiv = document.getElementById(`plotlyDiv${id}`);
+    if (plotDiv) {
+      Plotly.Plots.resize(plotDiv);
     }
-
-    return () => ro.disconnect();
-  }, [id, plotlyDivRef]);
+  }, [id, dimensions]);
 
   React.useEffect(() => {
     if (!traces) {
@@ -161,65 +110,40 @@ export function ViolinVis({
   }, [traces]);
 
   return (
-    <Group
-      noWrap
-      pl={0}
-      pr={0}
+    <Stack
       spacing={0}
       sx={{
-        flexGrow: 1,
         height: '100%',
         width: '100%',
-        position: 'relative',
         overflow: 'hidden',
+        position: 'relative',
         // Disable plotly crosshair cursor
         '.nsewdrag': {
           cursor: 'pointer !important',
         },
       }}
-      ref={plotlyDivRef}
     >
-      <Stack
-        spacing={0}
-        sx={{
-          height: '100%',
-          width: '100%',
-        }}
-      >
-        <Space h="xl" />
-        {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
+      {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
+        <PlotlyComponent
+          divId={`plotlyDiv${id}`}
+          data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
+          layout={layout}
+          config={{ responsive: true, displayModeBar: false }}
+          useResizeHandler
+          style={{ width: '100%', height: '100%' }}
+          onClick={onClick}
+          // plotly redraws everything on updates, so you need to reappend title and
+          onUpdate={() => {
+            for (const p of traces.plots) {
+              d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
 
-        {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
-
-        {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
-          <PlotlyComponent
-            divId={`plotlyDiv${id}`}
-            data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
-            layout={layout}
-            config={{ responsive: true, displayModeBar: false }}
-            useResizeHandler
-            style={{ width: '100%', height: '100%' }}
-            onClick={onClick}
-            // plotly redraws everything on updates, so you need to reappend title and
-            onUpdate={() => {
-              for (const p of traces.plots) {
-                d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
-
-                d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
-              }
-            }}
-          />
-        ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
-          <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
-        ) : null}
-        {mergedExtensions.postPlot}
-      </Stack>
-
-      {showSidebar && plotlyDivRef?.current ? (
-        <VisSidebarWrapper>
-          <ViolinVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
-        </VisSidebarWrapper>
+              d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+            }
+          }}
+        />
+      ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
+        <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
       ) : null}
-    </Group>
+    </Stack>
   );
 }
