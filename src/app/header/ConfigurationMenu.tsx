@@ -36,6 +36,7 @@ export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu: JSX.E
         dvLogo={dvLogo}
         customerLogo={aboutAppModal?.customerLogo}
         content={aboutAppModal?.content}
+        bottom={aboutAppModal?.bottom}
         size={aboutAppModal?.size}
       />
     </>
