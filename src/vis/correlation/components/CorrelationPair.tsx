@@ -1,6 +1,6 @@
 import { useMantineTheme, Text, Tooltip, Stack, Center } from '@mantine/core';
 import * as React from 'react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import * as d3 from 'd3v7';
 import { ICorrelationConfig } from '../../interfaces';
 
@@ -103,6 +103,10 @@ export function CorrelationPair({
     value.pValue,
   ]);
 
+  useEffect(() => {
+    console.log(isHover);
+  }, [isHover]);
+
   const label = useMemo(() => {
     return (
       <Stack spacing={2}>
@@ -114,21 +118,14 @@ export function CorrelationPair({
   }, [correlationFormat, format, value]);
 
   return (
-    <g onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
-      {isHover ? (
-        <Tooltip withinPortal label={label}>
-          {topRect}
-        </Tooltip>
-      ) : (
-        topRect
-      )}
-      {isHover ? (
-        <Tooltip withinPortal label={label}>
-          {bottomRect}
-        </Tooltip>
-      ) : (
-        bottomRect
-      )}
+    <g onMouseOver={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+      <Tooltip keepMounted={false} hidden={!isHover} withinPortal onMouseLeave={() => setIsHover(false)} label={label}>
+        {topRect}
+      </Tooltip>
+
+      <Tooltip keepMounted={false} hidden={!isHover} withinPortal onMouseLeave={() => setIsHover(false)} label={label}>
+        {bottomRect}
+      </Tooltip>
     </g>
   );
 }
