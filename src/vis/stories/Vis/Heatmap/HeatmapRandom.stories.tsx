@@ -35,13 +35,13 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       .map(() => rng() * 100),
     category: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
+      .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}long`),
     category2: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
+      .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}long`),
     category3: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
+      .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}long`),
   });
 
   const dataPromise = dataGetter();

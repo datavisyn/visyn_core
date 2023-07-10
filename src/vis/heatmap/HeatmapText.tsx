@@ -1,5 +1,6 @@
 import * as d3 from 'd3v7';
 import * as React from 'react';
+import { Text } from '@mantine/core';
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
 
@@ -52,7 +53,7 @@ export function HeatmapText({
             order={1 - i / xScale.domain().length}
             bold={xVal === hoveredColumn}
           >
-            {xVal}
+            <Text>{xVal}</Text>
           </AnimatedText>
         </g>
       ))}
@@ -73,7 +74,7 @@ export function HeatmapText({
             order={i / yScale.domain().length}
           />
           <AnimatedText x={0} y={yScale(yVal) + rectHeight / 2 + margin.top} order={i / yScale.domain().length} bold={yVal === hoveredRow}>
-            {yVal}
+            <Text>{yVal}</Text>
           </AnimatedText>
         </g>
       ))}

@@ -9,12 +9,8 @@ export function AnimatedText({ x, y, children, order, bold = false }: { x: numbe
   const spring = useSpring({ x, y, config: { duration: 2000, easing: easings.easeInOutSine }, delay: isImmediate ? 0 : 2000 * order, immediate: isImmediate });
 
   const line = useMemo(() => {
-    return (
-      <animated.text {...spring} color="gray" fontSize={10} fontWeight={bold ? 900 : 500}>
-        {children}
-      </animated.text>
-    );
-  }, [bold, children, spring]);
+    return <animated.foreignObject {...spring}>{children}</animated.foreignObject>;
+  }, [children, spring]);
 
   useEffect(() => {
     myOrder.current = order;

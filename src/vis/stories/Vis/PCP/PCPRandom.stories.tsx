@@ -1,18 +1,7 @@
 import React, { useState } from 'react';
 import { ComponentStory } from '@storybook/react';
 import { Vis } from '../../../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  ECloudType,
-  EColumnTypes,
-  ELightningType,
-  ERainType,
-  ESupportedPlotlyVis,
-  VisColumn,
-} from '../../../interfaces';
+import { EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -37,13 +26,13 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       .map(() => rng() * 100),
     category: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
+      .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}long`),
     category2: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 5).toString(), 5).toString()),
+      .map(() => `${parseInt((rng() * 5).toString(), 5).toString()}long`),
     category3: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 2).toString(), 2).toString()),
+      .map(() => `${parseInt((rng() * 2).toString(), 2).toString()}long`),
   });
 
   const dataPromise = dataGetter();
