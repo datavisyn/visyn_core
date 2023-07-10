@@ -159,6 +159,8 @@ Basic.args = {
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
+    sizeAggregateType: EAggregateTypes.COUNT,
+    sizeColumn: null,
   },
 };
 
@@ -188,5 +190,7 @@ Multiples.args = {
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
+    sizeAggregateType: EAggregateTypes.COUNT,
+    sizeColumn: null,
   },
 };
