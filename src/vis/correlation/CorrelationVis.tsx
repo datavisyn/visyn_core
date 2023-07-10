@@ -1,9 +1,6 @@
 import * as React from 'react';
-import { Group, Stack } from '@mantine/core';
-import { ICommonVisProps, ICorrelationConfig, IVisConfig, VisColumn } from '../interfaces';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
-import { CorrelationVisSidebar } from './CorrelationVisSidebar';
+import { Stack } from '@mantine/core';
+import { ICommonVisProps, ICorrelationConfig } from '../interfaces';
 import { CorrelationMatrix } from './CorrelationMatrix';
 
 export function CorrelationVis({ externalConfig, columns }: ICommonVisProps<ICorrelationConfig>) {

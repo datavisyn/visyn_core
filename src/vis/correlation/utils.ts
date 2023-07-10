@@ -4,6 +4,7 @@ import {
   EColumnTypes,
   ECorrelationPlotMode,
   ECorrelationType,
+  EScaleType,
   ESupportedPlotlyVis,
   ICorrelationConfig,
   IVisConfig,
@@ -22,6 +23,7 @@ const defaultConfig: ICorrelationConfig = {
   correlationType: ECorrelationType.PEARSON,
   numColumnsSelected: [],
   highlightSignificant: false,
+  pScaleType: EScaleType.LINEAR,
 };
 
 export function correlationMergeDefaultConfig(columns: VisColumn[], config: ICorrelationConfig): ICorrelationConfig {

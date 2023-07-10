@@ -1,4 +1,4 @@
-import { useMantineTheme, Text, Tooltip, Stack } from '@mantine/core';
+import { useMantineTheme, Text, Tooltip, Stack, Center } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
 import * as d3 from 'd3v7';
@@ -70,15 +70,22 @@ export function CorrelationPair({
           fill={isHover || (config.highlightSignificant && value.pValue < 0.05) ? hoverColor : 'transparent'}
         />
         <foreignObject
+          style={{ overflow: 'hidden' }}
           x={value.cxLT - boundingRect.width / 2 + marginRect.left}
           y={value.cyLT - boundingRect.height / 2 + marginRect.top}
           width={boundingRect.width - marginRect.left - marginRect.right}
           height={boundingRect.height - marginRect.top - marginRect.bottom}
         >
-          <Stack style={{ height: '100%', width: '100%' }} align="center" justify="center">
-            <Text size={12}>r: {correlationFormat(value.correlation)}</Text>
-            <Text size={12}>p: {format(value.pValue)}</Text>
-          </Stack>
+          <Center style={{ height: '100%' }}>
+            <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center">
+              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
+                {`r: ${correlationFormat(value.correlation)}`}
+              </Text>
+              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
+                {`p: ${format(value.pValue)}`}
+              </Text>
+            </Stack>
+          </Center>
         </foreignObject>
       </g>
     );

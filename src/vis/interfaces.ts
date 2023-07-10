@@ -124,11 +124,16 @@ export interface IViolinConfig extends BaseConfig {
   violinOverlay: EViolinOverlay;
 }
 
+export enum EScaleType {
+  LINEAR = 'Linear',
+  LOG = 'Log',
+}
 export interface ICorrelationConfig extends BaseConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
   highlightSignificant: boolean;
+  pScaleType: EScaleType;
 }
 
 export enum ECloudType {

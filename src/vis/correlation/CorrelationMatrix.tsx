@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3v7';
 import * as d3 from 'd3v7';
-import { Group, Popover } from '@mantine/core';
+import { Center, Group, Popover, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { corrcoeff, spearmancoeff, studentt } from 'jstat';
-import { ColumnInfo, EColumnTypes, ECorrelationType, ICorrelationConfig, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, ICorrelationConfig, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
@@ -13,12 +13,6 @@ import { ColorLegend } from '../legend/ColorLegend';
 
 const paddingCircle = { top: 10, right: 10, bottom: 10, left: 10 };
 const CIRCLE_MIN_SIZE = 4;
-const margin = {
-  top: 20,
-  right: 20,
-  bottom: 20,
-  left: 20,
-};
 
 export function CorrelationMatrix({ config, columns }: { config: ICorrelationConfig; columns: VisColumn[] }) {
   const dataAll = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
@@ -37,9 +31,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
   const [ref, { width, height }] = useResizeObserver();
 
-  console.log(width, height);
-
-  const boundsWidth = width;
+  // Sorry for the hard coded number here, this is a little hacky, but needed to assure we always provide room for the legend on the right
+  const boundsWidth = width - 75;
   const boundsHeight = height;
   const availableSize = Math.min(boundsWidth, boundsHeight);
 
@@ -88,8 +81,10 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const circleSizeScale = React.useMemo(() => {
     if (!data) return null;
     const maxSize = Math.min(xScale.bandwidth() / 2 - paddingCircle.left, yScale.bandwidth() / 2 - paddingCircle.top);
-    return d3.scaleSqrt().domain([0, 1]).range([CIRCLE_MIN_SIZE, maxSize]);
-  }, [data, xScale, yScale]);
+    return config.pScaleType === EScaleType.LINEAR
+      ? d3.scaleSqrt().domain([0, 0.5]).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true)
+      : d3.scaleLog().domain([0.000000001, 0.1]).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true);
+  }, [config.pScaleType, data, xScale, yScale]);
 
   // Calculate correlation results
   const memoizedCorrelationResults = React.useMemo(() => {
@@ -148,21 +143,25 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     const labels = [];
 
     cols.forEach((col) => {
-      const currentX = xScale(col.info.name) + xScale.bandwidth() / 2;
-      const currentY = yScale(col.info.name) + yScale.bandwidth() / 2;
+      const currentX = xScale(col.info.name);
+      const currentY = yScale(col.info.name);
       labels.push(
-        <text x={currentX} y={currentY} fontSize={14} fontWeight={600} dominantBaseline="middle" textAnchor="middle" key={`label-${col.info.name}`}>
-          {col.info.name}
-        </text>,
+        <foreignObject key={`label-${col.info.name}`} x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
+          <Center style={{ height: '100%' }}>
+            <Text size={14} weight={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              {col.info.name}
+            </Text>
+          </Center>
+        </foreignObject>,
       );
     });
     return labels;
   }, [data, xScale, yScale]);
 
   return (
-    <Group noWrap style={{ width: '100%', height: '100%' }} position="right" align="start" spacing="xs" pr="40px">
-      <svg ref={ref} style={{ height: '100%', width: '100%' }}>
-        <g width={availableSize} height={availableSize}>
+    <Group ref={ref} noWrap style={{ width: '100%', height: '100%' }} position="center" align="start" spacing="xs" pr="30px">
+      <svg style={{ height: '100%', width: availableSize }}>
+        <g>
           {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
 
           {memoizedCorrelationResults?.map((value) => {
