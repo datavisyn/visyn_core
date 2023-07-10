@@ -103,10 +103,6 @@ export function CorrelationPair({
     value.pValue,
   ]);
 
-  useEffect(() => {
-    console.log(isHover);
-  }, [isHover]);
-
   const label = useMemo(() => {
     return (
       <Stack spacing={2}>
