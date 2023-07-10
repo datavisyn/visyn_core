@@ -12,7 +12,7 @@ import { CorrelationPair, CorrelationPairProps } from './components/CorrelationP
 import { CorrelationGrid } from './components/CorrelationGrid';
 import { ColorLegend } from '../legend/ColorLegend';
 
-const paddingCircle = { top: 10, right: 10, bottom: 10, left: 10 };
+const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;
 
 export function CorrelationMatrix({ config, columns }: { config: ICorrelationConfig; columns: VisColumn[] }) {
@@ -147,7 +147,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       const currentY = yScale(col.info.name);
       labels.push(
         <foreignObject key={`label-${col.info.name}`} x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
-          <Center style={{ height: '100%' }}>
+          <Center style={{ height: '100%' }} px={5}>
             <Text size={14} weight={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
               {col.info.name}
             </Text>

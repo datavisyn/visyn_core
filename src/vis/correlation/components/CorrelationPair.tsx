@@ -52,12 +52,12 @@ export function CorrelationPair({
           height={boundingRect.height - marginRect.top - marginRect.bottom}
           x={value.cxUT - boundingRect.width / 2 + marginRect.left}
           y={value.cyUT - boundingRect.height / 2 + marginRect.top}
-          fill={isHover || (config.highlightSignificant && value.pValue < 0.05) ? hoverColor : 'transparent'}
+          fill={isHover ? hoverColor : 'transparent'}
         />
         <circle cx={value.cxUT} cy={value.cyUT} r={value.radius} fill={fill} />
       </g>
     );
-  }, [boundingRect.height, boundingRect.width, config.highlightSignificant, fill, hoverColor, isHover, value]);
+  }, [boundingRect.height, boundingRect.width, fill, hoverColor, isHover, value]);
 
   const bottomRect = useMemo(() => {
     return (
@@ -67,7 +67,7 @@ export function CorrelationPair({
           height={boundingRect.height - marginRect.top - marginRect.bottom}
           x={value.cxLT - boundingRect.width / 2 + marginRect.left}
           y={value.cyLT - boundingRect.height / 2 + marginRect.top}
-          fill={isHover || (config.highlightSignificant && value.pValue < 0.05) ? hoverColor : 'transparent'}
+          fill={isHover ? hoverColor : 'transparent'}
         />
         <foreignObject
           style={{ overflow: 'hidden' }}
@@ -77,7 +77,7 @@ export function CorrelationPair({
           height={boundingRect.height - marginRect.top - marginRect.bottom}
         >
           <Center style={{ height: '100%' }}>
-            <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center" spacing={2}>
+            <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center" spacing={2} p={5}>
               <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                 {`r: ${correlationFormat(value.correlation)}`}
               </Text>
@@ -89,19 +89,7 @@ export function CorrelationPair({
         </foreignObject>
       </g>
     );
-  }, [
-    boundingRect.height,
-    boundingRect.width,
-    config.highlightSignificant,
-    correlationFormat,
-    format,
-    hoverColor,
-    isHover,
-    value.correlation,
-    value.cxLT,
-    value.cyLT,
-    value.pValue,
-  ]);
+  }, [boundingRect.height, boundingRect.width, correlationFormat, format, hoverColor, isHover, value.correlation, value.cxLT, value.cyLT, value.pValue]);
 
   const label = useMemo(() => {
     return (
