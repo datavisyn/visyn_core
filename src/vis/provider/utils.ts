@@ -17,9 +17,6 @@ import { RaincloudVis } from '../raincloud/RaincloudVis';
 import { RaincloudVisSidebar } from '../raincloud/RaincloudVisSidebar';
 import { raincloudMergeDefaultConfig } from '../raincloud/utils';
 import { BarVis } from '../barGood/BarVis';
-import { ParallelVis } from '../parallelCoordinates/ParallelVis';
-import { ParallelVisSidebar } from '../parallelCoordinates/ParallelVisSidebar';
-import { parallelCoordinatesMergeDefaultConfig } from '../parallelCoordinates/utils';
 import { ESupportedPlotlyVis } from '../interfaces';
 import { CorrelationVis } from '../correlation/CorrelationVis';
 import { CorrelationVisSidebar } from '../correlation/CorrelationVisSidebar';
@@ -32,13 +29,6 @@ export function registerAllVis() {
   visMap[ESupportedPlotlyVis.HEXBIN] = createVis(ESupportedPlotlyVis.HEXBIN, HexbinVis, HexbinVisSidebar, hexinbMergeDefaultConfig);
   visMap[ESupportedPlotlyVis.HEATMAP] = createVis(ESupportedPlotlyVis.HEATMAP, HeatmapVis, HeatmapVisSidebar, heatmapMergeDefaultConfig);
   visMap[ESupportedPlotlyVis.CORRELATION] = createVis(ESupportedPlotlyVis.CORRELATION, CorrelationVis, CorrelationVisSidebar, correlationMergeDefaultConfig);
-
-  visMap[ESupportedPlotlyVis.PARALLEL_COORDINATES] = createVis(
-    ESupportedPlotlyVis.PARALLEL_COORDINATES,
-    ParallelVis,
-    ParallelVisSidebar,
-    parallelCoordinatesMergeDefaultConfig,
-  );
   visMap[ESupportedPlotlyVis.RAINCLOUD] = createVis(ESupportedPlotlyVis.RAINCLOUD, RaincloudVis, RaincloudVisSidebar, raincloudMergeDefaultConfig);
 
   // visMap[ESupportedPlotlyVis.SANKEY] = createVis(ESupportedPlotlyVis.SANKEY, SankeyVis, SankeyVisSidebar);
