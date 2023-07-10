@@ -55,7 +55,6 @@ Basic.args = {
       },
     ],
     correlationType: ECorrelationType.PEARSON,
-    highlightSignificant: false,
     pScaleType: EScaleType.LINEAR,
   },
 };

@@ -22,7 +22,6 @@ const defaultConfig: ICorrelationConfig = {
   type: ESupportedPlotlyVis.CORRELATION,
   correlationType: ECorrelationType.PEARSON,
   numColumnsSelected: [],
-  highlightSignificant: false,
   pScaleType: EScaleType.LINEAR,
 };
 

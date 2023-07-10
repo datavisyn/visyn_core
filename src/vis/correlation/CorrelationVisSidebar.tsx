@@ -114,8 +114,6 @@ export function CorrelationVisSidebar({
     <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
-
-      <Divider my="sm" />
       <Stack spacing={25}>
         <NumericalColumnSelect
           callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
@@ -133,11 +131,6 @@ export function CorrelationVisSidebar({
             onChange={(v) => setConfig({ ...config, correlationType: v as ECorrelationType })}
           />
         </Stack>
-        <Switch
-          label="Significant"
-          checked={config.highlightSignificant || false}
-          onChange={() => setConfig({ ...config, highlightSignificant: !config.highlightSignificant })}
-        />
       </Stack>
     </Container>
   );

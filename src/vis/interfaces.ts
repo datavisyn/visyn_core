@@ -132,7 +132,6 @@ export interface ICorrelationConfig extends BaseConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
-  highlightSignificant: boolean;
   pScaleType: EScaleType;
 }
 
