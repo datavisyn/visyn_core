@@ -59,6 +59,7 @@ export function ColorLegend({
       <canvas id="proteomicsLegendCanvas" ref={canvasRef} />
       <Stack align="stretch" justify="space-between" style={{ height: `${height}px` }} spacing={0} ml="0">
         {colors.map((color, i) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Text size="xs" key={i}>
             {formatFunc(color.score)}
           </Text>
