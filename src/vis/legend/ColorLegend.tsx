@@ -10,6 +10,7 @@ export function ColorLegend({
   range = [0, 1.1],
   tickCount = 5,
   format = '.3s',
+  rightMargin = 40,
 }: {
   scale: (t: number) => string;
   width?: number;
@@ -17,6 +18,7 @@ export function ColorLegend({
   range?: [number, number];
   tickCount?: number;
   format?: string;
+  rightMargin?: number;
 }) {
   const colors = d3
     .range(tickCount)
@@ -55,7 +57,7 @@ export function ColorLegend({
   }, [format]);
 
   return (
-    <Group spacing={5} noWrap style={{ width: `${width + 40}px` }}>
+    <Group spacing={5} noWrap style={{ width: `${width + rightMargin}px` }}>
       <canvas id="proteomicsLegendCanvas" ref={canvasRef} />
       <Stack align="stretch" justify="space-between" style={{ height: `${height}px` }} spacing={0} ml="0">
         {colors.map((color, i) => (

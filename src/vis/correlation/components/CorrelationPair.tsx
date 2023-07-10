@@ -77,7 +77,7 @@ export function CorrelationPair({
           height={boundingRect.height - marginRect.top - marginRect.bottom}
         >
           <Center style={{ height: '100%' }}>
-            <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center">
+            <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center" spacing={2}>
               <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                 {`r: ${correlationFormat(value.correlation)}`}
               </Text>

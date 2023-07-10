@@ -4,6 +4,7 @@ import * as d3 from 'd3v7';
 import { Center, Group, Popover, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { corrcoeff, spearmancoeff, studentt } from 'jstat';
+import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, ICorrelationConfig, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
@@ -31,10 +32,9 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
   const [ref, { width, height }] = useResizeObserver();
 
-  // Sorry for the hard coded number here, this is a little hacky, but needed to assure we always provide room for the legend on the right
-  const boundsWidth = width - 75;
-  const boundsHeight = height;
-  const availableSize = Math.min(boundsWidth, boundsHeight);
+  const availableSize = useMemo(() => {
+    return Math.min(width - 75, height);
+  }, [height, width]);
 
   const colorScale = d3
     .scaleSequential<string, string>(
@@ -158,10 +158,10 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     return labels;
   }, [data, xScale, yScale]);
 
-  return (
-    <Group ref={ref} noWrap style={{ width: '100%', height: '100%' }} position="center" align="start" spacing="xs" pr="30px">
-      <svg style={{ height: '100%', width: availableSize }}>
-        <g>
+  const svg = useMemo(() => {
+    return (
+      <svg style={{ height: '100%', width: `100%` }}>
+        <g transform={`translate(${(width - 35 - availableSize) / 2}, 0)`}>
           {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
 
           {memoizedCorrelationResults?.map((value) => {
@@ -178,7 +178,13 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           {labelsDiagonal}
         </g>
       </svg>
-      <ColorLegend format=".3~g" scale={colorScale} width={25} height={availableSize} range={[-1, 1]} />
+    );
+  }, [availableSize, colorScale, config, labelsDiagonal, memoizedCorrelationResults, names, width, xScale, yScale]);
+
+  return (
+    <Group ref={ref} noWrap style={{ height: '100%', width: '100%', overflow: 'hidden' }} position="center" align="start" spacing="xs" pr={'50px'}>
+      {svg}
+      <ColorLegend format=".3~g" scale={colorScale} width={25} height={availableSize} rightMargin={(width - 35 - availableSize) / 2} range={[-1, 1]} />
     </Group>
   );
 }

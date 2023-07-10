@@ -198,7 +198,7 @@ export function Heatmap({
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale]);
 
   return (
-    <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
+    <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center" p="xl">
       <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0} pr="50px">
         <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px' }}>
           {column2.info.name}
