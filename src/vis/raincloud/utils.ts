@@ -13,7 +13,7 @@ import {
   VisNumericalColumn,
   VisNumericalValue,
 } from '../interfaces';
-import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
+import { resolveColumnValues } from '../general/layoutUtils';
 
 export function isRaincloud(s: IVisConfig): s is IRaincloudConfig {
   return s.type === ESupportedPlotlyVis.RAINCLOUD;
@@ -24,7 +24,7 @@ const defaultConfig: IRaincloudConfig = {
   numColumnsSelected: [],
   cloudType: ECloudType.SPLIT_VIOLIN,
   rainType: ERainType.DOTPLOT,
-  lightningType: ELightningType.MEAN_AND_DEV,
+  lightningType: ELightningType.BOXPLOT,
   aggregateRain: false,
 };
 

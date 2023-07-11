@@ -14,6 +14,9 @@ module.exports = {
     options: {},
   },
   webpackFinal: async (config) => {
+    // TODO:: Setting minimize here because storybook fails on prod otherwise. Specifically, we get arquero errors along the lines of "Invalid variable reference: "a"".
+    // This same problem does not occur on our prod builds, only for this storybook webpack compiler
+    config.optimization.minimize = false;
     // This is required to enable TS moduleResolution: node16, as there we have to add .js extensions which are actually .ts files.
     (config.resolve.extensionAlias = {
       ...(config.resolve.extensionAlias || {}),
