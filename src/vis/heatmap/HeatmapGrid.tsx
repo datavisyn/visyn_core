@@ -26,7 +26,7 @@ export function HeatmapGrid({
       top: 20,
       right: 20,
       bottom: 25,
-      left: 20,
+      left: 35,
     };
   }, []);
 

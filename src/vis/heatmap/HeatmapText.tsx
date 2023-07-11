@@ -1,6 +1,7 @@
 import * as d3 from 'd3v7';
 import * as React from 'react';
-import { Text } from '@mantine/core';
+import { Group, Text } from '@mantine/core';
+import { useMemo } from 'react';
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
 
@@ -23,6 +24,14 @@ export function HeatmapText({
 }) {
   const [hoveredRow, setHoveredRow] = React.useState<string | null>(null);
   const [hoveredColumn, setHoveredColumn] = React.useState<string | null>(null);
+
+  const labelSpacing = useMemo(() => {
+    const maxLabelLength = d3.max(yScale.domain().map((m) => m.length));
+
+    return maxLabelLength > 5 ? 35 : maxLabelLength * 7;
+  }, [yScale]);
+
+  console.log(labelSpacing);
 
   return (
     <g>
@@ -48,12 +57,16 @@ export function HeatmapText({
             order={1 - i / xScale.domain().length}
           />
           <AnimatedText
-            x={xScale(xVal) + rectWidth / 2 + margin.left}
-            y={height - margin.bottom + 15}
+            x={xScale(xVal) + margin.left}
+            width={xScale.bandwidth()}
+            height={20}
+            y={height - margin.bottom + 8}
             order={1 - i / xScale.domain().length}
             bold={xVal === hoveredColumn}
           >
-            <Text>{xVal}</Text>
+            <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              {xVal}
+            </Text>
           </AnimatedText>
         </g>
       ))}
@@ -73,8 +86,19 @@ export function HeatmapText({
             y2={yScale(yVal) + margin.top}
             order={i / yScale.domain().length}
           />
-          <AnimatedText x={0} y={yScale(yVal) + rectHeight / 2 + margin.top} order={i / yScale.domain().length} bold={yVal === hoveredRow}>
-            <Text>{yVal}</Text>
+          <AnimatedText
+            x={30 - labelSpacing}
+            y={yScale(yVal) + margin.top}
+            order={i / yScale.domain().length}
+            bold={yVal === hoveredRow}
+            height={yScale.bandwidth()}
+            width={labelSpacing}
+          >
+            <Group style={{ width: '100%', height: '100%' }} position="right">
+              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                {yVal}
+              </Text>
+            </Group>
           </AnimatedText>
         </g>
       ))}
