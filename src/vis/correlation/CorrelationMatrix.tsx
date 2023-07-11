@@ -184,7 +184,15 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   return (
     <Group ref={ref} noWrap style={{ height: '100%', width: '100%', overflow: 'hidden' }} position="center" align="start" spacing="xs" pr="50px" m="xl">
       {svg}
-      <ColorLegend format=".3~g" scale={colorScale} width={25} height={availableSize} rightMargin={(width - 35 - availableSize) / 2} range={[-1, 1]} />
+      <ColorLegend
+        format=".3~g"
+        scale={colorScale}
+        width={25}
+        height={availableSize}
+        rightMargin={(width - 35 - availableSize) / 2}
+        range={[-1, 1]}
+        title="Correlation"
+      />
     </Group>
   );
 }
