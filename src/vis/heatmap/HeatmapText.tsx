@@ -23,9 +23,6 @@ export function HeatmapText({
   rectHeight: number;
   rectWidth: number;
 }) {
-  const [hoveredRow, setHoveredRow] = React.useState<string | null>(null);
-  const [hoveredColumn, setHoveredColumn] = React.useState<string | null>(null);
-
   const labelSpacing = useMemo(() => {
     const maxLabelLength = d3.max(yScale.domain().map((m) => m.length));
 
@@ -35,12 +32,7 @@ export function HeatmapText({
   return (
     <g>
       {xScale.domain().map((xVal, i) => (
-        <g
-          style={{ textAlign: 'center', dominantBaseline: 'central' }}
-          key={xVal}
-          onMouseEnter={() => setHoveredColumn(xVal)}
-          onMouseLeave={() => setHoveredColumn(null)}
-        >
+        <g style={{ textAlign: 'center', dominantBaseline: 'central' }} key={xVal}>
           <AnimatedLine
             x1={xScale(xVal) + rectWidth + margin.left}
             x2={xScale(xVal) + rectWidth + margin.left}
@@ -61,7 +53,6 @@ export function HeatmapText({
             height={20}
             y={height - margin.bottom + 8}
             order={1 - i / xScale.domain().length}
-            bold={xVal === hoveredColumn}
           >
             <Tooltip withinPortal withArrow arrowSize={6} label={xVal}>
               <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
@@ -72,7 +63,7 @@ export function HeatmapText({
         </g>
       ))}
       {yScale.domain().map((yVal, i) => (
-        <g key={yVal} onMouseEnter={() => setHoveredRow(yVal)} onMouseLeave={() => setHoveredRow(null)}>
+        <g key={yVal}>
           <AnimatedLine
             x1={margin.left}
             x2={width - margin.right}
@@ -87,14 +78,7 @@ export function HeatmapText({
             y2={yScale(yVal) + margin.top}
             order={i / yScale.domain().length}
           />
-          <AnimatedText
-            x={30 - labelSpacing}
-            y={yScale(yVal) + margin.top}
-            order={i / yScale.domain().length}
-            bold={yVal === hoveredRow}
-            height={yScale.bandwidth()}
-            width={labelSpacing}
-          >
+          <AnimatedText x={30 - labelSpacing} y={yScale(yVal) + margin.top} order={i / yScale.domain().length} height={yScale.bandwidth()} width={labelSpacing}>
             <Tooltip withinPortal withArrow arrowSize={6} label={yVal}>
               <Group style={{ width: '100%', height: '100%' }} position="right">
                 <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
