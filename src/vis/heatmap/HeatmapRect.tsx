@@ -85,7 +85,7 @@ export function HeatmapRect({
   }, []);
 
   return isHovered ? (
-    <Tooltip withArrow arrowSize={6} withinPortal label={formatter(label)}>
+    <Tooltip withArrow arrowSize={6} withinPortal label={label === null ? 'null' : formatter(label)}>
       {rect}
     </Tooltip>
   ) : (

@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
 
+const textMargin = 2;
 export function HeatmapText({
   margin,
   yScale,
@@ -55,8 +56,8 @@ export function HeatmapText({
             order={1 - i / xScale.domain().length}
           />
           <AnimatedText
-            x={xScale(xVal) + margin.left}
-            width={xScale.bandwidth()}
+            x={xScale(xVal) + margin.left + textMargin}
+            width={xScale.bandwidth() - textMargin * 2}
             height={20}
             y={height - margin.bottom + 8}
             order={1 - i / xScale.domain().length}

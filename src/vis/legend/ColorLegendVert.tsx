@@ -55,7 +55,7 @@ export function ColorLegendVert({
   }, []);
 
   return (
-    <Stack spacing={5} style={{ width: `${width}px` }}>
+    <Stack spacing={3} style={{ width: `${width}px` }}>
       {title ? (
         <Text color="dimmed" style={{ width: `${width}px`, whiteSpace: 'nowrap', textAlign: 'center' }}>
           {title}

@@ -17,7 +17,6 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 import { HeatmapRect } from './HeatmapRect';
-import { ColorLegend } from '../legend/ColorLegend';
 import { HeatmapText } from './HeatmapText';
 import { rollupByAggregateType } from '../barGood/utils';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
@@ -85,13 +84,12 @@ export function Heatmap({
     valueTable = rollupByAggregateType(valueTable, config.aggregateType);
 
     if (config.aggregateType === EAggregateTypes.COUNT) {
-      valueTable.impute({ aggregateVal: () => 0 }, { expand: ['xVal', 'yVal'] });
+      valueTable = valueTable.impute({ aggregateVal: () => 0 }, { expand: ['xVal', 'yVal'] });
     } else {
-      valueTable.impute({ aggregateVal: () => null }, { expand: ['xVal', 'yVal'] });
+      valueTable = valueTable.impute({ aggregateVal: () => null }, { expand: ['xVal', 'yVal'] });
     }
 
     valueTable = valueTable
-      .impute({ aggregateVal: () => 0 }, { expand: ['xVal', 'yVal'] })
       .groupby('xVal')
       .derive({ colTotal: op.sum('aggregateVal') })
       .groupby('yVal')
@@ -160,7 +158,7 @@ export function Heatmap({
 
     const extGroupedVals = groupedVals.map((gV) => ({
       ...gV,
-      color: colorSc(gV.aggregateVal),
+      color: gV.aggregateVal === null ? 'white' : colorSc(gV.aggregateVal),
       x: xSc(gV.xVal) + margin.left,
       y: ySc(gV.yVal) + margin.top,
     }));
@@ -198,8 +196,11 @@ export function Heatmap({
   }, [groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale]);
 
   const text = useMemo(() => {
+    if (width === 0 || height === 0) return null;
     return <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />;
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale]);
+
+  console.log(width);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
@@ -207,7 +208,7 @@ export function Heatmap({
         <ColorLegendVert
           width={width - margin.left - margin.right}
           scale={colorScale}
-          height={25}
+          height={20}
           range={[...colorScale.domain()]}
           title={`${config.aggregateType} ${config.aggregateType === EAggregateTypes.COUNT ? '' : config.aggregateColumn.name}`}
         />

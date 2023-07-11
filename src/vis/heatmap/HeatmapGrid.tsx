@@ -23,7 +23,7 @@ export function HeatmapGrid({
 
   const margin = React.useMemo(() => {
     return {
-      top: 20,
+      top: 10,
       right: 20,
       bottom: 25,
       left: 35,
