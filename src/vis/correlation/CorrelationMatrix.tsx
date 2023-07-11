@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3v7';
 import * as d3 from 'd3v7';
-import { Center, Group, Popover, Text } from '@mantine/core';
+import { Center, Group, Popover, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { corrcoeff, spearmancoeff, studentt } from 'jstat';
 import { useMemo } from 'react';
@@ -11,6 +11,7 @@ import { getCorrelationMatrixData } from './utils';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { CorrelationGrid } from './components/CorrelationGrid';
 import { ColorLegend } from '../legend/ColorLegend';
+import { ColorLegendVert } from '../legend/ColorLegendVert';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;
@@ -33,7 +34,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const [ref, { width, height }] = useResizeObserver();
 
   const availableSize = useMemo(() => {
-    return Math.min(width - 75, height);
+    return Math.min(width, height);
   }, [height, width]);
 
   const colorScale = d3
@@ -158,41 +159,30 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     return labels;
   }, [data, xScale, yScale]);
 
-  const svg = useMemo(() => {
-    return (
-      <svg style={{ height: '100%', width: `100%` }}>
-        <g transform={`translate(${(width - 35 - availableSize) / 2}, 0)`}>
-          {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
-
-          {memoizedCorrelationResults?.map((value) => {
-            return (
-              <CorrelationPair
-                key={`${value.xName}-${value.yName}`}
-                value={value}
-                fill={colorScale(value.correlation)}
-                boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
-                config={config}
-              />
-            );
-          })}
-          {labelsDiagonal}
-        </g>
-      </svg>
-    );
-  }, [availableSize, colorScale, config, labelsDiagonal, memoizedCorrelationResults, names, width, xScale, yScale]);
-
   return (
-    <Group ref={ref} noWrap style={{ height: '100%', width: '100%', overflow: 'hidden' }} position="center" align="start" spacing="xs" pr="50px" m="xl">
-      {svg}
-      <ColorLegend
-        format=".3~g"
-        scale={colorScale}
-        width={25}
-        height={availableSize}
-        rightMargin={(width - 35 - availableSize) / 2}
-        range={[-1, 1]}
-        title="Correlation"
-      />
+    <Group sx={{ height: '100%', width: '100%' }} noWrap>
+      <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing="xs">
+        <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={25} range={[-1, 1]} title="Correlation" />
+
+        <svg ref={ref} style={{ height: '100%', width: `100%` }}>
+          <g>
+            {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
+
+            {memoizedCorrelationResults?.map((value) => {
+              return (
+                <CorrelationPair
+                  key={`${value.xName}-${value.yName}`}
+                  value={value}
+                  fill={colorScale(value.correlation)}
+                  boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
+                  config={config}
+                />
+              );
+            })}
+            {labelsDiagonal}
+          </g>
+        </svg>
+      </Stack>
     </Group>
   );
 }

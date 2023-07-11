@@ -10,6 +10,7 @@ export function ColorLegendVert({
   range = [0, 1.1],
   tickCount = 5,
   title = null,
+  format = '.3s',
 }: {
   scale: (t: number) => string;
   width?: number;
@@ -17,6 +18,7 @@ export function ColorLegendVert({
   range?: [number, number];
   tickCount?: number;
   title: string;
+  format?: string;
 }) {
   const colors = d3
     .range(tickCount)
@@ -50,9 +52,9 @@ export function ColorLegendVert({
     }
   }, [scale, width, height, range]);
 
-  const format = useMemo(() => {
-    return d3.format('.3s');
-  }, []);
+  const formatFunc = useMemo(() => {
+    return d3.format(format);
+  }, [format]);
 
   return (
     <Stack spacing={3} style={{ width: `${width}px` }}>
@@ -68,7 +70,7 @@ export function ColorLegendVert({
           // idk why this doesnt work when i use the score as the key, tbh. The scores definitely are unique, but something to do with the 0 changing on render, idk
           // eslint-disable-next-line react/no-array-index-key
           <Text size="xs" key={i}>
-            {format(color.score)}
+            {formatFunc(color.score)}
           </Text>
         ))}
       </Group>
