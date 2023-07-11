@@ -48,6 +48,8 @@ export function CorrelationPair({
     return (
       <g>
         <rect
+          strokeWidth={1}
+          stroke="lightgray"
           width={boundingRect.width - marginRect.left - marginRect.right}
           height={boundingRect.height - marginRect.top - marginRect.bottom}
           x={value.cxUT - boundingRect.width / 2 + marginRect.left}
@@ -63,6 +65,8 @@ export function CorrelationPair({
     return (
       <g>
         <rect
+          strokeWidth={1}
+          stroke="lightgray"
           width={boundingRect.width - marginRect.left - marginRect.right}
           height={boundingRect.height - marginRect.top - marginRect.bottom}
           x={value.cxLT - boundingRect.width / 2 + marginRect.left}

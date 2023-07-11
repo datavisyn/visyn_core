@@ -34,10 +34,10 @@ export function ColorLegendVert({
     const canvas: HTMLCanvasElement = document.getElementById('proteomicsLegendCanvas') as HTMLCanvasElement;
 
     const context = canvas.getContext('2d');
-    canvas.width = width;
     canvas.height = height;
+    canvas.width = width;
+
     canvas.style.margin = '0';
-    canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.style.imageRendering = 'pixelated';
 
@@ -57,15 +57,15 @@ export function ColorLegendVert({
   }, [format]);
 
   return (
-    <Stack spacing={3} style={{ width: `${width}px` }}>
+    <Stack spacing={3} style={{ width: `100%` }}>
       {title ? (
-        <Text color="dimmed" style={{ width: `${width}px`, whiteSpace: 'nowrap', textAlign: 'center' }}>
+        <Text color="dimmed" style={{ width: `100%`, whiteSpace: 'nowrap', textAlign: 'center' }}>
           {title}
         </Text>
       ) : null}
-      <canvas id="proteomicsLegendCanvas" ref={canvasRef} />
+      <canvas style={{ width: '100%' }} id="proteomicsLegendCanvas" ref={canvasRef} />
 
-      <Group position="apart" style={{ width: `${width}px` }} spacing={0} ml="0">
+      <Group position="apart" style={{ width: `100%` }} spacing={0} ml="0">
         {colors.map((color, i) => (
           // idk why this doesnt work when i use the score as the key, tbh. The scores definitely are unique, but something to do with the 0 changing on render, idk
           // eslint-disable-next-line react/no-array-index-key

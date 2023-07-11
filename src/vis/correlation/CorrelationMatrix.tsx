@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3v7';
 import * as d3 from 'd3v7';
-import { Center, Group, Popover, Stack, Text } from '@mantine/core';
+import { Box, Center, Group, Popover, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { corrcoeff, spearmancoeff, studentt } from 'jstat';
 import { useMemo } from 'react';
@@ -9,12 +9,13 @@ import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, ICorrelationCon
 import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
-import { CorrelationGrid } from './components/CorrelationGrid';
 import { ColorLegend } from '../legend/ColorLegend';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;
+
+const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
 export function CorrelationMatrix({ config, columns }: { config: ICorrelationConfig; columns: VisColumn[] }) {
   const dataAll = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
@@ -34,7 +35,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const [ref, { width, height }] = useResizeObserver();
 
   const availableSize = useMemo(() => {
-    return Math.min(width, height);
+    return Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom);
   }, [height, width]);
 
   const colorScale = d3
@@ -60,22 +61,18 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     )
     .domain([-1, 1]);
 
-  const names = React.useMemo(() => {
-    return data?.map((column) => column.info.name);
-  }, [data]);
-
   // Scales
   const xScale = React.useMemo(() => {
     if (!data) return null;
     return scaleBand()
-      .range([0, availableSize])
+      .range([margin.left, availableSize + margin.left])
       .domain(data.map((column) => column.info.name));
   }, [data, availableSize]);
 
   const yScale = React.useMemo(() => {
     if (!data) return null;
     return scaleBand()
-      .range([0, availableSize])
+      .range([margin.top, availableSize + margin.top])
       .domain(data.map((column) => column.info.name));
   }, [data, availableSize]);
 
@@ -139,35 +136,32 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   // Show labels on diagonal of matrix
   const labelsDiagonal = React.useMemo(() => {
     if (!data) return null;
-
-    const cols = data;
-    const labels = [];
-
-    cols.forEach((col) => {
+    return data.map((col) => {
       const currentX = xScale(col.info.name);
       const currentY = yScale(col.info.name);
-      labels.push(
-        <foreignObject key={`label-${col.info.name}`} x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
-          <Center style={{ height: '100%' }} px={5}>
-            <Text size={14} weight={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              {col.info.name}
-            </Text>
-          </Center>
-        </foreignObject>,
+      return (
+        <g key={`label-${col.info.name}`}>
+          <rect stroke="lightgray" strokeWidth={1} fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
+          <foreignObject x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
+            <Center style={{ height: '100%' }} px={5}>
+              <Text size={14} weight={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                {col.info.name}
+              </Text>
+            </Center>
+          </foreignObject>
+        </g>
       );
     });
-    return labels;
   }, [data, xScale, yScale]);
 
   return (
-    <Group sx={{ height: '100%', width: '100%' }} noWrap>
+    <Group sx={{ height: '100%', width: '100%' }} noWrap pr="40px">
       <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing="xs">
-        <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
-
-        <svg ref={ref} style={{ height: '100%', width: `100%` }}>
-          <g transform={`translate(${(width - availableSize) / 2}, 0)`}>
-            {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
-
+        <Box pl={margin.left} pr={margin.right}>
+          <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
+        </Box>
+        <svg ref={ref} style={{ height: '100%', width: `100%`, overflow: 'hidden' }}>
+          <g transform={`translate(${(width - availableSize - margin.left - margin.right) / 2}, 0)`}>
             {memoizedCorrelationResults?.map((value) => {
               return (
                 <CorrelationPair

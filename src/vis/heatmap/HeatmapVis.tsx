@@ -16,7 +16,6 @@ export function HeatmapVis({
 }: ICommonVisProps<IHeatmapConfig>) {
   return (
     <Group sx={{ height: '100%', width: '100%' }} noWrap>
-      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
       <HeatmapGrid
         config={externalConfig}
         columns={columns}
