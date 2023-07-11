@@ -3,7 +3,7 @@ import { Group, Stack, Text } from '@mantine/core';
 import * as d3 from 'd3v7';
 import { useEffect, useMemo, useRef } from 'react';
 
-export function ColorLegend({
+export function ColorLegendVert({
   scale,
   width = 250,
   height = 20,
@@ -40,13 +40,13 @@ export function ColorLegend({
     canvas.style.imageRendering = 'pixelated';
 
     const t = d3
-      .range(height)
-      .map((i) => (i / height) * (range[1] - range[0]))
+      .range(width)
+      .map((i) => (i / width) * (range[1] - range[0]))
       .reverse();
 
     for (let i = t.length - 1; i >= 0; i--) {
       context.fillStyle = scale(t[i] + range[0]);
-      context.fillRect(0, i, width, 1);
+      context.fillRect(i, 0, 1, height);
     }
   }, [scale, width, height, range]);
 
@@ -55,9 +55,15 @@ export function ColorLegend({
   }, []);
 
   return (
-    <Group spacing={5} noWrap style={{ width: `${width + 40}px` }}>
+    <Stack spacing={5} style={{ width: `${width}px` }}>
+      {title ? (
+        <Text color="dimmed" style={{ width: `${width}px`, whiteSpace: 'nowrap', textAlign: 'center' }}>
+          {title}
+        </Text>
+      ) : null}
       <canvas id="proteomicsLegendCanvas" ref={canvasRef} />
-      <Stack align="stretch" justify="space-between" style={{ height: `${height}px` }} spacing={0} ml="0">
+
+      <Group position="apart" style={{ width: `${width}px` }} spacing={0} ml="0">
         {colors.map((color, i) => (
           // idk why this doesnt work when i use the score as the key, tbh. The scores definitely are unique, but something to do with the 0 changing on render, idk
           // eslint-disable-next-line react/no-array-index-key
@@ -65,12 +71,7 @@ export function ColorLegend({
             {format(color.score)}
           </Text>
         ))}
-      </Stack>
-      {title ? (
-        <Text color="dimmed" style={{ transform: 'rotate(90deg)', height: '100%', whiteSpace: 'nowrap', width: '20px' }}>
-          {title}
-        </Text>
-      ) : null}
-    </Group>
+      </Group>
+    </Stack>
   );
 }

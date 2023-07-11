@@ -1,9 +1,11 @@
-import { Group, Stack, Text } from '@mantine/core';
+import { Box, Group, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUpWideShort, faArrowUpZA } from '@fortawesome/free-solid-svg-icons';
 import {
   ColumnInfo,
   EAggregateTypes,
@@ -18,6 +20,7 @@ import { HeatmapRect } from './HeatmapRect';
 import { ColorLegend } from '../legend/ColorLegend';
 import { HeatmapText } from './HeatmapText';
 import { rollupByAggregateType } from '../barGood/utils';
+import { ColorLegendVert } from '../legend/ColorLegendVert';
 
 const interRectDistance = 1;
 
@@ -173,6 +176,7 @@ export function Heatmap({
   }, [aggregatedTable, width, margin.left, margin.right, margin.top, margin.bottom, height, config?.numColorScaleType, config.aggregateType]);
 
   const rects = useMemo(() => {
+    if (width === 0 || height === 0) return null;
     return groupedValues.map((d, i) => {
       const { aggregateVal, ids, x, y, xVal, yVal, color } = d;
       return (
@@ -186,12 +190,12 @@ export function Heatmap({
           width={rectWidth}
           height={rectHeight}
           color={color}
-          label={`${aggregateVal}`}
+          label={aggregateVal}
           setSelected={() => selectionCallback(ids)}
         />
       );
     });
-  }, [groupedValues, rectHeight, rectWidth, selected, selectionCallback, xScale, yScale]);
+  }, [groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale]);
 
   const text = useMemo(() => {
     return <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />;
@@ -199,8 +203,27 @@ export function Heatmap({
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
+      <Box pl={5}>
+        <ColorLegendVert
+          width={width - margin.left - margin.right}
+          scale={colorScale}
+          height={25}
+          range={[...colorScale.domain()]}
+          title={`${config.aggregateType} ${config.aggregateType === EAggregateTypes.COUNT ? '' : config.aggregateColumn.name}`}
+        />
+      </Box>
       <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0} pr="50px">
-        <Text color="dimmed" sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px' }}>
+        <Text
+          color="dimmed"
+          sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
+          onClick={() => setExternalConfig({ ...config, sortedBy: config.sortedBy === ESortTypes.CAT_ASC ? ESortTypes.COUNT_ASC : ESortTypes.CAT_ASC })}
+        >
+          <FontAwesomeIcon
+            fontWeight={100}
+            color="#C0C0C0"
+            style={{ marginRight: '10px', fontWeight: 200 }}
+            icon={config.sortedBy === ESortTypes.COUNT_ASC ? faArrowUpWideShort : faArrowUpZA}
+          />
           {column2.info.name}
         </Text>
         <svg style={{ width: '100%', height: '100%' }} ref={ref}>
@@ -208,13 +231,13 @@ export function Heatmap({
           {rects}
           {text}
         </svg>
-        <ColorLegend width={25} scale={colorScale} height={height - margin.top - margin.bottom} range={[...colorScale.domain()]} />
       </Group>
       <Text
         color="dimmed"
-        sx={{ whiteSpace: 'nowrap' }}
+        sx={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
         onClick={() => setExternalConfig({ ...config, sortedBy: config.sortedBy === ESortTypes.CAT_ASC ? ESortTypes.COUNT_ASC : ESortTypes.CAT_ASC })}
       >
+        <FontAwesomeIcon color="#C0C0C0" style={{ marginRight: '10px' }} icon={config.sortedBy === ESortTypes.COUNT_ASC ? faArrowUpWideShort : faArrowUpZA} />
         {column1.info.name}
       </Text>
     </Stack>
