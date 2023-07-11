@@ -8,6 +8,7 @@ marshmallow-sqlalchemy>=0.26.0,<=0.28.1
 marshmallow==3.19.0
 openpyxl==3.0.9
 opentelemetry-api==1.18.0
+opentelemetry-distro==0.39b0
 opentelemetry-exporter-otlp==1.18.0
 opentelemetry-exporter-otlp-proto-http==1.18.0
 opentelemetry-exporter-prometheus==1.12.0rc1
