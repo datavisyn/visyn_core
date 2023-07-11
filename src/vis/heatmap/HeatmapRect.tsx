@@ -1,4 +1,5 @@
 import { Tooltip } from '@mantine/core';
+import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSpring, animated, easings } from 'react-spring';
@@ -22,7 +23,7 @@ export function HeatmapRect({
   width: number;
   height: number;
   color: string;
-  label: string;
+  label: number;
   setSelected?: () => void;
   xOrder?: number;
   yOrder?: number;
@@ -61,12 +62,17 @@ export function HeatmapRect({
         strokeWidth={3}
         height={height}
         onMouseEnter={() => {
+          if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
           setIsHovered(true);
         }}
         onMouseLeave={() => {
+          if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
+
           setIsHovered(false);
         }}
         onMouseDown={(e) => {
+          if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
+
           setSelected();
           onClick(e);
         }}
@@ -79,8 +85,12 @@ export function HeatmapRect({
     currYOrder.current = yOrder;
   }, [xOrder, yOrder]);
 
+  const formatter = useMemo(() => {
+    return d3.format('.3s');
+  }, []);
+
   return isHovered ? (
-    <Tooltip withArrow arrowSize={6} withinPortal label={label}>
+    <Tooltip withArrow arrowSize={6} withinPortal label={label === null ? 'null' : formatter(label)}>
       {rect}
     </Tooltip>
   ) : (
