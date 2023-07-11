@@ -1,6 +1,6 @@
 import * as d3 from 'd3v7';
 import * as React from 'react';
-import { Group, Text } from '@mantine/core';
+import { Group, Text, Tooltip } from '@mantine/core';
 import { useMemo } from 'react';
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
@@ -30,8 +30,6 @@ export function HeatmapText({
 
     return maxLabelLength > 5 ? 35 : maxLabelLength * 7;
   }, [yScale]);
-
-  console.log(labelSpacing);
 
   return (
     <g>
@@ -64,9 +62,11 @@ export function HeatmapText({
             order={1 - i / xScale.domain().length}
             bold={xVal === hoveredColumn}
           >
-            <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              {xVal}
-            </Text>
+            <Tooltip withinPortal withArrow arrowSize={6} label={xVal}>
+              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                {xVal}
+              </Text>
+            </Tooltip>
           </AnimatedText>
         </g>
       ))}
@@ -94,11 +94,13 @@ export function HeatmapText({
             height={yScale.bandwidth()}
             width={labelSpacing}
           >
-            <Group style={{ width: '100%', height: '100%' }} position="right">
-              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {yVal}
-              </Text>
-            </Group>
+            <Tooltip withinPortal withArrow arrowSize={6} label={yVal}>
+              <Group style={{ width: '100%', height: '100%' }} position="right">
+                <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  {yVal}
+                </Text>
+              </Group>
+            </Tooltip>
           </AnimatedText>
         </g>
       ))}

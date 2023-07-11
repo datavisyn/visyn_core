@@ -20,7 +20,6 @@ function RNG(seed) {
     return (s = (s * a) % m) / m;
   };
 }
-
 function fetchData(numberOfPoints: number): VisColumn[] {
   d3.randomNormal.source(d3.randomLcg(0.5));
   const rng = d3.randomNormal(0.5, 0.3);
@@ -39,7 +38,7 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}long`),
     category2: Array(numberOfPoints)
       .fill(null)
-      .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}`),
+      .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}long`),
     category3: Array(numberOfPoints)
       .fill(null)
       .map(() => `${parseInt((rng() * 10).toString(), 10).toString()}long`),
