@@ -62,12 +62,17 @@ export function HeatmapRect({
         strokeWidth={3}
         height={height}
         onMouseEnter={() => {
+          if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
           setIsHovered(true);
         }}
         onMouseLeave={() => {
+          if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
+
           setIsHovered(false);
         }}
         onMouseDown={(e) => {
+          if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
+
           setSelected();
           onClick(e);
         }}

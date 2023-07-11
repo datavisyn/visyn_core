@@ -200,8 +200,6 @@ export function Heatmap({
     return <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />;
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale]);
 
-  console.log(width);
-
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
       <Box pl={5}>
