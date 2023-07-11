@@ -162,10 +162,10 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   return (
     <Group sx={{ height: '100%', width: '100%' }} noWrap>
       <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing="xs">
-        <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={25} range={[-1, 1]} title="Correlation" />
+        <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
 
         <svg ref={ref} style={{ height: '100%', width: `100%` }}>
-          <g>
+          <g transform={`translate(${(width - availableSize) / 2}, 0)`}>
             {names ? <CorrelationGrid width={availableSize} height={availableSize} names={names} /> : null}
 
             {memoizedCorrelationResults?.map((value) => {
