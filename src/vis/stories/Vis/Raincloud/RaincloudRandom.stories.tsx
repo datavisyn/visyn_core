@@ -123,6 +123,10 @@ export default {
   parameters: {
     chromatic: { delay: 3000 },
   },
+  play: async ({ canvasElement }) => {
+    // eslint-disable-next-line no-promise-executor-return
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  },
 };
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
