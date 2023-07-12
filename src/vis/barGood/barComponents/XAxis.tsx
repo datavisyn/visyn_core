@@ -44,7 +44,7 @@ export function XAxis({
       <g transform={`translate(${xScale.range()[1]}, ${vertPosition + 25})`}>
         <foreignObject width={xScale.range()[0] - xScale.range()[1]} height={20}>
           <Center>
-            <Group spacing={3}>
+            <Group spacing={3} style={{ cursor: 'pointer' }}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
 
               <Text size={compact ? 10 : 14} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>

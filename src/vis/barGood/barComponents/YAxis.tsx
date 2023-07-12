@@ -47,7 +47,7 @@ export function YAxis({
       <g transform={`translate(${horizontalPosition - labelSpacing - 30}, ${yScale.range()[0]}) rotate(-90)`}>
         <foreignObject width={yScale.range()[0] - yScale.range()[1]} height={20}>
           <Center>
-            <Group spacing={3}>
+            <Group spacing={3} style={{ cursor: 'pointer' }}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
 
               <Text size={compact ? 10 : 14} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
