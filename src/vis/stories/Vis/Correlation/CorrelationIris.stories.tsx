@@ -8,6 +8,9 @@ import { fetchIrisData } from '../../fetchIrisData';
 export default {
   title: 'Vis/Correlation',
   component: Vis,
+  parameters: {
+    chromatic: { delay: 500 },
+  },
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
 };
 

@@ -118,6 +118,9 @@ export default {
   args: {
     pointCount: 100000,
   },
+  parameters: {
+    chromatic: { delay: 500 },
+  },
 };
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
@@ -159,8 +162,6 @@ Basic.args = {
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
-    sizeAggregateType: EAggregateTypes.COUNT,
-    sizeColumn: null,
   },
 };
 
@@ -190,7 +191,5 @@ Multiples.args = {
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
-    sizeAggregateType: EAggregateTypes.COUNT,
-    sizeColumn: null,
   },
 };

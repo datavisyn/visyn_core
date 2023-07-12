@@ -120,6 +120,9 @@ export default {
   args: {
     pointCount: 200,
   },
+  parameters: {
+    chromatic: { delay: 500 },
+  },
 };
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
