@@ -1,4 +1,4 @@
-import { Box, Group, Stack, Text } from '@mantine/core';
+import { Box, Container, Group, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
@@ -222,11 +222,23 @@ export function Heatmap({
           />
           {column2.info.name}
         </Text>
-        <svg style={{ width: '100%', height: '100%' }} ref={ref}>
-          <rect x={margin.left} y={margin.top} height={height - margin.top - margin.bottom} width={width - margin.left - margin.right} fill="#F1F3F5" />
-          {rects}
-          {text}
-        </svg>
+        <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+          <Container
+            fluid
+            pl={0}
+            pr={0}
+            sx={{
+              height,
+              width: '100%',
+            }}
+          >
+            <svg height={height} width={width}>
+              <rect x={margin.left} y={margin.top} height={height - margin.top - margin.bottom} width={width - margin.left - margin.right} fill="#F1F3F5" />
+              {rects}
+              {text}
+            </svg>
+          </Container>
+        </Box>
       </Group>
       <Text
         color="dimmed"

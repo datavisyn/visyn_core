@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useResizeObserver } from '@mantine/hooks';
 import { op, table } from 'arquero';
+import { Box, Container } from '@mantine/core';
 import { ColumnInfo, ECloudType, EColumnTypes, ELightningType, ERainType, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
 import { SplitViolin } from './cloud/SplitViolin';
@@ -103,78 +104,90 @@ export function Raincloud({
   }, [baseTable]);
 
   return (
-    <svg key={column.info.id} ref={ref} style={{ width: '100%', height: '100%' }}>
-      {width !== 0 && height !== 0 ? (
-        <g>
-          <text textAnchor="middle" dominantBaseline="middle" x={width / 2} y={15}>
-            {column.info.name}
-          </text>
-          <g>
-            {config.cloudType === ECloudType.HEATMAP ? (
-              <Heatmap width={width} height={height / 2} config={config} numCol={column} />
-            ) : config.cloudType === ECloudType.HISTOGRAM ? (
-              <Histogram width={width} height={height / 2} config={config} numCol={column} />
-            ) : (
-              <SplitViolin width={width} height={height / 2} config={config} numCol={column} />
-            )}
+    <Box ref={ref} style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}>
+      <Container
+        fluid
+        pl={0}
+        pr={0}
+        sx={{
+          height,
+          width: '100%',
+        }}
+      >
+        <svg key={column.info.id} width={width} height={height}>
+          {width !== 0 && height !== 0 ? (
+            <g>
+              <text textAnchor="middle" dominantBaseline="middle" x={width / 2} y={15}>
+                {column.info.name}
+              </text>
+              <g>
+                {config.cloudType === ECloudType.HEATMAP ? (
+                  <Heatmap width={width} height={height / 2} config={config} numCol={column} />
+                ) : config.cloudType === ECloudType.HISTOGRAM ? (
+                  <Histogram width={width} height={height / 2} config={config} numCol={column} />
+                ) : (
+                  <SplitViolin width={width} height={height / 2} config={config} numCol={column} />
+                )}
 
-            {config.rainType === ERainType.DOTPLOT ? (
-              <DotPlot
-                yPos={height / 2}
-                width={width}
-                height={height}
-                config={config}
-                numCol={column}
-                circleCallback={circlesCallback}
-                baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
-              />
-            ) : config.rainType === ERainType.BEESWARM ? (
-              <BeeSwarm
-                baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
-                yPos={height / 2}
-                width={width}
-                height={height / 2}
-                config={config}
-                numCol={column}
-                circleCallback={circlesCallback}
-              />
-            ) : config.rainType === ERainType.WHEATPLOT ? (
-              <WheatPlot
-                yPos={height / 2}
-                width={width}
-                height={height / 2}
-                config={config}
-                numCol={column}
-                circleCallback={circlesCallback}
-                baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
-              />
-            ) : config.rainType === ERainType.STRIPPLOT ? (
-              <StripPlot
-                yPos={height / 2}
-                width={width}
-                height={height / 2}
-                config={config}
-                numCol={column}
-                circleCallback={circlesCallback}
-                baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
-              />
-            ) : null}
-            {circlesRendered}
-            {config.lightningType === ELightningType.MEAN_AND_DEV ? (
-              <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
-            ) : config.lightningType === ELightningType.MEAN ? (
-              <Mean yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
-            ) : config.lightningType === ELightningType.MEDIAN_AND_DEV ? (
-              <MedianAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
-            ) : config.lightningType === ELightningType.BOXPLOT ? (
-              <Boxplot yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
-            ) : null}
+                {config.rainType === ERainType.DOTPLOT ? (
+                  <DotPlot
+                    yPos={height / 2}
+                    width={width}
+                    height={height}
+                    config={config}
+                    numCol={column}
+                    circleCallback={circlesCallback}
+                    baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
+                  />
+                ) : config.rainType === ERainType.BEESWARM ? (
+                  <BeeSwarm
+                    baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
+                    yPos={height / 2}
+                    width={width}
+                    height={height / 2}
+                    config={config}
+                    numCol={column}
+                    circleCallback={circlesCallback}
+                  />
+                ) : config.rainType === ERainType.WHEATPLOT ? (
+                  <WheatPlot
+                    yPos={height / 2}
+                    width={width}
+                    height={height / 2}
+                    config={config}
+                    numCol={column}
+                    circleCallback={circlesCallback}
+                    baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
+                  />
+                ) : config.rainType === ERainType.STRIPPLOT ? (
+                  <StripPlot
+                    yPos={height / 2}
+                    width={width}
+                    height={height / 2}
+                    config={config}
+                    numCol={column}
+                    circleCallback={circlesCallback}
+                    baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
+                  />
+                ) : null}
+                {circlesRendered}
+                {config.lightningType === ELightningType.MEAN_AND_DEV ? (
+                  <MeanAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+                ) : config.lightningType === ELightningType.MEAN ? (
+                  <Mean yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+                ) : config.lightningType === ELightningType.MEDIAN_AND_DEV ? (
+                  <MedianAndInterval yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+                ) : config.lightningType === ELightningType.BOXPLOT ? (
+                  <Boxplot yPos={height / 2} width={width} height={height} config={config} numCol={column} baseTable={baseTable} />
+                ) : null}
 
-            <XAxis xScale={xScale} vertPosition={height / 2} yRange={null} />
-            <Brush y={height / 2 - 20} x={margin.left} height={40} width={width - margin.left} onBrush={brushCallback} id={column.info.id} />
-          </g>
-        </g>
-      ) : null}
-    </svg>
+                <XAxis xScale={xScale} vertPosition={height / 2} yRange={null} />
+                <Brush y={height / 2 - 20} x={margin.left} height={40} width={width - margin.left} onBrush={brushCallback} id={column.info.id} />
+              </g>
+            </g>
+          ) : null}
+        </svg>
+      </Container>
+    </Box>
   );
 }

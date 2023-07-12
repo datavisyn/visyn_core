@@ -157,7 +157,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   return (
     <Group sx={{ height: '100%', width: '100%' }} noWrap pr="40px">
       {status === 'success' ? (
-        <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing="xs">
+        <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing={0}>
           <Box pl={margin.left} pr={margin.right}>
             <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
           </Box>
