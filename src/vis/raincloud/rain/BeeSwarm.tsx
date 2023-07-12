@@ -31,7 +31,7 @@ export function BeeSwarm({
   width: number;
   height: number;
   yPos: number;
-  circleCallback: (circles: { id: string; x: number; y: number }[]) => void;
+  circleCallback: (circles: { id: string[]; x: number; y: number }[]) => void;
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
@@ -62,7 +62,7 @@ export function BeeSwarm({
 
   useEffect(() => {
     const circles = forceDirectedNode.map((circle) => {
-      return { id: circle.id, x: circle.x, y: circle.y + yPos };
+      return { id: [circle.id].flat(), x: circle.x, y: circle.y + yPos };
     });
 
     circleCallback(circles);

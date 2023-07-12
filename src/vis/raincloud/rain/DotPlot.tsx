@@ -32,7 +32,7 @@ export function DotPlot({
   height: number;
   yPos: number;
   baseTable: ColumnTable;
-  circleCallback: (circles: { id: string; x: number; y: number }[]) => void;
+  circleCallback: (circles: { id: string[]; x: number; y: number }[]) => void;
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
@@ -53,7 +53,7 @@ export function DotPlot({
         .map((val, i) => {
           return (
             // TODO:: What happens when we run out of space
-            { id: val, x: xScale(singleBin.average), y: yPos + margin.top + i * 10 }
+            { id: [val].flat(), x: xScale(singleBin.average), y: yPos + margin.top + i * 10 }
           );
         });
     });
