@@ -36,7 +36,6 @@ export async function getHeatmapData(
   columns: VisColumn[],
   catColumnDesc: ColumnInfo[],
   aggColumnDesc: ColumnInfo,
-  sizeColumnDesc: ColumnInfo,
 ): Promise<{
   catColumn: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
@@ -48,15 +47,9 @@ export async function getHeatmapData(
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
     info: ColumnInfo;
   };
-  sizeColumn: {
-    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
-    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
-    info: ColumnInfo;
-  };
 }> {
   const catColumn = await resolveColumnValues(columns.filter((col) => catColumnDesc.find((catCol) => catCol.id === col.info.id)));
   const aggregateColumn = await resolveSingleColumn(aggColumnDesc ? columns.find((col) => col.info.id === aggColumnDesc.id) : null);
-  const sizeColumn = await resolveSingleColumn(sizeColumnDesc ? columns.find((col) => col.info.id === sizeColumnDesc.id) : null);
 
-  return { catColumn, aggregateColumn, sizeColumn };
+  return { catColumn, aggregateColumn };
 }

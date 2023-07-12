@@ -18,7 +18,7 @@ export function HeatmapGrid({
   setExternalConfig?: (config: IHeatmapConfig) => void;
   selected?: { [key: string]: boolean };
 }) {
-  const { value: allColumns, status } = useAsync(getHeatmapData, [columns, config.catColumnsSelected, config.aggregateColumn, config.sizeColumn]);
+  const { value: allColumns, status } = useAsync(getHeatmapData, [columns, config.catColumnsSelected, config.aggregateColumn]);
   const hasAtLeast2CatCols = allColumns?.catColumn && allColumns?.catColumn?.length > 1;
 
   const margin = React.useMemo(() => {
@@ -40,7 +40,6 @@ export function HeatmapGrid({
         </Text>
       ) : (
         <Heatmap
-          sizeColumn={allColumns.sizeColumn}
           column1={allColumns.catColumn[0]}
           column2={allColumns.catColumn[1]}
           aggregateColumn={allColumns.aggregateColumn}
