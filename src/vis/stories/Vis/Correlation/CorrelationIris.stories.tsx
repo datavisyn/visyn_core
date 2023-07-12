@@ -9,7 +9,7 @@ export default {
   title: 'Vis/Correlation',
   component: Vis,
   parameters: {
-    chromatic: { delay: 25000 },
+    chromatic: { delay: 10000, pauseAnimationAtEnd: true },
   },
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
 };
@@ -60,8 +60,4 @@ Basic.args = {
     correlationType: ECorrelationType.PEARSON,
     pScaleType: EScaleType.LINEAR,
   },
-};
-
-Basic.parameters = {
-  delay: 25000,
 };
