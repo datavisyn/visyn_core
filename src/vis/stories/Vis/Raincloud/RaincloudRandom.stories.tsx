@@ -121,7 +121,7 @@ export default {
     pointCount: 200,
   },
   parameters: {
-    chromatic: { delay: 500 },
+    chromatic: { delay: 3000 },
   },
 };
 

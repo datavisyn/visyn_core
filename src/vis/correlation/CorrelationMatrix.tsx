@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3v7';
 import * as d3 from 'd3v7';
-import { Box, Center, Group, Popover, Stack, Text } from '@mantine/core';
+import { Box, Center, Group, Loader, Popover, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { corrcoeff, spearmancoeff, studentt } from 'jstat';
 import { useMemo } from 'react';
@@ -18,19 +18,19 @@ const CIRCLE_MIN_SIZE = 4;
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
 export function CorrelationMatrix({ config, columns }: { config: ICorrelationConfig; columns: VisColumn[] }) {
-  const dataAll = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
+  const { value: dataAll, status } = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
   const [data, setData] = React.useState<{ resolvedValues: (VisNumericalValue | VisCategoricalValue)[]; type: EColumnTypes; info: ColumnInfo }[]>(null);
 
   // Set data used for calculation and apply filter if given
   React.useEffect(() => {
-    if (dataAll?.value) {
+    if (dataAll) {
       const cols = [];
-      dataAll.value.numericalColumns.forEach((col) => {
+      dataAll.numericalColumns.forEach((col) => {
         cols.push(col);
       });
       setData(cols);
     }
-  }, [dataAll.value]);
+  }, [dataAll]);
 
   const [ref, { width, height }] = useResizeObserver();
 
@@ -156,27 +156,33 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
 
   return (
     <Group sx={{ height: '100%', width: '100%' }} noWrap pr="40px">
-      <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing="xs">
-        <Box pl={margin.left} pr={margin.right}>
-          <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
-        </Box>
-        <svg ref={ref} style={{ height: '100%', width: `100%`, overflow: 'hidden' }}>
-          <g transform={`translate(${(width - availableSize - margin.left - margin.right) / 2}, 0)`}>
-            {memoizedCorrelationResults?.map((value) => {
-              return (
-                <CorrelationPair
-                  key={`${value.xName}-${value.yName}`}
-                  value={value}
-                  fill={colorScale(value.correlation)}
-                  boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
-                  config={config}
-                />
-              );
-            })}
-            {labelsDiagonal}
-          </g>
-        </svg>
-      </Stack>
+      {status === 'success' ? (
+        <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing="xs">
+          <Box pl={margin.left} pr={margin.right}>
+            <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
+          </Box>
+          <svg ref={ref} style={{ height: '100%', width: `100%`, overflow: 'hidden' }}>
+            <g transform={`translate(${(width - availableSize - margin.left - margin.right) / 2}, 0)`}>
+              {memoizedCorrelationResults?.map((value) => {
+                return (
+                  <CorrelationPair
+                    key={`${value.xName}-${value.yName}`}
+                    value={value}
+                    fill={colorScale(value.correlation)}
+                    boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
+                    config={config}
+                  />
+                );
+              })}
+              {labelsDiagonal}
+            </g>
+          </svg>
+        </Stack>
+      ) : (
+        <Center>
+          <Loader />
+        </Center>
+      )}
     </Group>
   );
 }
