@@ -40,7 +40,7 @@ export function Legend({
 
           return (
             <Tooltip withinPortal key={c} label={c} withArrow arrowSize={6}>
-              <Stack spacing={0} onClick={(e) => selectionCallback(e, myIds)}>
+              <Stack spacing={0} onClick={(e) => selectionCallback(e, myIds)} style={{ cursor: 'pointer' }}>
                 <svg width="60px" height="10px">
                   <rect width="60px" height="10px" fill={colorScale(c)} opacity={selectedCat ? (selectedCat === c ? 1 : 0.5) : 1} />
                 </svg>

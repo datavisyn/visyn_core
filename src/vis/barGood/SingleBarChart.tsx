@@ -137,6 +137,14 @@ export function SingleBarChart({
                 {title}
               </text>
             ) : null}
+            <rect
+              x={margin.left}
+              y={margin.top}
+              width={width - margin.left - margin.right}
+              height={height - margin.top - margin.bottom}
+              fill="transparent"
+              onClick={(e) => selectionCallback(e, [])}
+            />
 
             {countScale && categoryScale ? (
               config.direction === EBarDirection.VERTICAL ? (
