@@ -49,7 +49,6 @@ export function Heatmap({
   column1,
   column2,
   aggregateColumn,
-  sizeColumn,
   margin,
   config,
   selected,
@@ -59,7 +58,6 @@ export function Heatmap({
   column1: CatColumn;
   column2: CatColumn;
   aggregateColumn: CatColumn;
-  sizeColumn: CatColumn;
   margin: { top: number; right: number; bottom: number; left: number };
   config: IHeatmapConfig;
   selectionCallback: (ids: string[]) => void;
@@ -75,7 +73,6 @@ export function Heatmap({
       xVal: column1.resolvedValues.map(({ val }) => val),
       yVal: column2.resolvedValues.map(({ val }) => val),
       aggregateValues: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
-      sizeValues: sizeColumn?.resolvedValues.map(({ val }) => val) || [],
       id: column1.resolvedValues.map(({ id }) => id),
     });
 
@@ -102,7 +99,7 @@ export function Heatmap({
     }
 
     return valueTable;
-  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.sortedBy, sizeColumn?.resolvedValues]);
+  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.sortedBy]);
 
   const { groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
     const groupedVals = aggregatedTable.objects() as { xVal: string; yVal: string; aggregateVal: number; ids: string[] }[];

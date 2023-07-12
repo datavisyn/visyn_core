@@ -33,12 +33,12 @@ export function StripPlot({
   yPos: number;
   baseTable: ColumnTable;
 
-  circleCallback: (circles: { id: string; x: number; y: number }[]) => void;
+  circleCallback: (circles: { id: string[]; x: number; y: number }[]) => void;
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
   useEffect(() => {
     const circles = baseTable.objects().map((singlePoint: { values: number; ids: string }) => {
-      return { id: singlePoint.ids, x: xScale(singlePoint.values), y: yPos + margin.top };
+      return { id: [singlePoint.ids].flat(), x: xScale(singlePoint.values), y: yPos + margin.top };
     });
 
     circleCallback(circles.flat());
