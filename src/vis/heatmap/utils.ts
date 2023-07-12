@@ -25,8 +25,6 @@ const defaultConfig: IHeatmapConfig = {
   sortedBy: ESortTypes.CAT_ASC,
   aggregateColumn: null,
   aggregateType: EAggregateTypes.COUNT,
-  sizeAggregateType: EAggregateTypes.COUNT,
-  sizeColumn: null,
 };
 
 export function heatmapMergeDefaultConfig(columns: VisColumn[], config: IHeatmapConfig): IVisConfig {
