@@ -79,6 +79,10 @@ export function Raincloud({
 
   const brushCallback = useCallback(
     (range: [number, number]) => {
+      if (range === null) {
+        selectionCallback([]);
+        return;
+      }
       const newRange = [xScale.invert(range[0]), xScale.invert(range[1])];
       const selectedIds = baseTable
         .params({ lowRange: newRange[0], highRange: newRange[1] })
@@ -125,7 +129,15 @@ export function Raincloud({
                 baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
               />
             ) : config.rainType === ERainType.BEESWARM ? (
-              <BeeSwarm yPos={height / 2} width={width} height={height / 2} config={config} numCol={column} circleCallback={circlesCallback} />
+              <BeeSwarm
+                baseTable={config.aggregateRain || column.resolvedValues.length > MAX_NON_AGGREGATED_COUNT ? aggregatedTable : baseTable}
+                yPos={height / 2}
+                width={width}
+                height={height / 2}
+                config={config}
+                numCol={column}
+                circleCallback={circlesCallback}
+              />
             ) : config.rainType === ERainType.WHEATPLOT ? (
               <WheatPlot
                 yPos={height / 2}

@@ -25,6 +25,11 @@ export function Brush({
       ])
       .on('brush', (e) => {
         onBrush(e.selection as [number, number]);
+      })
+      .on('end', (e) => {
+        if (!e.selection) {
+          onBrush(null);
+        }
       });
 
     d3.select(`#brush${id}`).call(brush);
