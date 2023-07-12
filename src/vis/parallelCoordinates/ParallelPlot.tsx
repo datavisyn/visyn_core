@@ -105,7 +105,7 @@ export function ParallelPlot({
         if (col === 'id') return;
 
         const xPos = xScale(col);
-        const yPos = yScales[col].scale(row[col]);
+        const yPos = yScales[col].scale(row[col] as any);
         svgPath += `${xPos},${yPos} L`;
       });
 
