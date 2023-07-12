@@ -61,3 +61,7 @@ Basic.args = {
     pScaleType: EScaleType.LINEAR,
   },
 };
+
+Basic.parameters = {
+  chromatic: { delay: 10000, pauseAnimationAtEnd: true },
+};
