@@ -47,7 +47,7 @@ def create_visyn_server(
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /metrics" not in record.getMessage()
+            return "GET /metrics" and "GET /health" not in record.getMessage()
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
@@ -143,12 +143,6 @@ def create_visyn_server(
     # Load all namespace plugins as WSGIMiddleware plugins
     for p in router_plugins:
         app.include_router(p.load().factory())
-
-    class UvicornAccessLogFilter(logging.Filter):
-        def filter(self, record: logging.LogRecord) -> bool:
-            return 'GET /health HTTP/1.1" 200' not in record.getMessage()
-
-    logging.getLogger("uvicorn.access").addFilter(UvicornAccessLogFilter())
 
     # TODO: Check mainapp.py what it does and transfer them here. Currently, we cannot mount a flask app at root, such that the flask app is now mounted at /app/
     from .mainapp import build_info, health

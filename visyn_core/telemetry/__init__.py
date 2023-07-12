@@ -4,9 +4,9 @@ import opentelemetry._logs as _logs
 import opentelemetry.metrics as metrics
 import opentelemetry.trace as trace
 from fastapi import FastAPI, Response
-from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter, _append_logs_path
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter, _append_metrics_path
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter, _append_trace_path
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
@@ -55,7 +55,10 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
             metric_readers.append(
                 PeriodicExportingMetricReader(
                     exporter=OTLPMetricExporter(
-                        endpoint=exporter_settings.endpoint,
+                        # If we are using the global exporter settings, append the metrics path
+                        endpoint=_append_metrics_path(exporter_settings.endpoint)
+                        if exporter_settings == global_exporter_settings
+                        else exporter_settings.endpoint,
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
@@ -108,7 +111,10 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
             tracer_provider.add_span_processor(
                 BatchSpanProcessor(
                     OTLPSpanExporter(
-                        endpoint=exporter_settings.endpoint,
+                        # If we are using the global exporter settings, append the traces path
+                        endpoint=_append_trace_path(exporter_settings.endpoint)
+                        if exporter_settings == global_exporter_settings
+                        else exporter_settings.endpoint,
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
@@ -148,7 +154,10 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
             logs_provider.add_log_record_processor(
                 BatchLogRecordProcessor(
                     OTLPLogExporter(
-                        endpoint=exporter_settings.endpoint,
+                        # If we are using the global exporter settings, append the logs path
+                        endpoint=_append_logs_path(exporter_settings.endpoint)
+                        if exporter_settings == global_exporter_settings
+                        else exporter_settings.endpoint,
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
