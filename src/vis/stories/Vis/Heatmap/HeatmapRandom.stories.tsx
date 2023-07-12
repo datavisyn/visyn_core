@@ -21,8 +21,8 @@ function RNG(seed) {
   };
 }
 function fetchData(numberOfPoints: number): VisColumn[] {
-  d3.randomNormal.source(d3.randomLcg(0.5));
-  const rng = d3.randomNormal(0.5, 0.3);
+  const norm = d3.randomNormal.source(d3.randomLcg(0.5));
+  const rng = norm(0.5, 0.3);
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
