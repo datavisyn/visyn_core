@@ -84,7 +84,7 @@ export function BarChart({
             groupedIds={groupedIds}
             selectedList={selectedList}
             selectionCallback={customSelectionCallback}
-            left={50}
+            left={60}
             categories={groupColorScale.domain()}
             isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
             colorScale={groupColorScale}
