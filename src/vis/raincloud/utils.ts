@@ -50,7 +50,7 @@ export async function getRaincloudData(
 }
 
 export interface IRaindropCircle {
-  id: string;
+  id: string[];
   x: number;
   y: number;
 }

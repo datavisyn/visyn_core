@@ -3,6 +3,7 @@ import React, { useEffect, useMemo } from 'react';
 import { table, op, bin } from 'arquero';
 import * as d3 from 'd3v7';
 import forceBoundary from 'd3-force-boundary';
+import ColumnTable from 'arquero/dist/types/table/column-table';
 import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
 import { Circle } from './Circle';
@@ -20,6 +21,7 @@ export function BeeSwarm({
   width,
   height,
   yPos,
+  baseTable,
   circleCallback,
 }: {
   numCol: {
@@ -31,14 +33,21 @@ export function BeeSwarm({
   width: number;
   height: number;
   yPos: number;
-  circleCallback: (circles: { id: string; x: number; y: number }[]) => void;
+  baseTable: ColumnTable;
+  circleCallback: (circles: { id: string[]; x: number; y: number }[]) => void;
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
   const forceDirectedNode = useMemo(() => {
     if (xScale) {
       const force = d3
-        .forceSimulation(numCol.resolvedValues.map((d) => ({ id: d.id, x: xScale(d.val as number), y: margin.top })))
+        .forceSimulation(
+          (baseTable.objects() as { values: number; ids: string | string[] }[]).map((d) => ({
+            id: [d.ids].flat(),
+            x: xScale(d.values as number),
+            y: margin.top,
+          })),
+        )
         .force('boundary', forceBoundary(margin.left, margin.top, width, height - margin.bottom))
 
         .force('y', d3.forceY().strength(0.1).y(Math.max(margin.top, margin.top)))
@@ -58,11 +67,11 @@ export function BeeSwarm({
       return newSim.nodes();
     }
     return null;
-  }, [height, numCol.resolvedValues, width, xScale]);
+  }, [baseTable, height, width, xScale]);
 
   useEffect(() => {
     const circles = forceDirectedNode.map((circle) => {
-      return { id: circle.id, x: circle.x, y: circle.y + yPos };
+      return { id: [circle.id].flat(), x: circle.x, y: circle.y + yPos };
     });
 
     circleCallback(circles);

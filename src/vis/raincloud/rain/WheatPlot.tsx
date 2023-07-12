@@ -33,7 +33,7 @@ export function WheatPlot({
   yPos: number;
   baseTable: ColumnTable;
 
-  circleCallback: (circles: { id: string; x: number; y: number }[]) => void;
+  circleCallback: (circles: { id: string[]; x: number; y: number }[]) => void;
 }) {
   const xScale = useXScale({ range: [margin.left, width - margin.right], column: numCol });
 
@@ -56,10 +56,12 @@ export function WheatPlot({
         .map((val, i) => {
           return (
             // TODO:: What happens when we run out of space
-            { id: val[0], x: xScale(val[1]), y: yPos + margin.top + i * 10 }
+            { id: [val[0]].flat(), x: xScale(val[1]), y: yPos + margin.top + i * 10 }
           );
         });
     });
+
+    console.log(circles.flat());
 
     circleCallback(circles.flat());
   }, [bins, circleCallback, xScale, yPos]);
