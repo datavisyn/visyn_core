@@ -26,12 +26,12 @@ export function HeatmapGrid({
       top: 10,
       right: 20,
       bottom: 25,
-      left: 35,
+      left: 40,
     };
   }, []);
 
   return (
-    <Stack align="center" justify="center" sx={{ width: '100%', height: '100%' }}>
+    <Stack align="center" justify="center" sx={{ width: '100%', height: '100%' }} p="sm">
       {status === 'pending' ? (
         <Loader />
       ) : !hasAtLeast2CatCols ? (

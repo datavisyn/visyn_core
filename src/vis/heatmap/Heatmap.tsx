@@ -199,7 +199,7 @@ export function Heatmap({
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
-      <Box pl={5}>
+      <Box pl={20}>
         <ColorLegendVert
           width={width - margin.left - margin.right}
           scale={colorScale}
@@ -208,7 +208,7 @@ export function Heatmap({
           title={`${config.aggregateType} ${config.aggregateType === EAggregateTypes.COUNT ? '' : config.aggregateColumn.name}`}
         />
       </Box>
-      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0} pr="50px">
+      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0} pr="40px">
         <Text
           color="dimmed"
           sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}

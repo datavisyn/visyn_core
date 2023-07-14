@@ -78,7 +78,7 @@ export function HeatmapText({
             y2={yScale(yVal) + margin.top}
             order={i / yScale.domain().length}
           />
-          <AnimatedText x={30 - labelSpacing} y={yScale(yVal) + margin.top} order={i / yScale.domain().length} height={yScale.bandwidth()} width={labelSpacing}>
+          <AnimatedText x={35 - labelSpacing} y={yScale(yVal) + margin.top} order={i / yScale.domain().length} height={yScale.bandwidth()} width={labelSpacing}>
             <Tooltip withinPortal withArrow arrowSize={6} label={yVal}>
               <Group style={{ width: '100%', height: '100%' }} position="right">
                 <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
