@@ -66,14 +66,14 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     if (!data) return null;
     return scaleBand()
       .range([margin.left, availableSize + margin.left])
-      .domain(data.map((column) => column.info.name));
+      .domain(data.map((column) => column.info.id));
   }, [data, availableSize]);
 
   const yScale = React.useMemo(() => {
     if (!data) return null;
     return scaleBand()
       .range([margin.top, availableSize + margin.top])
-      .domain(data.map((column) => column.info.name));
+      .domain(data.map((column) => column.info.id));
   }, [data, availableSize]);
 
   const circleSizeScale = React.useMemo(() => {
@@ -109,8 +109,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
         const cdf = studentt.cdf(tStatistic, cols[x].resolvedValues.length - 2);
         const pValue = 2 * Math.min(cdf, 1 - cdf);
 
-        const xName = cols[x].info.name;
-        const yName = cols[y].info.name;
+        const xName = cols[x].info.id;
+        const yName = cols[y].info.id;
 
         const value: CorrelationPairProps = {
           xi: x,
