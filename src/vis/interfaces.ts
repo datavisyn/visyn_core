@@ -133,6 +133,7 @@ export interface ICorrelationConfig extends BaseConfig {
   correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
   pScaleType: EScaleType;
+  pDomain: [number, number];
 }
 
 export enum ECloudType {

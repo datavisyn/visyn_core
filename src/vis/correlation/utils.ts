@@ -22,7 +22,8 @@ const defaultConfig: ICorrelationConfig = {
   type: ESupportedPlotlyVis.CORRELATION,
   correlationType: ECorrelationType.PEARSON,
   numColumnsSelected: [],
-  pScaleType: EScaleType.LINEAR,
+  pScaleType: EScaleType.LOG,
+  pDomain: [0.5, 0.01],
 };
 
 export function correlationMergeDefaultConfig(columns: VisColumn[], config: ICorrelationConfig): ICorrelationConfig {

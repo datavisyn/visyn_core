@@ -1,15 +1,14 @@
 import * as React from 'react';
-import { scaleBand, scaleLinear } from 'd3v7';
+import { scaleBand } from 'd3v7';
 import * as d3 from 'd3v7';
-import { Box, Center, Group, Loader, Popover, Stack, Text } from '@mantine/core';
+import { Box, Center, Group, Loader, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { corrcoeff, spearmancoeff, studentt, tukeyhsd } from 'jstat';
+import { corrcoeff, spearmancoeff, tukeyhsd } from 'jstat';
 import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, ICorrelationConfig, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
 import { getCorrelationMatrixData } from './utils';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
-import { ColorLegend } from '../legend/ColorLegend';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
@@ -80,9 +79,9 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     if (!data) return null;
     const maxSize = Math.min(xScale.bandwidth() / 2 - paddingCircle.left, yScale.bandwidth() / 2 - paddingCircle.top);
     return config.pScaleType === EScaleType.LINEAR
-      ? d3.scaleSqrt().domain([0, 0.5].reverse()).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true)
-      : d3.scaleLog().domain([0.000000001, 0.1]).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true);
-  }, [config.pScaleType, data, xScale, yScale]);
+      ? d3.scaleLinear().domain(config.pDomain).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true)
+      : d3.scaleLog().domain(config.pDomain).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true);
+  }, [config.pDomain, config.pScaleType, data, xScale, yScale]);
 
   // Calculate correlation results
   const memoizedCorrelationResults = React.useMemo(() => {
@@ -109,10 +108,6 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           cols[x].resolvedValues.map((resolved) => resolved.val as number),
           cols[y].resolvedValues.map((resolved) => resolved.val as number),
         ]);
-
-        console.log(pValue);
-
-        console.log(pValue[0][1]);
 
         const xName = cols[x].info.id;
         const yName = cols[y].info.id;
