@@ -137,8 +137,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   const labelsDiagonal = React.useMemo(() => {
     if (!data) return null;
     return data.map((col) => {
-      const currentX = xScale(col.info.name);
-      const currentY = yScale(col.info.name);
+      const currentX = xScale(col.info.id);
+      const currentY = yScale(col.info.id);
       return (
         <g key={`label-${col.info.name}`}>
           <rect stroke="lightgray" strokeWidth={1} fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
