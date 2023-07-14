@@ -171,9 +171,9 @@ export async function createScatterTraces(
         },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}<br>${
-              colorCol ? `${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
-            }`,
+            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
+              colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
+            }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
         hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),
