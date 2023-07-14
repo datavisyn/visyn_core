@@ -14,7 +14,6 @@ export interface CorrelationPairProps {
   cxUT: number;
   cyUT: number;
   correlation: number;
-  tStatistic: number;
   pValue: number;
   xName: string;
   yName: string;

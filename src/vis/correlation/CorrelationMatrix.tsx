@@ -3,7 +3,7 @@ import { scaleBand, scaleLinear } from 'd3v7';
 import * as d3 from 'd3v7';
 import { Box, Center, Group, Loader, Popover, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { corrcoeff, spearmancoeff, studentt } from 'jstat';
+import { corrcoeff, spearmancoeff, studentt, tukeyhsd } from 'jstat';
 import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, ICorrelationConfig, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
@@ -80,7 +80,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
     if (!data) return null;
     const maxSize = Math.min(xScale.bandwidth() / 2 - paddingCircle.left, yScale.bandwidth() / 2 - paddingCircle.top);
     return config.pScaleType === EScaleType.LINEAR
-      ? d3.scaleSqrt().domain([0, 0.5]).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true)
+      ? d3.scaleSqrt().domain([0, 0.5].reverse()).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true)
       : d3.scaleLog().domain([0.000000001, 0.1]).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true);
   }, [config.pScaleType, data, xScale, yScale]);
 
@@ -104,10 +104,15 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           cols[x].resolvedValues.map((resolved) => resolved.val as number),
           cols[y].resolvedValues.map((resolved) => resolved.val as number),
         );
-        const tStatistic = (correlation * Math.sqrt(cols[x].resolvedValues.length - 2)) / Math.sqrt(1 - correlation ** 2);
 
-        const cdf = studentt.cdf(tStatistic, cols[x].resolvedValues.length - 2);
-        const pValue = 2 * Math.min(cdf, 1 - cdf);
+        const pValue = tukeyhsd([
+          cols[x].resolvedValues.map((resolved) => resolved.val as number),
+          cols[y].resolvedValues.map((resolved) => resolved.val as number),
+        ]);
+
+        console.log(pValue);
+
+        console.log(pValue[0][1]);
 
         const xName = cols[x].info.id;
         const yName = cols[y].info.id;
@@ -120,11 +125,10 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           cxUT: xScale(xName) + xScale.bandwidth() / 2,
           cyUT: yScale(yName) + yScale.bandwidth() / 2,
           correlation,
-          tStatistic,
-          pValue,
-          xName,
-          yName,
-          radius: circleSizeScale(Math.abs(correlation)),
+          pValue: pValue[0][1],
+          xName: cols[x].info.name,
+          yName: cols[y].info.name,
+          radius: circleSizeScale(pValue[0][1]),
         };
         correlationResults.push(value);
       }
