@@ -1,9 +1,12 @@
 import logging
 from typing import Any
 
+from sqlmodel import SQLModel, create_engine
+from sqlmodel.ext.asyncio.session import AsyncSession, AsyncEngine
+
 from fastapi import FastAPI
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from . import manager
 from .dbview import DBConnector
@@ -78,23 +81,28 @@ class DBManager:
             raise NotImplementedError("missing db connector: " + item)
         return self._load_engine(item)
 
-    def create_session(self, engine_or_id: Engine | str) -> Session:
-        return self._sessionmakers[self.engine(engine_or_id)]()
+    # def create_session(self, engine_or_id: Engine | str) -> Session:
+    #     return self._sessionmakers[self.engine(engine_or_id)]()
 
-    def create_web_session(self, engine_or_id: Engine | str) -> Session:
-        """
-        Create a session that is added to the request state as db_session, which automatically closes it in the db_session middleware.
-        """
-        session = self.create_session(engine_or_id)
+    # def create_web_session(self, engine_or_id: Engine | str) -> Session:
+    #     """
+    #     Create a session that is added to the request state as db_session, which automatically closes it in the db_session middleware.
+    #     """
+    #     session = self.create_session(engine_or_id)
 
-        r = get_request()
-        if not r:
-            raise Exception("No request found, did you use a create_web_sesssion outside of a request?")
-        try:
-            existing_sessions = r.state.db_sessions
-        except (KeyError, AttributeError):
-            existing_sessions = []
-            r.state.db_sessions = existing_sessions
-        existing_sessions.append(session)
+    #     r = get_request()
+    #     if not r:
+    #         raise Exception("No request found, did you use a create_web_sesssion outside of a request?")
+    #     try:
+    #         existing_sessions = r.state.db_sessions
+    #     except (KeyError, AttributeError):
+    #         existing_sessions = []
+    #         r.state.db_sessions = existing_sessions
+    #     existing_sessions.append(session)
 
-        return session
+    #     return session
+
+    async def create_async_session(self, engine_or_id: Engine | str) -> AsyncSession:
+        async_session = sessionmaker(self.engine(engine_or_id), class_=AsyncSession, expire_on_commit=False)
+        async with async_session() as session:
+            yield session
