@@ -96,8 +96,9 @@ def create_visyn_server(
 
     from ..dbmigration.manager import DBMigrationManager
 
-    app.state.db_migration = manager.db_migration = DBMigrationManager()
-    manager.db_migration.init_app(app, manager.registry.list("tdp-sql-database-migration"))  # type: ignore
+    # TODO: Enable async db-migration
+    # app.state.db_migration = manager.db_migration = DBMigrationManager()
+    # manager.db_migration.init_app(app, manager.registry.list("tdp-sql-database-migration"))  # type: ignore
 
     from ..security.manager import create_security_manager
 
