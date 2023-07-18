@@ -46,12 +46,6 @@ class AlbSecurityStoreSettings(BaseModel):
     signout_url: str | None = None
 
 
-class RandomGeneratedSecurityStoreSettings(BaseModel):
-    enable: bool = False
-    # TODO: Have a global datadir settings in core and extend it here.
-    file: str = "./fakeUsers.db"
-
-
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
@@ -63,8 +57,6 @@ class SecurityStoreSettings(BaseModel):
     """Settings for the dummy security store"""
     alb_security_store: AlbSecurityStoreSettings = AlbSecurityStoreSettings()
     """Settings for the ALB security store"""
-    random_generated_security_store: RandomGeneratedSecurityStoreSettings = RandomGeneratedSecurityStoreSettings()
-    """Settings for the random generated security store"""
     no_security_store: NoSecurityStoreSettings = NoSecurityStoreSettings()
     """Settings for the no security store"""
 

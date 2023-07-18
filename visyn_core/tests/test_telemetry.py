@@ -7,8 +7,8 @@ from prometheus_client.parser import text_string_to_metric_families
     "workspace_config",
     [
         {
-            "tdp_core": {
-                "enabled_plugins": ["tdp_core"],
+            "visyn_core": {
+                "enabled_plugins": ["visyn_core"],
                 "telemetry": {
                     "enabled": True,
                     "service_name": "visyn.app.datavisyn.io",
