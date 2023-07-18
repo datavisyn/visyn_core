@@ -2,7 +2,7 @@ import contextlib
 import json
 from typing import Any, Literal
 
-from pydantic import BaseModel, BaseSettings, Extra, Field, validator
+from pydantic import AnyHttpUrl, BaseModel, BaseSettings, Extra, Field, validator
 
 from .constants import default_logging_dict
 
@@ -65,10 +65,77 @@ class SecuritySettings(BaseModel):
     store: SecurityStoreSettings = SecurityStoreSettings()
 
 
+class BaseTelemetrySettings(BaseModel):
+    enabled: bool = True
+
+
+class BaseExporterTelemetrySettings(BaseModel):
+    endpoint: AnyHttpUrl  # could be "http://localhost:4318"
+    headers: dict[str, str] | None = None
+    timeout: int | None = None
+    kwargs: dict[str, Any] = {}
+
+    @validator("headers", pre=True)
+    def json_decode_headers(cls, v):  # NOQA N805
+        # Manually parse JSON strings if they are coming from the env via `VISYN_CORE__...='{"...": ...}'`.
+        # See https://github.com/pydantic/pydantic/issues/831 for details.
+        if isinstance(v, str):
+            with contextlib.suppress(ValueError):
+                return json.loads(v)
+        return v
+
+
+class MetricsExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
+
+
+class MetricsTelemetrySettings(BaseTelemetrySettings):
+    exporter: MetricsExporterTelemetrySettings | None = None
+
+
+class TracesExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
+
+
+class TracesTelemetrySettings(BaseTelemetrySettings):
+    exporter: TracesExporterTelemetrySettings | None = None
+
+
+class LogsExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
+
+
+class LogsTelemetrySettings(BaseTelemetrySettings):
+    exporter: LogsExporterTelemetrySettings | None = None
+
+
+class TelemetrySettings(BaseModel):
+    enabled: bool = False
+    """
+    Globally enable or disable telemetry.
+    """
+    service_name: str
+    """
+    Service name must be a unique, fully qualified name (e.g., myapp.app.datavisyn.io)
+    """
+    global_exporter: BaseExporterTelemetrySettings | None = None
+    """
+    Global exporter to be used if metrics.exporter, traces.exporter or logs.exporter are not set.
+    """
+    metrics: MetricsTelemetrySettings = MetricsTelemetrySettings()
+    traces: TracesTelemetrySettings = TracesTelemetrySettings()
+    logs: LogsTelemetrySettings = LogsTelemetrySettings()
+    metrics_middleware: BaseTelemetrySettings = BaseTelemetrySettings()
+
+
 class VisynCoreSettings(BaseModel):
     total_anyio_tokens: int = 100
     """
     The total number of threads to use for anyio. FastAPI uses these threads to run sync routes concurrently.
+    """
+    telemetry: TelemetrySettings | None = None
+    """
+    Settings for telemetry using OpenTelemetry, prometheus, ...
     """
     cypress: bool = False
     """
