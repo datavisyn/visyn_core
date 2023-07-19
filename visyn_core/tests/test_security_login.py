@@ -149,7 +149,7 @@ def test_alb_security_store(client: TestClient):
     assert response.json()["alb_security_store"]["redirect"] == "http://localhost/logout"
 
 
-def test_oauth2_security_store(unauthorized_client: TestClient):
+def test_oauth2_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.oauth2_security_store.enable = True
     manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name = "TestCookie"
@@ -160,7 +160,7 @@ def test_oauth2_security_store(unauthorized_client: TestClient):
 
     manager.security.user_stores = [store]
 
-    stores = unauthorized_client.get("/api/security/stores").json()
+    stores = client.get("/api/security/stores").json()
     assert stores == [{"id": "OAuth2SecurityStore", "ui": "AutoLoginForm", "configuration": {}}]
 
     # Header created with a random token containing "email"
@@ -169,13 +169,13 @@ def test_oauth2_security_store(unauthorized_client: TestClient):
     }
 
     # Check loggedinas with a JWT
-    response = unauthorized_client.get("/loggedinas", headers=headers)
+    response = client.get("/loggedinas", headers=headers)
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
 
     # Logout and check if we get the correct redirect url
-    response = unauthorized_client.post("/logout", headers=headers)
+    response = client.post("/logout", headers=headers)
     assert response.status_code == 200
     assert response.json()["oauth2_security_store"]["redirect"] == "http://localhost/logout"
 
