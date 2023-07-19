@@ -41,7 +41,7 @@ class OAuth2SecurityStore(BaseStore):
         # Redirect-URL to be triggered after logout. Makes sure to properly logout of the IdP provider.
         # See https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request for details.
         if self.signout_url:
-            payload["oauth2_security_store"] = {"redirect": self.signout_url}
+            payload["redirect"] = self.signout_url
 
         return LogoutReturnValue(data=payload, cookies=cookies)
 

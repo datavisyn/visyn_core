@@ -146,7 +146,7 @@ def test_alb_security_store(client: TestClient):
     # Logout and check if we get the correct redirect url
     response = client.post("/logout", headers=headers)
     assert response.status_code == 200
-    assert response.json()["alb_security_store"]["redirect"] == "http://localhost/logout"
+    assert response.json()["redirect"] == "http://localhost/logout"
 
 
 def test_oauth2_security_store(client: TestClient):
@@ -177,7 +177,7 @@ def test_oauth2_security_store(client: TestClient):
     # Logout and check if we get the correct redirect url
     response = client.post("/logout", headers=headers)
     assert response.status_code == 200
-    assert response.json()["oauth2_security_store"]["redirect"] == "http://localhost/logout"
+    assert response.json()["redirect"] == "http://localhost/logout"
 
 
 def test_no_security_store(client: TestClient):
