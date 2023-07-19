@@ -4,6 +4,7 @@ from visyn_core import manager
 from visyn_core.security.model import User
 from visyn_core.security.store.alb_security_store import create as create_alb_security_store
 from visyn_core.security.store.no_security_store import create as create_no_security_store
+from visyn_core.security.store.oauth2_security_store import create as create_oauth2_security_store
 
 
 def test_api_key(client: TestClient):
@@ -146,6 +147,37 @@ def test_alb_security_store(client: TestClient):
     response = client.post("/logout", headers=headers)
     assert response.status_code == 200
     assert response.json()["alb_security_store"]["redirect"] == "http://localhost/logout"
+
+
+def test_oauth2_security_store(unauthorized_client: TestClient):
+    # Add some basic configuration
+    manager.settings.visyn_core.security.store.oauth2_security_store.enable = True
+    manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name = "TestCookie"
+    manager.settings.visyn_core.security.store.oauth2_security_store.signout_url = "http://localhost/logout"
+
+    store = create_oauth2_security_store()
+    assert store is not None
+
+    manager.security.user_stores = [store]
+
+    stores = unauthorized_client.get("/api/security/stores").json()
+    assert stores == [{"id": "OAuth2SecurityStore", "ui": "AutoLoginForm", "configuration": {}}]
+
+    # Header created with a random token containing "email"
+    headers = {
+        "X-Forwarded-Access-Token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGxvY2FsaG9zdCIsInN1YiI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiZXhwIjoxNjU3MTg4MTM4LjQ5NDU4Nn0.-Ye9j9z37gJdoKgrbeYbI8buSw_c6bLBShXt4XxwQHI",
+    }
+
+    # Check loggedinas with a JWT
+    response = unauthorized_client.get("/loggedinas", headers=headers)
+    assert response.status_code == 200
+    assert response.json() != '"not_yet_logged_in"'
+    assert response.json()["name"] == "admin@localhost"
+
+    # Logout and check if we get the correct redirect url
+    response = unauthorized_client.post("/logout", headers=headers)
+    assert response.status_code == 200
+    assert response.json()["oauth2_security_store"]["redirect"] == "http://localhost/logout"
 
 
 def test_no_security_store(client: TestClient):
