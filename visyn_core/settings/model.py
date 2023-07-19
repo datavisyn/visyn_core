@@ -46,6 +46,14 @@ class AlbSecurityStoreSettings(BaseModel):
     signout_url: str | None = None
 
 
+class OAuth2SecurityStoreSettings(BaseModel):
+    enable: bool = False
+    cookie_name: str | None = None
+    signout_url: str | None = None
+    access_token_header_name: str = "X-Forwarded-Access-Token"
+    email_token_field: str = "email"
+
+
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
@@ -57,6 +65,8 @@ class SecurityStoreSettings(BaseModel):
     """Settings for the dummy security store"""
     alb_security_store: AlbSecurityStoreSettings = AlbSecurityStoreSettings()
     """Settings for the ALB security store"""
+    oauth2_security_store: OAuth2SecurityStoreSettings = OAuth2SecurityStoreSettings()
+    """Settings for the oauth2 security store"""
     no_security_store: NoSecurityStoreSettings = NoSecurityStoreSettings()
     """Settings for the no security store"""
 
