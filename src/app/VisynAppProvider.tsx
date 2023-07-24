@@ -56,8 +56,8 @@ export function VisynAppProvider({
 
   return (
     <MantineProvider {...mergedMantineProviderProps}>
-      <Notifications {...(mantineNotificationsProviderProps || {}} />
-      <ModalsProvider {...(mantineModalsProviderProps || {}}>
+      <Notifications {...(mantineNotificationsProviderProps || {})} />
+      <ModalsProvider {...(mantineModalsProviderProps || {})}>
         <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
       </ModalsProvider>
     </MantineProvider>
