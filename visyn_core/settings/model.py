@@ -2,7 +2,7 @@ import contextlib
 import json
 from typing import Any, Literal
 
-from pydantic import BaseModel, BaseSettings, Extra, Field, validator
+from pydantic import AnyHttpUrl, BaseModel, BaseSettings, Extra, Field, validator
 
 from .constants import default_logging_dict
 
@@ -46,6 +46,14 @@ class AlbSecurityStoreSettings(BaseModel):
     signout_url: str | None = None
 
 
+class OAuth2SecurityStoreSettings(BaseModel):
+    enable: bool = False
+    cookie_name: str | None = None
+    signout_url: str | None = None
+    access_token_header_name: str = "X-Forwarded-Access-Token"
+    email_token_field: str = "email"
+
+
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
@@ -57,6 +65,8 @@ class SecurityStoreSettings(BaseModel):
     """Settings for the dummy security store"""
     alb_security_store: AlbSecurityStoreSettings = AlbSecurityStoreSettings()
     """Settings for the ALB security store"""
+    oauth2_security_store: OAuth2SecurityStoreSettings = OAuth2SecurityStoreSettings()
+    """Settings for the oauth2 security store"""
     no_security_store: NoSecurityStoreSettings = NoSecurityStoreSettings()
     """Settings for the no security store"""
 
@@ -65,10 +75,77 @@ class SecuritySettings(BaseModel):
     store: SecurityStoreSettings = SecurityStoreSettings()
 
 
+class BaseTelemetrySettings(BaseModel):
+    enabled: bool = True
+
+
+class BaseExporterTelemetrySettings(BaseModel):
+    endpoint: AnyHttpUrl  # could be "http://localhost:4318"
+    headers: dict[str, str] | None = None
+    timeout: int | None = None
+    kwargs: dict[str, Any] = {}
+
+    @validator("headers", pre=True)
+    def json_decode_headers(cls, v):  # NOQA N805
+        # Manually parse JSON strings if they are coming from the env via `VISYN_CORE__...='{"...": ...}'`.
+        # See https://github.com/pydantic/pydantic/issues/831 for details.
+        if isinstance(v, str):
+            with contextlib.suppress(ValueError):
+                return json.loads(v)
+        return v
+
+
+class MetricsExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
+
+
+class MetricsTelemetrySettings(BaseTelemetrySettings):
+    exporter: MetricsExporterTelemetrySettings | None = None
+
+
+class TracesExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
+
+
+class TracesTelemetrySettings(BaseTelemetrySettings):
+    exporter: TracesExporterTelemetrySettings | None = None
+
+
+class LogsExporterTelemetrySettings(BaseExporterTelemetrySettings):
+    pass
+
+
+class LogsTelemetrySettings(BaseTelemetrySettings):
+    exporter: LogsExporterTelemetrySettings | None = None
+
+
+class TelemetrySettings(BaseModel):
+    enabled: bool = False
+    """
+    Globally enable or disable telemetry.
+    """
+    service_name: str
+    """
+    Service name must be a unique, fully qualified name (e.g., myapp.app.datavisyn.io)
+    """
+    global_exporter: BaseExporterTelemetrySettings | None = None
+    """
+    Global exporter to be used if metrics.exporter, traces.exporter or logs.exporter are not set.
+    """
+    metrics: MetricsTelemetrySettings = MetricsTelemetrySettings()
+    traces: TracesTelemetrySettings = TracesTelemetrySettings()
+    logs: LogsTelemetrySettings = LogsTelemetrySettings()
+    metrics_middleware: BaseTelemetrySettings = BaseTelemetrySettings()
+
+
 class VisynCoreSettings(BaseModel):
     total_anyio_tokens: int = 100
     """
     The total number of threads to use for anyio. FastAPI uses these threads to run sync routes concurrently.
+    """
+    telemetry: TelemetrySettings | None = None
+    """
+    Settings for telemetry using OpenTelemetry, prometheus, ...
     """
     cypress: bool = False
     """
@@ -90,6 +167,12 @@ class VisynCoreSettings(BaseModel):
 
     # TODO: Proper typing. This is 1:1 passed to the logging.config.dictConfig(...).
     logging: dict = Field(default_logging_dict)
+
+    log_level: str | None = None
+    """
+    Set the log level here to `DEBUG`, `INFO`, etc. if you only want to override the logging level.
+    Otherwise you must override the whole logging config of the root logger in `visyn_core.logging.root.level`.
+    """
 
     # visyn_core
     migrations: DBMigrationSettings = DBMigrationSettings()

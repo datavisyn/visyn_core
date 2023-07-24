@@ -1,10 +1,13 @@
-visyn_core  
-=====================
+# visyn_core
+
 [![NPM version](https://badge.fury.io/js/visyn_core.svg)](https://npmjs.org/package/visyn_core)
 [![build](https://github.com/datavisyn/visyn_core/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/datavisyn/visyn_core/actions/workflows/build.yml)
 
-Installation
-------------
+## Features
+
+- [Telemetry](./docs/TELEMETRY.md): OpenTelemetry integration for the three pillar of observability: metrics, logs, and traces
+
+## Installation
 
 ```bash
 git clone -b develop https://github.com/datavisyn/visyn_core.git  # or any other branch you want to develop in
@@ -19,8 +22,7 @@ source .venv/bin/activate  # active it
 make develop  # install all dependencies
 ```
 
-Local development
-------------
+## Local development
 
 ```bash
 # Frontend
@@ -30,8 +32,7 @@ yarn start
 python visyn_core
 ```
 
-Testing
--------
+## Testing
 
 ```bash
 # Frontend
@@ -41,15 +42,12 @@ yarn run test
 make test
 ```
 
-Building
---------
+## Building
 
 ```
 yarn run build
 ```
 
-
-
-***
+---
 
 <a href="https://www.datavisyn.io"><img src="https://www.datavisyn.io/wp-content/uploads/2021/11/datavisyn_RGB_A.svg" align="left" width="200px" hspace="10" vspace="6"></a>

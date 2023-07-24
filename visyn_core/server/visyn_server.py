@@ -42,12 +42,22 @@ def create_visyn_server(
         workspace_config["visyn_core"] = workspace_config["tdp_core"]
 
     manager.settings = GlobalSettings(**workspace_config)
-    logging.config.dictConfig(manager.settings.visyn_core.logging)
+
+    # Initialize the logging
+    logging_config = manager.settings.visyn_core.logging
+
+    if manager.settings.visyn_core.log_level:
+        try:
+            logging_config["root"]["level"] = manager.settings.visyn_core.log_level
+        except KeyError:
+            logging.warn("You have set visyn_core.log_level, but no root logger is defined in visyn_core.logging")
+
+    logging.config.dictConfig(logging_config)
 
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /metrics" not in record.getMessage()
+            return "GET /metrics" and "GET /health" not in record.getMessage()
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
@@ -82,6 +92,11 @@ def create_visyn_server(
 
     # Store all globals also in app.state.<manager> to allow access in FastAPI routes via request.app.state.<manager>.
     app.state.settings = manager.settings
+
+    if manager.settings.visyn_core.telemetry and manager.settings.visyn_core.telemetry.enabled:
+        from ..telemetry import init_telemetry
+
+        init_telemetry(app, settings=manager.settings.visyn_core.telemetry)
 
     # Initialize global managers.
     from ..plugin.registry import Registry
@@ -138,12 +153,6 @@ def create_visyn_server(
     # Load all namespace plugins as WSGIMiddleware plugins
     for p in router_plugins:
         app.include_router(p.load().factory())
-
-    class UvicornAccessLogFilter(logging.Filter):
-        def filter(self, record: logging.LogRecord) -> bool:
-            return 'GET /health HTTP/1.1" 200' not in record.getMessage()
-
-    logging.getLogger("uvicorn.access").addFilter(UvicornAccessLogFilter())
 
     # TODO: Check mainapp.py what it does and transfer them here. Currently, we cannot mount a flask app at root, such that the flask app is now mounted at /app/
     from .mainapp import build_info, health

@@ -61,7 +61,7 @@ class EntryPointPlugin:
         visyn_plugin_clazz: type[AVisynPlugin] = self.entry_point.load()
 
         if not issubclass(visyn_plugin_clazz, AVisynPlugin):
-            raise Exception("Entrypoint plugin {self.id} does not load a proper class extending AVisynPlugin")
+            raise Exception(f"Entrypoint plugin {self.id} does not load a proper class extending AVisynPlugin")
 
         return visyn_plugin_clazz()
 
