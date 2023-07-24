@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import merge from 'lodash/merge';
+import { Notifications, NotificationsProps } from '@mantine/notifications';
+import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { loadClientConfig } from '../base/clientConfig';
 import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
 import { VisynAppContext } from './VisynAppContext';
@@ -10,6 +12,8 @@ export function VisynAppProvider({
   children,
   appName,
   mantineProviderProps,
+  mantineModalsProviderProps,
+  mantineNotificationsProviderProps,
 }: {
   children?: React.ReactNode;
   appName: JSX.Element | string;
@@ -17,6 +21,8 @@ export function VisynAppProvider({
    * Props to merge with the `DEFAULT_MANTINE_PROVIDER_PROPS`.
    */
   mantineProviderProps?: Omit<MantineProviderProps, 'children'>;
+  mantineModalsProviderProps?: Omit<ModalsProviderProps, 'children'>;
+  mantineNotificationsProviderProps?: Omit<NotificationsProps, 'children'>;
 }) {
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
@@ -50,7 +56,10 @@ export function VisynAppProvider({
 
   return (
     <MantineProvider {...mergedMantineProviderProps}>
-      <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
+      <Notifications {...(mantineNotificationsProviderProps || {})} />
+      <ModalsProvider {...(mantineModalsProviderProps || {})}>
+        <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
+      </ModalsProvider>
     </MantineProvider>
   );
 }
