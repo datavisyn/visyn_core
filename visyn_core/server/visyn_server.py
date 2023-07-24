@@ -42,7 +42,14 @@ def create_visyn_server(
         workspace_config["visyn_core"] = workspace_config["tdp_core"]
 
     manager.settings = GlobalSettings(**workspace_config)
-    logging.config.dictConfig(manager.settings.visyn_core.logging)
+
+    # Initialize the logging
+    logging_config = manager.settings.visyn_core.logging
+
+    if manager.settings.visyn_core.logging_level:
+        logging_config["root"]["level"] = manager.settings.visyn_core.logging_level
+
+    logging.config.dictConfig(logging_config)
 
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
