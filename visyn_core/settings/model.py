@@ -168,10 +168,10 @@ class VisynCoreSettings(BaseModel):
     # TODO: Proper typing. This is 1:1 passed to the logging.config.dictConfig(...).
     logging: dict = Field(default_logging_dict)
 
-    logging_level: str | None = None
+    log_level: str | None = None
     """
     Set the log level here to `DEBUG`, `INFO`, etc. if you only want to override the logging level.
-    Otherwise you must override the whol logging config of the root logger in `visyn_core.logging.root.level`.
+    Otherwise you must override the whole logging config of the root logger in `visyn_core.logging.root.level`.
     """
 
     # visyn_core
