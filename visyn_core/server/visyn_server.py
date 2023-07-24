@@ -42,7 +42,17 @@ def create_visyn_server(
         workspace_config["visyn_core"] = workspace_config["tdp_core"]
 
     manager.settings = GlobalSettings(**workspace_config)
-    logging.config.dictConfig(manager.settings.visyn_core.logging)
+
+    # Initialize the logging
+    logging_config = manager.settings.visyn_core.logging
+
+    if manager.settings.visyn_core.log_level:
+        try:
+            logging_config["root"]["level"] = manager.settings.visyn_core.log_level
+        except KeyError:
+            logging.warn("You have set visyn_core.log_level, but no root logger is defined in visyn_core.logging")
+
+    logging.config.dictConfig(logging_config)
 
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
