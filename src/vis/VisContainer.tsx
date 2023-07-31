@@ -1,30 +1,29 @@
-import * as React from 'react';
-import * as d3v7 from 'd3v7';
-import { useMemo, useEffect } from 'react';
-import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 import { Group, Stack } from '@mantine/core';
+import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
+import * as d3v7 from 'd3v7';
+import * as React from 'react';
+import { useEffect, useMemo } from 'react';
+import { useSyncedRef } from '../hooks/useSyncedRef';
+import { getCssValue } from '../utils';
+import { VisSidebarWrapper } from './VisSidebarWrapper';
 import {
-  ESupportedPlotlyVis,
-  IVisConfig,
-  Scales,
-  ENumericalColorScaleType,
-  EColumnTypes,
+  EAggregateTypes,
   EBarDirection,
   EBarDisplayType,
   EBarGroupingType,
-  EScatterSelectSettings,
-  EAggregateTypes,
-  ICommonVisProps,
-  VisColumn,
+  EColumnTypes,
   EFilterOptions,
+  ENumericalColorScaleType,
+  EScatterSelectSettings,
+  ESupportedPlotlyVis,
+  IVisConfig,
+  Scales,
+  VisColumn,
 } from './interfaces';
-import { getCssValue } from '../utils';
-import { useSyncedRef } from '../hooks/useSyncedRef';
 import { getVisByConfig } from './provider/Provider';
-import { VisSidebarWrapper } from './VisSidebarWrapper';
 
-import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { VisSidebar } from './VisSidebar';
+import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { registerAllVis } from './provider/utils';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
@@ -148,11 +147,12 @@ export function EagerVis({
   }, []);
 
   React.useEffect(() => {
-    const mergeConfig = getVisByConfig(inconsistentVisConfig)?.mergeConfig;
-    if (mergeConfig) {
-      const newConfig = mergeConfig(columns, inconsistentVisConfig);
+    const vis = getVisByConfig(inconsistentVisConfig);
+    if (vis) {
+      const newConfig = vis.mergeConfig(columns, inconsistentVisConfig);
       _setVisConfig({ current: newConfig, consistent: newConfig });
     }
+
     // DANGER:: this useEffect should only occur when the visConfig.type changes. adding visconfig into the dep array will cause an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inconsistentVisConfig.type]);
@@ -231,7 +231,7 @@ export function EagerVis({
       <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {Renderer ? (
           <Renderer
-            externalConfig={visConfig}
+            config={visConfig}
             dimensions={dimensions}
             optionsConfig={{
               color: {
@@ -240,7 +240,7 @@ export function EagerVis({
             }}
             showDragModeOptions={showDragModeOptions}
             shapes={shapes}
-            setExternalConfig={setVisConfig}
+            setConfig={setVisConfig}
             filterCallback={filterCallback}
             selectionCallback={selectionCallback}
             selectedMap={selectedMap}

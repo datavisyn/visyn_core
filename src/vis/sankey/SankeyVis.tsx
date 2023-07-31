@@ -173,12 +173,12 @@ function generatePlotly(data, optimisedSelection) {
   ];
 }
 
-export function SankeyVis({ externalConfig, columns }: ICommonVisProps<ISankeyConfig>) {
+export function SankeyVis({ config, columns }: ICommonVisProps<ISankeyConfig>) {
   const id = React.useMemo(() => uniqueId('SankeyVis'), []);
 
   const [selection, setSelection] = React.useState<string[]>([]);
 
-  const { value: data } = useAsync(fetchData, [columns, externalConfig]);
+  const { value: data } = useAsync(fetchData, [columns, config]);
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
 

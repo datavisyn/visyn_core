@@ -5,7 +5,7 @@ export function createVis<T extends BaseConfig>(
   type: string,
   renderer: (props: ICommonVisProps<T>) => React.JSX.Element,
   sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element,
-  mergeConfig?: (columns: VisColumn[], config: T) => T,
+  mergeConfig: (columns: VisColumn[], config: T) => T,
 ) {
   const vis = {
     type,
@@ -20,7 +20,7 @@ interface GeneralVis<T extends BaseConfig> {
   type: string;
   renderer: (props: ICommonVisProps<T>) => React.JSX.Element;
   sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element;
-  mergeConfig?: (columns: VisColumn[], config: T) => T;
+  mergeConfig: (columns: VisColumn[], config: T) => T;
 }
 
 export const visMap: { [key: string]: GeneralVis<BaseConfig> } = {};
@@ -31,4 +31,13 @@ export function getVisByConfig<T extends BaseConfig>(config: T) {
 
 export function getAllVisTypes() {
   return Object.values(visMap).map((vis) => vis.type as string);
+}
+
+export function registerVis<T extends BaseConfig>(
+  type: string,
+  renderer: (props: ICommonVisProps<T>) => React.JSX.Element,
+  sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element,
+  mergeConfig: (columns: VisColumn[], config: T) => T,
+) {
+  visMap[type] = createVis(type, renderer, sidebarRenderer, mergeConfig);
 }
