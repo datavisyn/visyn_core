@@ -68,3 +68,9 @@ class VisynPlugin(AVisynPlugin):
             "visyn_core.security.store.no_security_store",
             {},
         )
+        registry.append(
+            "user_stores",
+            "oauth2_security_store",
+            "visyn_core.security.store.oauth2_security_store",
+            {},
+        )

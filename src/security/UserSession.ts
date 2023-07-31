@@ -14,14 +14,9 @@ export interface ILogoutOptions {
    */
   msg: string;
   /**
-   * Optional payload of the alb_security_store.
+   * Redirect URL for the client to actually logout.
    */
-  alb_security_store?: {
-    /**
-     * Redirect URL for the client to actually logout.
-     */
-    redirect?: string;
-  };
+  redirect?: string;
 }
 
 export class UserSession {
@@ -108,8 +103,8 @@ export class UserSession {
 
       // Handle different logout options
       // TODO: Maybe extract them to extension points later?
-      if (options.alb_security_store?.redirect) {
-        window.location.href = options.alb_security_store?.redirect;
+      if (options?.redirect) {
+        window.location.href = options.redirect;
       }
     }
   };
