@@ -1,3 +1,4 @@
+import { MantineTheme, useMantineTheme } from '@mantine/core';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
@@ -14,7 +15,7 @@ const LINK_DEFAULT_COLOR = 'rgba(68, 68, 68, 0.2)';
 
 const layout = {
   font: {
-    size: 10,
+    size: 12,
   },
 };
 
@@ -147,7 +148,10 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
   return false;
 }
 
-function generatePlotly(data, optimisedSelection) {
+function generatePlotly(data, optimisedSelection, theme: MantineTheme) {
+  const selected = theme.colors[theme.primaryColor][theme.fn.primaryShade()];
+  const def = theme.colors.gray[4];
+
   return [
     {
       type: 'sankey',
@@ -161,13 +165,11 @@ function generatePlotly(data, optimisedSelection) {
           width: 0.5,
         },
         label: data.nodes.labels,
-        color: data.nodes.color.map((color, i) => (isNodeSelected(optimisedSelection, data.nodes.inverseLookup[i]) ? NODE_SELECTION_COLOR : NODE_GRAYED_COLOR)),
+        color: data.nodes.color.map((color, i) => (isNodeSelected(optimisedSelection, data.nodes.inverseLookup[i]) ? selected : def)),
       },
       link: {
         ...data.links,
-        color: data.links.color.map((color, i) =>
-          isNodeSelected(optimisedSelection, data.links.inverseLookup[i]) ? LINK_SELECTION_COLOR : LINK_DEFAULT_COLOR,
-        ),
+        color: data.links.color.map((color, i) => (isNodeSelected(optimisedSelection, data.links.inverseLookup[i]) ? selected : def)),
       },
     },
   ];
@@ -182,6 +184,8 @@ export function SankeyVis({ config, columns, selectedList, selectedMap, selectio
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
 
+  const theme = useMantineTheme();
+
   // When we have new data -> recreate plotly
   React.useEffect(() => {
     const optimisedSelection = new Set(selection);
@@ -189,9 +193,9 @@ export function SankeyVis({ config, columns, selectedList, selectedMap, selectio
     if (!data) {
       setPlotly(null);
     } else {
-      setPlotly(generatePlotly(data, optimisedSelection));
+      setPlotly(generatePlotly(data, optimisedSelection, theme));
     }
-  }, [selection, data]);
+  }, [selection, data, theme]);
 
   React.useEffect(() => {
     setSelection(selectedList);
