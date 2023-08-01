@@ -1,9 +1,10 @@
-import * as React from 'react';
 import { uniqueId } from 'lodash';
-import { ICommonVisProps, ISankeyConfig, VisCategoricalColumn, VisColumn } from '../interfaces';
-import { resolveColumnValues } from '../general/layoutUtils';
+import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
+import { resolveColumnValues } from '../general/layoutUtils';
+import { ICommonVisProps, ISankeyConfig, VisCategoricalColumn, VisColumn } from '../interfaces';
+import { PlotDatum } from 'plotly.js-dist-min';
 
 const NODE_SELECTION_COLOR = 'rgba(51, 122, 183, 1)';
 const NODE_DEFAULT_COLOR = 'rgba(51, 122, 183, 1)';
@@ -173,7 +174,7 @@ function generatePlotly(data, optimisedSelection) {
   ];
 }
 
-export function SankeyVis({ config, columns }: ICommonVisProps<ISankeyConfig>) {
+export function SankeyVis({ config, columns, selectedList, selectedMap, selectionCallback }: ICommonVisProps<ISankeyConfig>) {
   const id = React.useMemo(() => uniqueId('SankeyVis'), []);
 
   const [selection, setSelection] = React.useState<string[]>([]);
@@ -193,6 +194,10 @@ export function SankeyVis({ config, columns }: ICommonVisProps<ISankeyConfig>) {
     }
   }, [selection, data]);
 
+  React.useEffect(() => {
+    setSelection(selectedList);
+  }, [selectedList]);
+
   return (
     <div className="d-flex flex-row w-100 h-100" style={{ minHeight: '0px' }}>
       <div className={`position-relative d-flex justify-content-center align-items-center flex-grow-1 `}>
@@ -206,15 +211,12 @@ export function SankeyVis({ config, columns }: ICommonVisProps<ISankeyConfig>) {
                 return;
               }
 
-              const element = sel.points[0];
-              console.log(element.pointIndex, element);
+              const element = sel.points[0] as PlotDatum & { index: number };
 
               if ('sourceLinks' in element) {
-                // @ts-ignore
-                setSelection(data.nodes.inverseLookup[element.index]);
+                selectionCallback(data.nodes.inverseLookup[element.index]);
               } else {
-                // @ts-ignore
-                setSelection(data.links.inverseLookup[element.index]);
+                selectionCallback(data.links.inverseLookup[element.index]);
               }
             }}
           />

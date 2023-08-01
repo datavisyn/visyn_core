@@ -1,21 +1,31 @@
 import * as React from 'react';
 import { BaseConfig, ICommonVisProps, ICommonVisSideBarProps, VisColumn } from '../interfaces';
 
+/**
+ * Generic utility function for creating a vis object.
+ */
 export function createVis<T extends BaseConfig>(
   type: string,
+
+  /** The main vis renderer. Required in all visualizations. */
   renderer: (props: ICommonVisProps<T>) => React.JSX.Element,
+
+  /** The sidebar renderer. Required in all visualizations. */
   sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element,
+
   mergeConfig: (columns: VisColumn[], config: T) => T,
 ) {
-  const vis = {
+  return {
     type,
     renderer,
     sidebarRenderer,
     mergeConfig,
   };
-  return vis;
 }
 
+/**
+ * The general visualization interface. Holds the type and the renderers.
+ */
 interface GeneralVis<T extends BaseConfig> {
   type: string;
   renderer: (props: ICommonVisProps<T>) => React.JSX.Element;
