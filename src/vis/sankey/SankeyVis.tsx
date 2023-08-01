@@ -6,13 +6,6 @@ import { PlotlyComponent } from '../../plotly';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, ISankeyConfig, VisCategoricalColumn, VisColumn } from '../interfaces';
 
-const NODE_SELECTION_COLOR = 'rgba(51, 122, 183, 1)';
-const NODE_DEFAULT_COLOR = 'rgba(51, 122, 183, 1)';
-const NODE_GRAYED_COLOR = 'rgba(51, 122, 183, 0.2)';
-
-const LINK_SELECTION_COLOR = 'rgba(51, 122, 183, 0.2)';
-const LINK_DEFAULT_COLOR = 'rgba(68, 68, 68, 0.2)';
-
 const layout = {
   font: {
     size: 12,
@@ -36,19 +29,16 @@ function TransposeData(
   }[],
 ) {
   let nodeIndex = 0;
-  const { length } = data;
 
   const plotly = {
     nodes: {
       labels: new Array<string>(),
-      color: new Array<string>(),
       inverseLookup: [],
     },
     links: {
       source: new Array<number>(),
       target: new Array<number>(),
       value: new Array<number>(),
-      color: new Array<string>(),
       inverseLookup: [],
     },
   };
@@ -74,7 +64,6 @@ function TransposeData(
 
     for (const node of nodes) {
       plotly.nodes.labels.push(node.value);
-      plotly.nodes.color.push(NODE_DEFAULT_COLOR);
       plotly.nodes.inverseLookup.push(node.inverseLookup);
     }
 
@@ -120,7 +109,6 @@ function TransposeData(
             plotly.links.source.push(lane.nodes.find((node) => node.value === lik).id);
             plotly.links.target.push(next.nodes.find((node) => node.value === rik).id);
             plotly.links.value.push(links[lik][rik].count);
-            plotly.links.color.push(LINK_DEFAULT_COLOR);
             plotly.links.inverseLookup.push(links[lik][rik].inverseLookup);
           }
         }
@@ -165,11 +153,11 @@ function generatePlotly(data, optimisedSelection, theme: MantineTheme) {
           width: 0.5,
         },
         label: data.nodes.labels,
-        color: data.nodes.color.map((color, i) => (isNodeSelected(optimisedSelection, data.nodes.inverseLookup[i]) ? selected : def)),
+        color: data.nodes.labels.map((_, i) => (isNodeSelected(optimisedSelection, data.nodes.inverseLookup[i]) ? selected : def)),
       },
       link: {
         ...data.links,
-        color: data.links.color.map((color, i) => (isNodeSelected(optimisedSelection, data.links.inverseLookup[i]) ? selected : def)),
+        color: data.links.value.map((_, i) => (isNodeSelected(optimisedSelection, data.links.inverseLookup[i]) ? selected : def)),
       },
     },
   ];
