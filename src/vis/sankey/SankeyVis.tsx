@@ -4,7 +4,6 @@ import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, ISankeyConfig, VisCategoricalColumn, VisColumn } from '../interfaces';
-import { PlotDatum } from 'plotly.js-dist-min';
 
 const NODE_SELECTION_COLOR = 'rgba(51, 122, 183, 1)';
 const NODE_DEFAULT_COLOR = 'rgba(51, 122, 183, 1)';
@@ -211,7 +210,7 @@ export function SankeyVis({ config, columns, selectedList, selectedMap, selectio
                 return;
               }
 
-              const element = sel.points[0] as PlotDatum & { index: number };
+              const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
 
               if ('sourceLinks' in element) {
                 selectionCallback(data.nodes.inverseLookup[element.index]);
