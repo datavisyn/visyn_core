@@ -1,16 +1,9 @@
-import { MantineTheme, useMantineTheme } from '@mantine/core';
-import { uniqueId } from 'lodash';
+import { MantineTheme, Stack, useMantineTheme } from '@mantine/core';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, ISankeyConfig, VisCategoricalColumn, VisColumn } from '../interfaces';
-
-const layout = {
-  font: {
-    size: 12,
-  },
-};
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -136,9 +129,9 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
   return false;
 }
 
-function generatePlotly(data, optimisedSelection, theme: MantineTheme) {
-  const selected = theme.colors[theme.primaryColor][theme.fn.primaryShade()];
-  const def = theme.colors.gray[4];
+function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineTheme) {
+  const selected = theme.fn.lighten(theme.colors[theme.primaryColor][theme.fn.primaryShade()], 0.2);
+  const def = optimisedSelection.size > 0 ? theme.fn.rgba(theme.colors.gray[4], 0.5) : selected;
 
   return [
     {
@@ -163,9 +156,7 @@ function generatePlotly(data, optimisedSelection, theme: MantineTheme) {
   ];
 }
 
-export function SankeyVis({ config, columns, selectedList, selectedMap, selectionCallback }: ICommonVisProps<ISankeyConfig>) {
-  const id = React.useMemo(() => uniqueId('SankeyVis'), []);
-
+export function SankeyVis({ config, columns, selectedList, selectionCallback }: ICommonVisProps<ISankeyConfig>) {
   const [selection, setSelection] = React.useState<string[]>([]);
 
   const { value: data } = useAsync(fetchData, [columns, config]);
@@ -190,31 +181,39 @@ export function SankeyVis({ config, columns, selectedList, selectedMap, selectio
   }, [selectedList]);
 
   return (
-    <div className="d-flex flex-row w-100 h-100" style={{ minHeight: '0px' }}>
-      <div className={`position-relative d-flex justify-content-center align-items-center flex-grow-1 `}>
-        {plotly ? (
-          <PlotlyComponent
-            divId={`plotlyDiv${id}`}
-            data={plotly}
-            layout={layout}
-            onClick={(sel) => {
-              if (!sel.points[0]) {
-                return;
-              }
+    <Stack
+      style={{
+        overflowX: 'hidden',
+        overflowY: 'auto',
+      }}
+    >
+      {plotly ? (
+        <PlotlyComponent
+          data={plotly}
+          layout={{
+            autosize: true,
+            font: {
+              size: 12,
+            },
+          }}
+          useResizeHandler
+          onClick={(sel) => {
+            if (!sel.points[0]) {
+              return;
+            }
 
-              const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
+            const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
 
-              if ('sourceLinks' in element) {
-                selectionCallback(data.nodes.inverseLookup[element.index]);
-              } else {
-                selectionCallback(data.links.inverseLookup[element.index]);
-              }
-            }}
-          />
-        ) : (
-          <p className="h4">Select at least 2 categorical attributes.</p>
-        )}
-      </div>
-    </div>
+            if ('sourceLinks' in element) {
+              selectionCallback(data.nodes.inverseLookup[element.index]);
+            } else {
+              selectionCallback(data.links.inverseLookup[element.index]);
+            }
+          }}
+        />
+      ) : (
+        <p className="h4">Select at least 2 categorical attributes.</p>
+      )}
+    </Stack>
   );
 }
