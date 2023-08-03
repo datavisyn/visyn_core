@@ -242,8 +242,8 @@ export interface ICommonVisSideBarProps<T> {
 }
 
 export interface ICommonVisProps<T> {
-  externalConfig?: T;
-  setExternalConfig?: (config: T) => void;
+  config?: T;
+  setConfig?: (config: T) => void;
   columns: VisColumn[];
   optionsConfig?: any;
   colors?: string[];
