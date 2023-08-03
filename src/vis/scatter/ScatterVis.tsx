@@ -130,62 +130,45 @@ export function ScatterVis({
   }, [plotsWithSelectedPoints, traces]);
 
   return (
-    <Group
-      noWrap
-      pl={0}
-      pr={0}
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
-      }}
-    >
-      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-        {showDragModeOptions ? (
-          <Center>
-            <Group mt="lg">
-              <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
-            </Group>
-          </Center>
-        ) : null}
+    <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+      {showDragModeOptions ? (
+        <Center>
+          <Group mt="lg">
+            <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
+          </Group>
+        </Center>
+      ) : null}
 
-        {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
-          <PlotlyComponent
-            key={id}
-            divId={`plotlyDiv${id}`}
-            data={plotlyData}
-            layout={layout}
-            config={{ responsive: true, displayModeBar: false, scrollZoom }}
-            useResizeHandler
-            style={{ width: '100%', height: '100%' }}
-            onClick={(event) => {
-              const clickedId = (event.points[0] as any).id;
-              if (selectedMap[clickedId]) {
-                selectionCallback(selectedList.filter((s) => s !== clickedId));
-              } else {
-                selectionCallback([...selectedList, clickedId]);
-              }
-            }}
-            onInitialized={() => {
-              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-            }}
-            onUpdate={() => {
-              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-            }}
-            onSelected={(sel) => {
-              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
-            }}
-          />
-        ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
-          <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
-        ) : null}
-      </Stack>
-    </Group>
+      {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
+        <PlotlyComponent
+          key={id}
+          divId={`plotlyDiv${id}`}
+          data={plotlyData}
+          layout={layout}
+          config={{ responsive: true, displayModeBar: false, scrollZoom }}
+          useResizeHandler
+          style={{ width: '100%', height: '100%' }}
+          onClick={(event) => {
+            const clickedId = (event.points[0] as any).id;
+            if (selectedMap[clickedId]) {
+              selectionCallback(selectedList.filter((s) => s !== clickedId));
+            } else {
+              selectionCallback([...selectedList, clickedId]);
+            }
+          }}
+          onInitialized={() => {
+            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+          }}
+          onUpdate={() => {
+            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+          }}
+          onSelected={(sel) => {
+            selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+          }}
+        />
+      ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
+        <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
+      ) : null}
+    </Stack>
   );
 }
