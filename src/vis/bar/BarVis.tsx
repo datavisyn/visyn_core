@@ -13,7 +13,7 @@ import { useAsync } from '../../hooks';
 import { createBarTraces } from './utils';
 
 export function BarVis({
-  externalConfig,
+  config,
   columns,
   scales,
   selectionCallback = () => null,
@@ -21,7 +21,7 @@ export function BarVis({
   selectedList = [],
   dimensions,
 }: ICommonVisProps<IBarConfig>) {
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createBarTraces, [columns, externalConfig, scales]);
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createBarTraces, [columns, config, scales]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
@@ -103,14 +103,14 @@ export function BarVis({
       autosize: true,
       grid: { rows: finalTraces.rows, columns: finalTraces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
-      barmode: externalConfig.groupType === EBarGroupingType.STACK ? 'stack' : 'group',
+      barmode: config.groupType === EBarGroupingType.STACK ? 'stack' : 'group',
       dragmode: false,
     };
 
     setLayout({ ...layout, ...beautifyLayout(finalTraces, innerLayout, null, true) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finalTraces, externalConfig.groupType]);
+  }, [finalTraces, config.groupType]);
 
   const traceData = useMemo(() => {
     if (!finalTraces) {

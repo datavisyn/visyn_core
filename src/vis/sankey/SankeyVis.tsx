@@ -1,22 +1,9 @@
+import { Group, MantineTheme, Stack, useMantineTheme } from '@mantine/core';
 import * as React from 'react';
-import { uniqueId } from 'lodash';
-import { ICommonVisProps, ISankeyConfig, VisCategoricalColumn, VisColumn } from '../interfaces';
-import { resolveColumnValues } from '../general/layoutUtils';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
-
-const NODE_SELECTION_COLOR = 'rgba(51, 122, 183, 1)';
-const NODE_DEFAULT_COLOR = 'rgba(51, 122, 183, 1)';
-const NODE_GRAYED_COLOR = 'rgba(51, 122, 183, 0.2)';
-
-const LINK_SELECTION_COLOR = 'rgba(51, 122, 183, 0.2)';
-const LINK_DEFAULT_COLOR = 'rgba(68, 68, 68, 0.2)';
-
-const layout = {
-  font: {
-    size: 10,
-  },
-};
+import { resolveColumnValues } from '../general/layoutUtils';
+import { ICommonVisProps, ISankeyConfig, VisCategoricalColumn, VisColumn } from '../interfaces';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -35,19 +22,16 @@ function TransposeData(
   }[],
 ) {
   let nodeIndex = 0;
-  const { length } = data;
 
   const plotly = {
     nodes: {
       labels: new Array<string>(),
-      color: new Array<string>(),
       inverseLookup: [],
     },
     links: {
       source: new Array<number>(),
       target: new Array<number>(),
       value: new Array<number>(),
-      color: new Array<string>(),
       inverseLookup: [],
     },
   };
@@ -73,7 +57,6 @@ function TransposeData(
 
     for (const node of nodes) {
       plotly.nodes.labels.push(node.value);
-      plotly.nodes.color.push(NODE_DEFAULT_COLOR);
       plotly.nodes.inverseLookup.push(node.inverseLookup);
     }
 
@@ -119,7 +102,6 @@ function TransposeData(
             plotly.links.source.push(lane.nodes.find((node) => node.value === lik).id);
             plotly.links.target.push(next.nodes.find((node) => node.value === rik).id);
             plotly.links.value.push(links[lik][rik].count);
-            plotly.links.color.push(LINK_DEFAULT_COLOR);
             plotly.links.inverseLookup.push(links[lik][rik].inverseLookup);
           }
         }
@@ -147,7 +129,10 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
   return false;
 }
 
-function generatePlotly(data, optimisedSelection) {
+function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineTheme) {
+  const selected = theme.fn.lighten(theme.colors[theme.primaryColor][theme.fn.primaryShade()], 0.2);
+  const def = optimisedSelection.size > 0 ? theme.fn.rgba(theme.colors.gray[4], 0.5) : selected;
+
   return [
     {
       type: 'sankey',
@@ -161,26 +146,24 @@ function generatePlotly(data, optimisedSelection) {
           width: 0.5,
         },
         label: data.nodes.labels,
-        color: data.nodes.color.map((color, i) => (isNodeSelected(optimisedSelection, data.nodes.inverseLookup[i]) ? NODE_SELECTION_COLOR : NODE_GRAYED_COLOR)),
+        color: data.nodes.labels.map((_, i) => (isNodeSelected(optimisedSelection, data.nodes.inverseLookup[i]) ? selected : def)),
       },
       link: {
         ...data.links,
-        color: data.links.color.map((color, i) =>
-          isNodeSelected(optimisedSelection, data.links.inverseLookup[i]) ? LINK_SELECTION_COLOR : LINK_DEFAULT_COLOR,
-        ),
+        color: data.links.value.map((_, i) => (isNodeSelected(optimisedSelection, data.links.inverseLookup[i]) ? selected : def)),
       },
     },
   ];
 }
 
-export function SankeyVis({ externalConfig, columns }: ICommonVisProps<ISankeyConfig>) {
-  const id = React.useMemo(() => uniqueId('SankeyVis'), []);
-
+export function SankeyVis({ config, columns, selectedList, selectionCallback, dimensions }: ICommonVisProps<ISankeyConfig>) {
   const [selection, setSelection] = React.useState<string[]>([]);
 
-  const { value: data } = useAsync(fetchData, [columns, externalConfig]);
+  const { value: data } = useAsync(fetchData, [columns, config]);
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
+
+  const theme = useMantineTheme();
 
   // When we have new data -> recreate plotly
   React.useEffect(() => {
@@ -189,38 +172,60 @@ export function SankeyVis({ externalConfig, columns }: ICommonVisProps<ISankeyCo
     if (!data) {
       setPlotly(null);
     } else {
-      setPlotly(generatePlotly(data, optimisedSelection));
+      setPlotly(generatePlotly(data, optimisedSelection, theme));
     }
-  }, [selection, data]);
+  }, [selection, data, theme]);
+
+  React.useEffect(() => {
+    setSelection(selectedList);
+  }, [selectedList]);
 
   return (
-    <div className="d-flex flex-row w-100 h-100" style={{ minHeight: '0px' }}>
-      <div className={`position-relative d-flex justify-content-center align-items-center flex-grow-1 `}>
+    <Group
+      noWrap
+      pl={0}
+      pr={0}
+      sx={{
+        flexGrow: 1,
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        // Disable plotly crosshair cursor
+        '.nsewdrag': {
+          cursor: 'pointer !important',
+        },
+      }}
+    >
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
         {plotly ? (
           <PlotlyComponent
-            divId={`plotlyDiv${id}`}
             data={plotly}
-            layout={layout}
+            style={{ width: '100%' }}
+            layout={{
+              font: {
+                size: 12,
+              },
+              autosize: true,
+            }}
             onClick={(sel) => {
               if (!sel.points[0]) {
                 return;
               }
 
-              const element = sel.points[0];
+              const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
 
               if ('sourceLinks' in element) {
-                // @ts-ignore
-                setSelection(data.nodes.inverseLookup[element.index]);
+                selectionCallback(data.nodes.inverseLookup[element.index]);
               } else {
-                // @ts-ignore
-                setSelection(data.links.inverseLookup[element.index]);
+                selectionCallback(data.links.inverseLookup[element.index]);
               }
             }}
           />
         ) : (
           <p className="h4">Select at least 2 categorical attributes.</p>
         )}
-      </div>
-    </div>
+      </Stack>
+    </Group>
   );
 }
