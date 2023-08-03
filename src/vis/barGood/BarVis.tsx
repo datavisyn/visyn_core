@@ -1,9 +1,9 @@
+import { Stack } from '@mantine/core';
 import React from 'react';
-import { Group, Stack } from '@mantine/core';
 
+import { InvalidCols } from '../general/InvalidCols';
 import { IBarConfig, ICommonVisProps } from '../interfaces';
 import { BarChart } from './BarChart';
-import { InvalidCols } from '../general/InvalidCols';
 
 export function BarVis({ config, columns, selectionCallback = () => null, selectedMap = {}, selectedList = [] }: ICommonVisProps<IBarConfig>) {
   return (
