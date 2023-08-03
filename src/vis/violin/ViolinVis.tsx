@@ -1,39 +1,18 @@
-import * as React from 'react';
-import * as d3v7 from 'd3v7';
-import merge from 'lodash/merge';
-import uniqueId from 'lodash/uniqueId';
-import { useEffect, useState } from 'react';
 import { Stack } from '@mantine/core';
-import { IViolinConfig, ICommonVisProps } from '../interfaces';
+import * as d3v7 from 'd3v7';
+import uniqueId from 'lodash/uniqueId';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
+import { ICommonVisProps, IViolinConfig } from '../interfaces';
 import { createViolinTraces } from './utils';
-import { useAsync } from '../../hooks';
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
-export function ViolinVis({
-  externalConfig,
-  extensions,
-  columns,
-  scales,
-  dimensions,
-  selectedList,
-  selectedMap,
-  selectionCallback,
-}: ICommonVisProps<IViolinConfig>) {
-  const mergedExtensions = React.useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
-
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, externalConfig, scales, selectedList, selectedMap]);
+export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
 
   const id = React.useMemo(() => uniqueId('ViolinVis'), []);
 
