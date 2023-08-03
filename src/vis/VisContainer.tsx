@@ -228,7 +228,7 @@ export function EagerVis({
     >
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+      <Stack spacing={0} sx={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {Renderer ? (
           <Renderer
             config={visConfig}

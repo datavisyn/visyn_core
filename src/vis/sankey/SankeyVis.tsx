@@ -1,4 +1,4 @@
-import { MantineTheme, Stack, useMantineTheme } from '@mantine/core';
+import { Group, MantineTheme, Stack, useMantineTheme } from '@mantine/core';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
@@ -156,7 +156,7 @@ function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineThe
   ];
 }
 
-export function SankeyVis({ config, columns, selectedList, selectionCallback }: ICommonVisProps<ISankeyConfig>) {
+export function SankeyVis({ config, columns, selectedList, selectionCallback, dimensions }: ICommonVisProps<ISankeyConfig>) {
   const [selection, setSelection] = React.useState<string[]>([]);
 
   const { value: data } = useAsync(fetchData, [columns, config]);
@@ -181,39 +181,51 @@ export function SankeyVis({ config, columns, selectedList, selectionCallback }: 
   }, [selectedList]);
 
   return (
-    <Stack
-      style={{
-        overflowX: 'hidden',
-        overflowY: 'auto',
+    <Group
+      noWrap
+      pl={0}
+      pr={0}
+      sx={{
+        flexGrow: 1,
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        // Disable plotly crosshair cursor
+        '.nsewdrag': {
+          cursor: 'pointer !important',
+        },
       }}
     >
-      {plotly ? (
-        <PlotlyComponent
-          data={plotly}
-          layout={{
-            autosize: true,
-            font: {
-              size: 12,
-            },
-          }}
-          useResizeHandler
-          onClick={(sel) => {
-            if (!sel.points[0]) {
-              return;
-            }
+      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+        {plotly ? (
+          <PlotlyComponent
+            data={plotly}
+            style={{ width: '100%' }}
+            layout={{
+              font: {
+                size: 12,
+              },
+              autosize: true,
+            }}
+            onClick={(sel) => {
+              if (!sel.points[0]) {
+                return;
+              }
 
-            const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
+              const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
 
-            if ('sourceLinks' in element) {
-              selectionCallback(data.nodes.inverseLookup[element.index]);
-            } else {
-              selectionCallback(data.links.inverseLookup[element.index]);
-            }
-          }}
-        />
-      ) : (
-        <p className="h4">Select at least 2 categorical attributes.</p>
-      )}
-    </Stack>
+              if ('sourceLinks' in element) {
+                selectionCallback(data.nodes.inverseLookup[element.index]);
+              } else {
+                selectionCallback(data.links.inverseLookup[element.index]);
+              }
+            }}
+          />
+        ) : (
+          <p className="h4">Select at least 2 categorical attributes.</p>
+        )}
+      </Stack>
+    </Group>
   );
 }
