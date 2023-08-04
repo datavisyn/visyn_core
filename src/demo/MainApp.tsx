@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
-import { fetchIrisData } from '../vis/stories/fetchIrisData';
+import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { VisynRanking } from '../ranking';
@@ -87,7 +87,9 @@ export function MainApp() {
             setExternalConfig={setVisConfig}
             selected={visSelection}
             selectionCallback={(s) => {
-              setSelection(s.map((i) => iris[+i]));
+              if (s) {
+                setSelection(s.map((i) => iris[+i]));
+              }
             }}
           />
         </SimpleGrid>
