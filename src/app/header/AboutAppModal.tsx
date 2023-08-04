@@ -19,7 +19,7 @@ export function AboutAppModalBottom({ appName, customerLogo, dvLogo }: { appName
   return (
     <Center my="md">
       <Text align="center" color="dimmed">
-        {appName || 'This application '} was developed by{' '}
+        {appName || 'This application '} is developed by{' '}
         <Center mt="md">
           {customerLogo}
           {customerLogo ? <Space w="lg" /> : null}
