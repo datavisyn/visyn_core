@@ -1,13 +1,8 @@
+import { ActionIcon, Divider, Group, Tooltip } from '@mantine/core';
 import * as React from 'react';
-import { ActionIcon, Center, Container, Divider, Group, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { i18n } from '../i18n';
-import { FilterEmpty } from '../assets/icons/FilterEmpty';
 import { FilterClear } from '../assets/icons/FilterClear';
+import { FilterEmpty } from '../assets/icons/FilterEmpty';
 import { FilterFilled } from '../assets/icons/FilterFilled';
-import { BarGroupTypeButtons } from './sidebar/BarGroupTypeButtons';
 import { EFilterOptions, EScatterSelectSettings } from './interfaces';
 import { BrushOptionButtons } from './sidebar/BrushOptionButtons';
 

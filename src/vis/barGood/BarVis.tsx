@@ -1,13 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Group } from '@mantine/core';
+import { Stack } from '@mantine/core';
+import React from 'react';
 
+import { InvalidCols } from '../general/InvalidCols';
 import { IBarConfig, ICommonVisProps } from '../interfaces';
 import { BarChart } from './BarChart';
 
-export function BarVis({ externalConfig, columns, selectionCallback = () => null, selectedMap = {}, selectedList = [] }: ICommonVisProps<IBarConfig>) {
+export function BarVis({ config, columns, selectionCallback = () => null, selectedMap = {}, selectedList = [] }: ICommonVisProps<IBarConfig>) {
   return (
-    <Group noWrap p={0} sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }}>
-      <BarChart config={externalConfig} columns={columns} selectedMap={selectedMap} selectionCallback={selectionCallback} selectedList={selectedList} />
-    </Group>
+    <Stack p={0} sx={{ height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }}>
+      {config.catColumnSelected ? (
+        <BarChart config={config} columns={columns} selectedMap={selectedMap} selectionCallback={selectionCallback} selectedList={selectedList} />
+      ) : (
+        <InvalidCols headerMessage="Invalid column" bodyMessage="No column selected" />
+      )}
+    </Stack>
   );
 }

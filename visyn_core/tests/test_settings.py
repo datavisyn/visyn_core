@@ -1,9 +1,11 @@
+import logging
 import os
 from unittest import mock
 
 from starlette.testclient import TestClient
 
 from visyn_core import manager
+from visyn_core.server.visyn_server import create_visyn_server
 from visyn_core.settings.model import GlobalSettings
 
 
@@ -41,6 +43,24 @@ def test_env_substitution():
             env_settings.get_nested("visyn_core.logging.version") == "2"
         )  # Note that this is a string, as it cannot infer the type of Dict
         assert env_settings.get_nested("visyn_core.logging.root.level") == "DEBUG"
+
+
+def test_server_start():
+    # By default, the logging level is INFO
+    assert logging.getLogger().level == logging.INFO
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "visyn_core__log_level": "DEBUG",
+        },
+        clear=True,
+    ):
+        # Create a new server with the new settings
+        create_visyn_server()
+
+        # Assert the logging level is now DEBUG
+        assert logging.getLogger().level == logging.DEBUG
 
 
 def test_client_config(client: TestClient):

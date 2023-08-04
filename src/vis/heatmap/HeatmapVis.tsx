@@ -5,9 +5,9 @@ import { ICommonVisProps, IHeatmapConfig } from '../interfaces';
 import { HeatmapGrid } from './HeatmapGrid';
 
 export function HeatmapVis({
-  externalConfig,
+  config,
   columns,
-  setExternalConfig,
+  setConfig,
   selectionCallback = () => null,
   selectedMap = {},
   enableSidebar,
@@ -16,13 +16,8 @@ export function HeatmapVis({
 }: ICommonVisProps<IHeatmapConfig>) {
   return (
     <Group sx={{ height: '100%', width: '100%' }} noWrap>
-      <HeatmapGrid
-        config={externalConfig}
-        columns={columns}
-        selected={selectedMap}
-        selectionCallback={selectionCallback}
-        setExternalConfig={setExternalConfig}
-      />
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
+      <HeatmapGrid config={config} columns={columns} selected={selectedMap} selectionCallback={selectionCallback} setExternalConfig={setConfig} />
     </Group>
   );
 }

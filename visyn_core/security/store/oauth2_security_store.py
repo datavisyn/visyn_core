@@ -9,7 +9,7 @@ from .base_store import BaseStore
 _log = logging.getLogger(__name__)
 
 
-class ALBSecurityStore(BaseStore):
+class OAuth2SecurityStore(BaseStore):
     ui = "AutoLoginForm"
 
     def __init__(self, cookie_name: str | None, signout_url: str | None):
@@ -17,19 +17,20 @@ class ALBSecurityStore(BaseStore):
         self.signout_url: str | None = signout_url
 
     def load_from_request(self, req):
-        if "X-Amzn-Oidc-Identity" in req.headers and "X-Amzn-Oidc-Accesstoken" in req.headers and "X-Amzn-Oidc-Data" in req.headers:
-            try:
-                # Get token data from header
-                encoded = req.headers["X-Amzn-Oidc-Data"]
+        try:
+            # Get token data from header
+            if manager.settings.visyn_core.security.store.oauth2_security_store.access_token_header_name in req.headers:
+                _log.debug(f"Request headers: {req.headers}")
+                encoded = req.headers[manager.settings.visyn_core.security.store.oauth2_security_store.access_token_header_name]
                 # Try to decode the oidc data jwt
                 user = jwt.decode(encoded, options={"verify_signature": False})
+                _log.debug(f"User: {user}")
                 # Create new user from given attributes
-                email = user["email"]
+                email = user[manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field]
                 return User(id=email, roles=[])
-            except Exception:
-                _log.exception("Error in load_from_request")
-                return None
-        return None
+        except Exception:
+            _log.exception("Error in load_from_request")
+            return None
 
     def logout(self, user):
         # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html#authentication-logout
@@ -50,11 +51,11 @@ def create():
     # Why do we do this here and not in the __init__.py?
     # Because the configuration is merged after the registry is loaded,
     # such that no keys are available (except visyn_core keys).
-    if manager.settings.visyn_core.security.store.alb_security_store.enable:
-        _log.info("Adding ALBSecurityStore")
-        return ALBSecurityStore(
-            manager.settings.visyn_core.security.store.alb_security_store.cookie_name,
-            manager.settings.visyn_core.security.store.alb_security_store.signout_url,
+    if manager.settings.visyn_core.security.store.oauth2_security_store.enable:
+        _log.info("Adding OAuth2SecurityStore")
+        return OAuth2SecurityStore(
+            manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name,
+            manager.settings.visyn_core.security.store.oauth2_security_store.signout_url,
         )
 
     return None
