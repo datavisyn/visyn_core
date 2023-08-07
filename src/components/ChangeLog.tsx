@@ -17,9 +17,9 @@ export function ChangeLog({ title, date, tags, author, content }: { title: strin
         <Text>Maybe sone general description about the project, this is optional</Text>
       </Stack>
       <Group position="right" mr="md">
-        <Button>filter by</Button>
+        <ChangeLogFilter />
       </Group>
-      <ScrollArea>
+      <ScrollArea sx={{ height: '100%', width: '100%' }}>
         <Timeline active={6}>
           <Timeline.Item>
             <ChangeLogArticle title={title} author={author} content={content} date={date} tags={tags} />
@@ -44,7 +44,7 @@ export function ChangeLog({ title, date, tags, author, content }: { title: strin
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
         <Transition transition="slide-up" mounted={scroll.y > 0}>
           {(transitionStyles) => (
-            <Button leftIcon={<FontAwesomeIcon icon="arrow-up" />} style={transitionStyles} onClick={() => scrollTo({ y: 0 })}>
+            <Button leftIcon={<FontAwesomeIcon icon="arrow-up" size={'1x'} />} style={transitionStyles} onClick={() => scrollTo({ y: 0 })}>
               Scroll to top
             </Button>
           )}

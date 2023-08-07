@@ -1,5 +1,4 @@
-import { Button, Checkbox, Group, Menu, Tabs } from '@mantine/core';
-import { Tab } from '@mantine/core/lib/Tabs/Tab/Tab';
+import { Stack, Checkbox, Group, Menu, Tabs, Button, Flex } from '@mantine/core';
 import * as React from 'react';
 
 // TODO:
@@ -7,33 +6,50 @@ import * as React from 'react';
 
 export function ChangeLogFilter() {
   return (
-    <div>
-      <Menu>
-        <Menu.Dropdown>
-          <Tabs variant="outline">
-            <Tabs.List>
-              <Tabs.Tab value="tags">Tags</Tabs.Tab>
-              <Tabs.Tab value="time">Time</Tabs.Tab>
-            </Tabs.List>
-            <Tabs.Panel value="tags">
+    <Menu>
+      <Menu.Target>
+        <Button>filter by</Button>
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Tabs variant="outline" defaultValue="tags">
+          <Tabs.List>
+            <Tabs.Tab value="tags">Tags</Tabs.Tab>
+            <Tabs.Tab value="time">Time</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="tags">
+            <Stack mt="xs">
               <Group>
-                <Checkbox value="Devops" />
-                <Checkbox value="Feature" />
-                <Checkbox value="some tag" />
-                <Checkbox value="some tag" />
+                <Button variant="subtle" size="xs">
+                  Select all
+                </Button>
+                <Button variant="subtle" size="xs">
+                  Reset
+                </Button>
               </Group>
-            </Tabs.Panel>
-            <Tabs.Panel value="time">
+              <Checkbox label="Devops" />
+              <Checkbox label="Feature" />
+              <Checkbox label="some tag" />
+              <Checkbox label="some tag" />
+            </Stack>
+          </Tabs.Panel>
+          <Tabs.Panel value="time">
+            <Stack mt="xs">
               <Group>
-                <Checkbox value="July 2023" />
-                <Checkbox value="June 2023" />
-                <Checkbox value="April 2023" />
-                <Checkbox value="January 2023" />
+                <Button variant="subtle" size="xs">
+                  Select all
+                </Button>
+                <Button variant="subtle" size="xs">
+                  Reset
+                </Button>
               </Group>
-            </Tabs.Panel>
-          </Tabs>
-        </Menu.Dropdown>
-      </Menu>
-    </div>
+              <Checkbox label="July 2023" />
+              <Checkbox label="June 2023" />
+              <Checkbox label="April 2023" />
+              <Checkbox label="January 2023" />
+            </Stack>
+          </Tabs.Panel>
+        </Tabs>
+      </Menu.Dropdown>
+    </Menu>
   );
 }
