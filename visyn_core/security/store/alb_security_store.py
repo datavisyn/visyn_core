@@ -25,7 +25,11 @@ class ALBSecurityStore(BaseStore):
                 user = jwt.decode(encoded, options={"verify_signature": False})
                 # Create new user from given attributes
                 email = user["email"]
-                return User(id=email, roles=[])
+                return User(
+                    id=email,
+                    roles=[],
+                    oauth2_access_token=req.headers["X-Amzn-Oidc-Accesstoken"],
+                )
             except Exception:
                 _log.exception("Error in load_from_request")
                 return None
