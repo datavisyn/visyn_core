@@ -1,3 +1,4 @@
+import jwt
 from fastapi.testclient import TestClient
 
 from visyn_core import manager
@@ -165,7 +166,7 @@ def test_oauth2_security_store(client: TestClient):
 
     # Header created with a random token containing "email"
     headers = {
-        "X-Forwarded-Access-Token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGxvY2FsaG9zdCIsInN1YiI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiZXhwIjoxNjU3MTg4MTM4LjQ5NDU4Nn0.-Ye9j9z37gJdoKgrbeYbI8buSw_c6bLBShXt4XxwQHI",
+        "X-Forwarded-Access-Token": jwt.encode({"email": "admin@localhost", "sub": "admin"}, "secret", algorithm="HS256"),
     }
 
     # Check loggedinas with a JWT
