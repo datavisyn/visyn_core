@@ -19,6 +19,14 @@ class User(BaseModel):
     id: str
     roles: list[str] = []
     access_token: str | None = None
+    """
+    The access token is set when users login with the native JWT mechanism.
+    """
+    oauth2_access_token: str | None = None
+    """
+    OAuth2 access token as many security stores (like ALB or OAuth2) only parse an already existing access token from an IdP.
+    This token can then be used for downstream tasks like requests to other services.
+    """
 
     @property
     def name(self):
