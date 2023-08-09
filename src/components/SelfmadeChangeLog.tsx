@@ -1,65 +1,48 @@
 import React from 'react';
-import { Stack, createStyles, Group, Title, Text, Flex, Badge, Divider, Space, Affix, rem, Transition, Button } from '@mantine/core';
+import { Stack, Group, Space, Affix, rem, Transition, Button } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { useWindowScroll } from '@mantine/hooks';
+import { useMediaQuery, useWindowScroll } from '@mantine/hooks';
 import { ChangeLogFilter } from './ChangeLogFilter';
+import { ChangeLogArticle } from './ChangeLogArticle';
+import { IArticle } from '../base/interfaces';
 
-const usedStyles = createStyles((themes) => ({
-  lineWrapper: {
-    display: 'flex',
-    background: themes.colors.blue,
-    height: '100%',
-    width: '3px',
-    top: '4px',
-    position: 'sticky',
-  },
-  circleWrapper: {
-    display: 'inline',
-    width: '20px',
-    height: '20px',
-    borderWidth: '2px',
-    borderRadius: '50%',
-    top: '4px',
-    position: 'sticky',
-    backgroundColor: themes.colors.blue,
-  },
-}));
-export function SelfmadeChangeLog({ title, date, tags, author, content }: { title: string; date: string; tags: string[]; author: string; content: string }) {
-  const { classes } = usedStyles();
+export function SelfmadeChangeLog({ data }: { data: IArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
+  const largerThanSm = useMediaQuery('(min-width: 768px)');
+  const allTags = [];
+  const allTimes = [];
+
+  data.map((article) => article.tags.map((tag) => (allTags.includes(tag) ? null : allTags.push(tag))));
+  data.map((article) => (allTimes.includes(article.date) ? null : allTimes.push(article.date)));
+
+  const [checkedTags, setCheckedTags] = React.useState<Map<string, boolean>>(new Map(allTags.map((tag) => [tag, false])));
+  const [checkedTimes, setCheckedTimes] = React.useState<Map<Date, boolean>>(new Map(allTimes.map((time) => [time, false])));
+  const [showedArticles, setShowedArticles] = React.useState<Map<IArticle, boolean>>(new Map(data.map((article) => [article, true])));
+
+  React.useEffect(() => {
+    data.map((article) =>
+      article.tags.map((tag) =>
+        checkedTags.get(tag) || checkedTimes.get(article.date)
+          ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
+          : setShowedArticles((prevstate) => new Map(prevstate.set(article, false))),
+      ),
+    );
+  }, [checkedTags, checkedTimes, data]);
+
   return (
     <Stack m="md" h="auto">
-      <Stack align="center">
-        <Title size="h3">CHANGELOG</Title>
-        <Text>Maybe sone general description about the project, this is optional</Text>
-      </Stack>
-      <Group position="right" mr="md">
-        <ChangeLogFilter />
+      <Group position="right" mx="5%">
+        <ChangeLogFilter
+          tags={allTags}
+          times={allTimes}
+          checkedTags={checkedTags}
+          setCheckedTags={setCheckedTags}
+          checkedTimes={checkedTimes}
+          setCheckedTimes={setCheckedTimes}
+        />
       </Group>
-      <Flex align="flex-start" gap="md">
-        <Flex gap={0} align="center" direction="column" sx={{ alignSelf: 'stretch' }}>
-          <div className={classes.circleWrapper} />
-          <div className={classes.lineWrapper} />
-        </Flex>
-        <Stack top="4px" pos="sticky">
-          <Title size="h4">{title}</Title>
-          <Stack spacing={0}>
-            <Text color="dimmed" size="sm">
-              {date}
-            </Text>
-            <Text color="dimmed" size="sm">{`by ${author}`}</Text>
-          </Stack>
-        </Stack>
-        <Stack sx={{ width: '80%', height: '100%' }} ml="sm">
-          <Flex gap="sm">
-            {tags.map((tag) => (
-              <Badge key="{tag}key">{tag}</Badge>
-            ))}
-          </Flex>
-          <Text size="md">{content}</Text>
-        </Stack>
-      </Flex>
+      {data.map((article) => (showedArticles.get(article) ? <ChangeLogArticle article={article} largerThanSm={largerThanSm} key={article.title} /> : null))}
       <Space h="sm" />
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
         <Transition transition="slide-up" mounted={scroll.y > 0}>

@@ -1,22 +1,24 @@
 import * as React from 'react';
 import { StoryObj } from '@storybook/react';
-import { ChangeLog } from './ChangeLog';
 import { SelfmadeChangeLog } from './SelfmadeChangeLog';
+import readmeBioInSight from './DemoReleaseNotesBioInSight.md';
+import readmeAelixir from './DemoReleaseNotesAelixir.md';
 
 export default {
   title: 'Example/Ui/ChangeLog',
-  component: ChangeLog,
+  component: SelfmadeChangeLog,
 };
 
-type Story = StoryObj<typeof ChangeLog>;
+type Story = StoryObj<typeof SelfmadeChangeLog>;
 
-const contenttest =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae efficitur lorem. Maecenas non ornare sapien. Vivamus sit amet massa eros. Sed venenatis a ligula vitae consequat. Nulla a lobortis nunc. Aliquam erat volutpat. Maecenas blandit eget nulla id blandit. Suspendisse viverra convallis nisi, a elementum velit. Ut non odio tortor. Aenean aliquam dolor quis ultrices venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin sit amet bibendum urna, quis pretium mauris. Quisque tincidunt mi non egestas viverra. Nulla facilisi.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae efficitur lorem. Maecenas non ornare sapien. Vivamus sit amet massa eros. Sed venenatis a ligula vitae consequat. Nulla a lobortis nunc. Aliquam erat volutpat. Maecenas blandit eget nulla id blandit. Suspendisse viverra convallis nisi, a elementum velit. Ut non odio tortor. Aenean aliquam dolor quis ultrices venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin sit amet bibendum urna, quis pretium mauris. Quisque tincidunt mi non egestas viverra. Nulla facilisi.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae efficitur lorem. Maecenas non ornare sapien. Vivamus sit amet massa eros. Sed venenatis a ligula vitae consequat. Nulla a lobortis nunc. Aliquam erat volutpat. Maecenas blandit eget nulla id blandit. Suspendisse viverra convallis nisi, a elementum velit. Ut non odio tortor. Aenean aliquam dolor quis ultrices venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin sit amet bibendum urna, quis pretium mauris. Quisque tincidunt mi non egestas viverra. Nulla facilisi.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae efficitur lorem. Maecenas non ornare sapien. Vivamus sit amet massa eros. Sed venenatis a ligula vitae consequat. Nulla a lobortis nunc. Aliquam erat volutpat. Maecenas blandit eget nulla id blandit. Suspendisse viverra convallis nisi, a elementum velit. Ut non odio tortor. Aenean aliquam dolor quis ultrices venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin sit amet bibendum urna, quis pretium mauris. Quisque tincidunt mi non egestas viverra. Nulla facilisi.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae efficitur lorem. Maecenas non ornare sapien. Vivamus sit amet massa eros. Sed venenatis a ligula vitae consequat. Nulla a lobortis nunc. Aliquam erat volutpat. Maecenas blandit eget nulla id blandit. Suspendisse viverra convallis nisi, a elementum velit. Ut non odio tortor. Aenean aliquam dolor quis ultrices venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin sit amet bibendum urna, quis pretium mauris. Quisque tincidunt mi non egestas viverra. Nulla facilisi.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae efficitur lorem. Maecenas non ornare sapien. Vivamus sit amet massa eros. Sed venenatis a ligula vitae consequat. Nulla a lobortis nunc. Aliquam erat volutpat. Maecenas blandit eget nulla id blandit. Suspendisse viverra convallis nisi, a elementum velit. Ut non odio tortor. Aenean aliquam dolor quis ultrices venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin sit amet bibendum urna, quis pretium mauris. Quisque tincidunt mi non egestas viverra. Nulla facilisi.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae efficitur lorem. Maecenas non ornare sapien. Vivamus sit amet massa eros. Sed venenatis a ligula vitae consequat. Nulla a lobortis nunc.';
-
-export const PrimaryChangeLog: Story = {
-  render: () => <ChangeLog title="Release version 1.2.2" author="username" content={contenttest} date="12.12.1222" tags={['Feature', 'Devops']} />,
-};
-
+/* Note: for datatype Date month count starts at 0, that means January = 0 */
 export const SecondarySelfmadeChangeLog: Story = {
-  render: () => <SelfmadeChangeLog title="Release version 1.2.2" author="username" content={contenttest} date="12.12.1222" tags={['Feature', 'Devops']} />,
+  render: () => (
+    <SelfmadeChangeLog
+      data={[
+        { title: 'Release version 1.2.2', author: 'username', content: readmeBioInSight, date: new Date(1111, 0, 1), tags: ['Feature', 'Devops'] },
+        { title: 'Release v2.1.0', author: 'otherusername', content: readmeAelixir, date: new Date(2023, 7, 1), tags: ['Bug'] },
+      ]}
+    />
+  ),
 };

@@ -1,0 +1,3 @@
+- remove first:10 in structuresAndLigands query. doesn't make sense to … (https://github.com/datavisyn/aelixir/pull/551)
+- Genrichment fixes (https://github.com/datavisyn/aelixir/pull/553)
+- Cypress fixez (https://github.com/datavisyn/aelixir/pull/554)

@@ -89,3 +89,11 @@ export interface IServerColumn {
    */
   max?: number;
 }
+
+export interface IArticle {
+  title: string;
+  author: string;
+  content: any;
+  date: Date;
+  tags: string[];
+}
