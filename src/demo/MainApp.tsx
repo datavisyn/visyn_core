@@ -42,9 +42,6 @@ export function MainApp() {
   const [loading, setLoading] = React.useState(false);
   const lineupRef = React.useRef<DatavisynTaggle>();
 
-  const [rankingDump, setRankingDump] = React.useState('');
-  const [dump, setDump] = React.useState('');
-
   return (
     <VisynApp
       header={
