@@ -7,6 +7,15 @@ import { ChangeLogFilter } from './ChangeLogFilter';
 import { ChangeLogArticle } from './ChangeLogArticle';
 import { IArticle } from '../base/interfaces';
 
+function fIsChecked(article: IArticle, checkedTags: Map<string, boolean>): boolean {
+  for (let i = 0; i < article.tags.length; i++) {
+    if (checkedTags.get(article.tags[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function SelfmadeChangeLog({ data }: { data: IArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
@@ -40,15 +49,13 @@ export function SelfmadeChangeLog({ data }: { data: IArticle[] }) {
     }
 
     data.map((article) =>
-      article.tags.map((tag) =>
-        anyChecked
-          ? checkedTimes.get(article.date) || checkedTags.get(tag)
-            ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
-            : setShowedArticles((prevstate) => new Map(prevstate.set(article, false)))
-          : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
-      ),
+      anyChecked
+        ? checkedTimes.get(article.date) || fIsChecked(article, checkedTags)
+          ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
+          : setShowedArticles((prevstate) => new Map(prevstate.set(article, false)))
+        : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
     );
-  }, [checkedTags, checkedTimes, data]);
+  }, [checkedTags, checkedTimes, data, showedArticles]);
 
   return (
     <Stack m="md" h="auto">
