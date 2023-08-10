@@ -16,7 +16,7 @@ function fIsChecked(article: IArticle, checkedTags: Map<string, boolean>): boole
   return false;
 }
 
-export function SelfmadeChangeLog({ data }: { data: IArticle[] }) {
+export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
   const allTags = [];
