@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StoryObj } from '@storybook/react';
-import { SelfmadeChangeLog } from './SelfmadeChangeLog';
+import { SelfmadeChangeLog } from './ChangeLog';
 import readmeBioInSight from './DemoReleaseNotesBioInSight.md';
 import readmeAelixir from './DemoReleaseNotesAelixir.md';
 
