@@ -21,11 +21,31 @@ export function SelfmadeChangeLog({ data }: { data: IArticle[] }) {
   const [showedArticles, setShowedArticles] = React.useState<Map<IArticle, boolean>>(new Map(data.map((article) => [article, true])));
 
   React.useEffect(() => {
+    let anyChecked = false;
+    for (const value of checkedTags.values()) {
+      if (value) {
+        anyChecked = true;
+        break;
+      } else {
+        continue;
+      }
+    }
+    for (const value of checkedTimes.values()) {
+      if (value) {
+        anyChecked = true;
+        break;
+      } else {
+        continue;
+      }
+    }
+
     data.map((article) =>
       article.tags.map((tag) =>
-        checkedTags.get(tag) || checkedTimes.get(article.date)
-          ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
-          : setShowedArticles((prevstate) => new Map(prevstate.set(article, false))),
+        anyChecked
+          ? checkedTimes.get(article.date) || checkedTags.get(tag)
+            ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
+            : setShowedArticles((prevstate) => new Map(prevstate.set(article, false)))
+          : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
       ),
     );
   }, [checkedTags, checkedTimes, data]);
