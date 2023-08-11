@@ -1,6 +1,11 @@
+import base64
+import json
 import logging
+from functools import lru_cache
 
+import httpx
 import jwt
+from fastapi import Request
 
 from ... import manager
 from ..model import LogoutReturnValue, User
@@ -9,20 +14,39 @@ from .base_store import BaseStore
 _log = logging.getLogger(__name__)
 
 
+@lru_cache
+def _get_public_key(region: str, kid: str) -> str:
+    return httpx.get(f"https://public-keys.auth.elb.{region}.amazonaws.com/{kid}").text
+
+
 class ALBSecurityStore(BaseStore):
     ui = "AutoLoginForm"
 
-    def __init__(self, cookie_name: str | None, signout_url: str | None):
+    def __init__(self, cookie_name: str | None, signout_url: str | None, region: str, verify: bool = True):
         self.cookie_name = cookie_name
-        self.signout_url: str | None = signout_url
+        self.signout_url = signout_url
+        self.verify = verify
+        self.region = region
 
-    def load_from_request(self, req):
-        if "X-Amzn-Oidc-Identity" in req.headers and "X-Amzn-Oidc-Accesstoken" in req.headers and "X-Amzn-Oidc-Data" in req.headers:
+    def load_from_request(self, req: Request):
+        # Get token data from header
+        encoded_jwt = req.headers.get("X-Amzn-Oidc-Data", None)
+        if encoded_jwt:
             try:
-                # Get token data from header
-                encoded = req.headers["X-Amzn-Oidc-Data"]
-                # Try to decode the oidc data jwt
-                user = jwt.decode(encoded, options={"verify_signature": False})
+                if self.verify:
+                    # Verify the ALB token as it is outlined here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html#user-claims-encoding
+                    # Get region from header, as we need the kid to get the public key
+                    jwt_headers = encoded_jwt.split(".")[0]
+                    decoded_jwt_headers = base64.b64decode(jwt_headers)
+                    decoded_jwt_headers = decoded_jwt_headers.decode("utf-8")
+                    decoded_json = json.loads(decoded_jwt_headers)
+                    kid = decoded_json["kid"]
+                    # Decode token using public key from AWS
+                    user = jwt.decode(encoded_jwt, _get_public_key(region=self.region, kid=kid), algorithms=["ES256"])
+                else:
+                    # Decode token without verification
+                    user = jwt.decode(encoded_jwt, options={"verify_signature": False})
+
                 # Create new user from given attributes
                 email = user["email"]
                 return User(
@@ -57,8 +81,10 @@ def create():
     if manager.settings.visyn_core.security.store.alb_security_store.enable:
         _log.info("Adding ALBSecurityStore")
         return ALBSecurityStore(
-            manager.settings.visyn_core.security.store.alb_security_store.cookie_name,
-            manager.settings.visyn_core.security.store.alb_security_store.signout_url,
+            cookie_name=manager.settings.visyn_core.security.store.alb_security_store.cookie_name,
+            signout_url=manager.settings.visyn_core.security.store.alb_security_store.signout_url,
+            region=manager.settings.visyn_core.security.store.alb_security_store.region,
+            verify=manager.settings.visyn_core.security.store.alb_security_store.verify,
         )
 
     return None

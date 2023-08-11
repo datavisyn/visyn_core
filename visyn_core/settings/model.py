@@ -44,6 +44,14 @@ class AlbSecurityStoreSettings(BaseModel):
     enable: bool = False
     cookie_name: str | None = None
     signout_url: str | None = None
+    region: str = "eu-central-1"
+    """
+    Region of the ALB to fetch the public key from. Required if verify is True.
+    """
+    verify: bool = True
+    """
+    Verify the signature of the JWT token. If True, the public key of the ALB is fetched from the AWS API.
+    """
 
 
 class OAuth2SecurityStoreSettings(BaseModel):

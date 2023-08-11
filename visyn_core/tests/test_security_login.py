@@ -120,6 +120,7 @@ def test_jwt_token_location(client: TestClient):
 def test_alb_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.alb_security_store.enable = True
+    manager.settings.visyn_core.security.store.alb_security_store.verify = False
     manager.settings.visyn_core.security.store.alb_security_store.cookie_name = "TestCookie"
     manager.settings.visyn_core.security.store.alb_security_store.signout_url = "http://localhost/logout"
 
