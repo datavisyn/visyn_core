@@ -51,7 +51,7 @@ class ALBSecurityStore(BaseStore):
                 email = user["email"]
                 return User(
                     id=email,
-                    roles=[],
+                    roles=user.get("roles", []),
                     oauth2_access_token=req.headers["X-Amzn-Oidc-Accesstoken"],
                 )
             except Exception:
