@@ -197,3 +197,27 @@ def test_no_security_store(client: TestClient):
     assert user_info != '"not_yet_logged_in"'
     assert user_info["name"] == "test_name"
     assert user_info["roles"] == ["test_role"]
+
+
+def test_user_login_hooks(client: TestClient):
+    counter = 0
+
+    @manager.security.on_user_loaded
+    def on_user_loaded_increment(user: User):
+        nonlocal counter
+        counter += 1
+
+    assert counter == 0
+
+    client.get("/loggedinas", auth=("admin", "admin"))
+
+    assert counter == 1
+
+    @manager.security.on_user_loaded
+    def on_user_loaded_decrement(user: User):
+        nonlocal counter
+        counter -= 1
+
+    client.get("/loggedinas", auth=("admin", "admin"))
+
+    assert counter == 1

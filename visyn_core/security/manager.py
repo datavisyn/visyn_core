@@ -84,6 +84,7 @@ class SecurityManager:
     def __init__(self, user_stores: list[BaseStore]):
         self.user_stores: list[BaseStore] = user_stores
         self._additional_jwt_claims_loader: list[Callable[[User], dict]] = []
+        self._on_user_loaded_hooks: list[Callable[[User], None]] = []
 
     def login(self, username, extra_fields=None) -> User | None:
         return self._delegate_stores_until_not_none("login", username, extra_fields or {})
@@ -136,11 +137,20 @@ class SecurityManager:
             _log.exception("Error loading user from request")
             return None
 
+    def _postload_user(self, user: User) -> User:
+        # Run postload hooks
+        for hook in self._on_user_loaded_hooks:
+            try:
+                hook(user)
+            except Exception:
+                _log.exception("Error running postload user hook")
+        return user
+
     def load_from_request(self, request: Request):
         # Load user from any of the stores
         user = self._load_from_key(request) or self._delegate_stores_until_not_none("load_from_request", request)
         if user:
-            return user
+            return self._postload_user(user)
 
         # Load JWT user from header
         if "headers" in manager.settings.jwt_token_location:
@@ -148,7 +158,7 @@ class SecurityManager:
             if token and scheme.lower() == manager.settings.jwt_header_type:
                 user = access_token_to_user(token)
                 if user:
-                    return user
+                    return self._postload_user(user)
 
         # Load JWT user from cookie
         if "cookies" in manager.settings.jwt_token_location:
@@ -156,7 +166,7 @@ class SecurityManager:
             if token_from_cookie:
                 user = access_token_to_user(token_from_cookie)
                 if user:
-                    return user
+                    return self._postload_user(user)
 
         # Raise an exception is no user could be loaded
         raise HTTPException(
@@ -219,6 +229,20 @@ class SecurityManager:
         ```
         """
         self._additional_jwt_claims_loader.append(callback)
+        return callback
+
+    def on_user_loaded(self, callback: Callable[[User], None]):
+        """
+        Register additional user loaded hooks. These will be called with the current user after it is loaded from the store.
+
+        Usage:
+        ```python
+        @manager.security.postload_user_hook
+        def my_postload_user_hook(user: User):
+            return user
+        ```
+        """
+        self._on_user_loaded_hooks.append(callback)
         return callback
 
 
