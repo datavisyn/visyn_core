@@ -15,8 +15,8 @@ _log = logging.getLogger(__name__)
 
 
 @lru_cache
-def _get_public_key(region: str, kid: str) -> str:
-    return httpx.get(f"https://public-keys.auth.elb.{region}.amazonaws.com/{kid}").text
+def _get_public_key(region: str, key_id: str) -> str:
+    return httpx.get(f"https://public-keys.auth.elb.{region}.amazonaws.com/{key_id}").text
 
 
 class ALBSecurityStore(BaseStore):
@@ -36,14 +36,13 @@ class ALBSecurityStore(BaseStore):
             try:
                 if self.verify:
                     # Verify the ALB token as it is outlined here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html#user-claims-encoding
-                    # Get region from header, as we need the kid to get the public key
+                    # Get region from header, as we need the kid (key identifier) to get the public key
                     jwt_headers = encoded_jwt.split(".")[0]
                     decoded_jwt_headers = base64.b64decode(jwt_headers)
                     decoded_jwt_headers = decoded_jwt_headers.decode("utf-8")
                     decoded_json = json.loads(decoded_jwt_headers)
-                    kid = decoded_json["kid"]
                     # Decode token using public key from AWS
-                    user = jwt.decode(encoded_jwt, _get_public_key(region=self.region, kid=kid), algorithms=["ES256"])
+                    user = jwt.decode(encoded_jwt, _get_public_key(region=self.region, key_id=decoded_json["kid"]), algorithms=["ES256"])
                 else:
                     # Decode token without verification
                     user = jwt.decode(encoded_jwt, options={"verify_signature": False})
