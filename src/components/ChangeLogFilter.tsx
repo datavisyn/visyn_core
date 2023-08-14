@@ -1,4 +1,4 @@
-import { Stack, Checkbox, Group, Menu, Tabs, Button } from '@mantine/core';
+import { Stack, Checkbox, Group, Menu, Tabs, Button, Divider } from '@mantine/core';
 import * as React from 'react';
 
 export function ChangeLogFilter({
@@ -25,7 +25,7 @@ export function ChangeLogFilter({
         <Tabs variant="outline" defaultValue="tags">
           <Tabs.List>
             <Tabs.Tab value="tags">Tags</Tabs.Tab>
-            <Tabs.Tab value="time">Time</Tabs.Tab>
+            <Tabs.Tab value="time">Date</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="tags">
             <Stack mt="xs">
@@ -57,14 +57,20 @@ export function ChangeLogFilter({
                   Reset
                 </Button>
               </Group>
-              {times.map((time) => (
-                <Checkbox
-                  key={`${time}Key`}
-                  label={`${time.toLocaleString('default', { month: 'long' })} ${time.getFullYear().toString()}`}
-                  checked={checkedTimes.get(time)}
-                  onClick={() => setCheckedTimes((prevstate) => new Map(prevstate.set(time, !prevstate.get(time))))}
-                />
-              ))}
+              <Stack>
+                <Checkbox label="this week" />
+                <Checkbox label="this month" />
+                <Checkbox label="this year" />
+                <Divider />
+                {times.map((time) => (
+                  <Checkbox
+                    key={`${time}Key`}
+                    label={`${time.toLocaleString('default', { month: 'long' })} ${time.getFullYear().toString()}`}
+                    checked={checkedTimes.get(time)}
+                    onClick={() => setCheckedTimes((prevstate) => new Map(prevstate.set(time, !prevstate.get(time))))}
+                  />
+                ))}
+              </Stack>
             </Stack>
           </Tabs.Panel>
         </Tabs>
