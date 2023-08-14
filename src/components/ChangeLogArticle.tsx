@@ -1,7 +1,6 @@
 import { Flex, Stack, Text, Badge, Grid, createStyles, Title } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
 import React from 'react';
 import { IArticle } from '../base';
 
@@ -59,7 +58,18 @@ export function ChangeLogArticle({
                 <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
                 <Flex gap="sm" mt="xs" ml={0}>
                   {article.tags.map((tag) => (
-                    <Badge key={`${tag}key`} onClick={() => (checkedTags.get(tag) ? null : setCheckedTags((prevstate) => new Map(prevstate.set(tag, true))))}>
+                    <Badge
+                      key={`${tag}key`}
+                      onClick={() =>
+                        checkedTags.get(tag)
+                          ? setCheckedTags((prevstate) => new Map(prevstate.set(tag, false)))
+                          : setCheckedTags((prevstate) => new Map(prevstate.set(tag, true)))
+                      }
+                      styles={(theme) => ({
+                        root: { cursor: 'pointer', ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
+                      })}
+                      variant={checkedTags.get(tag) ? 'filled' : 'light'}
+                    >
                       {tag}
                     </Badge>
                   ))}
@@ -89,8 +99,18 @@ export function ChangeLogArticle({
           <Stack>
             <Flex gap="sm" mt="sm">
               {article.tags.map((tag) => (
-                // (checkedTags.get(tag) ? null : setCheckedTags((prevstate) => new Map(prevstate.set(tag, false))))
-                <Badge key={`${tag}key`} onClick={() => console.log(tag)}>
+                <Badge
+                  key={`${tag}key`}
+                  onClick={() =>
+                    checkedTags.get(tag)
+                      ? setCheckedTags((prevstate) => new Map(prevstate.set(tag, false)))
+                      : setCheckedTags((prevstate) => new Map(prevstate.set(tag, true)))
+                  }
+                  styles={(theme) => ({
+                    root: { cursor: 'pointer', ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
+                  })}
+                  variant={checkedTags.get(tag) ? 'filled' : 'light'}
+                >
                   {tag}
                 </Badge>
               ))}
