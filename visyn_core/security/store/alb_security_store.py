@@ -22,9 +22,10 @@ def _get_public_key(region: str, kid: str) -> str:
 class ALBSecurityStore(BaseStore):
     ui = "AutoLoginForm"
 
-    def __init__(self, cookie_name: str | None, signout_url: str | None, region: str, verify: bool = True):
+    def __init__(self, cookie_name: str | None, signout_url: str | None, email_token_field: str, region: str, verify: bool = True):
         self.cookie_name = cookie_name
         self.signout_url = signout_url
+        self.email_token_field = email_token_field
         self.verify = verify
         self.region = region
 
@@ -48,9 +49,8 @@ class ALBSecurityStore(BaseStore):
                     user = jwt.decode(encoded_jwt, options={"verify_signature": False})
 
                 # Create new user from given attributes
-                email = user["email"]
                 return User(
-                    id=email,
+                    id=user[self.email_token_field],
                     roles=user.get("roles", []),
                     oauth2_access_token=req.headers["X-Amzn-Oidc-Accesstoken"],
                 )
@@ -83,6 +83,7 @@ def create():
         return ALBSecurityStore(
             cookie_name=manager.settings.visyn_core.security.store.alb_security_store.cookie_name,
             signout_url=manager.settings.visyn_core.security.store.alb_security_store.signout_url,
+            email_token_field=manager.settings.visyn_core.security.store.alb_security_store.email_token_field,
             region=manager.settings.visyn_core.security.store.alb_security_store.region,
             verify=manager.settings.visyn_core.security.store.alb_security_store.verify,
         )

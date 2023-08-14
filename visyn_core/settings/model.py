@@ -44,6 +44,10 @@ class AlbSecurityStoreSettings(BaseModel):
     enable: bool = False
     cookie_name: str | None = None
     signout_url: str | None = None
+    email_token_field: str = "email"
+    """
+    Field in the JWT token that contains the email address of the user.
+    """
     region: str = "eu-central-1"
     """
     Region of the ALB to fetch the public key from. Required if verify is True.
