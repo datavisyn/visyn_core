@@ -44,7 +44,7 @@ export function ChangeLogArticle({ article, largerThanSm }: { article: IArticle;
               <Title size="h4">{article.title}</Title>
               <Stack spacing={0}>
                 <Text color="dimmed" size="sm">
-                  {`on ${article.date.toLocaleDateString()}`}
+                  {`on ${article.date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
                 </Text>
                 <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
                 <Flex gap="sm" mt="xs" ml={0}>
@@ -69,7 +69,7 @@ export function ChangeLogArticle({ article, largerThanSm }: { article: IArticle;
             <Title size="h4">{article.title}</Title>
             <Stack spacing={0}>
               <Text color="dimmed" size="sm">
-                {`on ${article.date.toLocaleDateString()}`}
+                {`on ${article.date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
               </Text>
               <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
             </Stack>
