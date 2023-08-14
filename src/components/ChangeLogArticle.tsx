@@ -8,7 +8,7 @@ import { IArticle } from '../base';
 const usedStyles = createStyles((themes) => ({
   lineWrapper: {
     display: 'flex',
-    background: themes.colors.blue,
+    background: themes.colors.blue[6],
     height: '100%',
     width: '3px',
     top: '4px',
@@ -22,7 +22,7 @@ const usedStyles = createStyles((themes) => ({
     borderRadius: '50%',
     top: '4px',
     position: 'sticky',
-    backgroundColor: themes.colors.blue,
+    backgroundColor: themes.colors.blue[6],
     marginTop: '13px',
   },
 }));
