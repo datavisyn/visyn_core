@@ -1,6 +1,6 @@
 import * as React from 'react';
+import { useVisProvider } from './Provider';
 import { ICommonVisSideBarProps } from './interfaces';
-import { getVisByConfig } from './provider/Provider';
 
 export function VisSidebar({
   columns,
@@ -11,11 +11,13 @@ export function VisSidebar({
   className,
   style,
 }: ICommonVisSideBarProps<typeof config>) {
+  const { getVisByType } = useVisProvider();
+
   if (!config) {
     return null;
   }
 
-  const Renderer = getVisByConfig(config)?.sidebarRenderer;
+  const Renderer = getVisByType(config?.type)?.sidebarRenderer;
 
   return Renderer ? (
     <Renderer

@@ -1,7 +1,8 @@
-import React from 'react';
 import { ComponentStory } from '@storybook/react';
+import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { ESupportedPlotlyVis, EViolinOverlay } from '../../../interfaces';
+import { BaseConfig, ESupportedPlotlyVis } from '../../../interfaces';
+import { EViolinOverlay } from '../../../violin/utils';
 import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -50,7 +51,7 @@ Basic.args = {
       },
     ],
     violinOverlay: EViolinOverlay.NONE,
-  },
+  } as BaseConfig,
 };
 
 export const BoxplotOverlay: typeof Template = Template.bind({}) as typeof Template;
@@ -77,5 +78,5 @@ BoxplotOverlay.args = {
       },
     ],
     violinOverlay: EViolinOverlay.BOX,
-  },
+  } as BaseConfig,
 };

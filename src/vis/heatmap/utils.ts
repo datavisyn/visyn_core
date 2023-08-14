@@ -1,19 +1,29 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
+  BaseConfig,
   ColumnInfo,
   EAggregateTypes,
   EColumnTypes,
+  ENumericalColorScaleType,
   ESortTypes,
   ESupportedPlotlyVis,
-  IHeatmapConfig,
-  IVisConfig,
   VisCategoricalValue,
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
 
-export function isHeatmap(vis: IVisConfig): vis is IHeatmapConfig {
+export interface IHeatmapConfig {
+  type: ESupportedPlotlyVis.HEATMAP;
+  color: ColumnInfo | null;
+  catColumnsSelected: ColumnInfo[];
+  numColorScaleType: ENumericalColorScaleType;
+  sortedBy: ESortTypes;
+  aggregateType: EAggregateTypes;
+  aggregateColumn: ColumnInfo | null;
+}
+
+export function isHeatmap(vis: BaseConfig): vis is IHeatmapConfig {
   return vis.type === ESupportedPlotlyVis.HEATMAP;
 }
 
@@ -27,7 +37,7 @@ const defaultConfig: IHeatmapConfig = {
   aggregateType: EAggregateTypes.COUNT,
 };
 
-export function heatmapMergeDefaultConfig(columns: VisColumn[], config: IHeatmapConfig): IVisConfig {
+export function heatmapMergeDefaultConfig(columns: VisColumn[], config: IHeatmapConfig): IHeatmapConfig {
   const merged = merge({}, defaultConfig, config);
   return merged;
 }

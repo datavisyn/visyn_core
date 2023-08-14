@@ -1,13 +1,14 @@
+import { Container, Divider, Stack } from '@mantine/core';
+import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
-import merge from 'lodash/merge';
-import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, ESupportedPlotlyVis, EViolinOverlay, IViolinConfig, ICommonVisSideBarProps } from '../interfaces';
-import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { ColumnInfo, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
-import { ViolinOverlayButtons } from '../sidebar/ViolinOverlayButtons';
 import { FilterButtons } from '../sidebar/FilterButtons';
+import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { ViolinOverlayButtons } from '../sidebar/ViolinOverlayButtons';
+import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { EViolinOverlay, IViolinConfig } from './utils';
 
 const defaultConfig = {
   overlay: {

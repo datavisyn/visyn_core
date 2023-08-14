@@ -1,14 +1,15 @@
+import { Container, Divider, Stack } from '@mantine/core';
+import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
-import merge from 'lodash/merge';
-import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, ENumericalColorScaleType, ESupportedPlotlyVis, IScatterConfig, ICommonVisSideBarProps, EColumnTypes } from '../interfaces';
-import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
 import { ColorSelect } from '../sidebar/ColorSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { OpacitySlider } from '../sidebar/OpacitySlider';
+import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { IScatterConfig } from './utils';
 
 const defaultConfig = {
   color: {

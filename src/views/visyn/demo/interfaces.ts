@@ -1,8 +1,8 @@
+import type { BaseConfig, VisColumn } from '../../../vis/interfaces';
 import { VisynSimpleViewPluginType } from '../interfaces';
-import type { VisColumn, IVisConfig } from '../../../vis/interfaces';
 
 export type DemoVisynViewPluginType = VisynSimpleViewPluginType<{
   columns: VisColumn[] | null;
-  config: IVisConfig | null;
+  config: BaseConfig | null;
   dataLength: number;
 }>;

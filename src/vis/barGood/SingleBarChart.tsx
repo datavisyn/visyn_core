@@ -1,14 +1,14 @@
-import React, { useCallback, useMemo } from 'react';
 import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { EAggregateTypes, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, VisColumn } from '../interfaces';
-import { SortTypes, getBarData } from './utils';
-import { YAxis } from './barComponents/YAxis';
+import React, { useCallback, useMemo } from 'react';
+import { EAggregateTypes } from '../interfaces';
 import { XAxis } from './barComponents/XAxis';
+import { YAxis } from './barComponents/YAxis';
 import { GroupedBars } from './barTypes/GroupedBars';
-import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { SimpleBars } from './barTypes/SimpleBars';
 import { StackedBars } from './barTypes/StackedBars';
+import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes, getBarData } from './utils';
 
 const margin = {
   top: 30,

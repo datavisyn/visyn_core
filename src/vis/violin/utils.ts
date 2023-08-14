@@ -1,19 +1,31 @@
 import merge from 'lodash/merge';
-import {
-  PlotlyInfo,
-  PlotlyData,
-  VisCategoricalColumn,
-  EColumnTypes,
-  ESupportedPlotlyVis,
-  VisNumericalColumn,
-  Scales,
-  VisColumn,
-  IViolinConfig,
-  EViolinOverlay,
-} from '../interfaces';
-import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { i18n } from '../../i18n';
 import { SELECT_COLOR } from '../general/constants';
+import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
+import {
+  BaseConfig,
+  ColumnInfo,
+  EColumnTypes,
+  ESupportedPlotlyVis,
+  PlotlyData,
+  PlotlyInfo,
+  Scales,
+  VisCategoricalColumn,
+  VisColumn,
+  VisNumericalColumn,
+} from '../interfaces';
+
+export enum EViolinOverlay {
+  NONE = 'None',
+  BOX = 'Box',
+}
+
+export interface IViolinConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.VIOLIN;
+  numColumnsSelected: ColumnInfo[];
+  catColumnsSelected: ColumnInfo[];
+  violinOverlay: EViolinOverlay;
+}
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,

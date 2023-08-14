@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
 import { ComponentStory } from '@storybook/react';
+import React, { useState } from 'react';
 import { Vis } from '../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../barGood/utils';
+import { BaseConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../interfaces';
+import { EViolinOverlay } from '../violin/utils';
 
 export function fetchIrisData(): VisColumn[] {
   const dataPromise = import('./irisData').then((m) =>
@@ -136,7 +127,7 @@ ScatterPlot.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-  },
+  } as BaseConfig,
 };
 
 export const BarChart: typeof Template = Template.bind({});
@@ -156,7 +147,7 @@ BarChart.args = {
     },
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
-  },
+  } as BaseConfig,
 };
 
 export const ViolinPlot: typeof Template = Template.bind({});
@@ -183,5 +174,5 @@ ViolinPlot.args = {
       },
     ],
     violinOverlay: EViolinOverlay.NONE,
-  },
+  } as BaseConfig,
 };

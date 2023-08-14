@@ -8,9 +8,9 @@ import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general/InvalidCols';
 import { beautifyLayout } from '../general/layoutUtils';
-import { EScatterSelectSettings, ICommonVisProps, IScatterConfig } from '../interfaces';
+import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { createScatterTraces } from './utils';
+import { IScatterConfig, createScatterTraces } from './utils';
 
 export function ScatterVis({
   config,

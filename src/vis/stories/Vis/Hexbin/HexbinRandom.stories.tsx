@@ -1,7 +1,7 @@
-import React from 'react';
 import { ComponentStory } from '@storybook/react';
+import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { EColumnTypes, EHexbinOptions, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { BaseConfig, EColumnTypes, EHexbinOptions, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -126,7 +126,7 @@ LargeData.args = {
     isOpacityScale: true,
     isSizeScale: false,
     hexbinOptions: EHexbinOptions.COLOR,
-  },
+  } as BaseConfig,
 };
 
 export const LargeDataMultiples: typeof Template = Template.bind({}) as typeof Template;
@@ -156,7 +156,7 @@ LargeDataMultiples.args = {
     isOpacityScale: true,
     isSizeScale: false,
     hexbinOptions: EHexbinOptions.COLOR,
-  },
+  } as BaseConfig,
 };
 
 export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
@@ -185,7 +185,7 @@ ColorByCategory.args = {
     isOpacityScale: true,
     isSizeScale: false,
     hexbinOptions: EHexbinOptions.COLOR,
-  },
+  } as BaseConfig,
 };
 
 export const PieCharts: typeof Template = Template.bind({}) as typeof Template;
@@ -214,7 +214,7 @@ PieCharts.args = {
     isOpacityScale: true,
     isSizeScale: false,
     hexbinOptions: EHexbinOptions.PIE,
-  },
+  } as BaseConfig,
 };
 
 export const ColorBins: typeof Template = Template.bind({}) as typeof Template;
@@ -243,5 +243,5 @@ ColorBins.args = {
     isOpacityScale: true,
     isSizeScale: false,
     hexbinOptions: EHexbinOptions.BINS,
-  },
+  } as BaseConfig,
 };

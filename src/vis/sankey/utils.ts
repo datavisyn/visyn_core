@@ -1,5 +1,10 @@
 import { merge } from 'lodash';
-import { ESupportedPlotlyVis, ISankeyConfig, VisColumn } from '../interfaces';
+import { BaseConfig, ColumnInfo, ESupportedPlotlyVis, VisColumn } from '../interfaces';
+
+export interface ISankeyConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.SANKEY;
+  catColumnsSelected: ColumnInfo[];
+}
 
 const defaultConfig: ISankeyConfig = {
   type: ESupportedPlotlyVis.SANKEY,

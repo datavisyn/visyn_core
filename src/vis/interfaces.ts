@@ -12,34 +12,8 @@ export enum ESupportedPlotlyVis {
   CORRELATION = 'Correlation plot',
 }
 
-export const allVisTypes: ESupportedPlotlyVis[] = [
-  ESupportedPlotlyVis.SCATTER,
-  ESupportedPlotlyVis.BAR,
-  ESupportedPlotlyVis.VIOLIN,
-  ESupportedPlotlyVis.HEXBIN,
-  ESupportedPlotlyVis.CORRELATION,
-  ESupportedPlotlyVis.HEATMAP,
-  ESupportedPlotlyVis.PARALLEL_COORDINATES,
-  ESupportedPlotlyVis.RAINCLOUD,
-];
-
-export type IVisConfig =
-  | IScatterConfig
-  | IViolinConfig
-  | IBarConfig
-  | IHexbinConfig
-  | IParallelCoordinatesConfig
-  | IRaincloudConfig
-  | IHeatmapConfig
-  | ICorrelationConfig;
-
 export interface BaseConfig {
   type: string;
-}
-
-export enum EBarDisplayType {
-  ABSOLUTE = 'Absolute',
-  NORMALIZED = 'Normalized',
 }
 
 export enum EHexbinOptions {
@@ -48,27 +22,12 @@ export enum EHexbinOptions {
   BINS = 'Bins',
 }
 
-export enum EBarDirection {
-  VERTICAL = 'Vertical',
-  HORIZONTAL = 'Horizontal',
-}
-
-export enum EViolinOverlay {
-  NONE = 'None',
-  BOX = 'Box',
-}
-
 export enum EAggregateTypes {
   COUNT = 'Count',
   MIN = 'Minimum',
   AVG = 'Average',
   MED = 'Median',
   MAX = 'Maximum',
-}
-
-export enum EBarGroupingType {
-  STACK = 'Stacked',
-  GROUP = 'Grouped',
 }
 
 export enum EColumnTypes {
@@ -110,30 +69,9 @@ export enum ECorrelationType {
   SPEARMAN = 'Spearman',
 }
 
-export interface IParallelCoordinatesConfig extends BaseConfig {
-  type: ESupportedPlotlyVis.PARALLEL_COORDINATES;
-  numColumnsSelected: ColumnInfo[];
-  catColumnsSelected: ColumnInfo[];
-  color: ColumnInfo | null;
-}
-
-export interface IViolinConfig extends BaseConfig {
-  type: ESupportedPlotlyVis.VIOLIN;
-  numColumnsSelected: ColumnInfo[];
-  catColumnsSelected: ColumnInfo[];
-  violinOverlay: EViolinOverlay;
-}
-
 export enum EScaleType {
   LINEAR = 'Linear',
   LOG = 'Log',
-}
-export interface ICorrelationConfig extends BaseConfig {
-  type: ESupportedPlotlyVis.CORRELATION;
-  correlationType: ECorrelationType;
-  numColumnsSelected: ColumnInfo[];
-  pScaleType: EScaleType;
-  pDomain: [number, number];
 }
 
 export enum ECloudType {
@@ -156,70 +94,12 @@ export enum ERainType {
   STRIPPLOT = 'Strip plot',
 }
 
-export interface IRaincloudConfig {
-  type: ESupportedPlotlyVis.RAINCLOUD;
-  numColumnsSelected: ColumnInfo[];
-  cloudType: ECloudType;
-  rainType: ERainType;
-  lightningType: ELightningType;
-  aggregateRain: boolean;
-}
-
-export interface IScatterConfig extends BaseConfig {
-  type: ESupportedPlotlyVis.SCATTER;
-  numColumnsSelected: ColumnInfo[];
-  color: ColumnInfo | null;
-  numColorScaleType: ENumericalColorScaleType;
-  shape: ColumnInfo | null;
-  dragMode: EScatterSelectSettings;
-  alphaSliderVal: number;
-}
-
-export interface IBarConfig extends BaseConfig {
-  type: ESupportedPlotlyVis.BAR;
-  multiples: ColumnInfo | null;
-  group: ColumnInfo | null;
-  direction: EBarDirection;
-  display: EBarDisplayType;
-  groupType: EBarGroupingType;
-  numColumnsSelected: ColumnInfo[];
-  catColumnSelected: ColumnInfo;
-  aggregateType: EAggregateTypes;
-  aggregateColumn: ColumnInfo | null;
-}
-
-export interface ISankeyConfig extends BaseConfig {
-  type: ESupportedPlotlyVis.SANKEY;
-  catColumnsSelected: ColumnInfo[];
-}
-
 export enum ESortTypes {
   NONE = 'NONE',
   CAT_ASC = 'CAT_ASC',
   CAT_DESC = 'CAT_DESC',
   COUNT_ASC = 'COUNT_ASC',
   COUNT_DESC = 'COUNT_DESC',
-}
-
-export interface IHexbinConfig extends BaseConfig {
-  type: ESupportedPlotlyVis.HEXBIN;
-  numColumnsSelected: ColumnInfo[];
-  color: ColumnInfo | null;
-  hexRadius: number;
-  isOpacityScale: boolean;
-  isSizeScale: boolean;
-  dragMode: EScatterSelectSettings;
-  hexbinOptions: EHexbinOptions;
-}
-
-export interface IHeatmapConfig {
-  type: ESupportedPlotlyVis.HEATMAP;
-  color: ColumnInfo | null;
-  catColumnsSelected: ColumnInfo[];
-  numColorScaleType: ENumericalColorScaleType;
-  sortedBy: ESortTypes;
-  aggregateType: EAggregateTypes;
-  aggregateColumn: ColumnInfo | null;
 }
 
 type ValueGetter<T> = () => T | Promise<T>;

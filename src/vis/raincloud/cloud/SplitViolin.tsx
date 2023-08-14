@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
 import * as d3 from 'd3v7';
-import { table, op } from 'arquero';
+import React, { useMemo } from 'react';
 
-import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
+import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
+import { IRaincloudConfig } from '../utils';
 import { useKdeCalc } from './useKdeCalc';
 
 const margin = {

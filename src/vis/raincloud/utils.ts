@@ -1,21 +1,28 @@
 import { merge } from 'lodash';
+import { resolveColumnValues } from '../general/layoutUtils';
 import {
+  BaseConfig,
   ColumnInfo,
   ECloudType,
   EColumnTypes,
   ELightningType,
   ERainType,
   ESupportedPlotlyVis,
-  IRaincloudConfig,
-  IVisConfig,
   VisCategoricalValue,
   VisColumn,
-  VisNumericalColumn,
   VisNumericalValue,
 } from '../interfaces';
-import { resolveColumnValues } from '../general/layoutUtils';
 
-export function isRaincloud(s: IVisConfig): s is IRaincloudConfig {
+export interface IRaincloudConfig {
+  type: ESupportedPlotlyVis.RAINCLOUD;
+  numColumnsSelected: ColumnInfo[];
+  cloudType: ECloudType;
+  rainType: ERainType;
+  lightningType: ELightningType;
+  aggregateRain: boolean;
+}
+
+export function isRaincloud(s: BaseConfig): s is IRaincloudConfig {
   return s.type === ESupportedPlotlyVis.RAINCLOUD;
 }
 
@@ -28,7 +35,7 @@ const defaultConfig: IRaincloudConfig = {
   aggregateRain: false,
 };
 
-export function raincloudMergeDefaultConfig(columns: VisColumn[], config: IRaincloudConfig): IVisConfig {
+export function raincloudMergeDefaultConfig(columns: VisColumn[], config: IRaincloudConfig): IRaincloudConfig {
   const merged = merge({}, defaultConfig, config);
 
   return merged;

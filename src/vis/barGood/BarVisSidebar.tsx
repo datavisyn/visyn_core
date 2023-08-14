@@ -1,24 +1,15 @@
+import { Container, Divider, Stack } from '@mantine/core';
+import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
-import merge from 'lodash/merge';
-import { Container, Divider, Stack } from '@mantine/core';
-import {
-  ColumnInfo,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  ESupportedPlotlyVis,
-  IBarConfig,
-  ICommonVisSideBarProps,
-  EAggregateTypes,
-  EColumnTypes,
-} from '../interfaces';
-import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { GroupSelect } from '../sidebar/GroupSelect';
-import { BarDirectionButtons } from '../sidebar/BarDirectionButtons';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
+import { BarDirectionButtons } from '../sidebar/BarDirectionButtons';
 import { FilterButtons } from '../sidebar/FilterButtons';
+import { GroupSelect } from '../sidebar/GroupSelect';
+import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './utils';
 
 const defaultConfig = {
   group: {
@@ -62,7 +53,7 @@ export function BarVisSidebar({
 
   return (
     <Container p={10} fluid>
-      <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
+      <VisTypeSelect callback={(type: string) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
       <Stack spacing="sm">
         <SingleColumnSelect

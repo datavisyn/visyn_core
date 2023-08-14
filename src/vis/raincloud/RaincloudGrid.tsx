@@ -1,7 +1,7 @@
-import React from 'react';
 import { SimpleGrid } from '@mantine/core';
-import { IRaincloudConfig, VisColumn } from '../interfaces';
-import { getRaincloudData } from './utils';
+import React from 'react';
+import { VisColumn } from '../interfaces';
+import { IRaincloudConfig, getRaincloudData } from './utils';
 
 import { useAsync } from '../../hooks/useAsync';
 import { Raincloud } from './Raincloud';

@@ -1,20 +1,26 @@
 import merge from 'lodash/merge';
+import { resolveColumnValues } from '../general/layoutUtils';
 import {
+  BaseConfig,
   ColumnInfo,
   EColumnTypes,
-  ECorrelationPlotMode,
   ECorrelationType,
   EScaleType,
   ESupportedPlotlyVis,
-  ICorrelationConfig,
-  IVisConfig,
   VisCategoricalValue,
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
-import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 
-export function isCorrelation(s: IVisConfig): s is ICorrelationConfig {
+export interface ICorrelationConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.CORRELATION;
+  correlationType: ECorrelationType;
+  numColumnsSelected: ColumnInfo[];
+  pScaleType: EScaleType;
+  pDomain: [number, number];
+}
+
+export function isCorrelation(s: BaseConfig): s is ICorrelationConfig {
   return s.type === ESupportedPlotlyVis.CORRELATION;
 }
 

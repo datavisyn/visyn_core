@@ -8,8 +8,8 @@ import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
-import { ICommonVisProps, IViolinConfig } from '../interfaces';
-import { createViolinTraces } from './utils';
+import { ICommonVisProps } from '../interfaces';
+import { IViolinConfig, createViolinTraces } from './utils';
 
 export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);

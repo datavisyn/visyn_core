@@ -2,8 +2,9 @@ import { Group, Stack } from '@mantine/core';
 import * as React from 'react';
 import { useRef } from 'react';
 
-import { ICommonVisProps, IRaincloudConfig } from '../interfaces';
+import { ICommonVisProps } from '../interfaces';
 import { RaincloudGrid } from './RaincloudGrid';
+import { IRaincloudConfig } from './utils';
 
 export function RaincloudVis({ config, columns, selectionCallback = () => null, selectedMap = {} }: ICommonVisProps<IRaincloudConfig>) {
   const ref = useRef();

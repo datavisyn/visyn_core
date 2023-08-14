@@ -1,12 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
-import { table, bin, op } from 'arquero';
-import { Box, Container } from '@mantine/core';
-import { useResizeObserver } from '@mantine/hooks';
-import * as d3 from 'd3v7';
+import { op } from 'arquero';
+import React, { useMemo } from 'react';
 
 import ColumnTable from 'arquero/dist/types/table/column-table';
-import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
+import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
+import { IRaincloudConfig } from '../utils';
 
 const margin = {
   top: 0,

@@ -1,13 +1,14 @@
-import * as React from 'react';
 import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, ICommonVisSideBarProps, IHexbinConfig, VisColumn } from '../interfaces';
-import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import * as React from 'react';
+import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
 import { NumericalColumnSelect } from '../sidebar';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
-import { HexSizeSlider } from '../sidebar/HexSizeSlider';
-import { HexbinOptionSelect } from '../sidebar/HexbinOptionSelect';
-import { HexSizeSwitch } from '../sidebar/HexSizeSwitch';
 import { HexOpacitySwitch } from '../sidebar/HexOpacitySwitch';
+import { HexSizeSlider } from '../sidebar/HexSizeSlider';
+import { HexSizeSwitch } from '../sidebar/HexSizeSwitch';
+import { HexbinOptionSelect } from '../sidebar/HexbinOptionSelect';
+import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { IHexbinConfig } from './utils';
 
 export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideBarProps<IHexbinConfig>) {
   return (

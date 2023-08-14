@@ -1,15 +1,15 @@
-import * as React from 'react';
-import { scaleBand } from 'd3v7';
-import * as d3 from 'd3v7';
 import { Box, Center, Group, Loader, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
+import * as d3 from 'd3v7';
+import { scaleBand } from 'd3v7';
 import { corrcoeff, spearmancoeff, tukeyhsd } from 'jstat';
+import * as React from 'react';
 import { useMemo } from 'react';
-import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, ICorrelationConfig, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { useAsync } from '../../hooks/useAsync';
-import { getCorrelationMatrixData } from './utils';
-import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
+import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
+import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
+import { ICorrelationConfig, getCorrelationMatrixData } from './utils';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;

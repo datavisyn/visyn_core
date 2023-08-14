@@ -1,25 +1,25 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { op, table } from 'arquero';
-import { Box, Container } from '@mantine/core';
-import { ColumnInfo, ECloudType, EColumnTypes, ELightningType, ERainType, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ColumnInfo, ECloudType, EColumnTypes, ELightningType, ERainType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
-import { SplitViolin } from './cloud/SplitViolin';
-import { DotPlot } from './rain/DotPlot';
-import { MeanAndInterval } from './lightning/MeanAndInterval';
-import { useXScale } from './hooks/useXScale';
 import { XAxis } from '../hexbin/XAxis';
+import { Brush } from './Brush';
 import { Heatmap } from './cloud/Heatmap';
 import { Histogram } from './cloud/Histogram';
-import { BeeSwarm } from './rain/BeeSwarm';
-import { IRaindropCircle } from './utils';
-import { Circle } from './rain/Circle';
-import { WheatPlot } from './rain/WheatPlot';
-import { Brush } from './Brush';
-import { StripPlot } from './rain/StripPlot';
-import { Mean } from './lightning/Mean';
-import { MedianAndInterval } from './lightning/MedianAndInterval';
+import { SplitViolin } from './cloud/SplitViolin';
+import { useXScale } from './hooks/useXScale';
 import { Boxplot } from './lightning/Boxplot';
+import { Mean } from './lightning/Mean';
+import { MeanAndInterval } from './lightning/MeanAndInterval';
+import { MedianAndInterval } from './lightning/MedianAndInterval';
+import { BeeSwarm } from './rain/BeeSwarm';
+import { Circle } from './rain/Circle';
+import { DotPlot } from './rain/DotPlot';
+import { StripPlot } from './rain/StripPlot';
+import { WheatPlot } from './rain/WheatPlot';
+import { IRaincloudConfig, IRaindropCircle } from './utils';
 
 const margin = {
   top: 0,

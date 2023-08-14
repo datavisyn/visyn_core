@@ -1,7 +1,8 @@
+import { bin, desc, op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
-import { op, table, bin, desc } from 'arquero';
+import merge from 'lodash/merge';
 import { resolveSingleColumn } from '../general/layoutUtils';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { BaseConfig, ColumnInfo, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 
 export enum SortTypes {
   NONE = 'NONE',
@@ -9,6 +10,63 @@ export enum SortTypes {
   CAT_DESC = 'CAT_DESC',
   COUNT_ASC = 'COUNT_ASC',
   COUNT_DESC = 'COUNT_DESC',
+}
+
+export enum EBarGroupingType {
+  STACK = 'Stacked',
+  GROUP = 'Grouped',
+}
+
+export enum EBarDisplayType {
+  ABSOLUTE = 'Absolute',
+  NORMALIZED = 'Normalized',
+}
+export enum EBarDirection {
+  VERTICAL = 'Vertical',
+  HORIZONTAL = 'Horizontal',
+}
+
+const defaultConfig: IBarConfig = {
+  type: ESupportedPlotlyVis.BAR,
+  numColumnsSelected: [],
+  catColumnSelected: null,
+  group: null,
+  groupType: EBarGroupingType.STACK,
+  multiples: null,
+  display: EBarDisplayType.ABSOLUTE,
+  direction: EBarDirection.HORIZONTAL,
+  aggregateColumn: null,
+  aggregateType: EAggregateTypes.COUNT,
+};
+
+export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
+  const merged = merge({}, defaultConfig, config);
+
+  const catCols = columns.filter((c) => c.type === EColumnTypes.CATEGORICAL);
+  const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
+
+  if (!merged.catColumnSelected && catCols.length > 0) {
+    merged.catColumnSelected = catCols[catCols.length - 1].info;
+  }
+
+  if (!merged.aggregateColumn && numCols.length > 0) {
+    merged.aggregateColumn = numCols[numCols.length - 1].info;
+  }
+
+  return merged;
+}
+
+export interface IBarConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.BAR;
+  multiples: ColumnInfo | null;
+  group: ColumnInfo | null;
+  direction: EBarDirection;
+  display: EBarDisplayType;
+  groupType: EBarGroupingType;
+  numColumnsSelected: ColumnInfo[];
+  catColumnSelected: ColumnInfo;
+  aggregateType: EAggregateTypes;
+  aggregateColumn: ColumnInfo | null;
 }
 
 // Helper function for the bar chart which sorts the data depending on the sort type.

@@ -1,8 +1,8 @@
-import { useMantineTheme, Text, Tooltip, Stack, Center } from '@mantine/core';
-import * as React from 'react';
-import { useEffect, useMemo } from 'react';
+import { Center, Stack, Text, Tooltip, useMantineTheme } from '@mantine/core';
 import * as d3 from 'd3v7';
-import { ICorrelationConfig } from '../../interfaces';
+import * as React from 'react';
+import { useMemo } from 'react';
+import { ICorrelationConfig } from '../utils';
 
 const marginRect = { top: 0, right: 0, bottom: 0, left: 0 };
 

@@ -1,116 +1,27 @@
-import * as React from 'react';
-import { useMemo } from 'react';
-import merge from 'lodash/merge';
-import { ActionIcon, Container, Divider, Group, NumberInput, SegmentedControl, Stack, Switch, Text, Tooltip } from '@mantine/core';
-import * as d3 from 'd3v7';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
-import {
-  ColumnInfo,
-  ESupportedPlotlyVis,
-  IVisConfig,
-  VisColumn,
-  ICommonVisSideBarProps,
-  EFilterOptions,
-  ICorrelationConfig,
-  ECorrelationType,
-  EScaleType,
-} from '../interfaces';
-import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ActionIcon, Container, Divider, Group, NumberInput, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
+import * as d3 from 'd3v7';
+import * as React from 'react';
+import { ColumnInfo, ECorrelationType, EScaleType, ESupportedPlotlyVis, ICommonVisSideBarProps, VisColumn } from '../interfaces';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
-
-const defaultConfig = {
-  group: {
-    enable: true,
-    customComponent: null,
-  },
-  multiples: {
-    enable: true,
-    customComponent: null,
-  },
-  direction: {
-    enable: true,
-    customComponent: null,
-  },
-  filter: {
-    enable: true,
-    customComponent: null,
-  },
-  groupType: {
-    enable: true,
-    customComponent: null,
-  },
-  display: {
-    enable: true,
-    customComponent: null,
-  },
-};
-
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
+import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { ICorrelationConfig } from './utils';
 
 export function CorrelationVisSidebar({
   config,
-  optionsConfig,
-  extensions,
   columns,
-  filterCallback = () => null,
   setConfig,
-  className = '',
   style: { width = '20em', ...style } = {},
 }: {
   config: ICorrelationConfig;
-  optionsConfig?: {
-    group?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    multiples?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    direction?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    groupingType?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    filter?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    display?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  filterCallback?: (s: EFilterOptions) => void;
+
   columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
+  setConfig: (config: ICorrelationConfig) => void;
 } & ICommonVisSideBarProps<ICorrelationConfig>) {
-  const mergedOptionsConfig = useMemo(() => {
-    return merge({}, defaultConfig, optionsConfig);
-  }, [optionsConfig]);
-
-  const mergedExtensions = useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
-
   return (
     <Container p={10} fluid>
-      <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
+      <VisTypeSelect callback={(type: ESupportedPlotlyVis.CORRELATION) => setConfig({ ...config, type })} currentSelected={config.type} />
       <Divider my="sm" />
       <Stack spacing={25}>
         <NumericalColumnSelect

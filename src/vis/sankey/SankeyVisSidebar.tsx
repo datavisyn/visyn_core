@@ -1,8 +1,9 @@
-import * as React from 'react';
 import { Container, Stack } from '@mantine/core';
-import { ColumnInfo, ESupportedPlotlyVis, ICommonVisSideBarProps, ISankeyConfig } from '../interfaces';
+import * as React from 'react';
+import { ColumnInfo, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { ISankeyConfig } from './utils';
 
 export function SankeyVisSidebar({
   config,

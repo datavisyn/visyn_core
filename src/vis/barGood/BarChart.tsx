@@ -1,12 +1,12 @@
-import React, { useCallback, useMemo } from 'react';
 import { Box, Loader, SimpleGrid, Stack } from '@mantine/core';
 import { op } from 'arquero';
-import { EColumnTypes, IBarConfig, VisColumn } from '../interfaces';
-import { SingleBarChart } from './SingleBarChart';
+import React, { useCallback, useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
-import { SortTypes, getBarData } from './utils';
-import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
+import { EColumnTypes, VisColumn } from '../interfaces';
+import { SingleBarChart } from './SingleBarChart';
 import { Legend } from './barComponents/Legend';
+import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
+import { IBarConfig, SortTypes, getBarData } from './utils';
 
 export function BarChart({
   config,

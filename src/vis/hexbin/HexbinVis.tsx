@@ -1,12 +1,13 @@
-import * as React from 'react';
-import merge from 'lodash/merge';
-import { useMemo } from 'react';
 import { Center, Group, SimpleGrid, Stack } from '@mantine/core';
-import { IHexbinConfig, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
-import { InvalidCols } from '../general';
+import merge from 'lodash/merge';
+import * as React from 'react';
+import { useMemo } from 'react';
 import { i18n } from '../../i18n';
-import { Hexplot } from './Hexplot';
+import { InvalidCols } from '../general';
+import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar';
+import { Hexplot } from './Hexplot';
+import { IHexbinConfig } from './utils';
 
 const defaultExtensions = {
   prePlot: null,

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
 import * as d3 from 'd3v7';
+import React, { useEffect } from 'react';
 
 export function Brush({
   x,

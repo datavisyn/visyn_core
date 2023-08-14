@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
-import { table, op, bin } from 'arquero';
+import { bin, op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
-import { ColumnInfo, EColumnTypes, IRaincloudConfig, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
+import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
-import { Circle } from './Circle';
+import { IRaincloudConfig } from '../utils';
 
 const margin = {
   top: 30,

@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { escape, op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
-import { op, table, bin, escape } from 'arquero';
-import { useMemo } from 'react';
 import * as d3 from 'd3v7';
-import { aggregate } from 'lineupjs';
+import { useMemo } from 'react';
+import { EAggregateTypes, EColumnTypes } from '../../interfaces';
+import { EBarGroupingType, SortTypes, binByAggregateType, getBarData, groupByAggregateType, rollupByAggregateType } from '../utils';
 import { useGetBarScales } from './useGetBarScales';
-import { SortTypes, binByAggregateType, getBarData, groupByAggregateType, sortTableBySortType, rollupByAggregateType } from '../utils';
-import { EAggregateTypes, EBarGroupingType, EColumnTypes } from '../../interfaces';
 
 export function useGetGroupedBarScales(
   allColumns: Awaited<ReturnType<typeof getBarData>>,

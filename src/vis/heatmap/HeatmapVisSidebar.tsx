@@ -1,12 +1,21 @@
 import { Container, Stack } from '@mantine/core';
 import * as React from 'react';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, IHeatmapConfig, IVisConfig, VisColumn } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../interfaces';
+import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
+import { IHeatmapConfig } from './utils';
 
-export function HeatmapVisSidebar({ config, columns, setConfig }: { config: IHeatmapConfig; columns: VisColumn[]; setConfig: (config: IVisConfig) => void }) {
+export function HeatmapVisSidebar({
+  config,
+  columns,
+  setConfig,
+}: {
+  config: IHeatmapConfig;
+  columns: VisColumn[];
+  setConfig: (config: IHeatmapConfig) => void;
+}) {
   return (
     <Container fluid p={10}>
       <Stack spacing="xs">

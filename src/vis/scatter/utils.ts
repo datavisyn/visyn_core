@@ -1,25 +1,35 @@
-import merge from 'lodash/merge';
 import * as d3v7 from 'd3v7';
+import merge from 'lodash/merge';
+import { i18n } from '../../i18n';
+import { getCssValue } from '../../utils';
+import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
+import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  PlotlyInfo,
-  PlotlyData,
-  EColumnTypes,
-  VisNumericalColumn,
-  Scales,
-  ESupportedPlotlyVis,
-  VisColumn,
-  IScatterConfig,
-  ENumericalColorScaleType,
-  VisCategoricalValue,
-  VisNumericalValue,
-  EScatterSelectSettings,
+  BaseConfig,
   ColumnInfo,
+  EColumnTypes,
+  ENumericalColorScaleType,
+  EScatterSelectSettings,
+  ESupportedPlotlyVis,
+  PlotlyData,
+  PlotlyInfo,
+  Scales,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalColumn,
+  VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-import { getCssValue } from '../../utils';
-import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
-import { i18n } from '../../i18n';
-import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
+
+export interface IScatterConfig extends BaseConfig {
+  type: ESupportedPlotlyVis.SCATTER;
+  numColumnsSelected: ColumnInfo[];
+  color: ColumnInfo | null;
+  numColorScaleType: ENumericalColorScaleType;
+  shape: ColumnInfo | null;
+  dragMode: EScatterSelectSettings;
+  alphaSliderVal: number;
+}
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;

@@ -1,25 +1,17 @@
+import { faArrowUpWideShort, faArrowUpZA } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, Container, Group, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUpWideShort, faArrowUpZA } from '@fortawesome/free-solid-svg-icons';
-import {
-  ColumnInfo,
-  EAggregateTypes,
-  EColumnTypes,
-  ENumericalColorScaleType,
-  ESortTypes,
-  IHeatmapConfig,
-  VisCategoricalValue,
-  VisNumericalValue,
-} from '../interfaces';
+import { rollupByAggregateType } from '../barGood/utils';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ESortTypes, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
-import { rollupByAggregateType } from '../barGood/utils';
-import { ColorLegendVert } from '../legend/ColorLegendVert';
+import { IHeatmapConfig } from './utils';
 
 const interRectDistance = 1;
 
@@ -28,22 +20,6 @@ type CatColumn = {
   type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
   info: ColumnInfo;
 };
-
-function doOverlap(rect1: { x1: number; x2: number; y1: number; y2: number }, rect2: { x1: number; x2: number; y1: number; y2: number }) {
-  // if rectangle has area 0, no overlap
-  if (rect1.x1 === rect1.x2 || rect1.y1 === rect1.y2 || rect2.x1 === rect2.x2 || rect2.y1 === rect2.y2) {
-    return false;
-  }
-  // If one rectangle is on left side of other
-  if (rect1.x1 > rect2.x2 || rect2.x1 > rect1.x2) {
-    return false;
-  }
-  // If one rectangle is above other
-  if (rect1.y1 > rect2.y2 || rect2.y1 > rect1.y2) {
-    return false;
-  }
-  return true;
-}
 
 export function Heatmap({
   column1,

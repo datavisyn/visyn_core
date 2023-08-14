@@ -1,7 +1,8 @@
-import React from 'react';
 import { ComponentStory } from '@storybook/react';
+import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { EAggregateTypes, EBarDirection, EBarDisplayType, EBarGroupingType, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../barGood/utils';
+import { BaseConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -144,7 +145,7 @@ Basic.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const Vertical: typeof Template = Template.bind({}) as typeof Template;
@@ -164,7 +165,7 @@ Vertical.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const Grouped: typeof Template = Template.bind({}) as typeof Template;
@@ -188,7 +189,7 @@ Grouped.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const GroupedStack: typeof Template = Template.bind({}) as typeof Template;
@@ -212,7 +213,7 @@ GroupedStack.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const GroupedNumerical: typeof Template = Template.bind({}) as typeof Template;
@@ -236,7 +237,7 @@ GroupedNumerical.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const GroupedNumericalStack: typeof Template = Template.bind({}) as typeof Template;
@@ -260,7 +261,7 @@ GroupedNumericalStack.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const Multiples: typeof Template = Template.bind({}) as typeof Template;
@@ -284,7 +285,7 @@ Multiples.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const MultiplesAndGrouped: typeof Template = Template.bind({}) as typeof Template;
@@ -312,7 +313,7 @@ MultiplesAndGrouped.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const MultiplesAndGroupedStack: typeof Template = Template.bind({}) as typeof Template;
@@ -340,7 +341,7 @@ MultiplesAndGroupedStack.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };
 
 export const AggregateAverage: typeof Template = Template.bind({}) as typeof Template;
@@ -364,5 +365,5 @@ AggregateAverage.args = {
       name: 'value',
     },
     numColumnsSelected: [],
-  },
+  } as BaseConfig,
 };

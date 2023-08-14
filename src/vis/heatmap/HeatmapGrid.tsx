@@ -1,9 +1,9 @@
-import { Group, Loader, SimpleGrid, Stack, Switch, Text } from '@mantine/core';
+import { Loader, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
-import { IHeatmapConfig, VisColumn } from '../interfaces';
-import { getHeatmapData } from './utils';
+import { VisColumn } from '../interfaces';
 import { Heatmap } from './Heatmap';
+import { IHeatmapConfig, getHeatmapData } from './utils';
 
 export function HeatmapGrid({
   config,

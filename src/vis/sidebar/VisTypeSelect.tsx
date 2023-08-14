@@ -1,7 +1,7 @@
 import { Select } from '@mantine/core';
 import * as React from 'react';
+import { useVisProvider } from '../Provider';
 import { ESupportedPlotlyVis } from '../interfaces';
-import { getAllVisTypes } from '../provider/Provider';
 
 interface VisTypeSelectProps {
   callback: (s: ESupportedPlotlyVis) => void;
@@ -9,6 +9,8 @@ interface VisTypeSelectProps {
 }
 
 export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps) {
+  const { visTypes } = useVisProvider();
+
   return (
     <Select
       withinPortal
@@ -16,10 +18,10 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
       // components={{Option: optionLayout}}
       onChange={(e) => callback(e as ESupportedPlotlyVis)}
       name="visTypes"
-      data={getAllVisTypes().map((t) => {
+      data={visTypes.map((t) => {
         return {
-          value: t,
-          label: t,
+          value: t.type,
+          label: t.type,
         };
       })}
       value={currentSelected}
