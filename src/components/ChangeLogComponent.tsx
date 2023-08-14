@@ -69,7 +69,11 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
           setCheckedTimes={setCheckedTimes}
         />
       </Group>
-      {data.map((article) => (showedArticles.get(article) ? <ChangeLogArticle article={article} largerThanSm={largerThanSm} key={article.title} /> : null))}
+      {data.map((article) =>
+        showedArticles.get(article) ? (
+          <ChangeLogArticle article={article} largerThanSm={largerThanSm} key={article.title} checkedTags={checkedTags} setCheckedTags={setCheckedTags} />
+        ) : null,
+      )}
       <Space h="sm" />
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
         <Transition transition="slide-up" mounted={scroll.y > 0}>

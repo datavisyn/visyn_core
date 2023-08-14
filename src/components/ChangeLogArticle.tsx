@@ -27,7 +27,17 @@ const usedStyles = createStyles((themes) => ({
   },
 }));
 
-export function ChangeLogArticle({ article, largerThanSm }: { article: IArticle; largerThanSm: boolean }) {
+export function ChangeLogArticle({
+  article,
+  largerThanSm,
+  checkedTags,
+  setCheckedTags,
+}: {
+  article: IArticle;
+  largerThanSm: boolean;
+  checkedTags: Map<string, boolean>;
+  setCheckedTags: React.Dispatch<React.SetStateAction<Map<string, boolean>>>;
+}) {
   const { classes } = usedStyles();
   return (
     <Grid py={0} mx="10%">
@@ -49,7 +59,9 @@ export function ChangeLogArticle({ article, largerThanSm }: { article: IArticle;
                 <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
                 <Flex gap="sm" mt="xs" ml={0}>
                   {article.tags.map((tag) => (
-                    <Badge key={`${tag}key`}>{tag}</Badge>
+                    <Badge key={`${tag}key`} onClick={() => (checkedTags.get(tag) ? null : setCheckedTags((prevstate) => new Map(prevstate.set(tag, true))))}>
+                      {tag}
+                    </Badge>
                   ))}
                 </Flex>
               </Stack>
@@ -77,7 +89,10 @@ export function ChangeLogArticle({ article, largerThanSm }: { article: IArticle;
           <Stack>
             <Flex gap="sm" mt="sm">
               {article.tags.map((tag) => (
-                <Badge key={`${tag}key`}>{tag}</Badge>
+                // (checkedTags.get(tag) ? null : setCheckedTags((prevstate) => new Map(prevstate.set(tag, false))))
+                <Badge key={`${tag}key`} onClick={() => console.log(tag)}>
+                  {tag}
+                </Badge>
               ))}
             </Flex>
             <Text mt={0} size="md">
