@@ -47,22 +47,20 @@ export function ChangeLogArticle({ article, largerThanSm }: { article: IArticle;
                   {`on ${article.date.toLocaleDateString()}`}
                 </Text>
                 <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
+                <Flex gap="sm" mt="xs" ml={0}>
+                  {article.tags.map((tag) => (
+                    <Badge key={`${tag}key`}>{tag}</Badge>
+                  ))}
+                </Flex>
               </Stack>
             </Stack>
           </Grid.Col>
           <Grid.Col span="auto">
-            <Stack spacing={0}>
-              <Flex gap="sm">
-                {article.tags.map((tag) => (
-                  <Badge key={`${tag}key`}>{tag}</Badge>
-                ))}
-              </Flex>
-              <Text size="md" mr="lg">
-                <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm]}>
-                  {article.content}
-                </ReactMarkdown>
-              </Text>
-            </Stack>
+            <Text size="md" mr="lg">
+              <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm]}>
+                {article.content}
+              </ReactMarkdown>
+            </Text>
           </Grid.Col>
         </>
       ) : (
