@@ -48,13 +48,26 @@ class AlbSecurityStoreSettings(BaseModel):
     """
     Field in the JWT token that contains the email address of the user.
     """
+    audience: str | list[str] | None = None
+    """
+    Audience of the JWT token.
+    """
+    issuer: str | None = None
+    """
+    Issuer of the JWT token.
+    """
+    decode_options: dict[str, Any] | None = None
+    """
+    `options` of the `jwt.decode` function. See https://pyjwt.readthedocs.io/en/stable/api.html#jwt.decode for details.
+    By default, `verify_signature` is also true, and verifies the signature of the JWT token. Thus, the public key of the ALB is fetched from the AWS API.
+    """
     region: str = "eu-central-1"
     """
-    Region of the ALB to fetch the public key from. Required if verify is True.
+    The region of the ALB to fetch the public key from.
     """
-    verify: bool = True
+    decode_algorithms: list[str] = ["ES256"]
     """
-    Verify the signature of the JWT token. If True, the public key of the ALB is fetched from the AWS API.
+    The algorithm used to sign the JWT token. See https://pyjwt.readthedocs.io/en/stable/algorithms.html for details.
     """
 
 
