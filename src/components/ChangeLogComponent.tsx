@@ -3,9 +3,9 @@ import { Stack, Group, Space, Affix, rem, Transition, Button } from '@mantine/co
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { useMediaQuery, useWindowScroll } from '@mantine/hooks';
-import { ChangeLogFilter } from './ChangeLogFilter';
 import { ChangeLogArticle } from './ChangeLogArticle';
 import { IArticle } from '../base/interfaces';
+import { ChangeLogFilter } from './ChangeLogFilter';
 
 function fIsChecked(article: IArticle, checkedTags: Map<string, boolean>): boolean {
   for (let i = 0; i < article.tags.length; i++) {
@@ -21,6 +21,7 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   const largerThanSm = useMediaQuery('(min-width: 768px)');
   const allTags = [];
   const allTimes = [];
+  const extendedDateFilterOptions = ['this week', 'last week', 'this month', 'last month', 'this year'];
 
   data.map((article) => article.tags.map((tag) => (allTags.includes(tag) ? null : allTags.push(tag))));
   data.map((article) => (allTimes.includes(article.date) ? null : allTimes.push(article.date)));

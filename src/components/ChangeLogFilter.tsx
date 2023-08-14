@@ -59,7 +59,9 @@ export function ChangeLogFilter({
               </Group>
               <Stack>
                 <Checkbox label="this week" />
+                <Checkbox label="last week" />
                 <Checkbox label="this month" />
+                <Checkbox label="last month" />
                 <Checkbox label="this year" />
                 <Divider />
                 {times.map((time) => (
