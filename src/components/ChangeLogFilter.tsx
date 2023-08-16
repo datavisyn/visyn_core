@@ -1,4 +1,4 @@
-import { Stack, Checkbox, Group, Menu, Tabs, Button, Divider } from '@mantine/core';
+import { Stack, Checkbox, Group, Menu, Tabs, Button, Divider, Radio } from '@mantine/core';
 import * as React from 'react';
 
 export function ChangeLogFilter({
@@ -15,12 +15,12 @@ export function ChangeLogFilter({
   tags: string[];
   times: Date[];
   extendedTimes: string[];
-  checkedTags: Map<string, boolean>;
-  setCheckedTags: React.Dispatch<React.SetStateAction<Map<string, boolean>>>;
-  checkedTimes: Map<Date, boolean>;
-  setCheckedTimes: React.Dispatch<React.SetStateAction<Map<Date, boolean>>>;
-  checkedExtendedTimes: Map<string, boolean>;
-  setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<Map<string, boolean>>>;
+  checkedTags: { [k: string]: boolean };
+  setCheckedTags: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
+  checkedTimes: { [k: Date]: boolean };
+  setCheckedTimes: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
+  checkedExtendedTimes: { [k: string]: boolean };
+  setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
 }) {
   return (
     <Menu>
@@ -36,10 +36,10 @@ export function ChangeLogFilter({
           <Tabs.Panel value="tags">
             <Stack mt="xs">
               <Group>
-                <Button variant="subtle" size="xs" onClick={() => tags.map((k) => setCheckedTags((prevstate) => new Map(prevstate.set(k, true))))}>
+                <Button variant="subtle" size="xs" onClick={() => tags.map((k) => setCheckedTags((prevstate) => ({ ...prevstate, [k]: true })))}>
                   Select all
                 </Button>
-                <Button variant="subtle" size="xs" onClick={() => tags.map((k) => setCheckedTags((prevstate) => new Map(prevstate.set(k, false))))}>
+                <Button variant="subtle" size="xs" onClick={() => tags.map((k) => setCheckedTags((prevstate) => ({ ...prevstate, [k]: false })))}>
                   Reset
                 </Button>
               </Group>
@@ -47,8 +47,8 @@ export function ChangeLogFilter({
                 <Checkbox
                   key={tag}
                   label={tag}
-                  checked={checkedTags.get(tag)}
-                  onClick={() => setCheckedTags((prevstate) => new Map(prevstate.set(tag, !prevstate.get(tag))))}
+                  checked={checkedTags[tag]}
+                  onClick={() => setCheckedTags((prevstate) => ({ ...prevstate, [tag]: !checkedTags[tag] }))}
                 />
               ))}
             </Stack>
@@ -60,8 +60,8 @@ export function ChangeLogFilter({
                   variant="subtle"
                   size="xs"
                   onClick={() => {
-                    times.map((k) => setCheckedTimes((prevstate) => new Map(prevstate.set(k, true))));
-                    extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => new Map(prevstate.set(et, true))));
+                    times.map((t) => setCheckedTimes((prevstate) => ({ ...prevstate, [t]: true })));
+                    extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: true })));
                   }}
                 >
                   Select all
@@ -70,29 +70,31 @@ export function ChangeLogFilter({
                   variant="subtle"
                   size="xs"
                   onClick={() => {
-                    times.map((k) => setCheckedTimes((prevstate) => new Map(prevstate.set(k, false))));
-                    extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => new Map(prevstate.set(et, false))));
+                    times.map((k) => setCheckedTimes((prevstate) => ({ ...prevstate, [k]: false })));
+                    extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: false })));
                   }}
                 >
                   Reset
                 </Button>
               </Group>
               <Stack>
-                {extendedTimes.map((et) => (
-                  <Checkbox
-                    label={et}
-                    key={et}
-                    checked={checkedExtendedTimes.get(et)}
-                    onClick={() => setCheckedExtendedTimes((prevstate) => new Map(prevstate.set(et, !prevstate.get(et))))}
-                  />
-                ))}
+                <Radio.Group>
+                  {extendedTimes.map((et) => (
+                    <Radio
+                      label={et}
+                      key={et}
+                      checked={checkedExtendedTimes[et]}
+                      onClick={() => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: !checkedExtendedTimes[et] }))}
+                    />
+                  ))}
+                </Radio.Group>
                 <Divider />
                 {times.map((time) => (
                   <Checkbox
                     key={time.toDateString()}
                     label={`${time.toLocaleString('default', { month: 'long' })} ${time.getFullYear().toString()}`}
-                    checked={checkedTimes.get(time)}
-                    onClick={() => setCheckedTimes((prevstate) => new Map(prevstate.set(time, !prevstate.get(time))))}
+                    checked={checkedTimes[time]}
+                    onClick={() => setCheckedTimes((prevstate) => ({ ...prevstate, [time]: !checkedTimes[time] }))}
                   />
                 ))}
               </Stack>

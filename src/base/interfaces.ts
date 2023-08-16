@@ -91,7 +91,8 @@ export interface IServerColumn {
 }
 
 export interface IArticle {
-  title: string;
+  title?: string;
+  version: string;
   author: string;
   content: any;
   date: Date;

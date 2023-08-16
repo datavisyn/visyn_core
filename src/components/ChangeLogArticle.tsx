@@ -1,30 +1,8 @@
-import { Flex, Stack, Text, Badge, Grid, createStyles, Title } from '@mantine/core';
+import { Flex, Stack, Text, Badge, Grid, Title, Box } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import React from 'react';
+import * as React from 'react';
 import { IArticle } from '../base';
-
-const usedStyles = createStyles((themes) => ({
-  lineWrapper: {
-    display: 'flex',
-    background: themes.colors.blue[6],
-    height: '100%',
-    width: '3px',
-    top: '4px',
-    position: 'sticky',
-    marginBottom: '-13px',
-  },
-  circleWrapper: {
-    display: 'inline',
-    width: '15px',
-    height: '15px',
-    borderRadius: '50%',
-    top: '4px',
-    position: 'sticky',
-    backgroundColor: themes.colors.blue[6],
-    marginTop: '13px',
-  },
-}));
 
 export function ChangeLogArticle({
   article,
@@ -34,24 +12,51 @@ export function ChangeLogArticle({
 }: {
   article: IArticle;
   largerThanSm: boolean;
-  checkedTags: Map<string, boolean>;
-  setCheckedTags: React.Dispatch<React.SetStateAction<Map<string, boolean>>>;
+  checkedTags: { [k: string]: boolean };
+  setCheckedTags: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
 }) {
-  const { classes } = usedStyles();
   return (
     <Grid py={0} mx="10%">
       <Grid.Col span="content" py={0}>
         <Flex gap={0} align="center" direction="column" h="100%">
-          <div className={classes.circleWrapper} />
-          <div className={classes.lineWrapper} />
+          <Box
+            sx={(theme) => ({
+              display: 'inline',
+              width: '15px',
+              height: '15px',
+              borderRadius: '50%',
+              top: '4px',
+              position: 'sticky',
+              backgroundColor: theme.colors.primary,
+              marginTop: '15px',
+            })}
+          />
+          <Box
+            sx={(theme) => ({
+              display: 'flex',
+              background: theme.colors.primary,
+              height: '100%',
+              width: '3px',
+              top: '4px',
+              position: 'sticky',
+              marginBottom: '-15px',
+            })}
+          />
         </Flex>
       </Grid.Col>
       {largerThanSm ? (
         <>
           <Grid.Col span={2}>
             <Stack top="4px" pos="sticky" align="flex-start">
-              <Title size="h4">{article.title}</Title>
+              <Title size="h4" lineClamp={2}>
+                {article.title ? article.title : article.version}
+              </Title>
               <Stack spacing={0}>
+                {article.title ? (
+                  <Text color="dimmed" size="sm">
+                    {article.version}
+                  </Text>
+                ) : null}
                 <Text color="dimmed" size="sm">
                   {`on ${article.date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
                 </Text>
@@ -59,16 +64,17 @@ export function ChangeLogArticle({
                 <Flex gap="sm" mt="xs" ml={0}>
                   {article.tags.map((tag) => (
                     <Badge
-                      key={`${tag}key`}
+                      key={tag}
+                      role="button"
                       onClick={() =>
-                        checkedTags.get(tag)
-                          ? setCheckedTags((prevstate) => new Map(prevstate.set(tag, false)))
-                          : setCheckedTags((prevstate) => new Map(prevstate.set(tag, true)))
+                        checkedTags[tag]
+                          ? setCheckedTags((prevstate) => ({ ...prevstate, [tag]: false }))
+                          : setCheckedTags((prevstate) => ({ ...prevstate, [tag]: true }))
                       }
                       styles={(theme) => ({
-                        root: { cursor: 'pointer', ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
+                        root: { ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
                       })}
-                      variant={checkedTags.get(tag) ? 'filled' : 'light'}
+                      variant={checkedTags[tag] ? 'filled' : 'light'}
                     >
                       {tag}
                     </Badge>
@@ -88,8 +94,15 @@ export function ChangeLogArticle({
       ) : (
         <Grid.Col span="auto">
           <Stack top="4px" align="flex-start">
-            <Title size="h4">{article.title}</Title>
+            <Title size="h4" lineClamp={2}>
+              {article.title ? article.title : article.version}
+            </Title>
             <Stack spacing={0}>
+              {article.title ? (
+                <Text color="dimmed" size="sm">
+                  {article.version}
+                </Text>
+              ) : null}
               <Text color="dimmed" size="sm">
                 {`on ${article.date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
               </Text>
@@ -100,16 +113,17 @@ export function ChangeLogArticle({
             <Flex gap="sm" mt="sm">
               {article.tags.map((tag) => (
                 <Badge
-                  key={`${tag}key`}
+                  key={tag}
+                  role="button"
                   onClick={() =>
-                    checkedTags.get(tag)
-                      ? setCheckedTags((prevstate) => new Map(prevstate.set(tag, false)))
-                      : setCheckedTags((prevstate) => new Map(prevstate.set(tag, true)))
+                    checkedTags[tag]
+                      ? setCheckedTags((prevstate) => ({ ...prevstate, [tag]: false }))
+                      : setCheckedTags((prevstate) => ({ ...prevstate, [tag]: true }))
                   }
                   styles={(theme) => ({
-                    root: { cursor: 'pointer', ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
+                    root: { ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
                   })}
-                  variant={checkedTags.get(tag) ? 'filled' : 'light'}
+                  variant={checkedTags[tag] ? 'filled' : 'light'}
                 >
                   {tag}
                 </Badge>

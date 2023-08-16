@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, Text, Group, Space, Affix, rem, Transition, Button } from '@mantine/core';
+import { Stack, Group, Space, Affix, rem, Transition, Button } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { useMediaQuery, useWindowScroll } from '@mantine/hooks';
@@ -8,9 +8,9 @@ import { IArticle } from '../base/interfaces';
 import { ChangeLogFilter } from './ChangeLogFilter';
 import { HelpOverlay } from './Overlay';
 
-function FIsChecked(article: IArticle, checkedTags: Map<string, boolean>): boolean {
+function FIsChecked(article: IArticle, checkedTags: { [k: string]: boolean }): boolean {
   for (let i = 0; i < article.tags.length; i++) {
-    if (checkedTags.get(article.tags[i])) {
+    if (checkedTags[article.tags[i]]) {
       return true;
     }
   }
@@ -48,8 +48,8 @@ function DateThisYear(date: Date) {
 export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
-  const allTags = [];
-  const allTimes = [];
+  const allTags = Array.from(new Set(data.flatMap((article) => article.tags)));
+  const allTimes = Array.from(new Set(data.flatMap((article) => article.date)));
   const extendedDateFilterOptions = React.useMemo(
     () => [
       { name: 'this week', func: DateThisWeek },
@@ -61,58 +61,26 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
     [],
   );
 
-  data.map((article) => article.tags.map((tag) => (allTags.includes(tag) ? null : allTags.push(tag))));
-  data.map((article) => (allTimes.includes(article.date) ? null : allTimes.push(article.date)));
-
-  const [checkedTags, setCheckedTags] = React.useState<Map<string, boolean>>(new Map(allTags.map((tag) => [tag, false])));
-  const [checkedTimes, setCheckedTimes] = React.useState<Map<Date, boolean>>(new Map(allTimes.map((time) => [time, false])));
-  const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState<Map<string, boolean>>(
-    new Map(extendedDateFilterOptions.map((eo) => [eo.name, false])),
-  );
-  const [showedArticles, setShowedArticles] = React.useState<Map<IArticle, boolean>>(new Map(data.map((article) => [article, true])));
+  const [checkedTags, setCheckedTags] = React.useState(Object.fromEntries(allTags.map((tag) => [tag, false])));
+  const [checkedTimes, setCheckedTimes] = React.useState(Object.fromEntries(allTimes.map((time) => [time, false])));
+  const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState(Object.fromEntries(extendedDateFilterOptions.map((eo) => [eo.name, false])));
+  const [showedArticles, setShowedArticles] = React.useState(Object.fromEntries(data.map((article) => [article, true])));
 
   React.useEffect(() => {
-    let anyChecked = false;
-    for (const value of checkedTags.values()) {
-      if (value) {
-        anyChecked = true;
-        break;
-      } else {
-        continue;
-      }
-    }
-    for (const value of checkedTimes.values()) {
-      if (value) {
-        anyChecked = true;
-        break;
-      } else {
-        continue;
-      }
-    }
-
-    for (const value of checkedExtendedTimes.values()) {
-      if (value) {
-        anyChecked = true;
-        break;
-      } else {
-        continue;
-      }
-    }
-
     data.map((article) =>
-      anyChecked
-        ? checkedTimes.get(article.date) || FIsChecked(article, checkedTags)
-          ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
-          : setShowedArticles((prevstate) => new Map(prevstate.set(article, false)))
-        : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
+      checkedTags && checkedTimes
+        ? checkedTimes[article.date] || FIsChecked(article, checkedTags)
+          ? setShowedArticles((prevstate) => ({ ...prevstate, [article]: true }))
+          : setShowedArticles((prevstate) => ({ ...prevstate, [article]: false }))
+        : setShowedArticles((prevstate) => ({ ...prevstate, [article]: true })),
     );
 
-    for (const entry of checkedExtendedTimes.entries()) {
-      if (entry[1]) {
-        const usedFunction = extendedDateFilterOptions.find((exdf) => exdf.name === entry[0]);
-        data.map((article) => (usedFunction.func(article.date) ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true))) : null));
-      }
-    }
+    // for (checkedExtendedTimes) {
+    //   if () {
+    //     const usedFunction = extendedDateFilterOptions.find((exdf) => exdf.name === entry[0]);
+    //     data.map((article) => (usedFunction.func(article.date) ? setShowedArticles((prevstate) => ({...prevstate, [article]: true})) : null));
+    //   }
+    // }
   }, [checkedExtendedTimes, checkedTags, checkedTimes, data, extendedDateFilterOptions, showedArticles]);
 
   return (
