@@ -160,7 +160,8 @@
     "react-dom": "^18.2.0",
     "react-highlight-words": "^0.17.0",
     "react-plotly.js": "^2.5.1",
-    "use-deep-compare-effect": "^1.8.0"
+    "use-deep-compare-effect": "^1.8.0",
+    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#develop"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
@@ -186,8 +187,7 @@
     "@types/react": "~18.2.0",
     "@types/react-dom": "~18.2.0",
     "react": "~18.2.0",
-    "react-dom": "~18.2.0",
-    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#mp/upgrade_ts_5_1_6"
+    "react-dom": "~18.2.0"
   },
   "visyn": {
     "entries": {
