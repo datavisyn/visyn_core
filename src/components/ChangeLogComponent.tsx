@@ -63,7 +63,8 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
 
   const [checkedTags, setCheckedTags] = React.useState(Object.fromEntries(allTags.map((tag) => [tag, false])));
   const [checkedTimes, setCheckedTimes] = React.useState<Map<Date, boolean>>(new Map(allTimes.map((time) => [time, false])));
-  const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState(Object.fromEntries(extendedDateFilterOptions.map((eo) => [eo.name, false])));
+  // const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState(Object.fromEntries(extendedDateFilterOptions.map((eo) => [eo.name, false])));
+  const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState('');
   const [showedArticles, setShowedArticles] = React.useState<Map<IArticle, boolean>>(new Map(data.map((article) => [article, true])));
 
   React.useEffect(() => {

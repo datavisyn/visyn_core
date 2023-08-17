@@ -27,19 +27,19 @@ export function ChangeLogArticle({
               borderRadius: '50%',
               top: '4px',
               position: 'sticky',
-              backgroundColor: theme.colors.primary,
-              marginTop: '15px',
+              backgroundColor: theme.colors.blue[6],
+              marginTop: '13px',
             })}
           />
           <Box
             sx={(theme) => ({
               display: 'flex',
-              background: theme.colors.primary,
+              background: theme.colors.blue[6],
               height: '100%',
               width: '3px',
               top: '4px',
               position: 'sticky',
-              marginBottom: '-15px',
+              marginBottom: '-13px',
             })}
           />
         </Flex>

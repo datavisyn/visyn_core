@@ -19,8 +19,8 @@ export function ChangeLogFilter({
   setCheckedTags: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
   checkedTimes: Map<Date, boolean>;
   setCheckedTimes: React.Dispatch<React.SetStateAction<Map<Date, boolean>>>;
-  checkedExtendedTimes: { [k: string]: boolean };
-  setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
+  checkedExtendedTimes: string;
+  setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<string>>;
 }) {
   return (
     <Menu>
@@ -61,7 +61,7 @@ export function ChangeLogFilter({
                   size="xs"
                   onClick={() => {
                     times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, true))));
-                    extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: true })));
+                    extendedTimes.map((et) => setCheckedExtendedTimes(() => et));
                   }}
                 >
                   Select all
@@ -71,22 +71,20 @@ export function ChangeLogFilter({
                   size="xs"
                   onClick={() => {
                     times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, false))));
-                    extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: false })));
+                    extendedTimes.map((et) => setCheckedExtendedTimes(() => ''));
                   }}
                 >
                   Reset
                 </Button>
               </Group>
               <Stack>
-                <Radio.Group>
-                  {extendedTimes.map((et) => (
-                    <Radio
-                      label={et}
-                      key={et}
-                      checked={checkedExtendedTimes[et]}
-                      onClick={() => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: !checkedExtendedTimes[et] }))}
-                    />
-                  ))}
+                {/* Not working */}
+                <Radio.Group onChange={setCheckedExtendedTimes}>
+                  <Stack>
+                    {extendedTimes.map((et) => (
+                      <Radio label={et} key={et} value={et} checked={checkedExtendedTimes[et]} />
+                    ))}
+                  </Stack>
                 </Radio.Group>
                 <Divider />
                 {times.map((time) => (
