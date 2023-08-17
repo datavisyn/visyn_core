@@ -150,9 +150,7 @@ export function VisynDemoViewHeader({ parameters, selection, onParametersChanged
   );
 }
 
-export function VisynDemoViewContext({ children }: DemoVisynViewPluginType['props']) {
-  return children;
-}
+export const VisynDemoViewContext = ({ children }: DemoVisynViewPluginType['props']) => children as React.ReactElement;
 
 export function createVisynDemoView(): DemoVisynViewPluginType['definition'] {
   return {
@@ -162,9 +160,9 @@ export function createVisynDemoView(): DemoVisynViewPluginType['definition'] {
       config: null,
       dataLength: 100,
     },
-    view: VisynDemoView,
+    context: VisynDemoViewContext,
     header: VisynDemoViewHeader,
     tab: VisynDemoViewSidebar,
-    context: VisynDemoViewContext,
+    view: VisynDemoView,
   };
 }

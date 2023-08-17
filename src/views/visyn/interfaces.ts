@@ -52,7 +52,10 @@ type VisynViewComponents<Props extends object> = {
   /**
    * Optional context component of this visyn view plugin. This component wraps all of the above and allows to provide context values (i.e. via React.createContext).
    */
-  context?: React.LazyExoticComponent<React.ComponentType<Props & { children: React.ReactNode }>> | React.ComponentType<Props & { children: React.ReactNode }>;
+  context?:
+    | React.LazyExoticComponent<React.ComponentType<Props & { children: React.ReactNode }>>
+    | React.ComponentType<Props & { children: React.ReactNode }>
+    | React.ReactElement<unknown, string | React.JSXElementConstructor<unknown>>;
 };
 
 type BaseVisynViewDesc<Type extends string, Param extends Record<string, unknown>> = IBaseViewPluginDesc & {
@@ -125,7 +128,7 @@ export interface DefineVisynViewPlugin<
   /**
    * Definition to be used as return value of the loader function of the module.
    */
-  definition: Pick<VisynViewPluginBaseType<Type, Param, Props, Desc>, 'viewType' | 'defaultParameters' | 'header' | 'view' | 'tab' | 'context'>;
+  definition: Pick<VisynViewPluginBaseType<Type, Param, Props, Desc>, 'viewType' | 'defaultParameters' | 'context' | 'header' | 'tab' | 'view'>;
   /**
    * Full plugin representing the loaded visyn view.
    */
