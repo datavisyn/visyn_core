@@ -7,7 +7,7 @@ ruff = ruff $(pkg_src) setup.py --line-length 140 --select E,W,F,N,I,C,B,UP,PT,S
 
 .PHONY: start  ## Start the development server
 start:
-	python $(pkg_src)
+	python -m $(pkg_src)
 
 .PHONY: all  ## Perform the most common development-time rules
 all: format lint test
