@@ -63,7 +63,6 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
 
   const [checkedTags, setCheckedTags] = React.useState(Object.fromEntries(allTags.map((tag) => [tag, false])));
   const [checkedTimes, setCheckedTimes] = React.useState<Map<Date, boolean>>(new Map(allTimes.map((time) => [time, false])));
-  // const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState(Object.fromEntries(extendedDateFilterOptions.map((eo) => [eo.name, false])));
   const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState('');
   const [showedArticles, setShowedArticles] = React.useState<Map<IArticle, boolean>>(new Map(data.map((article) => [article, true])));
 
@@ -76,12 +75,11 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
         : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
     );
 
-    // for (checkedExtendedTimes) {
-    //   if () {
-    //     const usedFunction = extendedDateFilterOptions.find((exdf) => exdf.name === entry[0]);
-    //     data.map((article) => (usedFunction.func(article.date) ? setShowedArticles((prevstate) => ({...prevstate, [article]: true})) : null));
-    //   }
-    // }
+    extendedDateFilterOptions.map((ed) =>
+      ed.name === checkedExtendedTimes
+        ? data.map((article) => (ed.func(article.date) ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true))) : null))
+        : null,
+    );
   }, [checkedExtendedTimes, checkedTags, checkedTimes, data, extendedDateFilterOptions, showedArticles]);
 
   return (

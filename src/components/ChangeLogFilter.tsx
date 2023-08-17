@@ -78,7 +78,6 @@ export function ChangeLogFilter({
                 </Button>
               </Group>
               <Stack>
-                {/* Not working */}
                 <Radio.Group onChange={setCheckedExtendedTimes}>
                   <Stack>
                     {extendedTimes.map((et) => (
