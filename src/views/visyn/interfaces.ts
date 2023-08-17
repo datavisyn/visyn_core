@@ -52,7 +52,7 @@ type VisynViewComponents<Props extends object> = {
   /**
    * Optional context component of this visyn view plugin. This component wraps all of the above and allows to provide context values (i.e. via React.createContext).
    */
-  context?: React.LazyExoticComponent<React.ComponentType<Props & { children: React.ReactNode }>> | React.ComponentType<Props & { children: React.ReactNode }>;
+  context?: React.LazyExoticComponent<React.ComponentType<Props>> | React.ComponentType<Props>;
 };
 
 type BaseVisynViewDesc<Type extends string, Param extends Record<string, unknown>> = IBaseViewPluginDesc & {
