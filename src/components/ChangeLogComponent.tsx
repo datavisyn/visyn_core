@@ -62,17 +62,17 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   );
 
   const [checkedTags, setCheckedTags] = React.useState(Object.fromEntries(allTags.map((tag) => [tag, false])));
-  const [checkedTimes, setCheckedTimes] = React.useState(Object.fromEntries(allTimes.map((time) => [time, false])));
+  const [checkedTimes, setCheckedTimes] = React.useState<Map<Date, boolean>>(new Map(allTimes.map((time) => [time, false])));
   const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState(Object.fromEntries(extendedDateFilterOptions.map((eo) => [eo.name, false])));
-  const [showedArticles, setShowedArticles] = React.useState(Object.fromEntries(data.map((article) => [article, true])));
+  const [showedArticles, setShowedArticles] = React.useState<Map<IArticle, boolean>>(new Map(data.map((article) => [article, true])));
 
   React.useEffect(() => {
     data.map((article) =>
       checkedTags && checkedTimes
-        ? checkedTimes[article.date] || FIsChecked(article, checkedTags)
-          ? setShowedArticles((prevstate) => ({ ...prevstate, [article]: true }))
-          : setShowedArticles((prevstate) => ({ ...prevstate, [article]: false }))
-        : setShowedArticles((prevstate) => ({ ...prevstate, [article]: true })),
+        ? checkedTimes.get(article.date) || FIsChecked(article, checkedTags)
+          ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
+          : setShowedArticles((prevstate) => new Map(prevstate.set(article, false)))
+        : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
     );
 
     // for (checkedExtendedTimes) {

@@ -17,8 +17,8 @@ export function ChangeLogFilter({
   extendedTimes: string[];
   checkedTags: { [k: string]: boolean };
   setCheckedTags: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
-  checkedTimes: { [k: Date]: boolean };
-  setCheckedTimes: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
+  checkedTimes: Map<Date, boolean>;
+  setCheckedTimes: React.Dispatch<React.SetStateAction<Map<Date, boolean>>>;
   checkedExtendedTimes: { [k: string]: boolean };
   setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
 }) {
@@ -60,7 +60,7 @@ export function ChangeLogFilter({
                   variant="subtle"
                   size="xs"
                   onClick={() => {
-                    times.map((t) => setCheckedTimes((prevstate) => ({ ...prevstate, [t]: true })));
+                    times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, true))));
                     extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: true })));
                   }}
                 >
@@ -70,7 +70,7 @@ export function ChangeLogFilter({
                   variant="subtle"
                   size="xs"
                   onClick={() => {
-                    times.map((k) => setCheckedTimes((prevstate) => ({ ...prevstate, [k]: false })));
+                    times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, false))));
                     extendedTimes.map((et) => setCheckedExtendedTimes((prevstate) => ({ ...prevstate, [et]: false })));
                   }}
                 >
@@ -93,8 +93,8 @@ export function ChangeLogFilter({
                   <Checkbox
                     key={time.toDateString()}
                     label={`${time.toLocaleString('default', { month: 'long' })} ${time.getFullYear().toString()}`}
-                    checked={checkedTimes[time]}
-                    onClick={() => setCheckedTimes((prevstate) => ({ ...prevstate, [time]: !checkedTimes[time] }))}
+                    checked={checkedTimes.get(time)}
+                    onClick={() => setCheckedTimes((prevstate) => new Map(prevstate.set(time, !checkedTimes.get(time))))}
                   />
                 ))}
               </Stack>

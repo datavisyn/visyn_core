@@ -12,7 +12,7 @@ export function DatePickerComponent() {
       </Menu.Target>
       <Menu.Dropdown w="lg">
         <Flex>
-          <Stack justify="flex-start">
+          <Stack justify="flex-start" spacing="xs">
             <Button variant="subtile">this week</Button>
             <Button variant="subtile">last week</Button>
             <Button variant="subtile">this month</Button>
