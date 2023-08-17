@@ -165,6 +165,7 @@ export function createVisynDemoView(): DemoVisynViewPluginType['definition'] {
     view: VisynDemoView,
     header: VisynDemoViewHeader,
     tab: VisynDemoViewSidebar,
+    // @ts-ignore: Fixed in Typescript ~5.1: https://github.com/datavisyn/visyn_scripts/pull/38
     context: VisynDemoViewContext,
   };
 }
