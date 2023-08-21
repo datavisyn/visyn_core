@@ -16,6 +16,7 @@ def test_env_substitution():
     assert settings.visyn_core.security.store.alb_security_store.enable != True  # NOQA: E712
     assert settings.visyn_core.logging["version"] == 1
     assert settings.visyn_core.logging["root"]["level"] == "INFO"
+    assert settings.visyn_core.client_config is None
 
     with mock.patch.dict(
         os.environ,
@@ -23,10 +24,12 @@ def test_env_substitution():
             # Basic top-level key substitution
             "SECRET_KEY": "Custom_Secret_Key",
             # Deeply nested key substitution of properly typed model (includes automatic typecast)
-            "visyn_core__SECURITY__STORE__ALB_SECURITY_STORE__ENABLE": "True",
+            "VISYN_CORE__SECURITY__STORE__ALB_SECURITY_STORE__ENABLE": "True",
             # Deeply nested key substitution of model typed via Dict (does not include automatic typecast)
-            "visyn_core__LOGGING__VERSION": "2",
-            "visyn_core__LOGGING__ROOT__LEVEL": "DEBUG",
+            "VISYN_CORE__LOGGING__VERSION": "2",
+            "VISYN_CORE__LOGGING__ROOT__LEVEL": "DEBUG",
+            # Load dict types from JSON strings. Important: it must be a valid JSON, i.e. no \" escaping or so. Use single quotes to enclose the variable.
+            "VISYN_CORE__CLIENT_CONFIG": '{"demo_from_function": true, "demo_from_class": true}',
         },
         clear=True,
     ):
@@ -36,6 +39,7 @@ def test_env_substitution():
         assert env_settings.visyn_core.security.store.alb_security_store.enable == True  # NOQA: E712
         assert env_settings.visyn_core.logging["version"] == "2"  # Note that this is a string, as it cannot infer the type of Dict
         assert env_settings.visyn_core.logging["root"]["level"] == "DEBUG"
+        assert env_settings.visyn_core.client_config == {"demo_from_function": True, "demo_from_class": True}
 
         assert env_settings.get_nested("secret_key") == "Custom_Secret_Key"
         assert env_settings.get_nested("visyn_core.security.store.alb_security_store.enable") == True  # NOQA: E712
