@@ -92,9 +92,9 @@ export interface IServerColumn {
 
 export interface IArticle {
   title?: string;
-  version: string;
-  author: string;
+  version?: string;
+  author?: string;
   content: any;
-  date: Date;
-  tags: string[];
+  date?: Date;
+  tags?: string[];
 }

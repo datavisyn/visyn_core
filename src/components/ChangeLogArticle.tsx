@@ -65,7 +65,7 @@ export function ChangeLogArticle({
                 <Flex gap="sm" mt="xs" ml={0}>
                   {article.tags.map((tag) => (
                     <Badge
-                      key={tag}
+                      key={tag + article.version}
                       role="button"
                       onClick={() =>
                         checkedTags[tag]
@@ -86,7 +86,7 @@ export function ChangeLogArticle({
           </Grid.Col>
           <Grid.Col span="auto">
             <Text size="md" mr="lg">
-              <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
                 {article.content}
               </ReactMarkdown>
             </Text>

@@ -4,6 +4,7 @@ import { ChangeLogComponent } from './ChangeLogComponent';
 import readmeBioInSight from './DemoReleaseNotesBioInSight.md';
 import readmeAelixir from './DemoReleaseNotesAelixir.md';
 import readmeBioInSight2 from './DemoReleaseNotesBioInSight2.md';
+import readMeDemoFormatter from './DemoFormatter.md';
 
 export default {
   title: 'Example/Ui/ChangeLog',
@@ -34,9 +35,6 @@ export const SecondarySelfmadeChangeLog: Story = {
           date: new Date(2023, 7, 14),
           tags: ['Release'],
         },
-        // {
-        //   title: 'This is the test for the formatter',
-        // },
       ]}
     />
   ),

@@ -6,10 +6,12 @@ export function DatePickerComponent({
   inputDatesArray,
   valueSelected,
   setValueSelected,
+  setCheckedExtendedTimes,
 }: {
   inputDatesArray: Date[];
   valueSelected: [Date, Date];
   setValueSelected: React.Dispatch<React.SetStateAction<[Date, Date]>>;
+  setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const days = inputDatesArray.map((date) => date.getDay());
   const dates = inputDatesArray.map((date) => date.getDate());
@@ -18,20 +20,20 @@ export function DatePickerComponent({
 
   return (
     <Flex>
-      <Stack justify="center" spacing="sm" mr="lg">
-        <Button compact variant="subtle" size="sm">
+      <Stack justify="flex-start" spacing="sm" mr="lg" mt="lg">
+        <Button compact variant="subtle" size="sm" onClick={() => setCheckedExtendedTimes('This week')}>
           This week
         </Button>
-        <Button compact variant="subtle" size="sm">
+        <Button compact variant="subtle" size="sm" onClick={() => setCheckedExtendedTimes('Last week')}>
           Last week
         </Button>
-        <Button compact variant="subtle" size="sm">
+        <Button compact variant="subtle" size="sm" onClick={() => setCheckedExtendedTimes('This month')}>
           This month
         </Button>
-        <Button compact variant="subtle" size="sm">
+        <Button compact variant="subtle" size="sm" onClick={() => setCheckedExtendedTimes('Last week')}>
           Last month
         </Button>
-        <Button compact variant="subtle" size="sm">
+        <Button compact variant="subtle" size="sm" onClick={() => setCheckedExtendedTimes('This year')}>
           This year
         </Button>
       </Stack>
@@ -55,6 +57,21 @@ export function DatePickerComponent({
                 };
               }
 
+              if (
+                date.getDay() === new Date().getDay() &&
+                date.getDate() === new Date().getDate() &&
+                date.getMonth() === new Date().getMonth() &&
+                date.getFullYear() === new Date().getFullYear()
+              ) {
+                return {
+                  sx: (theme) => ({
+                    // verändern auf blaue rahmen
+                    backgroundColor: theme.colors.red[theme.fn.primaryShade()],
+                    color: theme.white,
+                    ...theme.fn.hover({ backgroundColor: theme.colors.red[theme.fn.primaryShade()] }),
+                  }),
+                };
+              }
               return {};
             }}
           />

@@ -1,4 +1,4 @@
-import { Stack, Checkbox, Group, Menu, Tabs, Button, Divider, Radio } from '@mantine/core';
+import { Stack, Checkbox, Group, Menu, Tabs, Button } from '@mantine/core';
 import * as React from 'react';
 import { DatePickerComponent } from './DatePickerComponent';
 
@@ -15,22 +15,18 @@ function getDatesBetween(startDate: Date, endDate: Date) {
 export function ChangeLogFilter({
   tags,
   times,
-  extendedTimes,
   checkedTags,
   setCheckedTags,
   checkedTimes,
   setCheckedTimes,
-  checkedExtendedTimes,
   setCheckedExtendedTimes,
 }: {
   tags: string[];
   times: Date[];
-  extendedTimes: string[];
   checkedTags: { [k: string]: boolean };
   setCheckedTags: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
   checkedTimes: Map<Date, boolean>;
   setCheckedTimes: React.Dispatch<React.SetStateAction<Map<Date, boolean>>>;
-  checkedExtendedTimes: string;
   setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([null, null]);
@@ -77,7 +73,12 @@ export function ChangeLogFilter({
             </Stack>
           </Tabs.Panel>
           <Tabs.Panel value="time">
-            <DatePickerComponent inputDatesArray={times} valueSelected={valueSelected} setValueSelected={setValueSelected} />
+            <DatePickerComponent
+              inputDatesArray={times}
+              valueSelected={valueSelected}
+              setValueSelected={setValueSelected}
+              setCheckedExtendedTimes={setCheckedExtendedTimes}
+            />
           </Tabs.Panel>
         </Tabs>
       </Menu.Dropdown>

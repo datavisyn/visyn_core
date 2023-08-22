@@ -9,12 +9,14 @@ import { ChangeLogFilter } from './ChangeLogFilter';
 import { HelpOverlay } from './Overlay';
 
 function FIsChecked(article: IArticle, checkedTags: { [k: string]: boolean }): boolean {
-  for (let i = 0; i < article.tags.length; i++) {
-    if (checkedTags[article.tags[i]]) {
-      return true;
-    }
-  }
-  return false;
+  console.log(checkedTags);
+  return Object.values(checkedTags).some((v) => v);
+  // for (let i = 0; i < article.tags.length; i++) {
+  //   if (checkedTags[article.tags[i]]) {
+  //     return true;
+  //   }
+  // }
+  // return false;
 }
 
 function anyChecked(allTags: string[], checkedTags: { [k: string]: boolean }, checkedTimes: Map<Date, boolean>): boolean {
@@ -78,47 +80,42 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   const [checkedTags, setCheckedTags] = React.useState(Object.fromEntries(allTags.map((tag) => [tag, false])));
   const [checkedTimes, setCheckedTimes] = React.useState<Map<Date, boolean>>(new Map(allTimes.map((time) => [time, false])));
   const [checkedExtendedTimes, setCheckedExtendedTimes] = React.useState('');
-  const [showedArticles, setShowedArticles] = React.useState<Map<IArticle, boolean>>(new Map(data.map((article) => [article, true])));
+  const [showedArticles, setShowedArticles] = React.useState<IArticle[]>([]);
 
   React.useEffect(() => {
-    data.map((article) =>
-      anyChecked(allTags, checkedTags, checkedTimes)
-        ? checkedTimes.get(article.date) || FIsChecked(article, checkedTags)
-          ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
-          : setShowedArticles((prevstate) => new Map(prevstate.set(article, false)))
-        : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
+    const filteredData = data.filter(
+      (article) => anyChecked(allTags, checkedTags, checkedTimes) && (checkedTimes.get(article.date) || FIsChecked(article, checkedTags)),
     );
 
-    // extendedDateFilterOptions.map((ed) =>
+    setShowedArticles(anyChecked(allTags, checkedTags, checkedTimes) ? filteredData : data);
+
+    // extendedDateFilterOptions.forEach((ed) =>
     //   ed.name === checkedExtendedTimes
     //     ? data.map((article) => (ed.func(article.date) ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true))) : null))
     //     : null,
     // );
-  }, [allTags, checkedExtendedTimes, checkedTags, checkedTimes, data, extendedDateFilterOptions, showedArticles]);
+  }, [allTags, checkedExtendedTimes, checkedTags, checkedTimes, data, extendedDateFilterOptions]);
 
   return (
     <Stack m="md" h="auto">
       <Group position="right" mx="5%" spacing="sm">
-        <Input placeholder="Search" onChange={(e) => console.log(e.target.value)} />
+        <Input placeholder="Search" onChange={null} />
         <ChangeLogFilter
           tags={allTags}
           times={allTimes}
-          extendedTimes={extendedDateFilterOptions.map((edf) => edf.name)}
           checkedTags={checkedTags}
           setCheckedTags={setCheckedTags}
           checkedTimes={checkedTimes}
           setCheckedTimes={setCheckedTimes}
-          checkedExtendedTimes={checkedExtendedTimes}
           setCheckedExtendedTimes={setCheckedExtendedTimes}
         />
       </Group>
       {
-        data.map((article) =>
-          showedArticles.get(article) ? (
-            <ChangeLogArticle article={article} largerThanSm={largerThanSm} key={article.title} checkedTags={checkedTags} setCheckedTags={setCheckedTags} />
-          ) : null,
-        )
-        // (<HelpOverlay text="There are no changelogs within the specified filters" showIcon />)
+        showedArticles.map((article) => (
+          <ChangeLogArticle article={article} largerThanSm={largerThanSm} key={article.title} checkedTags={checkedTags} setCheckedTags={setCheckedTags} />
+        ))
+
+        // check length (<HelpOverlay text="There are no changelogs within the specified filters" showIcon />)
       }
       <Space h="sm" />
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
