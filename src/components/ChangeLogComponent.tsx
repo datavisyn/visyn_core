@@ -17,6 +17,20 @@ function FIsChecked(article: IArticle, checkedTags: { [k: string]: boolean }): b
   return false;
 }
 
+function anyChecked(allTags: string[], checkedTags: { [k: string]: boolean }, checkedTimes: Map<Date, boolean>): boolean {
+  for (const value of checkedTimes.values()) {
+    if (value) {
+      return true;
+    }
+  }
+  for (const tag of allTags.values()) {
+    if (checkedTags[tag]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function DateThisWeek(date: Date) {
   const WEEK_LENGTH_MS = 604800000;
   const lastMonday = new Date();
@@ -68,19 +82,19 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
 
   React.useEffect(() => {
     data.map((article) =>
-      checkedTags && checkedTimes
+      anyChecked(allTags, checkedTags, checkedTimes)
         ? checkedTimes.get(article.date) || FIsChecked(article, checkedTags)
           ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true)))
           : setShowedArticles((prevstate) => new Map(prevstate.set(article, false)))
         : setShowedArticles((prevstate) => new Map(prevstate.set(article, true))),
     );
 
-    extendedDateFilterOptions.map((ed) =>
-      ed.name === checkedExtendedTimes
-        ? data.map((article) => (ed.func(article.date) ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true))) : null))
-        : null,
-    );
-  }, [checkedExtendedTimes, checkedTags, checkedTimes, data, extendedDateFilterOptions, showedArticles]);
+    // extendedDateFilterOptions.map((ed) =>
+    //   ed.name === checkedExtendedTimes
+    //     ? data.map((article) => (ed.func(article.date) ? setShowedArticles((prevstate) => new Map(prevstate.set(article, true))) : null))
+    //     : null,
+    // );
+  }, [allTags, checkedExtendedTimes, checkedTags, checkedTimes, data, extendedDateFilterOptions, showedArticles]);
 
   return (
     <Stack m="md" h="auto">

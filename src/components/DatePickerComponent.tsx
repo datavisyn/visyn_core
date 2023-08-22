@@ -1,10 +1,11 @@
-import { Flex, Menu, Button, Stack } from '@mantine/core';
-import { DatePicker, DatePickerInput } from '@mantine/dates';
+import { Flex, Menu, Button, Stack, Indicator } from '@mantine/core';
+import { Calendar, DatePicker, DatePickerInput } from '@mantine/dates';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 
-export function DatePickerComponent() {
+export function DatePickerComponent({ dates }: { dates: Date[] }) {
+  console.log(dates);
   return (
     <Menu>
       <Menu.Target>
@@ -12,15 +13,34 @@ export function DatePickerComponent() {
       </Menu.Target>
       <Menu.Dropdown w="lg">
         <Flex>
-          <Stack justify="flex-start" spacing="xs">
-            <Button variant="subtile">this week</Button>
-            <Button variant="subtile">last week</Button>
-            <Button variant="subtile">this month</Button>
-            <Button variant="subtile">last month</Button>
-            <Button variant="subtile">this year</Button>
+          <Stack justify="flex-start" spacing="sm" mr="lg">
+            <Button compact variant="subtle" size="sm">
+              this week
+            </Button>
+            <Button compact variant="subtle" size="sm">
+              last week
+            </Button>
+            <Button compact variant="subtle" size="sm">
+              this month
+            </Button>
+            <Button compact variant="subtle" size="sm">
+              last month
+            </Button>
+            <Button compact variant="subtle" size="sm">
+              this year
+            </Button>
           </Stack>
           <Stack>
-            <DatePickerInput type="range" placeholder="Pick a date" icon={<FontAwesomeIcon style={{ zIndex: 9999 }} color="darkgray" icon={faCalendar} />} />
+            <Calendar
+              renderDay={(date) => {
+                const day = date.getDate();
+                return (
+                  <Indicator size={6} color="red" offset={-2}>
+                    <div>{day}</div>
+                  </Indicator>
+                );
+              }}
+            />
           </Stack>
         </Flex>
       </Menu.Dropdown>

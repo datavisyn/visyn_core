@@ -48,7 +48,7 @@ export function ChangeLogFilter({
                   key={tag}
                   label={tag}
                   checked={checkedTags[tag]}
-                  onClick={() => setCheckedTags((prevstate) => ({ ...prevstate, [tag]: !checkedTags[tag] }))}
+                  onClick={() => setCheckedTags((prevstate) => ({ ...prevstate, [tag]: !prevstate[tag] }))}
                 />
               ))}
             </Stack>
@@ -61,7 +61,7 @@ export function ChangeLogFilter({
                   size="xs"
                   onClick={() => {
                     times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, true))));
-                    extendedTimes.map((et) => setCheckedExtendedTimes(() => et));
+                    setCheckedExtendedTimes(extendedTimes[0]);
                   }}
                 >
                   Select all
@@ -71,7 +71,7 @@ export function ChangeLogFilter({
                   size="xs"
                   onClick={() => {
                     times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, false))));
-                    extendedTimes.map((et) => setCheckedExtendedTimes(() => ''));
+                    setCheckedExtendedTimes(extendedTimes[0]);
                   }}
                 >
                   Reset
@@ -91,7 +91,7 @@ export function ChangeLogFilter({
                     key={time.toDateString()}
                     label={`${time.toLocaleString('default', { month: 'long' })} ${time.getFullYear().toString()}`}
                     checked={checkedTimes.get(time)}
-                    onClick={() => setCheckedTimes((prevstate) => new Map(prevstate.set(time, !checkedTimes.get(time))))}
+                    onClick={() => setCheckedTimes((prevstate) => new Map(prevstate.set(time, !prevstate.get(time))))}
                   />
                 ))}
               </Stack>

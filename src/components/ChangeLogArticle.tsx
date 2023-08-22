@@ -1,6 +1,7 @@
 import { Flex, Stack, Text, Badge, Grid, Title, Box } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkFrontmatter from 'remark-frontmatter';
 import * as React from 'react';
 import { IArticle } from '../base';
 
@@ -27,14 +28,14 @@ export function ChangeLogArticle({
               borderRadius: '50%',
               top: '4px',
               position: 'sticky',
-              backgroundColor: theme.colors.blue[6],
+              backgroundColor: theme.colors[theme.primaryColor][6],
               marginTop: '13px',
             })}
           />
           <Box
             sx={(theme) => ({
               display: 'flex',
-              background: theme.colors.blue[6],
+              background: theme.colors[theme.primaryColor][6],
               height: '100%',
               width: '3px',
               top: '4px',

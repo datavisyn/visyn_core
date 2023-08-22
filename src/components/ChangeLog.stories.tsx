@@ -36,11 +36,14 @@ export const SecondarySelfmadeChangeLog: Story = {
           date: new Date(2023, 7, 14),
           tags: ['Release'],
         },
+        // {
+        //   title: 'This is the test for the formatter',
+        // },
       ]}
     />
   ),
 };
 
 export const DatePickerExample: Story2 = {
-  render: () => <DatePickerComponent />,
+  render: () => <DatePickerComponent dates={[new Date(2023, 7, 1), new Date(2023, 7, 22), new Date(2023, 7, 14)]} />,
 };
