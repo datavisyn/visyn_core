@@ -25,7 +25,7 @@ export function ChangeLogFilter({
   return (
     <Menu>
       <Menu.Target>
-        <Button>filter by</Button>
+        <Button>Filter by</Button>
       </Menu.Target>
       <Menu.Dropdown>
         <Tabs variant="outline" defaultValue="tags">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, Group, Space, Affix, rem, Transition, Button } from '@mantine/core';
+import { Stack, Group, Space, Affix, rem, Transition, Button, Input } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { useMediaQuery, useWindowScroll } from '@mantine/hooks';
@@ -98,7 +98,8 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
 
   return (
     <Stack m="md" h="auto">
-      <Group position="right" mx="5%">
+      <Group position="right" mx="5%" spacing="sm">
+        <Input placeholder="Search" onChange={(e) => console.log(e.target.value)} />
         <ChangeLogFilter
           tags={allTags}
           times={allTimes}

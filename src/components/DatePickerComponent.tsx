@@ -1,11 +1,9 @@
-import { Flex, Menu, Button, Stack, Indicator } from '@mantine/core';
-import { Calendar, DatePicker, DatePickerInput } from '@mantine/dates';
-import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Flex, Menu, Button, Stack, Group } from '@mantine/core';
+import { DatePicker } from '@mantine/dates';
 import React from 'react';
 
-export function DatePickerComponent({ dates }: { dates: Date[] }) {
-  console.log(dates);
+export function DatePickerComponent({ inputDate }: { inputDate: Date }) {
+  const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([null, null]);
   return (
     <Menu>
       <Menu.Target>
@@ -15,32 +13,73 @@ export function DatePickerComponent({ dates }: { dates: Date[] }) {
         <Flex>
           <Stack justify="flex-start" spacing="sm" mr="lg">
             <Button compact variant="subtle" size="sm">
-              this week
+              This week
             </Button>
             <Button compact variant="subtle" size="sm">
-              last week
+              Last week
             </Button>
             <Button compact variant="subtle" size="sm">
-              this month
+              This month
             </Button>
             <Button compact variant="subtle" size="sm">
-              last month
+              Last month
             </Button>
             <Button compact variant="subtle" size="sm">
-              this year
+              This year
             </Button>
           </Stack>
           <Stack>
-            <Calendar
-              renderDay={(date) => {
-                const day = date.getDate();
-                return (
-                  <Indicator size={6} color="red" offset={-2}>
-                    <div>{day}</div>
-                  </Indicator>
-                );
-              }}
-            />
+            <Group>
+              <DatePicker
+                defaultDate={new Date()}
+                type="range"
+                allowSingleDateInRange
+                numberOfColumns={2}
+                value={valueSelected}
+                onChange={setValueSelected}
+                getDayProps={(date) => {
+                  if (date.getDay() === inputDate.getDay() && date.getDate() === inputDate.getDate()) {
+                    return {
+                      sx: (theme) => ({
+                        backgroundColor: theme.colors.red[theme.fn.primaryShade()],
+                        color: theme.white,
+                        ...theme.fn.hover({ backgroundColor: theme.colors.red[7] }),
+                      }),
+                    };
+                  }
+
+                  return {};
+                }}
+                getYearControlProps={(date) => {
+                  if (date.getFullYear() === new Date().getFullYear()) {
+                    return {
+                      sx: (theme) => ({
+                        color: theme.fn.primaryColor(),
+                        fontWeight: 700,
+                      }),
+                    };
+                  }
+
+                  if (date.getFullYear() === new Date().getFullYear() + 1) {
+                    return { disabled: true };
+                  }
+
+                  return {};
+                }}
+                // getMonthControlProps={(date) => {
+                //   if (date.getMonth() === 1) {
+                //     return {
+                //       sx: (theme) => ({
+                //         color: theme.fn.primaryColor(),
+                //         fontWeight: 700,
+                //       }),
+                //     };
+                //   }
+
+                //   return {};
+                // }}
+              />
+            </Group>
           </Stack>
         </Flex>
       </Menu.Dropdown>

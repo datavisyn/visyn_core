@@ -45,5 +45,5 @@ export const SecondarySelfmadeChangeLog: Story = {
 };
 
 export const DatePickerExample: Story2 = {
-  render: () => <DatePickerComponent dates={[new Date(2023, 7, 1), new Date(2023, 7, 22), new Date(2023, 7, 14)]} />,
+  render: () => <DatePickerComponent inputDate={new Date(2023, 7, 1)} />,
 };
