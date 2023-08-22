@@ -1,5 +1,16 @@
 import { Stack, Checkbox, Group, Menu, Tabs, Button, Divider, Radio } from '@mantine/core';
 import * as React from 'react';
+import { DatePickerComponent } from './DatePickerComponent';
+
+function getDatesBetween(startDate: Date, endDate: Date) {
+  const currentDate = new Date(startDate.getTime());
+  const dates = [];
+  while (currentDate <= endDate) {
+    dates.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  return dates;
+}
 
 export function ChangeLogFilter({
   tags,
@@ -22,6 +33,18 @@ export function ChangeLogFilter({
   checkedExtendedTimes: string;
   setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<string>>;
 }) {
+  const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([null, null]);
+
+  React.useEffect(() => {
+    if (valueSelected[0] && valueSelected[1]) {
+      const datesBetween = getDatesBetween(valueSelected[0], valueSelected[1]);
+      for (const key of checkedTimes.keys()) {
+        datesBetween.includes(key)
+          ? setCheckedTimes((prevstate) => new Map(prevstate.set(key, true)))
+          : setCheckedTimes((prevstate) => new Map(prevstate.set(key, false)));
+      }
+    }
+  }, [checkedTimes, setCheckedTimes, valueSelected]);
   return (
     <Menu>
       <Menu.Target>
@@ -54,48 +77,7 @@ export function ChangeLogFilter({
             </Stack>
           </Tabs.Panel>
           <Tabs.Panel value="time">
-            <Stack mt="xs">
-              <Group>
-                <Button
-                  variant="subtle"
-                  size="xs"
-                  onClick={() => {
-                    times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, true))));
-                    setCheckedExtendedTimes(extendedTimes[0]);
-                  }}
-                >
-                  Select all
-                </Button>
-                <Button
-                  variant="subtle"
-                  size="xs"
-                  onClick={() => {
-                    times.map((t) => setCheckedTimes((prevstate) => new Map(prevstate.set(t, false))));
-                    setCheckedExtendedTimes(extendedTimes[0]);
-                  }}
-                >
-                  Reset
-                </Button>
-              </Group>
-              <Stack>
-                <Radio.Group onChange={setCheckedExtendedTimes}>
-                  <Stack>
-                    {extendedTimes.map((et) => (
-                      <Radio label={et} key={et} value={et} checked={checkedExtendedTimes[et]} />
-                    ))}
-                  </Stack>
-                </Radio.Group>
-                <Divider />
-                {times.map((time) => (
-                  <Checkbox
-                    key={time.toDateString()}
-                    label={`${time.toLocaleString('default', { month: 'long' })} ${time.getFullYear().toString()}`}
-                    checked={checkedTimes.get(time)}
-                    onClick={() => setCheckedTimes((prevstate) => new Map(prevstate.set(time, !prevstate.get(time))))}
-                  />
-                ))}
-              </Stack>
-            </Stack>
+            <DatePickerComponent inputDatesArray={times} valueSelected={valueSelected} setValueSelected={setValueSelected} />
           </Tabs.Panel>
         </Tabs>
       </Menu.Dropdown>

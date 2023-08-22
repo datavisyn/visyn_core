@@ -4,7 +4,6 @@ import { ChangeLogComponent } from './ChangeLogComponent';
 import readmeBioInSight from './DemoReleaseNotesBioInSight.md';
 import readmeAelixir from './DemoReleaseNotesAelixir.md';
 import readmeBioInSight2 from './DemoReleaseNotesBioInSight2.md';
-import { DatePickerComponent } from './DatePickerComponent';
 
 export default {
   title: 'Example/Ui/ChangeLog',
@@ -12,7 +11,6 @@ export default {
 };
 
 type Story = StoryObj<typeof ChangeLogComponent>;
-type Story2 = StoryObj<typeof DatePickerComponent>;
 
 /* Note: for datatype Date month count starts at 0, that means January = 0 */
 export const SecondarySelfmadeChangeLog: Story = {
@@ -42,8 +40,4 @@ export const SecondarySelfmadeChangeLog: Story = {
       ]}
     />
   ),
-};
-
-export const DatePickerExample: Story2 = {
-  render: () => <DatePickerComponent inputDate={new Date(2023, 7, 1)} />,
 };
