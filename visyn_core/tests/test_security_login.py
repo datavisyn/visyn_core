@@ -120,6 +120,7 @@ def test_jwt_token_location(client: TestClient):
 def test_alb_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.alb_security_store.enable = True
+    manager.settings.visyn_core.security.store.alb_security_store.decode_options = {"verify_signature": False}
     manager.settings.visyn_core.security.store.alb_security_store.cookie_name = "TestCookie"
     manager.settings.visyn_core.security.store.alb_security_store.signout_url = "http://localhost/logout"
 
@@ -135,7 +136,7 @@ def test_alb_security_store(client: TestClient):
     headers = {
         "X-Amzn-Oidc-Identity": "",
         "X-Amzn-Oidc-Accesstoken": "",
-        "X-Amzn-Oidc-Data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGxvY2FsaG9zdCIsInN1YiI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiZXhwIjoxNjU3MTg4MTM4LjQ5NDU4Nn0.-Ye9j9z37gJdoKgrbeYbI8buSw_c6bLBShXt4XxwQHI",
+        "X-Amzn-Oidc-Data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJlbWFpbCI6ImFkbWluQGxvY2FsaG9zdCIsInN1YiI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiZXhwIjoxNjU3MTg4MTM4LjQ5NDU4Nn0.-Ye9j9z37gJdoKgrbeYbI8buSw_c6bLBShXt4XxwQHI",
     }
 
     # Check loggedinas with a JWT
@@ -196,3 +197,27 @@ def test_no_security_store(client: TestClient):
     assert user_info != '"not_yet_logged_in"'
     assert user_info["name"] == "test_name"
     assert user_info["roles"] == ["test_role"]
+
+
+def test_user_login_hooks(client: TestClient):
+    counter = 0
+
+    @manager.security.on_user_loaded
+    def on_user_loaded_increment(user: User):
+        nonlocal counter
+        counter += 1
+
+    assert counter == 0
+
+    client.get("/loggedinas", auth=("admin", "admin"))
+
+    assert counter == 1
+
+    @manager.security.on_user_loaded
+    def on_user_loaded_decrement(user: User):
+        nonlocal counter
+        counter -= 1
+
+    client.get("/loggedinas", auth=("admin", "admin"))
+
+    assert counter == 1
