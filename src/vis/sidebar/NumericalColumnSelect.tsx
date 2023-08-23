@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Group, MultiSelect, Stack, Text, Tooltip } from '@mantine/core';
-import { forwardRef } from 'react';
+import { MultiSelect } from '@mantine/core';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
-import { SelectDropdownItem, SelectLabelComponent } from './utils';
+import { SelectDropdownItem } from './utils';
 
 interface NumericalColumnSelectProps {
   callback: (s: ColumnInfo[]) => void;
@@ -21,7 +20,6 @@ export function NumericalColumnSelect({ callback, columns, currentSelected }: Nu
     <MultiSelect
       withinPortal
       clearable
-      valueComponent={SelectLabelComponent}
       itemComponent={SelectDropdownItem}
       label="Numerical columns"
       onChange={(e: string[]) => {
