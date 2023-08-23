@@ -44,7 +44,7 @@ class AlbSecurityStoreSettings(BaseModel):
     enable: bool = False
     cookie_name: str | None = None
     signout_url: str | None = None
-    email_token_field: str = "email"
+    email_token_field: str | list[str] = "email"
     """
     Field in the JWT token that contains the email address of the user.
     """
@@ -76,7 +76,7 @@ class OAuth2SecurityStoreSettings(BaseModel):
     cookie_name: str | None = None
     signout_url: str | None = None
     access_token_header_name: str = "X-Forwarded-Access-Token"
-    email_token_field: str = "email"
+    email_token_field: str | list[str] = "email"
 
 
 class NoSecurityStoreSettings(BaseModel):
