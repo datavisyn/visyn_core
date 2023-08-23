@@ -1,21 +1,27 @@
 import merge from 'lodash/merge';
+import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  EColumnTypes,
-  ESupportedPlotlyVis,
-  IVisConfig,
-  VisColumn,
-  IHexbinConfig,
-  VisNumericalValue,
-  VisCategoricalValue,
+  BaseVisConfig,
   ColumnInfo,
-  VisNumericalColumn,
+  EColumnTypes,
   EHexbinOptions,
   EScatterSelectSettings,
+  ESupportedPlotlyVis,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalColumn,
+  VisNumericalValue,
 } from '../interfaces';
-import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 
-export function isHexbin(s: IVisConfig): s is IHexbinConfig {
-  return s.type === ESupportedPlotlyVis.HEXBIN;
+export interface IHexbinConfig extends BaseVisConfig {
+  type: ESupportedPlotlyVis.HEXBIN;
+  numColumnsSelected: ColumnInfo[];
+  color: ColumnInfo | null;
+  hexRadius: number;
+  isOpacityScale: boolean;
+  isSizeScale: boolean;
+  dragMode: EScatterSelectSettings;
+  hexbinOptions: EHexbinOptions;
 }
 
 export const defaultDensityConfig: IHexbinConfig = {
@@ -29,7 +35,7 @@ export const defaultDensityConfig: IHexbinConfig = {
   hexbinOptions: EHexbinOptions.COLOR,
 };
 
-export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinConfig): IVisConfig {
+export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinConfig): IHexbinConfig {
   const merged = merge({}, defaultDensityConfig, config);
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
 

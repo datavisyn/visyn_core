@@ -1,6 +1,6 @@
 import { Container, SegmentedControl, Stack, Text } from '@mantine/core';
 import * as React from 'react';
-import { EViolinOverlay } from '../interfaces';
+import { EViolinOverlay } from '../violin/utils';
 
 interface ViolinOverlayProps {
   callback: (s: EViolinOverlay) => void;

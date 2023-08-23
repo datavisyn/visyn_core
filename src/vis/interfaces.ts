@@ -5,20 +5,15 @@ export enum ESupportedPlotlyVis {
   VIOLIN = 'Violin plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
+  HEATMAP = 'Heatmap plot',
+  PARALLEL_COORDINATES = 'Parallel plot',
+  RAINCLOUD = 'Raincloud plot',
+  SANKEY = 'Sankey',
+  CORRELATION = 'Correlation plot',
 }
 
-export const allVisTypes: ESupportedPlotlyVis[] = [
-  ESupportedPlotlyVis.SCATTER,
-  ESupportedPlotlyVis.BAR,
-  ESupportedPlotlyVis.VIOLIN,
-  ESupportedPlotlyVis.HEXBIN,
-];
-
-export type IVisConfig = IScatterConfig | IViolinConfig | IBarConfig | IHexbinConfig;
-
-export enum EBarDisplayType {
-  ABSOLUTE = 'Absolute',
-  NORMALIZED = 'Normalized',
+export interface BaseVisConfig {
+  type: string;
 }
 
 export enum EHexbinOptions {
@@ -27,27 +22,12 @@ export enum EHexbinOptions {
   BINS = 'Bins',
 }
 
-export enum EBarDirection {
-  VERTICAL = 'Vertical',
-  HORIZONTAL = 'Horizontal',
-}
-
-export enum EViolinOverlay {
-  NONE = 'None',
-  BOX = 'Box',
-}
-
 export enum EAggregateTypes {
   COUNT = 'Count',
   MIN = 'Minimum',
   AVG = 'Average',
   MED = 'Median',
   MAX = 'Maximum',
-}
-
-export enum EBarGroupingType {
-  STACK = 'Stacked',
-  GROUP = 'Grouped',
 }
 
 export enum EColumnTypes {
@@ -79,45 +59,47 @@ export enum EScatterSelectSettings {
   PAN = 'pan',
 }
 
-export interface IViolinConfig {
-  type: ESupportedPlotlyVis.VIOLIN;
-  numColumnsSelected: ColumnInfo[];
-  catColumnsSelected: ColumnInfo[];
-  violinOverlay: EViolinOverlay;
+export enum ECorrelationPlotMode {
+  PVALUE = 'p-value',
+  CORRELATION = 'correlation',
 }
 
-export interface IScatterConfig {
-  type: ESupportedPlotlyVis.SCATTER;
-  numColumnsSelected: ColumnInfo[];
-  color: ColumnInfo | null;
-  numColorScaleType: ENumericalColorScaleType;
-  shape: ColumnInfo | null;
-  dragMode: EScatterSelectSettings;
-  alphaSliderVal: number;
+export enum ECorrelationType {
+  PEARSON = 'Pearson',
+  SPEARMAN = 'Spearman',
 }
 
-export interface IBarConfig {
-  type: ESupportedPlotlyVis.BAR;
-  multiples: ColumnInfo | null;
-  group: ColumnInfo | null;
-  direction: EBarDirection;
-  display: EBarDisplayType;
-  groupType: EBarGroupingType;
-  numColumnsSelected: ColumnInfo[];
-  catColumnSelected: ColumnInfo;
-  aggregateType: EAggregateTypes;
-  aggregateColumn: ColumnInfo | null;
+export enum EScaleType {
+  LINEAR = 'Linear',
+  LOG = 'Log',
 }
 
-export interface IHexbinConfig {
-  type: ESupportedPlotlyVis.HEXBIN;
-  numColumnsSelected: ColumnInfo[];
-  color: ColumnInfo | null;
-  hexRadius: number;
-  isOpacityScale: boolean;
-  isSizeScale: boolean;
-  dragMode: EScatterSelectSettings;
-  hexbinOptions: EHexbinOptions;
+export enum ECloudType {
+  SPLIT_VIOLIN = 'Split violin',
+  HEATMAP = 'Heatmap',
+  HISTOGRAM = 'Histogram',
+}
+
+export enum ELightningType {
+  MEAN_AND_DEV = 'Mean and deviation',
+  MEDIAN_AND_DEV = 'Median and deviation',
+  MEAN = 'Mean',
+  BOXPLOT = 'Boxplot',
+}
+
+export enum ERainType {
+  DOTPLOT = 'Dot plot',
+  BEESWARM = 'Beeswarm',
+  WHEATPLOT = 'Wheat plot',
+  STRIPPLOT = 'Strip plot',
+}
+
+export enum ESortTypes {
+  NONE = 'NONE',
+  CAT_ASC = 'CAT_ASC',
+  CAT_DESC = 'CAT_DESC',
+  COUNT_ASC = 'COUNT_ASC',
+  COUNT_DESC = 'COUNT_DESC',
 }
 
 type ValueGetter<T> = () => T | Promise<T>;
@@ -190,7 +172,41 @@ export type Scales = {
 /**
  * Common props for all vis sidebars.
  */
-export interface ICommonVisSideBarProps {
+export interface ICommonVisSideBarProps<T> {
   style?: React.CSSProperties | undefined;
   className?: string | undefined;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  filterCallback?: (s: EFilterOptions) => void;
+  config: T;
+  setConfig: (c: T) => void;
+}
+
+export interface ICommonVisProps<T> {
+  config?: T;
+  setConfig?: (config: T) => void;
+  columns: VisColumn[];
+  optionsConfig?: any;
+  colors?: string[];
+  shapes?: string[];
+  filterCallback?: (s: EFilterOptions) => void;
+  selectionCallback?: (s: string[]) => void;
+  selectedMap?: { [key: string]: boolean };
+  selectedList?: string[];
+  showCloseButton?: boolean;
+  closeButtonCallback?: () => void;
+  scales?: Scales;
+  enableSidebar?: boolean;
+  showSidebar?: boolean;
+  showSidebarDefault?: boolean;
+  setShowSidebar?: (s: boolean) => void;
+  extensions?: {
+    prePlot?: React.ReactNode;
+    postPlot?: React.ReactNode;
+    preSidebar?: React.ReactNode;
+    postSidebar?: React.ReactNode;
+  };
+  scrollZoom?: boolean;
+  showDragModeOptions?: boolean;
+  dimensions: { width: number; height: number };
 }

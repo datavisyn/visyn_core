@@ -1,5 +1,5 @@
 import * as React from 'react';
-import LineUp, { buildRanking, Taggle, Ranking } from 'lineupjs';
+import LineUp, { buildRanking } from 'lineupjs';
 import isEqual from 'lodash/isEqual';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';

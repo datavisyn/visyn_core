@@ -1,17 +1,17 @@
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
-import { VisynRanking, autosizeWithSMILESColumn } from '../ranking';
-import { defaultBuilder } from '../ranking/EagerVisynRanking';
-import { DatavisynTaggle } from '../ranking/overrides';
-import { ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, IVisConfig, Vis } from '../vis';
+import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
+import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, Vis } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { IScatterConfig } from '../vis/scatter';
+import { defaultBuilder } from '../ranking/EagerVisynRanking';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
-  const [visConfig, setVisConfig] = React.useState<IVisConfig>({
+  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
       {
@@ -34,7 +34,7 @@ export function MainApp() {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-  });
+  } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof iris>([]);
 
@@ -106,7 +106,9 @@ export function MainApp() {
             setExternalConfig={setVisConfig}
             selected={visSelection}
             selectionCallback={(s) => {
-              setSelection(s.map((i) => iris[+i]));
+              if (s) {
+                setSelection(s.map((i) => iris[+i]));
+              }
             }}
           />
         </SimpleGrid>

@@ -1,112 +1,40 @@
-import * as React from 'react';
-import merge from 'lodash/merge';
-import uniqueId from 'lodash/uniqueId';
-import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Center, Container, Group, Loader, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+import { Center, Group, Stack } from '@mantine/core';
 import * as d3 from 'd3v7';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings } from '../interfaces';
-import { InvalidCols } from '../general/InvalidCols';
-import { createScatterTraces } from './utils';
-import { beautifyLayout } from '../general/layoutUtils';
-import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { ScatterVisSidebar } from './ScatterVisSidebar';
+import uniqueId from 'lodash/uniqueId';
+import * as React from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useAsync } from '../../hooks';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
-import { useAsync } from '../../hooks';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
-
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
+import { InvalidCols } from '../general/InvalidCols';
+import { beautifyLayout } from '../general/layoutUtils';
+import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
+import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
+import { IScatterConfig, createScatterTraces } from './utils';
 
 export function ScatterVis({
   config,
-  optionsConfig,
-  extensions,
   columns,
   shapes = ['circle', 'square', 'triangle-up', 'star'],
-  filterCallback = () => null,
   selectionCallback = () => null,
   selectedMap = {},
   selectedList = [],
   setConfig,
-  enableSidebar,
-  setShowSidebar,
-  showSidebar,
-  showCloseButton = false,
-  closeButtonCallback = () => null,
+  dimensions,
   showDragModeOptions,
   scales,
   scrollZoom,
-}: {
-  config: IScatterConfig;
-  optionsConfig?: {
-    color?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    shape?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-    filter?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  shapes?: string[];
-  columns: VisColumn[];
-  filterCallback?: (s: EFilterOptions) => void;
-  selectionCallback?: (ids: string[]) => void;
-  closeButtonCallback?: () => void;
-  selectedMap?: { [key: string]: boolean };
-  selectedList: string[];
-  setConfig: (config: IVisConfig) => void;
-  scales: Scales;
-  showSidebar?: boolean;
-  setShowSidebar?(show: boolean): void;
-  enableSidebar?: boolean;
-  showCloseButton?: boolean;
-  showDragModeOptions: boolean;
-  scrollZoom?: boolean;
-}) {
+}: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniqueId('ScatterVis'), []);
-  const plotlyDivRef = React.useRef(null);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
   useEffect(() => {
-    const ro = new ResizeObserver(() => {
-      const plotDiv = document.getElementById(`plotlyDiv${id}`);
-      if (plotDiv) {
-        Plotly.Plots.resize(plotDiv);
-      }
-    });
-
-    if (plotlyDivRef) {
-      ro.observe(plotlyDivRef.current);
+    const plotDiv = document.getElementById(`plotlyDiv${id}`);
+    if (plotDiv) {
+      Plotly.Plots.resize(plotDiv);
     }
-    return () => ro.disconnect();
-  }, [id, plotlyDivRef]);
-
-  const mergedExtensions = React.useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
+  }, [id, dimensions]);
 
   useEffect(() => {
     setLayout(null);
@@ -122,6 +50,7 @@ export function ScatterVis({
     config.shape,
     config.color,
     config.alphaSliderVal,
+    config.sizeSliderVal,
     config.numColorScaleType,
     scales,
     shapes,
@@ -202,81 +131,45 @@ export function ScatterVis({
   }, [plotsWithSelectedPoints, traces]);
 
   return (
-    <Group
-      noWrap
-      pl={0}
-      pr={0}
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
-      }}
-      ref={plotlyDivRef}
-    >
-      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
-      {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
-
-      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
-        {showDragModeOptions ? (
-          <Center>
-            <Group mt="lg">
-              <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
-            </Group>
-          </Center>
-        ) : null}
-
-        {mergedExtensions.prePlot}
-        {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
-          <PlotlyComponent
-            key={id}
-            divId={`plotlyDiv${id}`}
-            data={plotlyData}
-            layout={layout}
-            config={{ responsive: true, displayModeBar: false, scrollZoom }}
-            useResizeHandler
-            style={{ width: '100%', height: '100%' }}
-            onClick={(event) => {
-              const clickedId = (event.points[0] as any).id;
-              if (selectedMap[clickedId]) {
-                selectionCallback(selectedList.filter((s) => s !== clickedId));
-              } else {
-                selectionCallback([...selectedList, clickedId]);
-              }
-            }}
-            onInitialized={() => {
-              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-            }}
-            onUpdate={() => {
-              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-            }}
-            onSelected={(sel) => {
-              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
-            }}
-          />
-        ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
-          <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
-        ) : null}
-
-        {mergedExtensions.postPlot}
-      </Stack>
-      {showSidebar ? (
-        <VisSidebarWrapper>
-          <ScatterVisSidebar
-            config={config}
-            optionsConfig={optionsConfig}
-            extensions={extensions}
-            columns={columns}
-            filterCallback={filterCallback}
-            setConfig={setConfig}
-          />
-        </VisSidebarWrapper>
+    <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+      {showDragModeOptions ? (
+        <Center>
+          <Group mt="lg">
+            <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
+          </Group>
+        </Center>
       ) : null}
-    </Group>
+
+      {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
+        <PlotlyComponent
+          key={id}
+          divId={`plotlyDiv${id}`}
+          data={plotlyData}
+          layout={layout}
+          config={{ responsive: true, displayModeBar: false, scrollZoom }}
+          useResizeHandler
+          style={{ width: '100%', height: '100%' }}
+          onClick={(event) => {
+            const clickedId = (event.points[0] as any).id;
+            if (selectedMap[clickedId]) {
+              selectionCallback(selectedList.filter((s) => s !== clickedId));
+            } else {
+              selectionCallback([...selectedList, clickedId]);
+            }
+          }}
+          onInitialized={() => {
+            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+          }}
+          onUpdate={() => {
+            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+          }}
+          onSelected={(sel) => {
+            selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+          }}
+        />
+      ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
+        <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
+      ) : null}
+    </Stack>
   );
 }

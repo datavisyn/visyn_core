@@ -1,40 +1,16 @@
-import * as React from 'react';
-import { useMemo } from 'react';
-import merge from 'lodash/merge';
 import { Container, Divider, Stack } from '@mantine/core';
-import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, IHexbinConfig, IVisConfig, VisColumn } from '../interfaces';
-import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import * as React from 'react';
+import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
 import { NumericalColumnSelect } from '../sidebar';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
-import { HexSizeSlider } from '../sidebar/HexSizeSlider';
-import { HexbinOptionSelect } from '../sidebar/HexbinOptionSelect';
-import { HexSizeSwitch } from '../sidebar/HexSizeSwitch';
 import { HexOpacitySwitch } from '../sidebar/HexOpacitySwitch';
+import { HexSizeSlider } from '../sidebar/HexSizeSlider';
+import { HexSizeSwitch } from '../sidebar/HexSizeSwitch';
+import { HexbinOptionSelect } from '../sidebar/HexbinOptionSelect';
+import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { IHexbinConfig } from './utils';
 
-interface DensityVisSidebarProps {
-  config: IHexbinConfig;
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-}
-
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
-export function HexbinVisSidebar({ config, extensions, columns, setConfig }: DensityVisSidebarProps) {
-  const mergedExtensions = useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
-
+export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideBarProps<IHexbinConfig>) {
   return (
     <Container fluid p={10}>
       <Stack spacing={0}>
@@ -63,8 +39,6 @@ export function HexbinVisSidebar({ config, extensions, columns, setConfig }: Den
           <HexSizeSwitch currentValue={config.isSizeScale} callback={(isSizeScale: boolean) => setConfig({ ...config, isSizeScale })} />
           <HexOpacitySwitch currentValue={config.isOpacityScale} callback={(isOpacityScale: boolean) => setConfig({ ...config, isOpacityScale })} />
         </Stack>
-        {mergedExtensions.preSidebar}
-        {mergedExtensions.postSidebar}
       </Stack>
     </Container>
   );

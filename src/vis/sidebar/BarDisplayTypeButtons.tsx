@@ -1,18 +1,20 @@
-import { Container, SegmentedControl, Stack, Text } from '@mantine/core';
+import { Container, SegmentedControl, Stack } from '@mantine/core';
 import * as React from 'react';
-import { EBarDisplayType } from '../interfaces';
+import { EBarDisplayType } from '../barGood/utils';
 
 interface BarDisplayProps {
   callback: (s: EBarDisplayType) => void;
   currentSelected: EBarDisplayType;
+  isCount: boolean;
 }
 
-export function BarDisplayButtons({ callback, currentSelected }: BarDisplayProps) {
+export function BarDisplayButtons({ callback, currentSelected, isCount }: BarDisplayProps) {
   return (
     <Container p={0} fluid sx={{ width: '100%' }}>
       <Stack spacing={0}>
         <SegmentedControl
-          value={currentSelected}
+          disabled={!isCount}
+          value={isCount ? currentSelected : EBarDisplayType.ABSOLUTE}
           onChange={callback}
           data={[
             { label: EBarDisplayType.ABSOLUTE, value: EBarDisplayType.ABSOLUTE },

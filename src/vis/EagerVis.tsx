@@ -1,30 +1,72 @@
-import * as React from 'react';
+import { Group, Stack } from '@mantine/core';
+import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 import * as d3v7 from 'd3v7';
-import { useMemo, useEffect } from 'react';
-import { useUncontrolled } from '@mantine/hooks';
+import * as React from 'react';
+import { useEffect, useMemo } from 'react';
+import { useSyncedRef } from '../hooks/useSyncedRef';
+import { getCssValue } from '../utils';
+import { createVis, useVisProvider } from './Provider';
+import { VisSidebarWrapper } from './VisSidebarWrapper';
 import {
-  ESupportedPlotlyVis,
-  IVisConfig,
-  Scales,
-  VisColumn,
+  BaseVisConfig,
+  EAggregateTypes,
+  EColumnTypes,
   EFilterOptions,
   ENumericalColorScaleType,
-  EColumnTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
   EScatterSelectSettings,
-  EAggregateTypes,
+  ESupportedPlotlyVis,
+  Scales,
+  VisColumn,
 } from './interfaces';
-import { isScatter, scatterMergeDefaultConfig, ScatterVis } from './scatter';
-import { barMergeDefaultConfig, isBar, BarVis } from './bar';
-import { isViolin, violinMergeDefaultConfig, ViolinVis } from './violin';
-import { getCssValue } from '../utils';
-import { useSyncedRef } from '../hooks/useSyncedRef';
-import { hexinbMergeDefaultConfig, isHexbin } from './hexbin/utils';
+
+import { VisSidebar } from './VisSidebar';
+import { VisSidebarOpenButton } from './VisSidebarOpenButton';
+import { BarVis } from './barGood/BarVis';
+import { BarVisSidebar } from './barGood/BarVisSidebar';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './barGood/utils';
+import { ICorrelationConfig, correlationMergeDefaultConfig } from './correlation';
+import { CorrelationVis } from './correlation/CorrelationVis';
+import { CorrelationVisSidebar } from './correlation/CorrelationVisSidebar';
+import { HeatmapVis } from './heatmap/HeatmapVis';
+import { HeatmapVisSidebar } from './heatmap/HeatmapVisSidebar';
+import { IHeatmapConfig, heatmapMergeDefaultConfig } from './heatmap/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
+import { HexbinVisSidebar } from './hexbin/HexbinVisSidebar';
+import { IHexbinConfig, hexinbMergeDefaultConfig } from './hexbin/utils';
+import { RaincloudVis } from './raincloud/RaincloudVis';
+import { RaincloudVisSidebar } from './raincloud/RaincloudVisSidebar';
+import { IRaincloudConfig, raincloudMergeDefaultConfig } from './raincloud/utils';
+import { SankeyVis } from './sankey/SankeyVis';
+import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
+import { ISankeyConfig, sankeyMergeDefaultConfig } from './sankey/utils';
+import { IScatterConfig, scatterMergeDefaultConfig } from './scatter';
+import { ScatterVis } from './scatter/ScatterVis';
+import { ScatterVisSidebar } from './scatter/ScatterVisSidebar';
+import { IViolinConfig, ViolinVis, violinMergeDefaultConfig } from './violin';
+import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
+
+function registerAllVis() {
+  return [
+    createVis(ESupportedPlotlyVis.SCATTER, ScatterVis, ScatterVisSidebar, scatterMergeDefaultConfig),
+    createVis(ESupportedPlotlyVis.BAR, BarVis, BarVisSidebar, barMergeDefaultConfig),
+    createVis(ESupportedPlotlyVis.HEXBIN, HexbinVis, HexbinVisSidebar, hexinbMergeDefaultConfig),
+    createVis(ESupportedPlotlyVis.SANKEY, SankeyVis, SankeyVisSidebar, sankeyMergeDefaultConfig),
+    createVis(ESupportedPlotlyVis.HEATMAP, HeatmapVis, HeatmapVisSidebar, heatmapMergeDefaultConfig),
+    createVis(ESupportedPlotlyVis.VIOLIN, ViolinVis, ViolinVisSidebar, violinMergeDefaultConfig),
+    createVis(ESupportedPlotlyVis.RAINCLOUD, RaincloudVis, RaincloudVisSidebar, raincloudMergeDefaultConfig),
+    createVis(ESupportedPlotlyVis.CORRELATION, CorrelationVis, CorrelationVisSidebar, correlationMergeDefaultConfig),
+  ];
+}
+
+export function useRegisterDefaultVis() {
+  const { registerVisType } = useVisProvider();
+
+  React.useEffect(() => {
+    registerVisType(...registerAllVis());
+  }, [registerVisType]);
+}
 
 export function EagerVis({
   columns,
@@ -68,10 +110,19 @@ export function EagerVis({
    * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
    */
   filterCallback?: (s: EFilterOptions) => void;
-  setExternalConfig?: (config: IVisConfig) => void;
+  setExternalConfig?: (config: BaseVisConfig) => void;
   closeCallback?: () => void;
   showCloseButton?: boolean;
-  externalConfig?: IVisConfig;
+  externalConfig?:
+    | IScatterConfig
+    | IBarConfig
+    | IHexbinConfig
+    | ISankeyConfig
+    | IHeatmapConfig
+    | IViolinConfig
+    | IRaincloudConfig
+    | ICorrelationConfig
+    | BaseVisConfig;
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showDragModeOptions?: boolean;
@@ -86,12 +137,18 @@ export function EagerVis({
     onChange: internalSetShowSidebar,
   });
 
+  const [ref, dimensions] = useResizeObserver();
+
+  useRegisterDefaultVis();
+
+  const { getVisByType } = useVisProvider();
+
   // Each time you switch between vis config types, there is one render where the config is inconsistent with the type before the merge functions in the useEffect below can be called.
   // To ensure that we never render an incosistent config, keep a consistent and a current in the config. Always render the consistent.
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [{ consistent: visConfig, current: inconsistentVisConfig }, _setVisConfig] = React.useState<{
-    consistent: IVisConfig;
-    current: IVisConfig;
+    consistent: BaseVisConfig;
+    current: BaseVisConfig;
   }>(
     externalConfig
       ? { consistent: null, current: externalConfig }
@@ -106,7 +163,7 @@ export function EagerVis({
             shape: null,
             dragMode: EScatterSelectSettings.RECTANGLE,
             alphaSliderVal: 0.5,
-          },
+          } as BaseVisConfig,
         }
       : {
           consistent: null,
@@ -121,7 +178,7 @@ export function EagerVis({
             catColumnSelected: null,
             aggregateColumn: null,
             aggregateType: EAggregateTypes.COUNT,
-          },
+          } as BaseVisConfig,
         },
   );
 
@@ -131,7 +188,7 @@ export function EagerVis({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(visConfig), setExternalConfigRef]);
 
-  const setVisConfig = React.useCallback((newConfig: IVisConfig) => {
+  const setVisConfig = React.useCallback((newConfig: BaseVisConfig) => {
     _setVisConfig((oldConfig) => {
       return {
         current: newConfig,
@@ -141,22 +198,12 @@ export function EagerVis({
   }, []);
 
   React.useEffect(() => {
-    if (isScatter(inconsistentVisConfig)) {
-      const newConfig = scatterMergeDefaultConfig(columns, inconsistentVisConfig);
+    const vis = getVisByType(inconsistentVisConfig?.type);
+    if (vis) {
+      const newConfig = vis.mergeConfig(columns, inconsistentVisConfig);
       _setVisConfig({ current: newConfig, consistent: newConfig });
     }
-    if (isViolin(inconsistentVisConfig)) {
-      const newConfig = violinMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isBar(inconsistentVisConfig)) {
-      const newConfig = barMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-    if (isHexbin(inconsistentVisConfig)) {
-      const newConfig = hexinbMergeDefaultConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
+
     // DANGER:: this useEffect should only occur when the visConfig.type changes. adding visconfig into the dep array will cause an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inconsistentVisConfig.type]);
@@ -211,79 +258,59 @@ export function EagerVis({
     enableSidebar,
   };
 
+  const Renderer = getVisByType(visConfig?.type)?.renderer;
+
   return (
-    <>
-      {isScatter(visConfig) ? (
-        <ScatterVis
-          config={visConfig}
-          optionsConfig={{
-            color: {
-              enable: true,
-            },
-          }}
-          showDragModeOptions={showDragModeOptions}
-          shapes={shapes}
-          setConfig={setVisConfig}
-          filterCallback={filterCallback}
-          selectionCallback={selectionCallback}
-          selectedMap={selectedMap}
-          selectedList={selected}
-          columns={columns}
-          scales={scales}
-          showSidebar={showSidebar}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          scrollZoom={scrollZoom}
-          {...commonProps}
-        />
-      ) : null}
+    <Group
+      noWrap
+      pl={0}
+      pr={0}
+      sx={{
+        flexGrow: 1,
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        // Disable plotly crosshair cursor
+        '.nsewdrag': {
+          cursor: 'pointer !important',
+        },
+      }}
+    >
+      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
-      {isViolin(visConfig) ? (
-        <ViolinVis
-          config={visConfig}
-          selectedList={selected}
-          selectedMap={selectedMap}
-          selectionCallback={selectionCallback}
-          optionsConfig={{
-            overlay: {
-              enable: true,
-            },
-          }}
-          setConfig={setVisConfig}
-          columns={columns}
-          scales={scales}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          {...commonProps}
-        />
+      <Stack spacing={0} sx={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
+        {Renderer ? (
+          <Renderer
+            config={visConfig}
+            dimensions={dimensions}
+            optionsConfig={{
+              color: {
+                enable: true,
+              },
+            }}
+            showDragModeOptions={showDragModeOptions}
+            shapes={shapes}
+            setConfig={setVisConfig}
+            filterCallback={filterCallback}
+            selectionCallback={selectionCallback}
+            selectedMap={selectedMap}
+            selectedList={selected}
+            columns={columns}
+            scales={scales}
+            showSidebar={showSidebar}
+            showCloseButton={showCloseButton}
+            closeButtonCallback={closeCallback}
+            scrollZoom={scrollZoom}
+            {...commonProps}
+          />
+        ) : null}
+      </Stack>
+      {showSidebar ? (
+        <VisSidebarWrapper>
+          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
+        </VisSidebarWrapper>
       ) : null}
-      {isBar(visConfig) ? (
-        <BarVis
-          config={visConfig}
-          setConfig={setVisConfig}
-          selectionCallback={selectionCallback}
-          selectedMap={selectedMap}
-          selectedList={selected}
-          columns={columns}
-          scales={scales}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          filterCallback={filterCallback}
-          {...commonProps}
-        />
-      ) : null}
-
-      {isHexbin(visConfig) ? (
-        <HexbinVis
-          config={visConfig}
-          selected={selectedMap}
-          setConfig={setVisConfig}
-          selectionCallback={selectionCallback}
-          columns={columns}
-          showDragModeOptions={showDragModeOptions}
-          {...commonProps}
-        />
-      ) : null}
-    </>
+    </Group>
   );
 }

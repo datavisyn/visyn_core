@@ -1,0 +1,65 @@
+import merge from 'lodash/merge';
+import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
+import {
+  BaseVisConfig,
+  ColumnInfo,
+  EAggregateTypes,
+  EColumnTypes,
+  ENumericalColorScaleType,
+  ESortTypes,
+  ESupportedPlotlyVis,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalValue,
+} from '../interfaces';
+
+export interface IHeatmapConfig {
+  type: ESupportedPlotlyVis.HEATMAP;
+  color: ColumnInfo | null;
+  catColumnsSelected: ColumnInfo[];
+  numColorScaleType: ENumericalColorScaleType;
+  sortedBy: ESortTypes;
+  aggregateType: EAggregateTypes;
+  aggregateColumn: ColumnInfo | null;
+}
+
+export function isHeatmap(vis: BaseVisConfig): vis is IHeatmapConfig {
+  return vis.type === ESupportedPlotlyVis.HEATMAP;
+}
+
+const defaultConfig: IHeatmapConfig = {
+  type: ESupportedPlotlyVis.HEATMAP,
+  color: null,
+  catColumnsSelected: [],
+  numColorScaleType: null,
+  sortedBy: ESortTypes.CAT_ASC,
+  aggregateColumn: null,
+  aggregateType: EAggregateTypes.COUNT,
+};
+
+export function heatmapMergeDefaultConfig(columns: VisColumn[], config: IHeatmapConfig): IHeatmapConfig {
+  const merged = merge({}, defaultConfig, config);
+  return merged;
+}
+
+export async function getHeatmapData(
+  columns: VisColumn[],
+  catColumnDesc: ColumnInfo[],
+  aggColumnDesc: ColumnInfo,
+): Promise<{
+  catColumn: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
+  }[];
+  aggregateColumn: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
+  };
+}> {
+  const catColumn = await resolveColumnValues(columns.filter((col) => catColumnDesc.find((catCol) => catCol.id === col.info.id)));
+  const aggregateColumn = await resolveSingleColumn(aggColumnDesc ? columns.find((col) => col.info.id === aggColumnDesc.id) : null);
+
+  return { catColumn, aggregateColumn };
+}
