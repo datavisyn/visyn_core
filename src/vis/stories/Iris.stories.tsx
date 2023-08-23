@@ -2,7 +2,7 @@ import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../LazyVis';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../barGood/utils';
-import { BaseConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../interfaces';
+import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../interfaces';
 import { EViolinOverlay } from '../violin/utils';
 
 export function fetchIrisData(): VisColumn[] {
@@ -127,7 +127,7 @@ ScatterPlot.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const BarChart: typeof Template = Template.bind({});
@@ -147,7 +147,7 @@ BarChart.args = {
     },
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const ViolinPlot: typeof Template = Template.bind({});
@@ -174,5 +174,5 @@ ViolinPlot.args = {
       },
     ],
     violinOverlay: EViolinOverlay.NONE,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };

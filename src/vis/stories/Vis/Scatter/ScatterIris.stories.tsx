@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
+import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -49,7 +49,7 @@ Basic.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
@@ -77,7 +77,7 @@ ColorByCategory.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const ColorByNumerical: typeof Template = Template.bind({}) as typeof Template;
@@ -105,7 +105,7 @@ ColorByNumerical.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const SmallMultiples: typeof Template = Template.bind({}) as typeof Template;
@@ -134,5 +134,5 @@ SmallMultiples.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };

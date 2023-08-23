@@ -1,7 +1,7 @@
 import { merge } from 'lodash';
-import { BaseConfig, ColumnInfo, ESupportedPlotlyVis, VisColumn } from '../interfaces';
+import { BaseVisConfig, ColumnInfo, ESupportedPlotlyVis, VisColumn } from '../interfaces';
 
-export interface ISankeyConfig extends BaseConfig {
+export interface ISankeyConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.SANKEY;
   catColumnsSelected: ColumnInfo[];
 }

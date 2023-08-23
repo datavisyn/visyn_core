@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseConfig, ECorrelationType, EScaleType, ESupportedPlotlyVis } from '../../../interfaces';
+import { BaseVisConfig, ECorrelationType, EScaleType, ESupportedPlotlyVis } from '../../../interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -60,7 +60,7 @@ Basic.args = {
     correlationType: ECorrelationType.PEARSON,
     pScaleType: EScaleType.LINEAR,
     pDomain: [0.5, 0.01],
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 Basic.parameters = {

@@ -1,7 +1,7 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues } from '../general/layoutUtils';
 import {
-  BaseConfig,
+  BaseVisConfig,
   ColumnInfo,
   EColumnTypes,
   ECorrelationType,
@@ -12,7 +12,7 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 
-export interface ICorrelationConfig extends BaseConfig {
+export interface ICorrelationConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.CORRELATION;
   correlationType: ECorrelationType;
   numColumnsSelected: ColumnInfo[];
@@ -20,7 +20,7 @@ export interface ICorrelationConfig extends BaseConfig {
   pDomain: [number, number];
 }
 
-export function isCorrelation(s: BaseConfig): s is ICorrelationConfig {
+export function isCorrelation(s: BaseVisConfig): s is ICorrelationConfig {
   return s.type === ESupportedPlotlyVis.CORRELATION;
 }
 

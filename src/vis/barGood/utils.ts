@@ -2,7 +2,16 @@ import { bin, desc, op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import merge from 'lodash/merge';
 import { resolveSingleColumn } from '../general/layoutUtils';
-import { BaseConfig, ColumnInfo, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import {
+  BaseVisConfig,
+  ColumnInfo,
+  EAggregateTypes,
+  EColumnTypes,
+  ESupportedPlotlyVis,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalValue,
+} from '../interfaces';
 
 export enum SortTypes {
   NONE = 'NONE',
@@ -56,7 +65,7 @@ export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig):
   return merged;
 }
 
-export interface IBarConfig extends BaseConfig {
+export interface IBarConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.BAR;
   multiples: ColumnInfo | null;
   group: ColumnInfo | null;

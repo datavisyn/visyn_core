@@ -3,14 +3,15 @@ import * as React from 'react';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
-import { BaseConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, Vis } from '../vis';
+import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, Vis } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MyStringScore } from './scoresUtils';
+import { IScatterConfig } from '../vis/scatter';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
-  const [visConfig, setVisConfig] = React.useState({
+  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
       {
@@ -33,7 +34,7 @@ export function MainApp() {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-  } as BaseConfig);
+  } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof iris>([]);
 

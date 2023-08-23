@@ -1,7 +1,7 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  BaseConfig,
+  BaseVisConfig,
   ColumnInfo,
   EColumnTypes,
   EHexbinOptions,
@@ -13,7 +13,7 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 
-export interface IHexbinConfig extends BaseConfig {
+export interface IHexbinConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.HEXBIN;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;

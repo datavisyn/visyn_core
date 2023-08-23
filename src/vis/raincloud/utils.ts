@@ -1,7 +1,7 @@
 import { merge } from 'lodash';
 import { resolveColumnValues } from '../general/layoutUtils';
 import {
-  BaseConfig,
+  BaseVisConfig,
   ColumnInfo,
   ECloudType,
   EColumnTypes,
@@ -22,7 +22,7 @@ export interface IRaincloudConfig {
   aggregateRain: boolean;
 }
 
-export function isRaincloud(s: BaseConfig): s is IRaincloudConfig {
+export function isRaincloud(s: BaseVisConfig): s is IRaincloudConfig {
   return s.type === ESupportedPlotlyVis.RAINCLOUD;
 }
 

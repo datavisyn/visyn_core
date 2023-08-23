@@ -1,7 +1,7 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  BaseConfig,
+  BaseVisConfig,
   ColumnInfo,
   EAggregateTypes,
   EColumnTypes,
@@ -23,7 +23,7 @@ export interface IHeatmapConfig {
   aggregateColumn: ColumnInfo | null;
 }
 
-export function isHeatmap(vis: BaseConfig): vis is IHeatmapConfig {
+export function isHeatmap(vis: BaseVisConfig): vis is IHeatmapConfig {
   return vis.type === ESupportedPlotlyVis.HEATMAP;
 }
 

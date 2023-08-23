@@ -12,7 +12,7 @@ export enum ESupportedPlotlyVis {
   CORRELATION = 'Correlation plot',
 }
 
-export interface BaseConfig {
+export interface BaseVisConfig {
   type: string;
 }
 

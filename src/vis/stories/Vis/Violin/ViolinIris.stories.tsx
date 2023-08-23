@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseConfig, ESupportedPlotlyVis } from '../../../interfaces';
+import { BaseVisConfig, ESupportedPlotlyVis } from '../../../interfaces';
 import { EViolinOverlay } from '../../../violin/utils';
 import { fetchIrisData } from '../../fetchIrisData';
 
@@ -51,7 +51,7 @@ Basic.args = {
       },
     ],
     violinOverlay: EViolinOverlay.NONE,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const BoxplotOverlay: typeof Template = Template.bind({}) as typeof Template;
@@ -78,5 +78,5 @@ BoxplotOverlay.args = {
       },
     ],
     violinOverlay: EViolinOverlay.BOX,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };

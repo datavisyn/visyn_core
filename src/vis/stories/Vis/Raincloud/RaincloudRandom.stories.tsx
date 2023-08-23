@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseConfig, ECloudType, EColumnTypes, ELightningType, ERainType, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { BaseVisConfig, ECloudType, EColumnTypes, ELightningType, ERainType, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -151,7 +151,7 @@ Violin.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const Heatmap: typeof Template = Template.bind({}) as typeof Template;
@@ -169,7 +169,7 @@ Heatmap.args = {
     cloudType: ECloudType.HEATMAP,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const Histogram: typeof Template = Template.bind({}) as typeof Template;
@@ -187,7 +187,7 @@ Histogram.args = {
     cloudType: ECloudType.HISTOGRAM,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const Boxplot: typeof Template = Template.bind({}) as typeof Template;
@@ -205,7 +205,7 @@ Boxplot.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.BOXPLOT,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const MeanOnly: typeof Template = Template.bind({}) as typeof Template;
@@ -223,7 +223,7 @@ MeanOnly.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const MeanAndDev: typeof Template = Template.bind({}) as typeof Template;
@@ -241,7 +241,7 @@ MeanAndDev.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const MedianAndDev: typeof Template = Template.bind({}) as typeof Template;
@@ -259,7 +259,7 @@ MedianAndDev.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEDIAN_AND_DEV,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const Beeswarm: typeof Template = Template.bind({}) as typeof Template;
@@ -277,7 +277,7 @@ Beeswarm.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.BEESWARM,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const Dotplot: typeof Template = Template.bind({}) as typeof Template;
@@ -295,7 +295,7 @@ Dotplot.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.DOTPLOT,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const Stripplot: typeof Template = Template.bind({}) as typeof Template;
@@ -313,7 +313,7 @@ Stripplot.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.STRIPPLOT,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const Wheatplot: typeof Template = Template.bind({}) as typeof Template;
@@ -331,5 +331,5 @@ Wheatplot.args = {
     cloudType: ECloudType.SPLIT_VIOLIN,
     lightningType: ELightningType.MEAN_AND_DEV,
     rainType: ERainType.WHEATPLOT,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };

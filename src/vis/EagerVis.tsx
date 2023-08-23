@@ -8,7 +8,7 @@ import { getCssValue } from '../utils';
 import { createVis, useVisProvider } from './Provider';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
 import {
-  BaseConfig,
+  BaseVisConfig,
   EAggregateTypes,
   EColumnTypes,
   EFilterOptions,
@@ -23,26 +23,26 @@ import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { BarVis } from './barGood/BarVis';
 import { BarVisSidebar } from './barGood/BarVisSidebar';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, barMergeDefaultConfig } from './barGood/utils';
-import { correlationMergeDefaultConfig } from './correlation';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './barGood/utils';
+import { ICorrelationConfig, correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
 import { CorrelationVisSidebar } from './correlation/CorrelationVisSidebar';
 import { HeatmapVis } from './heatmap/HeatmapVis';
 import { HeatmapVisSidebar } from './heatmap/HeatmapVisSidebar';
-import { heatmapMergeDefaultConfig } from './heatmap/utils';
+import { IHeatmapConfig, heatmapMergeDefaultConfig } from './heatmap/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
 import { HexbinVisSidebar } from './hexbin/HexbinVisSidebar';
-import { hexinbMergeDefaultConfig } from './hexbin/utils';
+import { IHexbinConfig, hexinbMergeDefaultConfig } from './hexbin/utils';
 import { RaincloudVis } from './raincloud/RaincloudVis';
 import { RaincloudVisSidebar } from './raincloud/RaincloudVisSidebar';
-import { raincloudMergeDefaultConfig } from './raincloud/utils';
+import { IRaincloudConfig, raincloudMergeDefaultConfig } from './raincloud/utils';
 import { SankeyVis } from './sankey/SankeyVis';
 import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
-import { sankeyMergeDefaultConfig } from './sankey/utils';
-import { scatterMergeDefaultConfig } from './scatter';
+import { ISankeyConfig, sankeyMergeDefaultConfig } from './sankey/utils';
+import { IScatterConfig, scatterMergeDefaultConfig } from './scatter';
 import { ScatterVis } from './scatter/ScatterVis';
 import { ScatterVisSidebar } from './scatter/ScatterVisSidebar';
-import { ViolinVis, violinMergeDefaultConfig } from './violin';
+import { IViolinConfig, ViolinVis, violinMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
@@ -110,10 +110,19 @@ export function EagerVis({
    * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
    */
   filterCallback?: (s: EFilterOptions) => void;
-  setExternalConfig?: (config: BaseConfig) => void;
+  setExternalConfig?: (config: BaseVisConfig) => void;
   closeCallback?: () => void;
   showCloseButton?: boolean;
-  externalConfig?: BaseConfig;
+  externalConfig?:
+    | IScatterConfig
+    | IBarConfig
+    | IHexbinConfig
+    | ISankeyConfig
+    | IHeatmapConfig
+    | IViolinConfig
+    | IRaincloudConfig
+    | ICorrelationConfig
+    | BaseVisConfig;
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showDragModeOptions?: boolean;
@@ -138,8 +147,8 @@ export function EagerVis({
   // To ensure that we never render an incosistent config, keep a consistent and a current in the config. Always render the consistent.
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [{ consistent: visConfig, current: inconsistentVisConfig }, _setVisConfig] = React.useState<{
-    consistent: BaseConfig;
-    current: BaseConfig;
+    consistent: BaseVisConfig;
+    current: BaseVisConfig;
   }>(
     externalConfig
       ? { consistent: null, current: externalConfig }
@@ -154,7 +163,7 @@ export function EagerVis({
             shape: null,
             dragMode: EScatterSelectSettings.RECTANGLE,
             alphaSliderVal: 0.5,
-          } as BaseConfig,
+          } as BaseVisConfig,
         }
       : {
           consistent: null,
@@ -169,7 +178,7 @@ export function EagerVis({
             catColumnSelected: null,
             aggregateColumn: null,
             aggregateType: EAggregateTypes.COUNT,
-          } as BaseConfig,
+          } as BaseVisConfig,
         },
   );
 
@@ -179,7 +188,7 @@ export function EagerVis({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(visConfig), setExternalConfigRef]);
 
-  const setVisConfig = React.useCallback((newConfig: BaseConfig) => {
+  const setVisConfig = React.useCallback((newConfig: BaseVisConfig) => {
     _setVisConfig((oldConfig) => {
       return {
         current: newConfig,

@@ -5,7 +5,7 @@ import { getCssValue } from '../../utils';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  BaseConfig,
+  BaseVisConfig,
   ColumnInfo,
   EColumnTypes,
   ENumericalColorScaleType,
@@ -21,7 +21,7 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 
-export interface IScatterConfig extends BaseConfig {
+export interface IScatterConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.SCATTER;
   numColumnsSelected: ColumnInfo[];
   color: ColumnInfo | null;

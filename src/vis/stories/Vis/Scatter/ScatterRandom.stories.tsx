@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseConfig, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { BaseVisConfig, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -137,7 +137,7 @@ LargeData.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.2,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };
 
 export const LargeDataMuliples: typeof Template = Template.bind({}) as typeof Template;
@@ -166,5 +166,5 @@ LargeDataMuliples.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.2,
-  } as BaseConfig,
+  } as BaseVisConfig,
 };

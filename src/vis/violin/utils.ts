@@ -3,7 +3,7 @@ import { i18n } from '../../i18n';
 import { SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import {
-  BaseConfig,
+  BaseVisConfig,
   ColumnInfo,
   EColumnTypes,
   ESupportedPlotlyVis,
@@ -20,7 +20,7 @@ export enum EViolinOverlay {
   BOX = 'Box',
 }
 
-export interface IViolinConfig extends BaseConfig {
+export interface IViolinConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
