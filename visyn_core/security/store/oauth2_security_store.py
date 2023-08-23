@@ -1,6 +1,7 @@
 import logging
 
 import jwt
+from fastapi import Request
 
 from ... import manager
 from ..model import LogoutReturnValue, User
@@ -16,18 +17,21 @@ class OAuth2SecurityStore(BaseStore):
         self.cookie_name = cookie_name
         self.signout_url: str | None = signout_url
 
-    def load_from_request(self, req):
+    def load_from_request(self, req: Request):
+        token_field = manager.settings.visyn_core.security.store.oauth2_security_store.access_token_header_name
         try:
             # Get token data from header
-            if manager.settings.visyn_core.security.store.oauth2_security_store.access_token_header_name in req.headers:
-                _log.debug(f"Request headers: {req.headers}")
-                encoded = req.headers[manager.settings.visyn_core.security.store.oauth2_security_store.access_token_header_name]
+            access_token = req.headers.get(token_field)
+            if access_token:
                 # Try to decode the oidc data jwt
-                user = jwt.decode(encoded, options={"verify_signature": False})
-                _log.debug(f"User: {user}")
+                user = jwt.decode(access_token, options={"verify_signature": False})
                 # Create new user from given attributes
                 email = user[manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field]
-                return User(id=email, roles=[])
+                return User(
+                    id=email,
+                    roles=[],
+                    oauth2_access_token=access_token,
+                )
         except Exception:
             _log.exception("Error in load_from_request")
             return None
