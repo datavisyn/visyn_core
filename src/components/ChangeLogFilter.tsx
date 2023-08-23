@@ -19,26 +19,22 @@ export function ChangeLogFilter({
   setCheckedTags,
   checkedTimes,
   setCheckedTimes,
-  setCheckedExtendedTimes,
 }: {
   tags: string[];
   times: Date[];
-  checkedTags: { [k: string]: boolean };
-  setCheckedTags: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
-  checkedTimes: Map<Date, boolean>;
-  setCheckedTimes: React.Dispatch<React.SetStateAction<Map<Date, boolean>>>;
-  setCheckedExtendedTimes: React.Dispatch<React.SetStateAction<string>>;
+  checkedTags: string[];
+  setCheckedTags: React.Dispatch<React.SetStateAction<string[]>>;
+  checkedTimes: Date[];
+  setCheckedTimes: React.Dispatch<React.SetStateAction<Date[]>>;
 }) {
-  const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([null, null]);
+  const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([new Date(), new Date()]);
 
   React.useEffect(() => {
     if (valueSelected[0] && valueSelected[1]) {
       const datesBetween = getDatesBetween(valueSelected[0], valueSelected[1]);
-      for (const key of checkedTimes.keys()) {
-        datesBetween.includes(key)
-          ? setCheckedTimes((prevstate) => new Map(prevstate.set(key, true)))
-          : setCheckedTimes((prevstate) => new Map(prevstate.set(key, false)));
-      }
+      checkedTimes.forEach((time) =>
+        datesBetween.includes(time) ? setCheckedTimes((prevstate) => [...prevstate, time]) : setCheckedTimes(() => checkedTimes.filter((ct) => ct !== time)),
+      );
     }
   }, [checkedTimes, setCheckedTimes, valueSelected]);
   return (
@@ -48,17 +44,17 @@ export function ChangeLogFilter({
       </Menu.Target>
       <Menu.Dropdown>
         <Tabs variant="outline" defaultValue="tags">
-          <Tabs.List>
+          <Tabs.List position="right">
             <Tabs.Tab value="tags">Tags</Tabs.Tab>
             <Tabs.Tab value="time">Date</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="tags">
             <Stack mt="xs">
               <Group>
-                <Button variant="subtle" size="xs" onClick={() => tags.map((k) => setCheckedTags((prevstate) => ({ ...prevstate, [k]: true })))}>
+                <Button variant="subtle" size="xs" onClick={() => setCheckedTags(tags)}>
                   Select all
                 </Button>
-                <Button variant="subtle" size="xs" onClick={() => tags.map((k) => setCheckedTags((prevstate) => ({ ...prevstate, [k]: false })))}>
+                <Button variant="subtle" size="xs" onClick={() => setCheckedTags([])}>
                   Reset
                 </Button>
               </Group>
@@ -66,19 +62,18 @@ export function ChangeLogFilter({
                 <Checkbox
                   key={tag}
                   label={tag}
-                  checked={checkedTags[tag]}
-                  onClick={() => setCheckedTags((prevstate) => ({ ...prevstate, [tag]: !prevstate[tag] }))}
+                  checked={checkedTags.includes(tag)}
+                  onClick={() =>
+                    checkedTags.includes(tag)
+                      ? setCheckedTags(() => checkedTags.filter((ct) => ct !== tag))
+                      : setCheckedTags((prevstate) => [...prevstate, tag])
+                  }
                 />
               ))}
             </Stack>
           </Tabs.Panel>
           <Tabs.Panel value="time">
-            <DatePickerComponent
-              inputDatesArray={times}
-              valueSelected={valueSelected}
-              setValueSelected={setValueSelected}
-              setCheckedExtendedTimes={setCheckedExtendedTimes}
-            />
+            <DatePickerComponent inputDatesArray={times} valueSelected={valueSelected} setValueSelected={setValueSelected} />
           </Tabs.Panel>
         </Tabs>
       </Menu.Dropdown>

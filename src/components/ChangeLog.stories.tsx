@@ -28,7 +28,7 @@ export const SecondarySelfmadeChangeLog: Story = {
         },
         { version: 'Release v2.1.0', author: 'otherusername', content: readmeAelixir, date: new Date(2023, 7, 1), tags: ['Bug'] },
         {
-          title: 'This is a title',
+          title: 'This is a different title',
           version: 'Release this week',
           author: 'myusername',
           content: readmeBioInSight2,

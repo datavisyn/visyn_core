@@ -13,8 +13,8 @@ export function ChangeLogArticle({
 }: {
   article: IArticle;
   largerThanSm: boolean;
-  checkedTags: { [k: string]: boolean };
-  setCheckedTags: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
+  checkedTags: string[];
+  setCheckedTags: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
   return (
     <Grid py={0} mx="10%">
@@ -68,14 +68,14 @@ export function ChangeLogArticle({
                       key={tag + article.version}
                       role="button"
                       onClick={() =>
-                        checkedTags[tag]
-                          ? setCheckedTags((prevstate) => ({ ...prevstate, [tag]: false }))
-                          : setCheckedTags((prevstate) => ({ ...prevstate, [tag]: true }))
+                        checkedTags.includes(tag)
+                          ? setCheckedTags(() => checkedTags.filter((ct) => ct !== tag))
+                          : setCheckedTags((prevstate) => [...prevstate, tag])
                       }
                       styles={(theme) => ({
                         root: { ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
                       })}
-                      variant={checkedTags[tag] ? 'filled' : 'light'}
+                      variant={checkedTags.includes(tag) ? 'filled' : 'light'}
                     >
                       {tag}
                     </Badge>
@@ -117,9 +117,9 @@ export function ChangeLogArticle({
                   key={tag}
                   role="button"
                   onClick={() =>
-                    checkedTags[tag]
-                      ? setCheckedTags((prevstate) => ({ ...prevstate, [tag]: false }))
-                      : setCheckedTags((prevstate) => ({ ...prevstate, [tag]: true }))
+                    checkedTags.includes(tag)
+                      ? setCheckedTags(() => checkedTags.filter((ct) => ct !== tag))
+                      : setCheckedTags((prevstate) => [...prevstate, tag])
                   }
                   styles={(theme) => ({
                     root: { ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
@@ -131,7 +131,7 @@ export function ChangeLogArticle({
               ))}
             </Flex>
             <Text mt={0} size="md">
-              <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
                 {article.content}
               </ReactMarkdown>
             </Text>
