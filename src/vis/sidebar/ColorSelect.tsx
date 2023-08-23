@@ -19,7 +19,7 @@ export function ColorSelect({ callback, numTypeCallback = () => null, currentNum
         withinPortal
         itemComponent={SelectDropdownItem}
         clearable
-        placeholder="Select Column"
+        placeholder="Select columns"
         label="Color"
         onChange={(e) => callback(columns.find((c) => c.info.id === e)?.info)}
         name="colorSelect"

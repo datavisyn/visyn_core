@@ -1,7 +1,7 @@
 import { MultiSelect } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
-import { SelectDropdownItem, SelectLabelComponent } from './utils';
+import { SelectDropdownItem } from './utils';
 
 interface CategoricalColumnSelectProps {
   callback: (s: ColumnInfo[]) => void;
@@ -17,9 +17,8 @@ export function CategoricalColumnSelect({ callback, columns, currentSelected }: 
   return (
     <MultiSelect
       withinPortal
-      valueComponent={SelectLabelComponent}
       itemComponent={SelectDropdownItem}
-      placeholder="Select Column"
+      placeholder="Select columns"
       label="Categorical columns"
       clearable
       onChange={(e) => callback(e.map((id) => columns.find((c) => c.info.id === id).info))}

@@ -33,7 +33,7 @@ export function GroupSelect({
         withinPortal
         clearable
         itemComponent={SelectDropdownItem}
-        placeholder="Select Column"
+        placeholder="Select columns"
         label="Group"
         onChange={(e) => groupColumnSelectCallback(columns.find((c) => c.info.id === e)?.info)}
         data={columns
