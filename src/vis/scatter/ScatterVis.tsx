@@ -50,6 +50,7 @@ export function ScatterVis({
     config.shape,
     config.color,
     config.alphaSliderVal,
+    config.sizeSliderVal,
     config.numColorScaleType,
     scales,
     shapes,
