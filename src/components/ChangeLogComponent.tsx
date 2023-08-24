@@ -8,6 +8,13 @@ import { IArticle } from '../base/interfaces';
 import { ChangeLogFilter } from './ChangeLogFilter';
 import { HelpOverlay } from './Overlay';
 
+function IsDateBetween(startDate: Date, endDate: Date, currentDate: Date) {
+  if (startDate != null && endDate != null) {
+    return startDate <= currentDate && currentDate <= endDate;
+  }
+  return false;
+}
+
 export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
@@ -19,26 +26,28 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   }, [data]);
 
   const [checkedTags, setCheckedTags] = React.useState<string[]>([]);
-  const [checkedTimes, setCheckedTimes] = React.useState<Date[]>([]);
   const [showedArticles, setShowedArticles] = React.useState<IArticle[]>([]);
+  const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([null, null]);
 
   React.useEffect(() => {
-    const filteredData = data.filter((article) => checkedTimes.includes(article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false));
-
-    setShowedArticles(checkedTags.length > 0 || checkedTimes.length > 0 ? filteredData : data);
-  }, [allTags, checkedTags, checkedTimes, data]);
+    const filteredData = data.filter(
+      (article) => IsDateBetween(valueSelected[0], valueSelected[1], article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false),
+    );
+    console.log(valueSelected[0], valueSelected[1], data[1].date);
+    setShowedArticles(checkedTags.length > 0 || (valueSelected[0] !== null && valueSelected[1] !== null) ? filteredData : data);
+  }, [allTags, checkedTags, data, valueSelected]);
 
   return (
     <Stack m="md" h="auto">
       <Group position="right" mx="5%" spacing="sm">
-        <Input placeholder="Search" onChange={null} />
+        <Input placeholder="Search" />
         <ChangeLogFilter
           tags={allTags}
           times={allTimes}
           checkedTags={checkedTags}
           setCheckedTags={setCheckedTags}
-          checkedTimes={checkedTimes}
-          setCheckedTimes={setCheckedTimes}
+          valueSelected={valueSelected}
+          setValueSelected={setValueSelected}
         />
       </Group>
       {showedArticles.length > 0 ? (

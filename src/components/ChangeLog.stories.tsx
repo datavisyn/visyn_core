@@ -23,7 +23,7 @@ export const SecondarySelfmadeChangeLog: Story = {
           version: 'Release version 1.2.2',
           author: 'username',
           content: readmeBioInSight,
-          date: new Date(1111, 0, 1),
+          date: new Date(2011, 0, 1),
           tags: ['Feature', 'Devops'],
         },
         { version: 'Release v2.1.0', author: 'otherusername', content: readmeAelixir, date: new Date(2023, 7, 1), tags: ['Bug'] },

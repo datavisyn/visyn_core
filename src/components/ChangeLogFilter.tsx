@@ -2,45 +2,42 @@ import { Stack, Checkbox, Group, Menu, Tabs, Button } from '@mantine/core';
 import * as React from 'react';
 import { DatePickerComponent } from './DatePickerComponent';
 
-function getDatesBetween(startDate: Date, endDate: Date) {
-  const currentDate = new Date(startDate.getTime());
-  const dates = [];
-  while (currentDate <= endDate) {
-    dates.push(new Date(currentDate));
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-  return dates;
-}
-
 export function ChangeLogFilter({
   tags,
   times,
   checkedTags,
   setCheckedTags,
-  checkedTimes,
-  setCheckedTimes,
+  valueSelected,
+  setValueSelected,
 }: {
   tags: string[];
   times: Date[];
   checkedTags: string[];
   setCheckedTags: React.Dispatch<React.SetStateAction<string[]>>;
-  checkedTimes: Date[];
-  setCheckedTimes: React.Dispatch<React.SetStateAction<Date[]>>;
+  valueSelected: [Date, Date];
+  setValueSelected: React.Dispatch<React.SetStateAction<[Date, Date]>>;
 }) {
-  const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([new Date(), new Date()]);
-
-  React.useEffect(() => {
-    if (valueSelected[0] && valueSelected[1]) {
-      const datesBetween = getDatesBetween(valueSelected[0], valueSelected[1]);
-      checkedTimes.forEach((time) =>
-        datesBetween.includes(time) ? setCheckedTimes((prevstate) => [...prevstate, time]) : setCheckedTimes(() => checkedTimes.filter((ct) => ct !== time)),
-      );
-    }
-  }, [checkedTimes, setCheckedTimes, valueSelected]);
+  // React.useEffect(() => {
+  //   if (valueSelected[0] && valueSelected[1] && valueSelected[0] !== valueSelected[1]) {
+  //     const datesBetween = getDatesBetween(valueSelected[0], valueSelected[1]);
+  //     times.forEach((time) =>
+  //       datesBetween.includes(time.getTime())
+  //         ? setCheckedTimes((prevstate) => [...prevstate, time])
+  //         : setCheckedTimes((prevstate) => prevstate.filter((ct) => ct !== time)),
+  //     );
+  //   }
+  //   if (valueSelected[0] && valueSelected[1] && valueSelected[0] === valueSelected[1]) {
+  //     times.forEach((time) =>
+  //       time.getTime() === valueSelected[0].getTime()
+  //         ? setCheckedTimes((prevstate) => [...prevstate, time])
+  //         : setCheckedTimes((prevstate) => prevstate.filter((ct) => ct !== time)),
+  //     );
+  //   }
+  // }, [setCheckedTimes, times, valueSelected]);
   return (
     <Menu>
       <Menu.Target>
-        <Button>Filter by</Button>
+        <Button sx={(theme) => ({ backgroundColor: theme.colors[theme.primaryColor][6] })}>Filter by</Button>
       </Menu.Target>
       <Menu.Dropdown>
         <Tabs variant="outline" defaultValue="tags">

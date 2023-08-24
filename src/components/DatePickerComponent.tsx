@@ -1,11 +1,9 @@
-import { Flex, Button, Stack, Group, Divider, Text } from '@mantine/core';
+import { Flex, Button, Stack, Group, Divider, Indicator } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import React from 'react';
 
 function DateThisWeek(date: Date) {
   const dayOfThisWeek = date.getDate() - 7;
-  console.log(date.getDate());
-  console.log(dayOfThisWeek);
   if (dayOfThisWeek > 0) {
     return new Date(date.getFullYear(), date.getMonth(), dayOfThisWeek);
   }
@@ -46,19 +44,37 @@ export function DatePickerComponent({
   valueSelected: [Date, Date];
   setValueSelected: React.Dispatch<React.SetStateAction<[Date, Date]>>;
 }) {
-  const days = inputDatesArray.map((date) => date.getDay());
-  const dates = inputDatesArray.map((date) => date.getDate());
-  const months = inputDatesArray.map((date) => date.getMonth());
-  const years = inputDatesArray.map((date) => date.getFullYear());
+  const [initialDate, setInitialDate] = React.useState(new Date());
+
+  const handleChange = (val: [Date | null, Date | null]) => {
+    if (val[0] !== null && val[1] !== null) {
+      setInitialDate(new Date(val[1].getFullYear(), val[1].getMonth(), 1));
+    }
+  };
 
   return (
     <Flex>
-      <Stack align="start" spacing="sm" mr="lg" mt="lg">
+      <Stack align="start" spacing="sm" mr="lg" mt="lg" mb="lg">
         <Button
           compact
           variant="subtle"
           sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
-          onClick={() => setValueSelected(() => [new Date(), new Date()])}
+          onClick={() => {
+            setValueSelected(() => [null, null]);
+            handleChange([new Date(), new Date()]);
+          }}
+        >
+          Reset
+        </Button>
+        <Divider orientation="horizontal" w="100%" />
+        <Button
+          compact
+          variant="subtle"
+          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          onClick={() => {
+            setValueSelected(() => [new Date(), new Date()]);
+            handleChange([new Date(), new Date()]);
+          }}
         >
           Today
         </Button>
@@ -67,7 +83,10 @@ export function DatePickerComponent({
           compact
           variant="subtle"
           ta="left"
-          onClick={() => setValueSelected(() => [DateThisWeek(new Date()), new Date()])}
+          onClick={() => {
+            setValueSelected(() => [DateThisWeek(new Date()), new Date()]);
+            handleChange([DateThisWeek(new Date()), new Date()]);
+          }}
         >
           This week
         </Button>
@@ -76,7 +95,10 @@ export function DatePickerComponent({
           compact
           variant="subtle"
           ta="left"
-          onClick={() => setValueSelected(() => [DateThisWeek(DateThisWeek(new Date())), DateThisWeek(new Date())])}
+          onClick={() => {
+            setValueSelected(() => [DateThisWeek(DateThisWeek(new Date())), DateThisWeek(new Date())]);
+            handleChange([DateThisWeek(DateThisWeek(new Date())), DateThisWeek(new Date())]);
+          }}
         >
           Last week
         </Button>
@@ -85,7 +107,10 @@ export function DatePickerComponent({
           compact
           variant="subtle"
           ta="left"
-          onClick={() => setValueSelected(() => [DateThisMonth(new Date()), new Date()])}
+          onClick={() => {
+            setValueSelected(() => [DateThisMonth(new Date()), new Date()]);
+            handleChange([DateThisMonth(new Date()), new Date()]);
+          }}
         >
           This month
         </Button>
@@ -94,7 +119,10 @@ export function DatePickerComponent({
           compact
           variant="subtle"
           ta="left"
-          onClick={() => setValueSelected(() => [DateLastMonthFD(new Date()), DateLastMonthLD(new Date())])}
+          onClick={() => {
+            setValueSelected(() => [DateLastMonthFD(new Date()), DateLastMonthLD(new Date())]);
+            handleChange([DateLastMonthFD(new Date()), DateLastMonthLD(new Date())]);
+          }}
         >
           Last month
         </Button>
@@ -103,7 +131,10 @@ export function DatePickerComponent({
           compact
           variant="subtle"
           ta="left"
-          onClick={() => setValueSelected(() => [DateThisYear(new Date()), new Date()])}
+          onClick={() => {
+            setValueSelected(() => [DateThisYear(new Date()), new Date()]);
+            handleChange([DateThisYear(new Date()), new Date()]);
+          }}
         >
           This year
         </Button>
@@ -112,23 +143,53 @@ export function DatePickerComponent({
       <Stack>
         <Group>
           <DatePicker
-            defaultDate={valueSelected[1]}
             type="range"
             allowSingleDateInRange
             numberOfColumns={2}
             value={valueSelected}
-            onChange={setValueSelected}
+            onChange={(value) => {
+              handleChange(value);
+              setValueSelected(value);
+            }}
+            date={initialDate}
+            onDateChange={setInitialDate}
             getDayProps={(date) => {
-              if (days.includes(date.getDay()) && dates.includes(date.getDate()) && months.includes(date.getMonth()) && years.includes(date.getFullYear())) {
+              if (
+                date.getDay() === new Date().getDay() &&
+                date.getDate() === new Date().getDate() &&
+                date.getMonth() === new Date().getMonth() &&
+                date.getFullYear() === new Date().getFullYear()
+              ) {
                 return {
                   sx: (theme) => ({
-                    backgroundColor: theme.colors.gray[3],
-                    ...theme.fn.hover({ backgroundColor: theme.colors.gray[4] }),
+                    background: theme.colors[theme.primaryColor][6],
+                    borderRadius: '50%',
+                    borderWidth: '130px',
+                    ':hover': { background: theme.colors[theme.primaryColor][6] },
+                    color: theme.white,
+                    '&[data-in-range]': { color: theme.black },
+                    '&[data-selected]': { color: theme.white },
                   }),
                 };
               }
 
-              return { sx: (theme) => ({ '&[data-weekend]': { color: theme.black } }) };
+              return { sx: (theme) => ({ '&[data-weekend]': { color: theme.black }, '&[data-selected]': { color: theme.white } }) };
+            }}
+            renderDay={(date) => {
+              return (
+                <Indicator
+                  size={6}
+                  color="red"
+                  offset={-5}
+                  disabled={
+                    !inputDatesArray
+                      .map((d) => `${d.getUTCFullYear()}, ${d.getUTCMonth()}, ${d.getUTCDate()}`)
+                      .includes(`${date.getUTCFullYear()}, ${date.getUTCMonth()}, ${date.getUTCDate()}`)
+                  }
+                >
+                  <div>{date.getDate()}</div>
+                </Indicator>
+              );
             }}
           />
         </Group>
