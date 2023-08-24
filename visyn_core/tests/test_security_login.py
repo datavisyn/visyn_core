@@ -120,6 +120,7 @@ def test_jwt_token_location(client: TestClient):
 def test_alb_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.alb_security_store.enable = True
+    manager.settings.visyn_core.security.store.alb_security_store.email_token_field = ["field1", "field2", "email"]
     manager.settings.visyn_core.security.store.alb_security_store.decode_options = {"verify_signature": False}
     manager.settings.visyn_core.security.store.alb_security_store.cookie_name = "TestCookie"
     manager.settings.visyn_core.security.store.alb_security_store.signout_url = "http://localhost/logout"
@@ -149,6 +150,10 @@ def test_alb_security_store(client: TestClient):
     response = client.post("/logout", headers=headers)
     assert response.status_code == 200
     assert response.json()["redirect"] == "http://localhost/logout"
+
+    # Test if we are not logged in if we use invalid fields
+    store.email_token_fields = ["field1", "field2"]
+    assert client.get("/loggedinas", headers=headers).json() == '"not_yet_logged_in"'
 
 
 def test_oauth2_security_store(client: TestClient):

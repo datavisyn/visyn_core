@@ -14,6 +14,9 @@ def test_env_substitution():
 
     assert settings.secret_key != "Custom_Secret_Key"
     assert settings.visyn_core.security.store.alb_security_store.enable != True  # NOQA: E712
+    assert settings.visyn_core.security.store.alb_security_store.cookie_name is None
+    assert settings.visyn_core.security.store.alb_security_store.email_token_field == ["email"]
+    assert settings.visyn_core.security.store.oauth2_security_store.email_token_field == ["email"]
     assert settings.visyn_core.logging["version"] == 1
     assert settings.visyn_core.logging["root"]["level"] == "INFO"
     assert settings.visyn_core.client_config is None
@@ -25,8 +28,14 @@ def test_env_substitution():
             "SECRET_KEY": "Custom_Secret_Key",
             # Deeply nested key substitution of properly typed model (includes automatic typecast)
             "VISYN_CORE__SECURITY__STORE__ALB_SECURITY_STORE__ENABLE": "True",
+            # Deeply nested key substitution without automatic dict conversion
+            "VISYN_CORE__SECURITY__STORE__ALB_SECURITY_STORE__COOKIE_NAME_AS_STRING": '{"my": "dict"}',
+            # Deeply nested key substitution with automatic dict conversion
+            "VISYN_CORE__SECURITY__STORE__ALB_SECURITY_STORE__EMAIL_TOKEN_FIELD": '["field1", "email"]',
+            "VISYN_CORE__SECURITY__STORE__OAUTH2_SECURITY_STORE__EMAIL_TOKEN_FIELD": "field1",
             # Deeply nested key substitution of model typed via Dict (does not include automatic typecast)
             "VISYN_CORE__LOGGING__VERSION": "2",
+            "VISYN_CORE__LOGGING__VERSION_AS_STRING_AS_STRING": "2",
             "VISYN_CORE__LOGGING__ROOT__LEVEL": "DEBUG",
             # Load dict types from JSON strings. Important: it must be a valid JSON, i.e. no \" escaping or so. Use single quotes to enclose the variable.
             "VISYN_CORE__CLIENT_CONFIG": '{"demo_from_function": true, "demo_from_class": true}',
@@ -37,15 +46,19 @@ def test_env_substitution():
 
         assert env_settings.secret_key == "Custom_Secret_Key"
         assert env_settings.visyn_core.security.store.alb_security_store.enable == True  # NOQA: E712
-        assert env_settings.visyn_core.logging["version"] == "2"  # Note that this is a string, as it cannot infer the type of Dict
+        assert env_settings.visyn_core.security.store.alb_security_store.cookie_name == '{"my": "dict"}'
+        assert env_settings.visyn_core.security.store.alb_security_store.email_token_field == ["field1", "email"]
+        assert env_settings.visyn_core.security.store.oauth2_security_store.email_token_field == "field1"
+        assert env_settings.visyn_core.logging["version"] == 2
         assert env_settings.visyn_core.logging["root"]["level"] == "DEBUG"
         assert env_settings.visyn_core.client_config == {"demo_from_function": True, "demo_from_class": True}
 
         assert env_settings.get_nested("secret_key") == "Custom_Secret_Key"
         assert env_settings.get_nested("visyn_core.security.store.alb_security_store.enable") == True  # NOQA: E712
-        assert (
-            env_settings.get_nested("visyn_core.logging.version") == "2"
-        )  # Note that this is a string, as it cannot infer the type of Dict
+        assert env_settings.get_nested("visyn_core.logging.version") == 2
+        # Both variants as string are preserved, in case a real setting ends with the suffix
+        assert env_settings.get_nested("visyn_core.logging.version_as_string") == "2"
+        assert env_settings.get_nested("visyn_core.logging.version_as_string_as_string") == "2"
         assert env_settings.get_nested("visyn_core.logging.root.level") == "DEBUG"
 
 

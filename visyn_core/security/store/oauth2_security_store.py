@@ -13,9 +13,10 @@ _log = logging.getLogger(__name__)
 class OAuth2SecurityStore(BaseStore):
     ui = "AutoLoginForm"
 
-    def __init__(self, cookie_name: str | None, signout_url: str | None):
+    def __init__(self, cookie_name: str | None, signout_url: str | None, email_token_field: str | list[str]):
         self.cookie_name = cookie_name
         self.signout_url: str | None = signout_url
+        self.email_token_fields = [email_token_field] if isinstance(email_token_field, str) else email_token_field
 
     def load_from_request(self, req: Request):
         token_field = manager.settings.visyn_core.security.store.oauth2_security_store.access_token_header_name
@@ -25,10 +26,16 @@ class OAuth2SecurityStore(BaseStore):
             if access_token:
                 # Try to decode the oidc data jwt
                 user = jwt.decode(access_token, options={"verify_signature": False})
+
+                # Go through all the fields we want to check for the user id
+                id = next((user.get(field, None) for field in self.email_token_fields if user.get(field, None)), None)
+                if not id:
+                    _log.error(f"No {self.email_token_fields} matched in token, possible fields: {user.keys()}")
+                    return None
+
                 # Create new user from given attributes
-                email = user[manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field]
                 return User(
-                    id=email,
+                    id=id,
                     roles=[],
                     oauth2_access_token=access_token,
                 )
@@ -60,6 +67,7 @@ def create():
         return OAuth2SecurityStore(
             manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name,
             manager.settings.visyn_core.security.store.oauth2_security_store.signout_url,
+            manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field,
         )
 
     return None
