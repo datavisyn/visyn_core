@@ -63,7 +63,7 @@ export function ChangeLogFilter({
                   key={tag}
                   label={tag}
                   checked={checkedTags.includes(tag)}
-                  onClick={() =>
+                  onChange={() =>
                     checkedTags.includes(tag)
                       ? setCheckedTags(() => checkedTags.filter((ct) => ct !== tag))
                       : setCheckedTags((prevstate) => [...prevstate, tag])

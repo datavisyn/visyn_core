@@ -11,28 +11,21 @@ import { HelpOverlay } from './Overlay';
 export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
-  // const allTags = React.useMemo(() => {
-  //   Array.from(new Set(data.flatMap((article) => article.tags)));
-  // }, [data]);
-  // const allTimes = React.useMemo(() => {
-  //   Array.from(new Set(data.flatMap((article) => article.date)));
-  // }, [data]);
-  const allTags = Array.from(new Set(data.flatMap((article) => article.tags)));
-  const allTimes = Array.from(new Set(data.flatMap((article) => article.date)));
+  const allTags = React.useMemo(() => {
+    return Array.from(new Set(data.flatMap((article) => article.tags)));
+  }, [data]);
+  const allTimes = React.useMemo(() => {
+    return Array.from(new Set(data.flatMap((article) => article.date)));
+  }, [data]);
 
   const [checkedTags, setCheckedTags] = React.useState<string[]>([]);
   const [checkedTimes, setCheckedTimes] = React.useState<Date[]>([]);
   const [showedArticles, setShowedArticles] = React.useState<IArticle[]>([]);
 
   React.useEffect(() => {
-    const filteredData = data.filter(
-      (article) =>
-        checkedTags.length > 0 &&
-        checkedTimes.length > 0 &&
-        (checkedTimes.includes(article.date) || checkedTags.reduce((a, c) => article.tags.includes(c), false)),
-    );
+    const filteredData = data.filter((article) => checkedTimes.includes(article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false));
 
-    setShowedArticles(checkedTags.length > 0 && checkedTimes.length > 0 ? filteredData : data);
+    setShowedArticles(checkedTags.length > 0 || checkedTimes.length > 0 ? filteredData : data);
   }, [allTags, checkedTags, checkedTimes, data]);
 
   return (

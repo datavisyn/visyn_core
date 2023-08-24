@@ -1,4 +1,4 @@
-import { Flex, Button, Stack, Group, Divider } from '@mantine/core';
+import { Flex, Button, Stack, Group, Divider, Text } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import React from 'react';
 
@@ -53,23 +53,58 @@ export function DatePickerComponent({
 
   return (
     <Flex>
-      <Stack justify="flex-start" spacing="sm" mr="lg" mt="lg">
-        <Button compact variant="subtle" size="sm" onClick={() => setValueSelected(() => [new Date(), new Date()])}>
+      <Stack align="start" spacing="sm" mr="lg" mt="lg">
+        <Button
+          compact
+          variant="subtle"
+          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          onClick={() => setValueSelected(() => [new Date(), new Date()])}
+        >
           Today
         </Button>
-        <Button compact variant="subtle" size="sm" onClick={() => setValueSelected(() => [DateThisWeek(new Date()), new Date()])}>
+        <Button
+          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          compact
+          variant="subtle"
+          ta="left"
+          onClick={() => setValueSelected(() => [DateThisWeek(new Date()), new Date()])}
+        >
           This week
         </Button>
-        <Button compact variant="subtle" size="sm" onClick={() => setValueSelected(() => [DateThisWeek(DateThisWeek(new Date())), DateThisWeek(new Date())])}>
+        <Button
+          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          compact
+          variant="subtle"
+          ta="left"
+          onClick={() => setValueSelected(() => [DateThisWeek(DateThisWeek(new Date())), DateThisWeek(new Date())])}
+        >
           Last week
         </Button>
-        <Button compact variant="subtle" size="sm" onClick={() => setValueSelected(() => [DateThisMonth(new Date()), new Date()])}>
+        <Button
+          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          compact
+          variant="subtle"
+          ta="left"
+          onClick={() => setValueSelected(() => [DateThisMonth(new Date()), new Date()])}
+        >
           This month
         </Button>
-        <Button compact variant="subtle" size="sm" onClick={() => setValueSelected(() => [DateLastMonthFD(new Date()), DateLastMonthLD(new Date())])}>
+        <Button
+          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          compact
+          variant="subtle"
+          ta="left"
+          onClick={() => setValueSelected(() => [DateLastMonthFD(new Date()), DateLastMonthLD(new Date())])}
+        >
           Last month
         </Button>
-        <Button compact variant="subtle" size="sm" onClick={() => setValueSelected(() => [DateThisYear(new Date()), new Date()])}>
+        <Button
+          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          compact
+          variant="subtle"
+          ta="left"
+          onClick={() => setValueSelected(() => [DateThisYear(new Date()), new Date()])}
+        >
           This year
         </Button>
       </Stack>
@@ -93,11 +128,7 @@ export function DatePickerComponent({
                 };
               }
 
-              if (date.getDay() === 0 || date.getDay() === 6) {
-                return { sx: (theme) => ({ color: theme.black }) };
-              }
-
-              return {};
+              return { sx: (theme) => ({ '&[data-weekend]': { color: theme.black } }) };
             }}
           />
         </Group>
