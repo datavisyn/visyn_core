@@ -6,6 +6,32 @@
           "permissions": "read-all"
         }
       }
-    }
-  }
+    },
+    // Configure properties specific to VS Code.
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": { 
+        "python.testing.pytestArgs": [
+          "visyn_core"
+        ],
+        "python.terminal.activateEnvironment": true,
+        "python.defaultInterpreterPath": ".venv/bin/python",
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        "typescript.tsdk": "node_modules/typescript/lib"
+			},
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+        "esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint"
+			]
+		}
+
+  },
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {}
+  },
+  "postCreateCommand": "bash ./.devcontainer/postCreateCommand.sh"
 }
