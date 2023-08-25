@@ -11,13 +11,13 @@
 		"vscode": {
 			// Set *default* container specific settings.json values on container create.
 			"settings": { 
+        "python.defaultInterpreterPath": ".venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
         "python.testing.pytestArgs": [
           "visyn_core"
         ],
-        "python.terminal.activateEnvironment": true,
-        "python.defaultInterpreterPath": ".venv/bin/python",
-        "python.testing.unittestEnabled": false,
-        "python.testing.pytestEnabled": true,
         "typescript.tsdk": "node_modules/typescript/lib"
 			},
 			// Add the IDs of extensions you want installed when the container is created.
