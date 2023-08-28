@@ -4,11 +4,14 @@ import { ActionIcon, Menu } from '@mantine/core';
 import React from 'react';
 import { useVisynAppContext } from '../VisynAppContext';
 import { AboutAppModal, IAboutAppModalConfig } from './AboutAppModal';
+import { ChangeLogComponent } from '../../components/ChangeLog/ChangeLogComponent';
+import { ChangeLogModal } from './ChangeLogModal';
 
 export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu: JSX.Element; dvLogo: JSX.Element; aboutAppModal?: IAboutAppModalConfig }) {
   const { appName } = useVisynAppContext();
 
   const [showAboutModal, setShowAboutModal] = React.useState(false);
+  const [showChangeLogModal, setShowChangeLogModal] = React.useState(false);
 
   return (
     <>
@@ -28,6 +31,7 @@ export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu: JSX.E
           ) : null}
           <Menu.Label>About</Menu.Label>
           <Menu.Item onClick={() => setShowAboutModal(true)}>About {appName}</Menu.Item>
+          <Menu.Item onClick={() => setShowChangeLogModal(true)}>ChangeLog</Menu.Item>
         </Menu.Dropdown>
       </Menu>
       <AboutAppModal
@@ -39,6 +43,7 @@ export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu: JSX.E
         bottom={aboutAppModal?.bottom}
         size={aboutAppModal?.size}
       />
+      <ChangeLogModal opened={showChangeLogModal} onClose={() => setShowChangeLogModal(false)} />
     </>
   );
 }
