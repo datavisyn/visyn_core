@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -138,12 +138,12 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mantine/core": "~6.0.11",
-    "@mantine/dates": "~6.0.11",
-    "@mantine/form": "~6.0.11",
-    "@mantine/hooks": "~6.0.11",
-    "@mantine/modals": "~6.0.11",
-    "@mantine/notifications": "~6.0.11",
+    "@mantine/core": "~6.0.19",
+    "@mantine/dates": "~6.0.19",
+    "@mantine/form": "~6.0.19",
+    "@mantine/hooks": "~6.0.19",
+    "@mantine/modals": "~6.0.19",
+    "@mantine/notifications": "~6.0.19",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
@@ -153,7 +153,7 @@
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.4.0",
     "i18next": "^22.4.15",
-    "lineupjs": "4.7.0",
+    "lineupjs": "4.9.0",
     "lodash": "~4.17.20",
     "plotly.js-dist-min": "~2.12.0",
     "react": "^18.2.0",
@@ -161,7 +161,7 @@
     "react-highlight-words": "^0.17.0",
     "react-plotly.js": "^2.5.1",
     "use-deep-compare-effect": "^1.8.0",
-    "visyn_scripts": "^4.1.0"
+    "visyn_scripts": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
