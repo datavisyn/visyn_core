@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, Group, Space, Affix, rem, Transition, Button, Input } from '@mantine/core';
+import { Stack, Group, Space, Affix, rem, Transition, Button, Input, Pagination } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { useMediaQuery, useWindowScroll } from '@mantine/hooks';
@@ -15,8 +15,11 @@ function IsDateBetween(startDate: Date, endDate: Date, currentDate: Date) {
   return false;
 }
 
+const ARTICLES_ON_PAGE = 3;
+
 export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
+  const [activePage, setPage] = React.useState(1);
   const largerThanSm = useMediaQuery('(min-width: 768px)');
   const allTags = React.useMemo(() => {
     return Array.from(new Set(data.flatMap((article) => article.tags)));
@@ -33,7 +36,6 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
     const filteredData = data.filter(
       (article) => IsDateBetween(valueSelected[0], valueSelected[1], article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false),
     );
-    console.log(valueSelected[0], valueSelected[1], data[1].date);
     setShowedArticles(checkedTags.length > 0 || (valueSelected[0] !== null && valueSelected[1] !== null) ? filteredData : data);
   }, [allTags, checkedTags, data, valueSelected]);
 
@@ -51,13 +53,23 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
         />
       </Group>
       {showedArticles.length > 0 ? (
-        showedArticles.map((article) => (
-          <ChangeLogArticle article={article} largerThanSm={largerThanSm} key={article.version} checkedTags={checkedTags} setCheckedTags={setCheckedTags} />
-        ))
+        showedArticles
+          .slice((activePage - 1) * ARTICLES_ON_PAGE, activePage * ARTICLES_ON_PAGE)
+          .map((article) => (
+            <ChangeLogArticle
+              article={article}
+              largerThanSm={largerThanSm}
+              key={data.indexOf(article)}
+              checkedTags={checkedTags}
+              setCheckedTags={setCheckedTags}
+            />
+          ))
       ) : (
         <HelpOverlay text="There are no changelogs within the specified filters" showIcon />
       )}
-      <Space h="sm" />
+      <Space h="lg" />
+      <Pagination value={activePage} onChange={setPage} total={data.length / ARTICLES_ON_PAGE} position="center" />
+
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
         <Transition transition="slide-up" mounted={scroll.y > 0}>
           {(transitionStyles) => (
