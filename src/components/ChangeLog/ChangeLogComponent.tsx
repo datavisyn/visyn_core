@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { useMediaQuery, useWindowScroll } from '@mantine/hooks';
 import { ChangeLogArticle } from './ChangeLogArticle';
-import { IArticle } from '../base/interfaces';
+import { IChangeLogArticle } from './interfaces';
 import { ChangeLogFilter } from './ChangeLogFilter';
 import { HelpOverlay } from './Overlay';
 
@@ -15,7 +15,7 @@ function IsDateBetween(startDate: Date, endDate: Date, currentDate: Date) {
   return false;
 }
 
-export function ChangeLogComponent({ data }: { data: IArticle[] }) {
+export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
   const allTags = React.useMemo(() => {
@@ -26,7 +26,7 @@ export function ChangeLogComponent({ data }: { data: IArticle[] }) {
   }, [data]);
 
   const [checkedTags, setCheckedTags] = React.useState<string[]>([]);
-  const [showedArticles, setShowedArticles] = React.useState<IArticle[]>([]);
+  const [showedArticles, setShowedArticles] = React.useState<IChangeLogArticle[]>([]);
   const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([null, null]);
 
   React.useEffect(() => {

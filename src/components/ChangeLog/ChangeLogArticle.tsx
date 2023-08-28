@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkFrontmatter from 'remark-frontmatter';
 import * as React from 'react';
-import { IArticle } from '../base';
+import { IChangeLogArticle } from './interfaces';
 
 export function ChangeLogArticle({
   article,
@@ -11,7 +11,7 @@ export function ChangeLogArticle({
   checkedTags,
   setCheckedTags,
 }: {
-  article: IArticle;
+  article: IChangeLogArticle;
   largerThanSm: boolean;
   checkedTags: string[];
   setCheckedTags: React.Dispatch<React.SetStateAction<string[]>>;
