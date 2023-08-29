@@ -90,6 +90,7 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
             setPage(value);
             scrollTo({ y: 0 });
           }}
+          withEdges
           total={showedArticles.length / ARTICLES_ON_PAGE}
           position="center"
         />
