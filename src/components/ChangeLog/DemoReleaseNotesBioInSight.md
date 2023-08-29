@@ -1,5 +1,5 @@
 ---
-title: The title of the BIOINSIGHTarticle
+title: The title of the BIOINSIGHTarticle which is long
 version: v0.2.3
 date: '2023-07-11'
 author: username
