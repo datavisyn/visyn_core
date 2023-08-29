@@ -11,7 +11,8 @@ import { HelpOverlay } from './Overlay';
 
 function IsDateBetween(startDate: Date, endDate: Date, currentDate: Date) {
   if (startDate != null && endDate != null) {
-    return startDate <= currentDate && currentDate <= endDate;
+    const cuDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+    return startDate <= cuDate && cuDate <= endDate;
   }
   return false;
 }
@@ -37,14 +38,19 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
   const [searchFilter, setSearchFilter] = React.useState<IChangeLogArticle[]>([]);
 
   React.useEffect(() => {
+    console.log(searchFilter);
+    const valueSelected0UTC = valueSelected[0]
+      ? new Date(valueSelected[0].getUTCFullYear(), valueSelected[0].getUTCMonth(), valueSelected[0].getUTCDate())
+      : null;
+    const valueSelected1UTC = valueSelected[1]
+      ? new Date(valueSelected[1].getUTCFullYear(), valueSelected[1].getUTCMonth(), valueSelected[1].getUTCDate())
+      : null;
     const filteredData = data.filter(
-      (article) => IsDateBetween(valueSelected[0], valueSelected[1], article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false),
+      (article) => IsDateBetween(valueSelected0UTC, valueSelected1UTC, article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false),
     );
-    setShowedArticles(checkedTags.length > 0 || (valueSelected[0] !== null && valueSelected[1] !== null) ? filteredData : data);
-    // if (searchFilter) {
-    //   setShowedArticles((prevstate) => [...prevstate, searchFilter.forEach((sf) => sf)]);
-    // }
-  }, [allTags, checkedTags, data, valueSelected]);
+    searchFilter?.forEach((sfarticle) => filteredData.push(sfarticle));
+    setShowedArticles(checkedTags.length > 0 || (valueSelected0UTC !== null && valueSelected1UTC !== null) ? filteredData : data);
+  }, [allTags, checkedTags, data, searchFilter, valueSelected]);
 
   return (
     <Stack m="md" h="auto">
@@ -77,7 +83,9 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
         <HelpOverlay text="There are no changelogs within the specified filters" showIcon />
       )}
       <Space h="lg" />
-      <Pagination value={activePage} onChange={setPage} total={data.length / ARTICLES_ON_PAGE} position="center" />
+      {showedArticles.length > 0 && showedArticles.length / ARTICLES_ON_PAGE > 1 ? (
+        <Pagination value={activePage} onChange={setPage} total={showedArticles.length / ARTICLES_ON_PAGE} position="center" />
+      ) : null}
 
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
         <Transition transition="slide-up" mounted={scroll.y > 0}>

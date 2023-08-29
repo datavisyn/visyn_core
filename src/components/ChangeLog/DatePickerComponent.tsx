@@ -187,7 +187,7 @@ export function DatePickerComponent({
                       .includes(`${date.getUTCFullYear()}, ${date.getUTCMonth()}, ${date.getUTCDate()}`)
                   }
                 >
-                  <div>{date.getDate()}</div>
+                  <div>{date.getUTCDate()}</div>
                 </Indicator>
               );
             }}

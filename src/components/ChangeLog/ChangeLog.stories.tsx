@@ -18,15 +18,16 @@ type Story = StoryObj<typeof ChangeLogComponent>;
 
 async function fillData(): Promise<IChangeLogArticle[]> {
   const data: IChangeLogArticle[] = [];
-  for (let index = 0; index <= 15; index++) {
+  for (let index = 0; index <= 0; index++) {
     data.push(await parseFrontmatter(readMeDemoFormatter));
+    data.push(await parseFrontmatter(readmeBioInSight));
+    data.push(await parseFrontmatter(readmeAelixir));
   }
   return data;
 }
 
 const data = await fillData();
 
-/* Note: for datatype Date month count starts at 0, that means January = 0 */
 export const SecondarySelfmadeChangeLog: Story = {
   render: () => <ChangeLogComponent data={data} />,
 };

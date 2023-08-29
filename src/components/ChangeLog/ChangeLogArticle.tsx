@@ -6,21 +6,22 @@ import * as React from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IChangeLogArticle } from './interfaces';
 
-function HandleSearch(search: string, toSearchIn: string) {
+function HandleSearch(search: string, currentArticle: IChangeLogArticle, setSearchFilter: React.Dispatch<React.SetStateAction<IChangeLogArticle[]>>) {
   const [debouncedSearch] = useDebouncedValue(search, 250);
+
+  const toSearchIn = currentArticle.content;
 
   const contentToHighlight = React.useMemo(() => {
     if (!debouncedSearch) {
       return toSearchIn;
     }
-    const regex = new RegExp(debouncedSearch, 'i');
+    const regex = new RegExp(debouncedSearch, 'ig');
     if (toSearchIn.search(regex) > 0) {
-      return toSearchIn.replace(regex, (match) => `<mark>${match}</mark>`);
+      setSearchFilter((prevstate) => [...prevstate, currentArticle]);
+      return toSearchIn.replaceAll(regex, (match) => `<mark>${match}</mark>`);
     }
     return toSearchIn;
-  }, [debouncedSearch, toSearchIn]);
-
-  console.log(contentToHighlight);
+  }, [currentArticle, debouncedSearch, setSearchFilter, toSearchIn]);
 
   return contentToHighlight ? <ReactMarkdown remarkPlugins={[remarkGfm, remarkFrontmatter]}>{contentToHighlight}</ReactMarkdown> : null;
 }
@@ -31,12 +32,14 @@ export function ChangeLogArticle({
   checkedTags,
   setCheckedTags,
   search,
+  setSearchFilter,
 }: {
   article: IChangeLogArticle;
   largerThanSm: boolean;
   checkedTags: string[];
   setCheckedTags: React.Dispatch<React.SetStateAction<string[]>>;
   search: string;
+  setSearchFilter: React.Dispatch<React.SetStateAction<IChangeLogArticle[]>>;
 }) {
   return (
     <Grid py={0} mx="10%">
@@ -109,7 +112,7 @@ export function ChangeLogArticle({
           <Grid.Col span="auto">
             <Text size="md" mr="lg">
               {search ? (
-                HandleSearch(search, article.content)
+                HandleSearch(search, article, setSearchFilter)
               ) : (
                 <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
                   {article.content}

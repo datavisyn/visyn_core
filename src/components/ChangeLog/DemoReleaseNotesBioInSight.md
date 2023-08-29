@@ -1,3 +1,14 @@
+---
+title: The title of the BIOINSIGHTarticle
+version: v0.2.2
+date: '2023-07-11'
+author: username
+tags:
+  - Feature
+  - Release
+  - Bug
+---
+
 #### Landing page
 
 The landing page is designed with a very simple search interface, where you can search for targets/genes, compounds, and studies. When clicking on a search result, it brings you to the Analysis view. Instead of searching for an entity, users can also chose to view all available studies with their singlets by clicking on "Show all singlets" below the search.

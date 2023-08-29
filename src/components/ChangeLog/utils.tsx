@@ -31,14 +31,12 @@ export async function parseFrontmatter(content: string): Promise<IChangeLogArtic
     .use(myUnifiedPluginHandlingYamlMatter)
     .process(content);
 
-  console.log({ file });
-
   // TODO: Check validity of object and raise error if any fields are failing
   const parsed = file?.data?.matter || {};
   return {
     ...parsed,
     // TODO: Parse from file?.data?.matter?.date
-    date: new Date(Date.parse(file?.data?.matter?.date)),
+    date: new Date(file?.data?.matter?.date),
     content,
   };
 }
