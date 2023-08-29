@@ -3,18 +3,40 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkFrontmatter from 'remark-frontmatter';
 import * as React from 'react';
+import { useDebouncedValue } from '@mantine/hooks';
 import { IChangeLogArticle } from './interfaces';
+
+function HandleSearch(search: string, toSearchIn: string) {
+  const [debouncedSearch] = useDebouncedValue(search, 250);
+
+  const contentToHighlight = React.useMemo(() => {
+    if (!debouncedSearch) {
+      return toSearchIn;
+    }
+    const regex = new RegExp(debouncedSearch, 'i');
+    if (toSearchIn.search(regex) > 0) {
+      return toSearchIn.replace(regex, (match) => `<mark>${match}</mark>`);
+    }
+    return toSearchIn;
+  }, [debouncedSearch, toSearchIn]);
+
+  console.log(contentToHighlight);
+
+  return contentToHighlight ? <ReactMarkdown remarkPlugins={[remarkGfm, remarkFrontmatter]}>{contentToHighlight}</ReactMarkdown> : null;
+}
 
 export function ChangeLogArticle({
   article,
   largerThanSm,
   checkedTags,
   setCheckedTags,
+  search,
 }: {
   article: IChangeLogArticle;
   largerThanSm: boolean;
   checkedTags: string[];
   setCheckedTags: React.Dispatch<React.SetStateAction<string[]>>;
+  search: string;
 }) {
   return (
     <Grid py={0} mx="10%">
@@ -86,9 +108,13 @@ export function ChangeLogArticle({
           </Grid.Col>
           <Grid.Col span="auto">
             <Text size="md" mr="lg">
-              <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
-                {article.content}
-              </ReactMarkdown>
+              {search ? (
+                HandleSearch(search, article.content)
+              ) : (
+                <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
+                  {article.content}
+                </ReactMarkdown>
+              )}
             </Text>
           </Grid.Col>
         </>

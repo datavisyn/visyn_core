@@ -39,7 +39,7 @@ export function ChangeLogModal({ opened, onClose }: { opened: boolean; onClose: 
           ChangeLog
         </Title>
       }
-      size="lg"
+      fullScreen
     >
       <ChangeLogComponent data={FillData()} />
     </Modal>

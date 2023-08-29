@@ -17,23 +17,6 @@ export function ChangeLogFilter({
   valueSelected: [Date, Date];
   setValueSelected: React.Dispatch<React.SetStateAction<[Date, Date]>>;
 }) {
-  // React.useEffect(() => {
-  //   if (valueSelected[0] && valueSelected[1] && valueSelected[0] !== valueSelected[1]) {
-  //     const datesBetween = getDatesBetween(valueSelected[0], valueSelected[1]);
-  //     times.forEach((time) =>
-  //       datesBetween.includes(time.getTime())
-  //         ? setCheckedTimes((prevstate) => [...prevstate, time])
-  //         : setCheckedTimes((prevstate) => prevstate.filter((ct) => ct !== time)),
-  //     );
-  //   }
-  //   if (valueSelected[0] && valueSelected[1] && valueSelected[0] === valueSelected[1]) {
-  //     times.forEach((time) =>
-  //       time.getTime() === valueSelected[0].getTime()
-  //         ? setCheckedTimes((prevstate) => [...prevstate, time])
-  //         : setCheckedTimes((prevstate) => prevstate.filter((ct) => ct !== time)),
-  //     );
-  //   }
-  // }, [setCheckedTimes, times, valueSelected]);
   return (
     <Menu>
       <Menu.Target>

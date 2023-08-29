@@ -1,8 +1,9 @@
 import React from 'react';
-import { Stack, Group, Space, Affix, rem, Transition, Button, Input, Pagination } from '@mantine/core';
+import { Stack, Group, Space, Affix, rem, Transition, Button, TextInput, Pagination } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { useMediaQuery, useWindowScroll } from '@mantine/hooks';
+
 import { ChangeLogArticle } from './ChangeLogArticle';
 import { IChangeLogArticle } from './interfaces';
 import { ChangeLogFilter } from './ChangeLogFilter';
@@ -32,17 +33,23 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
   const [showedArticles, setShowedArticles] = React.useState<IChangeLogArticle[]>([]);
   const [valueSelected, setValueSelected] = React.useState<[Date | null, Date | null]>([null, null]);
 
+  const [search, setSearch] = React.useState('');
+  const [searchFilter, setSearchFilter] = React.useState<IChangeLogArticle[]>([]);
+
   React.useEffect(() => {
     const filteredData = data.filter(
       (article) => IsDateBetween(valueSelected[0], valueSelected[1], article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false),
     );
     setShowedArticles(checkedTags.length > 0 || (valueSelected[0] !== null && valueSelected[1] !== null) ? filteredData : data);
+    // if (searchFilter) {
+    //   setShowedArticles((prevstate) => [...prevstate, searchFilter.forEach((sf) => sf)]);
+    // }
   }, [allTags, checkedTags, data, valueSelected]);
 
   return (
     <Stack m="md" h="auto">
       <Group position="right" mx="5%" spacing="sm">
-        <Input placeholder="Search" />
+        <TextInput placeholder="Search" value={search} onChange={(event) => setSearch(event.currentTarget.value)} />
         <ChangeLogFilter
           tags={allTags}
           times={allTimes}
@@ -62,6 +69,8 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
               key={data.indexOf(article)}
               checkedTags={checkedTags}
               setCheckedTags={setCheckedTags}
+              search={search}
+              setSearchFilter={setSearchFilter}
             />
           ))
       ) : (

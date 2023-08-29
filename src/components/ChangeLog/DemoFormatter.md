@@ -1,8 +1,8 @@
 ---
 title: The title of the article
 version: v0.2.0
-date: 14.08.2023
-user: myusername
+date: '2023-08-23'
+author: myusername
 tags:
   - Feature
   - Release
@@ -45,9 +45,3 @@ The biomarker associations workbench has in comparison to the previous workbench
 ##### Deep linking
 
 The singlet-based workbenches now also support deep linking, just like the study-based workbenches. This means that workbenches can be easily shared.
-
-+++
-
-# Other markdown
-
-articleId = 22

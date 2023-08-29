@@ -2,7 +2,7 @@ export interface IChangeLogArticle {
   title?: string;
   version: string;
   author: string;
-  content: any;
+  content: string;
   date: Date;
   tags: string[];
 }
