@@ -1,3 +1,13 @@
+---
+version: v0.2.3
+date: '2023-03-11'
+author: theusername
+tags:
+  - Feature
+  - Release
+  - Devops
+---
+
 ### Major features overview
 
 #### Study stats workbench

@@ -1,12 +1,13 @@
 ---
 title: The title of the BIOINSIGHTarticle
-version: v0.2.2
+version: v0.2.3
 date: '2023-07-11'
 author: username
 tags:
   - Feature
   - Release
   - Bug
+  - Devops
 ---
 
 #### Landing page

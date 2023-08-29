@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Badge, Grid, Title, Box } from '@mantine/core';
+import { Flex, Stack, Text, Badge, Grid, Title, Box, SimpleGrid } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkFrontmatter from 'remark-frontmatter';
@@ -6,8 +6,13 @@ import * as React from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IChangeLogArticle } from './interfaces';
 
-function HandleSearch(search: string, currentArticle: IChangeLogArticle, setSearchFilter: React.Dispatch<React.SetStateAction<IChangeLogArticle[]>>) {
-  const [debouncedSearch] = useDebouncedValue(search, 250);
+function HandleSearch(
+  search: string,
+  currentArticle: IChangeLogArticle,
+  searchFilter: IChangeLogArticle[],
+  setSearchFilter: React.Dispatch<React.SetStateAction<IChangeLogArticle[]>>,
+) {
+  const [debouncedSearch] = useDebouncedValue(search, 1000);
 
   const toSearchIn = currentArticle.content;
 
@@ -17,11 +22,13 @@ function HandleSearch(search: string, currentArticle: IChangeLogArticle, setSear
     }
     const regex = new RegExp(debouncedSearch, 'ig');
     if (toSearchIn.search(regex) > 0) {
-      setSearchFilter((prevstate) => [...prevstate, currentArticle]);
+      // if (!searchFilter?.includes(currentArticle)) {
+      //   setSearchFilter((prevstate) => [...prevstate, currentArticle]);
+      // }
       return toSearchIn.replaceAll(regex, (match) => `<mark>${match}</mark>`);
     }
     return toSearchIn;
-  }, [currentArticle, debouncedSearch, setSearchFilter, toSearchIn]);
+  }, [debouncedSearch, toSearchIn]);
 
   return contentToHighlight ? <ReactMarkdown remarkPlugins={[remarkGfm, remarkFrontmatter]}>{contentToHighlight}</ReactMarkdown> : null;
 }
@@ -32,6 +39,7 @@ export function ChangeLogArticle({
   checkedTags,
   setCheckedTags,
   search,
+  searchFilter,
   setSearchFilter,
 }: {
   article: IChangeLogArticle;
@@ -39,6 +47,7 @@ export function ChangeLogArticle({
   checkedTags: string[];
   setCheckedTags: React.Dispatch<React.SetStateAction<string[]>>;
   search: string;
+  searchFilter: IChangeLogArticle[];
   setSearchFilter: React.Dispatch<React.SetStateAction<IChangeLogArticle[]>>;
 }) {
   return (
@@ -87,7 +96,7 @@ export function ChangeLogArticle({
                   {`on ${article.date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
                 </Text>
                 <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
-                <Flex gap="sm" mt="xs" ml={0}>
+                <SimpleGrid cols={3} spacing="sm" mt="xs" ml={0}>
                   {article.tags.map((tag) => (
                     <Badge
                       key={tag + article.version}
@@ -105,14 +114,14 @@ export function ChangeLogArticle({
                       {tag}
                     </Badge>
                   ))}
-                </Flex>
+                </SimpleGrid>
               </Stack>
             </Stack>
           </Grid.Col>
           <Grid.Col span="auto">
             <Text size="md" mr="lg">
               {search ? (
-                HandleSearch(search, article, setSearchFilter)
+                HandleSearch(search, article, searchFilter, setSearchFilter)
               ) : (
                 <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
                   {article.content}
@@ -140,7 +149,7 @@ export function ChangeLogArticle({
             </Stack>
           </Stack>
           <Stack>
-            <Flex gap="sm" mt="sm">
+            <SimpleGrid cols={3} spacing="sm" mt="sm">
               {article.tags.map((tag) => (
                 <Badge
                   key={tag}
@@ -158,11 +167,15 @@ export function ChangeLogArticle({
                   {tag}
                 </Badge>
               ))}
-            </Flex>
+            </SimpleGrid>
             <Text mt={0} size="md">
-              <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
-                {article.content}
-              </ReactMarkdown>
+              {search ? (
+                HandleSearch(search, article, searchFilter, setSearchFilter)
+              ) : (
+                <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm, remarkFrontmatter]}>
+                  {article.content}
+                </ReactMarkdown>
+              )}
             </Text>
           </Stack>
         </Grid.Col>

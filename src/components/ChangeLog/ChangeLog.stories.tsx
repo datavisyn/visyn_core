@@ -18,9 +18,10 @@ type Story = StoryObj<typeof ChangeLogComponent>;
 
 async function fillData(): Promise<IChangeLogArticle[]> {
   const data: IChangeLogArticle[] = [];
-  for (let index = 0; index <= 0; index++) {
+  for (let index = 0; index <= 10; index++) {
     data.push(await parseFrontmatter(readMeDemoFormatter));
     data.push(await parseFrontmatter(readmeBioInSight));
+    data.push(await parseFrontmatter(readmeBioInSight2));
     data.push(await parseFrontmatter(readmeAelixir));
   }
   return data;

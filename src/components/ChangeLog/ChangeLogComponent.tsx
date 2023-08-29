@@ -17,7 +17,7 @@ function IsDateBetween(startDate: Date, endDate: Date, currentDate: Date) {
   return false;
 }
 
-const ARTICLES_ON_PAGE = 3;
+const ARTICLES_ON_PAGE = 5;
 
 export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
@@ -38,7 +38,6 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
   const [searchFilter, setSearchFilter] = React.useState<IChangeLogArticle[]>([]);
 
   React.useEffect(() => {
-    console.log(searchFilter);
     const valueSelected0UTC = valueSelected[0]
       ? new Date(valueSelected[0].getUTCFullYear(), valueSelected[0].getUTCMonth(), valueSelected[0].getUTCDate())
       : null;
@@ -48,7 +47,7 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
     const filteredData = data.filter(
       (article) => IsDateBetween(valueSelected0UTC, valueSelected1UTC, article.date) || checkedTags.reduce((a, c) => a || article.tags.includes(c), false),
     );
-    searchFilter?.forEach((sfarticle) => filteredData.push(sfarticle));
+    // searchFilter?.forEach((sfarticle) => filteredData.push(sfarticle));
     setShowedArticles(checkedTags.length > 0 || (valueSelected0UTC !== null && valueSelected1UTC !== null) ? filteredData : data);
   }, [allTags, checkedTags, data, searchFilter, valueSelected]);
 
@@ -76,6 +75,7 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
               checkedTags={checkedTags}
               setCheckedTags={setCheckedTags}
               search={search}
+              searchFilter={searchFilter}
               setSearchFilter={setSearchFilter}
             />
           ))
@@ -84,20 +84,34 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
       )}
       <Space h="lg" />
       {showedArticles.length > 0 && showedArticles.length / ARTICLES_ON_PAGE > 1 ? (
-        <Pagination value={activePage} onChange={setPage} total={showedArticles.length / ARTICLES_ON_PAGE} position="center" />
+        <Pagination
+          value={activePage}
+          onChange={(value) => {
+            setPage(value);
+            scrollTo({ y: 0 });
+          }}
+          total={showedArticles.length / ARTICLES_ON_PAGE}
+          position="center"
+        />
       ) : null}
 
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
         <Transition transition="slide-up" mounted={scroll.y > 0}>
-          {(transitionStyles) => (
-            <Button
-              leftIcon={<FontAwesomeIcon icon={faArrowUp} size="xs" style={{ color: 'white' }} />}
-              style={transitionStyles}
-              onClick={() => scrollTo({ y: 0 })}
-            >
-              Scroll to top
-            </Button>
-          )}
+          {(transitionStyles) =>
+            largerThanSm ? (
+              <Button
+                leftIcon={<FontAwesomeIcon icon={faArrowUp} size="xs" style={{ color: 'white' }} />}
+                style={transitionStyles}
+                onClick={() => scrollTo({ y: 0 })}
+              >
+                Scroll to top
+              </Button>
+            ) : (
+              <Button style={transitionStyles} onClick={() => scrollTo({ y: 0 })}>
+                <FontAwesomeIcon icon={faArrowUp} size="xs" style={{ color: 'white' }} />
+              </Button>
+            )
+          }
         </Transition>
       </Affix>
     </Stack>
