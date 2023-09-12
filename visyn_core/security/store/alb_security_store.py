@@ -27,7 +27,7 @@ class ALBSecurityStore(BaseStore):
         self,
         cookie_name: str | None,
         signout_url: str | None,
-        email_token_field: str,
+        email_token_field: str | list[str],
         audience: str | list[str] | None,
         issuer: str | None,
         decode_options: dict[str, Any] | None,
@@ -36,7 +36,7 @@ class ALBSecurityStore(BaseStore):
     ):
         self.cookie_name = cookie_name
         self.signout_url = signout_url
-        self.email_token_field = email_token_field
+        self.email_token_fields = [email_token_field] if isinstance(email_token_field, str) else email_token_field
         self.audience = audience
         self.issuer = issuer
         self.decode_options = decode_options
@@ -66,9 +66,15 @@ class ALBSecurityStore(BaseStore):
                     algorithms=self.decode_algorithms,
                 )
 
+                # Go through all the fields we want to check for the user id
+                id = next((user.get(field, None) for field in self.email_token_fields if user.get(field, None)), None)
+                if not id:
+                    _log.error(f"No {self.email_token_fields} matched in token, possible fields: {user.keys()}")
+                    return None
+
                 # Create new user from given attributes
                 return User(
-                    id=user[self.email_token_field],
+                    id=id,
                     roles=user.get("roles", []),
                     oauth2_access_token=req.headers["X-Amzn-Oidc-Accesstoken"],
                 )

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Alert, Modal, Stack, Title, Center, Divider, Container, LoadingOverlay, Anchor } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
-import { appContext } from '../../base/AppContext';
 import { userSession } from '../../security/UserSession';
 import { LoginUtils } from '../../security/LoginUtils';
 import { SessionWatcher } from '../../security/watcher';
@@ -13,7 +12,7 @@ import { DefaultLoginForm, UserStoreUIMap } from './UserStoreUIMap';
 export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
   const { appName, user } = useVisynAppContext();
   const [show, setShow] = useState(false);
-  const [error, setError] = useState<string>(null);
+  const [error, setError] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (watch) {
@@ -73,6 +72,7 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
               component="button"
               type="button"
               onClick={() => {
+                setError(null);
                 retryGetStores();
               }}
             >
