@@ -8,7 +8,7 @@ import { HexSizeSwitch } from '../sidebar/HexSizeSwitch';
 import { HexbinOptionSelect } from '../sidebar/HexbinOptionSelect';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { IHexbinConfig } from './utils';
+import { IHexbinConfig } from './interfaces';
 
 export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideBarProps<IHexbinConfig>) {
   return (

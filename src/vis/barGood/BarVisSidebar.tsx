@@ -9,7 +9,7 @@ import { FilterButtons } from '../sidebar/FilterButtons';
 import { GroupSelect } from '../sidebar/GroupSelect';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './utils';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 
 const defaultConfig = {
   group: {

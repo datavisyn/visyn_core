@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { VisColumn } from '../interfaces';
 import { Heatmap } from './Heatmap';
-import { IHeatmapConfig, getHeatmapData } from './utils';
+import { getHeatmapData } from './utils';
+import { IHeatmapConfig } from './interfaces';
 
 export function HeatmapGrid({
   config,

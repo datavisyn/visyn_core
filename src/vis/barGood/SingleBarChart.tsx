@@ -8,7 +8,8 @@ import { GroupedBars } from './barTypes/GroupedBars';
 import { SimpleBars } from './barTypes/SimpleBars';
 import { StackedBars } from './barTypes/StackedBars';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes, getBarData } from './utils';
+import { getBarData } from './utils';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
 
 const margin = {
   top: 30,

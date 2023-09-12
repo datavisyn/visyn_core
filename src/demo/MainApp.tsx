@@ -4,10 +4,10 @@ import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
 import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, Vis } from '../vis';
+import { IScatterConfig } from '../vis/scatter/interfaces';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MyStringScore } from './scoresUtils';
-import { IScatterConfig } from '../vis/scatter';
 
 export function MainApp() {
   const { user } = useVisynAppContext();

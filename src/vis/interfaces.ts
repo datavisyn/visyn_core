@@ -59,16 +59,6 @@ export enum EScatterSelectSettings {
   PAN = 'pan',
 }
 
-export enum ECorrelationPlotMode {
-  PVALUE = 'p-value',
-  CORRELATION = 'correlation',
-}
-
-export enum ECorrelationType {
-  PEARSON = 'Pearson',
-  SPEARMAN = 'Spearman',
-}
-
 export enum EScaleType {
   LINEAR = 'Linear',
   LOG = 'Log',

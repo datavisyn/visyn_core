@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Container, Divider, Group, NumberInput, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
-import { ColumnInfo, ECorrelationType, EScaleType, ESupportedPlotlyVis, ICommonVisSideBarProps, VisColumn } from '../interfaces';
+import { ColumnInfo, EScaleType, ESupportedPlotlyVis, ICommonVisSideBarProps, VisColumn } from '../interfaces';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { ICorrelationConfig } from './utils';
+import { ECorrelationType, ICorrelationConfig } from './interfaces';
 
 export function CorrelationVisSidebar({
   config,

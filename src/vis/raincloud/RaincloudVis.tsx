@@ -4,7 +4,7 @@ import { useRef } from 'react';
 
 import { ICommonVisProps } from '../interfaces';
 import { RaincloudGrid } from './RaincloudGrid';
-import { IRaincloudConfig } from './utils';
+import { IRaincloudConfig } from './interfaces';
 
 export function RaincloudVis({ config, columns, selectionCallback = () => null, selectedMap = {} }: ICommonVisProps<IRaincloudConfig>) {
   const ref = useRef();

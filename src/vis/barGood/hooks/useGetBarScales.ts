@@ -3,7 +3,8 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import { desc, op, table, addFunction } from 'arquero';
 import { useMemo } from 'react';
 import * as d3 from 'd3v7';
-import { SortTypes, getBarData, sortTableBySortType } from '../utils';
+import { getBarData, sortTableBySortType } from '../utils';
+import { SortTypes } from '../interfaces';
 import { EAggregateTypes } from '../../interfaces';
 
 export function useGetBarScales(

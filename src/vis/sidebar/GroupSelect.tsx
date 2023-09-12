@@ -1,6 +1,6 @@
 import { Select, Stack } from '@mantine/core';
 import * as React from 'react';
-import { EBarDisplayType, EBarGroupingType } from '../barGood/utils';
+import { EBarDisplayType, EBarGroupingType } from '../barGood/interfaces';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';

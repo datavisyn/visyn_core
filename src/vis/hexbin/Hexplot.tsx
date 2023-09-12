@@ -11,7 +11,8 @@ import { EScatterSelectSettings, VisColumn } from '../interfaces';
 import { SingleHex } from './SingleHex';
 import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
-import { IHexbinConfig, getHexData } from './utils';
+import { getHexData } from './utils';
+import { IHexbinConfig } from './interfaces';
 
 interface HexagonalBinProps {
   config: IHexbinConfig;

@@ -6,10 +6,11 @@ import { corrcoeff, spearmancoeff, tukeyhsd } from 'jstat';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
-import { ColumnInfo, EColumnTypes, ECorrelationType, EScaleType, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, EScaleType, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
-import { ICorrelationConfig, getCorrelationMatrixData } from './utils';
+import { ECorrelationType, ICorrelationConfig } from './interfaces';
+import { getCorrelationMatrixData } from './utils';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;

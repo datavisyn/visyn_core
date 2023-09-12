@@ -2,7 +2,7 @@ import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
 import { BaseVisConfig, ESupportedPlotlyVis } from '../../../interfaces';
-import { EViolinOverlay } from '../../../violin/utils';
+import { EViolinOverlay } from '../../../violin/interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

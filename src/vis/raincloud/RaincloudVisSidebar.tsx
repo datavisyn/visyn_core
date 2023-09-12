@@ -7,7 +7,7 @@ import { RaincloudCloudSelect } from '../sidebar/RaincloudCloudSelect';
 import { RaincloudLightningSelect } from '../sidebar/RaincloudLightningSelect';
 import { RaincloudRainSelect } from '../sidebar/RaincloudRainSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { IRaincloudConfig } from './utils';
+import { IRaincloudConfig } from './interfaces';
 
 export function RaincloudVisSidebar({
   config,

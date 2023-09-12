@@ -9,7 +9,7 @@ import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { OpacitySlider } from '../sidebar/OpacitySlider';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { IScatterConfig } from './utils';
+import { IScatterConfig } from './interfaces';
 
 const defaultConfig = {
   color: {

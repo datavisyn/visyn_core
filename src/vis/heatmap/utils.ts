@@ -5,23 +5,13 @@ import {
   ColumnInfo,
   EAggregateTypes,
   EColumnTypes,
-  ENumericalColorScaleType,
   ESortTypes,
   ESupportedPlotlyVis,
   VisCategoricalValue,
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
-
-export interface IHeatmapConfig {
-  type: ESupportedPlotlyVis.HEATMAP;
-  color: ColumnInfo | null;
-  catColumnsSelected: ColumnInfo[];
-  numColorScaleType: ENumericalColorScaleType;
-  sortedBy: ESortTypes;
-  aggregateType: EAggregateTypes;
-  aggregateColumn: ColumnInfo | null;
-}
+import { IHeatmapConfig } from './interfaces';
 
 export function isHeatmap(vis: BaseVisConfig): vis is IHeatmapConfig {
   return vis.type === ESupportedPlotlyVis.HEATMAP;

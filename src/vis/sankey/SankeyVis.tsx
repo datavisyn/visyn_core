@@ -4,7 +4,7 @@ import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
-import { ISankeyConfig } from './utils';
+import { ISankeyConfig } from './interfaces';
 
 /**
  * Performs the data transformation that maps the fetched data to

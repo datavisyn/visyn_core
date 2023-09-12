@@ -10,3 +10,7 @@ export * from './VisSidebar';
 export * from './general';
 export * from './interfaces';
 export * from './sidebar';
+
+// Export interfaces ONLY since else the lazy loading will break
+export * from './barGood/interfaces';
+export * from './correlation/interfaces';

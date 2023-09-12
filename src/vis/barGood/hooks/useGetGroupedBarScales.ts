@@ -4,7 +4,8 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import * as d3 from 'd3v7';
 import { useMemo } from 'react';
 import { EAggregateTypes, EColumnTypes } from '../../interfaces';
-import { EBarGroupingType, SortTypes, binByAggregateType, getBarData, groupByAggregateType, rollupByAggregateType } from '../utils';
+import { binByAggregateType, getBarData, groupByAggregateType, rollupByAggregateType } from '../utils';
+import { EBarGroupingType, SortTypes } from '../interfaces';
 import { useGetBarScales } from './useGetBarScales';
 
 export function useGetGroupedBarScales(

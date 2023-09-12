@@ -11,7 +11,7 @@ import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ES
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
-import { IHeatmapConfig } from './utils';
+import { IHeatmapConfig } from './interfaces';
 
 const interRectDistance = 1;
 

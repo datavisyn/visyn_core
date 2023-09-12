@@ -3,50 +3,14 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import merge from 'lodash/merge';
 import { resolveSingleColumn } from '../general/layoutUtils';
 import {
-  BaseVisConfig,
   ColumnInfo,
   EAggregateTypes,
   EColumnTypes,
-  ESupportedPlotlyVis,
   VisCategoricalValue,
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
-
-export enum SortTypes {
-  NONE = 'NONE',
-  CAT_ASC = 'CAT_ASC',
-  CAT_DESC = 'CAT_DESC',
-  COUNT_ASC = 'COUNT_ASC',
-  COUNT_DESC = 'COUNT_DESC',
-}
-
-export enum EBarGroupingType {
-  STACK = 'Stacked',
-  GROUP = 'Grouped',
-}
-
-export enum EBarDisplayType {
-  ABSOLUTE = 'Absolute',
-  NORMALIZED = 'Normalized',
-}
-export enum EBarDirection {
-  VERTICAL = 'Vertical',
-  HORIZONTAL = 'Horizontal',
-}
-
-const defaultConfig: IBarConfig = {
-  type: ESupportedPlotlyVis.BAR,
-  numColumnsSelected: [],
-  catColumnSelected: null,
-  group: null,
-  groupType: EBarGroupingType.STACK,
-  multiples: null,
-  display: EBarDisplayType.ABSOLUTE,
-  direction: EBarDirection.HORIZONTAL,
-  aggregateColumn: null,
-  aggregateType: EAggregateTypes.COUNT,
-};
+import { IBarConfig, defaultConfig, SortTypes } from './interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
@@ -63,19 +27,6 @@ export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig):
   }
 
   return merged;
-}
-
-export interface IBarConfig extends BaseVisConfig {
-  type: ESupportedPlotlyVis.BAR;
-  multiples: ColumnInfo | null;
-  group: ColumnInfo | null;
-  direction: EBarDirection;
-  display: EBarDisplayType;
-  groupType: EBarGroupingType;
-  numColumnsSelected: ColumnInfo[];
-  catColumnSelected: ColumnInfo;
-  aggregateType: EAggregateTypes;
-  aggregateColumn: ColumnInfo | null;
 }
 
 // Helper function for the bar chart which sorts the data depending on the sort type.

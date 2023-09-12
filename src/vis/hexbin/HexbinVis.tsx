@@ -7,7 +7,7 @@ import { InvalidCols } from '../general';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar';
 import { Hexplot } from './Hexplot';
-import { IHexbinConfig } from './utils';
+import { IHexbinConfig } from './interfaces';
 
 const defaultExtensions = {
   prePlot: null,

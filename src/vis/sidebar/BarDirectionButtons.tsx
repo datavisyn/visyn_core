@@ -1,6 +1,6 @@
 import { Container, SegmentedControl, Stack, Text } from '@mantine/core';
 import * as React from 'react';
-import { EBarDirection } from '../barGood/utils';
+import { EBarDirection } from '../barGood/interfaces';
 
 interface BarDirectionProps {
   callback: (s: EBarDirection) => void;

@@ -19,7 +19,7 @@ import { Circle } from './rain/Circle';
 import { DotPlot } from './rain/DotPlot';
 import { StripPlot } from './rain/StripPlot';
 import { WheatPlot } from './rain/WheatPlot';
-import { IRaincloudConfig, IRaindropCircle } from './utils';
+import { IRaincloudConfig, IRaindropCircle } from './interfaces';
 
 const margin = {
   top: 0,

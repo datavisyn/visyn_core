@@ -1,7 +1,8 @@
 import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseVisConfig, ECorrelationType, EScaleType, ESupportedPlotlyVis } from '../../../interfaces';
+import { ECorrelationType } from '../../../correlation/interfaces';
+import { BaseVisConfig, EScaleType, ESupportedPlotlyVis } from '../../../interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

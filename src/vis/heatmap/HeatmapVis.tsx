@@ -3,7 +3,7 @@ import * as React from 'react';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 import { ICommonVisProps } from '../interfaces';
 import { HeatmapGrid } from './HeatmapGrid';
-import { IHeatmapConfig } from './utils';
+import { IHeatmapConfig } from './interfaces';
 
 export function HeatmapVis({
   config,

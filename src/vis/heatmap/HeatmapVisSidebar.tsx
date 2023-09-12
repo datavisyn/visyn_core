@@ -5,7 +5,7 @@ import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { IHeatmapConfig } from './utils';
+import { IHeatmapConfig } from './interfaces';
 
 export function HeatmapVisSidebar({
   config,

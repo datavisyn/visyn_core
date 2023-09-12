@@ -8,7 +8,7 @@ import { FilterButtons } from '../sidebar/FilterButtons';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { ViolinOverlayButtons } from '../sidebar/ViolinOverlayButtons';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { EViolinOverlay, IViolinConfig } from './utils';
+import { EViolinOverlay, IViolinConfig } from './interfaces';
 
 const defaultConfig = {
   overlay: {

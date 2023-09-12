@@ -12,15 +12,7 @@ import {
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
-
-export interface IRaincloudConfig {
-  type: ESupportedPlotlyVis.RAINCLOUD;
-  numColumnsSelected: ColumnInfo[];
-  cloudType: ECloudType;
-  rainType: ERainType;
-  lightningType: ELightningType;
-  aggregateRain: boolean;
-}
+import { IRaincloudConfig } from './interfaces';
 
 export function isRaincloud(s: BaseVisConfig): s is IRaincloudConfig {
   return s.type === ESupportedPlotlyVis.RAINCLOUD;
@@ -54,10 +46,4 @@ export async function getRaincloudData(
   const numColVals = await resolveColumnValues(columns.filter((col) => numColumnsSelected.find((numCol: ColumnInfo) => numCol.id === col.info.id)));
 
   return { numColVals };
-}
-
-export interface IRaindropCircle {
-  id: string[];
-  x: number;
-  y: number;
 }

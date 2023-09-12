@@ -1,7 +1,6 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  BaseVisConfig,
   ColumnInfo,
   EColumnTypes,
   EHexbinOptions,
@@ -12,17 +11,7 @@ import {
   VisNumericalColumn,
   VisNumericalValue,
 } from '../interfaces';
-
-export interface IHexbinConfig extends BaseVisConfig {
-  type: ESupportedPlotlyVis.HEXBIN;
-  numColumnsSelected: ColumnInfo[];
-  color: ColumnInfo | null;
-  hexRadius: number;
-  isOpacityScale: boolean;
-  isSizeScale: boolean;
-  dragMode: EScatterSelectSettings;
-  hexbinOptions: EHexbinOptions;
-}
+import { IHexbinConfig } from './interfaces';
 
 export const defaultDensityConfig: IHexbinConfig = {
   type: ESupportedPlotlyVis.HEXBIN,
