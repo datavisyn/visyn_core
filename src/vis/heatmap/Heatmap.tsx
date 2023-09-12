@@ -6,7 +6,7 @@ import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { rollupByAggregateType } from '../barGood/utils';
+import { rollupByAggregateType } from '../bar/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ESortTypes, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { HeatmapRect } from './HeatmapRect';

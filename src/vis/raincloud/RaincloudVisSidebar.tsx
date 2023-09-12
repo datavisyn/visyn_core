@@ -1,12 +1,12 @@
 import { Container, Divider, Stack } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, ESupportedPlotlyVis, ICommonVisSideBarProps, VisColumn } from '../interfaces';
-import { AggregateRainSwitch } from '../sidebar/AggregateRainSwitch';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
-import { RaincloudCloudSelect } from '../sidebar/RaincloudCloudSelect';
-import { RaincloudLightningSelect } from '../sidebar/RaincloudLightningSelect';
-import { RaincloudRainSelect } from '../sidebar/RaincloudRainSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { AggregateRainSwitch } from './AggregateRainSwitch';
+import { RaincloudCloudSelect } from './RaincloudCloudSelect';
+import { RaincloudLightningSelect } from './RaincloudLightningSelect';
+import { RaincloudRainSelect } from './RaincloudRainSelect';
 import { IRaincloudConfig } from './interfaces';
 
 export function RaincloudVisSidebar({

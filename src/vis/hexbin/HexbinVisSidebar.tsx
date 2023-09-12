@@ -1,14 +1,14 @@
 import { Container, Divider, Stack } from '@mantine/core';
 import * as React from 'react';
-import { ColumnInfo, EColumnTypes, EHexbinOptions, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
+import { ColumnInfo, EColumnTypes, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
 import { NumericalColumnSelect } from '../sidebar';
-import { HexOpacitySwitch } from '../sidebar/HexOpacitySwitch';
-import { HexSizeSlider } from '../sidebar/HexSizeSlider';
-import { HexSizeSwitch } from '../sidebar/HexSizeSwitch';
-import { HexbinOptionSelect } from '../sidebar/HexbinOptionSelect';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
-import { IHexbinConfig } from './interfaces';
+import { HexOpacitySwitch } from './HexOpacitySwitch';
+import { HexSizeSlider } from './HexSizeSlider';
+import { HexSizeSwitch } from './HexSizeSwitch';
+import { HexbinOptionSelect } from './HexbinOptionSelect';
+import { EHexbinOptions, IHexbinConfig } from './interfaces';
 
 export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideBarProps<IHexbinConfig>) {
   return (

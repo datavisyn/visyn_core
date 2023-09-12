@@ -1,6 +1,6 @@
 import { Container, SegmentedControl, Stack } from '@mantine/core';
 import * as React from 'react';
-import { EBarDisplayType } from '../barGood/interfaces';
+import { EBarDisplayType } from './interfaces';
 
 interface BarDisplayProps {
   callback: (s: EBarDisplayType) => void;

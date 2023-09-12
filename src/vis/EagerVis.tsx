@@ -21,10 +21,10 @@ import {
 
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
-import { BarVis } from './barGood/BarVis';
-import { BarVisSidebar } from './barGood/BarVisSidebar';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './barGood/interfaces';
-import { barMergeDefaultConfig } from './barGood/utils';
+import { BarVis } from './bar/BarVis';
+import { BarVisSidebar } from './bar/BarVisSidebar';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './bar/interfaces';
+import { barMergeDefaultConfig } from './bar/utils';
 import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
 import { CorrelationVisSidebar } from './correlation/CorrelationVisSidebar';

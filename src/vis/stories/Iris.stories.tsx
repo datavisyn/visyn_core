@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../LazyVis';
-import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../barGood/interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../interfaces';
 import { EViolinOverlay } from '../violin/interfaces';
 

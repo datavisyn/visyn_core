@@ -12,7 +12,7 @@ export * from './interfaces';
 export * from './sidebar';
 
 // Export interfaces ONLY since else the lazy loading will break
-export * from './barGood/interfaces';
+export * from './bar/interfaces';
 export * from './correlation/interfaces';
 export * from './heatmap/interfaces';
 export * from './violin/interfaces';

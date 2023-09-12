@@ -3,7 +3,6 @@ import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils
 import {
   ColumnInfo,
   EColumnTypes,
-  EHexbinOptions,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
   VisCategoricalValue,
@@ -11,7 +10,7 @@ import {
   VisNumericalColumn,
   VisNumericalValue,
 } from '../interfaces';
-import { IHexbinConfig } from './interfaces';
+import { EHexbinOptions, IHexbinConfig } from './interfaces';
 
 export const defaultDensityConfig: IHexbinConfig = {
   type: ESupportedPlotlyVis.HEXBIN,

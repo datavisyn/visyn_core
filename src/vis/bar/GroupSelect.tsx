@@ -1,10 +1,10 @@
 import { Select, Stack } from '@mantine/core';
 import * as React from 'react';
-import { EBarDisplayType, EBarGroupingType } from '../barGood/interfaces';
+import { EBarDisplayType, EBarGroupingType } from './interfaces';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
-import { SelectDropdownItem } from './utils';
+import { SelectDropdownItem } from '../sidebar/utils';
 
 interface GroupSelectProps {
   groupColumnSelectCallback: (c: ColumnInfo) => void;

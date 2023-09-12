@@ -16,12 +16,6 @@ export interface BaseVisConfig {
   type: string;
 }
 
-export enum EHexbinOptions {
-  COLOR = 'Color',
-  PIE = 'Pie',
-  BINS = 'Bins',
-}
-
 export enum EAggregateTypes {
   COUNT = 'Count',
   MIN = 'Minimum',

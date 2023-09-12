@@ -6,8 +6,8 @@ import { ColumnInfo, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../inte
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
-import { ViolinOverlayButtons } from '../sidebar/ViolinOverlayButtons';
 import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { ViolinOverlayButtons } from './ViolinOverlayButtons';
 import { EViolinOverlay, IViolinConfig } from './interfaces';
 
 const defaultConfig = {

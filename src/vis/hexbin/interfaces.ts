@@ -1,4 +1,4 @@
-import { BaseVisConfig, ColumnInfo, EHexbinOptions, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
+import { BaseVisConfig, ColumnInfo, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
 
 export interface IHexbinConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.HEXBIN;
@@ -9,4 +9,10 @@ export interface IHexbinConfig extends BaseVisConfig {
   isSizeScale: boolean;
   dragMode: EScatterSelectSettings;
   hexbinOptions: EHexbinOptions;
+}
+
+export enum EHexbinOptions {
+  COLOR = 'Color',
+  PIE = 'Pie',
+  BINS = 'Bins',
 }
