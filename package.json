@@ -129,7 +129,9 @@
     "storybook": "NODE_OPTIONS=--max_old_space_size=4096 storybook dev -p 6006",
     "test": "visyn_scripts test",
     "webpack:dev": "visyn_scripts build --mode development --env workspace_mode=single",
-    "webpack:prod": "visyn_scripts build --mode production --env workspace_mode=single"
+    "webpack:prod": "visyn_scripts build --mode production --env workspace_mode=single",
+    "rsbuild": "visyn_scripts rsbuild --mode production --env workspace_mode=single",
+    "rsserve": "visyn_scripts rsstart --env workspace_mode=single"
   },
   "dependencies": {
     "@emotion/react": "^11.0.0",
@@ -169,6 +171,7 @@
     "@babel/preset-env": "^7.21.5",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.5",
+    "@rspack/cli": "^0.3.2",
     "@storybook/addon-actions": "^7.0.12",
     "@storybook/addon-essentials": "^7.0.12",
     "@storybook/addon-interactions": "^7.0.12",
@@ -187,7 +190,8 @@
     "@types/react": "~18.2.0",
     "@types/react-dom": "~18.2.0",
     "react": "~18.2.0",
-    "react-dom": "~18.2.0"
+    "react-dom": "~18.2.0",
+    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#mh/rspack"
   },
   "visyn": {
     "entries": {
