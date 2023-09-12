@@ -10,3 +10,7 @@ export interface IScatterConfig extends BaseVisConfig {
   alphaSliderVal: number;
   sizeSliderVal: number;
 }
+
+export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {
+  return s.type === ESupportedPlotlyVis.SCATTER;
+}

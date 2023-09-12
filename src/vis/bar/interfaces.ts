@@ -34,6 +34,7 @@ export interface IBarConfig extends BaseVisConfig {
   aggregateType: EAggregateTypes;
   aggregateColumn: ColumnInfo | null;
 }
+
 export const defaultConfig: IBarConfig = {
   type: ESupportedPlotlyVis.BAR,
   numColumnsSelected: [],
@@ -46,3 +47,7 @@ export const defaultConfig: IBarConfig = {
   aggregateColumn: null,
   aggregateType: EAggregateTypes.COUNT,
 };
+
+export function isBarConfig(s: BaseVisConfig): s is IBarConfig {
+  return s.type === ESupportedPlotlyVis.BAR;
+}

@@ -16,3 +16,7 @@ export enum EHexbinOptions {
   PIE = 'Pie',
   BINS = 'Bins',
 }
+
+export function isHexbinConfig(vis: BaseVisConfig): vis is IHexbinConfig {
+  return vis.type === ESupportedPlotlyVis.HEXBIN;
+}

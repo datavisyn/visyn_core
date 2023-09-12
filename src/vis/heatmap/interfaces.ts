@@ -1,4 +1,4 @@
-import { ColumnInfo, EAggregateTypes, ENumericalColorScaleType, ESupportedPlotlyVis } from '../interfaces';
+import { BaseVisConfig, ColumnInfo, EAggregateTypes, ENumericalColorScaleType, ESupportedPlotlyVis } from '../interfaces';
 
 export interface IHeatmapConfig {
   type: ESupportedPlotlyVis.HEATMAP;
@@ -16,4 +16,8 @@ export enum ESortTypes {
   CAT_DESC = 'CAT_DESC',
   COUNT_ASC = 'COUNT_ASC',
   COUNT_DESC = 'COUNT_DESC',
+}
+
+export function isHeatmapConfig(vis: BaseVisConfig): vis is IHeatmapConfig {
+  return vis.type === ESupportedPlotlyVis.HEATMAP;
 }

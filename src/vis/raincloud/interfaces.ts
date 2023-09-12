@@ -1,4 +1,4 @@
-import { ColumnInfo, ESupportedPlotlyVis } from '../interfaces';
+import { BaseVisConfig, ColumnInfo, ESupportedPlotlyVis } from '../interfaces';
 
 export interface IRaincloudConfig {
   type: ESupportedPlotlyVis.RAINCLOUD;
@@ -33,4 +33,8 @@ export enum ELightningType {
   MEDIAN_AND_DEV = 'Median and deviation',
   MEAN = 'Mean',
   BOXPLOT = 'Boxplot',
+}
+
+export function isRaincloudConfig(s: BaseVisConfig): s is IRaincloudConfig {
+  return s.type === ESupportedPlotlyVis.RAINCLOUD;
 }

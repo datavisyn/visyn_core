@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { ActionIcon, Center, Container, Group, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ActionIcon, Tooltip } from '@mantine/core';
+import * as React from 'react';
 import { i18n } from '../i18n';
 
 export function VisSidebarOpenButton({ isOpen, onClick }: { isOpen?: boolean; onClick: () => void }) {

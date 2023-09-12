@@ -12,3 +12,7 @@ export enum ECorrelationType {
   PEARSON = 'Pearson',
   SPEARMAN = 'Spearman',
 }
+
+export function isCorrelationConfig(s: BaseVisConfig): s is ICorrelationConfig {
+  return s.type === ESupportedPlotlyVis.CORRELATION;
+}

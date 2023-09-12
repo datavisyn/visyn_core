@@ -11,3 +11,7 @@ export interface IViolinConfig extends BaseVisConfig {
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
 }
+
+export function isViolinConfig(s: BaseVisConfig): s is IViolinConfig {
+  return s.type === ESupportedPlotlyVis.VIOLIN;
+}
