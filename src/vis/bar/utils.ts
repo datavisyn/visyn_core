@@ -2,14 +2,7 @@ import { bin, desc, op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import merge from 'lodash/merge';
 import { resolveSingleColumn } from '../general/layoutUtils';
-import {
-  ColumnInfo,
-  EAggregateTypes,
-  EColumnTypes,
-  VisCategoricalValue,
-  VisColumn,
-  VisNumericalValue,
-} from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { IBarConfig, defaultConfig, SortTypes } from './interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {

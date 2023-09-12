@@ -12,7 +12,7 @@ export function BarVis({ config, columns, selectionCallback = () => null, select
       {config.catColumnSelected ? (
         <BarChart config={config} columns={columns} selectedMap={selectedMap} selectionCallback={selectionCallback} selectedList={selectedList} />
       ) : (
-        <InvalidCols headerMessage="Invalid column" bodyMessage="No column selected" />
+        <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a bar chart, please select at least 1 column." />
       )}
     </Stack>
   );

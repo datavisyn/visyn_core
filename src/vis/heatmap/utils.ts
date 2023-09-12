@@ -5,13 +5,12 @@ import {
   ColumnInfo,
   EAggregateTypes,
   EColumnTypes,
-  ESortTypes,
   ESupportedPlotlyVis,
   VisCategoricalValue,
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
-import { IHeatmapConfig } from './interfaces';
+import { ESortTypes, IHeatmapConfig } from './interfaces';
 
 export function isHeatmap(vis: BaseVisConfig): vis is IHeatmapConfig {
   return vis.type === ESupportedPlotlyVis.HEATMAP;

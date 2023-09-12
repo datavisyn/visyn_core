@@ -7,11 +7,11 @@ import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { rollupByAggregateType } from '../bar/utils';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ESortTypes, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
-import { IHeatmapConfig } from './interfaces';
+import { ESortTypes, IHeatmapConfig } from './interfaces';
 
 const interRectDistance = 1;
 

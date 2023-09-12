@@ -1,4 +1,4 @@
-import { ColumnInfo, ECloudType, ELightningType, ERainType, ESupportedPlotlyVis } from '../interfaces';
+import { ColumnInfo, ESupportedPlotlyVis } from '../interfaces';
 
 export interface IRaincloudConfig {
   type: ESupportedPlotlyVis.RAINCLOUD;
@@ -13,4 +13,24 @@ export interface IRaindropCircle {
   id: string[];
   x: number;
   y: number;
+}
+
+export enum ERainType {
+  DOTPLOT = 'Dot plot',
+  BEESWARM = 'Beeswarm',
+  WHEATPLOT = 'Wheat plot',
+  STRIPPLOT = 'Strip plot',
+}
+
+export enum ECloudType {
+  SPLIT_VIOLIN = 'Split violin',
+  HEATMAP = 'Heatmap',
+  HISTOGRAM = 'Histogram',
+}
+
+export enum ELightningType {
+  MEAN_AND_DEV = 'Mean and deviation',
+  MEDIAN_AND_DEV = 'Median and deviation',
+  MEAN = 'Mean',
+  BOXPLOT = 'Boxplot',
 }

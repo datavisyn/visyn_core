@@ -1,18 +1,7 @@
 import { merge } from 'lodash';
 import { resolveColumnValues } from '../general/layoutUtils';
-import {
-  BaseVisConfig,
-  ColumnInfo,
-  ECloudType,
-  EColumnTypes,
-  ELightningType,
-  ERainType,
-  ESupportedPlotlyVis,
-  VisCategoricalValue,
-  VisColumn,
-  VisNumericalValue,
-} from '../interfaces';
-import { IRaincloudConfig } from './interfaces';
+import { BaseVisConfig, ColumnInfo, EColumnTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { ECloudType, ELightningType, ERainType, IRaincloudConfig } from './interfaces';
 
 export function isRaincloud(s: BaseVisConfig): s is IRaincloudConfig {
   return s.type === ESupportedPlotlyVis.RAINCLOUD;

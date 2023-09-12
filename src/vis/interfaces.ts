@@ -6,7 +6,6 @@ export enum ESupportedPlotlyVis {
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
   HEATMAP = 'Heatmap plot',
-  PARALLEL_COORDINATES = 'Parallel plot',
   RAINCLOUD = 'Raincloud plot',
   SANKEY = 'Sankey',
   CORRELATION = 'Correlation plot',
@@ -27,12 +26,6 @@ export enum EAggregateTypes {
 export enum EColumnTypes {
   NUMERICAL = 'Numerical',
   CATEGORICAL = 'Categorical',
-}
-
-export enum EGeneralFormType {
-  DROPDOWN = 'Dropdown',
-  BUTTON = 'Button',
-  SLIDER = 'Slider',
 }
 
 export enum EFilterOptions {
@@ -56,34 +49,6 @@ export enum EScatterSelectSettings {
 export enum EScaleType {
   LINEAR = 'Linear',
   LOG = 'Log',
-}
-
-export enum ECloudType {
-  SPLIT_VIOLIN = 'Split violin',
-  HEATMAP = 'Heatmap',
-  HISTOGRAM = 'Histogram',
-}
-
-export enum ELightningType {
-  MEAN_AND_DEV = 'Mean and deviation',
-  MEDIAN_AND_DEV = 'Median and deviation',
-  MEAN = 'Mean',
-  BOXPLOT = 'Boxplot',
-}
-
-export enum ERainType {
-  DOTPLOT = 'Dot plot',
-  BEESWARM = 'Beeswarm',
-  WHEATPLOT = 'Wheat plot',
-  STRIPPLOT = 'Strip plot',
-}
-
-export enum ESortTypes {
-  NONE = 'NONE',
-  CAT_ASC = 'CAT_ASC',
-  CAT_DESC = 'CAT_DESC',
-  COUNT_ASC = 'COUNT_ASC',
-  COUNT_DESC = 'COUNT_DESC',
 }
 
 type ValueGetter<T> = () => T | Promise<T>;

@@ -2,6 +2,7 @@ import { Group, MantineTheme, Stack, useMantineTheme } from '@mantine/core';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
+import { InvalidCols } from '../general/InvalidCols';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
@@ -224,7 +225,7 @@ export function SankeyVis({ config, columns, selectedList, selectionCallback, di
             }}
           />
         ) : (
-          <p className="h4">Select at least 2 categorical attributes.</p>
+          <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a sankey chart, select at least 2 columns." />
         )}
       </Stack>
     </Group>
