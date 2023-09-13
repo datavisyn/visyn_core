@@ -40,7 +40,7 @@ export function CorrelationVisSidebar({
             onChange={(v) => setConfig({ ...config, correlationType: v as ECorrelationType })}
           />
           <Text size="sm" fw={500}>
-            P value scale type
+            P-value scale type
           </Text>
           <SegmentedControl
             size="sm"
@@ -60,14 +60,14 @@ export function CorrelationVisSidebar({
             onChange={(val) => setConfig({ ...config, pDomain: [+val, config.pDomain[1]] })}
             label={
               <Group style={{ width: '100%' }} position="apart">
-                <Text>Maximum P Value</Text>
+                <Text>Maximum p-value</Text>
                 <Tooltip
                   withinPortal
                   withArrow
                   arrowSize={6}
                   label={
                     <Group>
-                      <Text>Sets the maximum p value for the size scale. Any p value at or above this value will have the smallest possible circle</Text>
+                      <Text>Sets the maximum p-value for the size scale. Any p-value at or above this value will have the smallest possible circle</Text>
                     </Group>
                   }
                 >
@@ -91,14 +91,14 @@ export function CorrelationVisSidebar({
             onChange={(val) => setConfig({ ...config, pDomain: [config.pDomain[0], +val] })}
             label={
               <Group style={{ width: '100%' }} position="apart">
-                <Text>Minimum P Value</Text>
+                <Text>Minimum p-value</Text>
                 <Tooltip
                   withinPortal
                   withArrow
                   arrowSize={6}
                   label={
                     <Group>
-                      <Text>Sets the minimum p value for the size scale. Any p value at or below this value will have the largest possible circle</Text>
+                      <Text>Sets the minimum p-value for the size scale. Any p-value at or below this value will have the largest possible circle</Text>
                     </Group>
                   }
                 >

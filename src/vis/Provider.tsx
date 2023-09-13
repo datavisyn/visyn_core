@@ -9,27 +9,37 @@ export interface GeneralVis<T extends BaseVisConfig = BaseVisConfig> {
   renderer: (props: ICommonVisProps<T>) => React.JSX.Element;
   sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element;
   mergeConfig: (columns: VisColumn[], config: T) => T;
+  description: string;
 }
 
 /**
  * Generic utility function for creating a vis object.
  */
-export function createVis<T extends BaseVisConfig>(
-  type: string,
+export function createVis<T extends BaseVisConfig>({
+  type,
+  renderer,
+  sidebarRenderer,
+  mergeConfig,
+  description = '',
+}: {
+  type: string;
 
   /** The main vis renderer. Required in all visualizations. */
-  renderer: (props: ICommonVisProps<T>) => React.JSX.Element,
+  renderer: (props: ICommonVisProps<T>) => React.JSX.Element;
 
   /** The sidebar renderer. Required in all visualizations. */
-  sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element,
+  sidebarRenderer: (props: ICommonVisSideBarProps<T>) => React.JSX.Element;
 
-  mergeConfig: (columns: VisColumn[], config: T) => T,
-): GeneralVis<T> {
+  mergeConfig: (columns: VisColumn[], config: T) => T;
+
+  description: string;
+}): GeneralVis<T> {
   return {
     type,
     renderer,
     sidebarRenderer,
     mergeConfig,
+    description,
   };
 }
 

@@ -39,8 +39,8 @@ import { IHexbinConfig } from './hexbin/interfaces';
 import { hexinbMergeDefaultConfig } from './hexbin/utils';
 import { RaincloudVis } from './raincloud/RaincloudVis';
 import { RaincloudVisSidebar } from './raincloud/RaincloudVisSidebar';
-import { raincloudMergeDefaultConfig } from './raincloud/utils';
 import { IRaincloudConfig } from './raincloud/interfaces';
+import { raincloudMergeDefaultConfig } from './raincloud/utils';
 import { SankeyVis } from './sankey/SankeyVis';
 import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
 import { ISankeyConfig } from './sankey/interfaces';
@@ -57,14 +57,62 @@ const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
 function registerAllVis() {
   return [
-    createVis(ESupportedPlotlyVis.SCATTER, ScatterVis, ScatterVisSidebar, scatterMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.BAR, BarVis, BarVisSidebar, barMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.HEXBIN, HexbinVis, HexbinVisSidebar, hexinbMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.SANKEY, SankeyVis, SankeyVisSidebar, sankeyMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.HEATMAP, HeatmapVis, HeatmapVisSidebar, heatmapMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.VIOLIN, ViolinVis, ViolinVisSidebar, violinMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.RAINCLOUD, RaincloudVis, RaincloudVisSidebar, raincloudMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.CORRELATION, CorrelationVis, CorrelationVisSidebar, correlationMergeDefaultConfig),
+    createVis({
+      type: ESupportedPlotlyVis.SCATTER,
+      renderer: ScatterVis,
+      sidebarRenderer: ScatterVisSidebar,
+      mergeConfig: scatterMergeDefaultConfig,
+      description: 'Visualizes two variables as individual data points in two-dimensional space',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.BAR,
+      renderer: BarVis,
+      sidebarRenderer: BarVisSidebar,
+      mergeConfig: barMergeDefaultConfig,
+      description: 'Visualizes categorical data with rectangular bars',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.HEXBIN,
+      renderer: HexbinVis,
+      sidebarRenderer: HexbinVisSidebar,
+      mergeConfig: hexinbMergeDefaultConfig,
+      description: 'Visualizes 2D data points within hexagons',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.SANKEY,
+      renderer: SankeyVis,
+      sidebarRenderer: SankeyVisSidebar,
+      mergeConfig: sankeyMergeDefaultConfig,
+      description: 'Visualizes the flow of data between different categories',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.HEATMAP,
+      renderer: HeatmapVis,
+      sidebarRenderer: HeatmapVisSidebar,
+      mergeConfig: heatmapMergeDefaultConfig,
+      description: 'Visualizes matrix data using color gradients',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.VIOLIN,
+      renderer: ViolinVis,
+      sidebarRenderer: ViolinVisSidebar,
+      mergeConfig: violinMergeDefaultConfig,
+      description: 'Visualizes numerical data distribution by combining a box plot and a kernel density plot',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.RAINCLOUD,
+      renderer: RaincloudVis,
+      sidebarRenderer: RaincloudVisSidebar,
+      mergeConfig: raincloudMergeDefaultConfig,
+      description: 'Visualizes a combination of boxplot, violin plot, and jitter plot',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.CORRELATION,
+      renderer: CorrelationVis,
+      sidebarRenderer: CorrelationVisSidebar,
+      mergeConfig: correlationMergeDefaultConfig,
+      description: 'Visualizes statistical relationships between pairs of numerical variables',
+    }),
   ];
 }
 

@@ -204,6 +204,7 @@ export function SankeyVis({ config, columns, selectedList, selectionCallback, di
           <PlotlyComponent
             data={plotly}
             style={{ width: '100%' }}
+            config={{ displayModeBar: false }}
             layout={{
               font: {
                 size: 12,
