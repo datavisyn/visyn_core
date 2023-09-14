@@ -130,7 +130,7 @@
     "test": "visyn_scripts test",
     "webpack:dev": "visyn_scripts build --mode development --env workspace_mode=single",
     "webpack:prod": "visyn_scripts build --mode production --env workspace_mode=single",
-    "rsbuild": "visyn_scripts rsbuild --mode production --env workspace_mode=single",
+    "rsbuild": "visyn_scripts rsbuild --mode development --env workspace_mode=single",
     "rsstart": "visyn_scripts rsstart --env workspace_mode=single"
   },
   "dependencies": {
