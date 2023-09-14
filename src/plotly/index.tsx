@@ -18,7 +18,7 @@ const LazyPlotlyComponent = React.lazy(() =>
     import('react-plotly.js/factory'),
   ]).then(([plotly, createPlotlyComponent]) => ({
     // Use the minified version for our own `Plotly` object
-    default: createPlotlyComponent.default(plotly),
+    default: createPlotlyComponent.default(plotly.default),
   })),
 );
 
