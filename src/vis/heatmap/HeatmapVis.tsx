@@ -1,6 +1,5 @@
 import { Group } from '@mantine/core';
 import * as React from 'react';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
 import { ICommonVisProps } from '../interfaces';
 import { HeatmapGrid } from './HeatmapGrid';
 import { IHeatmapConfig } from './interfaces';
@@ -17,7 +16,6 @@ export function HeatmapVis({
 }: ICommonVisProps<IHeatmapConfig>) {
   return (
     <Group sx={{ height: '100%', width: '100%' }} noWrap>
-      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
       <HeatmapGrid config={config} columns={columns} selected={selectedMap} selectionCallback={selectionCallback} setExternalConfig={setConfig} />
     </Group>
   );

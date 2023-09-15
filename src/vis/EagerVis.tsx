@@ -333,7 +333,7 @@ export function EagerVis({
         },
       }}
     >
-      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
+      {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
 
       <Stack spacing={0} sx={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {Renderer ? (
@@ -363,7 +363,7 @@ export function EagerVis({
         ) : null}
       </Stack>
       {showSidebar ? (
-        <VisSidebarWrapper>
+        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
           <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
       ) : null}

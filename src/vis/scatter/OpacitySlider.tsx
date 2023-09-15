@@ -1,4 +1,4 @@
-import { Box, Slider, Stack, Text } from '@mantine/core';
+import { Input, Slider } from '@mantine/core';
 import debounce from 'lodash/debounce';
 import { useMemo } from 'react';
 
@@ -18,26 +18,21 @@ export function OpacitySlider({ callback, currentValue }: OpacitySliderProps) {
   }, [syncedCallback]);
 
   return (
-    <Stack spacing={0}>
-      <Text weight={500} size={14}>
-        Opacity
-      </Text>
-      <Box>
-        <Slider
-          step={0.05}
-          value={+currentValue.toFixed(2)}
-          max={1}
-          min={0}
-          marks={[
-            { value: 0.2, label: '20%' },
-            { value: 0.5, label: '50%' },
-            { value: 0.8, label: '80%' },
-          ]}
-          onChange={(n) => {
-            debouncedCallback(n);
-          }}
-        />
-      </Box>
-    </Stack>
+    <Input.Wrapper label="Opacity" mb="md">
+      <Slider
+        step={0.05}
+        value={+currentValue.toFixed(2)}
+        max={1}
+        min={0}
+        marks={[
+          { value: 0.2, label: '20%' },
+          { value: 0.5, label: '50%' },
+          { value: 0.8, label: '80%' },
+        ]}
+        onChange={(n) => {
+          debouncedCallback(n);
+        }}
+      />
+    </Input.Wrapper>
   );
 }

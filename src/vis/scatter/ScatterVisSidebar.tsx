@@ -1,14 +1,12 @@
-import { Container, Divider, Stack } from '@mantine/core';
 import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ESupportedPlotlyVis, ICommonVisSideBarProps } from '../interfaces';
-import { ColorSelect } from './ColorSelect';
+import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
-import { OpacitySlider } from './OpacitySlider';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
-import { VisTypeSelect } from '../sidebar/VisTypeSelect';
+import { ColorSelect } from './ColorSelect';
+import { OpacitySlider } from './OpacitySlider';
 import { IScatterConfig } from './interfaces';
 
 const defaultConfig = {
@@ -32,55 +30,44 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
   }, [optionsConfig]);
 
   return (
-    <Container fluid p={10}>
-      <Stack spacing={0}>
-        <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
-        <Divider my="sm" />
-        <NumericalColumnSelect
-          callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
-          columns={columns}
-          currentSelected={config.numColumnsSelected || []}
-        />
-        <Divider my="sm" />
+    <>
+      <NumericalColumnSelect
+        callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
+        columns={columns}
+        currentSelected={config.numColumnsSelected || []}
+      />
 
-        <Stack>
-          {mergedOptionsConfig.color.enable
-            ? mergedOptionsConfig.color.customComponent || (
-                <ColorSelect
-                  callback={(color: ColumnInfo) => setConfig({ ...config, color })}
-                  numTypeCallback={(numColorScaleType: ENumericalColorScaleType) => setConfig({ ...config, numColorScaleType })}
-                  currentNumType={config.numColorScaleType}
-                  columns={columns}
-                  currentSelected={config.color}
-                />
-              )
-            : null}
-          {mergedOptionsConfig.shape.enable
-            ? mergedOptionsConfig.shape.customComponent || (
-                <SingleColumnSelect
-                  label="Shape"
-                  type={[EColumnTypes.CATEGORICAL]}
-                  callback={(shape: ColumnInfo) => setConfig({ ...config, shape })}
-                  columns={columns}
-                  currentSelected={config.shape}
-                />
-              )
-            : null}
-        </Stack>
-        <Divider my="sm" />
-        <Stack spacing={30}>
-          <OpacitySlider
-            callback={(e) => {
-              if (config.alphaSliderVal !== e) {
-                setConfig({ ...config, alphaSliderVal: e });
-              }
-            }}
-            currentValue={config.alphaSliderVal}
-          />
-          <Divider my="sm" />
-        </Stack>
-        {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
-      </Stack>
-    </Container>
+      {mergedOptionsConfig.color.enable
+        ? mergedOptionsConfig.color.customComponent || (
+            <ColorSelect
+              callback={(color: ColumnInfo) => setConfig({ ...config, color })}
+              numTypeCallback={(numColorScaleType: ENumericalColorScaleType) => setConfig({ ...config, numColorScaleType })}
+              currentNumType={config.numColorScaleType}
+              columns={columns}
+              currentSelected={config.color}
+            />
+          )
+        : null}
+      {mergedOptionsConfig.shape.enable
+        ? mergedOptionsConfig.shape.customComponent || (
+            <SingleColumnSelect
+              label="Shape"
+              type={[EColumnTypes.CATEGORICAL]}
+              callback={(shape: ColumnInfo) => setConfig({ ...config, shape })}
+              columns={columns}
+              currentSelected={config.shape}
+            />
+          )
+        : null}
+      <OpacitySlider
+        callback={(e) => {
+          if (config.alphaSliderVal !== e) {
+            setConfig({ ...config, alphaSliderVal: e });
+          }
+        }}
+        currentValue={config.alphaSliderVal}
+      />
+      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+    </>
   );
 }

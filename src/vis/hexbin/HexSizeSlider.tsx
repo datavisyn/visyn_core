@@ -1,4 +1,4 @@
-import { Box, Slider, Stack, Text } from '@mantine/core';
+import { Input, Slider } from '@mantine/core';
 import debounce from 'lodash/debounce';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -17,26 +17,21 @@ export function HexSizeSlider({ callback, currentValue }: OpacitySliderProps) {
   }, [syncedCallback]);
 
   return (
-    <Stack spacing={0} mb={15}>
-      <Text weight={500} size={14}>
-        Size
-      </Text>
-      <Box sx={{ width: '180px' }}>
-        <Slider
-          step={1}
-          value={currentValue}
-          max={25}
-          min={5}
-          marks={[
-            { value: 10, label: '10' },
-            { value: 15, label: '15' },
-            { value: 20, label: '20' },
-          ]}
-          onChange={(n) => {
-            debouncedCallback(n);
-          }}
-        />
-      </Box>
-    </Stack>
+    <Input.Wrapper label="Size" mb="md">
+      <Slider
+        step={1}
+        value={currentValue}
+        max={25}
+        min={5}
+        marks={[
+          { value: 10, label: '10' },
+          { value: 15, label: '15' },
+          { value: 20, label: '20' },
+        ]}
+        onChange={(n) => {
+          debouncedCallback(n);
+        }}
+      />
+    </Input.Wrapper>
   );
 }
