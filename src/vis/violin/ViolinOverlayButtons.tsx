@@ -1,4 +1,4 @@
-import { Container, SegmentedControl, Stack, Text } from '@mantine/core';
+import { Input, SegmentedControl } from '@mantine/core';
 import * as React from 'react';
 import { EViolinOverlay } from './interfaces';
 
@@ -9,20 +9,17 @@ interface ViolinOverlayProps {
 
 export function ViolinOverlayButtons({ callback, currentSelected }: ViolinOverlayProps) {
   return (
-    <Container p={0} fluid sx={{ width: '100%' }}>
-      <Stack spacing={0}>
-        <Text weight={500} size={14}>
-          Overlay
-        </Text>
-        <SegmentedControl
-          value={currentSelected}
-          onChange={callback}
-          data={[
-            { label: EViolinOverlay.NONE, value: EViolinOverlay.NONE },
-            { label: EViolinOverlay.BOX, value: EViolinOverlay.BOX },
-          ]}
-        />
-      </Stack>
-    </Container>
+    <Input.Wrapper label="Overlay">
+      <SegmentedControl
+        fullWidth
+        size="xs"
+        value={currentSelected}
+        onChange={callback}
+        data={[
+          { label: EViolinOverlay.NONE, value: EViolinOverlay.NONE },
+          { label: EViolinOverlay.BOX, value: EViolinOverlay.BOX },
+        ]}
+      />
+    </Input.Wrapper>
   );
 }

@@ -1,6 +1,6 @@
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ActionIcon, Group, NumberInput, SegmentedControl, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Group, Input, NumberInput, SegmentedControl, Text, Tooltip } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { ColumnInfo, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
@@ -25,24 +25,26 @@ export function CorrelationVisSidebar({
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
       />
-      <Text size="sm" fw={500}>
-        Correlation type
-      </Text>
-      <SegmentedControl
-        size="sm"
-        data={Object.values(ECorrelationType)}
-        value={config.correlationType}
-        onChange={(v) => setConfig({ ...config, correlationType: v as ECorrelationType })}
-      />
-      <Text size="sm" fw={500}>
-        P-value scale type
-      </Text>
-      <SegmentedControl
-        size="sm"
-        data={Object.values(EScaleType)}
-        value={config.pScaleType}
-        onChange={(v) => setConfig({ ...config, pScaleType: v as EScaleType })}
-      />
+
+      <Input.Wrapper label="Correlation type">
+        <SegmentedControl
+          fullWidth
+          size="xs"
+          data={Object.values(ECorrelationType)}
+          value={config.correlationType}
+          onChange={(v) => setConfig({ ...config, correlationType: v as ECorrelationType })}
+        />
+      </Input.Wrapper>
+
+      <Input.Wrapper label="P-value scale type">
+        <SegmentedControl
+          fullWidth
+          size="xs"
+          data={Object.values(EScaleType)}
+          value={config.pScaleType}
+          onChange={(v) => setConfig({ ...config, pScaleType: v as EScaleType })}
+        />
+      </Input.Wrapper>
       <NumberInput
         styles={{ input: { width: '100%' }, label: { width: '100%' } }}
         precision={20}
