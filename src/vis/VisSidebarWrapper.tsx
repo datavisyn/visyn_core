@@ -5,6 +5,7 @@ import * as React from 'react';
 import { ReactNode } from 'react';
 import { i18n } from '../i18n';
 import { VisTypeSelect } from './sidebar/VisTypeSelect';
+import { HelpHoverCard } from '../components/HelpHoverCard';
 
 const sidebarSize = 200;
 

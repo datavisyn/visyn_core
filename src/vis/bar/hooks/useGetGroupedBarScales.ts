@@ -48,7 +48,6 @@ export function useGetGroupedBarScales(
       if (categoryFilter && allColumns.multiplesColVals) {
         filteredTable = baseTable.filter(escape((d) => d.multiples === categoryFilter));
       }
-
       return allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? binByAggregateType(filteredTable, aggregateType)
         : groupByAggregateType(filteredTable, aggregateType);
@@ -60,16 +59,27 @@ export function useGetGroupedBarScales(
   const groupColorScale = useMemo(() => {
     if (!groupedTable) return null;
 
-    const newGroup = groupedTable.ungroup().groupby('group').count();
+    const colorScale = ['#337ab7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044', '#7b7b7b'];
+    let i = -1;
 
-    return d3
-      .scaleOrdinal<string>()
-      .domain(newGroup.array('group').sort())
-      .range(
-        allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-          ? d3.schemeBlues[newGroup.array('group').length > 3 ? newGroup.array('group').length : 3]
-          : ['#337ab7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044', '#7b7b7b'],
-      );
+    const newGroup = groupedTable.ungroup().groupby('group').count();
+    const categoricalColors = allColumns.groupColVals.color
+      ? newGroup
+          .array('group')
+          .sort()
+          .map((value) => {
+            i += 1;
+            return allColumns.groupColVals.color[value] || colorScale[i % colorScale.length];
+          })
+      : colorScale;
+
+    const domain = newGroup.array('group').sort();
+    const range =
+      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+        ? d3.schemeBlues[newGroup.array('group').length > 3 ? newGroup.array('group').length : 3]
+        : categoricalColors;
+
+    return d3.scaleOrdinal<string>().domain(domain).range(range);
   }, [groupedTable, allColumns]);
 
   const groupScale = useMemo(() => {

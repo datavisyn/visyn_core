@@ -184,6 +184,7 @@ export async function getBarData(
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
     info: ColumnInfo;
+    color?: Record<string, string>;
   };
   multiplesColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];

@@ -2,6 +2,7 @@ import { Select, Text } from '@mantine/core';
 import * as React from 'react';
 import { useVisProvider } from '../Provider';
 import { ESupportedPlotlyVis } from '../interfaces';
+import { HelpHoverCard } from '../../components/HelpHoverCard';
 
 interface VisTypeSelectProps {
   callback: (s: ESupportedPlotlyVis) => void;
@@ -26,13 +27,29 @@ const SelectItem = React.forwardRef<HTMLDivElement, ItemProps>(({ image, label, 
 SelectItem.displayName = '@mantine/core/SelectItem';
 
 export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps) {
-  const { visTypes } = useVisProvider();
+  const { visTypes, getVisByType } = useVisProvider();
+
+  const currentVis = getVisByType(currentSelected);
 
   return (
     <Select
       withinPortal
       searchable
-      label="Visualization type"
+      label={
+        <HelpHoverCard
+          title={
+            <Text size="sm" weight={500}>
+              Visualization type
+            </Text>
+          }
+          content={<Text size="sm">{currentVis?.description}</Text>}
+        />
+      }
+      styles={{
+        label: {
+          width: '100%',
+        },
+      }}
       // components={{Option: optionLayout}}
       onChange={(e) => callback(e as ESupportedPlotlyVis)}
       name="visTypes"
