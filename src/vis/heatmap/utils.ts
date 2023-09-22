@@ -1,13 +1,22 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import {
+  ColumnInfo,
+  EAggregateTypes,
+  EColumnTypes,
+  ENumericalColorScaleType,
+  ESupportedPlotlyVis,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalValue,
+} from '../interfaces';
 import { ESortTypes, IHeatmapConfig } from './interfaces';
 
 const defaultConfig: IHeatmapConfig = {
   type: ESupportedPlotlyVis.HEATMAP,
   color: null,
   catColumnsSelected: [],
-  numColorScaleType: null,
+  numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
   sortedBy: ESortTypes.CAT_ASC,
   aggregateColumn: null,
   aggregateType: EAggregateTypes.COUNT,
