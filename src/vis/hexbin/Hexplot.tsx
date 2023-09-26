@@ -1,4 +1,5 @@
 import { Box, Chip, Container, ScrollArea, Stack, Tooltip } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
 import * as hex from 'd3-hexbin';
 import { HexbinBin } from 'd3-hexbin';
 import * as d3v7 from 'd3v7';
@@ -11,8 +12,8 @@ import { EScatterSelectSettings, VisColumn } from '../interfaces';
 import { SingleHex } from './SingleHex';
 import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
-import { getHexData } from './utils';
 import { IHexbinConfig } from './interfaces';
+import { getHexData } from './utils';
 
 interface HexagonalBinProps {
   config: IHexbinConfig;
@@ -70,9 +71,8 @@ function Legend({
 }
 
 export function Hexplot({ config, columns, selectionCallback = () => null, selected = {} }: HexagonalBinProps) {
-  const ref = useRef(null);
-  const [height, setHeight] = useState<number>(0);
-  const [width, setWidth] = useState<number>(0);
+  const { ref: hexRef, width: realWidth, height: realHeight } = useElementSize();
+
   const xZoomedScale = useRef<d3v7.ScaleLinear<number, number, never>>(null);
   const yZoomedScale = useRef<d3v7.ScaleLinear<number, number, never>>(null);
   const [xZoomTransform, setXZoomTransform] = useState(0);
@@ -100,11 +100,14 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   const margin = useMemo(() => {
     return {
       left: 52,
-      right: config.color ? 80 : 25,
+      right: config.color ? 90 : 25,
       top: 50,
       bottom: 53,
     };
   }, [config.color]);
+
+  const height = realHeight - margin.top - margin.bottom;
+  const width = realWidth - margin.left - margin.right;
 
   // getting currentX data values, both original and filtered.
   const currentX = useMemo(() => {
@@ -147,7 +150,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   }, [allColumns, colsStatus, config.color, filteredCategories]);
 
   // resize observer for setting size of the svg and updating on size change
-  useEffect(() => {
+  /** useEffect(() => {
     const ro = new ResizeObserver((entries: ResizeObserverEntry[]) => {
       setHeight(entries[0].contentRect.height - margin.top - margin.bottom);
       setWidth(entries[0].contentRect.width - margin.left - margin.right);
@@ -161,6 +164,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
       ro.disconnect();
     };
   }, [margin]);
+*/
 
   // create x scale
   const xScale = useMemo(() => {
@@ -382,7 +386,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   }, [width, height, id, hexes, selectionCallback, config.dragMode, xScale, yScale, margin]);
 
   return (
-    <Box style={{ height: '100%', width: '100%', position: 'relative' }} ref={ref}>
+    <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} ref={hexRef}>
       <Container
         fluid
         pl={0}

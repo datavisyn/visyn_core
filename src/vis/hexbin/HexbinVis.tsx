@@ -1,4 +1,4 @@
-import { Center, Group, SimpleGrid, Stack } from '@mantine/core';
+import { Box, Center, Group, SimpleGrid, Stack } from '@mantine/core';
 import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -9,28 +9,19 @@ import { BrushOptionButtons } from '../sidebar';
 import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
 export function HexbinVis({
   config,
-  extensions,
   columns,
+  dimensions,
   setConfig,
   selectionCallback = () => null,
   selectedMap = {},
   showDragModeOptions = true,
 }: ICommonVisProps<IHexbinConfig>) {
-  const mergedExtensions = useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
+  const { width, height } = dimensions;
 
   return (
-    <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+    <Stack spacing={0} sx={{ width, height }}>
       {showDragModeOptions ? (
         <Center>
           <Group mt="lg">
@@ -42,7 +33,7 @@ export function HexbinVis({
           </Group>
         </Center>
       ) : null}
-      <SimpleGrid style={{ height: '100%' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
+      <Box style={{ flexGrow: 1, position: 'relative' }} cols={config.numColumnsSelected.length > 2 ? config.numColumnsSelected.length : 1}>
         {config.numColumnsSelected.length < 2 ? (
           <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={i18n.t('visyn:vis.hexbinError')} />
         ) : (
@@ -81,10 +72,9 @@ export function HexbinVis({
                 ]}
               />
             )}
-            {mergedExtensions.postPlot}
           </>
         )}
-      </SimpleGrid>
+      </Box>
     </Stack>
   );
 }
