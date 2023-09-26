@@ -34,11 +34,10 @@ In our local test case, the redirect url will then point to keycloak's openid-co
 
 Backend env
 
-```
-REPROVISYN__SECURITY__STORE__SUPERSET_USER_STORE__ENABLE=false
-REPROVISYN__SECURITY__STORE__OAUTH2_SECURITY_STORE__ACCESS_TOKEN_HEADER_NAME=x-forwarded-access-token
-REPROVISYN__SECURITY__STORE__OAUTH2_SECURITY_STORE__ENABLE=true
-REPROVISYN__SECURITY__STORE__OAUTH2_SECURITY_STORE__COOKIE_NAME=_oauth2_proxy
-REPROVISYN__SECURITY__STORE__OAUTH2_SECURITY_STORE__SIGNOUT_URL=http://localhost:4180/oauth2/sign_out?rd=http%3A%2F%2Fkeycloak%3A9080%2Fauth%2Frealms%2Fmaster%2Fprotocol%2Fopenid-connect%2Flogout%3Fredirect_uri%3Dhttp%3A%2F%2Flocalhost%3A4180
+```env
+VISYN_CORE__SECURITY__STORE__OAUTH2_SECURITY_STORE__ENABLE=true
+VISYN_CORE__SECURITY__STORE__OAUTH2_SECURITY_STORE__ACCESS_TOKEN_HEADER_NAME=x-forwarded-access-token
+VISYN_CORE__SECURITY__STORE__OAUTH2_SECURITY_STORE__COOKIE_NAME=_oauth2_proxy
+VISYN_CORE__SECURITY__STORE__OAUTH2_SECURITY_STORE__SIGNOUT_URL=http://localhost:4180/oauth2/sign_out?rd=http%3A%2F%2Fkeycloak%3A9080%2Fauth%2Frealms%2Fmaster%2Fprotocol%2Fopenid-connect%2Flogout%3Fredirect_uri%3Dhttp%3A%2F%2Flocalhost%3A4180
 
 ```
