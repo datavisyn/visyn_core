@@ -8,6 +8,7 @@ export interface IHeatmapConfig {
   sortedBy: ESortTypes;
   aggregateType: EAggregateTypes;
   aggregateColumn: ColumnInfo | null;
+  isAnimationEnabled: boolean;
 }
 
 export enum ESortTypes {

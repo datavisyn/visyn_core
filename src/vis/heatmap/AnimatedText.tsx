@@ -10,6 +10,7 @@ export function AnimatedText({
   width,
   height,
   bold = false,
+  setImmediate = true,
 }: {
   x: number;
   y: number;
@@ -18,10 +19,11 @@ export function AnimatedText({
   bold?: boolean;
   width: number;
   height: number;
+  setImmediate?: boolean;
 }) {
   const myOrder = useRef(order);
 
-  const isImmediate = myOrder.current === order;
+  const isImmediate = setImmediate || myOrder.current === order;
   const spring = useSpring({
     x,
     y,

@@ -20,6 +20,7 @@ const defaultConfig: IHeatmapConfig = {
   sortedBy: ESortTypes.CAT_ASC,
   aggregateColumn: null,
   aggregateType: EAggregateTypes.COUNT,
+  isAnimationEnabled: false,
 };
 
 export function heatmapMergeDefaultConfig(columns: VisColumn[], config: IHeatmapConfig): IHeatmapConfig {

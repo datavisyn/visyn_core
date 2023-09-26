@@ -177,7 +177,18 @@ export function Heatmap({
 
   const text = useMemo(() => {
     if (width === 0 || height === 0) return null;
-    return <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />;
+    return (
+      <HeatmapText
+        height={height}
+        width={width}
+        margin={margin}
+        rectHeight={rectHeight}
+        rectWidth={rectWidth}
+        xScale={xScale}
+        yScale={yScale}
+        isImmediate={!config.isAnimationEnabled}
+      />
+    );
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale]);
 
   return (

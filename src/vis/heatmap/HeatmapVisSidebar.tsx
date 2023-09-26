@@ -4,6 +4,8 @@ import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { IHeatmapConfig } from './interfaces';
+import { Switch } from '@mantine/core';
+import { i18n } from '../../i18n';
 
 export function HeatmapVisSidebar({
   config,
@@ -40,6 +42,11 @@ export function HeatmapVisSidebar({
         columns={columns}
         currentSelected={config.aggregateType}
         aggregateColumn={config.aggregateColumn}
+      />
+      <Switch
+        checked={config.isAnimationEnabled}
+        onChange={(event) => setConfig({ ...config, isAnimationEnabled: event.currentTarget.checked })}
+        label={i18n.t('visyn:vis.animation')}
       />
     </>
   );
