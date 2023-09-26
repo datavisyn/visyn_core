@@ -1,0 +1,39 @@
+# Simplified variant of https://github.com/oauth2-proxy/oauth2-proxy/blob/master/contrib/local-environment/docker-compose-keycloak.yaml
+version: '3.0'
+services:
+  oauth2-proxy:
+    container_name: oauth2-proxy
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.3.0
+    command: --config /oauth2-proxy.cfg
+    hostname: oauth2-proxy
+    volumes:
+      - './oauth2-proxy.cfg:/oauth2-proxy.cfg'
+    restart: unless-stopped
+    depends_on:
+      - keycloak
+    network_mode: host
+    # required for oauth2-proxy.cfg - upstreams localhost, as the frontend isn't available inside docker
+
+  keycloak:
+    container_name: keycloak
+    image: jboss/keycloak:10.0.0
+    hostname: keycloak
+    command:
+      [
+        '-Djboss.socket.binding.port-offset=1000',
+        '-Dkeycloak.migration.action=import',
+        '-Dkeycloak.migration.provider=dir',
+        '-Dkeycloak.migration.dir=/realm-config',
+        '-Dkeycloak.migration.strategy=IGNORE_EXISTING',
+      ]
+    volumes:
+      - ./keycloak:/realm-config
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+    ports:
+      - 9080:9080/tcp
+# this docker image REALLY doesn't like to run in network-mode host
+# requires this in your /etc/hosts (uncommented)
+# 127.0.0.1 keycloak
+# 127.0.0.1 oauth2-proxy
