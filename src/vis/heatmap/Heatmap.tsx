@@ -42,19 +42,20 @@ export function Heatmap({
 }) {
   const [ref, { width, height }] = useResizeObserver();
 
-  const aggregatedTable = useMemo(() => {
+  const baseTable = useMemo(() => {
     if (!column1 || !column2) return null;
 
-    let valueTable = table({
+    return table({
       xVal: column1.resolvedValues.map(({ val }) => val),
       yVal: column2.resolvedValues.map(({ val }) => val),
-      aggregateValues: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
+      aggregateVal: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
       id: column1.resolvedValues.map(({ id }) => id),
     });
+  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.sortedBy]);
+  const aggregatedTable = useMemo(() => {
+    if (!baseTable) return null;
 
-    valueTable = valueTable.groupby('xVal', 'yVal');
-
-    valueTable = rollupByAggregateType(valueTable, config.aggregateType);
+    let valueTable = rollupByAggregateType(baseTable.groupby('xVal', 'yVal'), config.aggregateType);
 
     if (config.aggregateType === EAggregateTypes.COUNT) {
       valueTable = valueTable.impute({ aggregateVal: () => 0 }, { expand: ['xVal', 'yVal'] });
@@ -75,7 +76,7 @@ export function Heatmap({
     }
 
     return valueTable;
-  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.sortedBy]);
+  }, [baseTable]);
 
   const { groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
     const groupedVals = aggregatedTable.objects() as { xVal: string; yVal: string; aggregateVal: number; ids: string[] }[];
@@ -149,7 +150,13 @@ export function Heatmap({
   const rects = useMemo(() => {
     if (width === 0 || height === 0) return null;
     return groupedValues.map((d, i) => {
-      const { aggregateVal, ids, x, y, xVal, yVal, color } = d;
+      const { aggregateVal, x, y, xVal, yVal, color } = d;
+      const ids: string[] = Array.from(
+        baseTable
+          .params({ x: xVal, y: yVal })
+          .filter((b, $) => b.xVal === $.x && b.yVal === $.y)
+          .values('id'),
+      );
       return (
         <HeatmapRect
           xOrder={1 - Math.floor(i / xScale.domain().length) / xScale.domain().length}
