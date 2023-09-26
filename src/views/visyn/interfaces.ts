@@ -27,6 +27,10 @@ type VisynViewProps<Param extends Record<string, unknown>> = {
    * @param parameters New parameters.
    */
   onParametersChanged(parameters: React.SetStateAction<Param>): void;
+  /**
+   * Children of this visyn view. This is used to pass the actual view component to the context component.
+   */
+  children?: React.ReactNode;
 };
 
 /**
@@ -45,6 +49,10 @@ type VisynViewComponents<Props extends object> = {
    * Optional side-tab component of this visyn view plugin.
    */
   tab?: React.LazyExoticComponent<React.ComponentType<Props>> | React.ComponentType<Props>;
+  /**
+   * Optional context component of this visyn view plugin. This component wraps all of the above and allows to provide context values (i.e. via React.createContext).
+   */
+  context?: React.LazyExoticComponent<React.ComponentType<Props>> | React.ComponentType<Props>;
 };
 
 type BaseVisynViewDesc<Type extends string, Param extends Record<string, unknown>> = IBaseViewPluginDesc & {
@@ -117,7 +125,7 @@ export interface DefineVisynViewPlugin<
   /**
    * Definition to be used as return value of the loader function of the module.
    */
-  definition: Pick<VisynViewPluginBaseType<Type, Param, Props, Desc>, 'viewType' | 'defaultParameters' | 'header' | 'view' | 'tab'>;
+  definition: Pick<VisynViewPluginBaseType<Type, Param, Props, Desc>, 'viewType' | 'defaultParameters' | 'header' | 'view' | 'tab' | 'context'>;
   /**
    * Full plugin representing the loaded visyn view.
    */
