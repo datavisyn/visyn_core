@@ -7,70 +7,22 @@ import { D3BrushEvent, D3ZoomEvent } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAsync } from '../../hooks/useAsync';
-import { EScatterSelectSettings, VisColumn } from '../interfaces';
+import { EScatterSelectSettings } from '../interfaces';
 import { SingleHex } from './SingleHex';
 import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
 import { IHexbinConfig } from './interfaces';
-import { getHexData } from './utils';
+import { ResolvedHexValues } from './utils';
 
 interface HexagonalBinProps {
   config: IHexbinConfig;
-  columns: VisColumn[];
+  allColumns: ResolvedHexValues;
   selectionCallback?: (ids: string[]) => void;
   selected?: { [key: string]: boolean };
-}
-
-function Legend({
-  categories,
-  filteredCategories,
-  colorScale,
-  onClick,
-  height,
-}: {
-  categories: string[];
   filteredCategories: string[];
-  colorScale: d3v7.ScaleOrdinal<string, string>;
-  onClick: (string) => void;
-  height: number;
-}) {
-  return (
-    <ScrollArea style={{ height }}>
-      <Stack sx={{ width: '80px' }} spacing={10}>
-        {categories.map((c) => {
-          return (
-            <Tooltip withinPortal key={c} label={c} withArrow arrowSize={6}>
-              <Box>
-                <Chip
-                  variant="filled"
-                  onClick={() => onClick(c)}
-                  checked={false}
-                  styles={{
-                    label: {
-                      width: '100%',
-                      backgroundColor: filteredCategories.includes(c) ? 'lightgrey' : `${colorScale(c)} !important`,
-                      textAlign: 'center',
-                      paddingLeft: '10px',
-                      paddingRight: '10px',
-                      overflow: 'hidden',
-                      color: filteredCategories.includes(c) ? 'black' : 'white',
-                      textOverflow: 'ellipsis',
-                    },
-                  }}
-                >
-                  {c}
-                </Chip>
-              </Box>
-            </Tooltip>
-          );
-        })}
-      </Stack>
-    </ScrollArea>
-  );
 }
 
-export function Hexplot({ config, columns, selectionCallback = () => null, selected = {} }: HexagonalBinProps) {
+export function Hexplot({ config, allColumns, selectionCallback = () => null, selected = {}, filteredCategories }: HexagonalBinProps) {
   const { ref: hexRef, width: realWidth, height: realHeight } = useElementSize();
 
   const xZoomedScale = useRef<d3v7.ScaleLinear<number, number, never>>(null);
@@ -79,15 +31,11 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   const [yZoomTransform, setYZoomTransform] = useState(0);
   const [zoomScale, setZoomScale] = useState(1);
 
-  const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
-
-  const { value: allColumns, status: colsStatus } = useAsync(getHexData, [columns, config.numColumnsSelected, config.color]);
-
   const id = React.useMemo(() => uniqueId('HexPlot'), []);
 
   // getting current categorical column values, original and filtered
   const currentColorColumn = useMemo(() => {
-    if (colsStatus === 'success' && config.color && allColumns.colorColVals) {
+    if (config.color && allColumns.colorColVals) {
       return {
         allValues: allColumns.colorColVals.resolvedValues,
         filteredValues: allColumns.colorColVals.resolvedValues.filter((val) => !filteredCategories.includes(val.val as string)),
@@ -95,23 +43,23 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     }
 
     return null;
-  }, [allColumns?.colorColVals, config.color, colsStatus, filteredCategories]);
+  }, [allColumns?.colorColVals, config.color, filteredCategories]);
 
   const margin = useMemo(() => {
     return {
-      left: 52,
-      right: config.color ? 90 : 25,
-      top: 50,
-      bottom: 53,
+      left: 48,
+      right: 16,
+      top: 48,
+      bottom: 48,
     };
-  }, [config.color]);
+  }, []);
 
   const height = realHeight - margin.top - margin.bottom;
   const width = realWidth - margin.left - margin.right;
 
   // getting currentX data values, both original and filtered.
   const currentX = useMemo(() => {
-    if (colsStatus === 'success' && allColumns) {
+    if (allColumns) {
       if (config.color && allColumns.colorColVals) {
         return {
           allValues: allColumns.numColVals[0].resolvedValues,
@@ -127,11 +75,11 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     }
 
     return null;
-  }, [allColumns, config.color, colsStatus, filteredCategories]);
+  }, [allColumns, config.color, filteredCategories]);
 
   // getting currentY data values, both original and filtered.
   const currentY = useMemo(() => {
-    if (colsStatus === 'success' && allColumns) {
+    if (allColumns) {
       if (config.color && allColumns.colorColVals) {
         return {
           allValues: allColumns.numColVals[1].resolvedValues,
@@ -147,24 +95,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     }
 
     return null;
-  }, [allColumns, colsStatus, config.color, filteredCategories]);
-
-  // resize observer for setting size of the svg and updating on size change
-  /** useEffect(() => {
-    const ro = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-      setHeight(entries[0].contentRect.height - margin.top - margin.bottom);
-      setWidth(entries[0].contentRect.width - margin.left - margin.right);
-    });
-
-    if (ref) {
-      ro.observe(ref.current);
-    }
-
-    return () => {
-      ro.disconnect();
-    };
-  }, [margin]);
-*/
+  }, [allColumns, config.color, filteredCategories]);
 
   // create x scale
   const xScale = useMemo(() => {
@@ -235,32 +166,28 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
 
   // simple radius scale for the hexes
   const radiusScale = useMemo(() => {
-    if (colsStatus === 'success') {
-      const [min, max] = d3v7.extent(hexes, (h) => h.length);
+    const [min, max] = d3v7.extent(hexes, (h) => h.length);
 
-      return d3v7
-        .scaleLinear()
-        .domain([min, max])
-        .range([config.hexRadius / 2, config.hexRadius]);
-    }
+    return d3v7
+      .scaleLinear()
+      .domain([min, max])
+      .range([config.hexRadius / 2, config.hexRadius]);
 
     return null;
-  }, [colsStatus, hexes, config.hexRadius]);
+  }, [hexes, config.hexRadius]);
 
   // simple opacity scale for the hexes
   const opacityScale = useMemo(() => {
-    if (colsStatus === 'success') {
-      const [min, max] = d3v7.extent(hexes, (h) => h.length);
+    const [min, max] = d3v7.extent(hexes, (h) => h.length);
 
-      return d3v7.scaleLinear().domain([min, max]).range([0.1, 1]);
-    }
+    return d3v7.scaleLinear().domain([min, max]).range([0.1, 1]);
 
     return null;
-  }, [colsStatus, hexes]);
+  }, [hexes]);
 
   // Create a default color scale
   const colorScale = useMemo(() => {
-    if (colsStatus !== 'success' || !currentColorColumn?.allValues) {
+    if (!currentColorColumn?.allValues) {
       return null;
     }
 
@@ -269,7 +196,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
     return d3v7
       .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : d3v7.schemeCategory10)
       .domain(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
-  }, [allColumns, colsStatus, currentColorColumn]);
+  }, [allColumns, currentColorColumn]);
 
   // memoize the actual hexes since they do not need to change on zoom/drag
   const hexObjects = React.useMemo(() => {
@@ -386,7 +313,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
   }, [width, height, id, hexes, selectionCallback, config.dragMode, xScale, yScale, margin]);
 
   return (
-    <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} ref={hexRef}>
+    <Box ref={hexRef}>
       <Container
         fluid
         pl={0}
@@ -442,19 +369,6 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
             pointerEvents={config.dragMode === EScatterSelectSettings.PAN ? 'auto' : 'none'}
           />
         </svg>
-        <div style={{ right: 0, top: margin.top + 60, position: 'absolute' }}>
-          <Legend
-            categories={colorScale ? colorScale.domain() : []}
-            filteredCategories={colorScale ? filteredCategories : []}
-            colorScale={colorScale || null}
-            onClick={(s) =>
-              filteredCategories.includes(s)
-                ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
-                : setFilteredCategories([...filteredCategories, s])
-            }
-            height={200}
-          />
-        </div>
       </Container>
     </Box>
   );

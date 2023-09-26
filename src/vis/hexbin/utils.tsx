@@ -40,11 +40,7 @@ export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinCo
   return merged;
 }
 
-export async function getHexData(
-  columns: VisColumn[],
-  numColumnsSelected: ColumnInfo[],
-  colorColumn: ColumnInfo | null,
-): Promise<{
+export type ResolvedHexValues = {
   numColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
@@ -56,8 +52,10 @@ export async function getHexData(
     color?: Record<string, string>;
     info: ColumnInfo;
   };
-}> {
-  const numCols: VisNumericalColumn[] = [columns[0] as VisNumericalColumn, columns[1] as VisNumericalColumn];
+};
+
+export async function getHexData(columns: VisColumn[], numColumnsSelected: ColumnInfo[], colorColumn: ColumnInfo | null): Promise<ResolvedHexValues> {
+  const numCols: VisNumericalColumn[] = columns.filter((col) => numColumnsSelected.find((e) => e.id === col.info.id)) as VisNumericalColumn[];
 
   const numColVals = await resolveColumnValues(numCols);
 
