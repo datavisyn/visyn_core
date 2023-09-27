@@ -1,4 +1,4 @@
-import { faArrowUpWideShort, faArrowUpZA } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDownShortWide, faArrowDownWideShort, faArrowDownAZ, faArrowDownZA } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, Container, Group, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
@@ -51,7 +51,7 @@ export function Heatmap({
       aggregateVal: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
       id: column1.resolvedValues.map(({ id }) => id),
     });
-  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.sortedBy]);
+  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.xSortedBy, config.ySortedBy]);
   const aggregatedTable = useMemo(() => {
     if (!baseTable) return null;
 
@@ -69,11 +69,37 @@ export function Heatmap({
       .groupby('yVal')
       .derive({ rowTotal: op.sum('aggregateVal') });
 
-    if (config.sortedBy === ESortTypes.COUNT_ASC) {
-      valueTable = valueTable.orderby('colTotal', desc('rowTotal'));
-    } else {
-      valueTable = valueTable.orderby('xVal', 'yVal');
+    // default is ESortTypes.CAT_ASC
+    let xOrder: string | object = 'xVal';
+    switch (config.xSortedBy) {
+      case ESortTypes.VAL_ASC:
+        xOrder = 'colTotal';
+        break;
+      case ESortTypes.CAT_DESC:
+        xOrder = desc('xVal');
+        break;
+      case ESortTypes.VAL_DESC:
+        xOrder = desc('colTotal');
+        break;
     }
+
+    // default is ESortTypes.CAT_ASC
+    let yOrder: string | object = 'yVal';
+    switch (config.ySortedBy) {
+      case ESortTypes.VAL_ASC:
+        yOrder = 'rowTotal';
+        break;
+      case ESortTypes.CAT_DESC:
+        yOrder = desc('yVal');
+        break;
+      case ESortTypes.VAL_DESC:
+        yOrder = desc('rowTotal');
+        break;
+    }
+    valueTable = valueTable.orderby(xOrder, yOrder);
+
+    // console.log(Array.from(valueTable.column('rowTotal')));
+    // console.log(Array.from(valueTable.values('colTotal')));
 
     return valueTable;
   }, [baseTable]);
@@ -206,13 +232,33 @@ export function Heatmap({
         <Text
           color="dimmed"
           sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
-          onClick={() => setExternalConfig({ ...config, sortedBy: config.sortedBy === ESortTypes.CAT_ASC ? ESortTypes.COUNT_ASC : ESortTypes.CAT_ASC })}
+          onClick={() =>
+            setExternalConfig({
+              ...config,
+              ySortedBy:
+                config.ySortedBy === ESortTypes.CAT_ASC
+                  ? ESortTypes.CAT_DESC
+                  : config.ySortedBy === ESortTypes.CAT_DESC
+                  ? ESortTypes.VAL_ASC
+                  : config.ySortedBy === ESortTypes.VAL_ASC
+                  ? ESortTypes.VAL_DESC
+                  : ESortTypes.CAT_ASC,
+            })
+          }
         >
           <FontAwesomeIcon
             fontWeight={100}
             color="#C0C0C0"
             style={{ marginRight: '10px', fontWeight: 200 }}
-            icon={config.sortedBy === ESortTypes.COUNT_ASC ? faArrowUpWideShort : faArrowUpZA}
+            icon={
+              config.ySortedBy === ESortTypes.VAL_ASC
+                ? faArrowDownAZ
+                : config.ySortedBy === ESortTypes.VAL_DESC
+                ? faArrowDownZA
+                : config.ySortedBy === ESortTypes.CAT_ASC
+                ? faArrowDownShortWide
+                : faArrowDownWideShort
+            }
           />
           {column2.info.name}
         </Text>
@@ -237,9 +283,33 @@ export function Heatmap({
       <Text
         color="dimmed"
         sx={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
-        onClick={() => setExternalConfig({ ...config, sortedBy: config.sortedBy === ESortTypes.CAT_ASC ? ESortTypes.COUNT_ASC : ESortTypes.CAT_ASC })}
+        onClick={() =>
+          setExternalConfig({
+            ...config,
+            xSortedBy:
+              config.xSortedBy === ESortTypes.CAT_ASC
+                ? ESortTypes.CAT_DESC
+                : config.xSortedBy === ESortTypes.CAT_DESC
+                ? ESortTypes.VAL_ASC
+                : config.xSortedBy === ESortTypes.VAL_ASC
+                ? ESortTypes.VAL_DESC
+                : ESortTypes.CAT_ASC,
+          })
+        }
       >
-        <FontAwesomeIcon color="#C0C0C0" style={{ marginRight: '10px' }} icon={config.sortedBy === ESortTypes.COUNT_ASC ? faArrowUpWideShort : faArrowUpZA} />
+        <FontAwesomeIcon
+          color="#C0C0C0"
+          style={{ marginRight: '10px' }}
+          icon={
+            config.xSortedBy === ESortTypes.VAL_ASC
+              ? faArrowDownAZ
+              : config.xSortedBy === ESortTypes.VAL_DESC
+              ? faArrowDownZA
+              : config.xSortedBy === ESortTypes.CAT_ASC
+              ? faArrowDownShortWide
+              : faArrowDownWideShort
+          }
+        />
         {column1.info.name}
       </Text>
     </Stack>

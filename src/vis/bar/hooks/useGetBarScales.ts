@@ -25,7 +25,7 @@ export function useGetBarScales(
         group: allColumns?.groupColVals?.resolvedValues.map((val) => val.val),
         multiples: allColumns?.multiplesColVals?.resolvedValues.map((val) => val.val) || [],
         selected: allColumns.catColVals.resolvedValues.map((val) => (selectedMap[val.id] ? 1 : 0)),
-        aggregateValues: allColumns?.aggregateColVals?.resolvedValues.map((val) => val.val) || [],
+        aggregateVal: allColumns?.aggregateColVals?.resolvedValues.map((val) => val.val) || [],
         id: allColumns.catColVals.resolvedValues.map((val) => val.id),
       });
     }
@@ -38,13 +38,13 @@ export function useGetBarScales(
       case EAggregateTypes.COUNT:
         return (d) => op.count();
       case EAggregateTypes.AVG:
-        return (d) => op.average(d.aggregateValues);
+        return (d) => op.average(d.aggregateVal);
       case EAggregateTypes.MIN:
-        return (d) => op.min(d.aggregateValues);
+        return (d) => op.min(d.aggregateVal);
       case EAggregateTypes.MED:
-        return (d) => op.median(d.aggregateValues);
+        return (d) => op.median(d.aggregateVal);
       case EAggregateTypes.MAX:
-        return (d) => op.max(d.aggregateValues);
+        return (d) => op.max(d.aggregateVal);
       default:
         return (d) => op.count();
     }

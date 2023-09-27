@@ -52,7 +52,7 @@ export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggre
       return tempTable
         .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
         .rollup({
-          aggregateVal: (d) => op.average(d.aggregateValues),
+          aggregateVal: (d) => op.average(d.aggregateVal),
           count: op.count(),
           selectedCount: (d) => op.sum(d.selected),
           ids: (d) => op.array_agg(d.id),
@@ -63,7 +63,7 @@ export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggre
     case EAggregateTypes.MIN:
       return tempTable
         .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({ aggregateVal: (d) => op.min(d.aggregateValues), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .rollup({ aggregateVal: (d) => op.min(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('group')
         .groupby('category')
         .derive({ categoryCount: (d) => op.sum(d.count) });
@@ -71,7 +71,7 @@ export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggre
       return tempTable
         .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
         .rollup({
-          aggregateVal: (d) => op.median(d.aggregateValues),
+          aggregateVal: (d) => op.median(d.aggregateVal),
           count: op.count(),
           selectedCount: (d) => op.sum(d.selected),
           ids: (d) => op.array_agg(d.id),
@@ -83,7 +83,7 @@ export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggre
     case EAggregateTypes.MAX:
       return tempTable
         .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({ aggregateVal: (d) => op.max(d.aggregateValues), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .rollup({ aggregateVal: (d) => op.max(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('group')
         .groupby('category')
         .derive({ categoryCount: (d) => op.sum(d.count) });
@@ -106,7 +106,7 @@ export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAgg
       return tempTable
         .groupby('category', 'group')
         .rollup({
-          aggregateVal: (d) => op.average(d.aggregateValues),
+          aggregateVal: (d) => op.average(d.aggregateVal),
           count: op.count(),
           selectedCount: (d) => op.sum(d.selected),
           ids: (d) => op.array_agg(d.id),
@@ -117,7 +117,7 @@ export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAgg
     case EAggregateTypes.MIN:
       return tempTable
         .groupby('category', 'group')
-        .rollup({ aggregateVal: (d) => op.min(d.aggregateValues), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .rollup({ aggregateVal: (d) => op.min(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('category')
         .groupby('category')
         .derive({ categoryCount: (d) => op.sum(d.count) });
@@ -125,7 +125,7 @@ export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAgg
       return tempTable
         .groupby('category', 'group')
         .rollup({
-          aggregateVal: (d) => op.median(d.aggregateValues),
+          aggregateVal: (d) => op.median(d.aggregateVal),
           count: op.count(),
           selectedCount: (d) => op.sum(d.selected),
           ids: (d) => op.array_agg(d.id),
@@ -137,7 +137,7 @@ export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAgg
     case EAggregateTypes.MAX:
       return tempTable
         .groupby('category', 'group')
-        .rollup({ aggregateVal: (d) => op.max(d.aggregateValues), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .rollup({ aggregateVal: (d) => op.max(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('category')
         .groupby('category')
         .derive({ categoryCount: (d) => op.sum(d.count) });
@@ -153,15 +153,15 @@ export function rollupByAggregateType(tempTable: ColumnTable, aggregateType: EAg
     case EAggregateTypes.COUNT:
       return tempTable.rollup({ aggregateVal: () => op.count() });
     case EAggregateTypes.AVG:
-      return tempTable.rollup({ aggregateVal: (d) => op.average(d.aggregateValues) });
+      return tempTable.rollup({ aggregateVal: (d) => op.average(d.aggregateVal) });
 
     case EAggregateTypes.MIN:
-      return tempTable.rollup({ aggregateVal: (d) => op.min(d.aggregateValues) });
+      return tempTable.rollup({ aggregateVal: (d) => op.min(d.aggregateVal) });
 
     case EAggregateTypes.MED:
-      return tempTable.rollup({ aggregateVal: (d) => op.median(d.aggregateValues) });
+      return tempTable.rollup({ aggregateVal: (d) => op.median(d.aggregateVal) });
     case EAggregateTypes.MAX:
-      return tempTable.rollup({ aggregateVal: (d) => op.max(d.aggregateValues) });
+      return tempTable.rollup({ aggregateVal: (d) => op.max(d.aggregateVal) });
 
     default:
       return null;

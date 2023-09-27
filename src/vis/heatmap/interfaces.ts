@@ -5,18 +5,18 @@ export interface IHeatmapConfig {
   color: ColumnInfo | null;
   catColumnsSelected: ColumnInfo[];
   numColorScaleType: ENumericalColorScaleType;
-  sortedBy: ESortTypes;
+  xSortedBy: ESortTypes;
+  ySortedBy: ESortTypes;
   aggregateType: EAggregateTypes;
   aggregateColumn: ColumnInfo | null;
   isAnimationEnabled: boolean;
 }
 
 export enum ESortTypes {
-  NONE = 'NONE',
   CAT_ASC = 'CAT_ASC',
   CAT_DESC = 'CAT_DESC',
-  COUNT_ASC = 'COUNT_ASC',
-  COUNT_DESC = 'COUNT_DESC',
+  VAL_ASC = 'VAL_ASC',
+  VAL_DESC = 'VAL_DESC',
 }
 
 export function isHeatmapConfig(vis: BaseVisConfig): vis is IHeatmapConfig {

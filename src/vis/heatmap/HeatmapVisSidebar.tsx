@@ -43,11 +43,12 @@ export function HeatmapVisSidebar({
         currentSelected={config.aggregateType}
         aggregateColumn={config.aggregateColumn}
       />
-      <Switch
+      {/* Disabled until the animations are fixed. By default animations are disabled */}
+      {/* <Switch
         checked={config.isAnimationEnabled}
         onChange={(event) => setConfig({ ...config, isAnimationEnabled: event.currentTarget.checked })}
         label={i18n.t('visyn:vis.animation')}
-      />
+      /> */}
     </>
   );
 }
