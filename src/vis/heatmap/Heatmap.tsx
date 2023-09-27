@@ -199,10 +199,11 @@ export function Heatmap({
           color={color}
           label={aggregateVal}
           setSelected={() => selectionCallback(ids)}
+          isImmediate={!config.isAnimationEnabled}
         />
       );
     });
-  }, [baseTable, groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale]);
+  }, [baseTable, groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale, config.isAnimationEnabled]);
 
   const text = useMemo(() => {
     if (width === 0 || height === 0) return null;
