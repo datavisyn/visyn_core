@@ -54,6 +54,7 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
       onChange={(e) => callback(e as ESupportedPlotlyVis)}
       name="visTypes"
       itemComponent={SelectItem}
+      maxDropdownHeight={380}
       data={visTypes.map((t) => {
         return {
           value: t.type,
