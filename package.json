@@ -179,7 +179,7 @@
     "@storybook/react": "^7.0.12",
     "@storybook/react-webpack5": "^7.0.12",
     "@storybook/testing-library": "0.0.13",
-    "cypress": "^11.2.0",
+    "cypress": "^13.2.0",
     "storybook": "^7.0.12",
     "storybook-addon-swc": "^1.1.9"
   },
