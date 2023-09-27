@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { Switch } from '@mantine/core';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { IHeatmapConfig } from './interfaces';
-import { Switch } from '@mantine/core';
 import { i18n } from '../../i18n';
 
 export function HeatmapVisSidebar({

@@ -51,7 +51,7 @@ export function Heatmap({
       aggregateVal: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
       id: column1.resolvedValues.map(({ id }) => id),
     });
-  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.xSortedBy, config.ySortedBy]);
+  }, [aggregateColumn?.resolvedValues, column1, column2]);
   const aggregatedTable = useMemo(() => {
     if (!baseTable) return null;
 
@@ -70,7 +70,7 @@ export function Heatmap({
       .derive({ rowTotal: op.sum('aggregateVal') });
 
     // default is ESortTypes.CAT_ASC
-    let xOrder: string | object = 'xVal';
+    let xOrder: string | object;
     switch (config.xSortedBy) {
       case ESortTypes.VAL_ASC:
         xOrder = 'colTotal';
@@ -81,10 +81,13 @@ export function Heatmap({
       case ESortTypes.VAL_DESC:
         xOrder = desc('colTotal');
         break;
+      default:
+        xOrder = 'xVal';
+        break;
     }
 
     // default is ESortTypes.CAT_ASC
-    let yOrder: string | object = 'yVal';
+    let yOrder: string | object;
     switch (config.ySortedBy) {
       case ESortTypes.VAL_ASC:
         yOrder = 'rowTotal';
@@ -95,14 +98,14 @@ export function Heatmap({
       case ESortTypes.VAL_DESC:
         yOrder = desc('rowTotal');
         break;
+      default:
+        yOrder = 'yVal';
+        break;
     }
     valueTable = valueTable.orderby(xOrder, yOrder);
 
-    // console.log(Array.from(valueTable.column('rowTotal')));
-    // console.log(Array.from(valueTable.values('colTotal')));
-
     return valueTable;
-  }, [baseTable]);
+  }, [baseTable, config.aggregateType, config.xSortedBy, config.ySortedBy]);
 
   const { groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
     const groupedVals = aggregatedTable.objects() as { xVal: string; yVal: string; aggregateVal: number; ids: string[] }[];
@@ -199,7 +202,7 @@ export function Heatmap({
         />
       );
     });
-  }, [groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale]);
+  }, [baseTable, groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale]);
 
   const text = useMemo(() => {
     if (width === 0 || height === 0) return null;
@@ -215,7 +218,7 @@ export function Heatmap({
         isImmediate={!config.isAnimationEnabled}
       />
     );
-  }, [height, margin, rectHeight, rectWidth, width, xScale, yScale]);
+  }, [height, margin, rectHeight, rectWidth, width, xScale, yScale, config.isAnimationEnabled]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
