@@ -255,12 +255,12 @@ export function Heatmap({
             style={{ marginRight: '10px', fontWeight: 200 }}
             icon={
               config.ySortedBy === ESortTypes.VAL_ASC
-                ? faArrowDownAZ
-                : config.ySortedBy === ESortTypes.VAL_DESC
-                ? faArrowDownZA
-                : config.ySortedBy === ESortTypes.CAT_ASC
                 ? faArrowDownShortWide
-                : faArrowDownWideShort
+                : config.ySortedBy === ESortTypes.VAL_DESC
+                ? faArrowDownWideShort
+                : config.ySortedBy === ESortTypes.CAT_ASC
+                ? faArrowDownAZ
+                : faArrowDownZA
             }
           />
           {column2.info.name}
@@ -305,12 +305,12 @@ export function Heatmap({
           style={{ marginRight: '10px' }}
           icon={
             config.xSortedBy === ESortTypes.VAL_ASC
-              ? faArrowDownAZ
-              : config.xSortedBy === ESortTypes.VAL_DESC
-              ? faArrowDownZA
-              : config.xSortedBy === ESortTypes.CAT_ASC
               ? faArrowDownShortWide
-              : faArrowDownWideShort
+              : config.xSortedBy === ESortTypes.VAL_DESC
+              ? faArrowDownWideShort
+              : config.xSortedBy === ESortTypes.CAT_ASC
+              ? faArrowDownAZ
+              : faArrowDownZA
           }
         />
         {column1.info.name}
