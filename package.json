@@ -187,7 +187,8 @@
     "@types/react": "~18.2.0",
     "@types/react-dom": "~18.2.0",
     "react": "~18.2.0",
-    "react-dom": "~18.2.0"
+    "react-dom": "~18.2.0",
+    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#mh/mantine7"
   },
   "visyn": {
     "entries": {
