@@ -1,53 +1,11 @@
+import { bin, desc, op } from 'arquero';
+import ColumnTable from 'arquero/dist/types/table/column-table';
 import merge from 'lodash/merge';
-import sum from 'lodash/sum';
-import mean from 'lodash/mean';
-import min from 'lodash/min';
-import max from 'lodash/max';
-import { median } from 'd3v7';
-import { i18n } from '../../i18n';
-import {
-  PlotlyInfo,
-  PlotlyData,
-  VisCategoricalColumn,
-  EColumnTypes,
-  ESupportedPlotlyVis,
-  IVisConfig,
-  Scales,
-  VisColumn,
-  VisCategoricalValue,
-  IBarConfig,
-  EBarGroupingType,
-  EBarDisplayType,
-  EBarDirection,
-  EAggregateTypes,
-  VisNumericalColumn,
-  VisNumericalValue,
-} from '../interfaces';
-import { columnNameWithDescription, resolveSingleColumn, truncateText } from '../general/layoutUtils';
-import { getCol } from '../sidebar';
+import { resolveSingleColumn } from '../general/layoutUtils';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { IBarConfig, defaultConfig, SortTypes } from './interfaces';
 
-export function isBar(s: IVisConfig): s is IBarConfig {
-  return s.type === ESupportedPlotlyVis.BAR;
-}
-
-const UNSELECTED_OPACITY = '0.2';
-const defaultConfig: IBarConfig = {
-  type: ESupportedPlotlyVis.BAR,
-  numColumnsSelected: [],
-  catColumnSelected: null,
-  group: null,
-  groupType: EBarGroupingType.STACK,
-  multiples: null,
-  display: EBarDisplayType.ABSOLUTE,
-  direction: EBarDirection.HORIZONTAL,
-  aggregateColumn: null,
-  aggregateType: EAggregateTypes.COUNT,
-};
-
-const TICK_LABEL_LENGTH = 8;
-const DEFAULT_GRAY = '#878E95';
-
-export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IVisConfig {
+export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
 
   const catCols = columns.filter((c) => c.type === EColumnTypes.CATEGORICAL);
@@ -64,465 +22,186 @@ export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig):
   return merged;
 }
 
-function createAxisLabel(aggregateType: EAggregateTypes, aggregateColumn: VisColumn) {
-  return aggregateType === EAggregateTypes.COUNT ? aggregateType : `${aggregateType} of ${columnNameWithDescription(aggregateColumn.info)}`;
+// Helper function for the bar chart which sorts the data depending on the sort type.
+export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes) {
+  switch (sortType) {
+    case SortTypes.CAT_ASC:
+      return tempTable.orderby('category');
+    case SortTypes.CAT_DESC:
+      return tempTable.orderby(desc('category'));
+    case SortTypes.COUNT_ASC:
+      return tempTable.orderby('count');
+    case SortTypes.COUNT_DESC:
+      return tempTable.orderby(desc('count'));
+    default:
+      return tempTable;
+  }
 }
 
-/**
- * This function finds the faceted values of a given categorical column based on an aggregation type.
- * If isTotal is true, it will sum all of the categorical values, used for normalizing the bar charts.
- * Otherwise, it will return an array of values corresponding to the categoricalOptions argument
- * @param aggregateType Enum for aggregate type
- * @param catColValues Categorical Column which we are visualizing
- * @param aggColValues Numerical Column which we are using for our aggregation type, unless count is the aggregation type.
- * @param _categoricalOptions Optional list of categorical options to find. If not provided, will use a set from the catColValues parameter
- * @param isTotal Boolean for deciding whether or not to summarize the results of the list. Also cleans NaN and undefined values to 0
- * @returns A list of numbers if isTotal is false, a single number if true.
- */
-function getAggregateValues(
-  aggregateType: EAggregateTypes,
-  catColValues: VisCategoricalValue[],
-  aggColValues: VisNumericalValue[],
-  _categoricalOptions?: string[],
-  isTotal?: boolean,
-) {
-  const categoricalOptions = _categoricalOptions || [...new Set(catColValues.map((v) => v.val))];
-
-  const categoricalMap = {};
-
-  catColValues.forEach((val) => {
-    categoricalMap[val.id] = val.val;
-  });
-
-  function aggregate(aggFunc) {
-    const aggValues = categoricalOptions.map(
-      (curr) => aggFunc((aggColValues as VisNumericalValue[]).filter((c) => categoricalMap[c.id] === curr && !Number.isNaN(c.val)).map((c) => c.val)) || 0,
-    );
-
-    return isTotal ? sum(aggValues) : aggValues;
-  }
-
+// Helper function for the bar chart which bins the data depending on the aggregate type. Used for numerical column grouping
+export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
   switch (aggregateType) {
+    case EAggregateTypes.COUNT:
+      return tempTable
+        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .rollup({ aggregateVal: () => op.count(), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .orderby('group')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
     case EAggregateTypes.AVG:
-      return aggregate(mean);
-
+      return tempTable
+        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .rollup({
+          aggregateVal: (d) => op.average(d.aggregateVal),
+          count: op.count(),
+          selectedCount: (d) => op.sum(d.selected),
+          ids: (d) => op.array_agg(d.id),
+        })
+        .orderby('group')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
     case EAggregateTypes.MIN:
-      return aggregate(min);
+      return tempTable
+        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .rollup({ aggregateVal: (d) => op.min(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .orderby('group')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
+    case EAggregateTypes.MED:
+      return tempTable
+        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .rollup({
+          aggregateVal: (d) => op.median(d.aggregateVal),
+          count: op.count(),
+          selectedCount: (d) => op.sum(d.selected),
+          ids: (d) => op.array_agg(d.id),
+        })
+        .orderby('group')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
 
     case EAggregateTypes.MAX:
-      return aggregate(max);
+      return tempTable
+        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .rollup({ aggregateVal: (d) => op.max(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .orderby('group')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
+    default:
+      return null;
+  }
+}
+// Helper function for the bar chart which aggregates the data based on the aggregate type.
+// Mostly just code duplication with the different aggregate types.
+export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
+  switch (aggregateType) {
+    case EAggregateTypes.COUNT:
+      return tempTable
+        .groupby('category', 'group')
+        .rollup({ aggregateVal: () => op.count(), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .orderby('category')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
+    case EAggregateTypes.AVG:
+      return tempTable
+        .groupby('category', 'group')
+        .rollup({
+          aggregateVal: (d) => op.average(d.aggregateVal),
+          count: op.count(),
+          selectedCount: (d) => op.sum(d.selected),
+          ids: (d) => op.array_agg(d.id),
+        })
+        .orderby('category')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
+    case EAggregateTypes.MIN:
+      return tempTable
+        .groupby('category', 'group')
+        .rollup({ aggregateVal: (d) => op.min(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .orderby('category')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
+    case EAggregateTypes.MED:
+      return tempTable
+        .groupby('category', 'group')
+        .rollup({
+          aggregateVal: (d) => op.median(d.aggregateVal),
+          count: op.count(),
+          selectedCount: (d) => op.sum(d.selected),
+          ids: (d) => op.array_agg(d.id),
+        })
+        .orderby('category')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
+
+    case EAggregateTypes.MAX:
+      return tempTable
+        .groupby('category', 'group')
+        .rollup({ aggregateVal: (d) => op.max(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
+        .orderby('category')
+        .groupby('category')
+        .derive({ categoryCount: (d) => op.sum(d.count) });
+    default:
+      return null;
+  }
+}
+
+// Helper function for the bar chart which rolls up the data depending on the aggregate type.
+// Mostly just code duplication with the different aggregate types.
+export function rollupByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
+  switch (aggregateType) {
+    case EAggregateTypes.COUNT:
+      return tempTable.rollup({ aggregateVal: () => op.count() });
+    case EAggregateTypes.AVG:
+      return tempTable.rollup({ aggregateVal: (d) => op.average(d.aggregateVal) });
+
+    case EAggregateTypes.MIN:
+      return tempTable.rollup({ aggregateVal: (d) => op.min(d.aggregateVal) });
 
     case EAggregateTypes.MED:
-      return aggregate(median);
-
-    case EAggregateTypes.COUNT: {
-      const countValues = categoricalOptions.map((curr) => (catColValues as VisCategoricalValue[]).filter((c) => c.val === curr).length);
-      return isTotal ? sum(countValues) : countValues;
-    }
+      return tempTable.rollup({ aggregateVal: (d) => op.median(d.aggregateVal) });
+    case EAggregateTypes.MAX:
+      return tempTable.rollup({ aggregateVal: (d) => op.max(d.aggregateVal) });
 
     default:
-      throw new Error('Unknown aggregation type');
+      return null;
   }
 }
 
-async function setPlotsWithGroupsAndMultiples(
+export async function getBarData(
   columns: VisColumn[],
-  catCol: VisCategoricalColumn,
-  aggregateType: EAggregateTypes,
-  aggregateColumn: VisNumericalColumn,
-  config: IBarConfig,
-  plots: PlotlyData[],
-  scales: Scales,
-  plotCounter: number,
-): Promise<number> {
-  let plotCounterEdit = plotCounter;
-  const catColValues = await resolveSingleColumn(catCol);
-  const aggColValues = await resolveSingleColumn(aggregateColumn);
-
-  const vertFlag = config.direction === EBarDirection.VERTICAL;
-  const normalizedFlag = config.display === EBarDisplayType.NORMALIZED;
-  const currGroupColumn = await resolveSingleColumn(getCol(columns, config.group));
-  const currMultiplesColumn = await resolveSingleColumn(getCol(columns, config.multiples));
-
-  const uniqueGroupVals: string[] = [...new Set(currGroupColumn.resolvedValues.map((v) => v.val))] as string[];
-  const uniqueMultiplesVals: string[] = [...new Set(currMultiplesColumn.resolvedValues.map((v) => v.val))] as string[];
-
-  const uniqueColVals = [...new Set(catColValues.resolvedValues.map((v) => v.val as string))] as string[];
-
-  uniqueMultiplesVals.forEach((uniqueMultiples) => {
-    const allMultiplesObjsIds = new Set(
-      (currMultiplesColumn.resolvedValues as VisCategoricalValue[]).filter((c) => c.val === uniqueMultiples).map((c) => c.id),
-    );
-
-    uniqueGroupVals.forEach((uniqueGroup) => {
-      const allGroupObjsIds = new Set((currGroupColumn.resolvedValues as VisCategoricalValue[]).filter((c) => c.val === uniqueGroup).map((c) => c.id));
-
-      const aggregateVals = uniqueColVals
-        .map((v) => {
-          const allObjs = (catColValues.resolvedValues as VisCategoricalValue[]).filter((c) => c.val === v);
-          const allObjsIds = new Set(allObjs.map((o) => o.id));
-
-          const joinedObjs = allObjs.filter((c) => allGroupObjsIds.has(c.id) && allMultiplesObjsIds.has(c.id));
-
-          const aggregateValues = getAggregateValues(aggregateType, joinedObjs, aggColValues?.resolvedValues as VisNumericalValue[]);
-
-          const ungroupedAggregateValues = getAggregateValues(
-            aggregateType,
-            currMultiplesColumn.resolvedValues.filter((val) => allObjsIds.has(val.id)) as VisCategoricalValue[],
-            aggColValues?.resolvedValues as VisNumericalValue[],
-            uniqueMultiplesVals,
-          );
-          return joinedObjs.length === 0 ? [0] : normalizedFlag ? (aggregateValues[0] / (ungroupedAggregateValues as number)) * 100 : aggregateValues;
-        })
-        .flat();
-
-      const plotAggregateAxisName = createAxisLabel(aggregateType, aggregateColumn);
-
-      let valIdArr: string[][] = uniqueColVals.map((val) => []);
-
-      catColValues.resolvedValues.forEach((row) => valIdArr[uniqueColVals.indexOf(row.val as string)].push(row.id));
-
-      // stores the actual points of each bar/section of bar in the custom data.
-      valIdArr = valIdArr.map((arr) => arr.filter((val) => allGroupObjsIds.has(val) && allMultiplesObjsIds.has(val)));
-
-      plots.push({
-        data: {
-          x: vertFlag ? uniqueColVals : aggregateVals,
-          y: !vertFlag ? uniqueColVals : aggregateVals,
-          text: uniqueColVals,
-          ids: uniqueColVals.map((colVal) => `${colVal}, ${uniqueMultiples}, ${uniqueGroup}`),
-          customdata: valIdArr,
-
-          textposition: 'none',
-          hoverinfo: vertFlag ? 'y+text' : 'x+text',
-          orientation: vertFlag ? 'v' : 'h',
-          xaxis: plotCounterEdit === 1 ? 'x' : `x${plotCounterEdit}`,
-          yaxis: plotCounterEdit === 1 ? 'y' : `y${plotCounterEdit}`,
-          showlegend: plotCounterEdit === 1,
-          type: 'bar',
-          name: uniqueGroup,
-          marker: {
-            color: currGroupColumn.color ? currGroupColumn.color[uniqueGroup] || DEFAULT_GRAY : scales.color(uniqueGroup),
-          },
-          // @ts-ignore
-          selected: {
-            marker: {
-              opacity: '1',
-            },
-          },
-          unselected: {
-            marker: {
-              opacity: UNSELECTED_OPACITY,
-            },
-          },
-        },
-        title: uniqueMultiples,
-        xLabel: vertFlag ? columnNameWithDescription(catColValues.info) : normalizedFlag ? 'Percent of Total' : plotAggregateAxisName,
-        yLabel: vertFlag ? (normalizedFlag ? 'Percent of Total' : plotAggregateAxisName) : columnNameWithDescription(catColValues.info),
-        xTicks: vertFlag ? uniqueColVals : null,
-        xTickLabels: vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-        yTicks: !vertFlag ? uniqueColVals : null,
-        yTickLabels: !vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-      });
-    });
-    plotCounterEdit += 1;
-  });
-
-  return plotCounterEdit;
-}
-
-async function setPlotsWithGroups(
-  columns: VisColumn[],
-  catCol: VisCategoricalColumn,
-  aggregateType: EAggregateTypes,
-  aggregateColumn: VisNumericalColumn,
-  config: IBarConfig,
-  plots: PlotlyData[],
-  scales: Scales,
-  plotCounter: number,
-): Promise<number> {
-  const catColValues = await resolveSingleColumn(catCol);
-  const aggColValues = await resolveSingleColumn(aggregateColumn);
-
-  const vertFlag = config.direction === EBarDirection.VERTICAL;
-  const normalizedFlag = config.display === EBarDisplayType.NORMALIZED;
-  const groupColumn = await resolveSingleColumn(getCol(columns, config.group));
-
-  const uniqueGroupVals: string[] = [...new Set(groupColumn.resolvedValues.map((v) => v.val))] as string[];
-  const uniqueColVals: string[] = [...new Set(catColValues.resolvedValues.map((v) => v.val))] as string[];
-
-  uniqueGroupVals.forEach((uniqueVal) => {
-    const allGroupObjsIds = new Set((groupColumn.resolvedValues as VisCategoricalValue[]).filter((c) => c.val === uniqueVal).map((c) => c.id));
-    const finalAggregateValues = uniqueColVals
-      .map((v) => {
-        const allObjs = (catColValues.resolvedValues as VisCategoricalValue[]).filter((c) => c.val === v);
-        const allObjsIds = new Set(allObjs.map((o) => o.id));
-
-        const joinedObjs = allObjs.filter((allVal) => allGroupObjsIds.has(allVal.id));
-
-        const aggregateValues = getAggregateValues(aggregateType, joinedObjs, aggColValues?.resolvedValues as VisNumericalValue[]);
-        const ungroupedAggregateValues = getAggregateValues(
-          aggregateType,
-          groupColumn.resolvedValues.filter((val) => allObjsIds.has(val.id)) as VisCategoricalValue[],
-          aggColValues?.resolvedValues as VisNumericalValue[],
-          uniqueGroupVals,
-          true,
-        );
-
-        return joinedObjs.length === 0 ? [0] : normalizedFlag ? (aggregateValues[0] / (ungroupedAggregateValues as number)) * 100 : aggregateValues;
-      })
-      .flat();
-
-    const plotAggregateAxisName = createAxisLabel(aggregateType, aggregateColumn);
-
-    let valIdArr: string[][] = uniqueColVals.map((val) => []);
-
-    catColValues.resolvedValues.forEach((row) => valIdArr[uniqueColVals.indexOf(row.val as string)].push(row.id));
-
-    // stores the actual points of each bar/section of bar in the custom data.
-    valIdArr = valIdArr.map((arr) => arr.filter((val) => allGroupObjsIds.has(val)));
-
-    plots.push({
-      data: {
-        x: vertFlag ? uniqueColVals : finalAggregateValues,
-        y: !vertFlag ? uniqueColVals : finalAggregateValues,
-        text: uniqueColVals,
-        ids: uniqueColVals.map((colVal) => `${colVal}, ${uniqueVal}`),
-        customdata: valIdArr,
-
-        textposition: 'none',
-        hoverinfo: vertFlag ? 'y+text' : 'x+text',
-        orientation: vertFlag ? 'v' : 'h',
-        xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
-        yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-        showlegend: plotCounter === 1,
-        type: 'bar',
-        name: uniqueVal,
-        marker: {
-          color: groupColumn.color ? groupColumn.color[uniqueVal] || DEFAULT_GRAY : scales.color(uniqueVal),
-        },
-        // @ts-ignore
-        selected: {
-          marker: {
-            opacity: '1',
-          },
-        },
-        unselected: {
-          marker: {
-            opacity: UNSELECTED_OPACITY,
-          },
-        },
-      },
-      xLabel: vertFlag ? columnNameWithDescription(catColValues.info) : normalizedFlag ? 'Percent of Total' : plotAggregateAxisName,
-      yLabel: vertFlag ? (normalizedFlag ? 'Percent of Total' : plotAggregateAxisName) : columnNameWithDescription(catColValues.info),
-      xTicks: vertFlag ? uniqueColVals : null,
-      xTickLabels: vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-      yTicks: !vertFlag ? uniqueColVals : null,
-      yTickLabels: !vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-    });
-  });
-
-  return plotCounter;
-}
-
-async function setPlotsWithMultiples(
-  columns: VisColumn[],
-  catCol: VisCategoricalColumn,
-  aggregateType: EAggregateTypes,
-  aggregateColumn: VisNumericalColumn,
-  config: IBarConfig,
-  plots: PlotlyData[],
-  plotCounter: number,
-): Promise<number> {
-  let plotCounterEdit = plotCounter;
-  const catColValues = await resolveSingleColumn(catCol);
-  const aggColValues = await resolveSingleColumn(aggregateColumn);
-  const multiplesColumn = await resolveSingleColumn(getCol(columns, config.multiples));
-
-  const vertFlag = config.direction === EBarDirection.VERTICAL;
-
-  const uniqueMultiplesVals: string[] = [...new Set((await multiplesColumn).resolvedValues.map((v) => v.val))] as string[];
-  const uniqueColVals: string[] = [...new Set(catColValues.resolvedValues.map((v) => v.val))] as string[];
-
-  uniqueMultiplesVals.forEach((uniqueVal) => {
-    const allMultiplesObjsIds = new Set((multiplesColumn.resolvedValues as VisCategoricalValue[]).filter((c) => c.val === uniqueVal).map((c) => c.id));
-
-    const finalAggregateValues = uniqueColVals
-      .map((v) => {
-        const allObjs = (catColValues.resolvedValues as VisCategoricalValue[]).filter((c) => c.val === v);
-        const joinedObjs = allObjs.filter((c) => allMultiplesObjsIds.has(c.id));
-
-        return joinedObjs.length === 0 ? [0] : getAggregateValues(aggregateType, joinedObjs, aggColValues?.resolvedValues as VisNumericalValue[]);
-      })
-      .flat();
-    const plotAggregateAxisName = createAxisLabel(aggregateType, aggregateColumn);
-
-    let valIdArr: string[][] = uniqueColVals.map((val) => []);
-
-    catColValues.resolvedValues.forEach((row) => valIdArr[uniqueColVals.indexOf(row.val as string)].push(row.id));
-
-    // stores the actual points of each bar/section of bar in the custom data.
-    valIdArr = valIdArr.map((arr) => arr.filter((val) => allMultiplesObjsIds.has(val)));
-
-    plots.push({
-      data: {
-        x: vertFlag ? uniqueColVals : finalAggregateValues,
-        y: !vertFlag ? uniqueColVals : finalAggregateValues,
-        ids: uniqueColVals.map((colVal) => `${colVal}, ${uniqueVal}`),
-        text: uniqueColVals,
-        textposition: 'none',
-        customdata: valIdArr,
-        hoverinfo: vertFlag ? 'y+text' : 'x+text',
-        orientation: vertFlag ? 'v' : 'h',
-        xaxis: plotCounterEdit === 1 ? 'x' : `x${plotCounterEdit}`,
-        yaxis: plotCounterEdit === 1 ? 'y' : `y${plotCounterEdit}`,
-        showlegend: false,
-        type: 'bar',
-        name: uniqueVal,
-        marker: {
-          color: DEFAULT_GRAY,
-        },
-        // @ts-ignore
-        selected: {
-          marker: {
-            opacity: '1',
-          },
-        },
-        unselected: {
-          marker: {
-            opacity: UNSELECTED_OPACITY,
-          },
-        },
-      },
-      xLabel: vertFlag ? columnNameWithDescription(catColValues.info) : plotAggregateAxisName,
-      yLabel: vertFlag ? plotAggregateAxisName : columnNameWithDescription(catColValues.info),
-      xTicks: vertFlag ? uniqueColVals : null,
-      xTickLabels: vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-      yTicks: !vertFlag ? uniqueColVals : null,
-      yTickLabels: !vertFlag ? uniqueColVals.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-      title: uniqueVal,
-    });
-    plotCounterEdit += 1;
-  });
-
-  return plotCounterEdit;
-}
-
-async function setPlotsBasic(
-  columns: VisColumn[],
-  aggregateType: EAggregateTypes,
-  aggregateColumn: VisNumericalColumn | null,
-  catCol: VisCategoricalColumn,
-  config: IBarConfig,
-  plots: PlotlyData[],
-  scales: Scales,
-  plotCounter: number,
-): Promise<number> {
-  let plotCounterEdit = plotCounter;
-  const catColValues = await resolveSingleColumn(catCol);
-  const aggColValues = await resolveSingleColumn(aggregateColumn);
-
-  const vertFlag = config.direction === EBarDirection.VERTICAL;
-
-  const aggValues: any[] = getAggregateValues(
-    aggregateType,
-    catColValues.resolvedValues as VisCategoricalValue[],
-    aggColValues?.resolvedValues as VisNumericalValue[],
-  ) as any[];
-
-  const valArr = [...new Set(catColValues.resolvedValues.map((v) => v.val as string))];
-
-  // stores the actual points of each bar/section of bar in the custom data.
-  const valIdArr: string[][] = valArr.map((val) => []);
-
-  catColValues.resolvedValues.forEach((row) => valIdArr[valArr.indexOf(row.val as string)].push(row.id));
-
-  const plotAggregateAxisName = createAxisLabel(aggregateType, aggregateColumn);
-
-  plots.push({
-    data: {
-      type: 'bar',
-      x: vertFlag ? valArr : aggValues,
-      y: !vertFlag ? valArr : aggValues,
-      text: valArr,
-      textposition: 'none',
-      hoverinfo: vertFlag ? 'y+text' : 'x+text',
-      ids: valArr,
-      marker: {
-        color: DEFAULT_GRAY,
-      },
-      // @ts-ignore
-      selected: {
-        marker: {
-          opacity: '1',
-        },
-      },
-      unselected: {
-        marker: {
-          opacity: UNSELECTED_OPACITY,
-        },
-      },
-      customdata: valIdArr,
-      orientation: vertFlag ? 'v' : 'h',
-      xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
-      yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-      name: columnNameWithDescription(catColValues.info),
-      showlegend: false,
-    },
-    xLabel: vertFlag ? columnNameWithDescription(catColValues.info) : plotAggregateAxisName,
-    yLabel: vertFlag ? plotAggregateAxisName : columnNameWithDescription(catColValues.info),
-    xTicks: vertFlag ? valArr : null,
-    xTickLabels: vertFlag ? valArr.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-    yTicks: !vertFlag ? valArr : null,
-    yTickLabels: !vertFlag ? valArr.map((v) => truncateText(v, TICK_LABEL_LENGTH)) : null,
-  });
-  plotCounterEdit += 1;
-
-  return plotCounterEdit;
-}
-
-export async function createBarTraces(columns: VisColumn[], config: IBarConfig, scales: Scales): Promise<PlotlyInfo> {
-  let plotCounter = 1;
-
-  if (!config.catColumnSelected) {
-    return {
-      plots: [],
-      legendPlots: [],
-      rows: 0,
-      cols: 0,
-      errorMessage: i18n.t('visyn:vis.barError'),
-      errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
-    };
-  }
-
-  const plots: PlotlyData[] = [];
-
-  const catCol: VisCategoricalColumn = columns.find((c) => c.info.id === config.catColumnSelected.id) as VisCategoricalColumn;
-  const aggregateColumn: VisNumericalColumn = config.aggregateColumn
-    ? (columns.find((c) => c.info.id === config.aggregateColumn.id) as VisNumericalColumn)
-    : null;
-
-  if (catCol) {
-    if (config.group && config.multiples) {
-      plotCounter = await setPlotsWithGroupsAndMultiples(columns, catCol, config.aggregateType, aggregateColumn, config, plots, scales, plotCounter);
-    } else if (config.group) {
-      plotCounter = await setPlotsWithGroups(columns, catCol, config.aggregateType, aggregateColumn, config, plots, scales, plotCounter);
-    } else if (config.multiples) {
-      plotCounter = await setPlotsWithMultiples(columns, catCol, config.aggregateType, aggregateColumn, config, plots, plotCounter);
-    } else {
-      plotCounter = await setPlotsBasic(columns, config.aggregateType, aggregateColumn, catCol, config, plots, scales, plotCounter);
-    }
-  }
-
-  const rows = Math.ceil(Math.sqrt(plotCounter - 1));
-  const cols = Math.ceil((plotCounter - 1) / rows);
-
-  return {
-    plots,
-    legendPlots: [],
-    rows,
-    cols,
-    errorMessage: i18n.t('visyn:vis.barError'),
-    errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
+  catColumn: ColumnInfo,
+  groupColumn: ColumnInfo | null,
+  multiplesColumn: ColumnInfo | null,
+  aggregateColumn: ColumnInfo | null,
+): Promise<{
+  catColVals: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
   };
+  groupColVals: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
+    color?: Record<string, string>;
+  };
+  multiplesColVals: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
+  };
+  aggregateColVals: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
+  };
+}> {
+  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id));
+
+  const groupColVals = await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id) : null);
+  const multiplesColVals = await resolveSingleColumn(multiplesColumn ? columns.find((col) => col.info.id === multiplesColumn.id) : null);
+  const aggregateColVals = await resolveSingleColumn(aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id) : null);
+
+  return { catColVals, groupColVals, multiplesColVals, aggregateColVals };
 }
