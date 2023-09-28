@@ -65,6 +65,7 @@ export function VisynHeader({
         height,
         display: 'flex',
         justifyContent: 'space-between',
+        backgroundColor: backgroundColor || '#495057',
       }}
       wrap="nowrap"
     >
@@ -73,7 +74,7 @@ export function VisynHeader({
         {components?.burgerMenu ? <BurgerMenu menu={components?.burgerMenu} /> : null}
         {components?.title === undefined ? (
           <Title className={classes.a} order={3}>
-            <Text truncate c={color} fw={100}>
+            <Text truncate c={color}>
               {appName}
             </Text>
           </Title>
@@ -88,7 +89,7 @@ export function VisynHeader({
         {largerThanSm && components?.afterCenter}
       </Group>
 
-      <Group h="100%" align="center" justify="right" wrap="nowrap" style={...smallerThanMd ? { flexGrow: 1 } : {}}>
+      <Group h="100%" align="center" justify="right" wrap="nowrap" style={smallerThanMd ? { flexGrow: 1 } : {}}>
         {largerThanSm && components?.beforeRight}
         {components?.logo === undefined ? <DatavisynLogo color={backgroundColor === 'white' ? 'black' : 'white'} /> : components?.logo}
         <Group gap={5}>

@@ -20,6 +20,7 @@ export function VisynApp({
   header = null,
   headerConfig,
   navbar = null,
+  navbarConfig,
   footer = null,
   footerConfig,
   appShellProps = null,
@@ -29,6 +30,7 @@ export function VisynApp({
   header?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
   headerConfig?: AppShellProps['header'];
   navbar?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
+  navbarConfig?: AppShellProps['navbar'];
   aside?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
   footer?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
   footerConfig?: AppShellProps['footer'];
@@ -51,7 +53,7 @@ export function VisynApp({
         },
       }}
       {...appShellProps}
-      navbar={{ width: 300, breakpoint: 'sm' }}
+      navbar={navbarConfig}
       footer={footerConfig}
       header={headerConfig}
     >
