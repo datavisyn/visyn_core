@@ -10,7 +10,8 @@ import { InvalidCols } from '../general/InvalidCols';
 import { beautifyLayout } from '../general/layoutUtils';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { IScatterConfig, createScatterTraces } from './utils';
+import { createScatterTraces } from './utils';
+import { IScatterConfig } from './interfaces';
 
 export function ScatterVis({
   config,

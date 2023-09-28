@@ -1,4 +1,4 @@
-import { Button, Stack, Tooltip, Text } from '@mantine/core';
+import { Button, Input, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { EFilterOptions } from '../interfaces';
 
@@ -8,11 +8,8 @@ interface FilterButtonsProps {
 
 export function FilterButtons({ callback }: FilterButtonsProps) {
   return (
-    <Stack mt="md" p={0} sx={{ width: '100%' }} spacing="xs">
-      <Text weight={500} size={14}>
-        Filter
-      </Text>
-      <Button.Group buttonBorderWidth={2}>
+    <Input.Wrapper label="Filter">
+      <Button.Group>
         <Tooltip withinPortal label="Filters any point not currently selected">
           <Button sx={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.IN)}>
             {EFilterOptions.IN}
@@ -29,6 +26,6 @@ export function FilterButtons({ callback }: FilterButtonsProps) {
           </Button>
         </Tooltip>
       </Button.Group>
-    </Stack>
+    </Input.Wrapper>
   );
 }

@@ -1,9 +1,11 @@
-import { Loader, Stack, Text } from '@mantine/core';
+import { Loader, Stack } from '@mantine/core';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
+import { InvalidCols } from '../general/InvalidCols';
 import { VisColumn } from '../interfaces';
 import { Heatmap } from './Heatmap';
-import { IHeatmapConfig, getHeatmapData } from './utils';
+import { IHeatmapConfig } from './interfaces';
+import { getHeatmapData } from './utils';
 
 export function HeatmapGrid({
   config,
@@ -35,9 +37,7 @@ export function HeatmapGrid({
       {status === 'pending' ? (
         <Loader />
       ) : !hasAtLeast2CatCols ? (
-        <Text align="center" color="dimmed">
-          Select at least 2 categorical columns to display heatmap
-        </Text>
+        <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a heatmap chart, select at least 2 categorical columns." />
       ) : (
         <Heatmap
           column1={allColumns.catColumn[0]}

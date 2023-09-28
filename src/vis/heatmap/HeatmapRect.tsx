@@ -16,6 +16,7 @@ export function HeatmapRect({
   xOrder = 1,
   yOrder = 1,
   isSelected = false,
+  isImmediate = false,
   onClick = () => null,
 }: {
   x: number;
@@ -28,13 +29,14 @@ export function HeatmapRect({
   xOrder?: number;
   yOrder?: number;
   isSelected?: boolean;
+  isImmediate?: boolean;
   onClick?: (e: any) => void;
 }) {
   const [isHovered, setIsHovered] = useState<boolean>();
   const currXOrder = useRef(xOrder);
   const currYOrder = useRef(yOrder);
 
-  const isImmediate = currXOrder.current === xOrder && currYOrder.current === yOrder;
+  isImmediate = isImmediate || (currXOrder.current === xOrder && currYOrder.current === yOrder);
 
   const colorSpring = useSpring({ fill: color, config: { duration: 750, easing: easings.easeInOutSine } });
 

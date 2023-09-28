@@ -1,7 +1,8 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseVisConfig, ECloudType, EColumnTypes, ELightningType, ERainType, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { BaseVisConfig, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { ECloudType, ELightningType, ERainType } from '../../../raincloud/interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;

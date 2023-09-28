@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../barGood/utils';
+import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {

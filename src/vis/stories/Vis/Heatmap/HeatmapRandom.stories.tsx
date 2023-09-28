@@ -2,7 +2,8 @@ import { ComponentStory } from '@storybook/react';
 import * as d3 from 'd3v7';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ESortTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { ESortTypes } from '../../../heatmap/interfaces';
+import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -149,7 +150,8 @@ Basic.args = {
         name: 'category2',
       },
     ],
-    sortedBy: ESortTypes.CAT_ASC,
+    xSortedBy: ESortTypes.CAT_ASC,
+    ySortedBy: ESortTypes.CAT_ASC,
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     aggregateColumn: null,
@@ -178,7 +180,8 @@ Multiples.args = {
         name: 'category3',
       },
     ],
-    sortedBy: ESortTypes.CAT_ASC,
+    xSortedBy: ESortTypes.CAT_ASC,
+    ySortedBy: ESortTypes.CAT_ASC,
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     aggregateColumn: null,

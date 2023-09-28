@@ -1,30 +1,7 @@
 import { merge } from 'lodash';
 import { resolveColumnValues } from '../general/layoutUtils';
-import {
-  BaseVisConfig,
-  ColumnInfo,
-  ECloudType,
-  EColumnTypes,
-  ELightningType,
-  ERainType,
-  ESupportedPlotlyVis,
-  VisCategoricalValue,
-  VisColumn,
-  VisNumericalValue,
-} from '../interfaces';
-
-export interface IRaincloudConfig {
-  type: ESupportedPlotlyVis.RAINCLOUD;
-  numColumnsSelected: ColumnInfo[];
-  cloudType: ECloudType;
-  rainType: ERainType;
-  lightningType: ELightningType;
-  aggregateRain: boolean;
-}
-
-export function isRaincloud(s: BaseVisConfig): s is IRaincloudConfig {
-  return s.type === ESupportedPlotlyVis.RAINCLOUD;
-}
+import { ColumnInfo, EColumnTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { ECloudType, ELightningType, ERainType, IRaincloudConfig } from './interfaces';
 
 const defaultConfig: IRaincloudConfig = {
   type: ESupportedPlotlyVis.RAINCLOUD,
@@ -54,10 +31,4 @@ export async function getRaincloudData(
   const numColVals = await resolveColumnValues(columns.filter((col) => numColumnsSelected.find((numCol: ColumnInfo) => numCol.id === col.info.id)));
 
   return { numColVals };
-}
-
-export interface IRaindropCircle {
-  id: string[];
-  x: number;
-  y: number;
 }

@@ -1,7 +1,8 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
-import { BaseVisConfig, EColumnTypes, EHexbinOptions, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { EHexbinOptions } from '../../../hexbin/interfaces';
+import { BaseVisConfig, EColumnTypes, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;

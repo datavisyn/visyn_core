@@ -5,7 +5,7 @@ import forceBoundary from 'd3-force-boundary';
 import * as d3 from 'd3v7';
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
-import { IRaincloudConfig } from '../utils';
+import { IRaincloudConfig } from '../interfaces';
 
 const margin = {
   top: 30,

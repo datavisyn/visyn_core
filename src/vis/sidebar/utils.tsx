@@ -37,3 +37,46 @@ export const SelectDropdownItem = forwardRef<HTMLDivElement, ItemProps>(({ value
     </Stack>
   </div>
 ));
+
+export function SelectLabelComponent({
+  value,
+  label,
+  description,
+  onRemove,
+  classNames,
+  ...others
+}: MultiSelectValueProps & { value: string; description: string }) {
+  return (
+    <div {...others}>
+      <Tooltip
+        withinPortal
+        withArrow
+        arrowSize={6}
+        label={
+          <Stack spacing={0}>
+            <Text>{label}</Text>
+            <Text size="xs" color="dimmed">
+              {description}
+            </Text>
+          </Stack>
+        }
+      >
+        <Box
+          sx={(theme) => ({
+            display: 'flex',
+            cursor: 'default',
+            alignItems: 'center',
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[1],
+            paddingLeft: theme.spacing.xs,
+            borderRadius: theme.radius.sm,
+          })}
+        >
+          <Text weight={500} sx={{ lineHeight: 1, fontSize: 12, color: '#495057' }}>
+            {label}
+          </Text>
+          <CloseButton onMouseDown={onRemove} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />
+        </Box>
+      </Tooltip>
+    </div>
+  );
+}
