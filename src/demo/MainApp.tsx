@@ -7,6 +7,7 @@ import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
 import { MyNumberScore, MyStringScore } from './scoresUtils';
+import '@mantine/core/styles.css';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -52,9 +53,10 @@ export function MainApp() {
           }}
         />
       }
+      headerConfig={{ height: 50 }}
     >
       {user ? (
-        <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
+        <SimpleGrid cols={2} style={{ height: '100%' }} p="xs">
           <Stack>
             <Select
               placeholder="Add a score column"

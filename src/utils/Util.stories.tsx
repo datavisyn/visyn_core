@@ -8,7 +8,7 @@ function PickerExample() {
   const [value, setValue] = React.useState(new Date());
 
   return (
-    <Stack spacing="xs">
+    <Stack gap="xs">
       <Text fz="xl" fw={500}>
         Interactive DateTimePicker example
       </Text>
@@ -33,7 +33,7 @@ function SliderExample() {
   const d = new Date(new Date().getTime() + transform(value));
 
   return (
-    <Stack spacing="xs">
+    <Stack gap="xs">
       <Text fz="xl" fw={500}>
         Interactive Slider example
       </Text>
@@ -59,8 +59,8 @@ function SliderExample() {
 
 function TimeUtil() {
   return (
-    <Stack p="xl" spacing="xl">
-      <Stack spacing={0}>
+    <Stack p="xl" gap="xl">
+      <Stack gap={0}>
         <Text fz="xl" fw={500}>
           Some basic examples (see code)
         </Text>

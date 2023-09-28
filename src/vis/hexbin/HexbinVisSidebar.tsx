@@ -37,7 +37,7 @@ export function HexbinVisSidebar({ config, extensions, columns, setConfig }: Den
 
   return (
     <Container fluid p={10}>
-      <Stack spacing={0}>
+      <Stack gap={0}>
         <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
         <Divider my="sm" />
         <Stack>

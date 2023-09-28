@@ -3,7 +3,6 @@ import * as React from 'react';
 import { ColumnInfo, EBarDisplayType, EBarGroupingType, EColumnTypes, VisColumn } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
-import { SelectDropdownItem } from './utils';
 
 interface GroupSelectProps {
   groupColumnSelectCallback: (c: ColumnInfo) => void;
@@ -24,12 +23,12 @@ export function GroupSelect({
   columns,
   currentSelected,
 }: GroupSelectProps) {
+  // @TODO @MORITZ reapply style
+  // itemComponent={SelectDropdownItem}
   return (
-    <Stack spacing="sm">
+    <Stack gap="sm">
       <Select
-        withinPortal
         clearable
-        itemComponent={SelectDropdownItem}
         placeholder="Select Column"
         label="Group"
         onChange={(e) => groupColumnSelectCallback(columns.find((c) => c.info.id === e)?.info)}

@@ -1,21 +1,22 @@
-import * as React from 'react';
+import { Group, Space, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
+import difference from 'lodash/difference';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
-import difference from 'lodash/difference';
+import * as React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { Group, Space, Stack } from '@mantine/core';
-import { Scales, VisColumn, IVisConfig, IBarConfig, EBarGroupingType, EFilterOptions } from '../interfaces';
+import { useAsync } from '../../hooks';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
+import classes from '../Vis.module.css';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
-import { useAsync } from '../../hooks';
-import { createBarTraces } from './utils';
-import { BarVisSidebar } from './BarVisSidebar';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
+import { EBarGroupingType, EFilterOptions, IBarConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
 import { CloseButton } from '../sidebar/CloseButton';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { BarVisSidebar } from './BarVisSidebar';
+import { createBarTraces } from './utils';
 
 const defaultExtensions = {
   prePlot: null,
@@ -197,29 +198,12 @@ export function BarVis({
   }, [finalTraces]);
 
   return (
-    <Group
-      noWrap
-      pl={0}
-      pr={0}
-      spacing={0}
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
-      }}
-      ref={plotlyDivRef}
-    >
+    <Group wrap="nowrap" pl={0} pr={0} gap={0} className={classes.container} ref={plotlyDivRef}>
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
 
       <Stack
-        spacing={0}
-        sx={{
+        gap={0}
+        style={{
           flexGrow: 1,
           height: '100%',
           width: '100%',

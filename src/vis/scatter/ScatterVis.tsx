@@ -1,25 +1,22 @@
-import * as React from 'react';
+import { Center, Group, Stack } from '@mantine/core';
+import * as d3 from 'd3v7';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
+import * as React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Center, Container, Group, Loader, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import * as d3 from 'd3v7';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { EFilterOptions, IVisConfig, Scales, IScatterConfig, VisColumn, EScatterSelectSettings } from '../interfaces';
-import { InvalidCols } from '../general/InvalidCols';
-import { createScatterTraces } from './utils';
-import { beautifyLayout } from '../general/layoutUtils';
-import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { ScatterVisSidebar } from './ScatterVisSidebar';
+import { useAsync } from '../../hooks';
 import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
-import { useAsync } from '../../hooks';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
+import classes from '../Vis.module.css';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisSidebarWrapper } from '../VisSidebarWrapper';
+import { InvalidCols } from '../general/InvalidCols';
+import { beautifyLayout } from '../general/layoutUtils';
+import { EFilterOptions, EScatterSelectSettings, IScatterConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
+import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
+import { CloseButton } from '../sidebar/CloseButton';
+import { ScatterVisSidebar } from './ScatterVisSidebar';
+import { createScatterTraces } from './utils';
 
 const defaultExtensions = {
   prePlot: null,
@@ -202,27 +199,11 @@ export function ScatterVis({
   }, [plotsWithSelectedPoints, traces]);
 
   return (
-    <Group
-      noWrap
-      pl={0}
-      pr={0}
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
-      }}
-      ref={plotlyDivRef}
-    >
+    <Group wrap="nowrap" pl={0} pr={0} className={classes.container} ref={plotlyDivRef}>
       {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
       {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
 
-      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+      <Stack gap={0} style={{ height: '100%', width: '100%' }}>
         {showDragModeOptions ? (
           <Center>
             <Group mt="lg">

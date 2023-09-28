@@ -1,23 +1,21 @@
-import * as React from 'react';
+import { Group, Space, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
+import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { ActionIcon, Container, Group, Space, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IViolinConfig, EFilterOptions } from '../interfaces';
+import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
+import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisSidebarWrapper } from '../VisSidebarWrapper';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
-import { createViolinTraces } from './utils';
-import { useAsync } from '../../hooks';
-import { ViolinVisSidebar } from './ViolinVisSidebar';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
+import { EFilterOptions, IViolinConfig, IVisConfig, Scales, VisColumn } from '../interfaces';
 import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import classes from '../Vis.module.css';
+import { ViolinVisSidebar } from './ViolinVisSidebar';
+import { createViolinTraces } from './utils';
 
 const defaultExtensions = {
   prePlot: null,
@@ -161,27 +159,10 @@ export function ViolinVis({
   }, [traces]);
 
   return (
-    <Group
-      noWrap
-      pl={0}
-      pr={0}
-      spacing={0}
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        position: 'relative',
-        overflow: 'hidden',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
-      }}
-      ref={plotlyDivRef}
-    >
+    <Group wrap="nowrap" pl={0} pr={0} gap={0} className={classes.container} ref={plotlyDivRef}>
       <Stack
-        spacing={0}
-        sx={{
+        gap={0}
+        style={{
           height: '100%',
           width: '100%',
         }}

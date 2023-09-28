@@ -16,13 +16,16 @@ export function NumericalColumnSelect({ callback, columns, currentSelected }: Nu
   const selectNumOptions = React.useMemo(() => {
     return columns.filter((c) => c.type === EColumnTypes.NUMERICAL).map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }));
   }, [columns]);
+  /**
+   
+    @TODO @MORITZ see how these stylings can be reapplied
 
+    valueComponent={SelectLabelComponent}
+    itemComponent={SelectDropdownItem}
+ */
   return (
     <MultiSelect
-      withinPortal
       clearable
-      valueComponent={SelectLabelComponent}
-      itemComponent={SelectDropdownItem}
       label="Numerical columns"
       onChange={(e: string[]) => {
         callback(e.map((id) => columns.find((c) => c.info.id === id).info));

@@ -116,7 +116,7 @@ export function BarVisSidebar({
     <Container p={10} fluid>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
-      <Stack spacing="sm">
+      <Stack gap="sm">
         <SingleColumnSelect
           callback={(catColumnSelected: ColumnInfo) =>
             setConfig({
@@ -148,7 +148,7 @@ export function BarVisSidebar({
       <Divider my="sm" />
       {mergedExtensions.preSidebar}
 
-      <Stack spacing="sm">
+      <Stack gap="sm">
         {mergedOptionsConfig.group.enable
           ? mergedOptionsConfig.group.customComponent || (
               <GroupSelect

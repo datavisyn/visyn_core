@@ -1,7 +1,6 @@
 import { Select } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
-import { SelectDropdownItem } from './utils';
 
 interface SingleColumnSelectProps {
   callback: (s: ColumnInfo) => void;
@@ -15,11 +14,10 @@ export function SingleColumnSelect({ callback, columns, currentSelected, label, 
   const filteredColumnsByType = React.useMemo(() => {
     return columns.filter((c) => type.includes(c.type)).map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }));
   }, [columns, type]);
-
+  // @TODO @MORITZ
+  // reapply style itemComponent={SelectDropdownItem}
   return (
     <Select
-      withinPortal
-      itemComponent={SelectDropdownItem}
       clearable
       placeholder="Select column"
       label={label}

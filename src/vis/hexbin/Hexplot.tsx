@@ -35,10 +35,10 @@ function Legend({
 }) {
   return (
     <ScrollArea style={{ height }}>
-      <Stack sx={{ width: '80px' }} spacing={10}>
+      <Stack style={{ width: '80px' }} gap={10}>
         {categories.map((c) => {
           return (
-            <Tooltip withinPortal key={c} label={c} withArrow arrowSize={6}>
+            <Tooltip key={c} label={c} withArrow arrowSize={6}>
               <Box>
                 <Chip
                   variant="filled"
@@ -386,7 +386,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
         fluid
         pl={0}
         pr={0}
-        sx={{
+        style={{
           height: height + margin.top + margin.bottom,
           width: '100%',
           '.overlay': {

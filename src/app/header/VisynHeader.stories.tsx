@@ -130,7 +130,7 @@ export const ProjectName: typeof Template = Template.bind({});
 ProjectName.args = {
   components: {
     center: (
-      <Text weight={500} size="md" c="white">
+      <Text fw={500} size="md" c="white">
         Project A
       </Text>
     ),
@@ -199,17 +199,17 @@ export const AllExtensionPoints: typeof Template = Template.bind({});
 AllExtensionPoints.args = {
   components: {
     title: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         title
       </Button>
     ),
     afterLeft: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         afterLeft
       </Button>
     ),
     beforeLeft: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         beforeLeft
       </Button>
     ),
@@ -222,27 +222,27 @@ AllExtensionPoints.args = {
       </>
     ),
     beforeCenter: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         beforeCenter
       </Button>
     ),
     center: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         center
       </Button>
     ),
     afterCenter: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         afterCenter
       </Button>
     ),
     beforeRight: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         beforeRight
       </Button>
     ),
     afterRight: (
-      <Button variant="light" compact radius="lg">
+      <Button variant="light" size="compact-sm" radius="lg">
         afterRight
       </Button>
     ),

@@ -17,11 +17,11 @@ export function HexSizeSlider({ callback, currentValue }: OpacitySliderProps) {
   }, [syncedCallback]);
 
   return (
-    <Stack spacing={0} mb={15}>
-      <Text weight={500} size={14}>
+    <Stack gap={0} mb={15}>
+      <Text fw={500} size="sm">
         Size
       </Text>
-      <Box sx={{ width: '180px' }}>
+      <Box style={{ width: '180px' }}>
         <Slider
           step={1}
           value={currentValue}

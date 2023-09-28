@@ -9,9 +9,9 @@ interface ViolinOverlayProps {
 
 export function ViolinOverlayButtons({ callback, currentSelected }: ViolinOverlayProps) {
   return (
-    <Container p={0} fluid sx={{ width: '100%' }}>
-      <Stack spacing={0}>
-        <Text weight={500} size={14}>
+    <Container p={0} fluid style={{ width: '100%' }}>
+      <Stack gap={0}>
+        <Text fw={500} size="sm">
           Overlay
         </Text>
         <SegmentedControl

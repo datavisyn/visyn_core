@@ -85,7 +85,7 @@ export function ScatterVisSidebar({
 
   return (
     <Container fluid p={10}>
-      <Stack spacing={0}>
+      <Stack gap={0}>
         <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
         <Divider my="sm" />
         <NumericalColumnSelect
@@ -121,7 +121,7 @@ export function ScatterVisSidebar({
             : null}
         </Stack>
         <Divider my="sm" />
-        <Stack spacing={30}>
+        <Stack gap={30}>
           <OpacitySlider
             callback={(e) => {
               if (config.alphaSliderVal !== e) {

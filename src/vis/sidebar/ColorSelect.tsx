@@ -13,11 +13,11 @@ interface ColorSelectProps {
 }
 
 export function ColorSelect({ callback, numTypeCallback = () => null, currentNumType = null, columns, currentSelected }: ColorSelectProps) {
+  // @TODO @MORITZ reapply style
+  // itemComponent={SelectDropdownItem}
   return (
-    <Stack spacing="sm">
+    <Stack gap="sm">
       <Select
-        withinPortal
-        itemComponent={SelectDropdownItem}
         clearable
         placeholder="Select Column"
         label="Color"

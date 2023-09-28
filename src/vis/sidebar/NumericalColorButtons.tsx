@@ -18,7 +18,7 @@ export function NumericalColorButtons({ callback, currentSelected }: NumericalCo
       data={[
         {
           label: (
-            <Group spacing={0} noWrap>
+            <Group gap={0} wrap="nowrap">
               {divergentColors.map((d) => {
                 return <span key={`colorScale ${d}`} style={{ border: '1px solid lightgrey', background: `${d}`, height: '1rem', width: '100%' }} />;
               })}
@@ -28,7 +28,7 @@ export function NumericalColorButtons({ callback, currentSelected }: NumericalCo
         },
         {
           label: (
-            <Group spacing={0} noWrap>
+            <Group gap={0} wrap="nowrap">
               {sequentialColors.map((d) => {
                 return <span key={`colorScale ${d}`} style={{ border: '1px solid lightgrey', background: `${d}`, height: '1rem', width: '100%' }} />;
               })}

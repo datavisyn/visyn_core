@@ -68,7 +68,7 @@ export function ViolinVisSidebar({
     <Container fluid p={10}>
       <VisTypeSelect callback={(type: ESupportedPlotlyVis) => setConfig({ ...(config as any), type })} currentSelected={config.type} />
       <Divider my="sm" />
-      <Stack spacing="sm">
+      <Stack gap="sm">
         <NumericalColumnSelect
           callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
           columns={columns}

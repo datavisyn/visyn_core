@@ -18,8 +18,8 @@ export function OpacitySlider({ callback, currentValue }: OpacitySliderProps) {
   }, [syncedCallback]);
 
   return (
-    <Stack spacing={0}>
-      <Text weight={500} size={14}>
+    <Stack gap={0}>
+      <Text fw={500} size="sm">
         Opacity
       </Text>
       <Box>
