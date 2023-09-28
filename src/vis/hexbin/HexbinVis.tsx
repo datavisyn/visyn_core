@@ -1,19 +1,15 @@
-import * as React from 'react';
-import uniqueId from 'lodash/uniqueId';
+import { Center, Group, SimpleGrid, Stack } from '@mantine/core';
 import merge from 'lodash/merge';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActionIcon, Center, Container, Group, SimpleGrid, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { VisColumn, IVisConfig, IHexbinConfig, EScatterSelectSettings } from '../interfaces';
-import { InvalidCols } from '../general';
+import * as React from 'react';
+import { useMemo, useRef } from 'react';
 import { i18n } from '../../i18n';
-import { Hexplot } from './Hexplot';
-import { HexbinVisSidebar } from './HexbinVisSidebar';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { BrushOptionButtons } from '../sidebar';
-import { useSyncedRef } from '../../hooks/useSyncedRef';
 import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { VisSidebarWrapper } from '../VisSidebarWrapper';
+import { InvalidCols } from '../general';
+import { EScatterSelectSettings, IHexbinConfig, IVisConfig, VisColumn } from '../interfaces';
+import { BrushOptionButtons } from '../sidebar';
+import { HexbinVisSidebar } from './HexbinVisSidebar';
+import { Hexplot } from './Hexplot';
 
 const defaultExtensions = {
   prePlot: null,

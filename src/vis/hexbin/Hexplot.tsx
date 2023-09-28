@@ -12,6 +12,9 @@ import { SingleHex } from './SingleHex';
 import { getHexData } from './utils';
 import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
+import classes from './Hexplot.module.css';
+
+console.log(classes);
 
 interface HexagonalBinProps {
   config: IHexbinConfig;
@@ -382,18 +385,7 @@ export function Hexplot({ config, columns, selectionCallback = () => null, selec
 
   return (
     <Box style={{ height: '100%', width: '100%', position: 'relative' }} ref={ref}>
-      <Container
-        fluid
-        pl={0}
-        pr={0}
-        style={{
-          height: height + margin.top + margin.bottom,
-          width: '100%',
-          '.overlay': {
-            cursor: 'default !important',
-          },
-        }}
-      >
+      <Container fluid pl={0} pr={0} className={`${classes.overlay} ${classes.hexplot}`} style={{ height: height + margin.top + margin.bottom }}>
         <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
           <defs>
             <clipPath id="clip">

@@ -1,8 +1,6 @@
 import { MantineProviderProps } from '@mantine/core';
 
 export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'children'> = {
-  withNormalizeCSS: true,
-  withGlobalStyles: true,
   theme: {
     fontFamily: 'Roboto, sans-serif',
     headings: {
