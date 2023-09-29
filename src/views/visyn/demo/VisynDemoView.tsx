@@ -104,8 +104,8 @@ export function VisynDemoViewSidebar({ parameters, onParametersChanged }: DemoVi
         alignSelf: 'center',
       }}
       columns={parameters.columns}
-      externalConfig={parameters.config}
-      setExternalConfig={(config) => {
+      config={parameters.config}
+      setConfig={(config) => {
         onParametersChanged((p) => ({
           ...p,
           config,

@@ -1,4 +1,4 @@
-import { Group, SegmentedControl } from '@mantine/core';
+import { Group, Input, SegmentedControl } from '@mantine/core';
 import * as React from 'react';
 import { ENumericalColorScaleType } from '../interfaces';
 
@@ -12,31 +12,35 @@ export function NumericalColorButtons({ callback, currentSelected }: NumericalCo
   const divergentColors = ['#337ab7', '#7496c1', '#a5b4ca', '#d3d3d3', '#e5b19d', '#ec8e6a', '#ec6836'];
 
   return (
-    <SegmentedControl
-      value={currentSelected}
-      onChange={callback}
-      data={[
-        {
-          label: (
-            <Group gap={0} wrap="nowrap">
-              {divergentColors.map((d) => {
-                return <span key={`colorScale ${d}`} style={{ border: '1px solid lightgrey', background: `${d}`, height: '1rem', width: '100%' }} />;
-              })}
-            </Group>
-          ),
-          value: ENumericalColorScaleType.DIVERGENT,
-        },
-        {
-          label: (
-            <Group gap={0} wrap="nowrap">
-              {sequentialColors.map((d) => {
-                return <span key={`colorScale ${d}`} style={{ border: '1px solid lightgrey', background: `${d}`, height: '1rem', width: '100%' }} />;
-              })}
-            </Group>
-          ),
-          value: ENumericalColorScaleType.SEQUENTIAL,
-        },
-      ]}
-    />
+    <Input.Wrapper label="Color scale">
+      <SegmentedControl
+        fullWidth
+        value={currentSelected}
+        onChange={callback}
+        size="xs"
+        data={[
+          {
+            label: (
+              <Group gap={0} wrap="nowrap">
+                {divergentColors.map((d) => {
+                  return <span key={`colorScale ${d}`} style={{ border: '1px solid lightgrey', background: `${d}`, height: '1rem', width: '100%' }} />;
+                })}
+              </Group>
+            ),
+            value: ENumericalColorScaleType.DIVERGENT,
+          },
+          {
+            label: (
+              <Group gap={0} wrap="nowrap">
+                {sequentialColors.map((d) => {
+                  return <span key={`colorScale ${d}`} style={{ border: '1px solid lightgrey', background: `${d}`, height: '1rem', width: '100%' }} />;
+                })}
+              </Group>
+            ),
+            value: ENumericalColorScaleType.SEQUENTIAL,
+          },
+        ]}
+      />
+    </Input.Wrapper>
   );
 }

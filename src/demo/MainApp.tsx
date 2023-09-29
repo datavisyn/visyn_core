@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
-import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, IVisConfig } from '../vis';
+import { Vis, ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, BaseVisConfig, IScatterConfig } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { useVisynAppContext, VisynApp, VisynHeader } from '../app';
@@ -11,7 +11,7 @@ import '@mantine/core/styles.css';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
-  const [visConfig, setVisConfig] = React.useState<IVisConfig>({
+  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
       {
@@ -34,7 +34,7 @@ export function MainApp() {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-  });
+  } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof iris>([]);
 

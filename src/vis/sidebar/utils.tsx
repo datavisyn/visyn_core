@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Highlighter from 'react-highlight-words';
-import { Stack, Tooltip, Text, Box, MultiSelectProps, CloseButton, useMantineTheme } from '@mantine/core';
+import { Stack, Tooltip, Text, Box, CloseButton, useMantineTheme } from '@mantine/core';
 import { forwardRef } from 'react';
 import { ColumnInfo, VisNumericalColumn, VisCategoricalColumn, VisColumn } from '../interfaces';
 
@@ -44,6 +44,7 @@ export function SelectLabelComponent({ value, label, description, onRemove, clas
   return (
     <div {...others}>
       <Tooltip
+        withinPortal
         withArrow
         arrowSize={6}
         label={

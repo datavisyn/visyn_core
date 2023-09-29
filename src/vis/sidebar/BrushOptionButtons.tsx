@@ -25,7 +25,7 @@ export function BrushOptionButtons({
       data={[
         {
           label: (
-            <Tooltip withArrow arrowSize={6} label="Rectangular brush">
+            <Tooltip withinPortal withArrow arrowSize={6} label="Rectangular brush">
               <FontAwesomeIcon icon={faSquare} />
             </Tooltip>
           ),
@@ -33,7 +33,7 @@ export function BrushOptionButtons({
         },
         {
           label: (
-            <Tooltip withArrow arrowSize={6} label="Lasso brush">
+            <Tooltip withinPortal withArrow arrowSize={6} label="Lasso brush">
               <FontAwesomeIcon icon={faPaintbrush} />
             </Tooltip>
           ),
@@ -41,7 +41,7 @@ export function BrushOptionButtons({
         },
         {
           label: (
-            <Tooltip withArrow arrowSize={6} label="Zoom/Pan">
+            <Tooltip withinPortal withArrow arrowSize={6} label="Zoom/Pan">
               <FontAwesomeIcon icon={faArrowsAlt} />
             </Tooltip>
           ),
@@ -49,7 +49,7 @@ export function BrushOptionButtons({
         },
         {
           label: (
-            <Tooltip withArrow arrowSize={6} label="Rectangular zoom">
+            <Tooltip withinPortal withArrow arrowSize={6} label="Rectangular zoom">
               <FontAwesomeIcon icon={faSearchPlus} />
             </Tooltip>
           ),

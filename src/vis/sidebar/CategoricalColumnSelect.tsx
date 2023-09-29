@@ -12,12 +12,14 @@ export function CategoricalColumnSelect({ callback, columns, currentSelected }: 
   const selectCatOptions = React.useMemo(() => {
     return columns.filter((c) => c.type === EColumnTypes.CATEGORICAL).map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }));
   }, [columns]);
+
   // @TODO @MORITZ
   // valueComponent={SelectLabelComponent}
   // itemComponent={SelectDropdownItem}
+
   return (
     <MultiSelect
-      placeholder="Select Column"
+      placeholder="Select columns"
       label="Categorical columns"
       clearable
       onChange={(e) => callback(e.map((id) => columns.find((c) => c.info.id === id).info))}

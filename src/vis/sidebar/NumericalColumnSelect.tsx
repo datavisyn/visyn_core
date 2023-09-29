@@ -1,8 +1,6 @@
+import { MultiSelect } from '@mantine/core';
 import * as React from 'react';
-import { Group, MultiSelect, Stack, Text, Tooltip } from '@mantine/core';
-import { forwardRef } from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
-import { SelectDropdownItem, SelectLabelComponent } from './utils';
 
 interface NumericalColumnSelectProps {
   callback: (s: ColumnInfo[]) => void;
@@ -16,13 +14,11 @@ export function NumericalColumnSelect({ callback, columns, currentSelected }: Nu
   const selectNumOptions = React.useMemo(() => {
     return columns.filter((c) => c.type === EColumnTypes.NUMERICAL).map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }));
   }, [columns]);
-  /**
-   
-    @TODO @MORITZ see how these stylings can be reapplied
 
-    valueComponent={SelectLabelComponent}
-    itemComponent={SelectDropdownItem}
- */
+  // @TODO @MORITZ
+  // valueComponent={SelectLabelComponent}
+  // itemComponent={SelectDropdownItem}
+
   return (
     <MultiSelect
       clearable
