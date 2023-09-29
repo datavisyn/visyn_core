@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Group, MultiSelect, Stack, Text, Tooltip } from '@mantine/core';
-import { forwardRef } from 'react';
+import { MultiSelect } from '@mantine/core';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 import { SelectDropdownItem, SelectLabelComponent } from './utils';
 

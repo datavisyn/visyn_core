@@ -1,30 +1,25 @@
-import merge from 'lodash/merge';
 import * as d3v7 from 'd3v7';
+import merge from 'lodash/merge';
+import { i18n } from '../../i18n';
+import { getCssValue } from '../../utils';
+import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
+import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  PlotlyInfo,
-  PlotlyData,
-  EColumnTypes,
-  VisNumericalColumn,
-  IVisConfig,
-  Scales,
-  ESupportedPlotlyVis,
-  VisColumn,
-  IScatterConfig,
-  ENumericalColorScaleType,
-  VisCategoricalValue,
-  VisNumericalValue,
-  EScatterSelectSettings,
   ColumnInfo,
+  EColumnTypes,
+  ENumericalColorScaleType,
+  EScatterSelectSettings,
+  ESupportedPlotlyVis,
+  PlotlyData,
+  PlotlyInfo,
+  Scales,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalColumn,
+  VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-import { getCssValue } from '../../utils';
-import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
-import { i18n } from '../../i18n';
-import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
-
-export function isScatter(s: IVisConfig): s is IScatterConfig {
-  return s.type === ESupportedPlotlyVis.SCATTER;
-}
+import { IScatterConfig } from './interfaces';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -47,9 +42,10 @@ const defaultConfig: IScatterConfig = {
   shape: null,
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
+  sizeSliderVal: 8,
 };
 
-export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IVisConfig {
+export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
   const merged = merge({}, defaultConfig, config);
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
@@ -86,6 +82,7 @@ export async function createScatterTraces(
   shape: ColumnInfo,
   color: ColumnInfo,
   alphaSliderVal: number,
+  sizeSliderVal: number,
   colorScaleType: ENumericalColorScaleType,
   scales: Scales,
   shapes: string[] | null,
@@ -171,9 +168,9 @@ export async function createScatterTraces(
         },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}<br>${
-              colorCol ? `${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
-            }`,
+            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
+              colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
+            }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
         hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),
@@ -195,7 +192,7 @@ export async function createScatterTraces(
               width: 0,
             },
             opacity: 1,
-            size: 8,
+            size: sizeSliderVal,
           },
         },
         unselected: {
@@ -205,7 +202,7 @@ export async function createScatterTraces(
             },
             color: DEFAULT_COLOR,
             opacity: alphaSliderVal,
-            size: 8,
+            size: sizeSliderVal,
           },
         },
       },
@@ -288,7 +285,7 @@ export async function createScatterTraces(
                   },
                   symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
                   opacity: 1,
-                  size: 8,
+                  size: sizeSliderVal,
                 },
               },
               unselected: {
@@ -299,7 +296,7 @@ export async function createScatterTraces(
                   symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
                   color: DEFAULT_COLOR,
                   opacity: alphaSliderVal,
-                  size: 8,
+                  size: sizeSliderVal,
                 },
               },
             },
@@ -339,7 +336,7 @@ export async function createScatterTraces(
             width: 0,
           },
           symbol: 'circle',
-          size: 8,
+          size: sizeSliderVal,
           color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : DEFAULT_COLOR,
           opacity: 1,
         },
@@ -385,7 +382,7 @@ export async function createScatterTraces(
             width: 0,
           },
           opacity: alphaSliderVal,
-          size: 8,
+          size: sizeSliderVal,
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
           color: DEFAULT_COLOR,
         },

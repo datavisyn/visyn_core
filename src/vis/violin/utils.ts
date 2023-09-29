@@ -1,24 +1,9 @@
 import merge from 'lodash/merge';
-import {
-  PlotlyInfo,
-  PlotlyData,
-  VisCategoricalColumn,
-  EColumnTypes,
-  ESupportedPlotlyVis,
-  IVisConfig,
-  VisNumericalColumn,
-  Scales,
-  VisColumn,
-  IViolinConfig,
-  EViolinOverlay,
-} from '../interfaces';
-import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { i18n } from '../../i18n';
 import { SELECT_COLOR } from '../general/constants';
-
-export function isViolin(s: IVisConfig): s is IViolinConfig {
-  return s.type === ESupportedPlotlyVis.VIOLIN;
-}
+import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
+import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
+import { EViolinOverlay, IViolinConfig } from './interfaces';
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
@@ -27,7 +12,7 @@ const defaultConfig: IViolinConfig = {
   violinOverlay: EViolinOverlay.NONE,
 };
 
-export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IVisConfig {
+export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IViolinConfig {
   const merged = merge({}, defaultConfig, config);
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
