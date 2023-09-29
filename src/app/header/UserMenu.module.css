@@ -1,0 +1,7 @@
+.avatar {
+    cursor: pointer;
+
+    >div {
+        font-size: 12.5px;
+    }
+}

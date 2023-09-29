@@ -28,7 +28,7 @@ node_modules/
 /tests/**/*.js
 /src/**/*.map
 /tests/**/*.map 
-*.css
+# *.css
 /package-lock.json
 /yarn.lock
 
