@@ -8,3 +8,12 @@
         cursor: pointer !important;
     }
 }
+
+.overlayWrapper {
+    width: 100%;
+
+    [class~=overlay] {
+        cursor: default !important;
+    }
+
+}

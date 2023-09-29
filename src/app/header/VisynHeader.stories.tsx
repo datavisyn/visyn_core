@@ -1,9 +1,9 @@
+import { Button, Menu, Text } from '@mantine/core';
+import { ComponentStory } from '@storybook/react';
 import React from 'react';
-import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
-import { Menu, Text, createStyles, Group, Button } from '@mantine/core';
-import { VisynHeader } from './VisynHeader';
-import { VisynAppContext } from '../VisynAppContext';
 import { IUser } from '../../security/index';
+import { VisynAppContext } from '../VisynAppContext';
+import { VisynHeader } from './VisynHeader';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -12,7 +12,7 @@ export default {
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
 };
 
-const useStyles = createStyles((theme) => ({
+/** const useStyles = createStyles((theme) => ({
   customComponentGroup: {
     gap: 0,
     '> a': {
@@ -56,7 +56,7 @@ const useStyles = createStyles((theme) => ({
       display: 'none',
     },
   },
-}));
+})); */
 
 const user: IUser = {
   name: 'Jaimy Smith',
@@ -141,8 +141,8 @@ ProjectName.args = {
 };
 
 function TabGroup() {
-  const { classes } = useStyles();
-  return (
+  // const { classes } = useStyles();
+  /** return (
     <Group h="100%" className={classes.customComponentGroup}>
       <a href="#" className={classes.link}>
         Tab 1
@@ -151,7 +151,9 @@ function TabGroup() {
         Tab 2
       </a>
     </Group>
-  );
+  ); */
+
+  return <div />;
 }
 
 export const Tabs: typeof Template = Template.bind({});

@@ -109,7 +109,7 @@ export function Raincloud({
         fluid
         pl={0}
         pr={0}
-        sx={{
+        style={{
           height,
           width: '100%',
         }}

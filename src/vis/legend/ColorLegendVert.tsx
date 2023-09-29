@@ -65,7 +65,7 @@ export function ColorLegendVert({
       ) : null}
       <canvas style={{ width: '100%' }} id="proteomicsLegendCanvas" ref={canvasRef} />
 
-      <Group justify="apart" style={{ width: `100%` }} gap={0} ml="0">
+      <Group justify="space-between" style={{ width: `100%` }} gap={0} ml="0">
         {colors.map((color, i) => (
           // idk why this doesnt work when i use the score as the key, tbh. The scores definitely are unique, but something to do with the 0 changing on render, idk
           // eslint-disable-next-line react/no-array-index-key

@@ -78,7 +78,7 @@ export function BarChart({
   );
 
   return (
-    <Stack style={{ width: '100%', height: '100%', position: 'relative' }} spacing={0}>
+    <Stack style={{ width: '100%', height: '100%', position: 'relative' }} gap={0}>
       <Box style={{ height: '30px' }}>
         {groupColorScale ? (
           <Legend

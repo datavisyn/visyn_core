@@ -1,4 +1,4 @@
-import { Box, Chip, Container, ScrollArea, Stack, Tooltip } from '@mantine/core';
+import { Box, Container } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as hex from 'd3-hexbin';
 import { HexbinBin } from 'd3-hexbin';
@@ -8,6 +8,7 @@ import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { EScatterSelectSettings } from '../interfaces';
+import classes from '../Vis.module.css';
 import { SingleHex } from './SingleHex';
 import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
@@ -318,13 +319,10 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         fluid
         pl={0}
         pr={0}
-        sx={{
+        style={{
           height: height + margin.top + margin.bottom,
-          width: '100%',
-          '.overlay': {
-            cursor: 'default !important',
-          },
         }}
+        className={classes.hexplotWrapper}
       >
         <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
           <defs>

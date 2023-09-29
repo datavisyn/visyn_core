@@ -222,7 +222,7 @@ export function Heatmap({
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale, config.isAnimationEnabled]);
 
   return (
-    <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
+    <Stack style={{ width: '100%', height: '100%' }} gap={0} align="center" justify="center">
       <Box pl={20}>
         <ColorLegendVert
           width={width - margin.left - margin.right}
@@ -232,10 +232,10 @@ export function Heatmap({
           title={`${config.aggregateType} ${config.aggregateType === EAggregateTypes.COUNT ? '' : config.aggregateColumn.name}`}
         />
       </Box>
-      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0} pr="40px">
+      <Group wrap="nowrap" style={{ width: '100%', height: '100%' }} gap={0} pr="40px">
         <Text
           color="dimmed"
-          sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
+          style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
           onClick={() =>
             setExternalConfig({
               ...config,
@@ -271,7 +271,7 @@ export function Heatmap({
             fluid
             pl={0}
             pr={0}
-            sx={{
+            style={{
               height,
               width: '100%',
             }}
@@ -286,7 +286,7 @@ export function Heatmap({
       </Group>
       <Text
         color="dimmed"
-        sx={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
+        style={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
         onClick={() =>
           setExternalConfig({
             ...config,

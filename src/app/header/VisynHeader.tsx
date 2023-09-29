@@ -8,7 +8,7 @@ import { ConfigurationMenu } from './ConfigurationMenu';
 import { DatavisynLogo } from './DatavisynLogo';
 import { UserMenu } from './UserMenu';
 
-/**const useStyles = createStyles(() => ({
+/** const useStyles = createStyles(() => ({
   a: {
     '& > a': {
       '&:hover': {
@@ -16,7 +16,7 @@ import { UserMenu } from './UserMenu';
       },
     },
   },
-}));*/
+})); */
 
 const classes = {};
 
@@ -73,7 +73,7 @@ export function VisynHeader({
         {largerThanSm && components?.beforeLeft}
         {components?.burgerMenu ? <BurgerMenu menu={components?.burgerMenu} /> : null}
         {components?.title === undefined ? (
-          <Title className={classes.a} order={3}>
+          <Title order={3}>
             <Text truncate c={color}>
               {appName}
             </Text>
