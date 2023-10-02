@@ -187,7 +187,8 @@
     "chromatic": "^6.19.9",
     "cypress": "^13.2.0",
     "storybook": "^7.0.12",
-    "storybook-addon-swc": "^1.1.9"
+    "storybook-addon-swc": "^1.1.9",
+    "typescript-plugin-css-modules": "^5.0.1"
   },
   "resolutions": {
     "@types/react": "~18.2.0",
