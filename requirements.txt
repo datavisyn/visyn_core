@@ -33,3 +33,5 @@ itsdangerous>=1.1.0
 pyyaml>=5.3.1
 ujson>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0
 orjson>=3.2.1
+# pin werkzeug version because the new major version 3.0.0 breaks our applications on Oct 2 2023; the version can be removed later again when the other packages support v3.0.0
+werkzeug==2.3.7
