@@ -7,5 +7,5 @@ interface AggregateRainSwitchProps {
 }
 
 export function AggregateRainSwitch({ callback, currentValue }: AggregateRainSwitchProps) {
-  return <Switch mt="lg" checked={currentValue} onChange={(event) => callback(event.currentTarget.checked)} label="Aggregate rain" />;
+  return <Switch checked={currentValue} onChange={(event) => callback(event.currentTarget.checked)} label="Aggregate rain" />;
 }

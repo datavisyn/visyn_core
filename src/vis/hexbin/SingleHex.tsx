@@ -4,7 +4,7 @@ import * as d3v7 from 'd3v7';
 import { useMemo } from 'react';
 import { PieChart } from './PieChart';
 import { cutHex } from './utils';
-import { EHexbinOptions } from '../interfaces';
+import { EHexbinOptions } from './interfaces';
 
 export interface SingleHexProps {
   hexbinOption: EHexbinOptions;

@@ -6,7 +6,8 @@ import { EColumnTypes, VisColumn } from '../interfaces';
 import { SingleBarChart } from './SingleBarChart';
 import { Legend } from './barComponents/Legend';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { IBarConfig, SortTypes, getBarData } from './utils';
+import { getBarData } from './utils';
+import { IBarConfig, SortTypes } from './interfaces';
 
 export function BarChart({
   config,

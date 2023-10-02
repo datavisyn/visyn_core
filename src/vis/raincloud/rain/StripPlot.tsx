@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
-import { IRaincloudConfig } from '../utils';
+import { IRaincloudConfig } from '../interfaces';
 
 const margin = {
   top: 30,

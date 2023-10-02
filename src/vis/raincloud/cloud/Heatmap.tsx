@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../../interfaces';
 import { useXScale } from '../hooks/useXScale';
-import { IRaincloudConfig } from '../utils';
+import { IRaincloudConfig } from '../interfaces';
 import { useKdeCalc } from './useKdeCalc';
 
 const margin = {

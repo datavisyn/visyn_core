@@ -1,7 +1,7 @@
 import { Tooltip } from '@mantine/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSpring, easings, animated } from 'react-spring';
-import { ERainType } from '../../interfaces';
+import { ERainType } from '../interfaces';
 
 export function Circle({
   x,

@@ -1,40 +1,27 @@
 import merge from 'lodash/merge';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  BaseVisConfig,
   ColumnInfo,
   EAggregateTypes,
   EColumnTypes,
   ENumericalColorScaleType,
-  ESortTypes,
   ESupportedPlotlyVis,
   VisCategoricalValue,
   VisColumn,
   VisNumericalValue,
 } from '../interfaces';
-
-export interface IHeatmapConfig {
-  type: ESupportedPlotlyVis.HEATMAP;
-  color: ColumnInfo | null;
-  catColumnsSelected: ColumnInfo[];
-  numColorScaleType: ENumericalColorScaleType;
-  sortedBy: ESortTypes;
-  aggregateType: EAggregateTypes;
-  aggregateColumn: ColumnInfo | null;
-}
-
-export function isHeatmap(vis: BaseVisConfig): vis is IHeatmapConfig {
-  return vis.type === ESupportedPlotlyVis.HEATMAP;
-}
+import { ESortTypes, IHeatmapConfig } from './interfaces';
 
 const defaultConfig: IHeatmapConfig = {
   type: ESupportedPlotlyVis.HEATMAP,
   color: null,
   catColumnsSelected: [],
-  numColorScaleType: null,
-  sortedBy: ESortTypes.CAT_ASC,
+  numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+  xSortedBy: ESortTypes.CAT_ASC,
+  ySortedBy: ESortTypes.CAT_ASC,
   aggregateColumn: null,
   aggregateType: EAggregateTypes.COUNT,
+  isAnimationEnabled: false,
 };
 
 export function heatmapMergeDefaultConfig(columns: VisColumn[], config: IHeatmapConfig): IHeatmapConfig {

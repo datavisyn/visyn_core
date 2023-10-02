@@ -5,7 +5,6 @@ import { getCssValue } from '../../utils';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
-  BaseVisConfig,
   ColumnInfo,
   EColumnTypes,
   ENumericalColorScaleType,
@@ -20,17 +19,7 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-
-export interface IScatterConfig extends BaseVisConfig {
-  type: ESupportedPlotlyVis.SCATTER;
-  numColumnsSelected: ColumnInfo[];
-  color: ColumnInfo | null;
-  numColorScaleType: ENumericalColorScaleType;
-  shape: ColumnInfo | null;
-  dragMode: EScatterSelectSettings;
-  alphaSliderVal: number;
-  sizeSliderVal: number;
-}
+import { IScatterConfig } from './interfaces';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -179,9 +168,9 @@ export async function createScatterTraces(
         },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}<br>${
-              colorCol ? `${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
-            }`,
+            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
+              colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
+            }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
         hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),

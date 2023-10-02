@@ -1,9 +1,9 @@
 import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../LazyVis';
-import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../barGood/utils';
+import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../interfaces';
-import { EViolinOverlay } from '../violin/utils';
+import { EViolinOverlay } from '../violin/interfaces';
 
 export function fetchIrisData(): VisColumn[] {
   const dataPromise = import('./irisData').then((m) =>

@@ -2,7 +2,7 @@ import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { op, table } from 'arquero';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ColumnInfo, ECloudType, EColumnTypes, ELightningType, ERainType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 
 import { XAxis } from '../hexbin/XAxis';
 import { Brush } from './Brush';
@@ -10,6 +10,7 @@ import { Heatmap } from './cloud/Heatmap';
 import { Histogram } from './cloud/Histogram';
 import { SplitViolin } from './cloud/SplitViolin';
 import { useXScale } from './hooks/useXScale';
+import { ECloudType, ELightningType, ERainType, IRaincloudConfig, IRaindropCircle } from './interfaces';
 import { Boxplot } from './lightning/Boxplot';
 import { Mean } from './lightning/Mean';
 import { MeanAndInterval } from './lightning/MeanAndInterval';
@@ -19,7 +20,6 @@ import { Circle } from './rain/Circle';
 import { DotPlot } from './rain/DotPlot';
 import { StripPlot } from './rain/StripPlot';
 import { WheatPlot } from './rain/WheatPlot';
-import { IRaincloudConfig, IRaindropCircle } from './utils';
 
 const margin = {
   top: 0,

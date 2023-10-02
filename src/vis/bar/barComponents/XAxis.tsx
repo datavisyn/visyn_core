@@ -4,7 +4,7 @@ import * as d3 from 'd3v7';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import { Center, Group, Text, Tooltip } from '@mantine/core';
-import { SortTypes } from '../utils';
+import { SortTypes } from '../interfaces';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({

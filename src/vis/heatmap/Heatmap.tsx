@@ -1,4 +1,4 @@
-import { faArrowUpWideShort, faArrowUpZA } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDownShortWide, faArrowDownWideShort, faArrowDownAZ, faArrowDownZA } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, Container, Group, Stack, Text } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
@@ -6,12 +6,12 @@ import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { rollupByAggregateType } from '../barGood/utils';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ESortTypes, VisCategoricalValue, VisNumericalValue } from '../interfaces';
+import { rollupByAggregateType } from '../bar/utils';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
-import { IHeatmapConfig } from './utils';
+import { ESortTypes, IHeatmapConfig } from './interfaces';
 
 const interRectDistance = 1;
 
@@ -42,19 +42,20 @@ export function Heatmap({
 }) {
   const [ref, { width, height }] = useResizeObserver();
 
-  const aggregatedTable = useMemo(() => {
+  const baseTable = useMemo(() => {
     if (!column1 || !column2) return null;
 
-    let valueTable = table({
+    return table({
       xVal: column1.resolvedValues.map(({ val }) => val),
       yVal: column2.resolvedValues.map(({ val }) => val),
-      aggregateValues: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
+      aggregateVal: aggregateColumn?.resolvedValues.map(({ val }) => val) || [],
       id: column1.resolvedValues.map(({ id }) => id),
     });
+  }, [aggregateColumn?.resolvedValues, column1, column2]);
+  const aggregatedTable = useMemo(() => {
+    if (!baseTable) return null;
 
-    valueTable = valueTable.groupby('xVal', 'yVal');
-
-    valueTable = rollupByAggregateType(valueTable, config.aggregateType);
+    let valueTable = rollupByAggregateType(baseTable.groupby('xVal', 'yVal'), config.aggregateType);
 
     if (config.aggregateType === EAggregateTypes.COUNT) {
       valueTable = valueTable.impute({ aggregateVal: () => 0 }, { expand: ['xVal', 'yVal'] });
@@ -68,14 +69,43 @@ export function Heatmap({
       .groupby('yVal')
       .derive({ rowTotal: op.sum('aggregateVal') });
 
-    if (config.sortedBy === ESortTypes.COUNT_ASC) {
-      valueTable = valueTable.orderby('colTotal', desc('rowTotal'));
-    } else {
-      valueTable = valueTable.orderby('xVal', 'yVal');
+    // default is ESortTypes.CAT_ASC
+    let xOrder: string | object;
+    switch (config.xSortedBy) {
+      case ESortTypes.VAL_ASC:
+        xOrder = 'colTotal';
+        break;
+      case ESortTypes.CAT_DESC:
+        xOrder = desc('xVal');
+        break;
+      case ESortTypes.VAL_DESC:
+        xOrder = desc('colTotal');
+        break;
+      default:
+        xOrder = 'xVal';
+        break;
     }
 
+    // default is ESortTypes.CAT_ASC
+    let yOrder: string | object;
+    switch (config.ySortedBy) {
+      case ESortTypes.VAL_ASC:
+        yOrder = 'rowTotal';
+        break;
+      case ESortTypes.CAT_DESC:
+        yOrder = desc('yVal');
+        break;
+      case ESortTypes.VAL_DESC:
+        yOrder = desc('rowTotal');
+        break;
+      default:
+        yOrder = 'yVal';
+        break;
+    }
+    valueTable = valueTable.orderby(xOrder, yOrder);
+
     return valueTable;
-  }, [aggregateColumn?.resolvedValues, column1, column2, config.aggregateType, config.sortedBy]);
+  }, [baseTable, config.aggregateType, config.xSortedBy, config.ySortedBy]);
 
   const { groupedValues, rectHeight, rectWidth, yScale, xScale, colorScale } = React.useMemo(() => {
     const groupedVals = aggregatedTable.objects() as { xVal: string; yVal: string; aggregateVal: number; ids: string[] }[];
@@ -149,7 +179,13 @@ export function Heatmap({
   const rects = useMemo(() => {
     if (width === 0 || height === 0) return null;
     return groupedValues.map((d, i) => {
-      const { aggregateVal, ids, x, y, xVal, yVal, color } = d;
+      const { aggregateVal, x, y, xVal, yVal, color } = d;
+      const ids: string[] = Array.from(
+        baseTable
+          .params({ x: xVal, y: yVal })
+          .filter((b, $) => b.xVal === $.x && b.yVal === $.y)
+          .values('id'),
+      );
       return (
         <HeatmapRect
           xOrder={1 - Math.floor(i / xScale.domain().length) / xScale.domain().length}
@@ -163,15 +199,27 @@ export function Heatmap({
           color={color}
           label={aggregateVal}
           setSelected={() => selectionCallback(ids)}
+          isImmediate={!config.isAnimationEnabled}
         />
       );
     });
-  }, [groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale]);
+  }, [baseTable, groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale, config.isAnimationEnabled]);
 
   const text = useMemo(() => {
     if (width === 0 || height === 0) return null;
-    return <HeatmapText height={height} width={width} margin={margin} rectHeight={rectHeight} rectWidth={rectWidth} xScale={xScale} yScale={yScale} />;
-  }, [height, margin, rectHeight, rectWidth, width, xScale, yScale]);
+    return (
+      <HeatmapText
+        height={height}
+        width={width}
+        margin={margin}
+        rectHeight={rectHeight}
+        rectWidth={rectWidth}
+        xScale={xScale}
+        yScale={yScale}
+        isImmediate={!config.isAnimationEnabled}
+      />
+    );
+  }, [height, margin, rectHeight, rectWidth, width, xScale, yScale, config.isAnimationEnabled]);
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
@@ -188,13 +236,33 @@ export function Heatmap({
         <Text
           color="dimmed"
           sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
-          onClick={() => setExternalConfig({ ...config, sortedBy: config.sortedBy === ESortTypes.CAT_ASC ? ESortTypes.COUNT_ASC : ESortTypes.CAT_ASC })}
+          onClick={() =>
+            setExternalConfig({
+              ...config,
+              ySortedBy:
+                config.ySortedBy === ESortTypes.CAT_ASC
+                  ? ESortTypes.CAT_DESC
+                  : config.ySortedBy === ESortTypes.CAT_DESC
+                  ? ESortTypes.VAL_ASC
+                  : config.ySortedBy === ESortTypes.VAL_ASC
+                  ? ESortTypes.VAL_DESC
+                  : ESortTypes.CAT_ASC,
+            })
+          }
         >
           <FontAwesomeIcon
             fontWeight={100}
             color="#C0C0C0"
             style={{ marginRight: '10px', fontWeight: 200 }}
-            icon={config.sortedBy === ESortTypes.COUNT_ASC ? faArrowUpWideShort : faArrowUpZA}
+            icon={
+              config.ySortedBy === ESortTypes.VAL_ASC
+                ? faArrowDownShortWide
+                : config.ySortedBy === ESortTypes.VAL_DESC
+                ? faArrowDownWideShort
+                : config.ySortedBy === ESortTypes.CAT_ASC
+                ? faArrowDownAZ
+                : faArrowDownZA
+            }
           />
           {column2.info.name}
         </Text>
@@ -219,9 +287,33 @@ export function Heatmap({
       <Text
         color="dimmed"
         sx={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
-        onClick={() => setExternalConfig({ ...config, sortedBy: config.sortedBy === ESortTypes.CAT_ASC ? ESortTypes.COUNT_ASC : ESortTypes.CAT_ASC })}
+        onClick={() =>
+          setExternalConfig({
+            ...config,
+            xSortedBy:
+              config.xSortedBy === ESortTypes.CAT_ASC
+                ? ESortTypes.CAT_DESC
+                : config.xSortedBy === ESortTypes.CAT_DESC
+                ? ESortTypes.VAL_ASC
+                : config.xSortedBy === ESortTypes.VAL_ASC
+                ? ESortTypes.VAL_DESC
+                : ESortTypes.CAT_ASC,
+          })
+        }
       >
-        <FontAwesomeIcon color="#C0C0C0" style={{ marginRight: '10px' }} icon={config.sortedBy === ESortTypes.COUNT_ASC ? faArrowUpWideShort : faArrowUpZA} />
+        <FontAwesomeIcon
+          color="#C0C0C0"
+          style={{ marginRight: '10px' }}
+          icon={
+            config.xSortedBy === ESortTypes.VAL_ASC
+              ? faArrowDownShortWide
+              : config.xSortedBy === ESortTypes.VAL_DESC
+              ? faArrowDownWideShort
+              : config.xSortedBy === ESortTypes.CAT_ASC
+              ? faArrowDownAZ
+              : faArrowDownZA
+          }
+        />
         {column1.info.name}
       </Text>
     </Stack>

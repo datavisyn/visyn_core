@@ -4,7 +4,7 @@ import { Center, Group, Text } from '@mantine/core';
 import * as d3 from 'd3v7';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
-import { SortTypes } from '../utils';
+import { SortTypes } from '../interfaces';
 
 type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
 

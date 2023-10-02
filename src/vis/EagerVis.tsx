@@ -21,42 +21,98 @@ import {
 
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
-import { BarVis } from './barGood/BarVis';
-import { BarVisSidebar } from './barGood/BarVisSidebar';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './barGood/utils';
-import { ICorrelationConfig, correlationMergeDefaultConfig } from './correlation';
+import { BarVis } from './bar/BarVis';
+import { BarVisSidebar } from './bar/BarVisSidebar';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './bar/interfaces';
+import { barMergeDefaultConfig } from './bar/utils';
+import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
 import { CorrelationVisSidebar } from './correlation/CorrelationVisSidebar';
+import { ICorrelationConfig } from './correlation/interfaces';
 import { HeatmapVis } from './heatmap/HeatmapVis';
 import { HeatmapVisSidebar } from './heatmap/HeatmapVisSidebar';
-import { IHeatmapConfig, heatmapMergeDefaultConfig } from './heatmap/utils';
+import { IHeatmapConfig } from './heatmap/interfaces';
+import { heatmapMergeDefaultConfig } from './heatmap/utils';
 import { HexbinVis } from './hexbin/HexbinVis';
 import { HexbinVisSidebar } from './hexbin/HexbinVisSidebar';
-import { IHexbinConfig, hexinbMergeDefaultConfig } from './hexbin/utils';
+import { IHexbinConfig } from './hexbin/interfaces';
+import { hexinbMergeDefaultConfig } from './hexbin/utils';
 import { RaincloudVis } from './raincloud/RaincloudVis';
 import { RaincloudVisSidebar } from './raincloud/RaincloudVisSidebar';
-import { IRaincloudConfig, raincloudMergeDefaultConfig } from './raincloud/utils';
+import { IRaincloudConfig } from './raincloud/interfaces';
+import { raincloudMergeDefaultConfig } from './raincloud/utils';
 import { SankeyVis } from './sankey/SankeyVis';
 import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
-import { ISankeyConfig, sankeyMergeDefaultConfig } from './sankey/utils';
-import { IScatterConfig, scatterMergeDefaultConfig } from './scatter';
+import { ISankeyConfig } from './sankey/interfaces';
+import { sankeyMergeDefaultConfig } from './sankey/utils';
+import { scatterMergeDefaultConfig } from './scatter';
 import { ScatterVis } from './scatter/ScatterVis';
 import { ScatterVisSidebar } from './scatter/ScatterVisSidebar';
-import { IViolinConfig, ViolinVis, violinMergeDefaultConfig } from './violin';
+import { IScatterConfig } from './scatter/interfaces';
+import { ViolinVis, violinMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
+import { IViolinConfig } from './violin/interfaces';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
 function registerAllVis() {
   return [
-    createVis(ESupportedPlotlyVis.SCATTER, ScatterVis, ScatterVisSidebar, scatterMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.BAR, BarVis, BarVisSidebar, barMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.HEXBIN, HexbinVis, HexbinVisSidebar, hexinbMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.SANKEY, SankeyVis, SankeyVisSidebar, sankeyMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.HEATMAP, HeatmapVis, HeatmapVisSidebar, heatmapMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.VIOLIN, ViolinVis, ViolinVisSidebar, violinMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.RAINCLOUD, RaincloudVis, RaincloudVisSidebar, raincloudMergeDefaultConfig),
-    createVis(ESupportedPlotlyVis.CORRELATION, CorrelationVis, CorrelationVisSidebar, correlationMergeDefaultConfig),
+    createVis({
+      type: ESupportedPlotlyVis.SCATTER,
+      renderer: ScatterVis,
+      sidebarRenderer: ScatterVisSidebar,
+      mergeConfig: scatterMergeDefaultConfig,
+      description: 'Visualizes two variables as individual data points in two-dimensional space',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.BAR,
+      renderer: BarVis,
+      sidebarRenderer: BarVisSidebar,
+      mergeConfig: barMergeDefaultConfig,
+      description: 'Visualizes categorical data with rectangular bars',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.HEXBIN,
+      renderer: HexbinVis,
+      sidebarRenderer: HexbinVisSidebar,
+      mergeConfig: hexinbMergeDefaultConfig,
+      description: 'Visualizes 2D data points within hexagons',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.SANKEY,
+      renderer: SankeyVis,
+      sidebarRenderer: SankeyVisSidebar,
+      mergeConfig: sankeyMergeDefaultConfig,
+      description: 'Visualizes the flow of data between different categories',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.HEATMAP,
+      renderer: HeatmapVis,
+      sidebarRenderer: HeatmapVisSidebar,
+      mergeConfig: heatmapMergeDefaultConfig,
+      description: 'Visualizes matrix data using color gradients',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.VIOLIN,
+      renderer: ViolinVis,
+      sidebarRenderer: ViolinVisSidebar,
+      mergeConfig: violinMergeDefaultConfig,
+      description: 'Visualizes numerical data distribution by combining a box plot and a kernel density plot',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.RAINCLOUD,
+      renderer: RaincloudVis,
+      sidebarRenderer: RaincloudVisSidebar,
+      mergeConfig: raincloudMergeDefaultConfig,
+      description: 'Visualizes a combination of boxplot, violin plot, and jitter plot',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.CORRELATION,
+      renderer: CorrelationVis,
+      sidebarRenderer: CorrelationVisSidebar,
+      mergeConfig: correlationMergeDefaultConfig,
+      description: 'Visualizes statistical relationships between pairs of numerical variables',
+    }),
   ];
 }
 
@@ -277,7 +333,7 @@ export function EagerVis({
         },
       }}
     >
-      {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
+      {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
 
       <Stack spacing={0} sx={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {Renderer ? (
@@ -307,7 +363,7 @@ export function EagerVis({
         ) : null}
       </Stack>
       {showSidebar ? (
-        <VisSidebarWrapper>
+        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
           <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
       ) : null}

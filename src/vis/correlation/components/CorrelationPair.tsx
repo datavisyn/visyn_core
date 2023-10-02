@@ -2,7 +2,7 @@ import { Center, Stack, Text, Tooltip, useMantineTheme } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { ICorrelationConfig } from '../utils';
+import { ICorrelationConfig } from '../interfaces';
 
 const marginRect = { top: 0, right: 0, bottom: 0, left: 0 };
 
