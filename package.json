@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "3.1.1-SNAPSHOT",
+  "version": "4.1.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -152,7 +152,6 @@
     "@types/react-dom": "^18.2.0",
     "@types/react-plotly.js": "^2.5.0",
     "arquero": "^5.2.0",
-    "chromatic": "^6.19.9",
     "d3-force-boundary": "^0.0.3",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.4.0",
@@ -185,7 +184,8 @@
     "@storybook/react": "^7.0.12",
     "@storybook/react-webpack5": "^7.0.12",
     "@storybook/testing-library": "0.0.13",
-    "cypress": "^11.2.0",
+    "chromatic": "^6.19.9",
+    "cypress": "^13.2.0",
     "storybook": "^7.0.12",
     "storybook-addon-swc": "^1.1.9"
   },
