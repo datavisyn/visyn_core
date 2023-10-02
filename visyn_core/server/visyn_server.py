@@ -4,7 +4,6 @@ import sys
 import threading
 from typing import Any
 
-import anyio
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
 from pydantic import create_model
@@ -164,8 +163,15 @@ def create_visyn_server(
     async def change_anyio_total_tokens():
         # FastAPI uses anyio threads to handle sync endpoint concurrently.
         # This is a workaround to increase the number of threads to 100, as the default is only 40.
-        limiter = anyio.to_thread.current_default_thread_limiter()
-        limiter.total_tokens = manager.settings.visyn_core.total_anyio_tokens
+        try:
+            from anyio import to_thread
+
+            limiter = to_thread.current_default_thread_limiter()
+            limiter.total_tokens = manager.settings.visyn_core.total_anyio_tokens
+        except Exception as e:
+            _log.exception(
+                f"Could not set the total number of anyio tokens to {manager.settings.visyn_core.total_anyio_tokens}. Error: {e}"
+            )
 
     if manager.settings.visyn_core.cypress:
         _log.info("Cypress mode is enabled. This should only be used in a Cypress testing environment or CI.")

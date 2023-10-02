@@ -1,0 +1,22 @@
+{/* Random.stories.mdx */}
+
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import { Vis } from '../../../LazyVis';
+
+
+<Meta
+  title="Vis/Raincloud/Documentation"
+  component={Vis}
+/>
+
+### Config props
+
+| Name | Type | Description |
+|--- |--- |--- |
+| type | 'Raincloud plot' |  |
+| numColumnsSelected | ColumnInfo [ ] | List of selected columns. Every selected column will have its own raincloud plot. |
+| aggregateRain | boolean | Whether or not to aggregate points into 100 or fewer individual points in the 'rain'. Forced aggregated at > 400 points |
+| lightningType | 'Mean and deviation' \| 'Median and deviation' \| 'Mean' \| 'Boxplot'  | Decides what to show on the axis of each raincloud plot |
+| rainType | 'Dot plot' \| 'Beeswarm' \| 'Strip plot' \| 'Wheat plot'  | Decides what to show below the axis of each raincloud plot |
+| cloudType | 'Split violin' \| 'Heatmap' \| 'Histogram'  | Decides what to show above the axis of each raincloud plot |
+

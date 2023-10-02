@@ -19,7 +19,7 @@ export function CategoricalColumnSelect({ callback, columns, currentSelected }: 
       withinPortal
       valueComponent={SelectLabelComponent}
       itemComponent={SelectDropdownItem}
-      placeholder="Select Column"
+      placeholder="Select columns"
       label="Categorical columns"
       clearable
       onChange={(e) => callback(e.map((id) => columns.find((c) => c.info.id === id).info))}
