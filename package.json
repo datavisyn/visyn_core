@@ -139,12 +139,12 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mantine/core": "~7.0.2",
-    "@mantine/dates": "~7.0.2",
-    "@mantine/form": "~7.0.2",
-    "@mantine/hooks": "~7.0.2",
-    "@mantine/modals": "~7.0.2",
-    "@mantine/notifications": "~7.0.2",
+    "@mantine/core": "~7.1.2",
+    "@mantine/dates": "~7.1.2",
+    "@mantine/form": "~7.1.2",
+    "@mantine/hooks": "~7.1.2",
+    "@mantine/modals": "~7.1.2",
+    "@mantine/notifications": "~7.1.2",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
@@ -187,8 +187,7 @@
     "chromatic": "^6.19.9",
     "cypress": "^13.2.0",
     "storybook": "^7.0.12",
-    "storybook-addon-swc": "^1.1.9",
-    "typescript-plugin-css-modules": "^5.0.1"
+    "storybook-addon-swc": "^1.1.9"
   },
   "resolutions": {
     "@types/react": "~18.2.0",

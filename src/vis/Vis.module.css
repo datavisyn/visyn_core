@@ -4,7 +4,8 @@
     overflow: hidden;
     position: relative;
 
-    [class~=nsewdrag] {
+    /* Global selector required for plotly */
+    :global(.nsewdrag) {
         cursor: pointer !important;
     }
 }
@@ -12,8 +13,20 @@
 .overlayWrapper {
     width: 100%;
 
-    [class~=overlay] {
-        cursor: default !important;
+    /* Global selector required for plotly */
+    :global(.overlay) {
+        cursor: pointer !important;
+    }
+}
+
+.test {
+    &[data-test] {
+        background: var(--mantine-color-red-filled);
     }
 
+    &:hover {
+        background: black;
+    }
 }
+
+

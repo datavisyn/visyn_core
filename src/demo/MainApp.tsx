@@ -1,4 +1,4 @@
-import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Button, Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import '@mantine/core/styles.css';
 import * as React from 'react';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
@@ -9,8 +9,11 @@ import { IScatterConfig } from '../vis/scatter/interfaces';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MyStringScore } from './scoresUtils';
+import classes from '../vis/Vis.module.css';
 
 export function MainApp() {
+  
+  
   const { user } = useVisynAppContext();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
@@ -84,6 +87,7 @@ export function MainApp() {
               onBuiltLineUp={({ createScoreColumn }) => (createScoreColumnFunc.current = createScoreColumn)}
             />
           </Stack>
+
           <Vis
             columns={columns}
             showSidebarDefault

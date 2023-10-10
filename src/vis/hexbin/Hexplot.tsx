@@ -322,7 +322,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         style={{
           height: height + margin.top + margin.bottom,
         }}
-        className={classes.hexplotWrapper}
+        className={classes.overlayWrapper}
       >
         <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
           <defs>
