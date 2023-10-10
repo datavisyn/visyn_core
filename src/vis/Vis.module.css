@@ -25,7 +25,7 @@
     }
 
     &:hover {
-        background: black;
+        background: var(--my-hover);
     }
 }
 

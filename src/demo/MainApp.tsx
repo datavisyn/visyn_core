@@ -1,19 +1,16 @@
-import { Box, Button, Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
-import '@mantine/core/styles.css';
+import { Box, Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { VisynRanking } from '../ranking';
 import { IBuiltVisynRanking } from '../ranking/EagerVisynRanking';
 import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, Vis } from '../vis';
+import classes from '../vis/Vis.module.css';
 import { IScatterConfig } from '../vis/scatter/interfaces';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MyStringScore } from './scoresUtils';
-import classes from '../vis/Vis.module.css';
 
 export function MainApp() {
-  
-  
   const { user } = useVisynAppContext();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
@@ -87,6 +84,17 @@ export function MainApp() {
               onBuiltLineUp={({ createScoreColumn }) => (createScoreColumnFunc.current = createScoreColumn)}
             />
           </Stack>
+
+          <Box
+            style={
+              {
+                '--my-hover': 'red',
+              } as React.CSSProperties
+            }
+            className={classes.test}
+          >
+            Test
+          </Box>
 
           <Vis
             columns={columns}
