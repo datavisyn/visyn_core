@@ -1,6 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
+import { VisProvider } from '../../../Provider';
 import { BaseVisConfig, ESupportedPlotlyVis } from '../../../interfaces';
 import { EViolinOverlay } from '../../../violin/interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
@@ -17,11 +18,13 @@ export default {
 const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchIrisData(), []);
   return (
-    <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-      <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} />
+    <VisProvider>
+      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ width: '70%', height: '80%' }}>
+          <Vis {...args} columns={columns} />
+        </div>
       </div>
-    </div>
+    </VisProvider>
   );
 };
 
