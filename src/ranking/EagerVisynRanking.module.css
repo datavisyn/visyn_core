@@ -1,0 +1,9 @@
+.eagerRanking {
+    flex: 1;
+    width: 100%;
+    display: block;
+    :global(.lu-side-panel-main) {
+        flex-basis: 0;
+        overflow-y: auto;
+    }
+}

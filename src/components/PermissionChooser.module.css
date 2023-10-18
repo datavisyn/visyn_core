@@ -1,0 +1,23 @@
+.grid {
+    display: 'grid';
+    grid-template-columns: minmax(5rem, 0.5fr) minmax(10rem, 2fr) minmax(20rem, 1fr);
+    align-items: center;
+    column-gap: var(--mantine-spacing-md);
+    row-gap: var(--mantine-spacing-xs);
+}
+
+.fullRow {
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+.chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 200ms ease;
+
+    &[data-rotate="true"] {
+        transform: rotate(180deg);
+    }
+}

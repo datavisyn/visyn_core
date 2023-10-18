@@ -1,10 +1,9 @@
-import * as React from 'react';
+import { Box, Button, Collapse, Group, Radio, SegmentedControl, Select, Stack, Text, TextInput } from '@mantine/core';
 import uniqueId from 'lodash/uniqueId';
-import { DefaultProps } from '@mantine/styles';
-import { Box, Button, ChevronIcon, Collapse, Text, Group, Radio, Stack, TextInput, SegmentedControl, Select } from '@mantine/core';
-import { EPermission, Permission, UserUtils, userSession } from '../security';
+import * as React from 'react';
 import { i18n } from '../i18n';
-import useStyles from './PermissionChooser.styles';
+import { EPermission, Permission, UserUtils, userSession } from '../security';
+import classes from './PermissionChooser.module.css';
 
 function PermissionsEntry({
   permission,
@@ -85,7 +84,7 @@ function PermissionsEntry({
   );
 }
 
-interface PermissionChooserProps extends DefaultProps {
+interface PermissionChooserProps extends React.ComponentPropsWithoutRef<'div'> {
   permission: Permission;
   buddies: string[];
   group: string;
@@ -102,11 +101,9 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
     const roles = user ? user.roles : UserUtils.ANONYMOUS_USER.roles;
     const [advancedOpen, setAdvancedOpen] = React.useState<boolean>(false);
 
-    const { classes } = useStyles();
-
     return (
       <Stack ref={ref} {...others}>
-        <Group sx={{ justifyContent: 'space-between' }}>
+        <Group justify="space-between">
           <Radio.Group
             value={permission.others.has(EPermission.READ) ? 'public' : 'private'}
             onChange={(value) => {
@@ -148,9 +145,9 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
 
           <Button
             variant="subtle"
-            rightIcon={
+            rightSection={
               <span className={classes.chevron} data-rotate={advancedOpen}>
-                <ChevronIcon />
+                {/* @TODO Moritz <ChevronIcon /> */}
               </span>
             }
             size="xs"
@@ -192,7 +189,7 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
             <TextInput
               id={`permission_buddies_name_${id}`}
               name="permission_buddies_name"
-              sx={{ display: 'inline-block' }}
+              style={{ display: 'inline-block' }}
               placeholder={i18n.t('visyn:permission.buddiesPlaceholder')}
               value={buddies.join(';')}
               onChange={(e) => setBuddies(e.currentTarget.value.split(';'))}
