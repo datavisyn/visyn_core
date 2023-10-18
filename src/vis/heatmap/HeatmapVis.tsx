@@ -15,7 +15,7 @@ export function HeatmapVis({
   showSidebar,
 }: ICommonVisProps<IHeatmapConfig>) {
   return (
-    <Group sx={{ height: '100%', width: '100%' }} noWrap>
+    <Group style={{ height: '100%', width: '100%' }} wrap="nowrap">
       <HeatmapGrid config={config} columns={columns} selected={selectedMap} selectionCallback={selectionCallback} setExternalConfig={setConfig} />
     </Group>
   );

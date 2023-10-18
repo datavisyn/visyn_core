@@ -1,0 +1,32 @@
+.visWrapper {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+
+    /* Global selector required for plotly */
+    :global(.nsewdrag) {
+        cursor: pointer !important;
+    }
+}
+
+.overlayWrapper {
+    width: 100%;
+
+    /* Global selector required for plotly */
+    :global(.overlay) {
+        cursor: pointer !important;
+    }
+}
+
+.test {
+    &[data-test] {
+        background: var(--mantine-color-red-filled);
+    }
+
+    &:hover {
+        background: var(--my-hover);
+    }
+}
+
+

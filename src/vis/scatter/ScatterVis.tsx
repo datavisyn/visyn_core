@@ -132,7 +132,7 @@ export function ScatterVis({
   }, [plotsWithSelectedPoints, traces]);
 
   return (
-    <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+    <Stack gap={0} style={{ height: '100%', width: '100%' }}>
       {showDragModeOptions ? (
         <Center>
           <Group mt="lg">

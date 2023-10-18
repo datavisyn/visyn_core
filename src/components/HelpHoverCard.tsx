@@ -5,11 +5,11 @@ import React from 'react';
 
 export function HelpHoverCard({ title, content, dataCyPrefix }: { title: JSX.Element; content: JSX.Element; dataCyPrefix?: string }) {
   return (
-    <Group align="center" mb={2} position="apart" noWrap>
+    <Group align="center" mb={2} justify="space-between" wrap="nowrap">
       {title}
       <HoverCard width={400} shadow="md" withinPortal>
         <HoverCard.Target>
-          <ActionIcon>
+          <ActionIcon variant="subtle">
             <FontAwesomeIcon icon={faQuestionCircle} />
           </ActionIcon>
         </HoverCard.Target>

@@ -1,8 +1,8 @@
 import { Select, Text } from '@mantine/core';
 import * as React from 'react';
+import { HelpHoverCard } from '../../components/HelpHoverCard';
 import { useVisProvider } from '../Provider';
 import { ESupportedPlotlyVis } from '../interfaces';
-import { HelpHoverCard } from '../../components/HelpHoverCard';
 
 interface VisTypeSelectProps {
   callback: (s: ESupportedPlotlyVis) => void;
@@ -31,14 +31,15 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
 
   const currentVis = getVisByType(currentSelected);
 
+  // @TODO @MORITZ
+  // itemComponent={SelectItem}
   return (
     <Select
-      withinPortal
       searchable
       label={
         <HelpHoverCard
           title={
-            <Text size="sm" weight={500}>
+            <Text size="sm" fw={500}>
               Visualization type
             </Text>
           }
@@ -53,7 +54,6 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
       // components={{Option: optionLayout}}
       onChange={(e) => callback(e as ESupportedPlotlyVis)}
       name="visTypes"
-      itemComponent={SelectItem}
       maxDropdownHeight={380}
       data={visTypes.map((t) => {
         return {

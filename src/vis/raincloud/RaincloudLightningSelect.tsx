@@ -14,5 +14,5 @@ export function RaincloudLightningSelect({ callback, currentSelected }: HexbinOp
     { value: ELightningType.MEDIAN_AND_DEV, label: ELightningType.MEDIAN_AND_DEV },
     { value: ELightningType.BOXPLOT, label: ELightningType.BOXPLOT },
   ];
-  return <Select withinPortal label="Lightning options" onChange={(e) => callback(e as ELightningType)} data={options} value={currentSelected} />;
+  return <Select label="Lightning options" onChange={(e) => callback(e as ELightningType)} data={options} value={currentSelected} />;
 }

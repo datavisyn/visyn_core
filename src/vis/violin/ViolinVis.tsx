@@ -6,11 +6,12 @@ import { useEffect, useState } from 'react';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
+import classes from '../Vis.module.css';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { createViolinTraces } from './utils';
 import { IViolinConfig } from './interfaces';
+import { createViolinTraces } from './utils';
 
 export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
@@ -90,19 +91,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
   }, [traces]);
 
   return (
-    <Stack
-      spacing={0}
-      sx={{
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
-      }}
-    >
+    <Stack gap={0} className={classes.visWrapper}>
       {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
         <PlotlyComponent
           divId={`plotlyDiv${id}`}

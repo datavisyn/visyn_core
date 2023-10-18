@@ -19,6 +19,7 @@ import {
   VisColumn,
 } from './interfaces';
 
+import classes from './Vis.module.css';
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { BarVis } from './bar/BarVis';
@@ -318,24 +319,17 @@ export function EagerVis({
 
   return (
     <Group
-      noWrap
+      wrap="nowrap"
       pl={0}
       pr={0}
-      sx={{
+      style={{
         flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
       }}
+      className={classes.visWrapper}
     >
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
 
-      <Stack spacing={0} sx={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
+      <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {Renderer ? (
           <Renderer
             config={visConfig}

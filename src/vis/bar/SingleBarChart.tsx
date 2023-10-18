@@ -1,6 +1,7 @@
 import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import React, { useCallback, useMemo } from 'react';
+import classes from '../Vis.module.css';
 import { EAggregateTypes } from '../interfaces';
 import { XAxis } from './barComponents/XAxis';
 import { YAxis } from './barComponents/YAxis';
@@ -8,8 +9,8 @@ import { GroupedBars } from './barTypes/GroupedBars';
 import { SimpleBars } from './barTypes/SimpleBars';
 import { StackedBars } from './barTypes/StackedBars';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { getBarData } from './utils';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
+import { getBarData } from './utils';
 
 const margin = {
   top: 30,
@@ -114,12 +115,9 @@ export function SingleBarChart({
         fluid
         pl={0}
         pr={0}
-        sx={{
+        className={classes.overlayWrapper}
+        style={{
           height,
-          width: '100%',
-          '.overlay': {
-            cursor: 'default !important',
-          },
         }}
       >
         <svg width={width} height={height}>

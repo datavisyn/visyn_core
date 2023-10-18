@@ -1,8 +1,8 @@
-import * as React from 'react';
 import { Select, Stack } from '@mantine/core';
-import { ColumnInfo, EColumnTypes, VisColumn, ENumericalColorScaleType } from '../interfaces';
-import { SelectDropdownItem, getCol } from '../sidebar/utils';
+import * as React from 'react';
+import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, VisColumn } from '../interfaces';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
+import { getCol } from '../sidebar/utils';
 
 interface ColorSelectProps {
   callback: (c: ColumnInfo) => void;
@@ -13,11 +13,12 @@ interface ColorSelectProps {
 }
 
 export function ColorSelect({ callback, numTypeCallback = () => null, currentNumType = null, columns, currentSelected }: ColorSelectProps) {
+  // @TODO @MORITZ
+  // itemComponent={SelectDropdownItem}
+
   return (
-    <Stack spacing="sm">
+    <Stack gap="sm">
       <Select
-        withinPortal
-        itemComponent={SelectDropdownItem}
         clearable
         placeholder="Select columns"
         label="Color"

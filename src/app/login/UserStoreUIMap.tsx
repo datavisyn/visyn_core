@@ -1,8 +1,8 @@
-import React from 'react';
 import { Anchor, Text } from '@mantine/core';
+import React from 'react';
+import { IUserStore, userSession } from '../../security';
 import { LoginUtils } from '../../security/LoginUtils';
 import { VisynLoginForm } from './VisynLoginForm';
-import { IUserStore, userSession } from '../../security';
 
 interface IUserStoreRenderProps<T extends IUserStore = IUserStore> {
   setError(error: string | null): void;
@@ -113,7 +113,7 @@ export function AutoLoginForm({ setError, store }: IUserStoreRenderProps) {
   };
 
   return (
-    <Text align="justify">
+    <Text style={{ textAlign: 'justify' }}>
       You will be automatically logged in as soon as you visit the application. If your access is expired, click{' '}
       <Anchor
         href="#"

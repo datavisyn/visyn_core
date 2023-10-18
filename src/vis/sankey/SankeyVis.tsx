@@ -1,7 +1,8 @@
-import { Group, MantineTheme, Stack, useMantineTheme } from '@mantine/core';
+import { Group, MantineTheme, Stack, lighten, rgba, useMantineTheme } from '@mantine/core';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
+import classes from '../Vis.module.css';
 import { InvalidCols } from '../general/InvalidCols';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
@@ -132,8 +133,9 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
 }
 
 function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineTheme) {
-  const selected = theme.fn.lighten(theme.colors[theme.primaryColor][theme.fn.primaryShade()], 0.2);
-  const def = optimisedSelection.size > 0 ? theme.fn.rgba(theme.colors.gray[4], 0.5) : selected;
+  // @TODO @MORITZ
+  const selected = lighten(theme.colors[theme.primaryColor][5], 0.2);
+  const def = optimisedSelection.size > 0 ? rgba(theme.colors.gray[4], 0.5) : selected;
 
   return [
     {
@@ -184,22 +186,15 @@ export function SankeyVis({ config, columns, selectedList, selectionCallback, di
 
   return (
     <Group
-      noWrap
+      wrap="nowrap"
       pl={0}
       pr={0}
-      sx={{
+      className={classes.visWrapper}
+      style={{
         flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        // Disable plotly crosshair cursor
-        '.nsewdrag': {
-          cursor: 'pointer !important',
-        },
       }}
     >
-      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+      <Stack gap={0} style={{ height: '100%', width: '100%' }}>
         {plotly ? (
           <PlotlyComponent
             data={plotly}

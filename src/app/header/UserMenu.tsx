@@ -1,23 +1,13 @@
-import { Avatar, createStyles, Menu } from '@mantine/core';
+import { Avatar, Menu } from '@mantine/core';
 import React from 'react';
 import { LoginUtils } from '../../security';
+import classes from './UserMenu.module.css';
 
 export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: string; color: string }) {
-  const useStyles = createStyles(() => ({
-    avatar: {
-      cursor: 'pointer',
-      '> div': {
-        fontSize: '12.5px',
-      },
-    },
-  }));
-
-  const { classes } = useStyles();
-
   return (
     <Menu shadow="md" data-testid="visyn-user-avatar">
       <Menu.Target>
-        <Avatar className={classes.avatar} role="button" color={color} radius="xl" size={28}>
+        <Avatar className={classes.avatar} role="button" color={color} radius="xl" size={28} variant="default">
           {user
             .split(' ')
             .map((name) => name[0])

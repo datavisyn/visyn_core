@@ -1,9 +1,10 @@
-import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, IScatterConfig, Vis } from '../vis';
+import classes from '../vis/Vis.module.css';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
@@ -53,9 +54,10 @@ export function MainApp() {
           }}
         />
       }
+      headerConfig={{ height: 50 }}
     >
       {user ? (
-        <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
+        <SimpleGrid cols={2} style={{ height: '100%' }} p="xs">
           <Stack>
             <Select
               placeholder="Add a score column"
@@ -99,6 +101,18 @@ export function MainApp() {
               }}
             />
           </Stack>
+
+          <Box
+            style={
+              {
+                '--my-hover': 'red',
+              } as React.CSSProperties
+            }
+            className={classes.test}
+          >
+            Test
+          </Box>
+
           <Vis
             columns={columns}
             showSidebarDefault
