@@ -3,37 +3,25 @@ import * as d3 from 'd3v7';
 import { op, table } from 'arquero';
 import { useMemo } from 'react';
 
-function kernelDensityEstimator(kernel, X) {
-  return function (V) {
-    return X.map(function (x) {
-      return [
-        x,
-        d3.mean(V, function (v) {
-          // @ts-ignore
-          return kernel(x - v);
-        }),
-      ];
-    });
-  };
-}
-function kernelEpanechnikov(k) {
-  return function (v) {
-    // eslint-disable-next-line no-return-assign, no-cond-assign
-    return Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0;
-  };
-}
+const kernelDensityEstimator = (kernel: (n: number) => number, X: number[]) => {
+  return (V: number[]) => X.map((x: number) => [x, d3.mean(V, (v: number) => kernel(x - v))]) as [number, number][];
+};
 
-function toSampleVariance(variance: number, len: number) {
-  return (variance * len) / (len - 1);
-}
+const kernelEpanechnikov = (k: number) => (v: number) => {
+  const newV = v / k;
+  // TODO: @dv-usama-ansari: Check if this is correct
+  return Math.abs(newV) <= 1 ? (0.75 * (1 - newV * newV)) / k : 0;
+};
 
-function silvermans(iqr: number, variance: number, len: number) {
+const toSampleVariance = (variance: number, len: number) => (variance * len) / (len - 1);
+
+const silvermans = (iqr: number, variance: number, len: number) => {
   let s = Math.sqrt(toSampleVariance(variance, len));
   if (typeof iqr === 'number') {
     s = Math.min(s, iqr / 1.34);
   }
   return 1.06 * s * len ** -0.2;
-}
+};
 
 /**
  * @param range

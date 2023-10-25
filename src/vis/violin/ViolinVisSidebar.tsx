@@ -29,7 +29,7 @@ export function ViolinVisSidebar({
   filterCallback,
 }: ICommonVisSideBarProps<IViolinConfig>) {
   const mergedOptionsConfig = useMemo(() => {
-    return merge({}, defaultConfig, optionsConfig);
+    return merge({}, defaultConfig, optionsConfig as Record<string, unknown>);
   }, [optionsConfig]);
 
   return (

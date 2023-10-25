@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import { desc, op, table, addFunction } from 'arquero';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import * as d3 from 'd3v7';
 import { getBarData, sortTableBySortType } from '../utils';
 import { SortTypes } from '../interfaces';
@@ -33,7 +33,7 @@ export function useGetBarScales(
     return null;
   }, [allColumns, selectedMap]);
 
-  const aggregateFunc = useMemo(() => {
+  const aggregateFunc = useCallback(() => {
     switch (aggregateType) {
       case EAggregateTypes.COUNT:
         return (d) => op.count();

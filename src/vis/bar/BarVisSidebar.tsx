@@ -45,9 +45,7 @@ export function BarVisSidebar({
   filterCallback,
   style: { width = '20em', ...style } = {},
 }: ICommonVisSideBarProps<IBarConfig>) {
-  const mergedOptionsConfig = useMemo(() => {
-    return merge({}, defaultConfig, optionsConfig);
-  }, [optionsConfig]);
+  const mergedOptionsConfig = useMemo(() => merge({}, defaultConfig, optionsConfig as Record<string, unknown>), [optionsConfig]);
 
   return (
     <>

@@ -26,7 +26,7 @@ const defaultConfig = {
 
 export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback = () => null, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
   const mergedOptionsConfig = useMemo(() => {
-    return merge({}, defaultConfig, optionsConfig);
+    return merge({}, defaultConfig, optionsConfig as Record<string, unknown>);
   }, [optionsConfig]);
 
   return (
