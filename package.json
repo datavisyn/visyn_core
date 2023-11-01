@@ -16,86 +16,86 @@
     "type": "git",
     "url": "git@github.com:datavisyn/visyn_core.git"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./app": {
-      "types": "./dist/app/index.d.ts",
-      "import": "./dist/app/index.js",
-      "default": "./dist/app/index.js"
+      "types": "./src/app/index.ts",
+      "import": "./src/app/index.ts",
+      "default": "./src/app/index.ts"
     },
     "./base": {
-      "types": "./dist/base/index.d.ts",
-      "import": "./dist/base/index.js",
-      "default": "./dist/base/index.js"
+      "types": "./src/base/index.ts",
+      "import": "./src/base/index.ts",
+      "default": "./src/base/index.ts"
     },
     "./components": {
-      "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.js",
-      "default": "./dist/components/index.js"
+      "types": "./src/components/index.ts",
+      "import": "./src/components/index.ts",
+      "default": "./src/components/index.ts"
     },
     "./hooks": {
-      "types": "./dist/hooks/index.d.ts",
-      "import": "./dist/hooks/index.js",
-      "default": "./dist/hooks/index.js"
+      "types": "./src/hooks/index.ts",
+      "import": "./src/hooks/index.ts",
+      "default": "./src/hooks/index.ts"
     },
     "./i18n": {
-      "types": "./dist/i18n/index.d.ts",
-      "import": "./dist/i18n/index.js",
-      "default": "./dist/i18n/index.js"
+      "types": "./src/i18n/index.ts",
+      "import": "./src/i18n/index.ts",
+      "default": "./src/i18n/index.ts"
     },
     "./idtype": {
-      "types": "./dist/idtype/index.d.ts",
-      "import": "./dist/idtype/index.js",
-      "default": "./dist/idtype/index.js"
+      "types": "./src/idtype/index.ts",
+      "import": "./src/idtype/index.ts",
+      "default": "./src/idtype/index.ts"
     },
     "./plotly/full": {
-      "types": "./dist/plotly/full/index.d.ts",
-      "import": "./dist/plotly/full/index.js",
-      "default": "./dist/plotly/full/index.js"
+      "types": "./src/plotly/full/index.ts",
+      "import": "./src/plotly/full/index.ts",
+      "default": "./src/plotly/full/index.ts"
     },
     "./plotly": {
-      "types": "./dist/plotly/index.d.ts",
-      "import": "./dist/plotly/index.js",
-      "default": "./dist/plotly/index.js"
+      "types": "./src/plotly/index.tsx",
+      "import": "./src/plotly/index.tsx",
+      "default": "./src/plotly/index.tsx"
     },
     "./plugin": {
-      "types": "./dist/plugin/index.d.ts",
-      "import": "./dist/plugin/index.js",
-      "default": "./dist/plugin/index.js"
+      "types": "./src/plugin/index.ts",
+      "import": "./src/plugin/index.ts",
+      "default": "./src/plugin/index.ts"
     },
     "./ranking": {
-      "types": "./dist/ranking/index.d.ts",
-      "import": "./dist/ranking/index.js",
-      "default": "./dist/ranking/index.js"
+      "types": "./src/ranking/index.ts",
+      "import": "./src/ranking/index.ts",
+      "default": "./src/ranking/index.ts"
     },
     "./security": {
-      "types": "./dist/security/index.d.ts",
-      "import": "./dist/security/index.js",
-      "default": "./dist/security/index.js"
+      "types": "./src/security/index.ts",
+      "import": "./src/security/index.ts",
+      "default": "./src/security/index.ts"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "import": "./dist/utils/index.js",
-      "default": "./dist/utils/index.js"
+      "types": "./src/utils/index.ts",
+      "import": "./src/utils/index.ts",
+      "default": "./src/utils/index.ts"
     },
     "./views": {
-      "types": "./dist/views/index.d.ts",
-      "import": "./dist/views/index.js",
-      "default": "./dist/views/index.js"
+      "types": "./src/views/index.ts",
+      "import": "./src/views/index.ts",
+      "default": "./src/views/index.ts"
     },
     "./vis": {
-      "types": "./dist/vis/index.d.ts",
-      "import": "./dist/vis/index.js",
-      "default": "./dist/vis/index.js"
+      "types": "./src/vis/index.ts",
+      "import": "./src/vis/index.ts",
+      "default": "./src/vis/index.ts"
     },
-    "./dist/scss/main.scss": "./dist/scss/main.scss",
-    "./phovea_registry": "./dist/phovea_registry.js",
+    "./src/scss/main.scss": "./src/scss/main.scss",
+    "./phovea_registry": "./src/phovea_registry.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -121,7 +121,6 @@
     "docs": "visyn_scripts docs",
     "lint:fix": "visyn_scripts lint --fix",
     "lint": "visyn_scripts lint",
-    "prepack": "yarn run build",
     "predist": "yarn run lint && yarn run test && yarn run build",
     "start:fast": "visyn_scripts start --env workspace_mode=single fast=true",
     "start": "visyn_scripts start --env workspace_mode=single",
