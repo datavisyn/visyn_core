@@ -35,197 +35,197 @@
     },
     "./app": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/app/index.d.ts",
         "./src/app/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/app/index.js",
         "./src/app/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/app/index.js",
         "./src/app/index.ts"
       ]
     },
     "./base": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/base/index.d.ts",
         "./src/base/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/base/index.js",
         "./src/base/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/base/index.js",
         "./src/base/index.ts"
       ]
     },
     "./components": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/components/index.d.ts",
         "./src/components/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/components/index.js",
         "./src/components/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/components/index.js",
         "./src/components/index.ts"
       ]
     },
     "./hooks": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/hooks/index.d.ts",
         "./src/hooks/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/hooks/index.js",
         "./src/hooks/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/hooks/index.js",
         "./src/hooks/index.ts"
       ]
     },
     "./i18n": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/i18n/index.d.ts",
         "./src/i18n/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/i18n/index.js",
         "./src/i18n/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/i18n/index.js",
         "./src/i18n/index.ts"
       ]
     },
     "./idtype": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/idtype/index.d.ts",
         "./src/idtype/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/idtype/index.js",
         "./src/idtype/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/idtype/index.js",
         "./src/idtype/index.ts"
       ]
     },
     "./plotly/full": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/plotly/full/index.d.ts",
         "./src/plotly/full/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/plotly/full/index.js",
         "./src/plotly/full/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/plotly/full/index.js",
         "./src/plotly/full/index.ts"
       ]
     },
     "./plotly": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/plotly/index.d.ts",
         "./src/plotly/index.tsx"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/plotly/index.js",
         "./src/plotly/index.tsx"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/plotly/index.js",
         "./src/plotly/index.tsx"
       ]
     },
     "./plugin": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/plugin/index.d.ts",
         "./src/plugin/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/plugin/index.js",
         "./src/plugin/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/plugin/index.js",
         "./src/plugin/index.ts"
       ]
     },
     "./ranking": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/ranking/index.d.ts",
         "./src/ranking/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/ranking/index.js",
         "./src/ranking/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/ranking/index.js",
         "./src/ranking/index.ts"
       ]
     },
     "./security": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/security/index.d.ts",
         "./src/security/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/security/index.js",
         "./src/security/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/security/index.js",
         "./src/security/index.ts"
       ]
     },
     "./utils": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/utils/index.d.ts",
         "./src/utils/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/utils/index.js",
         "./src/utils/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/utils/index.js",
         "./src/utils/index.ts"
       ]
     },
     "./views": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/views/index.d.ts",
         "./src/views/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/views/index.js",
         "./src/views/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/views/index.js",
         "./src/views/index.ts"
       ]
     },
     "./vis": {
       "types": [
-        "./dist/index.d.ts",
+        "./dist/vis/index.d.ts",
         "./src/vis/index.ts"
       ],
       "import": [
-        "./dist/index.js",
+        "./dist/vis/index.js",
         "./src/vis/index.ts"
       ],
       "default": [
-        "./dist/index.js",
+        "./dist/vis/index.js",
         "./src/vis/index.ts"
       ]
     },
@@ -284,11 +284,13 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@mantine/core": "~6.0.19",
     "@mantine/dates": "~6.0.19",
+    "@mantine/dropzone": "~6.0.19",
     "@mantine/form": "~6.0.19",
     "@mantine/hooks": "~6.0.19",
     "@mantine/modals": "~6.0.19",
     "@mantine/notifications": "~6.0.19",
     "@mantine/styles": "~6.0.19",
+    "@mantine/tiptap": "~6.0.19",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
@@ -311,19 +313,6 @@
     "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
     "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#no_dist"
-  },
-  "peerDependencies": {
-    "@mantine/core": "~6.0.19",
-    "@mantine/dates": "~6.0.19",
-    "@mantine/form": "~6.0.19",
-    "@mantine/hooks": "~6.0.19",
-    "@mantine/modals": "~6.0.19",
-    "@mantine/notifications": "~6.0.19",
-    "@mantine/styles": "~6.0.19",
-    "@types/react": "~18.2.0",
-    "@types/react-dom": "~18.2.0",
-    "react": "~18.2.0",
-    "react-dom": "~18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
