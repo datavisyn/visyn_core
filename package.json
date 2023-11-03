@@ -277,7 +277,6 @@
     "chromatic": "npx chromatic --build-script-name storybook:build"
   },
   "dependencies": {
-    "@emotion/react": "^11.0.0",
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@fortawesome/fontawesome-svg-core": "^6.1.2",
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
@@ -305,13 +304,26 @@
     "lineupjs": "4.9.0",
     "lodash": "~4.17.20",
     "plotly.js-dist-min": "~2.12.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "~18.2.0",
+    "react-dom": "~18.2.0",
     "react-highlight-words": "^0.17.0",
     "react-plotly.js": "^2.5.1",
     "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
     "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#no_dist"
+  },
+  "peerDependencies": {
+    "@mantine/core": "~6.0.19",
+    "@mantine/dates": "~6.0.19",
+    "@mantine/form": "~6.0.19",
+    "@mantine/hooks": "~6.0.19",
+    "@mantine/modals": "~6.0.19",
+    "@mantine/notifications": "~6.0.19",
+    "@mantine/styles": "~6.0.19",
+    "@types/react": "~18.2.0",
+    "@types/react-dom": "~18.2.0",
+    "react": "~18.2.0",
+    "react-dom": "~18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
@@ -333,12 +345,6 @@
     "cypress": "^13.2.0",
     "storybook": "^7.0.12",
     "storybook-addon-swc": "^1.1.9"
-  },
-  "resolutions": {
-    "@types/react": "~18.2.0",
-    "@types/react-dom": "~18.2.0",
-    "react": "~18.2.0",
-    "react-dom": "~18.2.0"
   },
   "visyn": {
     "entries": {
