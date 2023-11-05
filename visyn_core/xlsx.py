@@ -98,9 +98,20 @@ def _json2xlsx():
     data: dict = request.json  # type: ignore
     wb = Workbook(write_only=True)
 
+    # Not sure if we should disable calculation to avoid CSV injection
+    # wb.calculation.calcMode = "manual"
+    # wb.calculation.fullCalcOnLoad = False
+
     bold = Font(bold=True)
 
+    def _escape(v):
+        if isinstance(v, str) and v and v[0] in ["+", "-", "@", "="]:
+            _log.warning("CSV injection detected: %s", v)
+            return f"'{v}"
+        return v
+
     def to_cell(v):
+        v = _escape(v)
         # If the native value cannot be used as Excel value, used the stringified version instead.
         try:
             return WriteOnlyCell(ws, value=v)  # type: ignore
