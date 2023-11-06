@@ -4,6 +4,7 @@ import { Vis } from '../../../LazyVis';
 import { BaseVisConfig, ESupportedPlotlyVis } from '../../../interfaces';
 import { EViolinOverlay } from '../../../violin/interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
+import { VisProvider } from '../../../Provider';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -19,7 +20,9 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} />
+        <VisProvider>
+          <Vis {...args} columns={columns} />
+        </VisProvider>
       </div>
     </div>
   );

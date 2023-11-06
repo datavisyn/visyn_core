@@ -4,6 +4,7 @@ import { Vis } from '../LazyVis';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../interfaces';
 import { EViolinOverlay } from '../violin/interfaces';
+import { VisProvider } from '../Provider';
 
 export function fetchIrisData(): VisColumn[] {
   const dataPromise = import('./irisData').then((m) =>
@@ -93,7 +94,9 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
+        <VisProvider>
+          <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
+        </VisProvider>
       </div>
     </div>
   );

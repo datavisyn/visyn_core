@@ -24,7 +24,7 @@ const SelectItem = React.forwardRef<HTMLDivElement, ItemProps>(({ image, label, 
   </div>
 ));
 
-SelectItem.displayName = '@mantine/core/SelectItem';
+SelectItem.displayName = 'VisTypeSelectItem';
 
 export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps) {
   const { visTypes, getVisByType } = useVisProvider();
