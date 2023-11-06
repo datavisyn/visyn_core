@@ -15,6 +15,7 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
   description: string;
 }
 
+// eslint-disable-next-line react/display-name
 const SelectItem = React.forwardRef<HTMLDivElement, ItemProps>(({ image, label, description, ...others }: ItemProps, ref) => (
   <div ref={ref} {...others}>
     <Text size="sm">{label}</Text>
@@ -23,8 +24,6 @@ const SelectItem = React.forwardRef<HTMLDivElement, ItemProps>(({ image, label, 
     </Text>
   </div>
 ));
-
-SelectItem.displayName = '@mantine/core/SelectItem';
 
 export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps) {
   const { visTypes, getVisByType } = useVisProvider();
