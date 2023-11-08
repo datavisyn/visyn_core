@@ -1,4 +1,4 @@
-import { Box, Center, Group, Loader, Stack, Text } from '@mantine/core';
+import { Box, Center, Group, Loader, Stack, Text, Tooltip } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import { scaleBand } from 'd3v7';
@@ -144,9 +144,32 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           <rect stroke="lightgray" strokeWidth={1} fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
           <foreignObject x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
             <Center style={{ height: '100%' }} px={5}>
-              <Text size="sm" fw={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {col.info.name}
-              </Text>
+              <Tooltip
+                label={
+                  <Stack gap={0}>
+                    <Text>{col.info.name}</Text>
+                    {col.info.description && (
+                      <Text size="xs" color="dimmed">
+                        {col.info.description}
+                      </Text>
+                    )}
+                  </Stack>
+                }
+                arrowSize={6}
+                withinPortal
+                withArrow
+              >
+                <Stack gap={0}>
+                  <Text size="sm" fw={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    {col.info.name}
+                  </Text>
+                  {col.info.description && (
+                    <Text size="sm" color="dimmed" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                      {col.info.description}
+                    </Text>
+                  )}
+                </Stack>
+              </Tooltip>
             </Center>
           </foreignObject>
         </g>

@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "4.1.1-SNAPSHOT",
+  "version": "5.0.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -133,6 +133,7 @@
     "chromatic": "npx chromatic --build-script-name storybook:build"
   },
   "dependencies": {
+    "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.0.0",
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@fortawesome/fontawesome-svg-core": "^6.1.2",
@@ -145,6 +146,7 @@
     "@mantine/hooks": "~7.1.2",
     "@mantine/modals": "~7.1.2",
     "@mantine/notifications": "~7.1.2",
+    "@mantine/styles": "~6.0.19",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",

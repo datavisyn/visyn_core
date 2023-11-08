@@ -1,4 +1,4 @@
-import { Box, Loader, SimpleGrid, Stack } from '@mantine/core';
+import { Box, Loader, SimpleGrid, Stack, Center } from '@mantine/core';
 import { op } from 'arquero';
 import React, { useCallback, useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
@@ -97,7 +97,9 @@ export function BarChart({
       </Box>
       <SimpleGrid cols={Math.round(Math.sqrt(uniqueMultiplesVals.length))} spacing={0} style={{ height: 'inherit', overflow: 'hidden' }}>
         {colsStatus !== 'success' ? (
-          <Loader />
+          <Center>
+            <Loader />
+          </Center>
         ) : !config.multiples || !allColumns.multiplesColVals ? (
           <SingleBarChart
             config={config}
