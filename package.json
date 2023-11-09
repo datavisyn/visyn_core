@@ -146,7 +146,6 @@
     "@mantine/hooks": "~7.1.2",
     "@mantine/modals": "~7.1.2",
     "@mantine/notifications": "~7.1.2",
-    "@mantine/styles": "~6.0.19",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",

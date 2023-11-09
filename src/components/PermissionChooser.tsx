@@ -2,7 +2,6 @@ import { css } from '@emotion/css';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, Button, Collapse, Group, Radio, SegmentedControl, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
-import { DefaultProps } from '@mantine/styles';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { i18n } from '../i18n';
@@ -87,7 +86,7 @@ function PermissionsEntry({
   );
 }
 
-interface PermissionChooserProps extends DefaultProps {
+interface PermissionChooserProps {
   permission: Permission;
   buddies: string[];
   group: string;
