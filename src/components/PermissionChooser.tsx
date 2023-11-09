@@ -1,5 +1,7 @@
 import { css } from '@emotion/css';
-import { Box, Button, ChevronIcon, Collapse, Group, Radio, SegmentedControl, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Box, Button, Collapse, Group, Radio, SegmentedControl, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { DefaultProps } from '@mantine/styles';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
@@ -104,6 +106,7 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
     const theme = useMantineTheme();
 
     return (
+      // @ts-ignore
       <Stack ref={ref} {...others}>
         <Group style={{ justifyContent: 'space-between' }}>
           <Radio.Group
@@ -156,12 +159,12 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
                   transition: transform 200ms ease;
 
                   &[data-rotate='true'] {
-                    transform: 'rotate(180deg)';
+                    transform: rotate(180deg);
                   }
                 `}
                 data-rotate={advancedOpen}
               >
-                <ChevronIcon />
+                <FontAwesomeIcon icon={faChevronDown} />
               </span>
             }
             size="xs"

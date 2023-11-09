@@ -1,13 +1,14 @@
-import * as React from 'react';
+import { css } from '@emotion/css';
+import { Box, BoxProps } from '@mantine/core';
 import LineUp, { buildRanking } from 'lineupjs';
 import isEqual from 'lodash/isEqual';
-import { Box, BoxProps } from '@mantine/core';
+import * as React from 'react';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { registerSMILESColumn } from './smiles/utils';
 
 import '../scss/vendors/_lineup.scss';
-import { DatavisynTaggle } from './overrides/DatavisynTaggle';
 import { DatavisynLineUpBuilder } from './overrides/DatavisynLineUpBuilder';
+import { DatavisynTaggle } from './overrides/DatavisynTaggle';
 
 export const defaultBuilder = ({
   data,
@@ -122,17 +123,16 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   return (
     <Box
       ref={divRef}
-      sx={{
-        flex: 1,
-        width: '100%',
-        display: 'block',
-        // Make the side panel scrollable
-        '.lu-side-panel-main': {
-          // Probably should move to _ranking.scss?
-          flexBasis: 0,
-          overflowY: 'auto',
-        },
-      }}
+      className={css`
+        flex: 1;
+        width: '100%';
+        display: 'block';
+
+        .lu-side-panel-main {
+          flex-basis: 0;
+          overflow-y: 'auto';
+        }
+      `}
       {...(innerProps || {})}
     />
   );

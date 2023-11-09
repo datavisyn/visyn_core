@@ -1,7 +1,8 @@
-import React from 'react';
-import { ComponentStory } from '@storybook/react';
 import { Slider, Stack, Text } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
+import { ComponentStory } from '@storybook/react';
+import React from 'react';
+import { VisynAppProvider } from '../app';
 import { fromNow, getMostRelevantTimeUnitFromNow } from './fromNow';
 
 function PickerExample() {
@@ -87,7 +88,11 @@ export default {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof TimeUtil> = (args) => {
-  return <TimeUtil />;
+  return (
+    <VisynAppProvider appName="test">
+      <TimeUtil />
+    </VisynAppProvider>
+  );
 };
 
 export const TimeFromNow: typeof Template = Template.bind({});
