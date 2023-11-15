@@ -1,6 +1,5 @@
 import * as React from 'react';
 import uniqueId from 'lodash/uniqueId';
-import { DefaultProps } from '@mantine/styles';
 import { Box, Button, ChevronIcon, Collapse, Text, Group, Radio, Stack, TextInput, SegmentedControl, Select } from '@mantine/core';
 import { EPermission, Permission, UserUtils, userSession } from '../security';
 import { i18n } from '../i18n';
@@ -85,7 +84,7 @@ function PermissionsEntry({
   );
 }
 
-interface PermissionChooserProps extends DefaultProps {
+interface PermissionChooserProps {
   permission: Permission;
   buddies: string[];
   group: string;
