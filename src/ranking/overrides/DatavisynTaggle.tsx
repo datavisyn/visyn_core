@@ -51,6 +51,7 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
 
       // Patch the accessor and add the scoreData directly in the column
       colDesc.scoreData = score.data;
+      colDesc.scoreMeta = score.meta || {};
       colDesc.accessor = (row, descRef) => descRef.scoreData[row.i];
 
       const col = this.data.create(colDesc);
