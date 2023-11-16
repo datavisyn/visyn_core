@@ -1,3 +1,5 @@
+declare module '*.module.css';
+declare module '*.module.scss';
 // allow sass modules
 declare module '*.scss' {
   const content: string;
