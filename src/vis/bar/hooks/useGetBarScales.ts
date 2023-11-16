@@ -55,7 +55,7 @@ export function useGetBarScales(
       let myTable = baseTable;
 
       if (categoryFilter && allColumns?.multiplesColVals) {
-        myTable = baseTable.params({ categoryFilter }).filter((d) => d.multiples === categoryFilter);
+        myTable = baseTable.params({ categoryFilter }).filter((d, $) => d.multiples === $.categoryFilter);
       }
 
       addFunction('aggregateFunc', aggregateFunc, { override: true });
