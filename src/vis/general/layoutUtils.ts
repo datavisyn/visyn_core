@@ -50,26 +50,26 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
 
   traces.plots.forEach((t, i) => {
     layout[`xaxis${i > 0 ? i + 1 : ''}`] = {
-      range: t.xDomain ? t.xDomain : null,
+      // range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
-      automargin,
-      // rangemode: 'tozero',
-      tickvals: t.xTicks,
-      ticktext: t.xTickLabels,
-      text: t.xTicks,
-      showline: false,
-      showspikes: false,
-      spikedash: 'dash',
-      ticks: 'outside',
-      title: {
-        standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.xLabel, 15) : truncateText(t.xLabel, 50),
-        font: {
-          family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? 10 : 14,
-          color: '#7f7f7f',
-        },
-      },
+      // automargin,
+      // // rangemode: 'tozero',
+      // tickvals: t.xTicks,
+      // ticktext: t.xTickLabels,
+      // text: t.xTicks,
+      // showline: false,
+      // showspikes: false,
+      // spikedash: 'dash',
+      // ticks: 'outside',
+      // title: {
+      //   standoff: 5,
+      //   text: traces.plots.length > 1 ? truncateText(t.xLabel, 15) : truncateText(t.xLabel, 50),
+      //   font: {
+      //     family: 'Roboto, sans-serif',
+      //     size: traces.plots.length > 1 ? 10 : 14,
+      //     color: '#7f7f7f',
+      //   },
+      // },
     };
 
     layout[`yaxis${i > 0 ? i + 1 : ''}`] = {
