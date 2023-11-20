@@ -68,15 +68,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         currentValue={config.alphaSliderVal}
       />
 
-      {filterCallback ? (
-        mergedOptionsConfig.filter.enable ? (
-          mergedOptionsConfig.filter.customComponent ? (
-            mergedOptionsConfig.filter.customComponent
-          ) : null
-        ) : (
-          <FilterButtons callback={filterCallback} />
-        )
-      ) : null}
+      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );
 }

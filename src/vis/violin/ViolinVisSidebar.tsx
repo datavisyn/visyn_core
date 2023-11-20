@@ -54,15 +54,7 @@ export function ViolinVisSidebar({
           )
         : null}
 
-      {filterCallback ? (
-        mergedOptionsConfig.filter.enable ? (
-          mergedOptionsConfig.filter.customComponent ? (
-            mergedOptionsConfig.filter.customComponent
-          ) : null
-        ) : (
-          <FilterButtons callback={filterCallback} />
-        )
-      ) : null}
+      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );
 }
