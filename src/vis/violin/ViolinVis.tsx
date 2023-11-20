@@ -55,9 +55,9 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     if (plotDiv) {
       Plotly.Plots.resize(plotDiv);
     }
-  }, [id, dimensions]);
+  }, [id, dimensions, traces]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!traces) {
       return;
     }
@@ -84,9 +84,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       shapes: [],
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, true) });
-    // WARNING: Do not update when layout changes, that would be an infinite loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setLayout((prev: Partial<Plotly.Layout>) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
   }, [traces]);
 
   return (
