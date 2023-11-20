@@ -130,7 +130,7 @@ export function EagerVis({
   colors = null,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
-  filterCallback = () => null,
+  filterCallback,
   setExternalConfig = () => null,
   closeCallback = () => null,
   showCloseButton = false,
@@ -209,33 +209,33 @@ export function EagerVis({
     externalConfig
       ? { consistent: null, current: externalConfig }
       : columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-      ? {
-          consistent: null,
-          current: {
-            type: ESupportedPlotlyVis.SCATTER,
-            numColumnsSelected: [],
-            color: null,
-            numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-            shape: null,
-            dragMode: EScatterSelectSettings.RECTANGLE,
-            alphaSliderVal: 0.5,
-          } as BaseVisConfig,
-        }
-      : {
-          consistent: null,
-          current: {
-            type: ESupportedPlotlyVis.BAR,
-            multiples: null,
-            group: null,
-            direction: EBarDirection.HORIZONTAL,
-            display: EBarDisplayType.ABSOLUTE,
-            groupType: EBarGroupingType.STACK,
-            numColumnsSelected: [],
-            catColumnSelected: null,
-            aggregateColumn: null,
-            aggregateType: EAggregateTypes.COUNT,
-          } as BaseVisConfig,
-        },
+        ? {
+            consistent: null,
+            current: {
+              type: ESupportedPlotlyVis.SCATTER,
+              numColumnsSelected: [],
+              color: null,
+              numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+              shape: null,
+              dragMode: EScatterSelectSettings.RECTANGLE,
+              alphaSliderVal: 0.5,
+            } as BaseVisConfig,
+          }
+        : {
+            consistent: null,
+            current: {
+              type: ESupportedPlotlyVis.BAR,
+              multiples: null,
+              group: null,
+              direction: EBarDirection.HORIZONTAL,
+              display: EBarDisplayType.ABSOLUTE,
+              groupType: EBarGroupingType.STACK,
+              numColumnsSelected: [],
+              catColumnSelected: null,
+              aggregateColumn: null,
+              aggregateType: EAggregateTypes.COUNT,
+            } as BaseVisConfig,
+          },
   );
 
   const setExternalConfigRef = useSyncedRef(setExternalConfig);

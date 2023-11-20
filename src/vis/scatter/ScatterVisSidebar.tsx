@@ -24,7 +24,7 @@ const defaultConfig = {
   },
 };
 
-export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback = () => null, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
+export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
@@ -67,7 +67,8 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         }}
         currentValue={config.alphaSliderVal}
       />
-      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+
+      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );
 }
