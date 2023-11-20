@@ -11,6 +11,7 @@ export function ColorLegendVert({
   tickCount = 5,
   title = null,
   format = '.3s',
+  canvasIdentifier = '',
 }: {
   scale: (t: number) => string;
   width?: number;
@@ -19,6 +20,7 @@ export function ColorLegendVert({
   tickCount?: number;
   title: string;
   format?: string;
+  canvasIdentifier?: string;
 }) {
   const colors = d3
     .range(tickCount)
@@ -30,8 +32,10 @@ export function ColorLegendVert({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const canvasId = useMemo(() => `vertical-color-legend-canvas-${canvasIdentifier}`, [canvasIdentifier]);
+
   useEffect(() => {
-    const canvas: HTMLCanvasElement = document.getElementById('proteomicsLegendCanvas') as HTMLCanvasElement;
+    const canvas: HTMLCanvasElement = document.getElementById(canvasId) as HTMLCanvasElement;
 
     const context = canvas.getContext('2d');
     canvas.height = height;
@@ -50,7 +54,7 @@ export function ColorLegendVert({
       context.fillStyle = scale(t[i] + range[0]);
       context.fillRect(i, 0, 1, height);
     }
-  }, [scale, width, height, range]);
+  }, [scale, width, height, range, canvasId]);
 
   const formatFunc = useMemo(() => {
     return d3.format(format);
@@ -63,7 +67,7 @@ export function ColorLegendVert({
           {title}
         </Text>
       ) : null}
-      <canvas style={{ width: '100%' }} id="proteomicsLegendCanvas" ref={canvasRef} />
+      <canvas style={{ width: '100%' }} id={canvasId} ref={canvasRef} />
 
       <Group position="apart" style={{ width: `100%` }} spacing={0} ml="0">
         {colors.map((color, i) => (
