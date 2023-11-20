@@ -96,12 +96,14 @@ export function BarVisSidebar({
             <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
           )
         : null}
-      {mergedOptionsConfig.filter.enable ? (
-        mergedOptionsConfig.filter.customComponent ? (
-          mergedOptionsConfig.filter.customComponent
-        ) : filterCallback ? (
+      {filterCallback ? (
+        mergedOptionsConfig.filter.enable ? (
+          mergedOptionsConfig.filter.customComponent ? (
+            mergedOptionsConfig.filter.customComponent
+          ) : null
+        ) : (
           <FilterButtons callback={filterCallback} />
-        ) : null
+        )
       ) : null}
     </>
   );
