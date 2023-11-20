@@ -65,7 +65,6 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     const innerLayout: Partial<Plotly.Layout> = {
       showlegend: true,
       legend: {
-        // @ts-ignore
         itemclick: false,
         itemdoubleclick: false,
       },
@@ -84,7 +83,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       shapes: [],
     };
 
-    setLayout((prev: Partial<Plotly.Layout>) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
   }, [traces]);
 
   return (
