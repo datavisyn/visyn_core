@@ -6,14 +6,16 @@ import { VisProvider } from '../../../Provider';
 import { ESortTypes } from '../../../heatmap/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
-function RNG(seed) {
-  const m = 2 ** 35 - 31;
-  const a = 185852;
-  let s = seed % m;
-  return function () {
-    return (s = (s * a) % m) / m;
-  };
-}
+// NOTE: @dv-usama-ansari: This function is not used anywhere, maybe it can be removed.
+// function RNG(seed) {
+//   const m = 2 ** 35 - 31;
+//   const a = 185852;
+//   let s = seed % m;
+//   return function () {
+//     return (s = (s * a) % m) / m;
+//   };
+// }
+
 function fetchData(numberOfPoints: number): VisColumn[] {
   const norm = d3.randomNormal.source(d3.randomLcg(0.5));
   const rng = norm(0.5, 0.3);
@@ -162,32 +164,33 @@ Basic.args = {
   } as BaseVisConfig,
 };
 
-export const Multiples: typeof Template = Template.bind({}) as typeof Template;
-Multiples.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEATMAP,
-    catColumnsSelected: [
-      {
-        description: '',
-        id: 'category',
-        name: 'category',
-      },
-      {
-        description: '',
-        id: 'category2',
-        name: 'category2',
-      },
-      {
-        description: '',
-        id: 'category3',
-        name: 'category3',
-      },
-    ],
-    xSortedBy: ESortTypes.CAT_ASC,
-    ySortedBy: ESortTypes.CAT_ASC,
-    color: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    aggregateColumn: null,
-    aggregateType: EAggregateTypes.COUNT,
-  } as BaseVisConfig,
-};
+// NOTE: @dv-usama-ansari: This is the implementation for multiple heatmaps, but it's not very performant.
+// export const Multiples: typeof Template = Template.bind({}) as typeof Template;
+// Multiples.args = {
+//   externalConfig: {
+//     type: ESupportedPlotlyVis.HEATMAP,
+//     catColumnsSelected: [
+//       {
+//         description: '',
+//         id: 'category',
+//         name: 'category',
+//       },
+//       {
+//         description: '',
+//         id: 'category2',
+//         name: 'category2',
+//       },
+//       {
+//         description: '',
+//         id: 'category3',
+//         name: 'category3',
+//       },
+//     ],
+//     xSortedBy: ESortTypes.CAT_ASC,
+//     ySortedBy: ESortTypes.CAT_ASC,
+//     color: null,
+//     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+//     aggregateColumn: null,
+//     aggregateType: EAggregateTypes.COUNT,
+//   } as BaseVisConfig,
+// };
