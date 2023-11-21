@@ -10,30 +10,12 @@ import { GroupSelect } from './GroupSelect';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 
 const defaultConfig = {
-  group: {
-    enable: true,
-    customComponent: null,
-  },
-  multiples: {
-    enable: true,
-    customComponent: null,
-  },
-  direction: {
-    enable: true,
-    customComponent: null,
-  },
-  filter: {
-    enable: true,
-    customComponent: null,
-  },
-  groupType: {
-    enable: true,
-    customComponent: null,
-  },
-  display: {
-    enable: true,
-    customComponent: null,
-  },
+  direction: { enable: true, customComponent: null },
+  display: { enable: true, customComponent: null },
+  filter: { enable: true, customComponent: null },
+  group: { enable: true, customComponent: null },
+  groupType: { enable: true, customComponent: null },
+  multiples: { enable: true, customComponent: null },
 };
 
 export function BarVisSidebar({
@@ -114,7 +96,8 @@ export function BarVisSidebar({
             <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
           )
         : null}
-      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+
+      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );
 }
