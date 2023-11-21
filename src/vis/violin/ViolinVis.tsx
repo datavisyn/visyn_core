@@ -60,7 +60,6 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
 
   useEffect(() => {
     const plotDiv = document.getElementById(`plotlyDiv${id}`);
-    console.log('useEffect rendering');
     if (plotDiv) {
       // NOTE: @dv-usama-ansari: This is a hack to update the plotly plots on resize.
       //  The `setTimeout` is used to pass the resize function to the next event loop, so that the plotly plots are rendered first.
