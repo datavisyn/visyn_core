@@ -1,8 +1,7 @@
 import { Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
@@ -14,8 +13,9 @@ import { IViolinConfig } from './interfaces';
 
 export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
+  const [clearTimeoutValue, setClearTimeoutValue] = useState(null);
 
-  const id = React.useMemo(() => uniqueId('ViolinVis'), []);
+  const id = useMemo(() => uniqueId('ViolinVis'), []);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
@@ -50,14 +50,34 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     }
   };
 
+  // NOTE: @dv-usama-ansari: This is an alternative way to delay the resize of plotly plots, but the dependencies of the `useCallback` are unknown if the function is wrapped in lodash `debounce`.
+  // const resizePlotly = useCallback(
+  //   debounce((plotDiv) => {
+  //     Plotly.Plots.resize(plotDiv);
+  //   }),
+  //   [],
+  // );
+
   useEffect(() => {
     const plotDiv = document.getElementById(`plotlyDiv${id}`);
     if (plotDiv) {
-      Plotly.Plots.resize(plotDiv);
+      // NOTE: @dv-usama-ansari: This is a hack to update the plotly plots on resize.
+      //  The `setTimeout` is used to pass the resize function to the next event loop, so that the plotly plots are rendered first.
+      const n = setTimeout(() => Plotly.Plots.resize(plotDiv));
+      setClearTimeoutValue(n);
     }
-  }, [id, dimensions]);
+  }, [id, dimensions, traces]);
 
-  React.useEffect(() => {
+  // NOTE: @dv-usama-ansari: Clear the timeout on unmount.
+  useEffect(() => {
+    return () => {
+      if (clearTimeoutValue) {
+        clearTimeout(clearTimeoutValue);
+      }
+    };
+  }, [clearTimeoutValue]);
+
+  useEffect(() => {
     if (!traces) {
       return;
     }
@@ -65,7 +85,6 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     const innerLayout: Partial<Plotly.Layout> = {
       showlegend: true,
       legend: {
-        // @ts-ignore
         itemclick: false,
         itemdoubleclick: false,
       },
@@ -84,9 +103,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       shapes: [],
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, true) });
-    // WARNING: Do not update when layout changes, that would be an infinite loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
   }, [traces]);
 
   return (
