@@ -1,6 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
+import { VisProvider } from '../../../Provider';
 import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
 
@@ -18,11 +19,13 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
   const [selection, setSelection] = useState<string[]>([]);
   return (
-    <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-      <div style={{ width: '70%', height: '80%' }}>
-        <Vis columns={columns} selected={selection} selectionCallback={setSelection} />
+    <VisProvider>
+      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ width: '70%', height: '80%' }}>
+          <Vis columns={columns} {...args} />
+        </div>
       </div>
-    </div>
+    </VisProvider>
   );
 };
 
@@ -50,6 +53,10 @@ Basic.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
   } as BaseVisConfig,
+
+  filterCallback: (option) => {
+    console.log({ option });
+  },
 };
 
 export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;

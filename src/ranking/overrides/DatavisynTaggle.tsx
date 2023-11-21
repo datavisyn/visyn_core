@@ -43,12 +43,15 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
       throw new Error('No ranking found');
     }
 
-    return castArray(desc).map(({ data, builder }) => {
-      const colDesc = builder.build(data.map((d) => ({ [(builder as any).desc.column]: d }))) as IScoreColumnDesc<unknown>;
+    return castArray(desc).map((score) => {
+      const colDesc =
+        'builder' in score
+          ? (score.builder.build(score.data.map((d) => ({ [(score.builder as any).desc.column]: d }))) as IScoreColumnDesc<unknown>)
+          : (score.desc as IScoreColumnDesc<unknown>);
 
       // Patch the accessor and add the scoreData directly in the column
+      colDesc.scoreData = score.data;
       colDesc.accessor = (row, descRef) => descRef.scoreData[row.i];
-      colDesc.scoreData = data;
 
       const col = this.data.create(colDesc);
 

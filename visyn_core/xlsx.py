@@ -100,7 +100,14 @@ def _json2xlsx():
 
     bold = Font(bold=True)
 
+    def _escape(v):
+        if isinstance(v, str) and v.startswith(("+", "-", "@", "=", "DDE")):
+            _log.warning("Escaping possible CSV injection: %s", v)
+            return f"'{v}"
+        return v
+
     def to_cell(v):
+        v = _escape(v)
         # If the native value cannot be used as Excel value, used the stringified version instead.
         try:
             return WriteOnlyCell(ws, value=v)  # type: ignore
