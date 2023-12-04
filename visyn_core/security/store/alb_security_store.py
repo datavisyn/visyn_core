@@ -69,7 +69,7 @@ class ALBSecurityStore(BaseStore):
                 # Go through all the fields we want to check for the user id
                 id = next((user.get(field, None) for field in self.email_token_fields if user.get(field, None)), None)
                 if not id:
-                    _log.error(f"No {self.email_token_fields} matched in token, possible fields: {user.keys()}")
+                    _log.error(f"No {self.email_token_fields} matched in token, possible values: {user}")
                     return None
 
                 # Create new user from given attributes

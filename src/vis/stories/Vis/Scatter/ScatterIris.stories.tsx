@@ -22,7 +22,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
     <VisProvider>
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: '70%', height: '80%' }}>
-          <Vis columns={columns} selected={selection} selectionCallback={setSelection} />
+          <Vis columns={columns} {...args} />
         </div>
       </div>
     </VisProvider>
@@ -53,6 +53,10 @@ Basic.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
   } as BaseVisConfig,
+
+  filterCallback: (option) => {
+    console.log({ option });
+  },
 };
 
 export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;

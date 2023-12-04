@@ -4,7 +4,7 @@ import { ICommonVisSideBarProps } from './interfaces';
 
 export function VisSidebar({
   columns,
-  filterCallback = () => null,
+  filterCallback,
   optionsConfig,
   config = null,
   setConfig = null,
