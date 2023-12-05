@@ -36,7 +36,7 @@ export function ProxyViewComponent({ site }: IProxyViewProps) {
 
   return (
     <div className={`w-100 h-100 ${websiteLoading ? 'tdp-busy' : ''}`}>
-      <iframe ref={loadingFrame} className="w-100 h-100" src={site} />
+      <iframe ref={loadingFrame} className="w-100 h-100" src={site} data-testid={`proxy-view-iframe`} />
     </div>
   );
 }
