@@ -55,7 +55,7 @@ import { IViolinConfig } from './violin/interfaces';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
-function registerAllVis() {
+function registerAllVis(visTypes?: string[]) {
   return [
     createVis({
       type: ESupportedPlotlyVis.SCATTER,
@@ -113,15 +113,15 @@ function registerAllVis() {
       mergeConfig: correlationMergeDefaultConfig,
       description: 'Visualizes statistical relationships between pairs of numerical variables',
     }),
-  ];
+  ].filter((v) => !visTypes || visTypes.includes(v.type));
 }
 
-export function useRegisterDefaultVis() {
+export function useRegisterDefaultVis(visTypes?: string[]) {
   const { registerVisType } = useVisProvider();
 
   React.useEffect(() => {
-    registerVisType(...registerAllVis());
-  }, [registerVisType]);
+    registerVisType(...registerAllVis(visTypes));
+  }, [registerVisType, visTypes]);
 }
 
 export function EagerVis({
@@ -141,6 +141,7 @@ export function EagerVis({
   setShowSidebar: internalSetShowSidebar,
   showSidebarDefault = false,
   scrollZoom = true,
+  visTypes,
 }: {
   /**
    * Required data columns which are displayed.
@@ -185,6 +186,10 @@ export function EagerVis({
   setShowSidebar?(show: boolean): void;
   showSidebarDefault?: boolean;
   scrollZoom?: boolean;
+  /**
+   * Optional property which enables the user to specify which vis types to show as options in the sidebar. If not specified, all vis types will be used.
+   */
+  visTypes?: string[];
 }) {
   const [showSidebar, setShowSidebar] = useUncontrolled<boolean>({
     value: internalShowSidebar,
@@ -195,7 +200,7 @@ export function EagerVis({
 
   const [ref, dimensions] = useResizeObserver();
 
-  useRegisterDefaultVis();
+  useRegisterDefaultVis(visTypes);
 
   const { getVisByType } = useVisProvider();
 
