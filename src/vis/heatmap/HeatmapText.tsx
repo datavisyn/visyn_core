@@ -60,7 +60,7 @@ export function HeatmapText({
             setImmediate={isImmediate}
           >
             <Tooltip withinPortal withArrow arrowSize={6} label={xVal}>
-              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                 {xVal}
               </Text>
             </Tooltip>
@@ -94,8 +94,8 @@ export function HeatmapText({
             setImmediate={isImmediate}
           >
             <Tooltip withinPortal withArrow arrowSize={6} label={yVal}>
-              <Group style={{ width: '100%', height: '100%' }} position="right">
-                <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              <Group style={{ width: '100%', height: '100%' }} justify="right">
+                <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                   {yVal}
                 </Text>
               </Group>

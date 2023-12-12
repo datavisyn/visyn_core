@@ -122,7 +122,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   return (
     <Box
       ref={divRef}
-      sx={{
+      style={{
         flex: 1,
         width: '100%',
         display: 'block',

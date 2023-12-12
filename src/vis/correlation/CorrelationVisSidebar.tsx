@@ -1,7 +1,6 @@
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Group, Input, NumberInput, SegmentedControl, Text, Tooltip } from '@mantine/core';
-import * as d3 from 'd3v7';
 import * as React from 'react';
 import { ColumnInfo, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
@@ -47,16 +46,13 @@ export function CorrelationVisSidebar({
       </Input.Wrapper>
       <NumberInput
         styles={{ input: { width: '100%' }, label: { width: '100%' } }}
-        precision={20}
+        decimalScale={20}
         min={0}
         max={1}
         step={0.05}
-        formatter={(value) => {
-          return d3.format('.3~g')(+value);
-        }}
         onChange={(val) => setConfig({ ...config, pDomain: [+val, config.pDomain[1]] })}
         label={
-          <Group style={{ width: '100%' }} position="apart">
+          <Group style={{ width: '100%' }} justify="space-between">
             <Text>Maximum p-value</Text>
             <Tooltip
               withinPortal
@@ -78,16 +74,13 @@ export function CorrelationVisSidebar({
       />
       <NumberInput
         styles={{ input: { width: '100%' }, label: { width: '100%' } }}
-        precision={20}
+        decimalScale={20}
         min={0}
         max={1}
         step={0.05}
-        formatter={(value) => {
-          return d3.format('.3~g')(+value);
-        }}
         onChange={(val) => setConfig({ ...config, pDomain: [config.pDomain[0], +val] })}
         label={
-          <Group style={{ width: '100%' }} position="apart">
+          <Group style={{ width: '100%' }} justify="space-between">
             <Text>Minimum p-value</Text>
             <Tooltip
               withinPortal

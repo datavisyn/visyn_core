@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import { Center, Group, ScrollArea, Stack, Text, Tooltip } from '@mantine/core';
 import * as d3v7 from 'd3v7';
-import { Stack, Chip, Tooltip, Box, ScrollArea, Group, Text, Center } from '@mantine/core';
+import React, { useMemo } from 'react';
 
 export function Legend({
   categories,
@@ -34,18 +34,18 @@ export function Legend({
 
   return (
     <ScrollArea style={{ height, marginLeft: left, flexShrink: 0 }}>
-      <Group sx={{ width: '100%' }} spacing={2}>
+      <Group style={{ width: '100%' }} gap={2}>
         {categories.map((c) => {
           const myIds = groupedIds.find((group) => group.group === c)?.ids || [];
 
           return (
             <Tooltip withinPortal key={c} label={c} withArrow arrowSize={6}>
-              <Stack spacing={0} onClick={(e) => selectionCallback(e, myIds)} style={{ cursor: 'pointer' }}>
+              <Stack gap={0} onClick={(e) => selectionCallback(e, myIds)} style={{ cursor: 'pointer' }}>
                 <svg width="60px" height="10px">
                   <rect width="60px" height="10px" fill={colorScale(c)} opacity={selectedCat ? (selectedCat === c ? 1 : 0.5) : 1} />
                 </svg>
                 <Center>
-                  <Text size={12} onClick={() => onClick(c)}>
+                  <Text size="xs" onClick={() => onClick(c)}>
                     {isNumerical ? `${c} - ${+c + stepSize}` : c}
                   </Text>
                 </Center>

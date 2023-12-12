@@ -135,29 +135,29 @@ export function Heatmap({
                 : d3.extent(groupedVals, (d) => d.aggregateVal as number),
             )
         : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
-        ? d3
-            .scaleSequential<string, string>(
-              d3.piecewise(
-                d3.interpolateRgb.gamma(2.2),
-                [
-                  '#003367',
-                  '#16518a',
-                  '#2e72ae',
-                  '#5093cd',
-                  '#77b5ea',
-                  '#aad7fd',
-                  '#F1F3F5',
-                  '#fac7a9',
-                  '#f99761',
-                  '#e06d3b',
-                  '#c2451a',
-                  '#99230d',
-                  '#6f0000',
-                ].reverse(),
-              ),
-            )
-            .domain(d3.extent(groupedVals, (d) => d.aggregateVal as number))
-        : null;
+          ? d3
+              .scaleSequential<string, string>(
+                d3.piecewise(
+                  d3.interpolateRgb.gamma(2.2),
+                  [
+                    '#003367',
+                    '#16518a',
+                    '#2e72ae',
+                    '#5093cd',
+                    '#77b5ea',
+                    '#aad7fd',
+                    '#F1F3F5',
+                    '#fac7a9',
+                    '#f99761',
+                    '#e06d3b',
+                    '#c2451a',
+                    '#99230d',
+                    '#6f0000',
+                  ].reverse(),
+                ),
+              )
+              .domain(d3.extent(groupedVals, (d) => d.aggregateVal as number))
+          : null;
 
     const extGroupedVals = groupedVals.map((gV) => ({
       ...gV,
@@ -222,7 +222,7 @@ export function Heatmap({
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale, config.isAnimationEnabled]);
 
   return (
-    <Stack sx={{ width: '100%', height: '100%' }} spacing={0} align="center" justify="center">
+    <Stack style={{ width: '100%', height: '100%' }} gap={0} align="center" justify="center">
       <Box pl={20}>
         <ColorLegendVert
           width={width - margin.left - margin.right}
@@ -232,10 +232,10 @@ export function Heatmap({
           title={`${config.aggregateType} ${config.aggregateType === EAggregateTypes.COUNT ? '' : config.aggregateColumn.name}`}
         />
       </Box>
-      <Group noWrap sx={{ width: '100%', height: '100%' }} spacing={0} pr="40px">
+      <Group wrap="nowrap" style={{ width: '100%', height: '100%' }} gap={0} pr="40px">
         <Text
           color="dimmed"
-          sx={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
+          style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
           onClick={() =>
             setExternalConfig({
               ...config,
@@ -243,10 +243,10 @@ export function Heatmap({
                 config.ySortedBy === ESortTypes.CAT_ASC
                   ? ESortTypes.CAT_DESC
                   : config.ySortedBy === ESortTypes.CAT_DESC
-                  ? ESortTypes.VAL_ASC
-                  : config.ySortedBy === ESortTypes.VAL_ASC
-                  ? ESortTypes.VAL_DESC
-                  : ESortTypes.CAT_ASC,
+                    ? ESortTypes.VAL_ASC
+                    : config.ySortedBy === ESortTypes.VAL_ASC
+                      ? ESortTypes.VAL_DESC
+                      : ESortTypes.CAT_ASC,
             })
           }
         >
@@ -258,10 +258,10 @@ export function Heatmap({
               config.ySortedBy === ESortTypes.VAL_ASC
                 ? faArrowDownShortWide
                 : config.ySortedBy === ESortTypes.VAL_DESC
-                ? faArrowDownWideShort
-                : config.ySortedBy === ESortTypes.CAT_ASC
-                ? faArrowDownAZ
-                : faArrowDownZA
+                  ? faArrowDownWideShort
+                  : config.ySortedBy === ESortTypes.CAT_ASC
+                    ? faArrowDownAZ
+                    : faArrowDownZA
             }
           />
           {column2.info.name}
@@ -271,7 +271,7 @@ export function Heatmap({
             fluid
             pl={0}
             pr={0}
-            sx={{
+            style={{
               height,
               width: '100%',
             }}
@@ -286,7 +286,7 @@ export function Heatmap({
       </Group>
       <Text
         color="dimmed"
-        sx={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
+        style={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
         onClick={() =>
           setExternalConfig({
             ...config,
@@ -294,10 +294,10 @@ export function Heatmap({
               config.xSortedBy === ESortTypes.CAT_ASC
                 ? ESortTypes.CAT_DESC
                 : config.xSortedBy === ESortTypes.CAT_DESC
-                ? ESortTypes.VAL_ASC
-                : config.xSortedBy === ESortTypes.VAL_ASC
-                ? ESortTypes.VAL_DESC
-                : ESortTypes.CAT_ASC,
+                  ? ESortTypes.VAL_ASC
+                  : config.xSortedBy === ESortTypes.VAL_ASC
+                    ? ESortTypes.VAL_DESC
+                    : ESortTypes.CAT_ASC,
           })
         }
       >
@@ -308,10 +308,10 @@ export function Heatmap({
             config.xSortedBy === ESortTypes.VAL_ASC
               ? faArrowDownShortWide
               : config.xSortedBy === ESortTypes.VAL_DESC
-              ? faArrowDownWideShort
-              : config.xSortedBy === ESortTypes.CAT_ASC
-              ? faArrowDownAZ
-              : faArrowDownZA
+                ? faArrowDownWideShort
+                : config.xSortedBy === ESortTypes.CAT_ASC
+                  ? faArrowDownAZ
+                  : faArrowDownZA
           }
         />
         {column1.info.name}

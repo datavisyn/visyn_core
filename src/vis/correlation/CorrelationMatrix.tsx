@@ -146,7 +146,7 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
             <Center style={{ height: '100%' }} px={5}>
               <Tooltip
                 label={
-                  <Stack spacing={0}>
+                  <Stack gap={0}>
                     <Text>{col.info.name}</Text>
                     {col.info.description && (
                       <Text size="xs" color="dimmed">
@@ -159,8 +159,8 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
                 withinPortal
                 withArrow
               >
-                <Stack spacing={0}>
-                  <Text size={14} weight={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <Stack gap={0}>
+                  <Text size="sm" fw={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                     {col.info.name}
                   </Text>
                   {col.info.description && (
@@ -178,9 +178,9 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   }, [data, xScale, yScale]);
 
   return (
-    <Group sx={{ height: '100%', width: '100%' }} noWrap pr="40px">
+    <Group style={{ height: '100%', width: '100%' }} wrap="nowrap" pr="40px">
       {status === 'success' ? (
-        <Stack sx={{ height: '100%', width: '100%' }} align="center" spacing={0}>
+        <Stack style={{ height: '100%', width: '100%' }} align="center" gap={0}>
           <Box pl={margin.left} pr={margin.right}>
             <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
           </Box>

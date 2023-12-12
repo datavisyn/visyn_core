@@ -18,8 +18,8 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
 // eslint-disable-next-line react/display-name
 const SelectItem = React.forwardRef<HTMLDivElement, ItemProps>(({ image, label, description, ...others }: ItemProps, ref) => (
   <div ref={ref} {...others}>
-    <Text size="sm">{label}</Text>
-    <Text size="xs" opacity={0.65} lineClamp={2}>
+    <Text fs="sm">{label}</Text>
+    <Text fs="xs" opacity={0.65} lineClamp={2}>
       {description}
     </Text>
   </div>
@@ -32,16 +32,15 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
 
   return (
     <Select
-      withinPortal
       searchable
       label={
         <HelpHoverCard
           title={
-            <Text size="sm" weight={500}>
+            <Text fs="sm" fw="bold">
               Visualization type
             </Text>
           }
-          content={<Text size="sm">{currentVis?.description}</Text>}
+          content={currentVis?.description}
         />
       }
       styles={{
@@ -52,7 +51,8 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
       // components={{Option: optionLayout}}
       onChange={(e) => callback(e as ESupportedPlotlyVis)}
       name="visTypes"
-      itemComponent={SelectItem}
+      // TODO: @MORITZ
+      // itemComponent={SelectItem}
       maxDropdownHeight={380}
       data={visTypes.map((t) => {
         return {

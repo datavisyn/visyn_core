@@ -270,8 +270,8 @@ export async function createScatterTraces(
                       colorCol.type === EColumnTypes.NUMERICAL
                         ? numericalColorScale(v.val as number)
                         : colorCol.color
-                        ? colorCol.color[v.val]
-                        : scales.color(v.val),
+                          ? colorCol.color[v.val]
+                          : scales.color(v.val),
                     )
                   : SELECT_COLOR,
               },

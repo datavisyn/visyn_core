@@ -78,7 +78,7 @@ export function BarChart({
   );
 
   return (
-    <Stack style={{ width: '100%', height: '100%', position: 'relative' }} spacing={0}>
+    <Stack style={{ width: '100%', height: '100%', position: 'relative' }} gap={0}>
       <Box style={{ height: '30px' }}>
         {groupColorScale ? (
           <Legend
@@ -90,7 +90,7 @@ export function BarChart({
             isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
             colorScale={groupColorScale}
             height={30}
-            onClick={() => console.log('hello')}
+            onClick={() => null}
             stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
           />
         ) : null}

@@ -1,10 +1,9 @@
 import { Select, Stack } from '@mantine/core';
 import * as React from 'react';
-import { EBarDisplayType, EBarGroupingType } from './interfaces';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
-import { SelectDropdownItem } from '../sidebar/utils';
+import { EBarDisplayType, EBarGroupingType } from './interfaces';
 
 interface GroupSelectProps {
   groupColumnSelectCallback: (c: ColumnInfo) => void;
@@ -28,13 +27,13 @@ export function GroupSelect({
   aggregateType,
 }: GroupSelectProps) {
   return (
-    <Stack spacing="sm">
+    <Stack gap="sm">
       <Select
-        withinPortal
         clearable
-        itemComponent={SelectDropdownItem}
         placeholder="Select columns"
         label="Group"
+        // TODO: @MORITZ
+        // itemComponent={SelectDropdownItem}
         onChange={(e) => groupColumnSelectCallback(columns.find((c) => c.info.id === e)?.info)}
         data={columns
           .filter((c) => c.type === EColumnTypes.CATEGORICAL || c.type === EColumnTypes.NUMERICAL)

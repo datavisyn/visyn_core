@@ -108,8 +108,8 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
 
   return (
     <Stack
-      spacing={0}
-      sx={{
+      gap={0}
+      style={{
         height: '100%',
         width: '100%',
         overflow: 'hidden',

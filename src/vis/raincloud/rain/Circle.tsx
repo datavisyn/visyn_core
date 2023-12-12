@@ -48,7 +48,7 @@ export function Circle({
   }, [color, id, isStrip, props]);
 
   return isHover ? (
-    <Tooltip label={id} withinPortal keepMounted={false}>
+    <Tooltip label={id} keepMounted={false}>
       {gEle}
     </Tooltip>
   ) : (
