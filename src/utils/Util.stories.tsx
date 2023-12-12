@@ -12,7 +12,7 @@ function PickerExample() {
       <Text fz="xl" fw={500}>
         Interactive DateTimePicker example
       </Text>
-      <DateTimePicker value={value} onChange={setValue} label="Reference date" placeholder="Reference date" maw={200} />
+      <DateTimePicker value={value} onChange={setValue} label="Reference date" maw={200} />
       <Text>
         Generated label from reference date to the current date:{' '}
         <Text display="inline-block" fw={700} color="red">

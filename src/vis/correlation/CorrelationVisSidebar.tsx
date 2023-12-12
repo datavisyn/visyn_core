@@ -58,13 +58,9 @@ export function CorrelationVisSidebar({
               withinPortal
               withArrow
               arrowSize={6}
-              label={
-                <Group>
-                  <Text>Sets the maximum p-value for the size scale. Any p-value at or above this value will have the smallest possible circle</Text>
-                </Group>
-              }
+              label="Sets the maximum p-value for the size scale. Any p-value at or above this value will have the smallest possible circle"
             >
-              <ActionIcon>
+              <ActionIcon variant="transparent" color="gray">
                 <FontAwesomeIcon icon={faQuestionCircle} />
               </ActionIcon>
             </Tooltip>
@@ -86,13 +82,9 @@ export function CorrelationVisSidebar({
               withinPortal
               withArrow
               arrowSize={6}
-              label={
-                <Group>
-                  <Text>Sets the minimum p-value for the size scale. Any p-value at or below this value will have the largest possible circle</Text>
-                </Group>
-              }
+              label="Sets the minimum p-value for the size scale. Any p-value at or below this value will have the largest possible circle"
             >
-              <ActionIcon>
+              <ActionIcon variant="transparent" color="gray">
                 <FontAwesomeIcon icon={faQuestionCircle} />
               </ActionIcon>
             </Tooltip>

@@ -35,7 +35,7 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
           autoComplete="current-password"
           {...form.getInputProps('password')}
           rightSection={
-            <ActionIcon onClick={() => setIsShowPassword(!isShowPassword)}>
+            <ActionIcon onClick={() => setIsShowPassword(!isShowPassword)} variant="transparent" color="gray">
               {isShowPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash} />}
             </ActionIcon>
           }

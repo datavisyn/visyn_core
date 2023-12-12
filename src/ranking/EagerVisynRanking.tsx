@@ -1,6 +1,7 @@
 import * as React from 'react';
 import LineUp, { buildRanking } from 'lineupjs';
 import isEqual from 'lodash/isEqual';
+import { css } from '@emotion/css';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { registerSMILESColumn } from './smiles/utils';
@@ -122,16 +123,18 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   return (
     <Box
       ref={divRef}
+      className={css`
+        /* Make the side panel scrollable */
+        .lu-side-panel-main {
+          /* Probably should move to _ranking.scss? */
+          flex-basis: 0;
+          overflow-y: auto;
+        }
+      `}
       style={{
         flex: 1,
         width: '100%',
         display: 'block',
-        // Make the side panel scrollable
-        '.lu-side-panel-main': {
-          // Probably should move to _ranking.scss?
-          flexBasis: 0,
-          overflowY: 'auto',
-        },
       }}
       {...(innerProps || {})}
     />

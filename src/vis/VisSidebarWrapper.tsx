@@ -17,8 +17,8 @@ export function VisSidebarWrapper({ children, config, setConfig, onClick }: { ch
             <Stack gap="xs" px="xs">
               <Group justify="space-between">
                 <Text>Settings</Text>
-                <Tooltip label={i18n.t('visyn:vis.closeSettings')}>
-                  <ActionIcon onClick={onClick}>
+                <Tooltip label={i18n.t('visyn:vis.closeSettings')} withArrow>
+                  <ActionIcon onClick={onClick} variant="transparent" color="gray">
                     <FontAwesomeIcon icon={faClose} />
                   </ActionIcon>
                 </Tooltip>
