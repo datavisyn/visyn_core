@@ -1,5 +1,5 @@
-import { MantineProviderProps as Mantine6ProviderProps } from '@mantine6/core';
-import { MantineProviderProps } from '@mantine/core';
+import type { MantineProviderProps as Mantine6ProviderProps } from '@mantine6/core';
+import type { MantineProviderProps } from '@mantine/core';
 
 export const DEFAULT_MANTINE6_PROVIDER_PROPS: Omit<Mantine6ProviderProps, 'children'> = {
   withNormalizeCSS: true,
