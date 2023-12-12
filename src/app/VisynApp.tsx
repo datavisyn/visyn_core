@@ -24,17 +24,17 @@ import '@mantine/tiptap/styles.css';
  */
 export function VisynApp({
   header = null,
-  headerConfig,
+  headerConfig = {},
   navbar = null,
-  navbarConfig,
+  navbarConfig = null,
   footer = null,
-  footerConfig,
+  footerConfig = null,
   appShellProps = null,
   children,
   loginMenu = <VisynLoginMenu watch />,
 }: {
   header?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
-  headerConfig?: AppShellProps['header'];
+  headerConfig?: Partial<AppShellProps['header']>;
   navbar?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
   navbarConfig?: AppShellProps['navbar'];
   aside?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
@@ -43,7 +43,6 @@ export function VisynApp({
   appShellProps?: Partial<AppShellProps & React.RefAttributes<HTMLDivElement>>;
   loginMenu?: JSX.Element;
   children?: React.ReactNode;
-  headerHeight?: number;
 }) {
   useVisynAppContext();
 
@@ -61,7 +60,7 @@ export function VisynApp({
       {...appShellProps}
       navbar={navbarConfig}
       footer={footerConfig}
-      header={headerConfig}
+      header={{ height: 50, ...headerConfig }}
     >
       <AppShell.Navbar>{navbar}</AppShell.Navbar>
       <AppShell.Footer>{footer}</AppShell.Footer>

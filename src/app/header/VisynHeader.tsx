@@ -23,7 +23,7 @@ const classes = {};
 export function VisynHeader({
   color = 'white',
   backgroundColor,
-  height = 50,
+  height = '100%',
   components,
 }: {
   /**
@@ -37,7 +37,7 @@ export function VisynHeader({
   /**
    * Extension components to be rendered within the header.
    */
-  height?: number;
+  height?: React.CSSProperties['height'];
   components?: Partial<{
     beforeLeft: JSX.Element;
     burgerMenu: JSX.Element;
