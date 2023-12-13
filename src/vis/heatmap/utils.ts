@@ -50,3 +50,13 @@ export async function getHeatmapData(
 
   return { catColumn, aggregateColumn };
 }
+
+export const setsOfTwo = <T = unknown>(arr: T[]) => {
+  const result: T[][] = [];
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j < arr.length; j++) {
+      result.push([arr[i], arr[j]]);
+    }
+  }
+  return result;
+};

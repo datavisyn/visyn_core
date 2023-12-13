@@ -12,6 +12,7 @@ export function ColorLegend({
   format = '.3s',
   rightMargin = 40,
   title = null,
+  canvasIdentifier = '',
 }: {
   scale: (t: number) => string;
   width?: number;
@@ -21,6 +22,7 @@ export function ColorLegend({
   format?: string;
   rightMargin?: number;
   title: string;
+  canvasIdentifier?: string;
 }) {
   const colors = d3
     .range(tickCount)
@@ -32,8 +34,10 @@ export function ColorLegend({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const canvasId = useMemo(() => `vertical-color-legend-canvas-${canvasIdentifier}`, [canvasIdentifier]);
+
   useEffect(() => {
-    const canvas: HTMLCanvasElement = document.getElementById('proteomicsLegendCanvas') as HTMLCanvasElement;
+    const canvas: HTMLCanvasElement = document.getElementById(canvasId) as HTMLCanvasElement;
 
     const context = canvas.getContext('2d');
     canvas.width = width;
@@ -52,7 +56,7 @@ export function ColorLegend({
       context.fillStyle = scale(t[i] + range[0]);
       context.fillRect(0, i, width, 1);
     }
-  }, [scale, width, height, range]);
+  }, [scale, width, height, range, canvasId]);
 
   const formatFunc = useMemo(() => {
     return d3.format(format);
@@ -60,7 +64,7 @@ export function ColorLegend({
 
   return (
     <Group spacing={5} noWrap style={{ width: `${width + rightMargin}px` }}>
-      <canvas id="proteomicsLegendCanvas" ref={canvasRef} />
+      <canvas id={canvasId} ref={canvasRef} />
       <Stack align="stretch" justify="space-between" style={{ height: `${height}px` }} spacing={0} ml="0">
         {colors.map((color, i) => (
           // idk why this doesnt work when i use the score as the key, tbh. The scores definitely are unique, but something to do with the 0 changing on render, idk
