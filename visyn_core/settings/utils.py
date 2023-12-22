@@ -34,11 +34,12 @@ def get_default_postgres_url(
     *,
     user: str = "admin",
     password: str = "admin",
-    host: str = os.getenv("POSTGRES_HOSTNAME", "localhost"),
+    host: str | None = os.getenv("POSTGRES_HOSTNAME"),
+    host_fallback: str = "localhost",
     port: int = 5432,
     database: str = "db",
 ) -> str:
     """
     Returns a default postgres url, including the default values for `user`, `password`, `host`, `port` and `database`.
     """
-    return f"postgresql://{user}:{password}@{host}:{port}/{database}"
+    return f"postgresql://{user}:{password}@{host or host_fallback}:{port}/{database}"
