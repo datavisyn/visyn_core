@@ -19,6 +19,16 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
+  const filteredTraces = useMemo(() => {
+    if (!traces) return null;
+    const filtered = {
+      ...traces,
+      plots: traces?.plots.filter((p) => (p.data.x as unknown[]).filter(Boolean).length === (p.data.y as unknown[]).filter(Boolean).length),
+    };
+    filtered.rows = Math.ceil(filtered.plots.length);
+    return filtered;
+  }, [traces]);
+
   const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
     if (!e || !e.points || !e.points[0]) {
       selectionCallback([]);
@@ -78,7 +88,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
   }, [clearTimeoutValue]);
 
   useEffect(() => {
-    if (!traces) {
+    if (!filteredTraces) {
       return;
     }
 
@@ -99,12 +109,12 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       },
       clickmode: 'event+select',
       autosize: true,
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: filteredTraces.rows, columns: filteredTraces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
     };
 
-    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
-  }, [traces]);
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(filteredTraces, innerLayout, prev, true) }));
+  }, [filteredTraces]);
 
   return (
     <Stack
@@ -120,10 +130,10 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
         },
       }}
     >
-      {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
+      {traceStatus === 'success' && layout && filteredTraces?.plots.length > 0 ? (
         <PlotlyComponent
           divId={`plotlyDiv${id}`}
-          data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
+          data={[...filteredTraces.plots.map((p) => p.data), ...filteredTraces.legendPlots.map((p) => p.data)]}
           layout={layout}
           config={{ responsive: true, displayModeBar: false }}
           useResizeHandler
@@ -139,7 +149,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
           }}
         />
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
-        <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
+        <InvalidCols headerMessage={filteredTraces?.errorMessageHeader} bodyMessage={traceError?.message || filteredTraces?.errorMessage} />
       ) : null}
     </Stack>
   );
