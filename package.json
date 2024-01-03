@@ -117,6 +117,20 @@
         "./src/idtype/index.ts"
       ]
     },
+    "./mrt": {
+      "types": [
+        "./dist/mrt/index.d.ts",
+        "./src/mrt/index.ts"
+      ],
+      "import": [
+        "./dist/mrt/index.js",
+        "./src/mrt/index.ts"
+      ],
+      "default": [
+        "./dist/mrt/index.js",
+        "./src/mrt/index.ts"
+      ]
+    },
     "./plotly/full": {
       "types": [
         "./dist/plotly/full/index.d.ts",
@@ -291,6 +305,7 @@
     "@mantine/styles": "~6.0.19",
     "@mantine/tiptap": "~7.4.0",
     "@mantine6/core": "npm:@mantine/core@~6.0.19",
+    "@tabler/icons-react": "^2.44.0",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
@@ -298,13 +313,16 @@
     "@types/react-dom": "^18.2.0",
     "@types/react-plotly.js": "^2.5.0",
     "arquero": "^5.2.0",
+    "clsx": "^2.0.0",
     "d3-force-boundary": "^0.0.3",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.4.0",
+    "dayjs": "^1.11.10",
     "i18next": "^22.4.15",
     "jstat": "^1.9.6",
     "lineupjs": "4.9.0",
     "lodash": "~4.17.20",
+    "mantine-react-table": "2.0.0-alpha.9",
     "plotly.js-dist-min": "~2.12.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",

@@ -62,7 +62,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
 }: {
   data: T[];
   getBuilder?: (props: { data: Record<string, unknown>[] }) => DatavisynLineUpBuilder;
-  setSelection: (selection: T[]) => void;
+  setSelection: (selection: T[], indices: number[]) => void;
   selection: T[];
   onBuiltLineUp?: (props: IBuiltVisynRanking) => void;
 } & BoxProps) {
@@ -86,8 +86,9 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     // Listen to selections
     lineupRef.current.on(LineUp.EVENT_SELECTION_CHANGED, async () => {
       if (!disableLineUpSelectionListener.current) {
-        const selected = await lineupRef.current.data.view(lineupRef.current.getSelection());
-        setSelectionRef.current?.(selected);
+        const selectedIndices = lineupRef.current.getSelection();
+        const selected = await lineupRef.current.data.view(selectedIndices);
+        setSelectionRef.current?.(selected, selectedIndices);
       }
     });
 
