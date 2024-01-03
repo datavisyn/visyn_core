@@ -1,5 +1,6 @@
-import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import * as React from 'react';
+import { Divider, Loader, Select, SimpleGrid, Stack, Text, Box } from '@mantine/core';
+import { MRT_ColumnDef, MRT_RowSelectionState, MantineReactTable, useMantineReactTable } from 'mantine-react-table';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
@@ -36,11 +37,55 @@ export function MainApp() {
     sizeSliderVal: 5,
   } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
-  const [selection, setSelection] = React.useState<typeof iris>([]);
+  const [selectedIndices, setSelectedIndices] = React.useState<number[]>([]);
+  const selection = React.useMemo(() => selectedIndices.map((i) => iris[i]), [selectedIndices]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${iris.indexOf(s)}`), [selection]);
   const [loading, setLoading] = React.useState(false);
   const lineupRef = React.useRef<DatavisynTaggle>();
+
+  const lineupColumnDescs = lineupRef.current?.data?.getColumns();
+
+  const rowSelection = React.useMemo(() => Object.fromEntries(selectedIndices.map((i) => [i, true])), [selectedIndices]);
+  const mrtColumns = React.useMemo<MRT_ColumnDef<(typeof iris)[0]>[]>(
+    () =>
+      // TODO: Move this function to the mrt package
+      (lineupColumnDescs || []).map((c) => ({
+        // TODO: Text, Number, Categorical, Date, Boolean, ...
+        accessorKey: (c as any).column,
+        header: c.label,
+        size: c.width,
+        enableHiding: true,
+        // TODO:
+        Filter: ({ column, header, table, rangeFilterIndex }) => 'Filter impl.',
+      })),
+    [lineupColumnDescs],
+  );
+
+  // TODO: Move this package to the mrt/hooks.tsx file
+  const table = useMantineReactTable({
+    columns: mrtColumns,
+    data: iris,
+    enablePagination: false,
+    enableRowSelection: true,
+    enableDensityToggle: false,
+    enableFullScreenToggle: false,
+    enableFilters: true,
+    mantinePaperProps: {
+      style: {
+        flex: 1,
+        overflowY: 'auto',
+      },
+    },
+    onRowSelectionChange: (updater) => {
+      const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+      setSelectedIndices(Object.keys(newSelection).map((i) => +i));
+    },
+    state: {
+      density: 'xs',
+      rowSelection,
+    },
+  });
 
   return (
     <VisynApp
@@ -56,7 +101,12 @@ export function MainApp() {
     >
       {user ? (
         <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
-          <Stack>
+          <Stack
+            style={{
+              height: '100%',
+              overflowY: 'auto',
+            }}
+          >
             <Select
               placeholder="Add a score column"
               onChange={async (value) => {
@@ -91,13 +141,20 @@ export function MainApp() {
             <VisynRanking
               data={iris}
               selection={selection}
-              setSelection={setSelection}
+              setSelection={(newSelection, newIndices) => {
+                setSelectedIndices(newIndices);
+              }}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
               onBuiltLineUp={({ lineup }) => {
                 lineupRef.current = lineup;
+
                 autosizeWithSMILESColumn({ provider: lineup.data, lineup });
               }}
             />
+
+            <Divider orientation="horizontal" />
+
+            <MantineReactTable table={table} />
           </Stack>
           <Vis
             columns={columns}
@@ -107,7 +164,7 @@ export function MainApp() {
             selected={visSelection}
             selectionCallback={(s) => {
               if (s) {
-                setSelection(s.map((i) => iris[+i]));
+                setSelectedIndices(s.map((i) => +i));
               }
             }}
           />
