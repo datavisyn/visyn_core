@@ -5,6 +5,7 @@ import { useVisynAppContext } from './VisynAppContext';
 import { VisynHeader } from './header/VisynHeader';
 import { VisynLoginMenu } from './login/VisynLoginMenu';
 
+import '@mantine/code-highlight/styles.css';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
