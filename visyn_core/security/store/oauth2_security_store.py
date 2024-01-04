@@ -24,7 +24,7 @@ class OAuth2SecurityStore(BaseStore):
             # Get token data from header
             access_token = req.headers.get(token_field)
             if access_token:
-                # Try to decode the oidc data jwt
+                _log.debug(f"Try to decode the oidc data jwt with access token: {access_token}")
                 user = jwt.decode(access_token, options={"verify_signature": False})
 
                 # Go through all the fields we want to check for the user id
