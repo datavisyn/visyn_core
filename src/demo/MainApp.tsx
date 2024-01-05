@@ -8,6 +8,7 @@ import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESuppo
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { HistogramFilter } from '../mrt/filters/HistogramFilter';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -36,6 +37,7 @@ export function MainApp() {
     alphaSliderVal: 1,
     sizeSliderVal: 5,
   } as IScatterConfig);
+
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
   const [selectedIndices, setSelectedIndices] = React.useState<number[]>([]);
   const selection = React.useMemo(() => selectedIndices.map((i) => iris[i]), [selectedIndices]);
@@ -57,7 +59,7 @@ export function MainApp() {
         size: c.width,
         enableHiding: true,
         // TODO:
-        Filter: ({ column, header, table, rangeFilterIndex }) => 'Filter impl.',
+        Filter: HistogramFilter,
       })),
     [lineupColumnDescs],
   );
