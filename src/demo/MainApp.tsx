@@ -59,8 +59,8 @@ export function MainApp() {
             header: c.label,
             size: c.width,
             enableHiding: true,
+
             categories: createCategories(iris.map((i) => i[(c as any).column])),
-            // TODO:
             Filter: CategoricalFilter,
             filterFn: (row, columnId, filterValue: Category[]) => {
               const value = row.getValue<string>(columnId);
@@ -80,8 +80,8 @@ export function MainApp() {
             header: c.label,
             size: c.width,
             enableHiding: true,
+
             thresholds: createHistogram(iris.map((i) => i[(c as any).column])),
-            // TODO:
             Filter: HistogramFilter,
             filterFn: (row, columnId, filterValue: Bin[]) => {
               const value = row.getValue<number>(columnId);

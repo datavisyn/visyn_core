@@ -98,7 +98,7 @@ export function HistogramFilter({
         label={
           <Stack spacing={0}>
             <Box>
-              {thresholds[label]?.x0.toPrecision(3)} - ${thresholds[label]?.x1.toPrecision(3)}
+              {thresholds[label]?.x0.toPrecision(3)} - {thresholds[label]?.x1.toPrecision(3)}
             </Box>
             <Box>{thresholds[label]?.length} rows</Box>
           </Stack>
@@ -191,7 +191,7 @@ export function CategoricalFilter({
       <Tooltip.Floating
         label={
           <Stack spacing={0}>
-            <Box>{label}</Box>
+            <Box>{categories[label]?.value}</Box>
             <Box>{categories[label]?.length} rows</Box>
           </Stack>
         }
