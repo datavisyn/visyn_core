@@ -1,14 +1,14 @@
+import { Divider, Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { MRT_ColumnDef, MantineReactTable, useMantineReactTable } from 'mantine-react-table';
 import * as React from 'react';
-import { Divider, Loader, Select, SimpleGrid, Stack, Text, Box } from '@mantine/core';
-import { MRT_ColumnDef, MRT_RowSelectionState, MantineReactTable, useMantineReactTable } from 'mantine-react-table';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
+import { Bin, CategoricalFilter, Category, HistogramFilter, createCategories, createHistogram } from '../mrt/filters/HistogramFilter';
 import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, IScatterConfig, Vis } from '../vis';
 import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
-import { HistogramFilter } from '../mrt/filters/HistogramFilter';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -52,15 +52,57 @@ export function MainApp() {
   const mrtColumns = React.useMemo<MRT_ColumnDef<(typeof iris)[0]>[]>(
     () =>
       // TODO: Move this function to the mrt package
-      (lineupColumnDescs || []).map((c) => ({
-        // TODO: Text, Number, Categorical, Date, Boolean, ...
-        accessorKey: (c as any).column,
-        header: c.label,
-        size: c.width,
-        enableHiding: true,
-        // TODO:
-        Filter: HistogramFilter,
-      })),
+      (lineupColumnDescs || []).map((c) => {
+        if (c.type === 'categorical') {
+          return {
+            accessorKey: (c as any).column,
+            header: c.label,
+            size: c.width,
+            enableHiding: true,
+            categories: createCategories(iris.map((i) => i[(c as any).column])),
+            // TODO:
+            Filter: CategoricalFilter,
+            filterFn: (row, columnId, filterValue: Category[]) => {
+              const value = row.getValue<string>(columnId);
+
+              return (
+                !filterValue ||
+                filterValue.some((bin) => {
+                  return value === bin.value;
+                })
+              );
+            },
+          };
+        }
+        if (c.type === 'number') {
+          return {
+            accessorKey: (c as any).column,
+            header: c.label,
+            size: c.width,
+            enableHiding: true,
+            thresholds: createHistogram(iris.map((i) => i[(c as any).column])),
+            // TODO:
+            Filter: HistogramFilter,
+            filterFn: (row, columnId, filterValue: Bin[]) => {
+              const value = row.getValue<number>(columnId);
+
+              return (
+                !filterValue ||
+                filterValue.some((bin) => {
+                  return value >= bin.x0 && value <= bin.x1;
+                })
+              );
+            },
+          };
+        }
+
+        return {
+          accessorKey: (c as any).column,
+          header: c.label,
+          size: c.width,
+          enableHiding: true,
+        };
+      }),
     [lineupColumnDescs],
   );
 
@@ -86,6 +128,7 @@ export function MainApp() {
     state: {
       density: 'xs',
       rowSelection,
+      showColumnFilters: true,
     },
   });
 
