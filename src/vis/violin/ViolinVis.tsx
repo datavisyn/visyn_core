@@ -22,7 +22,8 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
   // Filter out null values from traces as null values cause the tooltip to not show up
   const filteredTraces = useMemo(() => {
     if (!traces) return null;
-    const indexWithNull = traces.plots?.map((plot) => (plot?.data.y as PlotlyTypes.Datum[])?.reduce((acc, curr, i) => (curr === null ? [...acc, i] : acc), []));
+    // @ts-ignore
+    const indexWithNull = traces.plots?.map((plot) => plot?.data.y?.reduce((acc, curr, i) => (curr === null ? [...acc, i] : acc), []));
     const filtered = {
       ...traces,
       plots: traces?.plots?.map((p, p_index) => {
@@ -30,10 +31,13 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
           ...p,
           data: {
             ...p.data,
-            y: (p.data?.y as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
-            x: (p.data?.x as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            // @ts-ignore
+            y: p.data?.y?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            // @ts-ignore
+            x: p.data?.x?.filter((v, i) => !indexWithNull[p_index].includes(i)),
             ids: p.data?.ids?.filter((v, i) => !indexWithNull[p_index].includes(i)),
-            transforms: p.data?.transforms?.map((t) => (t.groups as number[] | string[])?.filter((v, i) => !indexWithNull[p_index].includes(i))),
+            // @ts-ignore
+            transforms: p.data?.transforms?.map((t) => t.groups?.filter((v, i) => !indexWithNull[p_index].includes(i))),
           },
         };
       }),
