@@ -110,6 +110,18 @@ export async function createScatterTraces(
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
+  const labelColumns = (await resolveColumnValues(columns.filter((c) => c.isLabel))).map((c) => c.resolvedValues);
+  const labelsMap = labelColumns.reduce((acc, curr) => {
+    curr.forEach((obj) => {
+      if (acc[obj.id] == null) {
+        acc[obj.id] = obj.val;
+      }
+    });
+    return acc;
+  }, {});
+  function getLabelOrId(id: string) {
+    return labelsMap[id] ?? id;
+  }
 
   const shapeScale = shape
     ? d3v7
@@ -168,7 +180,7 @@ export async function createScatterTraces(
         },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
+            `${getLabelOrId(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
               colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
             }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
@@ -270,8 +282,8 @@ export async function createScatterTraces(
                       colorCol.type === EColumnTypes.NUMERICAL
                         ? numericalColorScale(v.val as number)
                         : colorCol.color
-                        ? colorCol.color[v.val]
-                        : scales.color(v.val),
+                          ? colorCol.color[v.val]
+                          : scales.color(v.val),
                     )
                   : SELECT_COLOR,
               },

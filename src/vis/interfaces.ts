@@ -71,6 +71,7 @@ export type VisCategoricalValue = IVisCommonValue<string>;
 export interface VisCommonColumn {
   info: ColumnInfo;
   values: ValueGetter<(VisNumericalValue | VisCategoricalValue)[]>;
+  isLabel?: boolean;
 }
 
 export interface VisNumericalColumn extends VisCommonColumn {
