@@ -19,13 +19,29 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
+  // Filter out null values from traces as null values cause the tooltip to not show up
   const filteredTraces = useMemo(() => {
     if (!traces) return null;
+    // @ts-ignore
+    const indexWithNull = traces.plots?.map((plot) => plot?.data.y?.reduce((acc, curr, i) => (curr === null ? [...acc, i] : acc), []));
     const filtered = {
       ...traces,
-      plots: traces?.plots.filter((p) => (p.data.x as unknown[]).filter(Boolean).length === (p.data.y as unknown[]).filter(Boolean).length),
+      plots: traces?.plots?.map((p, p_index) => {
+        return {
+          ...p,
+          data: {
+            ...p.data,
+            // @ts-ignore
+            y: p.data?.y?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            // @ts-ignore
+            x: p.data?.x?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            ids: p.data?.ids?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            // @ts-ignore
+            transforms: p.data?.transforms?.map((t) => t.groups?.filter((v, i) => !indexWithNull[p_index].includes(i))),
+          },
+        };
+      }),
     };
-    filtered.rows = Math.ceil(filtered.plots.length);
     return filtered;
   }, [traces]);
 
