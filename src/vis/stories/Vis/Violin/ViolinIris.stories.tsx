@@ -1,15 +1,27 @@
-import { ComponentStory } from '@storybook/react';
+import { ComponentStory, Decorator } from '@storybook/react';
 import React from 'react';
+import { MantineProvider } from '@mantine/core';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { BaseVisConfig, ESupportedPlotlyVis } from '../../../interfaces';
 import { EViolinOverlay } from '../../../violin/interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
+import { DEFAULT_MANTINE_PROVIDER_PROPS } from '../../../../app/constants';
+
+console.log(DEFAULT_MANTINE_PROVIDER_PROPS);
+const withMantine: Decorator = (Story) => {
+  return (
+    <MantineProvider {...DEFAULT_MANTINE_PROVIDER_PROPS}>
+      <Story />
+    </MantineProvider>
+  );
+};
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: 'Vis/Violin',
   component: Vis,
+  decorators: [withMantine],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
 };
 
