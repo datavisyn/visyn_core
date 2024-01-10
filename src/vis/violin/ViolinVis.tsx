@@ -22,8 +22,9 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
   // Filter out null values from traces as null values cause the tooltip to not show up
   const filteredTraces = useMemo(() => {
     if (!traces) return null;
-    // @ts-ignore
-    const indexWithNull = traces.plots?.map((plot) => plot?.data.y?.reduce((acc, curr, i) => (curr === null ? [...acc, i] : acc), []));
+    const indexWithNull = traces.plots?.map(
+      (plot) => (plot?.data.y as PlotlyTypes.Datum[])?.reduce((acc: number[], curr, i) => (curr === null ? [...acc, i] : acc), []) as number[],
+    );
     const filtered = {
       ...traces,
       plots: traces?.plots?.map((p, p_index) => {
@@ -31,13 +32,12 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
           ...p,
           data: {
             ...p.data,
-            // @ts-ignore
-            y: p.data?.y?.filter((v, i) => !indexWithNull[p_index].includes(i)),
-            // @ts-ignore
-            x: p.data?.x?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            y: (p.data?.y as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            x: (p.data?.x as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
             ids: p.data?.ids?.filter((v, i) => !indexWithNull[p_index].includes(i)),
-            // @ts-ignore
-            transforms: p.data?.transforms?.map((t) => t.groups?.filter((v, i) => !indexWithNull[p_index].includes(i))),
+            transforms: p.data?.transforms?.map(
+              (t) => (t.groups as unknown[])?.filter((v, i) => !indexWithNull[p_index].includes(i)) as Partial<PlotlyTypes.Transform>,
+            ),
           },
         };
       }),
@@ -45,16 +45,14 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     return filtered;
   }, [traces]);
 
-  const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
+  const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
     if (!e || !e.points || !e.points[0]) {
       selectionCallback([]);
       return;
     }
 
-    // @ts-ignore
     const shiftPressed = e.event.shiftKey;
-    // @ts-ignore
-    const eventIds = e.points[0]?.fullData.ids;
+    const eventIds = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
 
     // Multiselect enabled
     if (shiftPressed) {
