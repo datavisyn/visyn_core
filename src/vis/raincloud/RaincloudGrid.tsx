@@ -7,6 +7,7 @@ import { getRaincloudData } from './utils';
 import { useAsync } from '../../hooks/useAsync';
 import { InvalidCols } from '../general/InvalidCols';
 import { Raincloud } from './Raincloud';
+import { createIdToLabelMapper } from '../general/layoutUtils';
 
 export function RaincloudGrid({
   columns,
@@ -20,12 +21,21 @@ export function RaincloudGrid({
   selected: { [key: string]: boolean };
 }) {
   const { value: data } = useAsync(getRaincloudData, [columns, config.numColumnsSelected]);
-
+  const { value: idToLabelMapper } = useAsync(createIdToLabelMapper, [columns]);
   return (
     <SimpleGrid cols={Math.ceil(Math.sqrt(data?.numColVals.length))} style={{ width: '100%', height: '100%' }}>
-      {data && config.numColumnsSelected.length >= 1 ? (
+      {data && idToLabelMapper && config.numColumnsSelected.length >= 1 ? (
         data.numColVals.map((numCol) => {
-          return <Raincloud key={numCol.info.id} column={numCol} config={config} selectionCallback={selectionCallback} selected={selected} />;
+          return (
+            <Raincloud
+              key={numCol.info.id}
+              column={numCol}
+              config={config}
+              selectionCallback={selectionCallback}
+              selected={selected}
+              idToLabelMapper={idToLabelMapper}
+            />
+          );
         })
       ) : (
         <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a raincloud chart, select at least 1 numerical column." />

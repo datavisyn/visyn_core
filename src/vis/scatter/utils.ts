@@ -3,7 +3,7 @@ import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue } from '../../utils';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
-import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
+import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
   ColumnInfo,
   EColumnTypes,
@@ -110,18 +110,7 @@ export async function createScatterTraces(
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
-  const labelColumns = (await resolveColumnValues(columns.filter((c) => c.isLabel))).map((c) => c.resolvedValues);
-  const labelsMap = labelColumns.reduce((acc, curr) => {
-    curr.forEach((obj) => {
-      if (acc[obj.id] == null) {
-        acc[obj.id] = obj.val;
-      }
-    });
-    return acc;
-  }, {});
-  function getLabelOrId(id: string) {
-    return labelsMap[id] ?? id;
-  }
+  const idToLabelMapper = await createIdToLabelMapper(columns);
 
   const shapeScale = shape
     ? d3v7
@@ -180,7 +169,7 @@ export async function createScatterTraces(
         },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${getLabelOrId(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
+            `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
               colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
             }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
