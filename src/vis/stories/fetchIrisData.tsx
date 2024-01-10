@@ -10,8 +10,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Sepal Length',
       },
       type: EColumnTypes.NUMERICAL,
-      // values: () => dataPromise.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val })),
-      values: () => dataPromise.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val: i < 10 ? val : null })),
+      values: () => dataPromise.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val })),
     },
     {
       info: {
