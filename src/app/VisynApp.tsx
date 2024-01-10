@@ -5,13 +5,6 @@ import { useVisynAppContext } from './VisynAppContext';
 import { VisynHeader } from './header/VisynHeader';
 import { VisynLoginMenu } from './login/VisynLoginMenu';
 
-import '@mantine/code-highlight/styles.css';
-import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css';
-import '@mantine/dropzone/styles.css';
-import '@mantine/notifications/styles.css';
-import '@mantine/tiptap/styles.css';
-
 /**
  *
  * @param header Optional custom header to be passed to the AppShell. If not provided, will use an empty VisynHeader.

@@ -9,6 +9,13 @@ import { VisProvider } from '../vis/Provider';
 import { VisynAppContext } from './VisynAppContext';
 import { DEFAULT_MANTINE6_PROVIDER_PROPS, DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
 
+import '@mantine/code-highlight/styles.css';
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/dropzone/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/tiptap/styles.css';
+
 const LazyMantine6Provider = React.lazy(() => import('@mantine6/core').then((module) => ({ default: module.MantineProvider })));
 
 export function VisynAppProvider({

@@ -4,9 +4,9 @@ import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, IScatterConfig, Vis } from '../vis';
-import { fetchIrisData } from '../vis/stories/Iris.stories';
 import { iris } from '../vis/stories/irisData';
 import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { fetchIrisData } from '../vis/stories/fetchIrisData';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
