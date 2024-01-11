@@ -1,28 +1,29 @@
+import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text } from '@mantine/core';
 import * as React from 'react';
-import { Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, CloseButton } from '@mantine/core';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
-export function CategoricalMultiselect({
+export function Multiselect({
   callback,
   columns,
   currentSelected,
+  columnType,
 }: {
   callback: (value: ColumnInfo[]) => void;
   columns: VisColumn[];
   currentSelected: ColumnInfo[];
+  columnType: EColumnTypes;
 }) {
-  const categoricalColumns = React.useMemo(() => {
-    return columns.filter((c) => c.type === EColumnTypes.CATEGORICAL);
-  }, [columns]);
+  const filteredColumns = React.useMemo(() => {
+    return columns.filter((c) => c.type === columnType);
+  }, [columnType, columns]);
 
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
-    defaultOpened: true,
   });
 
   const handleValueSelect = (name: string) => {
-    const itemToAdd = categoricalColumns.find((c) => c.info.name === name);
+    const itemToAdd = filteredColumns.find((c) => c.info.name === name);
     callback([...currentSelected, itemToAdd.info]);
   };
 
@@ -34,7 +35,7 @@ export function CategoricalMultiselect({
     callback([]);
   };
 
-  const options = categoricalColumns
+  const options = filteredColumns
     .filter((c) => !currentSelected.map((s) => s.id).includes(c.info.id))
     .map((item) => {
       return (
@@ -94,7 +95,7 @@ export function CategoricalMultiselect({
       <Combobox.DropdownTarget>
         <PillsInput
           rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />}
-          label="Categorical columns"
+          label={`${columnType} columns`}
           pointer
           onClick={() => combobox.toggleDropdown()}
         >

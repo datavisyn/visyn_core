@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { Multiselect } from '../sidebar/Multiselect';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { ColorSelect } from './ColorSelect';
 import { OpacitySlider } from './OpacitySlider';
@@ -31,10 +31,11 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
 
   return (
     <>
-      <NumericalColumnSelect
+      <Multiselect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
+        columnType={EColumnTypes.NUMERICAL}
       />
 
       {mergedOptionsConfig.color.enable

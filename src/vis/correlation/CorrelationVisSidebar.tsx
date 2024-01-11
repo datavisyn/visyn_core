@@ -2,8 +2,8 @@ import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Group, Input, NumberInput, SegmentedControl, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
-import { ColumnInfo, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { ColumnInfo, EColumnTypes, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
+import { Multiselect } from '../sidebar/Multiselect';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 
 export function CorrelationVisSidebar({
@@ -19,10 +19,11 @@ export function CorrelationVisSidebar({
 } & ICommonVisSideBarProps<ICorrelationConfig>) {
   return (
     <>
-      <NumericalColumnSelect
+      <Multiselect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
+        columnType={EColumnTypes.NUMERICAL}
       />
 
       <Input.Wrapper label="Correlation type">

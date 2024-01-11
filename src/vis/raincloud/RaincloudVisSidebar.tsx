@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ColumnInfo, ICommonVisSideBarProps, VisColumn } from '../interfaces';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps, VisColumn } from '../interfaces';
+import { Multiselect } from '../sidebar/Multiselect';
 import { AggregateRainSwitch } from './AggregateRainSwitch';
 import { RaincloudCloudSelect } from './RaincloudCloudSelect';
 import { RaincloudLightningSelect } from './RaincloudLightningSelect';
@@ -18,10 +18,11 @@ export function RaincloudVisSidebar({
 } & ICommonVisSideBarProps<IRaincloudConfig>) {
   return (
     <>
-      <NumericalColumnSelect
+      <Multiselect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
+        columnType={EColumnTypes.NUMERICAL}
       />
       <RaincloudCloudSelect callback={(cloud) => setConfig({ ...config, cloudType: cloud })} currentSelected={config.cloudType} />
       <RaincloudLightningSelect callback={(lightning) => setConfig({ ...config, lightningType: lightning })} currentSelected={config.lightningType} />
