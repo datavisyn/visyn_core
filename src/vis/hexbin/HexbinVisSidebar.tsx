@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
-import { Multiselect } from '../sidebar';
+import { MultiSelect } from '../sidebar';
 import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { HexOpacitySwitch } from './HexOpacitySwitch';
 import { HexSizeSlider } from './HexSizeSlider';
@@ -11,7 +11,7 @@ import { EHexbinOptions, IHexbinConfig } from './interfaces';
 export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideBarProps<IHexbinConfig>) {
   return (
     <>
-      <Multiselect
+      <MultiSelect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}

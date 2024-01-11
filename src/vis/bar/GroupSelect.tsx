@@ -1,9 +1,10 @@
-import { Select, Stack } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import * as React from 'react';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, VisColumn } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
 import { EBarDisplayType, EBarGroupingType } from './interfaces';
+import { SingeSelect } from '../sidebar/SingleSelect';
 
 interface GroupSelectProps {
   groupColumnSelectCallback: (c: ColumnInfo) => void;
@@ -28,17 +29,12 @@ export function GroupSelect({
 }: GroupSelectProps) {
   return (
     <Stack gap="sm">
-      <Select
-        clearable
-        placeholder="Select columns"
+      <SingeSelect
         label="Group"
-        // TODO: @MORITZ
-        // itemComponent={SelectDropdownItem}
-        onChange={(e) => groupColumnSelectCallback(columns.find((c) => c.info.id === e)?.info)}
-        data={columns
-          .filter((c) => c.type === EColumnTypes.CATEGORICAL || c.type === EColumnTypes.NUMERICAL)
-          .map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }))}
-        value={currentSelected?.id || null}
+        callback={(e) => groupColumnSelectCallback(columns.find((c) => c.info.id === e.id)?.info)}
+        columns={columns}
+        currentSelected={currentSelected}
+        columnType={null}
       />
       {currentSelected ? (
         <BarGroupTypeButtons callback={(newGroupType: EBarGroupingType) => groupTypeSelectCallback(newGroupType)} currentSelected={groupType} />

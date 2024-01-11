@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { Multiselect } from '../sidebar/Multiselect';
+import { MultiSelect } from '../sidebar/MultiSelect';
 import { ViolinOverlayButtons } from './ViolinOverlayButtons';
 import { EViolinOverlay, IViolinConfig } from './interfaces';
 
@@ -33,13 +33,13 @@ export function ViolinVisSidebar({
 
   return (
     <>
-      <Multiselect
+      <MultiSelect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
         columnType={EColumnTypes.NUMERICAL}
       />
-      <Multiselect
+      <MultiSelect
         callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
         columns={columns}
         currentSelected={config.catColumnsSelected || []}

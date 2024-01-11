@@ -1,8 +1,9 @@
-import { Select, Stack } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, VisColumn } from '../interfaces';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { getCol } from '../sidebar/utils';
+import { SingeSelect } from '../sidebar/SingleSelect';
 
 interface ColorSelectProps {
   callback: (c: ColumnInfo) => void;
@@ -15,16 +16,12 @@ interface ColorSelectProps {
 export function ColorSelect({ callback, numTypeCallback = () => null, currentNumType = null, columns, currentSelected }: ColorSelectProps) {
   return (
     <Stack gap="sm">
-      <Select
-        clearable
-        // TODO: @MORITZ
-        // itemComponent={SelectDropdownItem}
-        placeholder="Select columns"
+      <SingeSelect
+        callback={(e) => callback(columns.find((c) => c.info.id === e.id)?.info)}
+        columnType={EColumnTypes.CATEGORICAL}
+        columns={columns}
+        currentSelected={currentSelected}
         label="Color"
-        onChange={(e) => callback(columns.find((c) => c.info.id === e)?.info)}
-        name="colorSelect"
-        data={columns.map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }))}
-        value={currentSelected?.id || null}
       />
       {currentNumType && currentSelected && getCol(columns, currentSelected).type === EColumnTypes.NUMERICAL ? (
         <NumericalColorButtons callback={numTypeCallback} currentSelected={currentNumType} />

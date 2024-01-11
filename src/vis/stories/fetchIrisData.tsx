@@ -5,7 +5,7 @@ export function fetchIrisData(): VisColumn[] {
   return [
     {
       info: {
-        description: 'The length of the sepal (in cm)',
+        description: '(in cm)',
         id: 'sepalLength',
         name: 'Sepal Length',
       },
@@ -14,7 +14,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: 'The width of the sepal (in cm)',
+        description: '(in cm)',
         id: 'sepalWidth',
         name: 'Sepal Width',
       },
@@ -23,7 +23,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: 'The length of the petal (in cm)',
+        description: '(in cm)',
         id: 'petalLength',
         name: 'Petal Length',
       },
@@ -32,7 +32,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: 'The width of the petal (in cm)',
+        description: '(in cm)',
         id: 'petalWidth',
         name: 'Petal Width',
       },
@@ -41,7 +41,7 @@ export function fetchIrisData(): VisColumn[] {
     },
     {
       info: {
-        description: 'The species of the flower (Iris setosa, Iris virginica, Iris versicolor)',
+        description: '(Setosa, Virginica, Versicolor)',
         id: 'species',
         name: 'Species',
       },

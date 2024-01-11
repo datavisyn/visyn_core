@@ -3,7 +3,7 @@ import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfa
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { IHeatmapConfig } from './interfaces';
-import { Multiselect } from '../sidebar';
+import { MultiSelect } from '../sidebar';
 
 export function HeatmapVisSidebar({
   config,
@@ -16,7 +16,7 @@ export function HeatmapVisSidebar({
 }) {
   return (
     <>
-      <Multiselect
+      <MultiSelect
         callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
         columns={columns}
         currentSelected={config.catColumnsSelected || []}

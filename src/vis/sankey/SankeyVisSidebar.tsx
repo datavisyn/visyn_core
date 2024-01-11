@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
-import { Multiselect } from '../sidebar';
+import { MultiSelect } from '../sidebar';
 
 export function SankeyVisSidebar({
   config,
@@ -11,7 +11,7 @@ export function SankeyVisSidebar({
   style: { width = '20em', ...style } = {},
 }: ICommonVisSideBarProps<ISankeyConfig>) {
   return (
-    <Multiselect
+    <MultiSelect
       callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
       columns={columns}
       currentSelected={config.catColumnsSelected || []}

@@ -6,7 +6,7 @@ export * from '../scatter/ColorSelect';
 export * from './FilterButtons';
 export * from '../bar/GroupSelect';
 export * from './NumericalColorButtons';
-export * from './Multiselect';
+export * from './MultiSelect';
 export * from '../scatter/OpacitySlider';
 export * from './utils';
 export * from '../violin/ViolinOverlayButtons';

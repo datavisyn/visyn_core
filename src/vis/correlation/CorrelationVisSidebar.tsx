@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Group, Input, NumberInput, SegmentedControl, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
-import { Multiselect } from '../sidebar/Multiselect';
+import { MultiSelect } from '../sidebar/MultiSelect';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 
 export function CorrelationVisSidebar({
@@ -19,7 +19,7 @@ export function CorrelationVisSidebar({
 } & ICommonVisSideBarProps<ICorrelationConfig>) {
   return (
     <>
-      <Multiselect
+      <MultiSelect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
