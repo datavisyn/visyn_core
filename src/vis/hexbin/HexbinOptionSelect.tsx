@@ -17,7 +17,6 @@ export function HexbinOptionSelect({ callback, currentSelected }: HexbinOptionSe
   return (
     <Select
       label={i18n.t('visyn:vis.hexbinOptions')}
-      withCheckIcon={false}
       onChange={(e) => callback(e as EHexbinOptions)}
       data={options}
       clearable={false}

@@ -1,4 +1,4 @@
-import { Combobox, Input, useCombobox, InputBase, CloseButton } from '@mantine/core';
+import { Combobox, Input, useCombobox, InputBase, CloseButton, Group, Text, CheckIcon } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -29,7 +29,14 @@ export function SingleSelect({
 
   const options = filteredColumns.map((item) => (
     <Combobox.Option value={item.info.name} key={item.info.id} active={item.info.id === currentSelected?.id}>
-      <span>{item.info.name}</span>
+      <Group gap="xs">
+        {item.info.id === currentSelected?.id && (
+          <Text c="gray.6">
+            <CheckIcon size={12} />
+          </Text>
+        )}
+        <span>{item.info.name}</span>
+      </Group>
     </Combobox.Option>
   ));
 

@@ -41,7 +41,6 @@ export function AggregateTypeSelect({
         name="numColumns"
         data={selectOptions || []}
         value={currentSelected || ''}
-        withCheckIcon={false}
       />
       {currentSelected !== EAggregateTypes.COUNT ? (
         <SingleSelect

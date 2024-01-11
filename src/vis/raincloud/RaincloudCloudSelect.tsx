@@ -13,5 +13,5 @@ export function RaincloudCloudSelect({ callback, currentSelected }: HexbinOption
     { value: ECloudType.HEATMAP, label: ECloudType.HEATMAP },
     { value: ECloudType.HISTOGRAM, label: ECloudType.HISTOGRAM },
   ];
-  return <Select withCheckIcon={false} label="Cloud options" onChange={(e) => callback(e as ECloudType)} data={options} value={currentSelected} />;
+  return <Select label="Cloud options" onChange={(e) => callback(e as ECloudType)} data={options} value={currentSelected} />;
 }
