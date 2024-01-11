@@ -16,7 +16,6 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
 
   return (
     <Select
-      withCheckIcon={false}
       searchable
       label={
         <HelpHoverCard
