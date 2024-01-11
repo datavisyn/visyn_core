@@ -2,7 +2,7 @@ export * from '../bar/BarDirectionButtons';
 export * from '../bar/BarDisplayTypeButtons';
 export * from '../bar/BarGroupTypeButtons';
 export * from './BrushOptionButtons';
-export * from './CategoricalColumnSelect';
+export * from './CategoricalMultiselect';
 export * from '../scatter/ColorSelect';
 export * from './FilterButtons';
 export * from '../bar/GroupSelect';

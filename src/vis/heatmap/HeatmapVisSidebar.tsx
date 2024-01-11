@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { Switch } from '@mantine/core';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
-import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { IHeatmapConfig } from './interfaces';
-import { i18n } from '../../i18n';
+import { CategoricalMultiselect } from '../sidebar/CategoricalMultiselect';
 
 export function HeatmapVisSidebar({
   config,
@@ -18,7 +16,7 @@ export function HeatmapVisSidebar({
 }) {
   return (
     <>
-      <CategoricalColumnSelect
+      <CategoricalMultiselect
         callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
         columns={columns}
         currentSelected={config.catColumnsSelected || []}

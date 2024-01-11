@@ -2,11 +2,11 @@ import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { ColumnInfo, ICommonVisSideBarProps } from '../interfaces';
-import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
 import { ViolinOverlayButtons } from './ViolinOverlayButtons';
 import { EViolinOverlay, IViolinConfig } from './interfaces';
+import { CategoricalMultiselect } from '../sidebar/CategoricalMultiselect';
 
 const defaultConfig = {
   overlay: {
@@ -39,7 +39,7 @@ export function ViolinVisSidebar({
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
       />
-      <CategoricalColumnSelect
+      <CategoricalMultiselect
         callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
         columns={columns}
         currentSelected={config.catColumnsSelected || []}

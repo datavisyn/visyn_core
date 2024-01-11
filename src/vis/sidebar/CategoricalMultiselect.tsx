@@ -1,8 +1,20 @@
 import * as React from 'react';
 import { Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, CloseButton } from '@mantine/core';
-import { ColumnInfo, VisColumn } from '../interfaces';
+import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
-export function CustomCombobox({ onChange, columns, selected }: { onChange: (value: ColumnInfo[]) => void; columns: VisColumn[]; selected: ColumnInfo[] }) {
+export function CategoricalMultiselect({
+  callback,
+  columns,
+  currentSelected,
+}: {
+  callback: (value: ColumnInfo[]) => void;
+  columns: VisColumn[];
+  currentSelected: ColumnInfo[];
+}) {
+  const categoricalColumns = React.useMemo(() => {
+    return columns.filter((c) => c.type === EColumnTypes.CATEGORICAL);
+  }, [columns]);
+
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
@@ -10,20 +22,20 @@ export function CustomCombobox({ onChange, columns, selected }: { onChange: (val
   });
 
   const handleValueSelect = (name: string) => {
-    const itemToAdd = columns.find((c) => c.info.name === name);
-    onChange([...selected, itemToAdd.info]);
+    const itemToAdd = categoricalColumns.find((c) => c.info.name === name);
+    callback([...currentSelected, itemToAdd.info]);
   };
 
   const handleValueRemove = (id: string) => {
-    onChange(selected.filter((s) => s.id !== id));
+    callback(currentSelected.filter((s) => s.id !== id));
   };
 
   const handleValueRemoveAll = () => {
-    onChange([]);
+    callback([]);
   };
 
-  const options = columns
-    .filter((c) => !selected.map((s) => s.id).includes(c.info.id))
+  const options = categoricalColumns
+    .filter((c) => !currentSelected.map((s) => s.id).includes(c.info.id))
     .map((item) => {
       return (
         <Combobox.Option value={item.info.name} key={item.info.id}>
@@ -51,7 +63,7 @@ export function CustomCombobox({ onChange, columns, selected }: { onChange: (val
       );
     });
 
-  const values = selected.map((item) => (
+  const values = currentSelected.map((item) => (
     <Tooltip
       key={item.id}
       withinPortal
@@ -82,7 +94,7 @@ export function CustomCombobox({ onChange, columns, selected }: { onChange: (val
       <Combobox.DropdownTarget>
         <PillsInput
           rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />}
-          label="!Categorical columns"
+          label="Categorical columns"
           pointer
           onClick={() => combobox.toggleDropdown()}
         >
@@ -95,7 +107,7 @@ export function CustomCombobox({ onChange, columns, selected }: { onChange: (val
                 onKeyDown={(event) => {
                   if (event.key === 'Backspace') {
                     event.preventDefault();
-                    handleValueRemove(selected[selected.length - 1].id);
+                    handleValueRemove(currentSelected[currentSelected.length - 1].id);
                   }
                 }}
               />
