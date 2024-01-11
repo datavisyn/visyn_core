@@ -4,7 +4,7 @@ import { ColumnInfo, EAggregateTypes, VisColumn } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
 import { EBarDisplayType, EBarGroupingType } from './interfaces';
-import { SingeSelect } from '../sidebar/SingleSelect';
+import { SingleSelect } from '../sidebar/SingleSelect';
 
 interface GroupSelectProps {
   groupColumnSelectCallback: (c: ColumnInfo) => void;
@@ -29,9 +29,9 @@ export function GroupSelect({
 }: GroupSelectProps) {
   return (
     <Stack gap="sm">
-      <SingeSelect
+      <SingleSelect
         label="Group"
-        callback={(e) => groupColumnSelectCallback(columns.find((c) => c.info.id === e.id)?.info)}
+        callback={(e) => groupColumnSelectCallback(e ? columns.find((c) => c.info.id === e.id)?.info : null)}
         columns={columns}
         currentSelected={currentSelected}
         columnType={null}

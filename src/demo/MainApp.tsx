@@ -58,6 +58,7 @@ export function MainApp() {
         <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
           <Stack>
             <Select
+              withCheckIcon={false}
               placeholder="Add a score column"
               onChange={async (value) => {
                 setLoading(true);

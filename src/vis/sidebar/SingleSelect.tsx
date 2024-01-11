@@ -1,13 +1,14 @@
-import { Combobox, Input, useCombobox, InputBase, Group, CheckIcon, Text } from '@mantine/core';
+import { Combobox, Input, useCombobox, InputBase, CloseButton } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
-export function SingeSelect({
+export function SingleSelect({
   callback,
   columns,
   currentSelected,
   columnType,
   label,
+  isClearable = true,
 }: {
   callback: (value: ColumnInfo) => void;
   columns: VisColumn[];
@@ -15,6 +16,7 @@ export function SingeSelect({
   /** If null, all columns are selectable */
   columnType: EColumnTypes | null;
   label: string;
+  isClearable?: boolean;
 }) {
   const filteredColumns = React.useMemo(() => {
     return columnType ? columns.filter((c) => c.type === columnType) : columns;
@@ -27,14 +29,7 @@ export function SingeSelect({
 
   const options = filteredColumns.map((item) => (
     <Combobox.Option value={item.info.name} key={item.info.id} active={item.info.id === currentSelected?.id}>
-      <Group gap="xs">
-        {item.info.id === currentSelected?.id && (
-          <Text c="gray.6">
-            <CheckIcon size={12} />
-          </Text>
-        )}
-        <span>{item.info.name}</span>
-      </Group>
+      <span>{item.info.name}</span>
     </Combobox.Option>
   ));
 
@@ -53,9 +48,15 @@ export function SingeSelect({
           label={label}
           type="button"
           pointer
-          rightSection={<Combobox.Chevron />}
           onClick={() => combobox.toggleDropdown()}
-          rightSectionPointerEvents="none"
+          rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
+          rightSection={
+            currentSelected !== null && isClearable ? (
+              <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+            ) : (
+              <Combobox.Chevron />
+            )
+          }
         >
           {currentSelected?.name || <Input.Placeholder>Select a column</Input.Placeholder>}
         </InputBase>

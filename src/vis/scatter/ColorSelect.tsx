@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, VisColumn } from '../interfaces';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { getCol } from '../sidebar/utils';
-import { SingeSelect } from '../sidebar/SingleSelect';
+import { SingleSelect } from '../sidebar/SingleSelect';
 
 interface ColorSelectProps {
   callback: (c: ColumnInfo) => void;
@@ -16,8 +16,8 @@ interface ColorSelectProps {
 export function ColorSelect({ callback, numTypeCallback = () => null, currentNumType = null, columns, currentSelected }: ColorSelectProps) {
   return (
     <Stack gap="sm">
-      <SingeSelect
-        callback={(e) => callback(columns.find((c) => c.info.id === e.id)?.info)}
+      <SingleSelect
+        callback={(e) => callback(e ? columns.find((c) => c.info.id === e.id)?.info : null)}
         columnType={EColumnTypes.CATEGORICAL}
         columns={columns}
         currentSelected={currentSelected}

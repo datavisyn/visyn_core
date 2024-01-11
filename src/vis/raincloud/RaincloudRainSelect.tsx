@@ -14,5 +14,5 @@ export function RaincloudRainSelect({ callback, currentSelected }: HexbinOptionS
     { value: ERainType.WHEATPLOT, label: ERainType.WHEATPLOT },
     { value: ERainType.STRIPPLOT, label: ERainType.STRIPPLOT },
   ];
-  return <Select label="Rain options" onChange={(e) => callback(e as ERainType)} data={options} value={currentSelected} />;
+  return <Select label="Rain options" withCheckIcon={false} onChange={(e) => callback(e as ERainType)} data={options} value={currentSelected} />;
 }

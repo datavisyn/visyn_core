@@ -1,4 +1,4 @@
-import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group, CheckIcon } from '@mantine/core';
+import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -36,7 +36,7 @@ export function MultiSelect({
   };
 
   const options = filteredColumns
-    // .filter((c) => !currentSelected.map((s) => s.id).includes(c.info.id))
+    .filter((c) => !currentSelected.map((s) => s.id).includes(c.info.id))
     .map((item) => {
       return (
         <Combobox.Option value={item.info.name} key={item.info.id}>
@@ -54,11 +54,7 @@ export function MultiSelect({
             }
           >
             <Group gap="xs">
-              {currentSelected.map((c) => c.id).includes(item.info.id) ? (
-                <Text c="gray.6">
-                  <CheckIcon size={12} />
-                </Text>
-              ) : null}
+              {currentSelected.map((c) => c.id).includes(item.info.id)}
               <Stack gap={0}>
                 <Text size="sm">{item.info.name}</Text>
                 <Text size="xs" opacity={0.5}>

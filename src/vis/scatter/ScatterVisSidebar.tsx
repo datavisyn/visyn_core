@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { SingleSelect } from '../sidebar/SingleSelect';
 import { ColorSelect } from './ColorSelect';
 import { OpacitySlider } from './OpacitySlider';
 import { IScatterConfig } from './interfaces';
@@ -51,9 +51,9 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         : null}
       {mergedOptionsConfig.shape.enable
         ? mergedOptionsConfig.shape.customComponent || (
-            <SingleColumnSelect
+            <SingleSelect
               label="Shape"
-              type={[EColumnTypes.CATEGORICAL]}
+              columnType={EColumnTypes.CATEGORICAL}
               callback={(shape: ColumnInfo) => setConfig({ ...config, shape })}
               columns={columns}
               currentSelected={config.shape}

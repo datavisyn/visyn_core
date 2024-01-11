@@ -2,7 +2,7 @@ import { Select } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
-import { SingleColumnSelect } from './SingleColumnSelect';
+import { SingleSelect } from './SingleSelect';
 
 interface AggregateTypeSelectProps {
   aggregateTypeSelectCallback: (s: EAggregateTypes) => void;
@@ -41,10 +41,11 @@ export function AggregateTypeSelect({
         name="numColumns"
         data={selectOptions || []}
         value={currentSelected || ''}
+        withCheckIcon={false}
       />
       {currentSelected !== EAggregateTypes.COUNT ? (
-        <SingleColumnSelect
-          type={[EColumnTypes.NUMERICAL]}
+        <SingleSelect
+          columnType={EColumnTypes.NUMERICAL}
           isClearable={false}
           label="Aggregate Column"
           callback={(c: ColumnInfo) => aggregateColumnSelectCallback(c)}

@@ -203,6 +203,7 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
 
             <Text>{i18n.t('visyn:permission.group')}</Text>
             <Select
+              withCheckIcon={false}
               id={`permission_group_name_${id}`}
               name="permission_group_name"
               data={roles}

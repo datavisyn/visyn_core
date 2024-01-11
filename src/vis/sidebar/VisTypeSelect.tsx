@@ -9,22 +9,6 @@ interface VisTypeSelectProps {
   currentSelected: ESupportedPlotlyVis;
 }
 
-interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
-  image: string;
-  label: string;
-  description: string;
-}
-
-// eslint-disable-next-line react/display-name
-const SelectItem = React.forwardRef<HTMLDivElement, ItemProps>(({ image, label, description, ...others }: ItemProps, ref) => (
-  <div ref={ref} {...others}>
-    <Text fs="sm">{label}</Text>
-    <Text fs="xs" opacity={0.65} lineClamp={2}>
-      {description}
-    </Text>
-  </div>
-));
-
 export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps) {
   const { visTypes, getVisByType } = useVisProvider();
 
@@ -32,6 +16,7 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
 
   return (
     <Select
+      withCheckIcon={false}
       searchable
       label={
         <HelpHoverCard

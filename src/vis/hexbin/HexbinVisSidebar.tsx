@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { MultiSelect } from '../sidebar';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { HexOpacitySwitch } from './HexOpacitySwitch';
 import { HexSizeSlider } from './HexSizeSlider';
 import { HexSizeSwitch } from './HexSizeSwitch';
 import { HexbinOptionSelect } from './HexbinOptionSelect';
 import { EHexbinOptions, IHexbinConfig } from './interfaces';
+import { SingleSelect } from '../sidebar/SingleSelect';
 
 export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideBarProps<IHexbinConfig>) {
   return (
@@ -17,9 +17,9 @@ export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideB
         currentSelected={config.numColumnsSelected || []}
         columnType={EColumnTypes.NUMERICAL}
       />
-      <SingleColumnSelect
-        type={[EColumnTypes.CATEGORICAL]}
-        label="Categorical column"
+      <SingleSelect
+        columnType={EColumnTypes.CATEGORICAL}
+        label="Color by category"
         callback={(color: ColumnInfo) => setConfig({ ...config, color })}
         columns={columns}
         currentSelected={config.color}
