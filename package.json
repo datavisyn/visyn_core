@@ -229,6 +229,10 @@
         "./src/vis/index.ts"
       ]
     },
+    "./assets/*": [
+      "./dist/assets/*",
+      "./src/assets/*"
+    ],
     "./phovea_registry": [
       "./dist/phovea_registry.js",
       "./src/phovea_registry.ts"
