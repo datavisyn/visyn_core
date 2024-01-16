@@ -18,6 +18,7 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
           color={color}
           radius="xl"
           size={28}
+          variant="white"
         >
           {user
             .split(' ')
