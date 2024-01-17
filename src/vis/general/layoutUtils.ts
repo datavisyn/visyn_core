@@ -188,3 +188,21 @@ export async function resolveSingleColumn(column: VisColumn) {
     resolvedValues: await column.values(),
   };
 }
+
+/**
+ * Creates mapping function from label column. If more label columns are provided, the first one is used, the rest are used as fallback.
+ * @param {VisColumn[]} columns - The columns to map.
+ * @returns {Function} Function mapping ID to label or ID itself.
+ */
+export async function createIdToLabelMapper(columns: VisColumn[]): Promise<(id: string) => string> {
+  const labelColumns = (await resolveColumnValues(columns.filter((c) => c.isLabel))).map((c) => c.resolvedValues);
+  const labelsMap = labelColumns.reduce((acc, curr) => {
+    curr.forEach((obj) => {
+      if (acc[obj.id] == null) {
+        acc[obj.id] = obj.val;
+      }
+    });
+    return acc;
+  }, {});
+  return (id: string) => labelsMap[id] ?? id;
+}

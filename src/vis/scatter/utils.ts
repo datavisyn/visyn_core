@@ -3,7 +3,7 @@ import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue } from '../../utils';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
-import { columnNameWithDescription, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
+import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
   ColumnInfo,
   EColumnTypes,
@@ -110,6 +110,7 @@ export async function createScatterTraces(
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
+  const idToLabelMapper = await createIdToLabelMapper(columns);
 
   const shapeScale = shape
     ? d3v7
@@ -168,7 +169,7 @@ export async function createScatterTraces(
         },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${v.id}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
+            `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
               colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
             }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
@@ -270,8 +271,8 @@ export async function createScatterTraces(
                       colorCol.type === EColumnTypes.NUMERICAL
                         ? numericalColorScale(v.val as number)
                         : colorCol.color
-                        ? colorCol.color[v.val]
-                        : scales.color(v.val),
+                          ? colorCol.color[v.val]
+                          : scales.color(v.val),
                     )
                   : SELECT_COLOR,
               },

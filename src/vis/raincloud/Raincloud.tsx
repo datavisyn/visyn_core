@@ -36,6 +36,7 @@ export function Raincloud({
   config,
   selectionCallback,
   selected,
+  idToLabelMapper,
 }: {
   column: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
@@ -45,6 +46,7 @@ export function Raincloud({
   config: IRaincloudConfig;
   selectionCallback: (ids: string[]) => void;
   selected: { [key: string]: boolean };
+  idToLabelMapper: (id: string) => string;
 }) {
   const [ref, { width, height }] = useResizeObserver();
 
@@ -68,7 +70,7 @@ export function Raincloud({
           x={circle.x}
           isStrip={config.rainType === ERainType.STRIPPLOT}
           y={circle.y}
-          id={circle.id[0]}
+          id={idToLabelMapper?.(circle.id[0]) || circle.id[0]}
           raincloudType={config.rainType}
           // This causes some real slowdown above like 100k points. Smarter to do this in the arquero calculations?
           color={circle.id.find((s) => selected[s]) ? '#E29609' : 'cornflowerblue'}
