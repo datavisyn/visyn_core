@@ -1,4 +1,4 @@
-import { Group, MantineColor, Text, Title } from '@mantine/core';
+import { Group, MantineColor, Text, Title, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import * as React from 'react';
 import { useVisynAppContext } from '../VisynAppContext';
@@ -18,7 +18,7 @@ import { UserMenu } from './UserMenu';
   },
 })); */
 
-const classes = {};
+// const classes = {};
 
 export function VisynHeader({
   color = 'white',
@@ -58,6 +58,7 @@ export function VisynHeader({
   const { appName, user } = useVisynAppContext();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
   const smallerThanMd = useMediaQuery('(max-width: 768px)');
+  const theme = useMantineTheme();
 
   return (
     <Group
@@ -65,7 +66,7 @@ export function VisynHeader({
         height,
         display: 'flex',
         justifyContent: 'space-between',
-        backgroundColor: backgroundColor || '#495057',
+        backgroundColor: backgroundColor || theme.colors.gray[7],
       }}
       wrap="nowrap"
     >
