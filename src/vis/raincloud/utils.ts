@@ -1,5 +1,5 @@
 import { merge } from 'lodash';
-import { resolveColumnValues } from '../general/layoutUtils';
+import { createIdToLabelMapper, resolveColumnValues } from '../general/layoutUtils';
 import { ColumnInfo, EColumnTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { ECloudType, ELightningType, ERainType, IRaincloudConfig } from './interfaces';
 
@@ -27,8 +27,9 @@ export async function getRaincloudData(
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
     info: ColumnInfo;
   }[];
+  idToLabelMapper: (id: string) => string;
 }> {
   const numColVals = await resolveColumnValues(columns.filter((col) => numColumnsSelected.find((numCol: ColumnInfo) => numCol.id === col.info.id)));
-
-  return { numColVals };
+  const idToLabelMapper = await createIdToLabelMapper(columns);
+  return { numColVals, idToLabelMapper };
 }

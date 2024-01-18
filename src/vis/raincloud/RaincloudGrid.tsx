@@ -20,12 +20,20 @@ export function RaincloudGrid({
   selected: { [key: string]: boolean };
 }) {
   const { value: data } = useAsync(getRaincloudData, [columns, config.numColumnsSelected]);
-
   return (
     <SimpleGrid cols={Math.ceil(Math.sqrt(data?.numColVals.length))} style={{ width: '100%', height: '100%' }}>
       {data && config.numColumnsSelected.length >= 1 ? (
         data.numColVals.map((numCol) => {
-          return <Raincloud key={numCol.info.id} column={numCol} config={config} selectionCallback={selectionCallback} selected={selected} />;
+          return (
+            <Raincloud
+              key={numCol.info.id}
+              column={numCol}
+              config={config}
+              selectionCallback={selectionCallback}
+              selected={selected}
+              idToLabelMapper={data.idToLabelMapper}
+            />
+          );
         })
       ) : (
         <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a raincloud chart, select at least 1 numerical column." />
