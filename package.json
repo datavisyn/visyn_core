@@ -279,7 +279,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mantine/core": "~6.0.19",
+    "@mantine/core": "~7.4.2",
     "@mantine/dates": "~6.0.19",
     "@mantine/dropzone": "~6.0.19",
     "@mantine/form": "~6.0.19",
