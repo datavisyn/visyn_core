@@ -3087,19 +3087,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/tiptap@npm:~6.0.19":
-  version: 6.0.21
-  resolution: "@mantine/tiptap@npm:6.0.21"
-  dependencies:
-    "@mantine/utils": 6.0.21
+"@mantine/tiptap@npm:~7.4.2":
+  version: 7.4.2
+  resolution: "@mantine/tiptap@npm:7.4.2"
   peerDependencies:
-    "@mantine/core": 6.0.21
-    "@mantine/hooks": 6.0.21
-    "@tabler/icons-react": ">=2.1.0"
-    "@tiptap/extension-link": ^2.0.0-beta.202
-    "@tiptap/react": ^2.0.0-beta.202
-    react: ">=16.8.0"
-  checksum: 820aaaeac5a10a0149d93112452163e8c7f0abc62e3398ee951b767f224bf149d2d9eb192089c42b2d6e52bf6f7b243933ad143eefe6cad718faf7f18d8482a6
+    "@mantine/core": 7.4.2
+    "@mantine/hooks": 7.4.2
+    "@tiptap/extension-link": ^2.1.12
+    "@tiptap/react": ^2.1.12
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  checksum: b7ce8e7b617202604973ff35670ad2018611c7cd38b928e6f4791f1dd0f3ce6398cce0836f16556d9e188780684b50404c95fe09c800c19f76473f0a8eaff89a
   languageName: node
   linkType: hard
 
@@ -22875,7 +22873,7 @@ __metadata:
     "@mantine/modals": ~6.0.19
     "@mantine/notifications": ~6.0.19
     "@mantine/styles": ~6.0.19
-    "@mantine/tiptap": ~6.0.19
+    "@mantine/tiptap": ~7.4.2
     "@storybook/addon-actions": ^7.0.12
     "@storybook/addon-essentials": ^7.0.12
     "@storybook/addon-interactions": ^7.0.12
