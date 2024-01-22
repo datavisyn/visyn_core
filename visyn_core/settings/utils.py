@@ -32,6 +32,7 @@ def load_config_file(path: str) -> dict[str, Any]:
 
 def get_default_postgres_url(
     *,
+    driver: str = "postgresql",
     user: str = "admin",
     password: str = "admin",
     host: str | None = os.getenv("POSTGRES_HOSTNAME"),
@@ -40,6 +41,6 @@ def get_default_postgres_url(
     database: str = "db",
 ) -> str:
     """
-    Returns a default postgres url, including the default values for `user`, `password`, `host`, `port` and `database`.
+    Returns a default postgres url, including the default values for `driver`, `user`, `password`, `host`, `port` and `database`.
     """
-    return f"postgresql://{user}:{password}@{host or host_fallback}:{port}/{database}"
+    return f"{driver}://{user}:{password}@{host or host_fallback}:{port}/{database}"
