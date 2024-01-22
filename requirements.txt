@@ -10,7 +10,7 @@ opentelemetry-exporter-otlp==1.19.0
 opentelemetry-exporter-prometheus==1.12.0rc1
 opentelemetry-instrumentation-fastapi==0.40b0
 opentelemetry-instrumentation-httpx==0.40b0
-opentelemetry-instrumentation-logging==0.40b0
+opentelemetry-instrumentation-logging==0.43b0
 opentelemetry-instrumentation-requests==0.40b0
 opentelemetry-instrumentation-sqlalchemy==0.40b0
 opentelemetry-instrumentation-system-metrics==0.40b0
