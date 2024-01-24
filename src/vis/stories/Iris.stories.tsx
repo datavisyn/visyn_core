@@ -2,80 +2,9 @@ import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../LazyVis';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../bar/interfaces';
-import { BaseVisConfig, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../interfaces';
+import { BaseVisConfig, EAggregateTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
 import { EViolinOverlay } from '../violin/interfaces';
-
-export function fetchIrisData(): VisColumn[] {
-  const dataPromise = import('./irisData').then((m) =>
-    m.iris.map((currIris) => ({ ...currIris, randomCategory: Math.round(Math.random() * 20), anotherRandomCategory: Math.round(Math.random() * 4) })),
-  );
-
-  return [
-    {
-      info: {
-        description: 'data from description',
-        id: 'sepalLength',
-        name: 'Sepal Length',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.sepalWidth).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: '',
-        id: 'randomThing',
-        name: 'Random Thing',
-      },
-      type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.randomCategory).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
-    },
-    {
-      info: {
-        description: '',
-        id: 'randomThing2',
-        name: 'Random Thing2',
-      },
-      type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.anotherRandomCategory).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'petalLength',
-        name: 'Petal Length',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'petalWidth',
-        name: 'Petal Width',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.petalWidth).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'species',
-        name: 'Species',
-      },
-      type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.species).map((val, i) => ({ id: i.toString(), val }))),
-    },
-  ];
-}
+import { fetchIrisData } from './fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {

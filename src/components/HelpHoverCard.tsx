@@ -1,20 +1,17 @@
+import * as React from 'react';
+import { ActionIcon, Group, Tooltip } from '@mantine/core';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ActionIcon, Group, HoverCard, Title } from '@mantine/core';
-import React from 'react';
 
-export function HelpHoverCard({ title, content, dataCyPrefix }: { title: JSX.Element; content: JSX.Element; dataCyPrefix?: string }) {
+export function HelpHoverCard({ title, content, dataCyPrefix }: { title: JSX.Element; content: React.ReactNode; dataCyPrefix?: string }) {
   return (
-    <Group align="center" mb={2} position="apart" noWrap>
+    <Group align="center" mb={2} justify="space-between" wrap="nowrap">
       {title}
-      <HoverCard width={400} shadow="md" withinPortal>
-        <HoverCard.Target>
-          <ActionIcon>
-            <FontAwesomeIcon icon={faQuestionCircle} />
-          </ActionIcon>
-        </HoverCard.Target>
-        <HoverCard.Dropdown>{content}</HoverCard.Dropdown>
-      </HoverCard>
+      <Tooltip label={content} withArrow>
+        <ActionIcon variant="transparent" color="gray">
+          <FontAwesomeIcon icon={faQuestionCircle} />
+        </ActionIcon>
+      </Tooltip>
     </Group>
   );
 }

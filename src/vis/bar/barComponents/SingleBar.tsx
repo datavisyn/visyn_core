@@ -52,7 +52,7 @@ export function SingleBar({
   });
 
   return (
-    <Tooltip.Floating withinPortal label={tooltip}>
+    <Tooltip.Floating label={tooltip}>
       <g onClick={(e) => onClick(e)}>
         {selectedPercent === null ? (
           <animated.rect {...style} fill={color} />

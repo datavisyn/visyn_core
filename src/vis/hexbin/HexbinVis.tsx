@@ -25,10 +25,10 @@ function Legend({
 }) {
   return (
     <ScrollArea style={{ height }}>
-      <Stack sx={{ width: '80px' }} spacing={10}>
+      <Stack style={{ width: '80px' }} gap={10}>
         {categories.map((c) => {
           return (
-            <Tooltip withinPortal key={c} label={c} withArrow arrowSize={6}>
+            <Tooltip key={c} label={c} withArrow arrowSize={6}>
               <Box>
                 <Chip
                   variant="filled"
@@ -96,7 +96,7 @@ export function HexbinVis({
   }, [currentColorColumn, allColumns]);
 
   return (
-    <Stack spacing={0} sx={{ width, height }}>
+    <Stack gap={0} style={{ width, height }}>
       {showDragModeOptions ? (
         <Center>
           <Group mt="lg">
@@ -108,7 +108,7 @@ export function HexbinVis({
           </Group>
         </Center>
       ) : null}
-      <Group style={{ flexGrow: 1, height: 0 }} noWrap>
+      <Group style={{ flexGrow: 1, height: 0 }} wrap="nowrap">
         <Box
           style={{
             flexGrow: 1,

@@ -2,7 +2,10 @@ import merge from 'lodash/merge';
 import { globalEventHandler } from './event';
 
 export class AjaxError extends Error {
-  constructor(public readonly response: Response, message?: string) {
+  constructor(
+    public readonly response: Response,
+    message?: string,
+  ) {
     super(message || response.statusText);
   }
 }

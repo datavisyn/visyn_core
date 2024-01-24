@@ -30,7 +30,12 @@ export class IDType extends EventHandler implements IEventHandler {
    * @param names the plural form of above name
    * @param internal whether this is an internal type or not
    */
-  constructor(public id: string, public readonly name: string, public readonly names: string, public readonly internal = false) {
+  constructor(
+    public id: string,
+    public readonly name: string,
+    public readonly names: string,
+    public readonly internal = false,
+  ) {
     super();
   }
 

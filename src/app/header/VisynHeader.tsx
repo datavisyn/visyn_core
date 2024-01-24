@@ -1,14 +1,14 @@
-import { Header, Group, Title, useMantineTheme, MantineColor, Text, createStyles, MediaQuery, Space } from '@mantine/core';
-import * as React from 'react';
+import { Group, MantineColor, Text, Title, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { BurgerMenu } from './BurgerMenu';
-import { DatavisynLogo } from './DatavisynLogo';
-import { UserMenu } from './UserMenu';
+import * as React from 'react';
 import { useVisynAppContext } from '../VisynAppContext';
 import { IAboutAppModalConfig } from './AboutAppModal';
+import { BurgerMenu } from './BurgerMenu';
 import { ConfigurationMenu } from './ConfigurationMenu';
+import { DatavisynLogo } from './DatavisynLogo';
+import { UserMenu } from './UserMenu';
 
-const useStyles = createStyles(() => ({
+/** TODO: const useStyles = createStyles(() => ({
   a: {
     '& > a': {
       '&:hover': {
@@ -16,12 +16,14 @@ const useStyles = createStyles(() => ({
       },
     },
   },
-}));
+})); */
+
+// const classes = {};
 
 export function VisynHeader({
   color = 'white',
   backgroundColor,
-  height = 50,
+  height = '100%',
   components,
 }: {
   /**
@@ -35,7 +37,7 @@ export function VisynHeader({
   /**
    * Extension components to be rendered within the header.
    */
-  height?: number;
+  height?: React.CSSProperties['height'];
   components?: Partial<{
     beforeLeft: JSX.Element;
     burgerMenu: JSX.Element;
@@ -54,59 +56,59 @@ export function VisynHeader({
   }>;
 }) {
   const { appName, user } = useVisynAppContext();
-  const { classes } = useStyles();
   const largerThanSm = useMediaQuery('(min-width: 768px)');
+  const smallerThanMd = useMediaQuery('(max-width: 768px)');
+  const theme = useMantineTheme();
 
   return (
-    <Header height={height} style={{ backgroundColor: backgroundColor || '#495057' }} withBorder={false}>
-      <Group
-        sx={{
-          height,
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}
-        noWrap
-      >
-        <Group h="100%" align="center" position="left" noWrap ml={largerThanSm && components?.beforeLeft ? 0 : 'xs'}>
-          {largerThanSm && components?.beforeLeft}
-          {components?.burgerMenu ? <BurgerMenu menu={components?.burgerMenu} /> : null}
-          {components?.title === undefined ? (
-            <Title className={classes.a} order={3} weight={100} color={color} truncate>
-              <Text>{appName}</Text>
-            </Title>
-          ) : (
-            components?.title
-          )}
-          {largerThanSm && components?.afterLeft}
-        </Group>
-        <Group h="100%" align="center" position="center" noWrap>
-          {largerThanSm && components?.beforeCenter}
-          {largerThanSm && components?.center}
-          {largerThanSm && components?.afterCenter}
-        </Group>
-
-        <MediaQuery smallerThan="md" styles={{ flexGrow: 1 }}>
-          <Group h="100%" align="center" position="right" noWrap>
-            {largerThanSm && components?.beforeRight}
-            {components?.logo === undefined ? <DatavisynLogo color={backgroundColor === 'white' ? 'black' : 'white'} /> : components?.logo}
-            <Group spacing={5}>
-              {components?.userAvatar === undefined ? (
-                user ? (
-                  <UserMenu menu={components?.userMenu} user={user.name} color={backgroundColor} />
-                ) : null
-              ) : (
-                components?.userAvatar
-              )}
-              <ConfigurationMenu
-                dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
-                menu={components?.configurationMenu}
-                aboutAppModal={components?.aboutAppModal}
-              />
-              {largerThanSm && components?.afterRight}
-            </Group>
-          </Group>
-        </MediaQuery>
+    <Group
+      style={{
+        height,
+        display: 'flex',
+        justifyContent: 'space-between',
+        backgroundColor: backgroundColor || theme.colors.gray[7],
+      }}
+      wrap="nowrap"
+    >
+      <Group h="100%" align="center" justify="left" wrap="nowrap" ml={largerThanSm && components?.beforeLeft ? 0 : 'xs'}>
+        {largerThanSm && components?.beforeLeft}
+        {components?.burgerMenu ? <BurgerMenu menu={components?.burgerMenu} /> : null}
+        {components?.title === undefined ? (
+          <Title order={3}>
+            <Text truncate c={color}>
+              {appName}
+            </Text>
+          </Title>
+        ) : (
+          components?.title
+        )}
+        {largerThanSm && components?.afterLeft}
       </Group>
-    </Header>
+      <Group h="100%" align="center" justify="center" wrap="nowrap">
+        {largerThanSm && components?.beforeCenter}
+        {largerThanSm && components?.center}
+        {largerThanSm && components?.afterCenter}
+      </Group>
+
+      <Group h="100%" align="center" justify="right" wrap="nowrap" style={smallerThanMd ? { flexGrow: 1 } : {}}>
+        {largerThanSm && components?.beforeRight}
+        {components?.logo === undefined ? <DatavisynLogo color={backgroundColor === 'white' ? 'black' : 'white'} /> : components?.logo}
+        <Group gap={5}>
+          {components?.userAvatar === undefined ? (
+            user ? (
+              <UserMenu menu={components?.userMenu} user={user.name} color={backgroundColor} />
+            ) : null
+          ) : (
+            components?.userAvatar
+          )}
+          <ConfigurationMenu
+            dvLogo={components?.logo === undefined ? <DatavisynLogo color="color" /> : components?.logo}
+            menu={components?.configurationMenu}
+            aboutAppModal={components?.aboutAppModal}
+          />
+          {largerThanSm && components?.afterRight}
+        </Group>
+      </Group>
+    </Group>
   );
 }

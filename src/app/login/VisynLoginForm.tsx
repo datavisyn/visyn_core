@@ -35,14 +35,14 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
           autoComplete="current-password"
           {...form.getInputProps('password')}
           rightSection={
-            <ActionIcon onClick={() => setIsShowPassword(!isShowPassword)}>
+            <ActionIcon onClick={() => setIsShowPassword(!isShowPassword)} variant="transparent" color="gray">
               {isShowPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash} />}
             </ActionIcon>
           }
           required
         />
       </Stack>
-      <Group position="right">
+      <Group justify="flex-end">
         <Button data-cy="visyn-login-submit" fullWidth={false} mt="md" type="submit" className="btn btn-primary">
           Login
         </Button>

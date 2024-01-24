@@ -318,7 +318,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         fluid
         pl={0}
         pr={0}
-        sx={{
+        style={{
           height: height + margin.top + margin.bottom,
           width: '100%',
           '.overlay': {

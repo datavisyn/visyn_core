@@ -229,9 +229,17 @@
         "./src/vis/index.ts"
       ]
     },
+    "./assets/*": [
+      "./dist/assets/*",
+      "./src/assets/*"
+    ],
     "./phovea_registry": [
       "./dist/phovea_registry.js",
       "./src/phovea_registry.ts"
+    ],
+    "./scss/*": [
+      "./dist/scss/*",
+      "./src/scss/*"
     ],
     "./dist/scss/*": [
       "./dist/scss/*",
@@ -273,21 +281,24 @@
     "chromatic": "npx chromatic --build-script-name storybook:build"
   },
   "dependencies": {
+    "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.9.3",
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@fortawesome/fontawesome-svg-core": "^6.1.2",
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mantine/core": "~6.0.19",
-    "@mantine/dates": "~6.0.19",
-    "@mantine/dropzone": "~6.0.19",
-    "@mantine/form": "~6.0.19",
-    "@mantine/hooks": "~6.0.19",
-    "@mantine/modals": "~6.0.19",
-    "@mantine/notifications": "~6.0.19",
+    "@mantine/code-highlight": "~7.4.0",
+    "@mantine/core": "~7.4.0",
+    "@mantine/dates": "~7.4.0",
+    "@mantine/dropzone": "~7.4.0",
+    "@mantine/form": "~7.4.0",
+    "@mantine/hooks": "~7.4.0",
+    "@mantine/modals": "~7.4.0",
+    "@mantine/notifications": "~7.4.0",
     "@mantine/styles": "~6.0.19",
-    "@mantine/tiptap": "~6.0.19",
+    "@mantine/tiptap": "~7.4.0",
+    "@mantine6/core": "npm:@mantine/core@~6.0.19",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
