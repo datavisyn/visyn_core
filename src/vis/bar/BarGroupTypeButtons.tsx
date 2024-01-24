@@ -9,8 +9,8 @@ interface BarGroupTypeProps {
 
 export function BarGroupTypeButtons({ callback, currentSelected }: BarGroupTypeProps) {
   return (
-    <Container p={0} fluid sx={{ width: '100%' }}>
-      <Stack spacing={0}>
+    <Container p={0} fluid style={{ width: '100%' }}>
+      <Stack gap={0}>
         <SegmentedControl
           value={currentSelected}
           onChange={callback}

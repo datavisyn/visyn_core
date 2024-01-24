@@ -1,10 +1,11 @@
-import * as React from 'react';
+import { css } from '@emotion/css';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Box, Button, Collapse, Group, Radio, SegmentedControl, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
 import uniqueId from 'lodash/uniqueId';
-import { DefaultProps } from '@mantine/styles';
-import { Box, Button, ChevronIcon, Collapse, Text, Group, Radio, Stack, TextInput, SegmentedControl, Select } from '@mantine/core';
-import { EPermission, Permission, UserUtils, userSession } from '../security';
+import * as React from 'react';
 import { i18n } from '../i18n';
-import useStyles from './PermissionChooser.styles';
+import { EPermission, Permission, UserUtils, userSession } from '../security';
 
 function PermissionsEntry({
   permission,
@@ -85,7 +86,7 @@ function PermissionsEntry({
   );
 }
 
-interface PermissionChooserProps extends DefaultProps {
+interface PermissionChooserProps {
   permission: Permission;
   buddies: string[];
   group: string;
@@ -101,12 +102,12 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
     const user = userSession.currentUser();
     const roles = user ? user.roles : UserUtils.ANONYMOUS_USER.roles;
     const [advancedOpen, setAdvancedOpen] = React.useState<boolean>(false);
-
-    const { classes } = useStyles();
+    const theme = useMantineTheme();
 
     return (
+      // @ts-ignore
       <Stack ref={ref} {...others}>
-        <Group sx={{ justifyContent: 'space-between' }}>
+        <Group style={{ justifyContent: 'space-between' }}>
           <Radio.Group
             value={permission.others.has(EPermission.READ) ? 'public' : 'private'}
             onChange={(value) => {
@@ -148,9 +149,21 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
 
           <Button
             variant="subtle"
-            rightIcon={
-              <span className={classes.chevron} data-rotate={advancedOpen}>
-                <ChevronIcon />
+            rightSection={
+              <span
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  transition: transform 200ms ease;
+
+                  &[data-rotate='true'] {
+                    transform: rotate(180deg);
+                  }
+                `}
+                data-rotate={advancedOpen}
+              >
+                <FontAwesomeIcon icon={faChevronDown} />
               </span>
             }
             size="xs"
@@ -164,12 +177,27 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
         {extra}
 
         <Collapse in={advancedOpen}>
-          <Box className={classes.grid}>
+          <Box
+            style={{
+              display: 'grid',
+              // minmax helps here to make it look good across resolutions ~450 - 1800
+              gridTemplateColumns: 'minmax(5rem, 0.5fr) minmax(10rem, 2fr) minmax(20rem, 1fr)',
+              alignItems: 'center',
+              columnGap: theme.spacing.md,
+              rowGap: theme.spacing.xs,
+            }}
+          >
             <Text>{i18n.t('visyn:permission.public')}</Text>
             <div />
             <PermissionsEntry permission={permission} setPermission={setPermission} setGetter={(p) => p.others} />
 
-            <Text c="dimmed" className={classes.fullRow}>
+            <Text
+              c="dimmed"
+              style={{
+                gridColumnStart: 1,
+                gridColumnEnd: 4,
+              }}
+            >
               {i18n.t('visyn:permission.definePermissions')}
             </Text>
 
@@ -184,7 +212,13 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
             />
             <PermissionsEntry permission={permission} setPermission={setPermission} setGetter={(p) => p.group} />
 
-            <Text c="dimmed" className={classes.fullRow}>
+            <Text
+              c="dimmed"
+              style={{
+                gridColumnStart: 1,
+                gridColumnEnd: 4,
+              }}
+            >
               {i18n.t('visyn:permission.specifyRole')}
             </Text>
 
@@ -192,14 +226,20 @@ export const PermissionChooser = React.forwardRef<HTMLDivElement, React.Componen
             <TextInput
               id={`permission_buddies_name_${id}`}
               name="permission_buddies_name"
-              sx={{ display: 'inline-block' }}
+              style={{ display: 'inline-block' }}
               placeholder={i18n.t('visyn:permission.buddiesPlaceholder')}
               value={buddies.join(';')}
               onChange={(e) => setBuddies(e.currentTarget.value.split(';'))}
             />
             <PermissionsEntry permission={permission} setPermission={setPermission} setGetter={(p) => p.buddies} />
 
-            <Text c="dimmed" className={classes.fullRow}>
+            <Text
+              c="dimmed"
+              style={{
+                gridColumnStart: 1,
+                gridColumnEnd: 4,
+              }}
+            >
               {i18n.t('visyn:permission.buddiesDescription')}
             </Text>
           </Box>

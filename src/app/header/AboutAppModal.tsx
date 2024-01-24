@@ -1,4 +1,4 @@
-import { Modal, Group, Text, Center, Divider, Space, Title, MantineNumberSize } from '@mantine/core';
+import { Center, Divider, Group, MantineSize, Modal, Space, Text, Title } from '@mantine/core';
 import React from 'react';
 import { useVisynAppContext } from '../VisynAppContext';
 
@@ -12,13 +12,13 @@ export interface IAboutAppModalConfig {
   // Bottom section of the modal
   bottom?: JSX.Element;
   customerLogo?: JSX.Element;
-  size?: MantineNumberSize;
+  size?: MantineSize | number | string;
 }
 
 export function AboutAppModalBottom({ appName, customerLogo, dvLogo }: { appName: string | JSX.Element; customerLogo?: JSX.Element; dvLogo?: JSX.Element }) {
   return (
     <Center my="md">
-      <Text align="center" color="dimmed">
+      <Text c="dimmed" style={{ textAlign: 'center' }}>
         {appName || 'This application '} is developed by{' '}
         <Center mt="md">
           {customerLogo}
@@ -51,7 +51,7 @@ export function AboutAppModal({
       opened={opened}
       onClose={onClose}
       title={
-        <Title order={4} weight={400}>
+        <Title order={4} fw="bold">
           {appName}
         </Title>
       }

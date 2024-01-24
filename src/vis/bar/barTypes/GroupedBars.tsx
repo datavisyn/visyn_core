@@ -56,7 +56,7 @@ export function GroupedBars({
               width={isVertical ? groupScale.bandwidth() : width - margin.right - countScale(row.aggregateVal)}
               y={isVertical ? countScale(row.aggregateVal) : categoryScale(row.category) + groupScale(row.group)}
               tooltip={
-                <Stack spacing={0}>
+                <Stack gap={0}>
                   <Text>{`${categoryName}: ${row.category}`}</Text>
                   <Text>{`${groupName}: ${row.group}`}</Text>
                   <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>

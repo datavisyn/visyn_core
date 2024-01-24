@@ -1,10 +1,9 @@
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Group, Input, NumberInput, SegmentedControl, Text, Tooltip } from '@mantine/core';
-import * as d3 from 'd3v7';
 import * as React from 'react';
-import { ColumnInfo, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { ColumnInfo, EColumnTypes, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
+import { MultiSelect } from '../sidebar/MultiSelect';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 
 export function CorrelationVisSidebar({
@@ -20,10 +19,11 @@ export function CorrelationVisSidebar({
 } & ICommonVisSideBarProps<ICorrelationConfig>) {
   return (
     <>
-      <NumericalColumnSelect
+      <MultiSelect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
+        columnType={EColumnTypes.NUMERICAL}
       />
 
       <Input.Wrapper label="Correlation type">
@@ -47,28 +47,21 @@ export function CorrelationVisSidebar({
       </Input.Wrapper>
       <NumberInput
         styles={{ input: { width: '100%' }, label: { width: '100%' } }}
-        precision={20}
+        decimalScale={20}
         min={0}
         max={1}
         step={0.05}
-        formatter={(value) => {
-          return d3.format('.3~g')(+value);
-        }}
         onChange={(val) => setConfig({ ...config, pDomain: [+val, config.pDomain[1]] })}
         label={
-          <Group style={{ width: '100%' }} position="apart">
+          <Group style={{ width: '100%' }} justify="space-between">
             <Text>Maximum p-value</Text>
             <Tooltip
               withinPortal
               withArrow
               arrowSize={6}
-              label={
-                <Group>
-                  <Text>Sets the maximum p-value for the size scale. Any p-value at or above this value will have the smallest possible circle</Text>
-                </Group>
-              }
+              label="Sets the maximum p-value for the size scale. Any p-value at or above this value will have the smallest possible circle"
             >
-              <ActionIcon>
+              <ActionIcon variant="transparent" color="gray">
                 <FontAwesomeIcon icon={faQuestionCircle} />
               </ActionIcon>
             </Tooltip>
@@ -78,28 +71,21 @@ export function CorrelationVisSidebar({
       />
       <NumberInput
         styles={{ input: { width: '100%' }, label: { width: '100%' } }}
-        precision={20}
+        decimalScale={20}
         min={0}
         max={1}
         step={0.05}
-        formatter={(value) => {
-          return d3.format('.3~g')(+value);
-        }}
         onChange={(val) => setConfig({ ...config, pDomain: [config.pDomain[0], +val] })}
         label={
-          <Group style={{ width: '100%' }} position="apart">
+          <Group style={{ width: '100%' }} justify="space-between">
             <Text>Minimum p-value</Text>
             <Tooltip
               withinPortal
               withArrow
               arrowSize={6}
-              label={
-                <Group>
-                  <Text>Sets the minimum p-value for the size scale. Any p-value at or below this value will have the largest possible circle</Text>
-                </Group>
-              }
+              label="Sets the minimum p-value for the size scale. Any p-value at or below this value will have the largest possible circle"
             >
-              <ActionIcon>
+              <ActionIcon variant="transparent" color="gray">
                 <FontAwesomeIcon icon={faQuestionCircle} />
               </ActionIcon>
             </Tooltip>

@@ -10,8 +10,8 @@ export function RaincloudVis({ config, columns, selectionCallback = () => null, 
   const ref = useRef();
 
   return (
-    <Group noWrap pl={0} pr={0} sx={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
-      <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+    <Group wrap="nowrap" pl={0} pr={0} style={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }} ref={ref}>
+      <Stack gap={0} style={{ height: '100%', width: '100%' }}>
         <RaincloudGrid columns={columns} config={config} selectionCallback={selectionCallback} selected={selectedMap} />
       </Stack>
     </Group>
