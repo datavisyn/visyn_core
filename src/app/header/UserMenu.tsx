@@ -39,6 +39,7 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
             </>
           ) : null}
           <Menu.Item
+            data-testid="user-menu-item"
             onClick={() => {
               LoginUtils.logout();
             }}
