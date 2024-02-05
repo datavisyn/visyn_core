@@ -320,7 +320,7 @@
     "react-plotly.js": "^2.5.1",
     "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
-    "visyn_scripts": "github:datavisyn/visyn_scripts#dmoitzi/buildStoriesJson"
+    "visyn_scripts": "^7.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
