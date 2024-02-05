@@ -4,9 +4,6 @@
 /.idea
 /bundles/
 /build/
-/storybook-static/*
-!/storybook-static/stories.json
-!/storybook-static/index.json
 /dist/tsconfig.tsbuildinfo
 /dist_python/
 /dist/
