@@ -258,7 +258,7 @@ export function EagerVis({
     });
   }, []);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const vis = getVisByType(inconsistentVisConfig?.type);
     if (vis) {
       const newConfig = vis.mergeConfig(columns, inconsistentVisConfig);
