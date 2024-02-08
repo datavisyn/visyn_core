@@ -6,7 +6,7 @@ import { MainApp } from './MainApp';
 // create a new instance of the app
 createRoot(document.getElementById('main')).render(
   <React.StrictMode>
-    <VisynAppProvider appName="Demo App">
+    <VisynAppProvider appName="Demo App" disableMantine6>
       <MainApp />
     </VisynAppProvider>
   </React.StrictMode>,

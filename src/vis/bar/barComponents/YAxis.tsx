@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { useMemo } from 'react';
+import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Center, Group, Text } from '@mantine/core';
 import * as d3 from 'd3v7';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
+import * as React from 'react';
+import { useMemo } from 'react';
 import { SortTypes } from '../interfaces';
 
 type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
@@ -48,10 +48,10 @@ export function YAxis({
       <g transform={`translate(${horizontalPosition - labelSpacing - 30}, ${yScale.range()[0]}) rotate(-90)`}>
         <foreignObject width={Math.abs(yScale.range()[0] - yScale.range()[1])} height={20}>
           <Center>
-            <Group spacing={3} style={{ cursor: 'pointer' }}>
+            <Group gap={3} style={{ cursor: 'pointer' }}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
 
-              <Text size={compact ? 10 : 14} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
+              <Text size={compact ? 'xs' : 'md'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
                 {label}
               </Text>
               {arrowAsc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretRight} /> : null}
@@ -77,8 +77,8 @@ export function YAxis({
             }}
           >
             <foreignObject width={labelSpacing} height={20}>
-              <Group style={{ width: '100%', height: '100%' }} position="right">
-                <Text sx={{ textOverflow: 'ellipsis', overflow: 'hidden' }} size={10}>
+              <Group style={{ width: '100%', height: '100%' }} justify="right">
+                <Text truncate size="xs">
                   {value}
                 </Text>
               </Group>

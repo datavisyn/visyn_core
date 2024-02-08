@@ -1,9 +1,9 @@
 import { AppShell, AppShellProps } from '@mantine/core';
 import * as React from 'react';
 import { JSXElementConstructor, ReactElement } from 'react';
+import { useVisynAppContext } from './VisynAppContext';
 import { VisynHeader } from './header/VisynHeader';
 import { VisynLoginMenu } from './login/VisynLoginMenu';
-import { useVisynAppContext } from './VisynAppContext';
 
 /**
  *
@@ -18,45 +18,49 @@ import { useVisynAppContext } from './VisynAppContext';
  */
 export function VisynApp({
   header = null,
+  headerConfig = {},
   navbar = null,
-  aside = null,
+  navbarConfig = null,
   footer = null,
+  footerConfig = null,
   appShellProps = null,
   children,
-  headerHeight = 0,
   loginMenu = <VisynLoginMenu watch />,
 }: {
   header?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
+  headerConfig?: Partial<AppShellProps['header']>;
   navbar?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
+  navbarConfig?: AppShellProps['navbar'];
   aside?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
   footer?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
+  footerConfig?: AppShellProps['footer'];
   appShellProps?: Partial<AppShellProps & React.RefAttributes<HTMLDivElement>>;
   loginMenu?: JSX.Element;
   children?: React.ReactNode;
-  headerHeight?: number;
 }) {
   useVisynAppContext();
 
   return (
     <AppShell
       styles={{
-        root: { height: '100%' },
-        body: { height: `calc(100% - ${headerHeight}px)` },
+        // root: { height: '100%' },
+        // root: { height: `calc(100% - ${0}px)` },
         // Override the padding as Mantine uses "calc(var(--mantine-aside-width, 0px) + 16px)", not allowing us to fill the full page.
         main: {
-          paddingTop: 'calc(var(--mantine-header-height, 0px))',
-          paddingBottom: 'calc(var(--mantine-footer-height, 0px))',
-          paddingLeft: 'calc(var(--mantine-navbar-width, 0px))',
-          paddingRight: 'calc(var(--mantine-aside-width, 0px))',
+          // Height 100% only works with a set height
+          height: 0,
         },
       }}
       {...appShellProps}
-      navbar={navbar}
-      aside={aside}
-      footer={footer}
-      header={header || <VisynHeader height={headerHeight} />}
+      navbar={navbarConfig}
+      footer={footerConfig}
+      header={{ height: 50, ...headerConfig }}
     >
-      {children}
+      <AppShell.Navbar>{navbar}</AppShell.Navbar>
+      <AppShell.Footer>{footer}</AppShell.Footer>
+      <AppShell.Header>{header || <VisynHeader />}</AppShell.Header>
+      <AppShell.Main>{children}</AppShell.Main>
+
       {loginMenu}
     </AppShell>
   );

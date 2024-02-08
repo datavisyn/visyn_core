@@ -31,7 +31,11 @@ async function fetchSubstructure(structures: string[], substructure: string): Pr
 export class SMILESFilterDialog extends ADialog {
   private readonly before: ISMILESFilter | null;
 
-  constructor(private readonly column: SMILESColumn, dialog: IDialogContext, private readonly ctx: IRankingHeaderContext) {
+  constructor(
+    private readonly column: SMILESColumn,
+    dialog: IDialogContext,
+    private readonly ctx: IRankingHeaderContext,
+  ) {
     super(dialog, {
       livePreview: 'filter',
     });

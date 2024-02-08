@@ -48,7 +48,7 @@ export function SimpleBars({
             width={isVertical ? categoryScale.bandwidth() : width - margin.right - countScale(row.aggregateVal)}
             y={isVertical ? countScale(row.aggregateVal) : categoryScale(row.category)}
             tooltip={
-              <Stack spacing={0}>
+              <Stack gap={0}>
                 <Text>{`${categoryName}: ${row.category}`}</Text>
                 <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>
               </Stack>
