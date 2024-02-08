@@ -245,7 +245,9 @@ export function EagerVis({
 
   const setExternalConfigRef = useSyncedRef(setExternalConfig);
   useEffect(() => {
-    setExternalConfigRef.current?.(visConfig);
+    if (visConfig) {
+      setExternalConfigRef.current?.(visConfig);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(visConfig), setExternalConfigRef]);
 
@@ -258,7 +260,7 @@ export function EagerVis({
     });
   }, []);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const vis = getVisByType(inconsistentVisConfig?.type);
     if (vis) {
       const newConfig = vis.mergeConfig(columns, inconsistentVisConfig);
