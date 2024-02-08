@@ -33,7 +33,7 @@ export function HeatmapGrid({
   }, []);
 
   return (
-    <Stack align="center" justify="center" sx={{ width: '100%', height: '100%' }} p="sm">
+    <Stack align="center" justify="center" style={{ width: '100%', height: '100%' }} p="sm">
       {status === 'pending' && <Loader />}
       {status === 'success' && hasAtLeast2CatCols && (
         <Heatmap
