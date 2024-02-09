@@ -204,78 +204,40 @@ export function EagerVis({
 
   const { getVisByType } = useVisProvider();
 
-  // Each time you switch between vis config types, there is one render where the config is inconsistent with the type before the merge functions in the useEffect below can be called.
-  // To ensure that we never render an incosistent config, keep a consistent and a current in the config. Always render the consistent.
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const [{ consistent: visConfig, current: inconsistentVisConfig }, _setVisConfig] = React.useState<{
-    consistent: BaseVisConfig;
-    current: BaseVisConfig;
-  }>(
-    externalConfig
-      ? { consistent: null, current: externalConfig }
+  const [_visConfig, _setVisConfig] = useUncontrolled({
+    value: externalConfig?.type ? getVisByType(externalConfig?.type)?.mergeConfig(columns, externalConfig) : null,
+    defaultValue: externalConfig
+      ? null
       : columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-        ? {
-            consistent: null,
-            current: {
-              type: ESupportedPlotlyVis.SCATTER,
-              numColumnsSelected: [],
-              color: null,
-              numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-              shape: null,
-              dragMode: EScatterSelectSettings.RECTANGLE,
-              alphaSliderVal: 0.5,
-            } as BaseVisConfig,
-          }
-        : {
-            consistent: null,
-            current: {
-              type: ESupportedPlotlyVis.BAR,
-              multiples: null,
-              group: null,
-              direction: EBarDirection.HORIZONTAL,
-              display: EBarDisplayType.ABSOLUTE,
-              groupType: EBarGroupingType.STACK,
-              numColumnsSelected: [],
-              catColumnSelected: null,
-              aggregateColumn: null,
-              aggregateType: EAggregateTypes.COUNT,
-            } as BaseVisConfig,
-          },
-  );
+        ? ({
+            type: ESupportedPlotlyVis.SCATTER,
+            numColumnsSelected: [],
+            color: null,
+            numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+            shape: null,
+            dragMode: EScatterSelectSettings.RECTANGLE,
+            alphaSliderVal: 0.5,
+          } as BaseVisConfig)
+        : ({
+            type: ESupportedPlotlyVis.BAR,
+            multiples: null,
+            group: null,
+            direction: EBarDirection.HORIZONTAL,
+            display: EBarDisplayType.ABSOLUTE,
+            groupType: EBarGroupingType.STACK,
+            numColumnsSelected: [],
+            catColumnSelected: null,
+            aggregateColumn: null,
+            aggregateType: EAggregateTypes.COUNT,
+          } as BaseVisConfig),
+    onChange: setExternalConfig,
+  });
 
-  const setExternalConfigRef = useSyncedRef(setExternalConfig);
-  useEffect(() => {
-    if (visConfig) {
-      setExternalConfigRef.current?.(visConfig);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(visConfig), setExternalConfigRef]);
-
-  const setVisConfig = React.useCallback((newConfig: BaseVisConfig) => {
-    _setVisConfig((oldConfig) => {
-      return {
-        current: newConfig,
-        consistent: oldConfig.current.type !== newConfig.type ? oldConfig.consistent : newConfig,
-      };
-    });
-  }, []);
-
-  React.useEffect(() => {
-    const vis = getVisByType(inconsistentVisConfig?.type);
-    if (vis) {
-      const newConfig = vis.mergeConfig(columns, inconsistentVisConfig);
-      _setVisConfig({ current: newConfig, consistent: newConfig });
-    }
-
-    // DANGER:: this useEffect should only occur when the visConfig.type changes. adding visconfig into the dep array will cause an infinite loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inconsistentVisConfig?.type, getVisByType]);
-
-  useEffect(() => {
-    if (externalConfig) {
-      setVisConfig(externalConfig);
-    }
-  }, [externalConfig, setVisConfig]);
+  const setVisConfig = (v: BaseVisConfig) => {
+    const withDefaults = getVisByType(v.type)?.mergeConfig(columns, v);
+    _setVisConfig(withDefaults);
+  };
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
   const selectedMap: { [key: string]: boolean } = useMemo(() => {
@@ -311,17 +273,17 @@ export function EagerVis({
     };
   }, [colors]);
 
-  if (!visConfig) {
-    return <div className="tdp-busy" />;
-  }
-
   const commonProps = {
     showSidebar,
     setShowSidebar,
     enableSidebar,
   };
 
-  const Renderer = getVisByType(visConfig?.type)?.renderer;
+  const Renderer = getVisByType(_visConfig?.type)?.renderer;
+
+  if (!_visConfig || !Renderer) {
+    return null;
+  }
 
   return (
     <Group
@@ -343,35 +305,33 @@ export function EagerVis({
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
 
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
-        {Renderer ? (
-          <Renderer
-            config={visConfig}
-            dimensions={dimensions}
-            optionsConfig={{
-              color: {
-                enable: true,
-              },
-            }}
-            showDragModeOptions={showDragModeOptions}
-            shapes={shapes}
-            setConfig={setVisConfig}
-            filterCallback={filterCallback}
-            selectionCallback={selectionCallback}
-            selectedMap={selectedMap}
-            selectedList={selected}
-            columns={columns}
-            scales={scales}
-            showSidebar={showSidebar}
-            showCloseButton={showCloseButton}
-            closeButtonCallback={closeCallback}
-            scrollZoom={scrollZoom}
-            {...commonProps}
-          />
-        ) : null}
+        <Renderer
+          config={_visConfig}
+          dimensions={dimensions}
+          optionsConfig={{
+            color: {
+              enable: true,
+            },
+          }}
+          showDragModeOptions={showDragModeOptions}
+          shapes={shapes}
+          setConfig={setVisConfig}
+          filterCallback={filterCallback}
+          selectionCallback={selectionCallback}
+          selectedMap={selectedMap}
+          selectedList={selected}
+          columns={columns}
+          scales={scales}
+          showSidebar={showSidebar}
+          showCloseButton={showCloseButton}
+          closeButtonCallback={closeCallback}
+          scrollZoom={scrollZoom}
+          {...commonProps}
+        />
       </Stack>
       {showSidebar ? (
-        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
-          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
+        <VisSidebarWrapper config={_visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
+          <VisSidebar config={_visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
       ) : null}
     </Group>
