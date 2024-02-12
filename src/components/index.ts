@@ -1,2 +1,2 @@
 export * from './PermissionChooser';
-export * from './ChangeLog/index';
+export * from './ChangeLog';
