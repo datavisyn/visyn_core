@@ -53,7 +53,7 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
 
   return (
     <Stack m="md" h="auto">
-      <Group align="right" mx="5%" gap="sm">
+      <Group justify="flex-end" mx="5%" gap="sm">
         <TextInput placeholder="Search" value={search} onChange={(event) => setSearch(event.currentTarget.value)} />
         <ChangeLogFilter
           tags={allTags}
@@ -84,7 +84,7 @@ export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
       )}
       <Space h="lg" />
       {showedArticles.length > 0 && showedArticles.length / ARTICLES_ON_PAGE > 1 ? (
-        <Group align="center">
+        <Group justify="center">
           <Pagination
             value={activePage}
             onChange={(value) => {
