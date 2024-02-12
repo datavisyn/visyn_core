@@ -1,80 +1,10 @@
+import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
-import { ComponentStory, ComponentMeta, StoryFn } from '@storybook/react';
 import { Vis } from '../LazyVis';
-import {
-  EAggregateTypes,
-  EBarDirection,
-  EBarDisplayType,
-  EBarGroupingType,
-  EColumnTypes,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  EViolinOverlay,
-  VisColumn,
-} from '../interfaces';
-
-export function fetchIrisData(): VisColumn[] {
-  const dataPromise = import('./irisData').then((m) => m.iris);
-
-  return [
-    {
-      info: {
-        description: 'data from description',
-        id: 'sepalLength',
-        name: 'Sepal Length',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.sepalWidth).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: '',
-        id: 'randomThing',
-        name: 'Random Thing',
-      },
-      type: EColumnTypes.CATEGORICAL,
-      color: { 1: 'cornflowerblue' },
-      values: () => dataPromise.then((data) => data.map((r) => Math.round(Math.random() * 4)).map((val, i) => ({ id: i.toString(), val: val.toString() }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'petalLength',
-        name: 'Petal Length PEtal length petal length',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.petalLength).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'petalWidth',
-        name: 'Petal Width',
-      },
-      type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.petalWidth).map((val, i) => ({ id: i.toString(), val }))),
-    },
-    {
-      info: {
-        description: 'data from description',
-        id: 'species',
-        name: 'Species',
-      },
-      type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.map((r) => r.species).map((val, i) => ({ id: i.toString(), val }))),
-    },
-  ];
-}
+import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../bar/interfaces';
+import { BaseVisConfig, EAggregateTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
+import { EViolinOverlay } from '../violin/interfaces';
+import { fetchIrisData } from './fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -102,7 +32,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
 export const ScatterPlot: typeof Template = Template.bind({});
 ScatterPlot.args = {
-  showDragModeOptions: false,
+  showDragModeOptions: true,
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
@@ -126,7 +56,7 @@ ScatterPlot.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-  },
+  } as BaseVisConfig,
 };
 
 export const BarChart: typeof Template = Template.bind({});
@@ -141,12 +71,12 @@ BarChart.args = {
     numColumnsSelected: [],
     catColumnSelected: {
       description: '',
-      id: 'species',
-      name: 'Species',
+      id: 'randomThing',
+      name: 'Random Thing',
     },
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
-  },
+  } as BaseVisConfig,
 };
 
 export const ViolinPlot: typeof Template = Template.bind({});
@@ -173,5 +103,5 @@ ViolinPlot.args = {
       },
     ],
     violinOverlay: EViolinOverlay.NONE,
-  },
+  } as BaseVisConfig,
 };

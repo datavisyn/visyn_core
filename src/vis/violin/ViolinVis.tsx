@@ -1,97 +1,58 @@
-import * as React from 'react';
+import { Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
-import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
-import { useEffect, useState } from 'react';
-import { ActionIcon, Container, Group, Space, Stack, Tooltip } from '@mantine/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
-import { Scales, VisColumn, IVisConfig, IViolinConfig, EFilterOptions } from '../interfaces';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
+import { ICommonVisProps } from '../interfaces';
 import { createViolinTraces } from './utils';
-import { useAsync } from '../../hooks';
-import { ViolinVisSidebar } from './ViolinVisSidebar';
-import { VisSidebarWrapper } from '../VisSidebarWrapper';
-import { CloseButton } from '../sidebar/CloseButton';
-import { i18n } from '../../i18n';
-import { VisSidebarOpenButton } from '../VisSidebarOpenButton';
+import { IViolinConfig } from './interfaces';
 
-const defaultExtensions = {
-  prePlot: null,
-  postPlot: null,
-  preSidebar: null,
-  postSidebar: null,
-};
-
-export function ViolinVis({
-  config,
-  optionsConfig,
-  extensions,
-  columns,
-  setConfig,
-  scales,
-  showSidebar,
-  setShowSidebar,
-  selectedList,
-  selectedMap,
-  selectionCallback,
-  enableSidebar,
-  showCloseButton = false,
-  filterCallback = () => null,
-  closeButtonCallback = () => null,
-}: {
-  config: IViolinConfig;
-  optionsConfig?: {
-    overlay?: {
-      enable?: boolean;
-      customComponent?: React.ReactNode;
-    };
-  };
-  extensions?: {
-    prePlot?: React.ReactNode;
-    postPlot?: React.ReactNode;
-    preSidebar?: React.ReactNode;
-    postSidebar?: React.ReactNode;
-  };
-  filterCallback?: (s: EFilterOptions) => void;
-  columns: VisColumn[];
-  setConfig: (config: IVisConfig) => void;
-  closeButtonCallback?: () => void;
-  selectionCallback: (ids: string[]) => void;
-
-  selectedMap: { [key: string]: boolean };
-  selectedList: string[];
-  scales: Scales;
-  showSidebar?: boolean;
-  setShowSidebar?(show: boolean): void;
-  enableSidebar?: boolean;
-  showCloseButton?: boolean;
-}) {
-  const mergedExtensions = React.useMemo(() => {
-    return merge({}, defaultExtensions, extensions);
-  }, [extensions]);
-
+export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
+  const [clearTimeoutValue, setClearTimeoutValue] = useState(null);
 
-  const id = React.useMemo(() => uniqueId('ViolinVis'), []);
+  const id = useMemo(() => uniqueId('ViolinVis'), []);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
-  const plotlyDivRef = React.useRef(null);
+  // Filter out null values from traces as null values cause the tooltip to not show up
+  const filteredTraces = useMemo(() => {
+    if (!traces) return null;
+    const indexWithNull = traces.plots?.map(
+      (plot) => (plot?.data.y as PlotlyTypes.Datum[])?.reduce((acc: number[], curr, i) => (curr === null ? [...acc, i] : acc), []) as number[],
+    );
+    const filtered = {
+      ...traces,
+      plots: traces?.plots?.map((p, p_index) => {
+        return {
+          ...p,
+          data: {
+            ...p.data,
+            y: (p.data?.y as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            x: (p.data?.x as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            ids: p.data?.ids?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            transforms: p.data?.transforms?.map(
+              (t) => (t.groups as unknown[])?.filter((v, i) => !indexWithNull[p_index].includes(i)) as Partial<PlotlyTypes.Transform>,
+            ),
+          },
+        };
+      }),
+    };
+    return filtered;
+  }, [traces]);
 
-  const onClick = (e: Readonly<PlotlyTypes.PlotSelectionEvent> | null) => {
+  const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
     if (!e || !e.points || !e.points[0]) {
       selectionCallback([]);
       return;
     }
 
-    // @ts-ignore
     const shiftPressed = e.event.shiftKey;
-    // @ts-ignore
-    const eventIds = e.points[0]?.fullData.ids;
+    const eventIds = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
 
     // Multiselect enabled
     if (shiftPressed) {
@@ -113,30 +74,41 @@ export function ViolinVis({
     }
   };
 
+  // NOTE: @dv-usama-ansari: This is an alternative way to delay the resize of plotly plots, but the dependencies of the `useCallback` are unknown if the function is wrapped in lodash `debounce`.
+  // const resizePlotly = useCallback(
+  //   debounce((plotDiv) => {
+  //     Plotly.Plots.resize(plotDiv);
+  //   }),
+  //   [],
+  // );
+
   useEffect(() => {
-    const ro = new ResizeObserver(() => {
-      const plotDiv = document.getElementById(`plotlyDiv${id}`);
-      if (plotDiv) {
-        Plotly.Plots.resize(plotDiv);
-      }
-    });
-
-    if (plotlyDivRef) {
-      ro.observe(plotlyDivRef.current);
+    const plotDiv = document.getElementById(`plotlyDiv${id}`);
+    if (plotDiv) {
+      // NOTE: @dv-usama-ansari: This is a hack to update the plotly plots on resize.
+      //  The `setTimeout` is used to pass the resize function to the next event loop, so that the plotly plots are rendered first.
+      const n = setTimeout(() => Plotly.Plots.resize(plotDiv));
+      setClearTimeoutValue(n);
     }
+  }, [id, dimensions, traces]);
 
-    return () => ro.disconnect();
-  }, [id, plotlyDivRef]);
+  // NOTE: @dv-usama-ansari: Clear the timeout on unmount.
+  useEffect(() => {
+    return () => {
+      if (clearTimeoutValue) {
+        clearTimeout(clearTimeoutValue);
+      }
+    };
+  }, [clearTimeoutValue]);
 
-  React.useEffect(() => {
-    if (!traces) {
+  useEffect(() => {
+    if (!filteredTraces) {
       return;
     }
 
     const innerLayout: Partial<Plotly.Layout> = {
       showlegend: true,
       legend: {
-        // @ts-ignore
         itemclick: false,
         itemdoubleclick: false,
       },
@@ -151,75 +123,48 @@ export function ViolinVis({
       },
       clickmode: 'event+select',
       autosize: true,
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: filteredTraces.rows, columns: filteredTraces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, true) });
-    // WARNING: Do not update when layout changes, that would be an infinite loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces]);
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(filteredTraces, innerLayout, prev, true) }));
+  }, [filteredTraces]);
 
   return (
-    <Group
-      noWrap
-      pl={0}
-      pr={0}
-      spacing={0}
-      sx={{
-        flexGrow: 1,
+    <Stack
+      gap={0}
+      style={{
         height: '100%',
         width: '100%',
-        position: 'relative',
         overflow: 'hidden',
+        position: 'relative',
         // Disable plotly crosshair cursor
         '.nsewdrag': {
           cursor: 'pointer !important',
         },
       }}
-      ref={plotlyDivRef}
     >
-      <Stack
-        spacing={0}
-        sx={{
-          height: '100%',
-          width: '100%',
-        }}
-      >
-        <Space h="xl" />
-        {showCloseButton ? <CloseButton closeCallback={closeButtonCallback} /> : null}
+      {traceStatus === 'success' && layout && filteredTraces?.plots.length > 0 ? (
+        <PlotlyComponent
+          divId={`plotlyDiv${id}`}
+          data={[...filteredTraces.plots.map((p) => p.data), ...filteredTraces.legendPlots.map((p) => p.data)]}
+          layout={layout}
+          config={{ responsive: true, displayModeBar: false }}
+          useResizeHandler
+          style={{ width: '100%', height: '100%' }}
+          onClick={onClick}
+          // plotly redraws everything on updates, so you need to reappend title and
+          onUpdate={() => {
+            for (const p of traces.plots) {
+              d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
 
-        {enableSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} isOpen={showSidebar} /> : null}
-
-        {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
-          <PlotlyComponent
-            divId={`plotlyDiv${id}`}
-            data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
-            layout={layout}
-            config={{ responsive: true, displayModeBar: false }}
-            useResizeHandler
-            style={{ width: '100%', height: '100%' }}
-            onClick={onClick}
-            // plotly redraws everything on updates, so you need to reappend title and
-            onUpdate={() => {
-              for (const p of traces.plots) {
-                d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
-
-                d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
-              }
-            }}
-          />
-        ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
-          <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
-        ) : null}
-        {mergedExtensions.postPlot}
-      </Stack>
-
-      {showSidebar && plotlyDivRef?.current ? (
-        <VisSidebarWrapper>
-          <ViolinVisSidebar config={config} optionsConfig={optionsConfig} extensions={extensions} columns={columns} setConfig={setConfig} />
-        </VisSidebarWrapper>
+              d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+            }
+          }}
+        />
+      ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
+        <InvalidCols headerMessage={filteredTraces?.errorMessageHeader} bodyMessage={traceError?.message || filteredTraces?.errorMessage} />
       ) : null}
-    </Group>
+    </Stack>
   );
 }

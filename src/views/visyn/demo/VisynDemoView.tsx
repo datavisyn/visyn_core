@@ -104,8 +104,8 @@ export function VisynDemoViewSidebar({ parameters, onParametersChanged }: DemoVi
         alignSelf: 'center',
       }}
       columns={parameters.columns}
-      externalConfig={parameters.config}
-      setExternalConfig={(config) => {
+      config={parameters.config}
+      setConfig={(config) => {
         onParametersChanged((p) => ({
           ...p,
           config,
@@ -150,6 +150,10 @@ export function VisynDemoViewHeader({ parameters, selection, onParametersChanged
   );
 }
 
+export function VisynDemoViewContext({ children }: DemoVisynViewPluginType['props']) {
+  return children;
+}
+
 export function createVisynDemoView(): DemoVisynViewPluginType['definition'] {
   return {
     viewType: 'simple',
@@ -161,5 +165,6 @@ export function createVisynDemoView(): DemoVisynViewPluginType['definition'] {
     view: VisynDemoView,
     header: VisynDemoViewHeader,
     tab: VisynDemoViewSidebar,
+    context: VisynDemoViewContext,
   };
 }

@@ -1,8 +1,8 @@
 import contextlib
-import json
 from typing import Any, Literal
 
-from pydantic import AnyHttpUrl, BaseModel, BaseSettings, Extra, Field, validator
+from pydantic import AnyHttpUrl, BaseConfig, BaseModel, BaseSettings, Extra, Field
+from pydantic.env_settings import EnvSettingsSource, SettingsSourceCallable
 
 from .constants import default_logging_dict
 
@@ -44,6 +44,31 @@ class AlbSecurityStoreSettings(BaseModel):
     enable: bool = False
     cookie_name: str | None = None
     signout_url: str | None = None
+    email_token_field: str | list[str] = ["email"]
+    """
+    Field in the JWT token that contains the email address of the user.
+    """
+    audience: str | list[str] | None = None
+    """
+    Audience of the JWT token.
+    """
+    issuer: str | None = None
+    """
+    Issuer of the JWT token.
+    """
+    decode_options: dict[str, Any] | None = None
+    """
+    `options` of the `jwt.decode` function. See https://pyjwt.readthedocs.io/en/stable/api.html#jwt.decode for details.
+    By default, `verify_signature` is also true, and verifies the signature of the JWT token. Thus, the public key of the ALB is fetched from the AWS API.
+    """
+    region: str = "eu-central-1"
+    """
+    The region of the ALB to fetch the public key from.
+    """
+    decode_algorithms: list[str] = ["ES256"]
+    """
+    The algorithm used to sign the JWT token. See https://pyjwt.readthedocs.io/en/stable/algorithms.html for details.
+    """
 
 
 class OAuth2SecurityStoreSettings(BaseModel):
@@ -51,7 +76,7 @@ class OAuth2SecurityStoreSettings(BaseModel):
     cookie_name: str | None = None
     signout_url: str | None = None
     access_token_header_name: str = "X-Forwarded-Access-Token"
-    email_token_field: str = "email"
+    email_token_field: str | list[str] = ["email"]
 
 
 class NoSecurityStoreSettings(BaseModel):
@@ -84,15 +109,6 @@ class BaseExporterTelemetrySettings(BaseModel):
     headers: dict[str, str] | None = None
     timeout: int | None = None
     kwargs: dict[str, Any] = {}
-
-    @validator("headers", pre=True)
-    def json_decode_headers(cls, v):  # NOQA N805
-        # Manually parse JSON strings if they are coming from the env via `VISYN_CORE__...='{"...": ...}'`.
-        # See https://github.com/pydantic/pydantic/issues/831 for details.
-        if isinstance(v, str):
-            with contextlib.suppress(ValueError):
-                return json.loads(v)
-        return v
 
 
 class MetricsExporterTelemetrySettings(BaseExporterTelemetrySettings):
@@ -186,18 +202,13 @@ class VisynCoreSettings(BaseModel):
     client_config: dict[str, Any] | None = None
     """Client config to be loaded via /api/v1/visyn/clientConfig"""
 
-    @validator("client_config", pre=True)
-    def json_decode_client_config(cls, v):  # NOQA N805
-        # Manually parse JSON strings if they are coming from the env via `VISYN_CORE__CLIENT_CONFIG='{"...": ...}'`.
-        # See https://github.com/pydantic/pydantic/issues/831 for details.
-        if isinstance(v, str):
-            with contextlib.suppress(ValueError):
-                return json.loads(v)
-        return v
-
 
 class GlobalSettings(BaseSettings):
     env: Literal["development", "production"] = "production"
+    ci: bool = False
+    """
+    Set to true in CI environments like Github Actions.
+    """
     secret_key: str = "VERY_SECRET_STUFF_T0IB84wlQrdMH8RVT28w"
 
     # JWT options mostly inspired by flask-jwt-extended: https://flask-jwt-extended.readthedocs.io/en/stable/options/#general-options
@@ -230,6 +241,54 @@ class GlobalSettings(BaseSettings):
             dic = dic.get(key, None) if dic else None
         return dic if dic is not None else default
 
-    class Config:
+    class Config(BaseConfig):
         extra = Extra.allow
         env_nested_delimiter = "__"
+
+        @classmethod
+        def customise_sources(
+            cls,
+            init_settings: SettingsSourceCallable,
+            env_settings: EnvSettingsSource,
+            file_secret_settings: SettingsSourceCallable,
+        ) -> tuple[SettingsSourceCallable, ...]:
+            class EnvSettingsSourceWithJSON(EnvSettingsSource):
+                def __init__(self, *args, **kwargs):
+                    super().__init__(*args, **kwargs)
+                    """
+                    String vars that end with this suffix are not converted to JSON.
+                    """
+                    self.as_string_suffix = "_as_string"
+
+                def explode_env_vars(self, *args, **kwargs) -> dict[str, Any]:
+                    """
+                    This may be hacky, but it allows us to load JSON strings from the environment variables, even for deeply nested models.
+                    The original explode_env_vars simply stores the values as strings, and does not load them as JSON.
+                    Here, we patch it and iterate over all values, and try to load them as JSON.
+                    TODO: This may have one negative side effect: what if my value is typed as a string, but we now convert it to a dict?
+                    You can suffix the variable with `_as_string` to prevent this.
+                    """
+                    exploded = super().explode_env_vars(*args, **kwargs)
+
+                    def str_to_dict(d: dict[str, Any]):
+                        for k in list(d.keys()):
+                            if isinstance(d[k], dict):
+                                str_to_dict(d[k])
+                            elif isinstance(d[k], str):
+                                if k.lower().endswith(self.as_string_suffix):
+                                    # If the value ends with the suffix, add the string value without the suffix to the dict.
+                                    d[k.lower().removesuffix(self.as_string_suffix)] = d[k]
+                                else:
+                                    # Otherwise, try to load the value as JSON.
+                                    with contextlib.suppress(ValueError):
+                                        d[k] = cls.json_loads(d[k])
+                        return d
+
+                    return str_to_dict(exploded)
+
+            return (
+                init_settings,
+                # Instead of the default EnvSettingsSource, use our custom one.
+                EnvSettingsSourceWithJSON(**{s: getattr(env_settings, s) for s in env_settings.__slots__}),
+                file_secret_settings,
+            )

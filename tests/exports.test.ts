@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from 'fs';
 import packageJson from '../package.json';
 
 const NOT_EXPORTED_PACKAGES = ['assets', 'demo', 'locales', 'scss', 'stories'];
-const ADDITIONAL_EXPORTS = ['.', './plotly/full', './dist/scss/main.scss', './phovea_registry', './package.json'];
+const ADDITIONAL_EXPORTS = ['.', './assets/*', './plotly/full', './scss/*', './dist/scss/*', './phovea_registry', './package.json'];
 
 describe('package.json exports', () => {
   expect(packageJson.exports).toBeDefined();
@@ -32,14 +32,16 @@ describe('package.json exports', () => {
     const exported = packageJson.exports[`./${p}`];
     expect(exported).toBeDefined();
     expect(Object.keys(exported)).toStrictEqual(['types', 'import', 'default']);
-    expect(exported.types).toBe(`./dist/${p}/index.d.ts`);
-    expect(exported.import).toBe(`./dist/${p}/index.js`);
-    expect(exported.default).toBe(`./dist/${p}/index.js`);
+    // Some packages are exported as .tsx
+    const extension = exported?.types[1]?.includes('.tsx') ? 'tsx' : 'ts';
+    expect(exported.types).toEqual([`./dist/${p}/index.d.ts`, `./src/${p}/index.${extension}`]);
+    expect(exported.import).toEqual([`./dist/${p}/index.js`, `./src/${p}/index.${extension}`]);
+    expect(exported.default).toEqual([`./dist/${p}/index.js`, `./src/${p}/index.${extension}`]);
     expect(rootIndexTs).toBeFalsy();
   });
 
   it('exports the package.json and phovea_registry', () => {
-    expect(packageJson.exports['./phovea_registry']).toBe('./dist/phovea_registry.js');
+    expect(packageJson.exports['./phovea_registry']).toEqual(['./dist/phovea_registry.js', './src/phovea_registry.ts']);
     expect(packageJson.exports['./package.json']).toBe('./package.json');
   });
 });

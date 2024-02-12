@@ -13,7 +13,7 @@ from .models import (
 from .util.draw import draw, draw_similarity
 from .util.molecule import aligned, maximum_common_substructure_query_mol
 
-app = APIRouter(prefix="/api/rdkit", tags=["images"])
+app = APIRouter(prefix="/api/rdkit", tags=["RDKit"])
 
 
 @app.get("/", response_class=SvgResponse)

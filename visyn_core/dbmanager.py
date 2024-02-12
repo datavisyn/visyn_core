@@ -3,7 +3,7 @@ from typing import Any
 
 from fastapi import FastAPI
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from . import manager
 from .dbview import DBConnector
@@ -17,8 +17,8 @@ class DBManager:
     def __init__(self):
         self.connectors: dict[str, DBConnector] = {}
         self._plugins = {}
-        self._engines = {}
-        self._sessionmakers = {}
+        self._engines: dict[str, Engine] = {}
+        self._sessionmakers: dict[Engine, sessionmaker] = {}
 
     def init_app(self, app: FastAPI):
         app.add_middleware(CloseWebSessionsMiddleware)

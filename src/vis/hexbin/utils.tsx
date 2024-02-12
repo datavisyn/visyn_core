@@ -1,22 +1,16 @@
 import merge from 'lodash/merge';
-import {
-  EColumnTypes,
-  ESupportedPlotlyVis,
-  IVisConfig,
-  VisColumn,
-  IHexbinConfig,
-  VisNumericalValue,
-  VisCategoricalValue,
-  ColumnInfo,
-  VisNumericalColumn,
-  EHexbinOptions,
-  EScatterSelectSettings,
-} from '../interfaces';
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
-
-export function isHexbin(s: IVisConfig): s is IHexbinConfig {
-  return s.type === ESupportedPlotlyVis.HEXBIN;
-}
+import {
+  ColumnInfo,
+  EColumnTypes,
+  EScatterSelectSettings,
+  ESupportedPlotlyVis,
+  VisCategoricalValue,
+  VisColumn,
+  VisNumericalColumn,
+  VisNumericalValue,
+} from '../interfaces';
+import { EHexbinOptions, IHexbinConfig } from './interfaces';
 
 export const defaultDensityConfig: IHexbinConfig = {
   type: ESupportedPlotlyVis.HEXBIN,
@@ -29,7 +23,7 @@ export const defaultDensityConfig: IHexbinConfig = {
   hexbinOptions: EHexbinOptions.COLOR,
 };
 
-export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinConfig): IVisConfig {
+export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinConfig): IHexbinConfig {
   const merged = merge({}, defaultDensityConfig, config);
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
 
@@ -46,11 +40,7 @@ export function hexinbMergeDefaultConfig(columns: VisColumn[], config: IHexbinCo
   return merged;
 }
 
-export async function getHexData(
-  columns: VisColumn[],
-  numColumnsSelected: ColumnInfo[],
-  colorColumn: ColumnInfo | null,
-): Promise<{
+export type ResolvedHexValues = {
   numColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
@@ -62,8 +52,10 @@ export async function getHexData(
     color?: Record<string, string>;
     info: ColumnInfo;
   };
-}> {
-  const numCols: VisNumericalColumn[] = [columns[0] as VisNumericalColumn, columns[1] as VisNumericalColumn];
+};
+
+export async function getHexData(columns: VisColumn[], numColumnsSelected: ColumnInfo[], colorColumn: ColumnInfo | null): Promise<ResolvedHexValues> {
+  const numCols: VisNumericalColumn[] = columns.filter((col) => numColumnsSelected.find((e) => e.id === col.info.id)) as VisNumericalColumn[];
 
   const numColVals = await resolveColumnValues(numCols);
 
