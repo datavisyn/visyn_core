@@ -54,11 +54,11 @@ export function DatePickerComponent({
 
   return (
     <Flex>
-      <Stack align="start" spacing="sm" mr="lg" mt="lg" mb="lg">
+      <Stack align="start" gap="sm" mr="lg" mt="lg" mb="lg">
         <Button
-          compact
+          size="compact-md"
           variant="subtle"
-          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          style={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
           onClick={() => {
             setValueSelected(() => [null, null]);
             handleChange([new Date(), new Date()]);
@@ -68,9 +68,9 @@ export function DatePickerComponent({
         </Button>
         <Divider orientation="horizontal" w="100%" />
         <Button
-          compact
+          size="compact-md"
           variant="subtle"
-          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          style={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
           onClick={() => {
             setValueSelected(() => [new Date(), new Date()]);
             handleChange([new Date(), new Date()]);
@@ -79,8 +79,8 @@ export function DatePickerComponent({
           Today
         </Button>
         <Button
-          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
-          compact
+          style={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          size="compact-md"
           variant="subtle"
           ta="left"
           onClick={() => {
@@ -91,8 +91,8 @@ export function DatePickerComponent({
           This week
         </Button>
         <Button
-          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
-          compact
+          style={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          size="compact-md"
           variant="subtle"
           ta="left"
           onClick={() => {
@@ -103,8 +103,8 @@ export function DatePickerComponent({
           Last week
         </Button>
         <Button
-          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
-          compact
+          style={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          size="compact-md"
           variant="subtle"
           ta="left"
           onClick={() => {
@@ -115,8 +115,8 @@ export function DatePickerComponent({
           This month
         </Button>
         <Button
-          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
-          compact
+          style={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          size="compact-md"
           variant="subtle"
           ta="left"
           onClick={() => {
@@ -127,8 +127,8 @@ export function DatePickerComponent({
           Last month
         </Button>
         <Button
-          sx={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
-          compact
+          style={(theme) => ({ color: theme.colors[theme.primaryColor][6] })}
+          size="compact-md"
           variant="subtle"
           ta="left"
           onClick={() => {
@@ -161,7 +161,7 @@ export function DatePickerComponent({
                 date.getFullYear() === new Date().getFullYear()
               ) {
                 return {
-                  sx: (theme) => ({
+                  style: (theme) => ({
                     background: theme.colors[theme.primaryColor][6],
                     borderRadius: '50%',
                     borderWidth: '130px',
@@ -173,7 +173,7 @@ export function DatePickerComponent({
                 };
               }
 
-              return { sx: (theme) => ({ '&[data-weekend]': { color: theme.black }, '&[data-selected]': { color: theme.white } }) };
+              return { style: (theme) => ({ '&[data-weekend]': { color: theme.black }, '&[data-selected]': { color: theme.white } }) };
             }}
             renderDay={(date) => {
               return (

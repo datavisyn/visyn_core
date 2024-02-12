@@ -20,11 +20,11 @@ export function ChangeLogFilter({
   return (
     <Menu>
       <Menu.Target>
-        <Button sx={(theme) => ({ backgroundColor: theme.colors[theme.primaryColor][6] })}>Filter by</Button>
+        <Button style={(theme) => ({ backgroundColor: theme.colors[theme.primaryColor][6] })}>Filter by</Button>
       </Menu.Target>
       <Menu.Dropdown>
         <Tabs variant="outline" defaultValue="tags">
-          <Tabs.List position="right">
+          <Tabs.List justify="right">
             <Tabs.Tab value="tags">Tags</Tabs.Tab>
             <Tabs.Tab value="time">Date</Tabs.Tab>
           </Tabs.List>

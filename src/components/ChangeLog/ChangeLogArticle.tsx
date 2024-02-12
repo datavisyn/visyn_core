@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Badge, Grid, Title, Box, SimpleGrid } from '@mantine/core';
+import { Flex, Stack, Text, Badge, Grid, Title, Box, SimpleGrid, darken } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkFrontmatter from 'remark-frontmatter';
@@ -55,7 +55,7 @@ export function ChangeLogArticle({
       <Grid.Col span="content" py={0}>
         <Flex gap={0} align="center" direction="column" h="100%">
           <Box
-            sx={(theme) => ({
+            style={(theme) => ({
               display: 'inline',
               width: '15px',
               height: '15px',
@@ -67,7 +67,7 @@ export function ChangeLogArticle({
             })}
           />
           <Box
-            sx={(theme) => ({
+            style={(theme) => ({
               display: 'flex',
               background: theme.colors[theme.primaryColor][6],
               height: '100%',
@@ -86,16 +86,16 @@ export function ChangeLogArticle({
               <Title size="h4" lineClamp={2}>
                 {article.title ? article.title : article.version}
               </Title>
-              <Stack spacing={0}>
+              <Stack gap={0}>
                 {article.title ? (
-                  <Text color="dimmed" size="sm">
+                  <Text c="dimmed" size="sm">
                     {article.version}
                   </Text>
                 ) : null}
-                <Text color="dimmed" size="sm">
+                <Text c="dimmed" size="sm">
                   {`on ${article.date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
                 </Text>
-                <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
+                <Text c="dimmed" size="sm">{`by ${article.author}`}</Text>
                 <SimpleGrid cols={3} spacing="sm" mt="xs" ml={0}>
                   {article.tags.map((tag) => (
                     <Badge
@@ -107,7 +107,7 @@ export function ChangeLogArticle({
                           : setCheckedTags((prevstate) => [...prevstate, tag])
                       }
                       styles={(theme) => ({
-                        root: { ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
+                        root: { ':hover': { backgroundColor: darken(theme.colors.blue[1], 0.05) } },
                       })}
                       variant={checkedTags.includes(tag) ? 'filled' : 'light'}
                     >
@@ -136,16 +136,16 @@ export function ChangeLogArticle({
             <Title size="h4" lineClamp={2}>
               {article.title ? article.title : article.version}
             </Title>
-            <Stack spacing={0}>
+            <Stack gap={0}>
               {article.title ? (
-                <Text color="dimmed" size="sm">
+                <Text c="dimmed" size="sm">
                   {article.version}
                 </Text>
               ) : null}
-              <Text color="dimmed" size="sm">
+              <Text c="dimmed" size="sm">
                 {`on ${article.date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
               </Text>
-              <Text color="dimmed" size="sm">{`by ${article.author}`}</Text>
+              <Text c="dimmed" size="sm">{`by ${article.author}`}</Text>
             </Stack>
           </Stack>
           <Stack>
@@ -160,7 +160,7 @@ export function ChangeLogArticle({
                       : setCheckedTags((prevstate) => [...prevstate, tag])
                   }
                   styles={(theme) => ({
-                    root: { ':hover': theme.fn.hover({ backgroundColor: theme.fn.darken(theme.colors.blue[1], 0.05) }) },
+                    root: { ':hover': { backgroundColor: darken(theme.colors.blue[1], 0.05) } },
                   })}
                   variant={checkedTags[tag] ? 'filled' : 'light'}
                 >
