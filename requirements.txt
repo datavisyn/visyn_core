@@ -21,7 +21,7 @@ pydantic==1.10.11
 pyjwt[crypto]==2.8.0
 pytest-postgresql==5.0.0
 python-dateutil==2.8.2
-python-multipart==0.0.6
+python-multipart==0.0.7
 requests==2.31.0
 SQLAlchemy>=1.4.40,<=1.4.49
 starlette-context==0.3.6
