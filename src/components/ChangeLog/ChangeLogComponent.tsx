@@ -19,7 +19,7 @@ function IsDateBetween(startDate: Date, endDate: Date, currentDate: Date) {
 
 const ARTICLES_ON_PAGE = 5;
 
-export function ChangeLogComponent({ data }: { data: IChangeLogArticle[] }) {
+export function ChangeLogComponent({ data = [] }: { data: IChangeLogArticle[] }) {
   const [scroll, scrollTo] = useWindowScroll();
   const [activePage, setPage] = React.useState(1);
   const largerThanSm = useMediaQuery('(min-width: 768px)');
