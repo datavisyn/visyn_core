@@ -8,6 +8,10 @@ export type ISingleScoreResult = {
    * The data to be used for the score column
    */
   data: unknown[];
+  /**
+   * Metadata for the score, which will be stored in the `desc.scoreMeta` property.
+   */
+  meta?: object;
 } & (
   | {
       /**
@@ -28,4 +32,5 @@ export type IScoreResult = ISingleScoreResult | ISingleScoreResult[];
 export interface IScoreColumnDesc<T> extends IValueColumnDesc<T> {
   accessor?(row: IDataRow, desc: Readonly<IScoreColumnDesc<T>>): T;
   scoreData: T[];
+  scoreMeta: object;
 }
