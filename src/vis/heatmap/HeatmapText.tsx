@@ -26,7 +26,7 @@ export function HeatmapText({
   isImmediate: boolean;
 }) {
   const labelSpacing = useMemo(() => {
-    const maxLabelLength = d3.max(yScale.domain().map((m) => m.length));
+    const maxLabelLength = d3.max(yScale.domain().map((m) => m?.length));
 
     return maxLabelLength > 5 ? 35 : maxLabelLength * 7;
   }, [yScale]);
