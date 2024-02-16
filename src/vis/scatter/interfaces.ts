@@ -9,8 +9,15 @@ export interface IScatterConfig extends BaseVisConfig {
   dragMode: EScatterSelectSettings;
   alphaSliderVal: number;
   sizeSliderVal: number;
+  labels: ELabelingOptions;
 }
 
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {
   return s.type === ESupportedPlotlyVis.SCATTER;
+}
+
+export enum ELabelingOptions {
+  SELECTED = 'Selected',
+  ON = 'On',
+  OFF = 'Off',
 }

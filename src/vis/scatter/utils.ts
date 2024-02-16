@@ -19,7 +19,7 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-import { IScatterConfig } from './interfaces';
+import { ELabelingOptions, IScatterConfig } from './interfaces';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -43,6 +43,7 @@ const defaultConfig: IScatterConfig = {
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
+  labels: ELabelingOptions.ON,
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
@@ -86,6 +87,7 @@ export async function createScatterTraces(
   colorScaleType: ENumericalColorScaleType,
   scales: Scales,
   shapes: string[] | null,
+  labels: ELabelingOptions,
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -162,7 +164,8 @@ export async function createScatterTraces(
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         type: 'scattergl',
-        mode: 'markers',
+        mode: labels === ELabelingOptions.ON ? 'text+markers' : 'markers',
+        // mode: 'text+markers',
         showlegend: false,
         hoverlabel: {
           bgcolor: 'black',
@@ -175,7 +178,7 @@ export async function createScatterTraces(
         ),
         hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),
-
+        textposition: 'top center',
         marker: {
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
 
@@ -252,7 +255,7 @@ export async function createScatterTraces(
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               type: 'scattergl',
-              mode: 'markers',
+              mode: labels === ELabelingOptions.ON ? 'text+markers' : 'markers',
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
                   `${v.id}<br>x: ${v.val}<br>y: ${yCurr.resolvedValues[i].val}<br>${
@@ -265,6 +268,7 @@ export async function createScatterTraces(
               },
               showlegend: false,
               text: validCols[0].resolvedValues.map((v) => v.id.toString()),
+              textposition: 'top center',
               marker: {
                 color: colorCol
                   ? colorCol.resolvedValues.map((v) =>
