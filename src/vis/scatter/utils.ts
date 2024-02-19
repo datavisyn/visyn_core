@@ -43,7 +43,7 @@ const defaultConfig: IScatterConfig = {
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
-  labels: ELabelingOptions.OFF,
+  showLabels: ELabelingOptions.OFF,
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
@@ -87,7 +87,7 @@ export async function createScatterTraces(
   colorScaleType: ENumericalColorScaleType,
   scales: Scales,
   shapes: string[] | null,
-  labels: ELabelingOptions,
+  showLabels: ELabelingOptions,
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -164,7 +164,7 @@ export async function createScatterTraces(
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         type: 'scattergl',
-        mode: labels === ELabelingOptions.OFF ? 'markers' : 'text+markers',
+        mode: showLabels === ELabelingOptions.OFF ? 'markers' : 'text+markers',
         showlegend: false,
         hoverlabel: {
           bgcolor: 'black',
@@ -208,7 +208,7 @@ export async function createScatterTraces(
             size: sizeSliderVal,
           },
           textfont: {
-            color: labels === ELabelingOptions.ON ? 'gray' : 'white',
+            color: showLabels === ELabelingOptions.ON ? 'gray' : 'white',
             opacity: 0,
           },
         },
@@ -258,7 +258,7 @@ export async function createScatterTraces(
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               type: 'scattergl',
-              mode: labels === ELabelingOptions.OFF ? 'markers' : 'text+markers',
+              mode: showLabels === ELabelingOptions.OFF ? 'markers' : 'text+markers',
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
                   `${v.id}<br>x: ${v.val}<br>y: ${yCurr.resolvedValues[i].val}<br>${

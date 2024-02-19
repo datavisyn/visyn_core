@@ -76,12 +76,12 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
       {mergedOptionsConfig.labels.enable
         ? mergedOptionsConfig.labels.customComponent || (
             <LabelingOptions
-              callback={(labels: ELabelingOptions) => {
-                if (config.labels !== labels) {
-                  setConfig({ ...config, labels });
+              callback={(showLabels: ELabelingOptions) => {
+                if (config.showLabels !== showLabels) {
+                  setConfig({ ...config, showLabels });
                 }
               }}
-              currentSelected={config.labels}
+              currentSelected={config.showLabels}
             />
           )
         : null}

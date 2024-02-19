@@ -9,7 +9,7 @@ export interface IScatterConfig extends BaseVisConfig {
   dragMode: EScatterSelectSettings;
   alphaSliderVal: number;
   sizeSliderVal: number;
-  labels: ELabelingOptions;
+  showLabels: ELabelingOptions;
 }
 
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {

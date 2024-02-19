@@ -55,7 +55,7 @@ export function ScatterVis({
     config.numColorScaleType,
     scales,
     shapes,
-    config.labels,
+    config.showLabels,
   ]);
 
   React.useEffect(() => {

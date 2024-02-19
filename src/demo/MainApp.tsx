@@ -34,7 +34,7 @@ export function MainApp() {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
     sizeSliderVal: 5,
-    labels: ELabelingOptions.OFF,
+    showLabels: ELabelingOptions.OFF,
   } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof iris>([]);
