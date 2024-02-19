@@ -4,7 +4,7 @@ import { ELabelingOptions } from './interfaces';
 
 interface LabelingOptionsProps {
   callback: (s: ELabelingOptions) => void;
-  currentSelected: ELabelingOptions;
+  currentSelected: ELabelingOptions | null;
 }
 
 export function LabelingOptions({ callback, currentSelected }: LabelingOptionsProps) {
