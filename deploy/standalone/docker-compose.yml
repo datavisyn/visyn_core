@@ -1,0 +1,9 @@
+version: '2.0'
+services:
+  api:
+    image: ghcr.io/datavisyn/visyn_core:standalone_docker
+    ports:
+      - 9000:9000
+    environment:
+      - VISYN_CORE__SECURITY__STORE__NO_SECURITY_STORE__ENABLE=true
+      - VISYN_CORE__SECURITY__STORE__NO_SECURITY_STORE__USER=anonymous

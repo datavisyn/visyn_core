@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
+from . import manager
 from .plugin.model import AVisynPlugin, RegHelper
 
 
@@ -20,6 +22,15 @@ class VisynPlugin(AVisynPlugin):
         from .settings.router import create as create_settings_router
 
         app.include_router(create_settings_router())
+
+        @app.on_event("startup")
+        async def startup():
+            # Add the / path at the very end to match all other routes before
+            bundles_dir = manager.settings.visyn_core.bundles_dir
+            if bundles_dir:
+                # Mount the bundles directory as static files to enable the frontend (required in standalone Dockerfile mode)
+                _log.info(f"Mounting bundles dir: {bundles_dir}")
+                app.mount("/", StaticFiles(directory=bundles_dir, html=True), name="bundles")
 
     def register(self, registry: RegHelper):
         # phovea_server
