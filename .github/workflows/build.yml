@@ -15,5 +15,7 @@ jobs:
     uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@new_deployment_no_ports
     secrets: inherit
     with:
+      runs_on: self-hosted
       cypress_enable: true
       cypress_run_because_flag: ${{ inputs.cypress == true }}
+      cypress_runs_on: self-hosted
