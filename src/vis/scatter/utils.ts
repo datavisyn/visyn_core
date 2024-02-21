@@ -19,7 +19,7 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-import { IScatterConfig } from './interfaces';
+import { ELabelingOptions, IScatterConfig } from './interfaces';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -43,6 +43,7 @@ const defaultConfig: IScatterConfig = {
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
+  showLabels: ELabelingOptions.SELECTED,
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
@@ -86,6 +87,7 @@ export async function createScatterTraces(
   colorScaleType: ENumericalColorScaleType,
   scales: Scales,
   shapes: string[] | null,
+  showLabels: ELabelingOptions,
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -112,6 +114,7 @@ export async function createScatterTraces(
   const colorCol = await resolveSingleColumn(getCol(columns, color));
   const idToLabelMapper = await createIdToLabelMapper(columns);
 
+  const textPositionOptions = ['top center', 'bottom center'];
   const shapeScale = shape
     ? d3v7
         .scaleOrdinal<string>()
@@ -127,6 +130,7 @@ export async function createScatterTraces(
     max = d3v7.max(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
   }
 
+  const textPositions = ['top center', 'bottom center'];
   const numericalColorScale = color
     ? d3v7
         .scaleLinear<string, number>()
@@ -162,7 +166,7 @@ export async function createScatterTraces(
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         type: 'scattergl',
-        mode: 'markers',
+        mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
         showlegend: false,
         hoverlabel: {
           bgcolor: 'black',
@@ -175,7 +179,8 @@ export async function createScatterTraces(
         ),
         hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),
-
+        // @ts-ignore
+        textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
         marker: {
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
 
@@ -195,6 +200,9 @@ export async function createScatterTraces(
             opacity: 1,
             size: sizeSliderVal,
           },
+          textfont: {
+            color: showLabels === ELabelingOptions.NEVER ? 'white' : '#666666',
+          },
         },
         unselected: {
           marker: {
@@ -204,6 +212,9 @@ export async function createScatterTraces(
             color: DEFAULT_COLOR,
             opacity: alphaSliderVal,
             size: sizeSliderVal,
+          },
+          textfont: {
+            color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : 'white',
           },
         },
       },
@@ -252,7 +263,7 @@ export async function createScatterTraces(
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               type: 'scattergl',
-              mode: 'markers',
+              mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
                   `${v.id}<br>x: ${v.val}<br>y: ${yCurr.resolvedValues[i].val}<br>${
@@ -265,6 +276,8 @@ export async function createScatterTraces(
               },
               showlegend: false,
               text: validCols[0].resolvedValues.map((v) => v.id.toString()),
+              // @ts-ignore
+              textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
               marker: {
                 color: colorCol
                   ? colorCol.resolvedValues.map((v) =>

@@ -7,7 +7,8 @@ import { MultiSelect } from '../sidebar/MultiSelect';
 import { SingleSelect } from '../sidebar/SingleSelect';
 import { ColorSelect } from './ColorSelect';
 import { OpacitySlider } from './OpacitySlider';
-import { IScatterConfig } from './interfaces';
+import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { LabelingOptions } from './LabelingOptions';
 
 const defaultConfig = {
   color: {
@@ -19,6 +20,10 @@ const defaultConfig = {
     customComponent: null,
   },
   filter: {
+    enable: true,
+    customComponent: null,
+  },
+  labels: {
     enable: true,
     customComponent: null,
   },
@@ -68,6 +73,18 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         }}
         currentValue={config.alphaSliderVal}
       />
+      {mergedOptionsConfig.labels.enable
+        ? mergedOptionsConfig.labels.customComponent || (
+            <LabelingOptions
+              callback={(showLabels: ELabelingOptions) => {
+                if (config.showLabels !== showLabels) {
+                  setConfig({ ...config, showLabels });
+                }
+              }}
+              currentSelected={config.showLabels}
+            />
+          )
+        : null}
 
       {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
