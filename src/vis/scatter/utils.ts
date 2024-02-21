@@ -43,7 +43,7 @@ const defaultConfig: IScatterConfig = {
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
-  showLabels: ELabelingOptions.OFF,
+  showLabels: ELabelingOptions.NEVER,
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
@@ -164,7 +164,7 @@ export async function createScatterTraces(
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         type: 'scattergl',
-        mode: showLabels === ELabelingOptions.OFF ? 'markers' : 'text+markers',
+        mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
         showlegend: false,
         hoverlabel: {
           bgcolor: 'black',
@@ -198,7 +198,7 @@ export async function createScatterTraces(
             size: sizeSliderVal,
           },
           textfont: {
-            color: showLabels === ELabelingOptions.OFF ? 'white' : '#666666',
+            color: showLabels === ELabelingOptions.NEVER ? 'white' : '#666666',
             opacity: 0,
           },
         },
@@ -212,7 +212,7 @@ export async function createScatterTraces(
             size: sizeSliderVal,
           },
           textfont: {
-            color: showLabels === ELabelingOptions.ON ? '#b3b3b3' : 'white',
+            color: showLabels === ELabelingOptions.ALWAYS ? '#b3b3b3' : 'white',
             opacity: 0,
           },
         },
@@ -262,7 +262,7 @@ export async function createScatterTraces(
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               type: 'scattergl',
-              mode: showLabels === ELabelingOptions.OFF ? 'markers' : 'text+markers',
+              mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
                   `${v.id}<br>x: ${v.val}<br>y: ${yCurr.resolvedValues[i].val}<br>${
