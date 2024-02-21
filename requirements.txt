@@ -1,6 +1,6 @@
 # a2wsgi==1.6.0 # This WSIGMiddleware is not compatible with starlette_context
 alembic==1.11.1
-cachetools==5.3.1
+cachetools==5.3.2
 fastapi==0.101.1
 Flask[async]>=2.1.0,<=2.2.2
 json-cfg==0.4.2
