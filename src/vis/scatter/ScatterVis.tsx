@@ -112,9 +112,12 @@ export function ScatterVis({
           if (selectedList.length === 0 && config.showLabels === ELabelingOptions.SELECTED) {
             // @ts-ignore
             p.data.selected.textfont.color = 'white';
+          } else if (selectedList.length === 0 && config.showLabels === ELabelingOptions.ALWAYS) {
+            // @ts-ignore
+            p.data.selected.textfont.color = `rgba(102, 102, 102, ${config.alphaSliderVal})`;
           } else {
             // @ts-ignore
-            p.data.selected.textfont.color = '#666666';
+            p.data.selected.textfont.color = `rgba(102, 102, 102, 1)`;
           }
 
           if (selectedList.length === 0 && config.color) {

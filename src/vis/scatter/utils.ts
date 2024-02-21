@@ -202,7 +202,6 @@ export async function createScatterTraces(
           },
           textfont: {
             color: showLabels === ELabelingOptions.NEVER ? 'white' : '#666666',
-            opacity: 0,
           },
         },
         unselected: {
@@ -215,8 +214,7 @@ export async function createScatterTraces(
             size: sizeSliderVal,
           },
           textfont: {
-            color: showLabels === ELabelingOptions.ALWAYS ? '#b3b3b3' : 'white',
-            opacity: 0,
+            color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : 'white',
           },
         },
       },
