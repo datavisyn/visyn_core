@@ -197,6 +197,10 @@ export async function createScatterTraces(
             opacity: 1,
             size: sizeSliderVal,
           },
+          textfont: {
+            color: showLabels === ELabelingOptions.OFF ? 'white' : '#666666',
+            opacity: 0,
+          },
         },
         unselected: {
           marker: {
@@ -208,7 +212,7 @@ export async function createScatterTraces(
             size: sizeSliderVal,
           },
           textfont: {
-            color: showLabels === ELabelingOptions.ON ? 'gray' : 'white',
+            color: showLabels === ELabelingOptions.ON ? '#b3b3b3' : 'white',
             opacity: 0,
           },
         },
