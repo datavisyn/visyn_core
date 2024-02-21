@@ -9,7 +9,7 @@ interface LabelingOptionsProps {
 
 export function LabelingOptions({ callback, currentSelected }: LabelingOptionsProps) {
   return (
-    <Input.Wrapper label="Labels">
+    <Input.Wrapper label="Show labels">
       <SegmentedControl
         fullWidth
         size="xs"
