@@ -114,6 +114,7 @@ export async function createScatterTraces(
   const colorCol = await resolveSingleColumn(getCol(columns, color));
   const idToLabelMapper = await createIdToLabelMapper(columns);
 
+  const textPositionOptions = ['top center', 'bottom center'];
   const shapeScale = shape
     ? d3v7
         .scaleOrdinal<string>()
@@ -129,6 +130,7 @@ export async function createScatterTraces(
     max = d3v7.max(colorCol.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
   }
 
+  const textPositions = ['top center', 'bottom center'];
   const numericalColorScale = color
     ? d3v7
         .scaleLinear<string, number>()
@@ -177,7 +179,8 @@ export async function createScatterTraces(
         ),
         hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => v.id.toString()),
-        textposition: 'top center',
+        // @ts-ignore
+        textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
         marker: {
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
 
@@ -275,7 +278,8 @@ export async function createScatterTraces(
               },
               showlegend: false,
               text: validCols[0].resolvedValues.map((v) => v.id.toString()),
-              textposition: 'top center',
+              // @ts-ignore
+              textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
               marker: {
                 color: colorCol
                   ? colorCol.resolvedValues.map((v) =>
