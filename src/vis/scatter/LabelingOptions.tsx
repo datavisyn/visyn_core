@@ -16,9 +16,9 @@ export function LabelingOptions({ callback, currentSelected }: LabelingOptionsPr
         value={currentSelected}
         onChange={callback}
         data={[
+          { label: ELabelingOptions.NEVER, value: ELabelingOptions.NEVER },
+          { label: ELabelingOptions.ALWAYS, value: ELabelingOptions.ALWAYS },
           { label: ELabelingOptions.SELECTED, value: ELabelingOptions.SELECTED },
-          { label: ELabelingOptions.ON, value: ELabelingOptions.ON },
-          { label: ELabelingOptions.OFF, value: ELabelingOptions.OFF },
         ]}
       />
     </Input.Wrapper>
