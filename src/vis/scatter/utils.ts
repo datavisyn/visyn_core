@@ -43,7 +43,7 @@ const defaultConfig: IScatterConfig = {
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
-  showLabels: ELabelingOptions.NEVER,
+  showLabels: ELabelingOptions.SELECTED,
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
