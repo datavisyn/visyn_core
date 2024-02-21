@@ -17,7 +17,7 @@ export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {
 }
 
 export enum ELabelingOptions {
+  NEVER = 'Never',
+  ALWAYS = 'Always',
   SELECTED = 'Selected',
-  ON = 'On',
-  OFF = 'Off',
 }
