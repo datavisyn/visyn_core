@@ -7,7 +7,7 @@ import datavisynLogoColor from '../../assets/datavisyn_color.svg';
 export function DatavisynLogo({ color }: { color: 'white' | 'black' | 'color' }) {
   const source = color === 'white' ? datavisynLogoWhite : color === 'black' ? datavisynLogoBlack : datavisynLogoColor;
   return (
-    <Anchor h={rem(24)} href="https://datavisyn.io/" target="_blank">
+    <Anchor h={rem(23)} href="https://datavisyn.io/" target="_blank">
       <img src={source} alt="logo" style={{ height: '24px' }} />
     </Anchor>
   );
