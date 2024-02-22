@@ -111,7 +111,7 @@ export function ScatterVis({
 
           if (selectedList.length === 0 && config.showLabels === ELabelingOptions.SELECTED) {
             // @ts-ignore
-            p.data.selected.textfont.color = 'white';
+            p.data.selected.textfont.color = `rgba(102, 102, 102, 0)`;
           } else if (selectedList.length === 0 && config.showLabels === ELabelingOptions.ALWAYS) {
             // @ts-ignore
             p.data.selected.textfont.color = `rgba(102, 102, 102, ${config.alphaSliderVal})`;
