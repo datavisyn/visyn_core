@@ -250,7 +250,8 @@
   "files": [
     "src",
     "dist",
-    "cypress"
+    "cypress",
+    "scripts"
   ],
   "engines": {
     "npm": ">=8",
