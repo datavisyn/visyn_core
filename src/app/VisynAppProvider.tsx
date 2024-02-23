@@ -1,7 +1,7 @@
-import { MantineProviderProps } from '@mantine/core';
+import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { Notifications, NotificationsProps } from '@mantine/notifications';
-import { MantineProviderProps as Mantine6ProviderProps } from '@mantine6/core';
+import { MantineProvider as Mantine6Provider, MantineProviderProps as Mantine6ProviderProps } from '@mantine6/core';
 import { ModalsProvider as Mantine6ModalsProvider, ModalsProviderProps as Mantine6ModalsProviderProps } from '@mantine6/modals';
 import { Notifications as Mantine6Notifications, NotificationsProps as Mantine6NotificationsProps } from '@mantine6/notifications';
 import merge from 'lodash/merge';
@@ -19,8 +19,8 @@ import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/tiptap/styles.css';
 
-const LazyMantine6Provider = React.lazy(() => import('@mantine6/core').then((module) => ({ default: module.MantineProvider })));
-const LazyMantineProvider = React.lazy(() => import('@mantine/core').then((module) => ({ default: module.MantineProvider })));
+// const LazyMantine6Provider = React.lazy(() => import('@mantine6/core').then((module) => ({ default: module.MantineProvider })));
+// const LazyMantineProvider = React.lazy(() => import('@mantine/core').then((module) => ({ default: module.MantineProvider })));
 
 export function VisynAppProvider({
   disableMantine6 = false,
@@ -77,26 +77,26 @@ export function VisynAppProvider({
   );
 
   return (
-    <VisProvider>
+    <React.Suspense fallback={null}>
       {disableMantine6 ? (
-        <React.Suspense fallback={null}>
-          <LazyMantineProvider {...(mergedMantineProviderProps as MantineProviderProps)}>
-            <Notifications {...((mantineNotificationsProviderProps as NotificationsProps) || {})} />
-            <ModalsProvider {...((mantineModalsProviderProps as ModalsProviderProps) || {})}>
+        <MantineProvider {...(mergedMantineProviderProps as MantineProviderProps)}>
+          <Notifications {...((mantineNotificationsProviderProps as NotificationsProps) || {})} />
+          <ModalsProvider {...((mantineModalsProviderProps as ModalsProviderProps) || {})}>
+            <VisProvider>
               <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
-            </ModalsProvider>
-          </LazyMantineProvider>
-        </React.Suspense>
+            </VisProvider>
+          </ModalsProvider>
+        </MantineProvider>
       ) : (
-        <React.Suspense fallback={null}>
-          <LazyMantine6Provider {...(mergedMantineProviderProps as Mantine6ProviderProps)}>
-            <Mantine6Notifications {...((mantineNotificationsProviderProps as Mantine6NotificationsProps) || {})} />
-            <Mantine6ModalsProvider {...((mantineModalsProviderProps as Mantine6ModalsProviderProps) || {})}>
+        <Mantine6Provider {...(mergedMantineProviderProps as Mantine6ProviderProps)}>
+          <Mantine6Notifications {...((mantineNotificationsProviderProps as Mantine6NotificationsProps) || {})} />
+          <Mantine6ModalsProvider {...((mantineModalsProviderProps as Mantine6ModalsProviderProps) || {})}>
+            <VisProvider>
               <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
-            </Mantine6ModalsProvider>
-          </LazyMantine6Provider>
-        </React.Suspense>
+            </VisProvider>
+          </Mantine6ModalsProvider>
+        </Mantine6Provider>
       )}
-    </VisProvider>
+    </React.Suspense>
   );
 }
