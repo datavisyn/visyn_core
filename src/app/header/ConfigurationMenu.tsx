@@ -27,7 +27,9 @@ export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu: JSX.E
             </>
           ) : null}
           <Menu.Label>About</Menu.Label>
-          <Menu.Item onClick={() => setShowAboutModal(true)}>About {appName}</Menu.Item>
+          <Menu.Item data-testid="visyn-configuration-menu-about-app-button" onClick={() => setShowAboutModal(true)}>
+            About {appName}
+          </Menu.Item>
         </Menu.Dropdown>
       </Menu>
       <AboutAppModal

@@ -10,7 +10,7 @@ describe('Health check for Cypress e2e test', () => {
     cy.get('body').should('include.text', 'Visualization type');
     // Check the user avatar, and then log out again
     cy.get('[data-testid="visyn-user-avatar"]').should('include.text', 'A').click();
-    cy.get('[data-testid="user-menu-item"]').parent().contains('Logout').click();
+    cy.get('[data-testid="visyn-user-logout"]').contains('Logout').click();
     // Assert the login modal to be shown again
     cy.get('[data-testid="visyn-login-modal"]').should('include.text', 'Demo App');
     // Assert the content to be invisible again

@@ -31,7 +31,7 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
 
       <Menu.Dropdown>
         <>
-          <Menu.Label>Logged in as {user}</Menu.Label>
+          <Menu.Label data-testid="visyn-user-login-information">Logged in as {user}</Menu.Label>
           {menu ? (
             <>
               {menu}
@@ -39,7 +39,7 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
             </>
           ) : null}
           <Menu.Item
-            data-testid="user-menu-item"
+            data-testid="visyn-user-logout"
             onClick={() => {
               LoginUtils.logout();
             }}
