@@ -1,8 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-// Define the directory of the package
-const packageDir = path.join(__dirname, '..','node_modules', '@mantine6');
+// Check if __dirname contains a node_modules directory
+const nodeModulesIndex = __dirname.indexOf('node_modules');
+const packageDir =
+  nodeModulesIndex !== -1
+    ? path.join(__dirname.slice(0, nodeModulesIndex), 'node_modules', '@mantine6')
+    : path.join(__dirname, '..', 'node_modules', '@mantine6');
 
 // Define a recursive function to read directories and files
 function replaceInFiles(dir) {
