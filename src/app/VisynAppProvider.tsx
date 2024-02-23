@@ -76,27 +76,27 @@ export function VisynAppProvider({
     [disableMantine6, mantineProviderProps],
   );
 
-  return (
-    <React.Suspense fallback={null}>
-      {disableMantine6 ? (
-        <MantineProvider {...(mergedMantineProviderProps as MantineProviderProps)}>
-          <Notifications {...((mantineNotificationsProviderProps as NotificationsProps) || {})} />
-          <ModalsProvider {...((mantineModalsProviderProps as ModalsProviderProps) || {})}>
-            <VisProvider>
-              <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
-            </VisProvider>
-          </ModalsProvider>
-        </MantineProvider>
-      ) : (
-        <Mantine6Provider {...(mergedMantineProviderProps as Mantine6ProviderProps)}>
-          <Mantine6Notifications {...((mantineNotificationsProviderProps as Mantine6NotificationsProps) || {})} />
-          <Mantine6ModalsProvider {...((mantineModalsProviderProps as Mantine6ModalsProviderProps) || {})}>
-            <VisProvider>
-              <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
-            </VisProvider>
-          </Mantine6ModalsProvider>
-        </Mantine6Provider>
-      )}
-    </React.Suspense>
+  return disableMantine6 ? (
+    <MantineProvider {...(mergedMantineProviderProps as MantineProviderProps)}>
+      <Notifications {...((mantineNotificationsProviderProps as NotificationsProps) || {})} />
+      <ModalsProvider {...((mantineModalsProviderProps as ModalsProviderProps) || {})}>
+        <VisProvider>
+          <React.Suspense fallback={null}>
+            <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
+          </React.Suspense>
+        </VisProvider>
+      </ModalsProvider>
+    </MantineProvider>
+  ) : (
+    <Mantine6Provider {...(mergedMantineProviderProps as Mantine6ProviderProps)}>
+      <Mantine6Notifications {...((mantineNotificationsProviderProps as Mantine6NotificationsProps) || {})} />
+      <Mantine6ModalsProvider {...((mantineModalsProviderProps as Mantine6ModalsProviderProps) || {})}>
+        <VisProvider>
+          <React.Suspense fallback={null}>
+            <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
+          </React.Suspense>
+        </VisProvider>
+      </Mantine6ModalsProvider>
+    </Mantine6Provider>
   );
 }
