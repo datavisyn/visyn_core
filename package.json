@@ -299,6 +299,8 @@
     "@mantine/styles": "~6.0.19",
     "@mantine/tiptap": "~7.4.0",
     "@mantine6/core": "npm:@mantine/core@~6.0.19",
+    "@mantine6/modals": "npm:@mantine/modals@~6.0.19",
+    "@mantine6/notifications": "npm:@mantine/notifications@~6.0.19",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
