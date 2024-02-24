@@ -10,8 +10,8 @@ interface BarDisplayProps {
 
 export function BarDisplayButtons({ callback, currentSelected, isCount }: BarDisplayProps) {
   return (
-    <Container p={0} fluid sx={{ width: '100%' }}>
-      <Stack spacing={0}>
+    <Container p={0} fluid style={{ width: '100%' }}>
+      <Stack gap={0}>
         <SegmentedControl
           disabled={!isCount}
           value={isCount ? currentSelected : EBarDisplayType.ABSOLUTE}

@@ -57,9 +57,7 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
       <Container fluid>
         <Stack mb="lg">
           <Center>
-            <Title order={4} truncate="end">
-              Welcome to {appName}
-            </Title>
+            <Title order={4}>Welcome to {appName}</Title>
           </Center>
           <Divider />
         </Stack>

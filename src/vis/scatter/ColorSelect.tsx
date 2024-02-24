@@ -1,8 +1,9 @@
+import { Stack } from '@mantine/core';
 import * as React from 'react';
-import { Select, Stack } from '@mantine/core';
-import { ColumnInfo, EColumnTypes, VisColumn, ENumericalColorScaleType } from '../interfaces';
-import { SelectDropdownItem, getCol } from '../sidebar/utils';
+import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, VisColumn } from '../interfaces';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
+import { getCol } from '../sidebar/utils';
+import { SingleSelect } from '../sidebar/SingleSelect';
 
 interface ColorSelectProps {
   callback: (c: ColumnInfo) => void;
@@ -14,17 +15,13 @@ interface ColorSelectProps {
 
 export function ColorSelect({ callback, numTypeCallback = () => null, currentNumType = null, columns, currentSelected }: ColorSelectProps) {
   return (
-    <Stack spacing="sm">
-      <Select
-        withinPortal
-        itemComponent={SelectDropdownItem}
-        clearable
-        placeholder="Select columns"
+    <Stack gap="sm">
+      <SingleSelect
+        callback={(e) => callback(e ? columns.find((c) => c.info.id === e.id)?.info : null)}
+        columnType={EColumnTypes.CATEGORICAL}
+        columns={columns}
+        currentSelected={currentSelected}
         label="Color"
-        onChange={(e) => callback(columns.find((c) => c.info.id === e)?.info)}
-        name="colorSelect"
-        data={columns.map((c) => ({ value: c.info.id, label: c.info.name, description: c.info.description }))}
-        value={currentSelected?.id || null}
       />
       {currentNumType && currentSelected && getCol(columns, currentSelected).type === EColumnTypes.NUMERICAL ? (
         <NumericalColorButtons callback={numTypeCallback} currentSelected={currentNumType} />

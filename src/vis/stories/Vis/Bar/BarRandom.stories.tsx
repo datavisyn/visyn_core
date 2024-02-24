@@ -1,6 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
+import { VisProvider } from '../../../Provider';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
@@ -119,11 +120,13 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
 
   return (
-    <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-      <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} />
+    <VisProvider>
+      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ width: '70%', height: '80%' }}>
+          <Vis {...args} columns={columns} />
+        </div>
       </div>
-    </div>
+    </VisProvider>
   );
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args

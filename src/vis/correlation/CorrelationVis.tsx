@@ -8,6 +8,6 @@ export function CorrelationVis({ config, columns }: ICommonVisProps<ICorrelation
   return config.numColumnsSelected.length > 1 ? (
     <CorrelationMatrix config={config} columns={columns} />
   ) : (
-    <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a correlation chart, select at least 2 categorical columns." />
+    <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a correlation chart, select at least 2 numerical columns." />
   );
 }

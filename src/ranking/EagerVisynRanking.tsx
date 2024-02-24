@@ -1,13 +1,24 @@
 import * as React from 'react';
-import LineUp, { builder, buildRanking, Taggle, Ranking, DataBuilder, LocalDataProvider } from 'lineupjs';
+import LineUp, { buildRanking } from 'lineupjs';
 import isEqual from 'lodash/isEqual';
+import { css } from '@emotion/css';
 import { Box, BoxProps } from '@mantine/core';
 import { useSyncedRef } from '../hooks/useSyncedRef';
-import '../scss/vendors/_lineup.scss';
-import { createScoreColumn, IScoreResult } from './score/interfaces';
+import { registerSMILESColumn } from './smiles/utils';
 
-export const defaultBuilder = ({ data }) => {
-  const b = builder(data).deriveColumns().animated(true);
+import '../scss/vendors/_lineup.scss';
+import { DatavisynTaggle } from './overrides/DatavisynTaggle';
+import { DatavisynLineUpBuilder } from './overrides/DatavisynLineUpBuilder';
+
+export const defaultBuilder = ({
+  data,
+  smilesOptions = { setDynamicHeight: false },
+}: {
+  data: Record<string, unknown>[];
+  smilesOptions?: Parameters<typeof registerSMILESColumn>[1];
+}) => {
+  const b = new DatavisynLineUpBuilder(data).deriveColumns().animated(true);
+  registerSMILESColumn(b, smilesOptions);
   const rankingBuilder = buildRanking();
   rankingBuilder.supportTypes();
   rankingBuilder.allColumns();
@@ -38,9 +49,7 @@ export const defaultBuilder = ({ data }) => {
  *
  */
 export interface IBuiltVisynRanking {
-  provider: LocalDataProvider;
-  ranking: Ranking;
-  createScoreColumn: (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => Promise<void>;
+  lineup: DatavisynTaggle;
 }
 
 export function EagerVisynRanking<T extends Record<string, unknown>>({
@@ -52,14 +61,13 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
   ...innerProps
 }: {
   data: T[];
-  getBuilder?: (props: { data: T[] }) => DataBuilder;
+  getBuilder?: (props: { data: Record<string, unknown>[] }) => DatavisynLineUpBuilder;
   setSelection: (selection: T[]) => void;
   selection: T[];
   onBuiltLineUp?: (props: IBuiltVisynRanking) => void;
 } & BoxProps) {
   const divRef = React.useRef<HTMLDivElement>(null);
-  const lineupRef = React.useRef<Taggle | null>(null);
-  const rankingRef = React.useRef<Ranking | null>(null);
+  const lineupRef = React.useRef<DatavisynTaggle | null>(null);
   const indexMapRef = React.useRef<Map<T, number> | null>(null);
   const disableLineUpSelectionListener = React.useRef<boolean>(false);
 
@@ -73,7 +81,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     const b = getBuilderRef.current({ data });
 
     // Build the ranking
-    lineupRef.current = b.buildTaggle(divRef.current);
+    lineupRef.current = b.buildDatavisynTaggle(divRef.current);
 
     // Listen to selections
     lineupRef.current.on(LineUp.EVENT_SELECTION_CHANGED, async () => {
@@ -83,8 +91,6 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       }
     });
 
-    rankingRef.current = lineupRef.current.data.getRankings()?.[0];
-
     // Store a lookup map for fast selection restoration
     indexMapRef.current = data.reduce((acc, cur, i) => {
       acc.set(cur, i);
@@ -92,22 +98,17 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     }, new Map());
 
     onBuiltLineupRef.current?.({
-      provider: lineupRef.current.data as LocalDataProvider,
-      ranking: rankingRef.current,
-      createScoreColumn: async (functionToCall: ({ data }: { data }) => Promise<IScoreResult>) => {
-        const desc = await functionToCall({ data });
-        createScoreColumn(desc, lineupRef.current, rankingRef.current);
-      },
+      lineup: lineupRef.current,
     });
 
     return () => {
       lineupRef.current?.destroy();
     };
-  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef]);
+  }, [setSelectionRef, getBuilderRef, data, onBuiltLineupRef, lineupRef]);
 
   React.useEffect(() => {
     // Sync the selection back to lineup
-    if (lineupRef.current && rankingRef.current && indexMapRef.current) {
+    if (lineupRef.current && lineupRef.current?.ranking && indexMapRef.current) {
       disableLineUpSelectionListener.current = true;
       const selectedIndices = selection?.map((s) => indexMapRef.current.get(s)).filter((i) => i != null);
       if (!selectedIndices) {
@@ -117,7 +118,25 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
       }
       disableLineUpSelectionListener.current = false;
     }
-  }, [selection]);
+  }, [selection, lineupRef.current?.ranking, lineupRef]);
 
-  return <Box ref={divRef} style={{ flex: 1, width: '100%' }} {...(innerProps || {})} />;
+  return (
+    <Box
+      ref={divRef}
+      className={css`
+        /* Make the side panel scrollable */
+        .lu-side-panel-main {
+          /* Probably should move to _ranking.scss? */
+          flex-basis: 0;
+          overflow-y: auto;
+        }
+      `}
+      style={{
+        flex: 1,
+        width: '100%',
+        display: 'block',
+      }}
+      {...(innerProps || {})}
+    />
+  );
 }

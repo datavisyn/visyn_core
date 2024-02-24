@@ -1,6 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
+import { VisProvider } from '../../../Provider';
 import { BaseVisConfig, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 import { ECloudType, ELightningType, ERainType } from '../../../raincloud/interfaces';
 
@@ -128,11 +129,13 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   const [selected, setSelected] = React.useState<string[]>([]);
 
   return (
-    <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-      <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} selected={selected} selectionCallback={setSelected} />
+    <VisProvider>
+      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ width: '70%', height: '80%' }}>
+          <Vis {...args} columns={columns} selected={selected} selectionCallback={setSelected} />
+        </div>
       </div>
-    </div>
+    </VisProvider>
   );
 };
 // More on args: https://storybook.js.org/docs/react/writing-stories/args

@@ -1,23 +1,25 @@
-import { Avatar, createStyles, Menu } from '@mantine/core';
+import { Avatar, Menu } from '@mantine/core';
 import React from 'react';
+import { css } from '@emotion/css';
 import { LoginUtils } from '../../security';
 
 export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: string; color: string }) {
-  const useStyles = createStyles(() => ({
-    avatar: {
-      cursor: 'pointer',
-      '> div': {
-        fontSize: '12.5px',
-      },
-    },
-  }));
-
-  const { classes } = useStyles();
-
   return (
     <Menu shadow="md" data-testid="visyn-user-avatar">
       <Menu.Target>
-        <Avatar className={classes.avatar} role="button" color={color} radius="xl" size={28}>
+        <Avatar
+          className={css`
+            cursor: pointer;
+            > div {
+              font-size: 12.5px;
+            }
+          `}
+          role="button"
+          color={color}
+          radius="xl"
+          size={28}
+          variant="white"
+        >
           {user
             .split(' ')
             .map((name) => name[0])
@@ -29,7 +31,7 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
 
       <Menu.Dropdown>
         <>
-          <Menu.Label>Logged in as {user}</Menu.Label>
+          <Menu.Label data-testid="visyn-user-login-information">Logged in as {user}</Menu.Label>
           {menu ? (
             <>
               {menu}
@@ -37,6 +39,7 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
             </>
           ) : null}
           <Menu.Item
+            data-testid="visyn-user-logout"
             onClick={() => {
               LoginUtils.logout();
             }}

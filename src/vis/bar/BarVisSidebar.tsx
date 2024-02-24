@@ -4,36 +4,18 @@ import { useMemo } from 'react';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
 import { BarDirectionButtons } from './BarDirectionButtons';
 import { GroupSelect } from './GroupSelect';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
+import { SingleSelect } from '../sidebar/SingleSelect';
 
 const defaultConfig = {
-  group: {
-    enable: true,
-    customComponent: null,
-  },
-  multiples: {
-    enable: true,
-    customComponent: null,
-  },
-  direction: {
-    enable: true,
-    customComponent: null,
-  },
-  filter: {
-    enable: true,
-    customComponent: null,
-  },
-  groupType: {
-    enable: true,
-    customComponent: null,
-  },
-  display: {
-    enable: true,
-    customComponent: null,
-  },
+  direction: { enable: true, customComponent: null },
+  display: { enable: true, customComponent: null },
+  filter: { enable: true, customComponent: null },
+  group: { enable: true, customComponent: null },
+  groupType: { enable: true, customComponent: null },
+  multiples: { enable: true, customComponent: null },
 };
 
 export function BarVisSidebar({
@@ -51,7 +33,7 @@ export function BarVisSidebar({
 
   return (
     <>
-      <SingleColumnSelect
+      <SingleSelect
         callback={(catColumnSelected: ColumnInfo) =>
           setConfig({
             ...config,
@@ -62,7 +44,7 @@ export function BarVisSidebar({
         }
         columns={columns}
         currentSelected={config.catColumnSelected}
-        type={[EColumnTypes.CATEGORICAL]}
+        columnType={EColumnTypes.CATEGORICAL}
         label="Categorical column"
       />
       <AggregateTypeSelect
@@ -100,12 +82,12 @@ export function BarVisSidebar({
         : null}
       {mergedOptionsConfig.multiples.enable
         ? mergedOptionsConfig.multiples.customComponent || (
-            <SingleColumnSelect
+            <SingleSelect
               callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
               columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
               currentSelected={config.multiples}
               label="Multiples"
-              type={[EColumnTypes.CATEGORICAL]}
+              columnType={EColumnTypes.CATEGORICAL}
             />
           )
         : null}
@@ -114,7 +96,8 @@ export function BarVisSidebar({
             <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
           )
         : null}
-      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+
+      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );
 }

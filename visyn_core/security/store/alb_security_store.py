@@ -46,8 +46,11 @@ class ALBSecurityStore(BaseStore):
     def load_from_request(self, req: Request):
         # Get token data from header
         encoded_jwt = req.headers.get("X-Amzn-Oidc-Data", None)
-        if encoded_jwt:
+        access_token = req.headers.get("X-Amzn-Oidc-Accesstoken", None)
+        if encoded_jwt and access_token:
             try:
+                _log.debug(f"Forwarded access token: {access_token}")
+                _log.debug(f"Try to decode the oidc data jwt with payload: {encoded_jwt}")
                 # Verification of the ALB token as it is outlined here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html#user-claims-encoding
                 # Get region from header, as we need the kid (key identifier) to get the public key
                 jwt_headers = encoded_jwt.split(".")[0]
@@ -69,14 +72,14 @@ class ALBSecurityStore(BaseStore):
                 # Go through all the fields we want to check for the user id
                 id = next((user.get(field, None) for field in self.email_token_fields if user.get(field, None)), None)
                 if not id:
-                    _log.error(f"No {self.email_token_fields} matched in token, possible fields: {user.keys()}")
+                    _log.error(f"No {self.email_token_fields} matched in token, possible values: {user}")
                     return None
 
                 # Create new user from given attributes
                 return User(
                     id=id,
                     roles=user.get("roles", []),
-                    oauth2_access_token=req.headers["X-Amzn-Oidc-Accesstoken"],
+                    oauth2_access_token=access_token,
                 )
             except Exception:
                 _log.exception("Error in load_from_request")

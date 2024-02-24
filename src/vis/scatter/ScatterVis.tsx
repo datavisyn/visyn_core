@@ -11,7 +11,7 @@ import { beautifyLayout } from '../general/layoutUtils';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { createScatterTraces } from './utils';
-import { IScatterConfig } from './interfaces';
+import { ELabelingOptions, IScatterConfig } from './interfaces';
 
 export function ScatterVis({
   config,
@@ -55,6 +55,7 @@ export function ScatterVis({
     config.numColorScaleType,
     scales,
     shapes,
+    config.showLabels,
   ]);
 
   React.useEffect(() => {
@@ -108,6 +109,17 @@ export function ScatterVis({
 
           p.data.selectedpoints = temp;
 
+          if (selectedList.length === 0 && config.showLabels === ELabelingOptions.SELECTED) {
+            // @ts-ignore
+            p.data.selected.textfont.color = `rgba(102, 102, 102, 0)`;
+          } else if (selectedList.length === 0 && config.showLabels === ELabelingOptions.ALWAYS) {
+            // @ts-ignore
+            p.data.selected.textfont.color = `rgba(102, 102, 102, ${config.alphaSliderVal})`;
+          } else {
+            // @ts-ignore
+            p.data.selected.textfont.color = `rgba(102, 102, 102, 1)`;
+          }
+
           if (selectedList.length === 0 && config.color) {
             // @ts-ignore
             p.data.selected.marker.opacity = config.alphaSliderVal;
@@ -121,7 +133,7 @@ export function ScatterVis({
     }
 
     return [];
-  }, [selectedMap, traces, selectedList, config.color, config.alphaSliderVal]);
+  }, [traces, selectedList.length, config.showLabels, config.color, config.alphaSliderVal, selectedMap]);
 
   const plotlyData = useMemo(() => {
     if (traces) {
@@ -132,7 +144,7 @@ export function ScatterVis({
   }, [plotsWithSelectedPoints, traces]);
 
   return (
-    <Stack spacing={0} sx={{ height: '100%', width: '100%' }}>
+    <Stack gap={0} style={{ height: '100%', width: '100%' }}>
       {showDragModeOptions ? (
         <Center>
           <Group mt="lg">

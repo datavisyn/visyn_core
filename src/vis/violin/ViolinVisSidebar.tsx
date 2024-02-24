@@ -1,10 +1,9 @@
 import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { ColumnInfo, ICommonVisSideBarProps } from '../interfaces';
-import { CategoricalColumnSelect } from '../sidebar/CategoricalColumnSelect';
+import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
+import { MultiSelect } from '../sidebar/MultiSelect';
 import { ViolinOverlayButtons } from './ViolinOverlayButtons';
 import { EViolinOverlay, IViolinConfig } from './interfaces';
 
@@ -34,15 +33,17 @@ export function ViolinVisSidebar({
 
   return (
     <>
-      <NumericalColumnSelect
+      <MultiSelect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
+        columnType={EColumnTypes.NUMERICAL}
       />
-      <CategoricalColumnSelect
+      <MultiSelect
         callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
         columns={columns}
         currentSelected={config.catColumnsSelected || []}
+        columnType={EColumnTypes.CATEGORICAL}
       />
 
       {mergedOptionsConfig.overlay.enable
@@ -54,7 +55,7 @@ export function ViolinVisSidebar({
           )
         : null}
 
-      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );
 }

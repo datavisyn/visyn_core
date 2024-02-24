@@ -33,12 +33,9 @@ export function HeatmapGrid({
   }, []);
 
   return (
-    <Stack align="center" justify="center" sx={{ width: '100%', height: '100%' }} p="sm">
-      {status === 'pending' ? (
-        <Loader />
-      ) : !hasAtLeast2CatCols ? (
-        <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a heatmap chart, select at least 2 categorical columns." />
-      ) : (
+    <Stack align="center" justify="center" style={{ width: '100%', height: '100%' }} p="sm">
+      {status === 'pending' && <Loader />}
+      {status === 'success' && hasAtLeast2CatCols && (
         <Heatmap
           column1={allColumns.catColumn[0]}
           column2={allColumns.catColumn[1]}
@@ -49,6 +46,9 @@ export function HeatmapGrid({
           setExternalConfig={setExternalConfig}
           selectionCallback={selectionCallback}
         />
+      )}
+      {status === 'success' && !hasAtLeast2CatCols && (
+        <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a heatmap chart, select at least 2 categorical columns." />
       )}
     </Stack>
   );

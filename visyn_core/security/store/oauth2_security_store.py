@@ -24,13 +24,13 @@ class OAuth2SecurityStore(BaseStore):
             # Get token data from header
             access_token = req.headers.get(token_field)
             if access_token:
-                # Try to decode the oidc data jwt
+                _log.debug(f"Try to decode the oidc data jwt with access token: {access_token}")
                 user = jwt.decode(access_token, options={"verify_signature": False})
 
                 # Go through all the fields we want to check for the user id
                 id = next((user.get(field, None) for field in self.email_token_fields if user.get(field, None)), None)
                 if not id:
-                    _log.error(f"No {self.email_token_fields} matched in token, possible fields: {user.keys()}")
+                    _log.error(f"No {self.email_token_fields} matched in token, possible values: {user}")
                     return None
 
                 # Create new user from given attributes

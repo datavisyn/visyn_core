@@ -71,7 +71,7 @@ export function StackedBars({
               width={isVertical ? categoryScale.bandwidth() : width - margin.right - normalizedCount}
               y={isVertical ? normalizedCount - myHeight : categoryScale(row.category)}
               tooltip={
-                <Stack spacing={0}>
+                <Stack gap={0}>
                   <Text>{`${categoryName}: ${row.category}`}</Text>
                   <Text>{`${groupName}: ${row.group}`}</Text>
                   <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>

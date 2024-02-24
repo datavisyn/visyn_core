@@ -28,3 +28,20 @@ def load_config_file(path: str) -> dict[str, Any]:
     """
     with codecs.open(path, "r", "utf-8") as fi:
         return jsoncfg.loads(fi.read()) or {}
+
+
+def get_default_postgres_url(
+    *,
+    driver: str = "postgresql",
+    user: str = "admin",
+    password: str = "admin",
+    host: str | None = os.getenv("POSTGRES_HOSTNAME"),
+    host_fallback: str = "localhost",
+    port: int | str | None = os.getenv("POSTGRES_PORT"),
+    port_fallback: int | str = 5432,
+    database: str = "db",
+) -> str:
+    """
+    Returns a default postgres url, including the default values for `driver`, `user`, `password`, `host`, `port` and `database`.
+    """
+    return f"{driver}://{user}:{password}@{host or host_fallback}:{port or port_fallback}/{database}"

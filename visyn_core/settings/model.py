@@ -205,6 +205,10 @@ class VisynCoreSettings(BaseModel):
 
 class GlobalSettings(BaseSettings):
     env: Literal["development", "production"] = "production"
+    ci: bool = False
+    """
+    Set to true in CI environments like Github Actions.
+    """
     secret_key: str = "VERY_SECRET_STUFF_T0IB84wlQrdMH8RVT28w"
 
     # JWT options mostly inspired by flask-jwt-extended: https://flask-jwt-extended.readthedocs.io/en/stable/options/#general-options

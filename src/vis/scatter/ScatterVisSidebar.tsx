@@ -3,11 +3,12 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { NumericalColumnSelect } from '../sidebar/NumericalColumnSelect';
-import { SingleColumnSelect } from '../sidebar/SingleColumnSelect';
+import { MultiSelect } from '../sidebar/MultiSelect';
+import { SingleSelect } from '../sidebar/SingleSelect';
 import { ColorSelect } from './ColorSelect';
 import { OpacitySlider } from './OpacitySlider';
-import { IScatterConfig } from './interfaces';
+import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { LabelingOptions } from './LabelingOptions';
 
 const defaultConfig = {
   color: {
@@ -22,19 +23,24 @@ const defaultConfig = {
     enable: true,
     customComponent: null,
   },
+  labels: {
+    enable: true,
+    customComponent: null,
+  },
 };
 
-export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback = () => null, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
+export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
 
   return (
     <>
-      <NumericalColumnSelect
+      <MultiSelect
         callback={(numColumnsSelected: ColumnInfo[]) => setConfig({ ...config, numColumnsSelected })}
         columns={columns}
         currentSelected={config.numColumnsSelected || []}
+        columnType={EColumnTypes.NUMERICAL}
       />
 
       {mergedOptionsConfig.color.enable
@@ -50,9 +56,9 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         : null}
       {mergedOptionsConfig.shape.enable
         ? mergedOptionsConfig.shape.customComponent || (
-            <SingleColumnSelect
+            <SingleSelect
               label="Shape"
-              type={[EColumnTypes.CATEGORICAL]}
+              columnType={EColumnTypes.CATEGORICAL}
               callback={(shape: ColumnInfo) => setConfig({ ...config, shape })}
               columns={columns}
               currentSelected={config.shape}
@@ -67,7 +73,20 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         }}
         currentValue={config.alphaSliderVal}
       />
-      {mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+      {mergedOptionsConfig.labels.enable
+        ? mergedOptionsConfig.labels.customComponent || (
+            <LabelingOptions
+              callback={(showLabels: ELabelingOptions) => {
+                if (config.showLabels !== showLabels) {
+                  setConfig({ ...config, showLabels });
+                }
+              }}
+              currentSelected={config.showLabels}
+            />
+          )
+        : null}
+
+      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );
 }

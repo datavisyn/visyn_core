@@ -10,18 +10,18 @@ export function FilterButtons({ callback }: FilterButtonsProps) {
   return (
     <Input.Wrapper label="Filter">
       <Button.Group>
-        <Tooltip withinPortal label="Filters any point not currently selected">
-          <Button sx={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.IN)}>
+        <Tooltip label="Filters any point not currently selected">
+          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.IN)}>
             {EFilterOptions.IN}
           </Button>
         </Tooltip>
-        <Tooltip withinPortal label="Filters all currently selected points">
-          <Button sx={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.OUT)}>
+        <Tooltip label="Filters all currently selected points">
+          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.OUT)}>
             {EFilterOptions.OUT}
           </Button>
         </Tooltip>
-        <Tooltip withinPortal label="Removes any existing filter">
-          <Button sx={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.CLEAR)}>
+        <Tooltip label="Removes any existing filter">
+          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.CLEAR)}>
             {EFilterOptions.CLEAR}
           </Button>
         </Tooltip>

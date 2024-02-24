@@ -80,11 +80,11 @@ export function CorrelationPair({
           height={boundingRect.height - marginRect.top - marginRect.bottom}
         >
           <Center style={{ height: '100%' }}>
-            <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center" spacing={2} p={5}>
-              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
+            <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center" gap={2} p={5}>
+              <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                 {`r: ${correlationFormat(value.correlation)}`}
               </Text>
-              <Text size={12} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
+              <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                 {`p: ${format(value.pValue)}`}
               </Text>
             </Stack>
@@ -96,7 +96,7 @@ export function CorrelationPair({
 
   const label = useMemo(() => {
     return (
-      <Stack spacing={2}>
+      <Stack gap={2}>
         <Text>{`${value.xName} / ${value.yName}`}</Text>
         <Text>Correlation: {correlationFormat(value.correlation)}</Text>
         <Text>P-value: {format(value.pValue)}</Text>
