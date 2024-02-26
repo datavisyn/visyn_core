@@ -39,26 +39,10 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   }, [height, width]);
 
   const colorScale = d3
-    .scaleSequential<string, string>(
-      d3.piecewise(
-        d3.interpolateRgb.gamma(2.2),
-        [
-          '#003367',
-          '#16518a',
-          '#2e72ae',
-          '#5093cd',
-          '#77b5ea',
-          '#aad7fd',
-          '#F1F3F5',
-          '#fac7a9',
-          '#f99761',
-          '#e06d3b',
-          '#c2451a',
-          '#99230d',
-          '#6f0000',
-        ].reverse(),
-      ),
-    )
+    .scaleSequential<
+      string,
+      string
+    >(d3.piecewise(d3.interpolateRgb.gamma(2.2), ['#003367', '#16518a', '#2e72ae', '#5093cd', '#77b5ea', '#aad7fd', '#F1F3F5', '#fac7a9', '#f99761', '#e06d3b', '#c2451a', '#99230d', '#6f0000'].reverse()))
     .domain([-1, 1]);
 
   // Scales
