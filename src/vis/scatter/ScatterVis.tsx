@@ -123,7 +123,6 @@ export function ScatterVis({
             }
           }
 
-
           if (selectedList.length === 0 && config.color) {
             // @ts-ignore
             p.data.selected.marker.opacity = config.alphaSliderVal;
