@@ -14,5 +14,5 @@ export class WebpackEnv {
   /**
    * enables features that used in reprovisyn
    */
-  // public static ENABLE_EXPERIMENTAL_REPROVISYN_FEATURES = process.env.ENABLE_EXPERIMENTAL_REPROVISYN_FEATURES === 'true';
+  public static ENABLE_EXPERIMENTAL_REPROVISYN_FEATURES = process.env.ENABLE_EXPERIMENTAL_REPROVISYN_FEATURES === 'true';
 }
