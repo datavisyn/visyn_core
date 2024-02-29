@@ -19,232 +19,24 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
-    ".": {
-      "types": [
-        "./dist/index.d.ts",
-        "./src/index.ts"
-      ],
-      "import": [
-        "./dist/index.js",
-        "./src/index.ts"
-      ],
-      "default": [
-        "./dist/index.js",
-        "./src/index.ts"
-      ]
-    },
-    "./app": {
-      "types": [
-        "./dist/app/index.d.ts",
-        "./src/app/index.ts"
-      ],
-      "import": [
-        "./dist/app/index.js",
-        "./src/app/index.ts"
-      ],
-      "default": [
-        "./dist/app/index.js",
-        "./src/app/index.ts"
-      ]
-    },
-    "./base": {
-      "types": [
-        "./dist/base/index.d.ts",
-        "./src/base/index.ts"
-      ],
-      "import": [
-        "./dist/base/index.js",
-        "./src/base/index.ts"
-      ],
-      "default": [
-        "./dist/base/index.js",
-        "./src/base/index.ts"
-      ]
-    },
-    "./components": {
-      "types": [
-        "./dist/components/index.d.ts",
-        "./src/components/index.ts"
-      ],
-      "import": [
-        "./dist/components/index.js",
-        "./src/components/index.ts"
-      ],
-      "default": [
-        "./dist/components/index.js",
-        "./src/components/index.ts"
-      ]
-    },
-    "./hooks": {
-      "types": [
-        "./dist/hooks/index.d.ts",
-        "./src/hooks/index.ts"
-      ],
-      "import": [
-        "./dist/hooks/index.js",
-        "./src/hooks/index.ts"
-      ],
-      "default": [
-        "./dist/hooks/index.js",
-        "./src/hooks/index.ts"
-      ]
-    },
-    "./i18n": {
-      "types": [
-        "./dist/i18n/index.d.ts",
-        "./src/i18n/index.ts"
-      ],
-      "import": [
-        "./dist/i18n/index.js",
-        "./src/i18n/index.ts"
-      ],
-      "default": [
-        "./dist/i18n/index.js",
-        "./src/i18n/index.ts"
-      ]
-    },
-    "./idtype": {
-      "types": [
-        "./dist/idtype/index.d.ts",
-        "./src/idtype/index.ts"
-      ],
-      "import": [
-        "./dist/idtype/index.js",
-        "./src/idtype/index.ts"
-      ],
-      "default": [
-        "./dist/idtype/index.js",
-        "./src/idtype/index.ts"
-      ]
-    },
-    "./plotly/full": {
-      "types": [
-        "./dist/plotly/full/index.d.ts",
-        "./src/plotly/full/index.ts"
-      ],
-      "import": [
-        "./dist/plotly/full/index.js",
-        "./src/plotly/full/index.ts"
-      ],
-      "default": [
-        "./dist/plotly/full/index.js",
-        "./src/plotly/full/index.ts"
-      ]
-    },
-    "./plotly": {
-      "types": [
-        "./dist/plotly/index.d.ts",
-        "./src/plotly/index.tsx"
-      ],
-      "import": [
-        "./dist/plotly/index.js",
-        "./src/plotly/index.tsx"
-      ],
-      "default": [
-        "./dist/plotly/index.js",
-        "./src/plotly/index.tsx"
-      ]
-    },
-    "./plugin": {
-      "types": [
-        "./dist/plugin/index.d.ts",
-        "./src/plugin/index.ts"
-      ],
-      "import": [
-        "./dist/plugin/index.js",
-        "./src/plugin/index.ts"
-      ],
-      "default": [
-        "./dist/plugin/index.js",
-        "./src/plugin/index.ts"
-      ]
-    },
-    "./ranking": {
-      "types": [
-        "./dist/ranking/index.d.ts",
-        "./src/ranking/index.ts"
-      ],
-      "import": [
-        "./dist/ranking/index.js",
-        "./src/ranking/index.ts"
-      ],
-      "default": [
-        "./dist/ranking/index.js",
-        "./src/ranking/index.ts"
-      ]
-    },
-    "./security": {
-      "types": [
-        "./dist/security/index.d.ts",
-        "./src/security/index.ts"
-      ],
-      "import": [
-        "./dist/security/index.js",
-        "./src/security/index.ts"
-      ],
-      "default": [
-        "./dist/security/index.js",
-        "./src/security/index.ts"
-      ]
-    },
-    "./utils": {
-      "types": [
-        "./dist/utils/index.d.ts",
-        "./src/utils/index.ts"
-      ],
-      "import": [
-        "./dist/utils/index.js",
-        "./src/utils/index.ts"
-      ],
-      "default": [
-        "./dist/utils/index.js",
-        "./src/utils/index.ts"
-      ]
-    },
-    "./views": {
-      "types": [
-        "./dist/views/index.d.ts",
-        "./src/views/index.ts"
-      ],
-      "import": [
-        "./dist/views/index.js",
-        "./src/views/index.ts"
-      ],
-      "default": [
-        "./dist/views/index.js",
-        "./src/views/index.ts"
-      ]
-    },
-    "./vis": {
-      "types": [
-        "./dist/vis/index.d.ts",
-        "./src/vis/index.ts"
-      ],
-      "import": [
-        "./dist/vis/index.js",
-        "./src/vis/index.ts"
-      ],
-      "default": [
-        "./dist/vis/index.js",
-        "./src/vis/index.ts"
-      ]
-    },
-    "./assets/*": [
-      "./dist/assets/*",
-      "./src/assets/*"
-    ],
-    "./phovea_registry": [
-      "./dist/phovea_registry.js",
-      "./src/phovea_registry.ts"
-    ],
-    "./scss/*": [
-      "./dist/scss/*",
-      "./src/scss/*"
-    ],
-    "./dist/scss/*": [
-      "./dist/scss/*",
-      "./src/scss/*"
-    ],
+    ".": "./src/index.ts",
+    "./app": "./src/app/index.ts",
+    "./base": "./src/base/index.ts",
+    "./components": "./src/components/index.ts",
+    "./hooks": "./src/hooks/index.ts",
+    "./i18n": "./src/i18n/index.ts",
+    "./idtype": "./src/idtype/index.ts",
+    "./plotly/full": "./src/plotly/full/index.ts",
+    "./plotly": "./src/plotly/index.tsx",
+    "./plugin": "./src/plugin/index.ts",
+    "./ranking": "./src/ranking/index.ts",
+    "./security": "./src/security/index.ts",
+    "./utils": "./src/utils/index.ts",
+    "./views": "./src/views/index.ts",
+    "./vis": "./src/vis/index.ts",
+    "./assets/*": "./src/assets/*",
+    "./phovea_registry": "./src/phovea_registry.ts",
+    "./scss/*": "./src/scss/*",
     "./package.json": "./package.json"
   },
   "files": [
@@ -264,20 +56,20 @@
     "compile": "visyn_scripts compile",
     "copy": "visyn_scripts copy",
     "cy:open": "cypress open",
-    "cy:run": "cypress run --e2e && cypress run --component",
+    "cy:run": "cypress run --e2e",
     "delete-dependencies": "visyn_scripts clean node_modules",
     "dist": "mkdir lib && cd dist && tar cvzf ../lib/bundle.tar.gz *",
     "docs": "visyn_scripts docs",
     "lint:fix": "visyn_scripts lint --fix",
     "lint": "visyn_scripts lint",
     "predist": "yarn run lint && yarn run test && yarn run build",
-    "start:fast": "visyn_scripts start --env workspace_mode=single fast=true",
+    "start:full": "visyn_scripts start --env workspace_mode=single fast=false",
     "start": "visyn_scripts start --env workspace_mode=single",
-    "storybook:build": "NODE_OPTIONS=--max_old_space_size=4096 storybook build",
-    "storybook": "NODE_OPTIONS=--max_old_space_size=4096 storybook dev -p 6006",
+    "storybook:build": "visyn_scripts storybook build",
+    "storybook": "visyn_scripts storybook dev -p 6006",
     "test": "visyn_scripts test",
-    "webpack:dev": "visyn_scripts build --mode development --env workspace_mode=single",
-    "webpack:prod": "visyn_scripts build --mode production --env workspace_mode=single",
+    "bundle:dev": "visyn_scripts bundle --mode development --env workspace_mode=single",
+    "bundle:prod": "visyn_scripts bundle --mode production --env workspace_mode=single",
     "chromatic": "npx chromatic --build-script-name storybook:build"
   },
   "dependencies": {
@@ -288,17 +80,17 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mantine/code-highlight": "~7.4.0",
-    "@mantine/core": "~7.4.0",
-    "@mantine/dates": "~7.4.0",
-    "@mantine/dropzone": "~7.4.0",
-    "@mantine/form": "~7.4.0",
-    "@mantine/hooks": "~7.4.0",
-    "@mantine/modals": "~7.4.0",
-    "@mantine/notifications": "~7.4.0",
-    "@mantine/styles": "~6.0.19",
-    "@mantine/tiptap": "~7.4.0",
-    "@mantine6/core": "npm:@mantine/core@~6.0.19",
+    "@mantine/code-highlight": "~7.6.1",
+    "@mantine/core": "~7.6.1",
+    "@mantine/dates": "~7.6.1",
+    "@mantine/dropzone": "~7.6.1",
+    "@mantine/form": "~7.6.1",
+    "@mantine/hooks": "~7.6.1",
+    "@mantine/modals": "~7.6.1",
+    "@mantine/notifications": "~7.6.1",
+    "@mantine/styles": "~6.0.21",
+    "@mantine/tiptap": "~7.6.1",
+    "@mantine6/core": "npm:@mantine/core@~6.0.21",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
     "@types/plotly.js-dist-min": "^2.3.0",
@@ -320,28 +112,11 @@
     "react-plotly.js": "^2.5.1",
     "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
-    "visyn_scripts": "^7.0.1"
+    "visyn_scripts": "^8.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.7",
-    "@babel/plugin-transform-typescript": "7.17.12",
-    "@babel/preset-env": "^7.21.5",
-    "@babel/preset-react": "^7.18.6",
-    "@babel/preset-typescript": "^7.21.5",
-    "@storybook/addon-actions": "^7.0.12",
-    "@storybook/addon-essentials": "^7.0.12",
-    "@storybook/addon-interactions": "^7.0.12",
-    "@storybook/addon-links": "^7.0.12",
-    "@storybook/addon-mdx-gfm": "^7.0.12",
-    "@storybook/cli": "^7.0.12",
-    "@storybook/preset-scss": "^1.0.3",
-    "@storybook/react": "^7.0.12",
-    "@storybook/react-webpack5": "^7.0.12",
-    "@storybook/testing-library": "0.0.13",
     "chromatic": "^6.19.9",
-    "cypress": "^13.2.0",
-    "storybook": "^7.0.12",
-    "storybook-addon-swc": "^1.1.9"
+    "cypress": "^13.2.0"
   },
   "visyn": {
     "entries": {
@@ -354,5 +129,5 @@
       }
     }
   },
-  "packageManager": "yarn@3.2.2"
+  "packageManager": "yarn@4.1.0"
 }

@@ -123,12 +123,10 @@ export function Heatmap({
     const colorSc =
       config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
         ? d3
-            .scaleSequential<string, string>(
-              d3.piecewise(
-                d3.interpolateRgb.gamma(2.2),
-                ['#24528d', '#2d67a0', '#3b7bb2', '#4d90c3', '#65a5d3', '#80bae0', '#a0ceeb', '#c6e1f2', '#f1f3f5'].reverse(),
-              ),
-            )
+            .scaleSequential<
+              string,
+              string
+            >(d3.piecewise(d3.interpolateRgb.gamma(2.2), ['#24528d', '#2d67a0', '#3b7bb2', '#4d90c3', '#65a5d3', '#80bae0', '#a0ceeb', '#c6e1f2', '#f1f3f5'].reverse()))
             .domain(
               config.aggregateType === EAggregateTypes.COUNT
                 ? [0, d3.max(groupedVals, (d) => d.aggregateVal as number)]
@@ -136,26 +134,10 @@ export function Heatmap({
             )
         : config?.numColorScaleType === ENumericalColorScaleType.DIVERGENT
           ? d3
-              .scaleSequential<string, string>(
-                d3.piecewise(
-                  d3.interpolateRgb.gamma(2.2),
-                  [
-                    '#003367',
-                    '#16518a',
-                    '#2e72ae',
-                    '#5093cd',
-                    '#77b5ea',
-                    '#aad7fd',
-                    '#F1F3F5',
-                    '#fac7a9',
-                    '#f99761',
-                    '#e06d3b',
-                    '#c2451a',
-                    '#99230d',
-                    '#6f0000',
-                  ].reverse(),
-                ),
-              )
+              .scaleSequential<
+                string,
+                string
+              >(d3.piecewise(d3.interpolateRgb.gamma(2.2), ['#003367', '#16518a', '#2e72ae', '#5093cd', '#77b5ea', '#aad7fd', '#F1F3F5', '#fac7a9', '#f99761', '#e06d3b', '#c2451a', '#99230d', '#6f0000'].reverse()))
               .domain(d3.extent(groupedVals, (d) => d.aggregateVal as number))
           : null;
 
