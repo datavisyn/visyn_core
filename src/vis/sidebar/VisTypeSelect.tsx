@@ -20,7 +20,7 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
       label={
         <HelpHoverCard
           title={
-            <Text fs="sm" fw="bold">
+            <Text size="sm" fw="bold">
               Visualization type
             </Text>
           }
