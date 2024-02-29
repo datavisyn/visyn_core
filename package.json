@@ -112,14 +112,11 @@
     "react-plotly.js": "^2.5.1",
     "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
-    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#rspack"
+    "visyn_scripts": "^8.0.0"
   },
   "devDependencies": {
     "chromatic": "^6.19.9",
     "cypress": "^13.2.0"
-  },
-  "resolutions": {
-    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#rspack"
   },
   "visyn": {
     "entries": {
