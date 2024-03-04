@@ -122,6 +122,7 @@ export function AutoLoginForm({ setError, store }: IUserStoreRenderProps) {
           e.stopPropagation();
           login();
         }}
+        size="sm"
       >
         here
       </Anchor>{' '}

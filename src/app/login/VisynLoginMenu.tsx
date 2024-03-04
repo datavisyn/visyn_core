@@ -73,6 +73,7 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
                 setError(null);
                 retryGetStores();
               }}
+              size="sm"
             >
               Try again
             </Anchor>
