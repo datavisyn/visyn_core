@@ -40,7 +40,6 @@ export async function MyStringScore(value: string): Promise<IScoreResult> {
 }
 
 export async function MyLinkScore(value: string): Promise<IScoreResult> {
-  // generate memnonic links
   const data = new Array(5000).fill(0).map(() => randomSurnames[Math.floor(Math.random() * randomSurnames.length)]);
 
   return {
