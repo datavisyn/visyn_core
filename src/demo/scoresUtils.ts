@@ -1,8 +1,9 @@
-import { buildCategoricalColumn, buildNumberColumn } from 'lineupjs';
+import { buildCategoricalColumn, buildNumberColumn, buildStringColumn } from 'lineupjs';
 import { IScoreResult } from '../ranking/score/interfaces';
 import { buildSMILESColumn } from '../ranking/smiles/SMILESColumnBuilder';
+import { randomSurnames } from './randomSurnames';
 
-export async function MyStringScore(value: string): Promise<IScoreResult> {
+export async function MyCategoricalScore(value: string): Promise<IScoreResult> {
   const data = new Array(5000).fill(0).map(() => (Math.random() * 10).toFixed(0));
 
   return {
@@ -26,5 +27,24 @@ export async function MySMILESScore(value: string): Promise<IScoreResult> {
   return {
     data,
     builder: buildSMILESColumn('').label(value),
+  };
+}
+
+export async function MyStringScore(value: string): Promise<IScoreResult> {
+  const data = new Array(5000).fill(0).map(() => randomSurnames[Math.floor(Math.random() * randomSurnames.length)]);
+
+  return {
+    data,
+    builder: buildStringColumn('').label(value),
+  };
+}
+
+export async function MyLinkScore(value: string): Promise<IScoreResult> {
+  // generate memnonic links
+  const data = new Array(5000).fill(0).map(() => randomSurnames[Math.floor(Math.random() * randomSurnames.length)]);
+
+  return {
+    data,
+    builder: buildStringColumn('').label(value).pattern(`https://duckduckgo.com/?q=\${value}`),
   };
 }
