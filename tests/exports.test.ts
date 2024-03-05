@@ -4,7 +4,7 @@
 import { readdirSync, readFileSync } from 'fs';
 import packageJson from '../package.json';
 
-const NOT_EXPORTED_PACKAGES = ['assets', 'demo', 'locales', 'scss', 'stories'];
+const NOT_EXPORTED_PACKAGES = ['assets', 'demo', 'locales', 'scss', 'stories', '@types'];
 const ADDITIONAL_EXPORTS = ['.', './assets/*', './plotly/full', './scss/*', './phovea_registry', './package.json'];
 
 describe('package.json exports', () => {
