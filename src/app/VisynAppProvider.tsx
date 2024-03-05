@@ -1,4 +1,4 @@
-import { MantineProvider, MantineProviderProps, MantineColorsTuple, DefaultMantineColor, useMantineTheme } from '@mantine/core';
+import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { Notifications, NotificationsProps } from '@mantine/notifications';
 import merge from 'lodash/merge';
