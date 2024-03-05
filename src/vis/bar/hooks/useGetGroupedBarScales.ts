@@ -7,6 +7,7 @@ import { EAggregateTypes, EColumnTypes } from '../../interfaces';
 import { binByAggregateType, getBarData, groupByAggregateType, rollupByAggregateType } from '../utils';
 import { EBarGroupingType, SortTypes } from '../interfaces';
 import { useGetBarScales } from './useGetBarScales';
+import { categoricalColors as colorScale } from '../../../utils/colors';
 
 export function useGetGroupedBarScales(
   allColumns: Awaited<ReturnType<typeof getBarData>>,
@@ -59,7 +60,6 @@ export function useGetGroupedBarScales(
   const groupColorScale = useMemo(() => {
     if (!groupedTable) return null;
 
-    const colorScale = ['#337ab7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044', '#7b7b7b'];
     let i = -1;
 
     const newGroup = groupedTable.ungroup().groupby('group').count();
