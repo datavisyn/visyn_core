@@ -31,7 +31,7 @@ export const divergingBlueRed = [
 ];
 
 // diverging color map red-turquois
-export const divergingRedTurquoise = [
+export const divergingRedTurquois = [
   '#6f0000',
   '#99230d',
   '#c2451a',
