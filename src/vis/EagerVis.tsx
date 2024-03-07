@@ -131,7 +131,7 @@ export function EagerVis({
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
   filterCallback,
-  setExternalConfig = () => null,
+  setExternalConfig = null,
   closeCallback = () => null,
   showCloseButton = false,
   externalConfig = null,
@@ -204,40 +204,58 @@ export function EagerVis({
 
   const { getVisByType } = useVisProvider();
 
+  const isControlled = externalConfig != null && setExternalConfig != null;
+  const wrapWithDefaults = React.useCallback((v: BaseVisConfig) => getVisByType(v.type)?.mergeConfig(columns, v), [columns, getVisByType]);
+
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [_visConfig, _setVisConfig] = useUncontrolled({
-    value: externalConfig?.type ? getVisByType(externalConfig?.type)?.mergeConfig(columns, externalConfig) : null,
-    defaultValue: externalConfig
-      ? null
-      : columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-        ? ({
-            type: ESupportedPlotlyVis.SCATTER,
-            numColumnsSelected: [],
-            color: null,
-            numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-            shape: null,
-            dragMode: EScatterSelectSettings.RECTANGLE,
-            alphaSliderVal: 0.5,
-          } as BaseVisConfig)
-        : ({
-            type: ESupportedPlotlyVis.BAR,
-            multiples: null,
-            group: null,
-            direction: EBarDirection.HORIZONTAL,
-            display: EBarDisplayType.ABSOLUTE,
-            groupType: EBarGroupingType.STACK,
-            numColumnsSelected: [],
-            catColumnSelected: null,
-            aggregateColumn: null,
-            aggregateType: EAggregateTypes.COUNT,
-          } as BaseVisConfig),
-    onChange: setExternalConfig,
+    ...(isControlled ? { value: externalConfig, onChange: setExternalConfig } : {}),
+    ...(!isControlled
+      ? {
+          finalValue:
+            columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
+              ? ({
+                  type: ESupportedPlotlyVis.SCATTER,
+                  numColumnsSelected: [],
+                  color: null,
+                  numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+                  shape: null,
+                  dragMode: EScatterSelectSettings.RECTANGLE,
+                  alphaSliderVal: 0.5,
+                } as BaseVisConfig)
+              : ({
+                  type: ESupportedPlotlyVis.BAR,
+                  multiples: null,
+                  group: null,
+                  direction: EBarDirection.HORIZONTAL,
+                  display: EBarDisplayType.ABSOLUTE,
+                  groupType: EBarGroupingType.STACK,
+                  numColumnsSelected: [],
+                  catColumnSelected: null,
+                  aggregateColumn: null,
+                  aggregateType: EAggregateTypes.COUNT,
+                } as BaseVisConfig),
+        }
+      : {}),
   });
 
-  const setVisConfig = (v: BaseVisConfig) => {
-    const withDefaults = getVisByType(v.type)?.mergeConfig(columns, v);
-    _setVisConfig(withDefaults);
-  };
+  const isSelectedVisTypeRegistered = useMemo(() => getVisByType(_visConfig.type), [_visConfig.type, getVisByType]);
+
+  useEffect(() => {
+    // this will run only once
+    if (isSelectedVisTypeRegistered && _visConfig) {
+      _setVisConfig?.(wrapWithDefaults(_visConfig));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelectedVisTypeRegistered]);
+
+  const setVisConfig = React.useCallback(
+    (v: BaseVisConfig) => {
+      // if the vis type changed we need to wrap the new config with defaults, i.e. selectedColumns
+      _setVisConfig?.(v.type === _visConfig?.type ? v : wrapWithDefaults(v));
+    },
+    [_setVisConfig, _visConfig, wrapWithDefaults],
+  );
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
   const selectedMap: { [key: string]: boolean } = useMemo(() => {
@@ -281,7 +299,7 @@ export function EagerVis({
 
   const Renderer = getVisByType(_visConfig?.type)?.renderer;
 
-  if (!_visConfig || !Renderer) {
+  if (!_visConfig || !Renderer || !isSelectedVisTypeRegistered) {
     return null;
   }
 
