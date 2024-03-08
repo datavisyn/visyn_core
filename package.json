@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -103,7 +103,7 @@
     "d3v7": "npm:d3@^7.4.0",
     "i18next": "^22.4.15",
     "jstat": "^1.9.6",
-    "lineupjs": "4.9.0",
+    "lineupjs": "4.10.0",
     "lodash": "~4.17.20",
     "plotly.js-dist-min": "~2.12.0",
     "react": "~18.2.0",

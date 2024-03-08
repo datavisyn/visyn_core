@@ -65,13 +65,13 @@ export function ColorLegend({
         {colors.map((color, i) => (
           // idk why this doesnt work when i use the score as the key, tbh. The scores definitely are unique, but something to do with the 0 changing on render, idk
           // eslint-disable-next-line react/no-array-index-key
-          <Text fs="xs" key={i}>
+          <Text size="xs" key={i}>
             {formatFunc(color.score)}
           </Text>
         ))}
       </Stack>
       {title ? (
-        <Text color="dimmed" style={{ transform: 'rotate(90deg)', height: '100%', whiteSpace: 'nowrap', width: '20px' }}>
+        <Text c="dimmed" style={{ transform: 'rotate(90deg)', height: '100%', whiteSpace: 'nowrap', width: '20px' }}>
           {title}
         </Text>
       ) : null}
