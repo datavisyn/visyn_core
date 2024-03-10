@@ -7,14 +7,14 @@ on:
 
 jobs:
   build-main:
-    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@new_deployment
+    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
     secrets: inherit
     with:
       cypress_enable: true
       cypress_run_because_flag: true
       branch: main
   build-develop:
-    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@new_deployment
+    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
     secrets: inherit
     with:
       cypress_enable: true
