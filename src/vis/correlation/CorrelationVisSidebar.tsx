@@ -29,7 +29,6 @@ export function CorrelationVisSidebar({
       <Input.Wrapper label="Correlation type">
         <SegmentedControl
           fullWidth
-          size="xs"
           data={Object.values(ECorrelationType)}
           value={config.correlationType}
           onChange={(v) => setConfig({ ...config, correlationType: v as ECorrelationType })}
@@ -39,7 +38,6 @@ export function CorrelationVisSidebar({
       <Input.Wrapper label="P-value scale type">
         <SegmentedControl
           fullWidth
-          size="xs"
           data={Object.values(EScaleType)}
           value={config.pScaleType}
           onChange={(v) => setConfig({ ...config, pScaleType: v as EScaleType })}

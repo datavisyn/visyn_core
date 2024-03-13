@@ -17,7 +17,6 @@ export function NumericalColorButtons({ callback, currentSelected }: NumericalCo
         fullWidth
         value={currentSelected}
         onChange={callback}
-        size="xs"
         data={[
           {
             label: (

@@ -29,9 +29,9 @@ export function SingleSelect({
 
   const options = filteredColumns.map((item) => (
     <Combobox.Option value={item.info.name} key={item.info.id} active={item.info.id === currentSelected?.id}>
-      <Group gap="xs">
+      <Group gap="xs" align="center">
         {item.info.id === currentSelected?.id && (
-          <Text c="gray.6">
+          <Text c="gray.6" inline>
             <CheckIcon size={12} />
           </Text>
         )}
@@ -59,7 +59,7 @@ export function SingleSelect({
           rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
           rightSection={
             currentSelected !== null && isClearable ? (
-              <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+              <CloseButton onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
             ) : (
               <Combobox.Chevron />
             )

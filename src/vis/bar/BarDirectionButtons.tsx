@@ -12,7 +12,6 @@ export function BarDirectionButtons({ callback, currentSelected }: BarDirectionP
     <Input.Wrapper label="Direction">
       <SegmentedControl
         fullWidth
-        size="xs"
         value={currentSelected}
         onChange={callback}
         data={[

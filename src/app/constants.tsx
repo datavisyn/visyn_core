@@ -12,7 +12,7 @@ export const DEFAULT_MANTINE6_PROVIDER_PROPS: Omit<Mantine6ProviderProps, 'child
     // Update the font sizes to use 14px as the base md font size.
     fontSizes: {
       xs: rem(10),
-      sm: rem(11),
+      sm: rem(12),
       md: rem(14),
       lg: rem(16),
       xl: rem(20),
@@ -41,7 +41,7 @@ export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'childre
     // Update the font sizes to use 14px as the base md font size.
     fontSizes: {
       xs: rem(10),
-      sm: rem(11),
+      sm: rem(12),
       md: rem(14),
       lg: rem(16),
       xl: rem(20),
