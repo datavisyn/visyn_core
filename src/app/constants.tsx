@@ -1,5 +1,5 @@
 import type { MantineProviderProps as Mantine6ProviderProps } from '@mantine6/core';
-import { rem, type MantineProviderProps } from '@mantine/core';
+import type { MantineProviderProps } from '@mantine/core';
 
 export const DEFAULT_MANTINE6_PROVIDER_PROPS: Omit<Mantine6ProviderProps, 'children'> = {
   withNormalizeCSS: false, // Set to false to avoid setting things like the font-family on buttons.
@@ -8,14 +8,6 @@ export const DEFAULT_MANTINE6_PROVIDER_PROPS: Omit<Mantine6ProviderProps, 'child
     fontFamily: 'Roboto, sans-serif',
     headings: {
       fontFamily: 'Roboto, sans-serif',
-    },
-    // Update the font sizes to use 14px as the base md font size.
-    fontSizes: {
-      xs: rem(10),
-      sm: rem(12),
-      md: rem(14),
-      lg: rem(16),
-      xl: rem(20),
     },
     colors: {
       dvGray: ['#E9ECEF', '#DEE2E6', '#C8CED3', '#BCC3C9', '#ACB4BC', '#99A1A9', '#878E95', '#71787E', '#62686F', '#505459'],
@@ -38,14 +30,8 @@ export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'childre
     headings: {
       fontFamily: 'Roboto, sans-serif',
     },
-    // Update the font sizes to use 14px as the base md font size.
-    fontSizes: {
-      xs: rem(10),
-      sm: rem(12),
-      md: rem(14),
-      lg: rem(16),
-      xl: rem(20),
-    },
+    // Because we set our :root font-size to 14px, we need to scale all components: https://mantine.dev/styles/rem/#rem-units-scaling
+    scale: 1.15,
     colors: {
       dvGray: ['#E9ECEF', '#DEE2E6', '#C8CED3', '#BCC3C9', '#ACB4BC', '#99A1A9', '#878E95', '#71787E', '#62686F', '#505459'],
       dvPrimary: ['#E6F3FF', '#A8D7FF', '#79BCF5', '#54A5EB', '#3A8DD5', '#337AB7', '#206198', '#1C4F7B', '#053661', '#062C4E'],
