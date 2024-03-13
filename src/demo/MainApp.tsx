@@ -5,7 +5,7 @@ import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../rank
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import { BaseVisConfig, ELabelingOptions, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, IScatterConfig, Vis } from '../vis';
 import { iris } from '../vis/stories/irisData';
-import { MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { fetchIrisData } from '../vis/stories/fetchIrisData';
 
 export function MainApp() {
@@ -66,11 +66,17 @@ export function MainApp() {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
 
                 const data = await (() => {
+                  if (value === 'string') {
+                    return MyStringScore(value);
+                  }
                   if (value === 'number') {
                     return MyNumberScore(value);
                   }
                   if (value === 'category') {
-                    return MyStringScore(value);
+                    return MyCategoricalScore(value);
+                  }
+                  if (value === 'link') {
+                    return MyLinkScore(value);
                   }
                   if (value === 'smiles') {
                     return MySMILESScore(value);
@@ -83,9 +89,11 @@ export function MainApp() {
               }}
               rightSection={loading ? <Loader /> : null}
               data={[
+                { value: 'string', label: 'String' },
                 { value: 'number', label: 'Number' },
                 { value: 'category', label: 'Category' },
                 { value: 'smiles', label: 'SMILES' },
+                { value: 'link', label: 'Link' },
               ]}
             />
 
