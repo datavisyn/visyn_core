@@ -1,4 +1,4 @@
-import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem } from '@mantine/core';
+import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
@@ -25,34 +25,33 @@ function Legend({
 }) {
   return (
     <ScrollArea style={{ height }}>
-      <Stack style={{ width: '80px' }} gap={10}>
-        {categories.map((c) => {
-          return (
-            <Tooltip key={c} label={c} withArrow arrowSize={6}>
-              <Box>
-                <Chip
-                  variant="filled"
-                  onClick={() => onClick(c)}
-                  checked={false}
-                  styles={{
-                    label: {
-                      width: '100%',
-                      backgroundColor: filteredCategories.includes(c) ? 'lightgrey' : `${colorScale(c)} !important`,
-                      textAlign: 'center',
-                      paddingLeft: '10px',
-                      paddingRight: '10px',
-                      overflow: 'hidden',
-                      color: filteredCategories.includes(c) ? 'black' : 'white',
-                      textOverflow: 'ellipsis',
-                    },
-                  }}
-                >
-                  {c}
-                </Chip>
-              </Box>
-            </Tooltip>
-          );
-        })}
+      <Stack w={80} gap={10}>
+        {categories.map((c) => (
+          <Tooltip key={c} label={c} withArrow arrowSize={6}>
+            <Box>
+              <Chip
+                variant="filled"
+                onClick={() => onClick(c)}
+                checked={false}
+                c="gray"
+                styles={{
+                  label: {
+                    width: '100%',
+                    backgroundColor: filteredCategories.includes(c) ? undefined : colorScale(c),
+                    textAlign: 'center',
+                    paddingLeft: '10px',
+                    paddingRight: '10px',
+                    overflow: 'hidden',
+                    color: filteredCategories.includes(c) ? 'black' : 'white',
+                    textOverflow: 'ellipsis',
+                  },
+                }}
+              >
+                {c}
+              </Chip>
+            </Box>
+          </Tooltip>
+        ))}
       </Stack>
     </ScrollArea>
   );
@@ -161,19 +160,17 @@ export function HexbinVis({
             : null}
         </Box>
         {currentColorColumn ? (
-          <div style={{ width: rem(100) }}>
-            <Legend
-              categories={colorScale ? colorScale.domain() : []}
-              filteredCategories={colorScale ? filteredCategories : []}
-              colorScale={colorScale || null}
-              onClick={(s) =>
-                filteredCategories.includes(s)
-                  ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
-                  : setFilteredCategories([...filteredCategories, s])
-              }
-              height={height - 100}
-            />
-          </div>
+          <Legend
+            categories={colorScale ? colorScale.domain() : []}
+            filteredCategories={colorScale ? filteredCategories : []}
+            colorScale={colorScale || null}
+            onClick={(s) =>
+              filteredCategories.includes(s)
+                ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
+                : setFilteredCategories([...filteredCategories, s])
+            }
+            height={height - 100}
+          />
         ) : null}
       </Group>
     </Stack>
