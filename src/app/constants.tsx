@@ -1,13 +1,21 @@
 import type { MantineProviderProps as Mantine6ProviderProps } from '@mantine6/core';
-import type { MantineProviderProps } from '@mantine/core';
+import { rem, type MantineProviderProps } from '@mantine/core';
 
 export const DEFAULT_MANTINE6_PROVIDER_PROPS: Omit<Mantine6ProviderProps, 'children'> = {
-  withNormalizeCSS: true,
+  withNormalizeCSS: false, // Set to false to avoid setting things like the font-family on buttons.
   withGlobalStyles: true,
   theme: {
     fontFamily: 'Roboto, sans-serif',
     headings: {
       fontFamily: 'Roboto, sans-serif',
+    },
+    // Update the font sizes to use 14px as the base md font size.
+    fontSizes: {
+      xs: rem(10),
+      sm: rem(11),
+      md: rem(14),
+      lg: rem(16),
+      xl: rem(20),
     },
     colors: {
       dvGray: ['#E9ECEF', '#DEE2E6', '#C8CED3', '#BCC3C9', '#ACB4BC', '#99A1A9', '#878E95', '#71787E', '#62686F', '#505459'],
@@ -29,6 +37,14 @@ export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'childre
     fontFamily: 'Roboto, sans-serif',
     headings: {
       fontFamily: 'Roboto, sans-serif',
+    },
+    // Update the font sizes to use 14px as the base md font size.
+    fontSizes: {
+      xs: rem(10),
+      sm: rem(11),
+      md: rem(14),
+      lg: rem(16),
+      xl: rem(20),
     },
     colors: {
       dvGray: ['#E9ECEF', '#DEE2E6', '#C8CED3', '#BCC3C9', '#ACB4BC', '#99A1A9', '#878E95', '#71787E', '#62686F', '#505459'],
