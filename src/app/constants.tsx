@@ -30,8 +30,7 @@ export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'childre
     headings: {
       fontFamily: 'Roboto, sans-serif',
     },
-    // Because we set our :root font-size to 14px, we need to scale all components: https://mantine.dev/styles/rem/#rem-units-scaling
-    scale: 1.15,
+    scale: 0.875,
     colors: {
       dvGray: ['#E9ECEF', '#DEE2E6', '#C8CED3', '#BCC3C9', '#ACB4BC', '#99A1A9', '#878E95', '#71787E', '#62686F', '#505459'],
       dvPrimary: ['#E6F3FF', '#A8D7FF', '#79BCF5', '#54A5EB', '#3A8DD5', '#337AB7', '#206198', '#1C4F7B', '#053661', '#062C4E'],
