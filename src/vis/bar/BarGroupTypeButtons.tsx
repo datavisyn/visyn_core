@@ -12,6 +12,8 @@ export function BarGroupTypeButtons({ callback, currentSelected }: BarGroupTypeP
     <Container p={0} fluid style={{ width: '100%' }}>
       <Stack gap={0}>
         <SegmentedControl
+          fullWidth
+          size="xs"
           value={currentSelected}
           onChange={callback}
           data={[

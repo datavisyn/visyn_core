@@ -12,6 +12,7 @@ export function ViolinOverlayButtons({ callback, currentSelected }: ViolinOverla
     <Input.Wrapper label="Overlay">
       <SegmentedControl
         fullWidth
+        size="xs"
         value={currentSelected}
         onChange={callback}
         data={[

@@ -59,7 +59,13 @@ export function SingleSelect({
           rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
           rightSection={
             currentSelected !== null && isClearable ? (
-              <CloseButton onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+              <CloseButton
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => callback(null)}
+                iconSize={12}
+                tabIndex={-1}
+                aria-label="Clear value"
+              />
             ) : (
               <Combobox.Chevron />
             )
