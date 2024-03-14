@@ -7,7 +7,7 @@ import { BaseVisConfig, ELabelingOptions, ENumericalColorScaleType, EScatterSele
 import { iris } from '../vis/stories/irisData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { fetchIrisData } from '../vis/stories/fetchIrisData';
-import { AISpotlight } from '../ai/AISpotlight';
+import { AISpotlight } from '../vis/ai/AISpotlight';
 
 export function MainApp() {
   const { user } = useVisynAppContext();

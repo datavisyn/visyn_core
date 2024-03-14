@@ -93,7 +93,12 @@ export function BarVisSidebar({
         : null}
       {mergedOptionsConfig.direction.enable
         ? mergedOptionsConfig.direction.customComponent || (
-            <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
+            <BarDirectionButtons
+              aria-label="Change the direction of the bar chart using those buttons."
+              data-onboarding-id="onboarding-vis-bar-direction"
+              callback={(direction: EBarDirection) => setConfig({ ...config, direction })}
+              currentSelected={config.direction}
+            />
           )
         : null}
 

@@ -117,7 +117,7 @@ function registerAllVis(visTypes?: string[]) {
 }
 
 export function useRegisterDefaultVis(visTypes?: string[]) {
-  const { registerVisType } = useVisProvider();
+  const { registerVisType, setSelectedVisType } = useVisProvider();
 
   React.useEffect(() => {
     registerVisType(...registerAllVis(visTypes));
@@ -202,41 +202,15 @@ export function EagerVis({
 
   useRegisterDefaultVis(visTypes);
 
-  const { getVisByType } = useVisProvider();
+  const { getVisByType, setSelectedVisType } = useVisProvider();
 
   const isControlled = externalConfig != null && setExternalConfig != null;
+  console.log(isControlled);
   const wrapWithDefaults = React.useCallback((v: BaseVisConfig) => getVisByType(v.type)?.mergeConfig(columns, v), [columns, getVisByType]);
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [_visConfig, _setVisConfig] = useUncontrolled({
     ...(isControlled ? { value: externalConfig, onChange: setExternalConfig } : {}),
-    ...(!isControlled
-      ? {
-          finalValue:
-            columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-              ? ({
-                  type: ESupportedPlotlyVis.SCATTER,
-                  numColumnsSelected: [],
-                  color: null,
-                  numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-                  shape: null,
-                  dragMode: EScatterSelectSettings.RECTANGLE,
-                  alphaSliderVal: 0.5,
-                } as BaseVisConfig)
-              : ({
-                  type: ESupportedPlotlyVis.BAR,
-                  multiples: null,
-                  group: null,
-                  direction: EBarDirection.HORIZONTAL,
-                  display: EBarDisplayType.ABSOLUTE,
-                  groupType: EBarGroupingType.STACK,
-                  numColumnsSelected: [],
-                  catColumnSelected: null,
-                  aggregateColumn: null,
-                  aggregateType: EAggregateTypes.COUNT,
-                } as BaseVisConfig),
-        }
-      : {}),
   });
 
   const isSelectedVisTypeRegistered = useMemo(() => getVisByType(_visConfig.type), [_visConfig.type, getVisByType]);
@@ -252,9 +226,15 @@ export function EagerVis({
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
       // if the vis type changed we need to wrap the new config with defaults, i.e. selectedColumns
-      _setVisConfig?.(v.type === _visConfig?.type ? v : wrapWithDefaults(v));
+      if (v.type === _visConfig?.type) {
+        _setVisConfig?.(v);
+      } else {
+        console.log('setVisConfig: ', v.type);
+        setSelectedVisType(v.type);
+        _setVisConfig?.(wrapWithDefaults(v));
+      }
     },
-    [_setVisConfig, _visConfig, wrapWithDefaults],
+    [_setVisConfig, _visConfig?.type, setSelectedVisType, wrapWithDefaults],
   );
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.

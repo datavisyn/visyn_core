@@ -47,15 +47,20 @@ export const VisProviderContext = React.createContext<{
   visTypes: GeneralVis[];
   getVisByType: (type: string) => GeneralVis | null;
   registerVisType: (...visType: GeneralVis[]) => void;
+  selectedVisType: string;
+  setSelectedVisType: (type: string) => void;
 }>({
   visTypes: [],
   getVisByType: () => null,
   registerVisType: () => {},
+  selectedVisType: '',
+  setSelectedVisType: () => {},
 });
 
 // Internal, only used by EagerVis
 export function VisProvider({ children }: { children: React.ReactNode }) {
   const [visTypes, setVisTypes] = React.useState<GeneralVis[]>([]);
+  const [selectedVisType, setSelectedVisType] = React.useState<string>('');
 
   const registerVisType = React.useCallback((...visType: GeneralVis[]) => {
     setVisTypes((prevVisTypes) => {
@@ -74,7 +79,10 @@ export function VisProvider({ children }: { children: React.ReactNode }) {
     [visTypes],
   );
 
-  const visContextValue = React.useMemo(() => ({ visTypes, registerVisType, getVisByType }), [visTypes, registerVisType, getVisByType]);
+  const visContextValue = React.useMemo(
+    () => ({ visTypes, registerVisType, getVisByType, selectedVisType, setSelectedVisType }),
+    [visTypes, registerVisType, getVisByType, selectedVisType, setSelectedVisType],
+  );
 
   return <VisProviderContext.Provider value={visContextValue}>{children}</VisProviderContext.Provider>;
 }
