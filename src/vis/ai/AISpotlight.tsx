@@ -28,38 +28,34 @@ export function AISpotlight() {
 
   const tools = React.useMemo(() => {
     console.log('-----> ', selectedVisType, desiredVisType);
-    if (selectedVisType === desiredVisType) {
-      return [
-        new DynamicTool({
-          name: 'onboarding_change_bar_direction',
-          /**
-           * Open the vis sidebar
-           * @param input `data-onboarding-id` of the element
-           * @param runManager ?
-           * @returns null
-           */
-          func: async (input, runManager) => {
-            console.log({
-              message: 'Calling onboarding_change_bar_direction',
-              input,
-              runManager,
-              // node: getOnboardingNodeById(input),
-            });
-            const returnValue = String(!input.includes('open'));
-            return returnValue;
-          },
-          description: (() => {
-            const filteredNodes = nodes
-              .filter((n) => n.visible)
-              .filter((n) => /direction/g.test(n.onboardingId))
-              .map((n) => `${n.onboardingId}: ${n.label}`);
-            // id: onboarding-vis-bar-direction
-            return `Call the tool 'onboarding_change_bar_direction' with input as the data-onboarding-id of the element to check if settings sidebar is open. Available nodes: ${filteredNodes.join(', ')}.`;
-          })(),
-        }),
-      ];
-    }
     return [
+      new DynamicTool({
+        name: 'onboarding_change_bar_direction',
+        /**
+         * Open the vis sidebar
+         * @param input ESupportedPlotlyVis: the type of visualization
+         * @param runManager ?
+         * @returns null
+         */
+        func: async (runManager) => {
+          console.log({
+            message: 'Calling onboarding_change_bar_direction',
+            runManager,
+            // node: getOnboardingNodeById(input),
+          });
+          // const returnValue = String(!input.includes('open'));
+          // return returnValue;
+          return null;
+        },
+        description: (() => {
+          const filteredNodes = nodes
+            .filter((n) => n.visible)
+            .filter((n) => /direction/g.test(n.onboardingId))
+            .map((n) => `${n.onboardingId}: ${n.label}`);
+          // id: onboarding-vis-bar-direction
+          return `Check if ${selectedVisType} equals ${desiredVisType}. If so, call 'onboarding_change_bar_direction' and explain how we can change the direction of the barchart. Available nodes: ${filteredNodes.join(', ')}.`;
+        })(),
+      }),
       new DynamicTool({
         name: 'onboarding_check_settings_sidebar_visibility',
         /**
