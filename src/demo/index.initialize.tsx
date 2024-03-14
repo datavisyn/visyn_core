@@ -2,6 +2,9 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { VisynAppProvider } from '../app/VisynAppProvider';
 import { MainApp } from './MainApp';
+import * as onboarding from '../vis/onboarding';
+
+console.log(onboarding);
 
 // create a new instance of the app
 createRoot(document.getElementById('main')).render(

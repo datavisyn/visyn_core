@@ -39,6 +39,7 @@ export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'childre
       dvDisease: ['#FFF0E6', '#FFE1CC', '#FFD2B3', '#FFC399', '#FFB480', '#FF964D', '#E88745', '#CC783D', '#B36A35', '#995D2E'],
       dvCellLine: ['#EDF8F8', '#C6E8E8', '#9FD7D7', '#78C6C6', '#51B5B5', '#75C4C2', '#5BA3A1', '#427F7E', '#3A6A6A', '#1D4847'],
       dvTissue: ['#FFF1F0', '#FFE1DD', '#FFD0CA', '#FFBFA7', '#FFAF94', '#E57C73', '#C65A51', '#A63930', '#872617', '#650D00'],
+      dvAI: ['#7950f2', '#7950f2', '#7950f2', '#7950f2', '#7950f2', '#7950f2', '#7950f2', '#7950f2', '#7950f2', '#7950f2'],
     },
     primaryShade: 5,
     primaryColor: 'dvPrimary',

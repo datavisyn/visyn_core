@@ -7,6 +7,7 @@ import { BaseVisConfig, ELabelingOptions, ENumericalColorScaleType, EScatterSele
 import { iris } from '../vis/stories/irisData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { fetchIrisData } from '../vis/stories/fetchIrisData';
+import { AISpotlight } from '../ai/AISpotlight';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -48,6 +49,7 @@ export function MainApp() {
       header={
         <VisynHeader
           components={{
+            center: <AISpotlight />,
             aboutAppModal: {
               content: <Text>This is the demo app for visyn core.</Text>,
             },
