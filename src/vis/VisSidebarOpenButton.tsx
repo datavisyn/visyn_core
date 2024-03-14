@@ -18,7 +18,7 @@ export function VisSidebarOpenButton({ isOpen, onClick }: { isOpen?: boolean; on
         right={10}
         onClick={onClick}
         variant="transparent"
-        color={onboardingNodeToHighlight === 'onboarding-vis-open-button' ? 'blue' : 'gray'}
+        color="gray"
       >
         <FontAwesomeIcon icon={faGear} />
       </ActionIcon>

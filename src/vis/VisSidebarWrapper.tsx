@@ -12,18 +12,8 @@ const sidebarSize = 200;
 export function VisSidebarWrapper({ children, config, setConfig, onClick }: { children: ReactNode; config; setConfig; onClick }) {
   const { onboardingNodeToHighlight, setOnboardingNodeToHighlight } = useVisynAppContext();
 
-  React.useEffect(() => {
-    console.log('onboardingNodeToHighlight: ', onboardingNodeToHighlight);
-  }, [onboardingNodeToHighlight]);
   return (
     <Box pt="sm" style={{ height: '100%', boxShadow: '2px 0px 15px 0px lightgray', zIndex: 5 }}>
-      <Button
-        onClick={() => {
-          setOnboardingNodeToHighlight?.('onboarding-vis-close-button');
-        }}
-      >
-        Click me
-      </Button>
       <Group gap={0} style={{ width: '100%', height: '100%' }} wrap="nowrap">
         <ScrollArea p={0} w={`${sidebarSize}px`} h="100%">
           <Box pb="xl" style={{ height: '100%', width: `${sidebarSize}px` }}>
@@ -34,7 +24,7 @@ export function VisSidebarWrapper({ children, config, setConfig, onClick }: { ch
                   <ActionIcon
                     onClick={onClick}
                     variant="transparent"
-                    color={onboardingNodeToHighlight === 'onboarding-vis-close-button' ? 'blue' : 'gray'}
+                    color="gray"
                     aria-label="Close the settings with this button"
                     data-onboarding-id="onboarding-vis-close-button"
                   >
