@@ -12,7 +12,7 @@ import { useOpenAIModel } from './useOpenAIModel';
 
 export function AISpotlight() {
   const model = useOpenAIModel(apiKey);
-  const { setOnboardingNodeToHighlight } = useOnboardingContext();
+  const { setOnboardingNodeToHighlight, isVisSidebarOpen } = useOnboardingContext();
 
   const [output, setOutput] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -27,24 +27,53 @@ export function AISpotlight() {
 
         const tools = [
           new DynamicTool({
-            // determine what to hightlight
-            name: 'onboarding_find_node',
+            name: 'onboarding_check_settings_sidebar_visibility',
+            /**
+             * Open the vis sidebar
+             * @param input `data-onboarding-id` of the element
+             * @param runManager ?
+             * @returns null
+             */
             func: async (input, runManager) => {
-              console.log('Calling onboarding_find_node', input, getOnboardingNodeById(input));
-              // setSelection(parseArrayString(input));
-              setOnboardingNodeToHighlight?.(input);
-              return null;
+              console.log({
+                message: 'Calling onboarding_check_settings_sidebar_visibility',
+                input,
+                runManager,
+                // node: getOnboardingNodeById(input),
+              });
+              const returnValue = String(!input.includes('open'));
+              return returnValue;
             },
             description: (() => {
               const filteredNodes = nodes
                 .filter((n) => n.visible)
-                .filter((n) => /[open|close]-button/g.test(n.onboardingId))
+                // .filter((n) => /[open|close]-button/g.test(n.onboardingId))
                 .map((n) => `${n.onboardingId}: ${n.label}`);
-              return `Highlights the settings if the sidebar of the visualization is not open. Pick one of the following: ${filteredNodes}`;
+              return `Call the tool 'onboarding_check_settings_sidebar_visibility' with input as the data-onboarding-id of the element to check if settings sidebar is open. Available nodes: ${filteredNodes.join(', ')}.`;
+            })(),
+          }),
+          new DynamicTool({
+            name: 'onboarding_check_vis_type_selected',
+            func: async (input, runManager) => {
+              console.log({
+                message: 'Calling onboarding_check_vis_type_selected',
+                input,
+                runManager,
+                // node: getOnboardingNodeById(input),
+              });
+              const returnValue = (getOnboardingNodeById(input as string) as HTMLInputElement).value as string;
+              return returnValue;
+            },
+            description: (() => {
+              const filteredNodes = nodes
+                .filter((n) => n.visible)
+                // .filter((n) => /[open|close]-button/g.test(n.onboardingId))
+                .map((n) => `${n.onboardingId}: ${n.label}`);
+              return `Call the tool 'onboarding_check_vis_type_selected' with input as the data-onboarding-id of the element to determine the type of visualization currently being viewed. Available nodes: ${filteredNodes.join(', ')}.`;
             })(),
           }),
         ];
-        console.log(tools);
+
         const executor = await initializeAgentExecutorWithOptions(tools, model, {
           agentType: 'zero-shot-react-description',
           verbose: true,
@@ -52,9 +81,19 @@ export function AISpotlight() {
 
         if (executor) {
           try {
-            setLoading(true);
-            const res = await executor.call({ input: `Onboard me on the vis` });
-            setOutput(res?.output || '');
+            // setLoading(true);
+            // NOTE: @dv-usama-ansari: The input prompt should be very descriptive and precise for the AI to generate the correct output for the onboarding tours.
+            // TODO: @dv-usama-ansari: Use the setters in the `useOnboardingContext` to set the different flags for the onboarding tours.
+            //  How do we check if a step has been performed so that the AI can suggest the next step?
+            const res = await executor.call({
+              input: `Onboard the user to get familiarized with the general vis component. Start by checking if the sidebar is open or not. If the sidebar is open check for the visualization type and suggest the user to change it to bar chart. I am using a library to display step-by-step popovers for the tour on the UI so I would need the output as an array of objects having this shape: "{selector: [data-onboarding-id*=input]; content: string}". Please note that the selector would be computed with the inputs provided to the tools you use internally.`,
+            });
+            // setOutput(res?.output || '');
+            // output when the sidebar is opened
+            // [{ "selector": "[data-onboarding-id*=onboarding-vis-close-button]", "content": "This is the settings sidebar where you can customize your visualization. Let's start by changing the visualization type." }, { "selector": "[data-onboarding-id*=onboarding-vis-visualization-type-select]", "content": "Currently, a scatter plot is selected. Please change it to a bar chart to better understand the distribution of your data." }]
+            // output when the sidebar is closed
+            // [{selector: "[data-onboarding-id*=onboarding-vis-open-button]", content: "Please open the settings sidebar to proceed."}]
+            console.log('Output:', res?.output);
           } catch (e) {
             showNotification({
               title: 'Failed to provide an answer',
@@ -62,22 +101,10 @@ export function AISpotlight() {
               color: 'red',
             });
           } finally {
-            setLoading(false);
+            // setLoading(false);
           }
         }
       },
-    },
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      description: 'Get full information about current system status',
-      onClick: () => console.log('Dashboard'),
-    },
-    {
-      id: 'documentation',
-      label: 'Documentation',
-      description: 'Visit documentation to lean more about all features',
-      onClick: () => console.log('Documentation'),
     },
   ];
   return (

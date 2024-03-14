@@ -60,6 +60,7 @@ export function VisynAppProvider({
   }, [user, execute]);
 
   const [onboardingNodeToHighlight, setOnboardingNodeToHighlight] = React.useState<string | null>(null);
+  const [isVisSidebarOpen, setIsVisSidebarOpen] = React.useState<boolean>(false);
 
   const context = React.useMemo(
     () => ({
@@ -71,8 +72,8 @@ export function VisynAppProvider({
   );
 
   const onboardingContextValue = React.useMemo(
-    () => ({ onboardingNodeToHighlight, setOnboardingNodeToHighlight }) as IOnboardingContext,
-    [onboardingNodeToHighlight],
+    () => ({ onboardingNodeToHighlight, setOnboardingNodeToHighlight, isVisSidebarOpen, setIsVisSidebarOpen }) as IOnboardingContext,
+    [isVisSidebarOpen, onboardingNodeToHighlight],
   );
 
   const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
@@ -94,8 +95,7 @@ export function VisynAppProvider({
         <Notifications {...(mantineNotificationsProviderProps || {})} />
         <ModalsProvider {...(mantineModalsProviderProps || {})}>
           {disableMantine6 ? (
-            // no onboarding for legacy Mantine
-            visynAppContext
+            onboardingContext
           ) : (
             <React.Suspense fallback={null}>
               <LazyMantine6Provider {...mergedMantine6ProviderProps}>{onboardingContext}</LazyMantine6Provider>

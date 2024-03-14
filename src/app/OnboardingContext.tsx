@@ -1,6 +1,8 @@
 import * as React from 'react';
 
 export interface IOnboardingContext {
+  isVisSidebarOpen: boolean;
+  setIsVisSidebarOpen: (open: boolean) => void;
   onboardingNodeToHighlight: string | null;
   setOnboardingNodeToHighlight: (node: string) => void;
 }
