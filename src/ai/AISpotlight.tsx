@@ -1,23 +1,18 @@
-import { rem, Button, Image, Text, Center, SimpleGrid, Stack, TextInput, Group } from '@mantine/core';
-import { Spotlight, SpotlightActionData, spotlight } from '@mantine/spotlight';
-import * as React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons/faWandMagicSparkles';
-import { initializeAgentExecutorWithOptions, AgentExecutor } from 'langchain/agents';
-import { useEffect } from 'react';
-import { DynamicTool } from 'langchain/tools';
+import { Button } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import yourAppImage from './YourAppImage.png';
+import { Spotlight, SpotlightActionData, spotlight } from '@mantine/spotlight';
 import '@mantine/spotlight/styles.css';
-import { useOpenAIModel } from './useOpenAIModel';
-import { parseArrayString } from './utils';
-import { getAllOnboardingNodes, getOnboardingNodeById } from '../vis/onboarding';
+import { initializeAgentExecutorWithOptions } from 'langchain/agents';
+import { DynamicTool } from 'langchain/tools';
+import * as React from 'react';
 import { apiKey } from '../api_key';
-import { useVisynAppContext } from '../app';
+import { useOnboardingContext } from '../app/OnboardingContext';
+import { getAllOnboardingNodes, getOnboardingNodeById } from '../vis/onboarding';
+import { useOpenAIModel } from './useOpenAIModel';
 
 export function AISpotlight() {
   const model = useOpenAIModel(apiKey);
-  const { setOnboardingNodeToHighlight } = useVisynAppContext();
+  const { setOnboardingNodeToHighlight } = useOnboardingContext();
 
   const [output, setOutput] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -40,7 +35,13 @@ export function AISpotlight() {
               setOnboardingNodeToHighlight?.(input);
               return null;
             },
-            description: `Highlights the settings if the sidebar of the visualiztion is not open. Pick one of the following: ${nodes.filter((n) => n.visible).map((n) => `${n.onboardingId}: ${n.label}`)}`,
+            description: (() => {
+              const filteredNodes = nodes
+                .filter((n) => n.visible)
+                .filter((n) => /[open|close]-button/g.test(n.onboardingId))
+                .map((n) => `${n.onboardingId}: ${n.label}`);
+              return `Highlights the settings if the sidebar of the visualization is not open. Pick one of the following: ${filteredNodes}`;
+            })(),
           }),
         ];
         console.log(tools);

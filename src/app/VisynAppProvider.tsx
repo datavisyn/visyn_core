@@ -15,6 +15,7 @@ import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/tiptap/styles.css';
+import { IOnboardingContext, OnboardingContext } from './OnboardingContext';
 
 const LazyMantine6Provider = React.lazy(() => import('@mantine6/core').then((module) => ({ default: module.MantineProvider })));
 
@@ -65,10 +66,13 @@ export function VisynAppProvider({
       user,
       appName,
       clientConfig,
-      onboardingNodeToHighlight,
-      setOnboardingNodeToHighlight,
     }),
-    [user, appName, clientConfig, onboardingNodeToHighlight],
+    [user, appName, clientConfig],
+  );
+
+  const onboardingContextValue = React.useMemo(
+    () => ({ onboardingNodeToHighlight, setOnboardingNodeToHighlight }) as IOnboardingContext,
+    [onboardingNodeToHighlight],
   );
 
   const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
@@ -82,16 +86,19 @@ export function VisynAppProvider({
     <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
   );
 
+  const onboardingContext = <OnboardingContext.Provider value={onboardingContextValue}>{visynAppContext}</OnboardingContext.Provider>;
+
   return (
     <VisProvider>
       <MantineProvider {...mergedMantineProviderProps}>
         <Notifications {...(mantineNotificationsProviderProps || {})} />
         <ModalsProvider {...(mantineModalsProviderProps || {})}>
           {disableMantine6 ? (
+            // no onboarding for legacy Mantine
             visynAppContext
           ) : (
             <React.Suspense fallback={null}>
-              <LazyMantine6Provider {...mergedMantine6ProviderProps}>{visynAppContext}</LazyMantine6Provider>
+              <LazyMantine6Provider {...mergedMantine6ProviderProps}>{onboardingContext}</LazyMantine6Provider>
             </React.Suspense>
           )}
         </ModalsProvider>

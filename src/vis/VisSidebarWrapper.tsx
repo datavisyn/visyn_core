@@ -1,16 +1,16 @@
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ActionIcon, Box, Divider, Group, ScrollArea, Stack, Text, Tooltip, Button } from '@mantine/core';
+import { ActionIcon, Box, Divider, Group, ScrollArea, Stack, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { ReactNode } from 'react';
+import { useOnboardingContext } from '../app/OnboardingContext';
 import { i18n } from '../i18n';
-import { useVisynAppContext } from '../app';
 import { VisTypeSelect } from './sidebar/VisTypeSelect';
 
 const sidebarSize = 200;
 
 export function VisSidebarWrapper({ children, config, setConfig, onClick }: { children: ReactNode; config; setConfig; onClick }) {
-  const { onboardingNodeToHighlight, setOnboardingNodeToHighlight } = useVisynAppContext();
+  const { onboardingNodeToHighlight, setOnboardingNodeToHighlight } = useOnboardingContext();
 
   return (
     <Box pt="sm" style={{ height: '100%', boxShadow: '2px 0px 15px 0px lightgray', zIndex: 5 }}>
