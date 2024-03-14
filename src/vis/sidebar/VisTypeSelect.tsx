@@ -17,8 +17,8 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
   return (
     <Select
       searchable
-      aria-label="Open the visualization types"
-      data-onboarding-id="onboarding-vis-visualization-type-select"
+      // aria-label="Open the visualization types"
+      // data-onboarding-id="onboarding-vis-visualization-type-select"
       label={
         <HelpHoverCard
           title={

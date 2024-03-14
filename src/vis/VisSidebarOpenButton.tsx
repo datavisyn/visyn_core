@@ -3,8 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { i18n } from '../i18n';
+import { useVisynAppContext } from '../app';
 
 export function VisSidebarOpenButton({ isOpen, onClick }: { isOpen?: boolean; onClick: () => void }) {
+  const { onboardingNodeToHighlight, setOnboardingNodeToHighlight } = useVisynAppContext();
+
   return (
     <Tooltip label={isOpen ? i18n.t('visyn:vis.closeSettings') : i18n.t('visyn:vis.openSettings')}>
       <ActionIcon
@@ -15,7 +18,7 @@ export function VisSidebarOpenButton({ isOpen, onClick }: { isOpen?: boolean; on
         right={10}
         onClick={onClick}
         variant="transparent"
-        color="gray"
+        color={onboardingNodeToHighlight === 'onboarding-vis-open-button' ? 'blue' : 'gray'}
       >
         <FontAwesomeIcon icon={faGear} />
       </ActionIcon>

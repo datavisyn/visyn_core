@@ -58,13 +58,17 @@ export function VisynAppProvider({
     execute();
   }, [user, execute]);
 
+  const [onboardingNodeToHighlight, setOnboardingNodeToHighlight] = React.useState<string | null>(null);
+
   const context = React.useMemo(
     () => ({
       user,
       appName,
       clientConfig,
+      onboardingNodeToHighlight,
+      setOnboardingNodeToHighlight,
     }),
-    [user, appName, clientConfig],
+    [user, appName, clientConfig, onboardingNodeToHighlight],
   );
 
   const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);

@@ -13,9 +13,11 @@ import { useOpenAIModel } from './useOpenAIModel';
 import { parseArrayString } from './utils';
 import { getAllOnboardingNodes, getOnboardingNodeById } from '../vis/onboarding';
 import { apiKey } from '../api_key';
+import { useVisynAppContext } from '../app';
 
 export function AISpotlight() {
   const model = useOpenAIModel(apiKey);
+  const { setOnboardingNodeToHighlight } = useVisynAppContext();
 
   const [output, setOutput] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -30,13 +32,15 @@ export function AISpotlight() {
 
         const tools = [
           new DynamicTool({
-            name: 'onboarding_highlight_node',
+            // determine what to hightlight
+            name: 'onboarding_find_node',
             func: async (input, runManager) => {
-              console.log('Calling onboarding_highlight_node', input, getOnboardingNodeById(input));
+              console.log('Calling onboarding_find_node', input, getOnboardingNodeById(input));
               // setSelection(parseArrayString(input));
+              setOnboardingNodeToHighlight?.(input);
               return null;
             },
-            description: `Highlights all node ids in the onboarding process. Pick one of the following: ${nodes.filter((n) => n.visible).map((n) => `${n.onboardingId}: ${n.label}`)}`,
+            description: `Highlights the settings if the sidebar of the visualiztion is not open. Pick one of the following: ${nodes.filter((n) => n.visible).map((n) => `${n.onboardingId}: ${n.label}`)}`,
           }),
         ];
         console.log(tools);

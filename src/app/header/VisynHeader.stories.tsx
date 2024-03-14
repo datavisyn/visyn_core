@@ -79,6 +79,8 @@ const Template: ComponentStory<typeof VisynHeader> = (args) => {
       clientConfig: {
         env: 'development' as const,
       },
+      setOnboardingNodeToHighlight: () => {},
+      onboardingNodeToHighlight: null,
     }),
     [],
   );

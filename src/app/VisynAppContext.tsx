@@ -6,6 +6,8 @@ export const VisynAppContext = React.createContext<{
   user: IUser | null;
   appName: JSX.Element | string;
   clientConfig: IClientConfig;
+  onboardingNodeToHighlight: string | null;
+  setOnboardingNodeToHighlight: (node: string) => void;
 }>(null);
 
 export function useVisynAppContext() {
