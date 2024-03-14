@@ -12,9 +12,10 @@ import '@mantine/spotlight/styles.css';
 import { useOpenAIModel } from './useOpenAIModel';
 import { parseArrayString } from './utils';
 import { getAllOnboardingNodes, getOnboardingNodeById } from '../vis/onboarding';
+import { apiKey } from '../api_key';
 
 export function AISpotlight() {
-  const model = useOpenAIModel('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');
+  const model = useOpenAIModel(apiKey);
 
   const [output, setOutput] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -35,7 +36,7 @@ export function AISpotlight() {
               // setSelection(parseArrayString(input));
               return null;
             },
-            description: `Highlights the next node id in the onboarding process. Pick one of the following: ${nodes.filter((n) => n.visible).map((n) => `${n.onboardingId}: ${n.label}`)}`,
+            description: `Highlights all node ids in the onboarding process. Pick one of the following: ${nodes.filter((n) => n.visible).map((n) => `${n.onboardingId}: ${n.label}`)}`,
           }),
         ];
         console.log(tools);

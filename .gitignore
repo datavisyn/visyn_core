@@ -25,6 +25,7 @@ __pycache__/
 .cache
 node_modules/
 /src/**/*.js
+/src/api_key.ts
 /tests/**/*.js
 /src/**/*.map
 /tests/**/*.map 
