@@ -108,7 +108,7 @@ export function ScatterVis({
           });
 
           p.data.selectedpoints = temp;
-
+          // @ts-ignore
           if (p.data?.selected?.textfont) {
             if (selectedList.length === 0 && config.showLabels === ELabelingOptions.SELECTED) {
               // @ts-ignore
