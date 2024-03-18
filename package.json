@@ -37,7 +37,8 @@
     "./assets/*": "./src/assets/*",
     "./phovea_registry": "./src/phovea_registry.ts",
     "./scss/*": "./src/scss/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./types": "./tsd.d.ts"
   },
   "files": [
     "src",

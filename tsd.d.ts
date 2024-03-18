@@ -1,3 +1,5 @@
+import './src/@types/mantine-overrides.types.d';
+
 // allow sass modules
 declare module '*.scss' {
   const content: string;
