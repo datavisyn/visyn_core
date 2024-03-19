@@ -108,9 +108,8 @@ export function ScatterVis({
           });
 
           p.data.selectedpoints = temp;
-
           // @ts-ignore
-          if (p.data?.selectedpoints?.textfont) {
+          if (p.data?.selected?.textfont) {
             if (selectedList.length === 0 && config.showLabels === ELabelingOptions.SELECTED) {
               // @ts-ignore
               p.data.selected.textfont.color = `rgba(102, 102, 102, 0)`;
