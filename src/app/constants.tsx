@@ -34,7 +34,7 @@ export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'childre
     colors: {
       dvGray: ['#E9ECEF', '#DEE2E6', '#C8CED3', '#BCC3C9', '#ACB4BC', '#99A1A9', '#878E95', '#71787E', '#62686F', '#505459'],
       dvPrimary: ['#E6F3FF', '#A8D7FF', '#79BCF5', '#54A5EB', '#3A8DD5', '#337AB7', '#206198', '#1C4F7B', '#053661', '#062C4E'],
-      dvAI: ['#f5eeff', '#e3d8f8', '#c3b0ec', '#a284e0', '#865ed6', '#7446d0', '#6b3bce', '#5a2eb6', '#5027a4', '#442091'],
+      dvAI: ['#F5EEFF', '#E3D8F8', '#C3B0EC', '#A284E0', '#865ED6', '#7446D0', '#6B3BCE', '#5A2EB6', '#5027A4', '#442091'],
       white: ['white', 'white', 'white', 'white', 'white', 'white', 'white', 'white', 'white', 'white'],
       dvDrug: ['#FBE3ED', '#F5C7D9', '#EEACC6', '#E78FB3', '#E074A1', '#B42865', '#9E1D58', '#87184D', '#6F1340', '#560D34'],
       dvGene: ['#EDF8F1', '#BDEDCA', '#9EE4B2', '#7DD997', '#5DCD7D', '#4BB268', '#439E5E', '#3B894F', '#32743F', '#285F30'],
