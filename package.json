@@ -34,11 +34,11 @@
     "./utils": "./src/utils/index.ts",
     "./views": "./src/views/index.ts",
     "./vis": "./src/vis/index.ts",
+    "./types": "./src/types.ts",
     "./assets/*": "./src/assets/*",
     "./phovea_registry": "./src/phovea_registry.ts",
     "./scss/*": "./src/scss/*",
-    "./package.json": "./package.json",
-    "./types": "./tsd.d.ts"
+    "./package.json": "./package.json"
   },
   "files": [
     "src",

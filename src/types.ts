@@ -1,4 +1,4 @@
-import { DefaultMantineColor, MantineColorsTuple } from '@mantine/core';
+import type { DefaultMantineColor, MantineColorsTuple } from '@mantine/core';
 
 type ExtendedCustomColors = 'dvPrimary' | 'dvGray' | 'dvGene' | 'dvDisease' | 'dvCellLine' | 'dvTissue' | 'dvDrug' | 'white' | DefaultMantineColor;
 
