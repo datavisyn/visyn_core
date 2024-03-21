@@ -144,11 +144,11 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
                 withArrow
               >
                 <Stack gap={0}>
-                  <Text size="sm" fw={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  <Text fw={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                     {col.info.name}
                   </Text>
                   {col.info.description && (
-                    <Text size="sm" color="dimmed" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    <Text c="dimmed" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                       {col.info.description}
                     </Text>
                   )}

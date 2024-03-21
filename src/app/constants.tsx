@@ -2,7 +2,7 @@ import type { MantineProviderProps as Mantine6ProviderProps } from '@mantine6/co
 import type { MantineProviderProps } from '@mantine/core';
 
 export const DEFAULT_MANTINE6_PROVIDER_PROPS: Omit<Mantine6ProviderProps, 'children'> = {
-  withNormalizeCSS: true,
+  withNormalizeCSS: false, // Set to false to avoid setting things like the font-family on buttons.
   withGlobalStyles: true,
   theme: {
     fontFamily: 'Roboto, sans-serif',

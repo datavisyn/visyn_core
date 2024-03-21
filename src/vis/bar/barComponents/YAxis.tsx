@@ -1,12 +1,10 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Center, Group, Text, rem } from '@mantine/core';
+import { Center, Group, Text } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { SortTypes } from '../interfaces';
-
-type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({
@@ -51,7 +49,7 @@ export function YAxis({
             <Group gap={3} style={{ cursor: 'pointer' }}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
 
-              <Text size={compact ? rem('10px') : 'sm'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
+              <Text size={compact ? 'xs' : 'sm'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
                 {label}
               </Text>
               {arrowAsc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretRight} /> : null}
@@ -78,7 +76,7 @@ export function YAxis({
           >
             <foreignObject width={labelSpacing} height={20}>
               <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Text truncate size={rem('10px')}>
+                <Text truncate size="xs">
                   {value}
                 </Text>
               </Group>

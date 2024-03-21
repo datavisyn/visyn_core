@@ -97,7 +97,7 @@ export function MultiSelect({
     <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={false}>
       <Combobox.DropdownTarget>
         <PillsInput
-          rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />}
+          rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" iconSize={12} tabIndex={-1} />}
           label={`${columnType} columns`}
           pointer
           onClick={() => combobox.toggleDropdown()}
