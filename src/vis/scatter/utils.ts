@@ -178,7 +178,7 @@ export async function createScatterTraces(
             }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
         hoverinfo: 'text',
-        text: validCols[0].resolvedValues.map((v) => v.id.toString()),
+        text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
         textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
         marker: {
