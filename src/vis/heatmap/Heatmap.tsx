@@ -12,6 +12,7 @@ import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
 import { ESortTypes, IHeatmapConfig } from './interfaces';
+import { sequentialBlueColors } from '../../utils/colors';
 
 const interRectDistance = 1;
 
@@ -123,10 +124,7 @@ export function Heatmap({
     const colorSc =
       config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
         ? d3
-            .scaleSequential<
-              string,
-              string
-            >(d3.piecewise(d3.interpolateRgb.gamma(2.2), ['#24528d', '#2d67a0', '#3b7bb2', '#4d90c3', '#65a5d3', '#80bae0', '#a0ceeb', '#c6e1f2', '#f1f3f5'].reverse()))
+            .scaleSequential<string, string>(d3.piecewise(d3.interpolateRgb.gamma(2.2), sequentialBlueColors))
             .domain(
               config.aggregateType === EAggregateTypes.COUNT
                 ? [0, d3.max(groupedVals, (d) => d.aggregateVal as number)]
