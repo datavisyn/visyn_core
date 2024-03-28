@@ -34,6 +34,7 @@
     "./utils": "./src/utils/index.ts",
     "./views": "./src/views/index.ts",
     "./vis": "./src/vis/index.ts",
+    "./icons": "./src/icons/index.ts",
     "./types": "./src/types.ts",
     "./assets/*": "./src/assets/*",
     "./phovea_registry": "./src/phovea_registry.ts",
