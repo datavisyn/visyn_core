@@ -39,7 +39,7 @@ export const DEFAULT_MANTINE_PROVIDER_PROPS: Omit<MantineProviderProps, 'childre
       dvDrug: ['#FBE3ED', '#F5C7D9', '#EEACC6', '#E78FB3', '#E074A1', '#B42865', '#9E1D58', '#87184D', '#6F1340', '#560D34'],
       dvGene: ['#EDF8F1', '#BDEDCA', '#9EE4B2', '#7DD997', '#5DCD7D', '#4BB268', '#439E5E', '#3B894F', '#32743F', '#285F30'],
       dvDisease: ['#FFF0E6', '#FFE1CC', '#FFD2B3', '#FFC399', '#FFB480', '#FF964D', '#E88745', '#CC783D', '#B36A35', '#995D2E'],
-      dvCellLine: ['#E3FCFC', '#D7F3F1', '#B5E3E1', '#90D2D0', '#71C4C1', '#5CBBB8', '#4FB7B3', '#3CA19E', '#2C8F8D', '#0E7C7A'],
+      dvCellLine: ['#D9F4F3', '#B5E5E5', '#8FD7D6', '#6FCAC9', '#5BC2C1', '#39A2A1', '#2C9695', '#0B8281', '#087170', '#045B5B'],
       dvTissue: ['#FFF1F0', '#FFE1DD', '#FFD0CA', '#FFBFA7', '#FFAF94', '#E57C73', '#C65A51', '#A63930', '#872617', '#650D00'],
     },
     primaryShade: 5,
