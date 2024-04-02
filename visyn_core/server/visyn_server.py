@@ -69,7 +69,7 @@ def create_visyn_server(
     plugins = load_all_plugins()
     # With all the plugins, load the corresponding configuration files and create a new model based on the global settings, with all plugin models as sub-models
     [plugin_config_files, plugin_settings_models] = get_config_from_plugins(plugins)
-    visyn_server_settings = create_model("VisynServerSettings", __base__=GlobalSettings, **plugin_settings_models)
+    visyn_server_settings = create_model("VisynServerSettings", __base__=GlobalSettings, **plugin_settings_models)  # type: ignore
     # Patch the global settings by instantiating the new settings model with the global config, all config.json(s), and pydantic models
     manager.settings = visyn_server_settings(**deep_update(*plugin_config_files, workspace_config))
 

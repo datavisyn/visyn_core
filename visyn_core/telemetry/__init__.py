@@ -56,9 +56,11 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                 PeriodicExportingMetricReader(
                     exporter=OTLPMetricExporter(
                         # If we are using the global exporter settings, append the metrics path
-                        endpoint=_append_metrics_path(exporter_settings.endpoint)
-                        if exporter_settings == global_exporter_settings
-                        else exporter_settings.endpoint,
+                        endpoint=(
+                            _append_metrics_path(exporter_settings.endpoint)
+                            if exporter_settings == global_exporter_settings
+                            else exporter_settings.endpoint
+                        ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
@@ -112,9 +114,11 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                 BatchSpanProcessor(
                     OTLPSpanExporter(
                         # If we are using the global exporter settings, append the traces path
-                        endpoint=_append_trace_path(exporter_settings.endpoint)
-                        if exporter_settings == global_exporter_settings
-                        else exporter_settings.endpoint,
+                        endpoint=(
+                            _append_trace_path(exporter_settings.endpoint)
+                            if exporter_settings == global_exporter_settings
+                            else exporter_settings.endpoint
+                        ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
@@ -155,9 +159,11 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                 BatchLogRecordProcessor(
                     OTLPLogExporter(
                         # If we are using the global exporter settings, append the logs path
-                        endpoint=_append_logs_path(exporter_settings.endpoint)
-                        if exporter_settings == global_exporter_settings
-                        else exporter_settings.endpoint,
+                        endpoint=(
+                            _append_logs_path(exporter_settings.endpoint)
+                            if exporter_settings == global_exporter_settings
+                            else exporter_settings.endpoint
+                        ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
