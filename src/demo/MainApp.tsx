@@ -8,13 +8,15 @@ import { BaseVisConfig, ELabelingOptions, ENumericalColorScaleType, EScatterSele
 import { iris } from '../vis/stories/irisData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { fetchIrisData } from '../vis/stories/fetchIrisData';
+import * as Icons from '../icons/Icons';
+import * as EntityIcons from '../icons/EntityIcons';
 
-const generateCustomIconClasses = () => {
+const generateCustomIconClasses = (icons) => {
   const getSVG = (customPath) =>
     `data:image/svg+xml,%3Csvg width='300' height='300' fill='inherit' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='${customPath}' /%3E%3C/svg%3E`;
-  const customIconClasses = Object.keys(Icons).map((k) => {
+  const customIconClasses = Object.keys(icons).map((k) => {
     // get path from icon definition in Icons.tsx
-    let path = getSVG(Icons[k].icon[4]);
+    let path = getSVG(icons[k].icon[4]);
     // replace multiple spaces with single space
     path = path.replace(/\s+/g, ' ');
     return `.${k}::before {
@@ -36,7 +38,8 @@ const generateCustomIconClasses = () => {
 };
 
 injectGlobal`
-  ${generateCustomIconClasses()}
+  ${generateCustomIconClasses(Icons)}
+  ${generateCustomIconClasses(EntityIcons)}
 `;
 
 export function MainApp() {
@@ -89,6 +92,15 @@ export function MainApp() {
       {user ? (
         <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
           <Stack>
+            <Text size="1rem" c="red">
+              <i className="fa-solid fa-car" />
+              <i className="fac" />
+              <i className="faChemicalStructure" />
+              <i className="dvCellLine" />
+              <i className="faViolin" />
+              <i className="fa-solid fa-ca" />
+              Test
+            </Text>
             <Select
               placeholder="Add a score column"
               onChange={async (value) => {
