@@ -16,7 +16,7 @@ opentelemetry-instrumentation-sqlalchemy==0.40b0
 opentelemetry-instrumentation-system-metrics==0.40b0
 opentelemetry-sdk==1.19.0
 psycopg==3.1.9
-psycopg2==2.9.6
+psycopg2==2.9.9
 pydantic==1.10.11
 pyjwt[crypto]==2.8.0
 pytest-postgresql==5.0.0
