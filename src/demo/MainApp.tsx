@@ -1,5 +1,6 @@
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import * as React from 'react';
+import { injectGlobal } from '@emotion/css';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
@@ -7,6 +8,36 @@ import { BaseVisConfig, ELabelingOptions, ENumericalColorScaleType, EScatterSele
 import { iris } from '../vis/stories/irisData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { fetchIrisData } from '../vis/stories/fetchIrisData';
+
+const generateCustomIconClasses = () => {
+  const getSVG = (customPath) =>
+    `data:image/svg+xml,%3Csvg width='300' height='300' fill='inherit' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='${customPath}' /%3E%3C/svg%3E`;
+  const customIconClasses = Object.keys(Icons).map((k) => {
+    // get path from icon definition in Icons.tsx
+    let path = getSVG(Icons[k].icon[4]);
+    // replace multiple spaces with single space
+    path = path.replace(/\s+/g, ' ');
+    return `.${k}::before {
+        background-color: currentColor;
+        color: inherit;
+        content: '11';
+        -webkit-mask-image: url("${path}");
+        mask-image: url("${path}");
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        font-size: inherit;
+      }
+      .${k} {
+        font-size: inherit;
+        font-family: 'Font Awesome 6 Free';
+      }`;
+  });
+  return customIconClasses.join(' ');
+};
+
+injectGlobal`
+  ${generateCustomIconClasses()}
+`;
 
 export function MainApp() {
   const { user } = useVisynAppContext();
