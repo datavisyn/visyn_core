@@ -58,15 +58,6 @@ export function MainApp() {
       {user ? (
         <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
           <Stack>
-            <Text size="1rem" c="red">
-              <i className="fa-solid fa-car" />
-              <i className="fac" />
-              <i className="faChemicalStructure" />
-              <i className="dvCellLine" />
-              <i className="faViolin" />
-              <i className="fa-solid fa-ca" />
-              Test
-            </Text>
             <Select
               placeholder="Add a score column"
               onChange={async (value) => {
