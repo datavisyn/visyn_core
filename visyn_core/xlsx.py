@@ -16,6 +16,7 @@ router = APIRouter(prefix="/api/xlsx", tags=["xlsx"], dependencies=[Depends(get_
 _types = {"b": "boolean", "s": "string"}
 _log = logging.getLogger(__name__)
 
+
 def to_type(cell):
     if not cell:
         return "string"
@@ -40,14 +41,17 @@ def _convert_value(v):
 class XlsxFile(BaseModel):
     file: bytes | None
 
+
 class TableColumn(BaseModel):
     name: str
     type: str
+
 
 class TableSheet(BaseModel):
     title: str
     columns: list[TableColumn]
     rows: list[dict[str, str | int | float | bool | datetime]]
+
 
 class TableData(BaseModel):
     sheets: list[TableSheet]
