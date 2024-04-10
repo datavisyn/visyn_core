@@ -3,18 +3,18 @@ from datetime import datetime
 from tempfile import NamedTemporaryFile
 
 import dateutil.parser
-from flask import Flask, abort, jsonify, request
-from flask.wrappers import Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
+from pydantic import BaseModel
 
-_log = logging.getLogger(__name__)
-app = Flask(__name__)
+from visyn_core.security.dependencies import get_current_user
 
+router = APIRouter(prefix="/api/xlsx", tags=["xlsx"], dependencies=[Depends(get_current_user)])
 
 _types = {"b": "boolean", "s": "string"}
-
+_log = logging.getLogger(__name__)
 
 def to_type(cell):
     if not cell:
@@ -37,15 +37,31 @@ def _convert_value(v):
     return v
 
 
-@app.route("/to_json", methods=["POST"])
-def _xlsx2json():
-    file = request.files.get("file")
+class XlsxFile(BaseModel):
+    file: bytes | None
+
+class TableColumn(BaseModel):
+    name: str
+    type: str
+
+class TableSheet(BaseModel):
+    title: str
+    columns: list[TableColumn]
+    rows: list[dict[str, str | int | float | bool | datetime]]
+
+class TableData(BaseModel):
+    sheets: list[TableSheet]
+
+
+@router.post("/to_json/", response_model=TableData)
+def _xlsx2json(body: XlsxFile):
+    file = body.file
     if not file:
-        abort(403, "missing file")
+        raise HTTPException(status_code=403, detail="missing file")
 
     wb = load_workbook(file, read_only=True, data_only=True)  # type: ignore
 
-    def convert_row(row, cols):
+    def convert_row(row, cols) -> dict[str, str | int | float | bool | datetime]:
         result = {}
 
         for r, c in zip(cols, row, strict=False):
@@ -59,25 +75,25 @@ def _xlsx2json():
         ws_cols = next(ws_rows, [])
         ws_first_row = next(ws_rows, [])
 
-        cols = [{"name": h.value, "type": to_type(r)} for h, r in zip(ws_cols, ws_first_row, strict=False)]
+        cols = [TableColumn(name=h.value, type=to_type(r)) for h, r in zip(ws_cols, ws_first_row, strict=False)]
 
         rows = []
         rows.append(convert_row(cols, ws_first_row))
         for row in ws_rows:
             rows.append(str(convert_row(cols, row)))
 
-        return {"title": ws.title, "columns": cols, "rows": rows}
+        return TableSheet(title=ws.title, columns=cols, rows=rows)
 
     data = {"sheets": [convert_sheet(ws) for ws in wb.worksheets]}
 
-    return jsonify(data)
+    return data
 
 
-@app.route("/to_json_array", methods=["POST"])
-def _xlsx2json_array():
-    file = request.files.get("file")
+@router.post("/to_json_array/", response_model=list[dict[str, str | int | float | bool | datetime]])
+def _xlsx2json_array(body: XlsxFile):
+    file = body.file
     if not file:
-        abort(403, "missing file")
+        raise HTTPException(status_code=403, detail="missing file")
 
     wb = load_workbook(file, read_only=True, data_only=True)  # type: ignore
 
@@ -85,17 +101,16 @@ def _xlsx2json_array():
         return [_convert_value(cell.value) for cell in row]
 
     if not wb.worksheets:
-        return jsonify([])
+        return []
 
     ws = wb.worksheets[0]
 
     rows = [convert_row(row) for row in ws.iter_rows()]
-    return jsonify(rows)
+    return rows
 
 
-@app.route("/from_json", methods=["POST"])
-def _json2xlsx():
-    data: dict = request.json  # type: ignore
+@router.post("/from_json/")
+def _json2xlsx(data: TableData):
     wb = Workbook(write_only=True)
 
     bold = Font(bold=True)
@@ -127,27 +142,26 @@ def _json2xlsx():
                 v = dateutil.parser.parse(v)
         return to_cell(v)
 
-    for sheet in data.get("sheets", []):
-        ws = wb.create_sheet(title=sheet["title"])
-        cols = sheet["columns"]
-        ws.append(to_header(col["name"]) for col in cols)
+    for sheet in data.sheets:
+        ws = wb.create_sheet(title=sheet.title)
+        cols = sheet.columns
+        ws.append(to_header(col.name) for col in cols)
 
-        for row in sheet["rows"]:
-            ws.append(to_value(row.get(col["name"], None), col["type"]) for col in cols)
+        for row in sheet.rows:
+            ws.append(to_value(row.get(col.name, None), col.type) for col in cols)
 
     with NamedTemporaryFile() as tmp:
         wb.save(tmp.name)
         tmp.seek(0)
         s = tmp.read()
         return Response(
-            s,
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            content=s,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
 
 
-@app.route("/from_json_array", methods=["POST"])
-def _json_array2xlsx():
-    data: list = request.json  # type: ignore
+@router.post("/from_json_array/")
+def _json_array2xlsx(data: list[dict]):
     wb = Workbook(write_only=True)
     ws = wb.create_sheet()
 
@@ -159,8 +173,8 @@ def _json_array2xlsx():
         tmp.seek(0)
         s = tmp.read()
         return Response(
-            s,
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            content=s,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
 
 
@@ -168,4 +182,4 @@ def create():
     """
     entry point of this plugin
     """
-    return app
+    return router

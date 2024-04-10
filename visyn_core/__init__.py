@@ -33,7 +33,7 @@ class VisynPlugin(AVisynPlugin):
         # General routers
         registry.append("namespace", "visyn_core_main", "visyn_core.server.mainapp", {"namespace": "/app"})
         registry.append_router("visyn_plugin_router", "visyn_core.plugin.router", {})
-        registry.append("namespace", "visyn_xlsx2json", "visyn_core.xlsx", {"namespace": "/api/tdp/xlsx"})
+        registry.append_router("visyn_xlsx_router", "visyn_core.xlsx", {})
 
         # DB migration plugins
         registry.append(
