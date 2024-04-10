@@ -42,12 +42,6 @@ class VisynPlugin(AVisynPlugin):
             "visyn_core.dbmigration.manager",
             {"factory": "create_migration_command"},
         )
-        registry.append(
-            "namespace",
-            "db-migration-api",
-            "visyn_core.dbmigration.router",
-            {"factory": "create_migration_api", "namespace": "/api/tdp/db-migration"},
-        )
 
         # Security plugins
         registry.append(
