@@ -23,12 +23,7 @@ class VisynPlugin(AVisynPlugin):
 
     def register(self, registry: RegHelper):
         # phovea_server
-        registry.append(
-            "namespace",
-            "caleydo-idtype",
-            "visyn_core.id_mapping.idtype_api",
-            {"namespace": "/api/idtype", "factory": "create_idtype"},
-        )
+        registry.append_router("caleydo-idtype", "visyn_core.id_mapping.idtype_api", {})
 
         # General routers
         registry.append("namespace", "visyn_core_main", "visyn_core.server.mainapp", {"namespace": "/app"})

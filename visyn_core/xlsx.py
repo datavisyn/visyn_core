@@ -3,15 +3,13 @@ from datetime import datetime
 from tempfile import NamedTemporaryFile
 
 import dateutil.parser
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
 from pydantic import BaseModel
 
-from visyn_core.security.dependencies import get_current_user
-
-router = APIRouter(prefix="/api/xlsx", tags=["xlsx"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/api/xlsx", tags=["xlsx"])
 
 _types = {"b": "boolean", "s": "string"}
 _log = logging.getLogger(__name__)
