@@ -26,7 +26,6 @@ class VisynPlugin(AVisynPlugin):
         registry.append_router("caleydo-idtype", "visyn_core.id_mapping.idtype_api", {})
 
         # General routers
-        registry.append("namespace", "visyn_core_main", "visyn_core.server.mainapp", {"namespace": "/app"})
         registry.append_router("visyn_plugin_router", "visyn_core.plugin.router", {})
         registry.append_router("visyn_xlsx_router", "visyn_core.xlsx", {})
 

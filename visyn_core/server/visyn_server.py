@@ -139,12 +139,16 @@ def create_visyn_server(
     namespace_plugins = manager.registry.list("namespace")
     _log.info(f"Registering {len(namespace_plugins)} legacy namespace(s) via WSGIMiddleware")
     for p in namespace_plugins:
-        namespace = p.namespace  # type: ignore
+        try:
+            from flask import Flask  # type: ignore
 
-        sub_app = p.load().factory()
-        init_legacy_app(sub_app)
-
-        app.mount(namespace, WSGIMiddleware(sub_app))
+            namespace = p.namespace  # type: ignore
+            sub_app: Flask = p.load().factory()
+            init_legacy_app(sub_app)
+            app.mount(namespace, WSGIMiddleware(sub_app))
+        except ImportError:
+            _log.error("Flask is not installed. Add flask to your project requirements if using legacy apps.")
+            continue
 
     # Load all FastAPI apis
     router_plugins = manager.registry.list("fastapi_router")
@@ -153,11 +157,9 @@ def create_visyn_server(
     for p in router_plugins:
         app.include_router(p.load().factory())
 
-    # TODO: Check mainapp.py what it does and transfer them here. Currently, we cannot mount a flask app at root, such that the flask app is now mounted at /app/
-    from .mainapp import build_info, health
+    from .mainapp import mainapp_router
 
-    app.add_api_route("/health", health, methods=["GET", "HEAD"])  # type: ignore
-    app.add_api_route("/api/buildInfo.json", build_info)  # type: ignore
+    app.include_router(mainapp_router)
 
     @app.on_event("startup")
     async def change_anyio_total_tokens():

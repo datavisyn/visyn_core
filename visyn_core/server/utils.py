@@ -3,7 +3,6 @@ import logging
 import time
 import traceback
 
-from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
 from .. import manager
@@ -11,35 +10,44 @@ from .. import manager
 _log = logging.getLogger(__name__)
 
 
-def init_legacy_app(app: Flask):
-    """
-    initializes an application by setting common properties and options
-    :param app:
-    :param is_default_app:
-    :return:
-    """
-    if hasattr(app, "got_first_request") and app.got_first_request:
-        return
+init_legacy_app = None
+try:
+    # Flask is an optional dependency and must be added to the requirements for legacy apps.
+    from flask import Flask, jsonify  # type: ignore
 
-    if hasattr(app, "debug"):
-        # TODO: Evaluate if this should be set to manager.settings.is_development_mode
-        app.debug = False
+    def _init_legacy_app(app: Flask):
+        """
+        initializes an application by setting common properties and options
+        :param app:
+        :param is_default_app:
+        :return:
+        """
+        if hasattr(app, "got_first_request") and app.got_first_request:
+            return
 
-    if manager.settings.visyn_core:
-        app.config["SECRET_KEY"] = manager.settings.secret_key
+        if hasattr(app, "debug"):
+            # TODO: Evaluate if this should be set to manager.settings.is_development_mode
+            app.debug = False
 
-    @app.errorhandler(HTTPException)
-    @app.errorhandler(Exception)  # type: ignore
-    async def handle_exception(e):
-        """Handles Flask exceptions by returning the same JSON response as FastAPI#HTTPException would."""
-        _log.exception(repr(e))
-        # Extract status information if a Flask#HTTPException is given, otherwise return 500 with exception information
-        status_code = e.code if isinstance(e, HTTPException) else 500
-        detail = detail_from_exception(e)
-        # Exact same response as the one from FastAPI#HTTPException.
-        return jsonify({"detail": detail or http.HTTPStatus(status_code).phrase}), status_code
+        if manager.settings.visyn_core:
+            app.config["SECRET_KEY"] = manager.settings.secret_key
 
-    return app
+        @app.errorhandler(HTTPException)
+        @app.errorhandler(Exception)  # type: ignore
+        async def handle_exception(e):
+            """Handles Flask exceptions by returning the same JSON response as FastAPI#HTTPException would."""
+            _log.exception(repr(e))
+            # Extract status information if a Flask#HTTPException is given, otherwise return 500 with exception information
+            status_code = e.code if isinstance(e, HTTPException) else 500
+            detail = detail_from_exception(e)
+            # Exact same response as the one from FastAPI#HTTPException.
+            return jsonify({"detail": detail or http.HTTPStatus(status_code).phrase}), status_code
+
+        return app
+
+    init_legacy_app = _init_legacy_app
+except ImportError:
+    pass
 
 
 def load_after_server_started_hooks():
