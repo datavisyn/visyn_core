@@ -90,6 +90,6 @@ def detail_from_exception(e: Exception) -> str | None:
     if isinstance(e, HTTPException):
         return e.detail
     if FlaskHTTPException and isinstance(e, FlaskHTTPException):
-        return e.description
+        return e.description  # type: ignore
     # Fallback to the string representation of the exception
     return repr(e)
