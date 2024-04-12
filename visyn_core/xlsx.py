@@ -45,10 +45,13 @@ class TableColumn(BaseModel):
     type: str
 
 
+CELL_CONTENT = str | int | float | bool | datetime | None
+
+
 class TableSheet(BaseModel):
     title: str
     columns: list[TableColumn]
-    rows: list[dict[str, str | int | float | bool | datetime]]
+    rows: list[dict[str, CELL_CONTENT]]
 
 
 class TableData(BaseModel):
@@ -63,7 +66,7 @@ def xlsx2json(body: XlsxFile):
 
     wb = load_workbook(file, read_only=True, data_only=True)  # type: ignore
 
-    def convert_row(row, cols) -> dict[str, str | int | float | bool | datetime]:
+    def convert_row(row, cols) -> dict[str, CELL_CONTENT]:
         result = {}
 
         for r, c in zip(cols, row, strict=False):
@@ -91,7 +94,7 @@ def xlsx2json(body: XlsxFile):
     return data
 
 
-@router.post("/to_json_array/", response_model=list[dict[str, str | int | float | bool | datetime]])
+@router.post("/to_json_array/", response_model=list[dict[str, CELL_CONTENT]])
 def xlsx2json_array(body: XlsxFile):
     file = body.file
     if not file:
