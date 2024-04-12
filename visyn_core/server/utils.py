@@ -3,9 +3,16 @@ import logging
 import time
 import traceback
 
-from werkzeug.exceptions import HTTPException
+from fastapi import HTTPException
 
 from .. import manager
+
+# Flask is using exceptions from Werkzeug, which are not compatible with FastAPI's HTTPException
+# Only import and use FlaskHTTPException if Flask is available
+try:
+    from werkzeug.exceptions import HTTPException as FlaskHTTPException  # type: ignore
+except ImportError:
+    FlaskHTTPException = None
 
 _log = logging.getLogger(__name__)
 
@@ -32,13 +39,13 @@ try:
         if manager.settings.visyn_core:
             app.config["SECRET_KEY"] = manager.settings.secret_key
 
-        @app.errorhandler(HTTPException)
+        @app.errorhandler(FlaskHTTPException)
         @app.errorhandler(Exception)  # type: ignore
         async def handle_exception(e):
             """Handles Flask exceptions by returning the same JSON response as FastAPI#HTTPException would."""
             _log.exception(repr(e))
             # Extract status information if a Flask#HTTPException is given, otherwise return 500 with exception information
-            status_code = e.code if isinstance(e, HTTPException) else 500
+            status_code = e.code if FlaskHTTPException and isinstance(e, FlaskHTTPException) else 500
             detail = detail_from_exception(e)
             # Exact same response as the one from FastAPI#HTTPException.
             return jsonify({"detail": detail or http.HTTPStatus(status_code).phrase}), status_code
@@ -81,6 +88,8 @@ def detail_from_exception(e: Exception) -> str | None:
         )
     # Exception specific returns
     if isinstance(e, HTTPException):
+        return e.detail
+    if FlaskHTTPException and isinstance(e, FlaskHTTPException):
         return e.description
     # Fallback to the string representation of the exception
     return repr(e)
