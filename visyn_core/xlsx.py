@@ -56,7 +56,7 @@ class TableData(BaseModel):
 
 
 @router.post("/to_json/", response_model=TableData)
-def _xlsx2json(body: XlsxFile):
+def xlsx2json(body: XlsxFile):
     file = body.file
     if not file:
         raise HTTPException(status_code=403, detail="missing file")
@@ -92,7 +92,7 @@ def _xlsx2json(body: XlsxFile):
 
 
 @router.post("/to_json_array/", response_model=list[dict[str, str | int | float | bool | datetime]])
-def _xlsx2json_array(body: XlsxFile):
+def xlsx2json_array(body: XlsxFile):
     file = body.file
     if not file:
         raise HTTPException(status_code=403, detail="missing file")
@@ -112,7 +112,7 @@ def _xlsx2json_array(body: XlsxFile):
 
 
 @router.post("/from_json/")
-def _json2xlsx(data: TableData):
+def json2xlsx(data: TableData):
     wb = Workbook(write_only=True)
 
     bold = Font(bold=True)
@@ -163,7 +163,7 @@ def _json2xlsx(data: TableData):
 
 
 @router.post("/from_json_array/")
-def _json_array2xlsx(data: list[dict]):
+def json_array2xlsx(data: list[dict]):
     wb = Workbook(write_only=True)
     ws = wb.create_sheet()
 

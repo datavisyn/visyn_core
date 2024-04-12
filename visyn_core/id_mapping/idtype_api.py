@@ -39,7 +39,7 @@ class IdTypeMappingSearchResponse(BaseModel):
 
 
 @idtype_router.get("/", response_model=list[IdType])
-def _list_idtypes():
+def list_idtypes():
     # TODO: We probably don't want to have these idtypes as "all" idtypes
     # for d in list_datasets():
     #     for idtype in d.to_idtype_descriptions():
@@ -50,12 +50,12 @@ def _list_idtypes():
 
 
 @idtype_router.get("/{idtype}/", response_model=list[IdType])
-def _maps_to(idtype: str):
+def maps_to(idtype: str):
     return manager.id_mapping.maps_to(idtype)
 
 
 @idtype_router.api_route("/{idtype}/{to_idtype}/", methods=["GET", "POST"], response_model=list[str])
-def _mapping_to(body: IdTypeMappingRequest, idtype: str, to_idtype: str):
+def mapping_to(body: IdTypeMappingRequest, idtype: str, to_idtype: str):
     first_only = body.mode == "first"
 
     names = body.q
@@ -68,7 +68,7 @@ def _mapping_to(body: IdTypeMappingRequest, idtype: str, to_idtype: str):
 
 
 @idtype_router.get("/{idtype}/{to_idtype}/search/", response_model=list[IdTypeMappingSearchResponse])
-def _mapping_to_search(body: IdTypeMappingSearchRequest, idtype, to_idtype):
+def mapping_to_search(body: IdTypeMappingSearchRequest, idtype, to_idtype):
     query = body.q
     max_results = body.limit
     if hasattr(manager.id_mapping, "search"):
