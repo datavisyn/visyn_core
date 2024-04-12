@@ -1,9 +1,11 @@
 import logging
 from datetime import datetime
+from io import BytesIO
 from tempfile import NamedTemporaryFile
+from typing import Annotated, Any
 
 import dateutil.parser
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, File, HTTPException, Response
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
@@ -36,10 +38,6 @@ def _convert_value(v):
     return v
 
 
-class XlsxFile(BaseModel):
-    file: bytes | None
-
-
 class TableColumn(BaseModel):
     name: str
     type: str
@@ -51,7 +49,7 @@ CELL_CONTENT = str | int | float | bool | datetime | None
 class TableSheet(BaseModel):
     title: str
     columns: list[TableColumn]
-    rows: list[dict[str, CELL_CONTENT]]
+    rows: list[dict[str, Any]]
 
 
 class TableData(BaseModel):
@@ -59,19 +57,17 @@ class TableData(BaseModel):
 
 
 @router.post("/to_json/", response_model=TableData)
-def xlsx2json(body: XlsxFile):
-    file = body.file
+def xlsx2json(file: Annotated[bytes, File()]):
     if not file:
         raise HTTPException(status_code=403, detail="missing file")
 
-    wb = load_workbook(file, read_only=True, data_only=True)  # type: ignore
+    wb = load_workbook(filename=BytesIO(file), read_only=True, data_only=True)  # type: ignore
 
-    def convert_row(row, cols) -> dict[str, CELL_CONTENT]:
+    def convert_row(row, cols: list[TableColumn]) -> dict[str, CELL_CONTENT]:
         result = {}
 
-        for r, c in zip(cols, row, strict=False):
-            result[c["name"]] = _convert_value(r.value)
-
+        for r, c in zip(row, cols, strict=False):
+            result[c.name] = _convert_value(r.value)
         return result
 
     def convert_sheet(ws):
@@ -83,24 +79,21 @@ def xlsx2json(body: XlsxFile):
         cols = [TableColumn(name=h.value, type=to_type(r)) for h, r in zip(ws_cols, ws_first_row, strict=False)]
 
         rows = []
-        rows.append(convert_row(cols, ws_first_row))
+        rows.append(convert_row(ws_first_row, cols))
         for row in ws_rows:
-            rows.append(str(convert_row(cols, row)))
-
+            rows.append(convert_row(row, cols))
         return TableSheet(title=ws.title, columns=cols, rows=rows)
 
-    data = {"sheets": [convert_sheet(ws) for ws in wb.worksheets]}
-
+    data = TableData(sheets=[convert_sheet(ws) for ws in wb.worksheets])
     return data
 
 
-@router.post("/to_json_array/", response_model=list[dict[str, CELL_CONTENT]])
-def xlsx2json_array(body: XlsxFile):
-    file = body.file
+@router.post("/to_json_array/", response_model=list[list[Any]])
+def xlsx2json_array(file: Annotated[bytes, File()]):
     if not file:
         raise HTTPException(status_code=403, detail="missing file")
 
-    wb = load_workbook(file, read_only=True, data_only=True)  # type: ignore
+    wb = load_workbook(filename=BytesIO(file), read_only=True, data_only=True)
 
     def convert_row(row):
         return [_convert_value(cell.value) for cell in row]
@@ -166,7 +159,7 @@ def json2xlsx(data: TableData):
 
 
 @router.post("/from_json_array/")
-def json_array2xlsx(data: list[dict]):
+def json_array2xlsx(data: list[list[Any]]):
     wb = Workbook(write_only=True)
     ws = wb.create_sheet()
 
