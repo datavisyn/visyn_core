@@ -1,7 +1,6 @@
 import os
 
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 
 mainapp_router = APIRouter(tags=["MainApp"])
 
@@ -34,6 +33,6 @@ def build_info():
 
 
 # health check for docker-compose, kubernetes
-@mainapp_router.api_route("/health", methods=["GET", "HEAD"])
-async def health() -> JSONResponse:
-    return JSONResponse(content="ok")
+@mainapp_router.api_route("/health", methods=["GET", "HEAD"], include_in_schema=False)
+async def health():
+    return "ok"
