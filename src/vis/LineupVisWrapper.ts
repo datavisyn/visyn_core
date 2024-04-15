@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { CategoricalColumn, Column, IDataRow, LocalDataProvider, NumberColumn, Ranking, ValueColumn } from 'lineupjs';
+import { CategoricalColumn, Column, IDataRow, LocalDataProvider, NumberColumn, CompositeNumberColumn, Ranking, ValueColumn } from 'lineupjs';
 import { Vis } from './LazyVis';
 import { EColumnTypes, ColumnInfo, VisColumn, EFilterOptions, IVisCommonValue } from './interfaces';
 import { i18n } from '../i18n';
@@ -77,7 +77,7 @@ export class LineupVisWrapper {
     };
 
     const mapData = <T extends ValueColumn<number | string>>(innerData: IDataRow[], column: T) => {
-      return innerData.map((d) => <IVisCommonValue<ReturnType<typeof column.getRaw>>>{ id: d.v[this.idField], val: column.getRaw(d) });
+      return innerData.map((d) => <IVisCommonValue<ReturnType<typeof column.getValue>>>{ id: d.v[this.idField], val: column.getValue(d) });
     };
 
     const getColumnValue = async <T extends ValueColumn<number | string>>(column: T) => {
@@ -100,9 +100,13 @@ export class LineupVisWrapper {
 
     for (const c of ranking.flatColumns) {
       if (c instanceof NumberColumn) {
+        // console.log(c.getColumnValue(c));
         cols.push({
           info: getColumnInfo(c),
-          values: () => getColumnValue(c),
+          values: () => {
+            console.log(c);
+            return getColumnValue(c);
+          },
           type: EColumnTypes.NUMERICAL,
         });
       } else if (c instanceof CategoricalColumn) {
@@ -111,6 +115,12 @@ export class LineupVisWrapper {
           values: () => getColumnValue(c).then((res) => res.map((v) => (v.val ? v : { ...v, val: this.PLOTLY_CATEGORICAL_MISSING_VALUE }))),
           type: EColumnTypes.CATEGORICAL,
         });
+        // } else if (c instanceof CompositeNumberColumn) {
+        //   cols.push({
+        //     info: getColumnInfo(c),
+        //     values: () => getValue(c),
+        //     type: EColumnTypes.NUMERICAL,
+        //   });
       }
     }
 
