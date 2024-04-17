@@ -56,7 +56,7 @@ def create_visyn_server(
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /metrics" and "GET /health" not in record.getMessage()
+            return "GET /api/metrics" and "GET /api/health" not in record.getMessage()
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
@@ -139,16 +139,10 @@ def create_visyn_server(
     namespace_plugins = manager.registry.list("namespace")
     _log.info(f"Registering {len(namespace_plugins)} legacy namespace(s) via WSGIMiddleware")
     for p in namespace_plugins:
-        try:
-            from flask import Flask  # type: ignore
-
-            namespace = p.namespace  # type: ignore
-            sub_app: Flask = p.load().factory()
-            init_legacy_app(sub_app)
-            app.mount(namespace, WSGIMiddleware(sub_app))
-        except ImportError:
-            _log.error("Flask is not installed. Add flask to your project requirements if using legacy apps.")
-            continue
+        namespace = p.namespace  # type: ignore
+        sub_app = p.load().factory()
+        init_legacy_app(sub_app)
+        app.mount(namespace, WSGIMiddleware(sub_app))
 
     # Load all FastAPI apis
     router_plugins = manager.registry.list("fastapi_router")

@@ -9,13 +9,13 @@ from visyn_core.security.store.oauth2_security_store import create as create_oau
 
 
 def test_api_key(client: TestClient):
-    assert client.get("/loggedinas", headers={"apiKey": "invalid_user:password"}).json() == '"not_yet_logged_in"'
-    assert client.get("/loggedinas", headers={"apiKey": "admin:admin"}).json()["name"] == "admin"
+    assert client.get("/api/loggedinas", headers={"apiKey": "invalid_user:password"}).json() == '"not_yet_logged_in"'
+    assert client.get("/api/loggedinas", headers={"apiKey": "admin:admin"}).json()["name"] == "admin"
 
 
 def test_basic_authorization(client: TestClient):
-    assert client.get("/loggedinas", auth=("invalid_user", "password")).json() == '"not_yet_logged_in"'
-    assert client.get("/loggedinas", auth=("admin", "admin")).json()["name"] == "admin"
+    assert client.get("/api/loggedinas", auth=("invalid_user", "password")).json() == '"not_yet_logged_in"'
+    assert client.get("/api/loggedinas", auth=("admin", "admin")).json()["name"] == "admin"
 
 
 def test_jwt_login(client: TestClient):
@@ -32,12 +32,12 @@ def test_jwt_login(client: TestClient):
     assert stores == [{"id": "DummyStore", "ui": "DefaultLoginForm", "configuration": {}}]
 
     # Check if we are actually not logged in
-    response = client.get("/loggedinas")
+    response = client.get("/api/loggedinas")
     assert response.status_code == 200
     assert response.json() == '"not_yet_logged_in"'
 
     # Login with the dummy user
-    response = client.post("/login", data={"username": "admin", "password": "admin"})
+    response = client.post("/api/login", data={"username": "admin", "password": "admin"})
     assert response.status_code == 200
     user: dict = response.json()
     assert user["name"] == "admin"
@@ -46,7 +46,7 @@ def test_jwt_login(client: TestClient):
     assert user["payload"]["username"] == "admin"
 
     # Check if we are logged in and get the same response as from the login
-    response = client.get("/loggedinas")
+    response = client.get("/api/loggedinas")
     assert response.status_code == 200
     assert user == response.json()
     assert (
@@ -58,7 +58,7 @@ def test_jwt_login(client: TestClient):
     manager.settings.jwt_refresh_if_expiring_in_seconds = manager.settings.jwt_expire_in_seconds + 5
 
     # Check if we are still logged in and get the same response as the refresh happens *after* the request
-    assert user == client.get("/loggedinas").json()
+    assert user == client.get("/api/loggedinas").json()
     assert (
         client.cookies.get(manager.settings.jwt_access_cookie_name) != user["access_token"]
     )  # Access token is different in response and cookies
@@ -67,7 +67,7 @@ def test_jwt_login(client: TestClient):
     manager.settings.jwt_refresh_if_expiring_in_seconds = original_jwt_refresh_if_expiring_in_seconds
 
     # Check if we are logged in and get a different response as the cookie was auto-refreshed in the last request
-    refreshed_user = client.get("/loggedinas").json()
+    refreshed_user = client.get("/api/loggedinas").json()
     assert user["name"] == refreshed_user["name"]  # Same user
     assert user["access_token"] != refreshed_user["access_token"]  # But different token
     assert user["payload"]["exp"] < refreshed_user["payload"]["exp"]  # With longer expiry date
@@ -76,18 +76,18 @@ def test_jwt_login(client: TestClient):
     )  # Access token is equal in new response and cookies
 
     # Logout
-    response = client.post("/logout")
+    response = client.post("/api/logout")
     assert response.status_code == 200
 
     # Check if we are actually not logged in anymore
-    response = client.get("/loggedinas")
+    response = client.get("/api/loggedinas")
     assert response.status_code == 200
     assert response.json() == '"not_yet_logged_in"'
 
 
 def test_jwt_token_location(client: TestClient):
     # Login to set a cookie
-    response = client.post("/login", data={"username": "admin", "password": "admin"})
+    response = client.post("/api/login", data={"username": "admin", "password": "admin"})
     assert response.status_code == 200
     access_token = response.json()["access_token"]
 
@@ -95,25 +95,25 @@ def test_jwt_token_location(client: TestClient):
     manager.settings.jwt_token_location = []
 
     # Does not work even though both header and cookies are passed
-    response = client.get("/loggedinas", headers={"Authorization": f"Bearer {access_token}"})
+    response = client.get("/api/loggedinas", headers={"Authorization": f"Bearer {access_token}"})
     assert response.json() == '"not_yet_logged_in"'
 
     # Allow headers
     manager.settings.jwt_token_location = ["headers"]
 
     # Does not work as only headers are accepted
-    response = client.get("/loggedinas")
+    response = client.get("/api/loggedinas")
     assert response.json() == '"not_yet_logged_in"'
 
     # Does work as header is passed
-    response = client.get("/loggedinas", headers={"Authorization": f"Bearer {access_token}"})
+    response = client.get("/api/loggedinas", headers={"Authorization": f"Bearer {access_token}"})
     assert response.json() == '"not_yet_logged_in"'
 
     # Allow cookies
     manager.settings.jwt_token_location = ["cookies"]
 
     # Does work even without header
-    response = client.get("/loggedinas")
+    response = client.get("/api/loggedinas")
     assert response.json() != '"not_yet_logged_in"'
 
 
@@ -123,7 +123,7 @@ def test_alb_security_store(client: TestClient):
     manager.settings.visyn_core.security.store.alb_security_store.email_token_field = ["field1", "field2", "email"]
     manager.settings.visyn_core.security.store.alb_security_store.decode_options = {"verify_signature": False}
     manager.settings.visyn_core.security.store.alb_security_store.cookie_name = "TestCookie"
-    manager.settings.visyn_core.security.store.alb_security_store.signout_url = "http://localhost/logout"
+    manager.settings.visyn_core.security.store.alb_security_store.signout_url = "http://localhost/api/logout"
 
     store = create_alb_security_store()
     assert store is not None
@@ -141,26 +141,26 @@ def test_alb_security_store(client: TestClient):
     }
 
     # Check loggedinas with a JWT
-    response = client.get("/loggedinas", headers=headers)
+    response = client.get("/api/loggedinas", headers=headers)
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
 
     # Logout and check if we get the correct redirect url
-    response = client.post("/logout", headers=headers)
+    response = client.post("/api/logout", headers=headers)
     assert response.status_code == 200
-    assert response.json()["redirect"] == "http://localhost/logout"
+    assert response.json()["redirect"] == "http://localhost/api/logout"
 
     # Test if we are not logged in if we use invalid fields
     store.email_token_fields = ["field1", "field2"]
-    assert client.get("/loggedinas", headers=headers).json() == '"not_yet_logged_in"'
+    assert client.get("/api/loggedinas", headers=headers).json() == '"not_yet_logged_in"'
 
 
 def test_oauth2_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.oauth2_security_store.enable = True
     manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name = "TestCookie"
-    manager.settings.visyn_core.security.store.oauth2_security_store.signout_url = "http://localhost/logout"
+    manager.settings.visyn_core.security.store.oauth2_security_store.signout_url = "http://localhost/api/logout"
 
     store = create_oauth2_security_store()
     assert store is not None
@@ -176,15 +176,15 @@ def test_oauth2_security_store(client: TestClient):
     }
 
     # Check loggedinas with a JWT
-    response = client.get("/loggedinas", headers=headers)
+    response = client.get("/api/loggedinas", headers=headers)
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
 
     # Logout and check if we get the correct redirect url
-    response = client.post("/logout", headers=headers)
+    response = client.post("/api/logout", headers=headers)
     assert response.status_code == 200
-    assert response.json()["redirect"] == "http://localhost/logout"
+    assert response.json()["redirect"] == "http://localhost/api/logout"
 
 
 def test_no_security_store(client: TestClient):
@@ -198,7 +198,7 @@ def test_no_security_store(client: TestClient):
 
     manager.security.user_stores = [store]
 
-    user_info = client.get("/loggedinas").json()
+    user_info = client.get("/api/loggedinas").json()
     assert user_info != '"not_yet_logged_in"'
     assert user_info["name"] == "test_name"
     assert user_info["roles"] == ["test_role"]
@@ -214,7 +214,7 @@ def test_user_login_hooks(client: TestClient):
 
     assert counter == 0
 
-    client.get("/loggedinas", auth=("admin", "admin"))
+    client.get("/api/loggedinas", auth=("admin", "admin"))
 
     assert counter == 1
 
@@ -223,6 +223,6 @@ def test_user_login_hooks(client: TestClient):
         nonlocal counter
         counter -= 1
 
-    client.get("/loggedinas", auth=("admin", "admin"))
+    client.get("/api/loggedinas", auth=("admin", "admin"))
 
     assert counter == 1

@@ -91,7 +91,7 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
         class CustomMetricsResponse(Response):
             media_type = CONTENT_TYPE_LATEST
 
-        @app.get("/metrics", tags=["Telemetry"], response_class=CustomMetricsResponse)
+        @app.get("/api/metrics", tags=["Telemetry"], response_class=CustomMetricsResponse)
         def prometheus_metrics():
             """
             Prometheus metrics endpoint. Is not required as we are pushing metrics using OTLPMetricExporter, but can be used for debugging purposes.
