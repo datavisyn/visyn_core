@@ -1,6 +1,6 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Center, Group, Text, Tooltip } from '@mantine/core';
+import { Center, Group, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -47,7 +47,7 @@ export function XAxis({
             <Group gap={3} style={{ cursor: 'pointer' }}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
 
-              <Text size={compact ? 'xs' : 'md'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
+              <Text size={compact ? rem('10px') : 'sm'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
                 {label}
               </Text>
               {arrowAsc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretRight} /> : null}
@@ -65,7 +65,7 @@ export function XAxis({
           <foreignObject x={0 - tickWidth / 2} y={10} width={tickWidth} height={20}>
             <Center>
               <Tooltip withinPortal label={value}>
-                <Text px={2} size="xs" style={{ textAlign: 'center', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <Text px={2} size={rem('10px')} style={{ textAlign: 'center', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                   {value}
                 </Text>
               </Tooltip>

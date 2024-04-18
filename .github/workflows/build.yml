@@ -11,9 +11,19 @@ on:
   push:
 
 jobs:
-  build:
-    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@new_deployment_no_ports
+  build-hosted:
+    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_selfhosted
     secrets: inherit
     with:
       cypress_enable: true
+      cypress_run_because_flag: ${{ inputs.cypress == true }}
+  build-selfhosted:
+    needs: build-hosted
+    if: always()
+    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_selfhosted
+    secrets: inherit
+    with:
+      runs_on: self-hosted
+      cypress_enable: true
+      cypress_runs_on: self-hosted
       cypress_run_because_flag: ${{ inputs.cypress == true }}

@@ -1,20 +1,20 @@
 // TODO: Without this, we get "Can't resolve './node_modules/lineupengine/src/styles/lineupengine/src/assets/loading.svg' in '.../workspaces/<repo>'"
 // Why do I need to do this? Probably because lineupjs defines $engine_assets and it is resolving it relatively?
-$engine_assets: '~lineupengine/src/assets';
+$engine_assets: '../assets';
 $engine_loading_image: url('#{$engine_assets}/loading.svg') !default;
 $engine_loading_static_image: url('#{$engine_assets}/loading_s.svg') !default;
 
-$lu_assets: '~lineupjs/src/assets' !default;
+$lu_assets: '../assets' !default;
 $lu_use_font_awesome: true !default;
 $lu_include_font_awesome: false !default;
 
 // Add fontawesome only here to allow lazy loading of this style.
-@import '~@fortawesome/fontawesome-free/scss/solid';
-@import '~@fortawesome/fontawesome-free/scss/regular';
-@import '~@fortawesome/fontawesome-free/scss/brands';
-@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '@fortawesome/fontawesome-free/scss/solid';
+@import '@fortawesome/fontawesome-free/scss/regular';
+@import '@fortawesome/fontawesome-free/scss/brands';
+@import '@fortawesome/fontawesome-free/scss/fontawesome';
 
-@import '~lineupjs/src/style.scss';
+@import 'lineupjs/src/style.scss';
 
 .lu {
     // use a fixed font-size for the ranking + side panel with the Roboto font family.

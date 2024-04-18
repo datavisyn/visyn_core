@@ -1,6 +1,6 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Center, Group, Text } from '@mantine/core';
+import { Center, Group, Text, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -51,7 +51,7 @@ export function YAxis({
             <Group gap={3} style={{ cursor: 'pointer' }}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
 
-              <Text size={compact ? 'xs' : 'md'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
+              <Text size={compact ? rem('10px') : 'sm'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
                 {label}
               </Text>
               {arrowAsc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretRight} /> : null}
@@ -78,7 +78,7 @@ export function YAxis({
           >
             <foreignObject width={labelSpacing} height={20}>
               <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Text truncate size="xs">
+                <Text truncate size={rem('10px')}>
                   {value}
                 </Text>
               </Group>
