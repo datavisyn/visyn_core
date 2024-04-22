@@ -8,6 +8,7 @@ import {
   ColumnInfo,
   EColumnTypes,
   ENumericalColorScaleType,
+  ERegressionLineOptions,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
   PlotlyData,
@@ -44,6 +45,7 @@ const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
   showLabels: ELabelingOptions.SELECTED,
+  showRegressionLine: ERegressionLineOptions.NONE,
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {

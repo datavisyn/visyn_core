@@ -1,7 +1,7 @@
 import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ICommonVisSideBarProps } from '../interfaces';
+import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ERegressionLineOptions, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
 import { SingleSelect } from '../sidebar/SingleSelect';
@@ -9,6 +9,7 @@ import { ColorSelect } from './ColorSelect';
 import { OpacitySlider } from './OpacitySlider';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
 import { LabelingOptions } from './LabelingOptions';
+import { RegressionLineOptions } from './Regression';
 
 const defaultConfig = {
   color: {
@@ -24,6 +25,10 @@ const defaultConfig = {
     customComponent: null,
   },
   labels: {
+    enable: true,
+    customComponent: null,
+  },
+  regressionLine: {
     enable: true,
     customComponent: null,
   },
@@ -87,6 +92,19 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         : null}
 
       {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+
+      {mergedOptionsConfig.regressionLine.enable
+        ? mergedOptionsConfig.regressionLine.customComponent || (
+            <RegressionLineOptions
+              callback={(showRegressionLine: ERegressionLineOptions) => {
+                if (config.showRegressionLine !== showRegressionLine) {
+                  setConfig({ ...config, showRegressionLine });
+                }
+              }}
+              currentSelected={config.showRegressionLine}
+            />
+          )
+        : null}
     </>
   );
 }
