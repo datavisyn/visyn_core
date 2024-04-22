@@ -39,7 +39,7 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
    * @param desc The score description
    * @param options Options for the score creation
    */
-  createScoreColumn(desc: IScoreResult, options: { ranking?: Ranking; insertAfter?: Column }) {
+  createScoreColumn(desc: IScoreResult, options?: { ranking?: Ranking; insertAfter?: Column }) {
     const ranking = options.ranking || this.ranking;
 
     if (!ranking) {
