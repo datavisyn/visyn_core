@@ -1,4 +1,4 @@
-import { IRankingDump, Ranking, Taggle, DataProvider, LocalDataProvider, TaggleRenderer } from 'lineupjs';
+import { Column, DataProvider, IRankingDump, LocalDataProvider, Ranking, Taggle, TaggleRenderer } from 'lineupjs';
 import castArray from 'lodash/castArray';
 import { IScoreColumnDesc, IScoreResult } from '../score/interfaces';
 
@@ -37,8 +37,9 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
    * Creates a score column in the supplied ranking. Uses the default ranking if none is supplied.
    *
    * @param desc The score description
+   * @param insertAfter The column to insert the score column after
    */
-  createScoreColumn(desc: IScoreResult, ranking = this.ranking) {
+  createScoreColumn(desc: IScoreResult, insertAfter?: Column, ranking = this.ranking) {
     if (!ranking) {
       throw new Error('No ranking found');
     }
@@ -55,6 +56,9 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
 
       const col = this.data.create(colDesc);
 
+      if (insertAfter) {
+        return ranking.insertAfter(col, insertAfter);
+      }
       return ranking.push(col);
     });
   }
