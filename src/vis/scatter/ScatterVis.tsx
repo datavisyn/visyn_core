@@ -56,6 +56,7 @@ export function ScatterVis({
     scales,
     shapes,
     config.showLabels,
+    config.showRegressionLine,
   ]);
 
   React.useEffect(() => {

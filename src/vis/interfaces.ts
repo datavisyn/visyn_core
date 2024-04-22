@@ -103,7 +103,7 @@ export type PlotlyInfo = {
 };
 
 export type PlotlyData = {
-  data: Partial<PlotlyTypes.PlotData>;
+  data: Partial<PlotlyTypes.PlotData>[];
   xLabel: string;
   yLabel: string;
   xTicks?: string[];
