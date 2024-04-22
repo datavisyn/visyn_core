@@ -26,6 +26,7 @@ export function MultiSelect({
     callback(currentSelected.filter((s) => s.id !== id));
   };
 
+  // NOTE: @dv-usama-ansari: See https://github.com/datavisyn/visyn_core/pull/261#issuecomment-2068786265
   const handleValueSelect = (id: string) => {
     const itemToAdd = filteredColumns.find((c) => c.info.id === id);
     currentSelected.find((c) => c.id === id) ? handleValueRemove(itemToAdd.info.id) : callback([...currentSelected, itemToAdd.info]);
