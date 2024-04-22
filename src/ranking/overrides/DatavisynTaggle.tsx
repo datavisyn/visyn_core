@@ -37,9 +37,11 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
    * Creates a score column in the supplied ranking. Uses the default ranking if none is supplied.
    *
    * @param desc The score description
-   * @param insertAfter The column to insert the score column after
+   * @param options Options for the score creation
    */
-  createScoreColumn(desc: IScoreResult, insertAfter?: Column, ranking = this.ranking) {
+  createScoreColumn(desc: IScoreResult, options: { ranking?: Ranking; insertAfter?: Column }) {
+    const ranking = options.ranking || this.ranking;
+
     if (!ranking) {
       throw new Error('No ranking found');
     }
@@ -56,8 +58,8 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
 
       const col = this.data.create(colDesc);
 
-      if (insertAfter) {
-        return ranking.insertAfter(col, insertAfter);
+      if (options.insertAfter) {
+        return ranking.insertAfter(col, options.insertAfter);
       }
       return ranking.push(col);
     });
