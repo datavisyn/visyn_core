@@ -2,14 +2,16 @@ import { Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
+import { categoricalColors } from 'visyn_core/utils';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
+import { SELECT_COLOR } from '../general/constants';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { createViolinTraces } from './utils';
 import { IViolinConfig } from './interfaces';
+import { createViolinTraces } from './utils';
 
 export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
@@ -18,6 +20,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
   const id = useMemo(() => uniqueId('ViolinVis'), []);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
+  const [currentSelectedX, setCurrentSelectedX] = useState<string[]>([]);
 
   // Filter out null values from traces as null values cause the tooltip to not show up
   const filteredTraces = useMemo(() => {
@@ -25,6 +28,9 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     const indexWithNull = traces.plots?.map(
       (plot) => (plot?.data.y as PlotlyTypes.Datum[])?.reduce((acc: number[], curr, i) => (curr === null ? [...acc, i] : acc), []) as number[],
     );
+    const y = (traces?.plots?.[0]?.data?.y as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[0].includes(i));
+    const x = (traces?.plots?.[0]?.data?.x as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[0].includes(i));
+    const uniqueX = [...new Set(x)];
     const filtered = {
       ...traces,
       plots: traces?.plots?.map((p, p_index) => {
@@ -32,18 +38,25 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
           ...p,
           data: {
             ...p.data,
-            y: (p.data?.y as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
-            x: (p.data?.x as PlotlyTypes.Datum[])?.filter((v, i) => !indexWithNull[p_index].includes(i)),
+            y,
+            x,
             ids: p.data?.ids?.filter((v, i) => !indexWithNull[p_index].includes(i)),
-            transforms: p.data?.transforms?.map(
-              (t) => (t.groups as unknown[])?.filter((v, i) => !indexWithNull[p_index].includes(i)) as Partial<PlotlyTypes.Transform>,
-            ),
+            transforms: [
+              {
+                type: 'groupby',
+                groups: x,
+                styles: uniqueX.map((cat) => ({
+                  target: cat,
+                  value: { line: { color: currentSelectedX.includes(cat as string) ? SELECT_COLOR : categoricalColors[9] } },
+                })),
+              },
+            ],
           },
         };
       }),
     };
     return filtered;
-  }, [traces]);
+  }, [currentSelectedX, traces]);
 
   const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
     if (!e || !e.points || !e.points[0]) {
@@ -52,7 +65,9 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     }
 
     const shiftPressed = e.event.shiftKey;
-    const eventIds = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
+    const event = e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } };
+    const xSelected = event.x as string;
+    const eventIds = event.data.ids.filter((_, idx) => event.data.x[idx] === xSelected);
 
     // Multiselect enabled
     if (shiftPressed) {
@@ -63,14 +78,21 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       if (newSelected.length === selectedList.length) {
         newSelected.push(...eventIds);
       }
-
       selectionCallback(newSelected);
+
+      if (currentSelectedX.includes(xSelected)) {
+        setCurrentSelectedX(currentSelectedX.filter((x) => x !== xSelected));
+      } else {
+        setCurrentSelectedX([...new Set([...currentSelectedX, xSelected])]);
+      }
     }
     // Multiselect disabled
-    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
+    else if (currentSelectedX.length === 1 && currentSelectedX[0] === xSelected) {
       selectionCallback([]);
+      setCurrentSelectedX([]);
     } else {
       selectionCallback(eventIds);
+      setCurrentSelectedX([xSelected]);
     }
   };
 
