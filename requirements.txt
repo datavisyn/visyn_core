@@ -1,7 +1,7 @@
 # a2wsgi==1.6.0 # This WSIGMiddleware is not compatible with starlette_context
 alembic==1.13.1
 cachetools==5.3.3
-fastapi==0.110.1
+fastapi==0.110.2
 json-cfg==0.4.2
 openpyxl==3.1.2
 opentelemetry-api==1.24.0
