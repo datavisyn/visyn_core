@@ -75,6 +75,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
         family: 'Roboto, sans-serif',
       },
       clickmode: 'event+select',
+      dragmode: false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
