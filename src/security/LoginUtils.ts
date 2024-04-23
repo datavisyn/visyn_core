@@ -1,5 +1,4 @@
-import { appContext } from '../base/AppContext';
-import { userSession, UserSession } from './UserSession';
+import { userSession } from './UserSession';
 import { IUser, IUserStore } from './interfaces';
 import { Ajax } from '../base/ajax';
 
@@ -13,7 +12,7 @@ export class LoginUtils {
    */
   static login(username: string, password: string) {
     userSession.reset();
-    const r = Ajax.send('/login', { username, password }, 'post').then((user) => {
+    const r = Ajax.send('/api/login', { username, password }, 'post').then((user) => {
       userSession.login(user);
       return user;
     });
@@ -31,7 +30,7 @@ export class LoginUtils {
    * @return {Promise<any>} when done also from the server side
    */
   static logout(): Promise<any> {
-    return Ajax.send('/logout', {}, 'post')
+    return Ajax.send('/api/logout', {}, 'post')
       .then((r) => {
         userSession.logout(r);
       })
@@ -43,7 +42,7 @@ export class LoginUtils {
   }
 
   static loggedInAs(): Promise<IUser> {
-    return Ajax.send('/loggedinas', {}, 'POST').then((user: string | IUser) => {
+    return Ajax.send('/api/loggedinas', {}, 'POST').then((user: string | IUser) => {
       if (typeof user !== 'string' && user.name) {
         return user;
       }

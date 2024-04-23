@@ -23,17 +23,11 @@ class VisynPlugin(AVisynPlugin):
 
     def register(self, registry: RegHelper):
         # phovea_server
-        registry.append(
-            "namespace",
-            "caleydo-idtype",
-            "visyn_core.id_mapping.idtype_api",
-            {"namespace": "/api/idtype", "factory": "create_idtype"},
-        )
+        registry.append_router("caleydo-idtype", "visyn_core.id_mapping.idtype_api", {})
 
         # General routers
-        registry.append("namespace", "visyn_core_main", "visyn_core.server.mainapp", {"namespace": "/app"})
         registry.append_router("visyn_plugin_router", "visyn_core.plugin.router", {})
-        registry.append("namespace", "visyn_xlsx2json", "visyn_core.xlsx", {"namespace": "/api/tdp/xlsx"})
+        registry.append_router("visyn_xlsx_router", "visyn_core.xlsx", {})
 
         # DB migration plugins
         registry.append(
@@ -41,12 +35,6 @@ class VisynPlugin(AVisynPlugin):
             "db-migration",
             "visyn_core.dbmigration.manager",
             {"factory": "create_migration_command"},
-        )
-        registry.append(
-            "namespace",
-            "db-migration-api",
-            "visyn_core.dbmigration.router",
-            {"factory": "create_migration_api", "namespace": "/api/tdp/db-migration"},
         )
 
         # Security plugins
