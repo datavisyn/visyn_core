@@ -10,17 +10,17 @@ export function FilterButtons({ callback }: FilterButtonsProps) {
   return (
     <Input.Wrapper label="Selected points">
       <Button.Group>
-        <Tooltip label="Remove all points that are currently not selected">
+        <Tooltip label="Keep selected points, remove other points">
           <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.IN)}>
-            Remove
-          </Button>
-        </Tooltip>
-        <Tooltip label="Keep all currently selected points">
-          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.OUT)}>
             Keep
           </Button>
         </Tooltip>
-        <Tooltip label="Remove existing point filter">
+        <Tooltip label="Remove selected points, keep other points">
+          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.OUT)}>
+            Remove
+          </Button>
+        </Tooltip>
+        <Tooltip label="Clear all point filters">
           <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.CLEAR)}>
             Clear
           </Button>
