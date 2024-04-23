@@ -1,8 +1,11 @@
+import logging
 import os
 
 from fastapi import APIRouter
 
-mainapp_router = APIRouter(prefix="/api", tags=["MainApp"])
+_log = logging.getLogger(__name__)
+
+mainapp_router = APIRouter(tags=["MainApp"])
 
 
 @mainapp_router.get("/buildInfo.json")
@@ -33,6 +36,13 @@ def build_info():
 
 
 # health check for docker-compose, kubernetes
-@mainapp_router.api_route("/health", methods=["GET", "HEAD"])
+@mainapp_router.api_route("/api/health", methods=["GET", "HEAD"])
 async def health():
+    return "ok"
+
+
+# TODO: Remove this endpoint after everyone switched to it.
+@mainapp_router.api_route("/health", methods=["GET", "HEAD"])
+async def deprecated_health():
+    _log.warn("Using deprecated /health endpoint. Consider switching to /api/health.")
     return "ok"

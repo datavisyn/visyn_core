@@ -98,6 +98,14 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
             """
             return CustomMetricsResponse(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
 
+        @app.get("/metrics", tags=["Telemetry"], response_class=CustomMetricsResponse)
+        def deprecated_prometheus_metrics():
+            """
+            Deprecated: Consider using /api/metrics instead.
+            """
+            _log.warn("Using deprecated /metrics endpoint. Consider switching to /api/metrics.")
+            return CustomMetricsResponse(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
+
     tracer_provider: TracerProvider | None = None
     if settings.traces.enabled:
         _log.info("Enabling OpenTelemetry traces")

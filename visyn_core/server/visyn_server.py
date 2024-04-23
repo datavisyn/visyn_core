@@ -56,7 +56,7 @@ def create_visyn_server(
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /api/metrics" and "GET /api/health" not in record.getMessage()
+            return "GET /api/metrics" and "GET /api/health" and "GET /metrics" and "GET /health" not in record.getMessage()
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
