@@ -8,10 +8,11 @@ import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general/InvalidCols';
 import { beautifyLayout } from '../general/layoutUtils';
-import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
+import { ERegressionLineOptions, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { createScatterTraces } from './utils';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { fitRegression } from './Regression';
 
 export function ScatterVis({
   config,
@@ -64,6 +65,17 @@ export function ScatterVis({
       return;
     }
 
+    const svgShapes: Partial<Plotly.Shape>[] = [];
+    // Add regression line to all subplots
+    if (config.showRegressionLine !== ERegressionLineOptions.NONE) {
+      for (const plot of traces.plots) {
+        if (plot.data.type === 'scattergl') {
+          const curveFit = fitRegression(plot.data.x, plot.data.y, config.showRegressionLine);
+          svgShapes.push({ ...curveFit.svgPath, xref: plot.data.xaxis, yref: plot.data.yaxis });
+        }
+      }
+    }
+
     const innerLayout: Partial<Plotly.Layout> = {
       showlegend: true,
       legend: {
@@ -85,7 +97,7 @@ export function ScatterVis({
         b: 100,
       },
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
-      shapes: [],
+      shapes: svgShapes,
       dragmode: config.dragMode,
     };
 

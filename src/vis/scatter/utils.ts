@@ -20,7 +20,6 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-import { fitRegression } from './Regression';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
@@ -160,33 +159,6 @@ export async function createScatterTraces(
 
     const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, xDataVals);
     const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, yDataVals);
-
-    // Add regression line to the plot
-    if (showRegressionLine !== ERegressionLineOptions.NONE) {
-      const curveFit = fitRegression(xDataVals, yDataVals, showRegressionLine);
-      const minVal = Math.min(...xDataVals);
-      const maxVal = Math.max(...xDataVals);
-      const xVals = [...Array.from({ length: 100 }, (_, i) => Math.round(minVal + (maxVal - minVal) * i) / 100)];
-      const yVals = xVals.map((x) => curveFit.predict(x)[1]);
-      plots.push({
-        data: {
-          x: xVals,
-          y: yVals,
-          type: 'scatter',
-          mode: 'lines',
-          showlegend: false,
-          hoverinfo: 'skip',
-          line: {
-            color: 'rgba(102, 102, 102, 0.7)',
-            width: 3,
-            // shape: 'spline',
-            // dash: 'solid',
-          },
-        },
-        xLabel: columnNameWithDescription(validCols[0].info),
-        yLabel: columnNameWithDescription(validCols[1].info),
-      });
-    }
 
     plots.push({
       data: {

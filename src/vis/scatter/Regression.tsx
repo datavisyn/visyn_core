@@ -35,12 +35,18 @@ export interface IRegressionResult {
   equation: number[];
   string: string;
   r2: number;
+  svgPath: Partial<Plotly.Shape>;
 }
 
 export type RegressionData = Array<Array<number>>;
 // TODO: order only used in polynomial, remove from options in other methods?
 export type RegressionOptions = { order: number; precision: number };
 const DEFAULT_CURVE_FIT_OPTIONS: RegressionOptions = { order: 2, precision: 3 };
+
+const REGRESSION_LINE_STYLE = {
+  color: 'rgb(121, 121, 121)',
+  width: 3.5,
+};
 
 /**
  * Determine the coefficient of determination (r^2) of a fit from the observations
@@ -151,8 +157,16 @@ const methods = {
     const sum = [0, 0, 0, 0, 0];
     let len = 0;
 
+    let min = null;
+    let max = null;
     for (let n = 0; n < data.length; n++) {
       if (data[n][1] !== null) {
+        if (min === null || data[n][0] < min) {
+          min = data[n][0];
+        }
+        if (max === null || data[n][0] > max) {
+          max = data[n][0];
+        }
         len++;
         sum[0] += data[n][0];
         sum[1] += data[n][1];
@@ -171,12 +185,19 @@ const methods = {
 
     const points = data.map((point) => predict(point[0]));
 
+    const svgPath = {
+      type: 'path',
+      path: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
+      line: REGRESSION_LINE_STYLE,
+    };
+
     return {
       points,
       predict,
       equation: [gradient, intercept],
       r2: round(determinationCoefficient(data, points), options.precision),
       string: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
+      svgPath,
     };
   },
 
@@ -202,6 +223,7 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(coeffA * Math.exp(coeffB * x), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
+    const svgPath = null;
 
     return {
       points,
@@ -209,6 +231,7 @@ const methods = {
       equation: [coeffA, coeffB],
       string: `y = ${coeffA}e^(${coeffB}x)`,
       r2: round(determinationCoefficient(data, points), options.precision),
+      svgPath,
     };
   },
 
@@ -232,6 +255,7 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(round(coeffA + coeffB * Math.log(x), options.precision), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
+    const svgPath = null;
 
     return {
       points,
@@ -239,6 +263,7 @@ const methods = {
       equation: [coeffA, coeffB],
       string: `y = ${coeffA} + ${coeffB} ln(x)`,
       r2: round(determinationCoefficient(data, points), options.precision),
+      svgPath,
     };
   },
 
@@ -263,6 +288,7 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(round(coeffA * x ** coeffB, options.precision), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
+    const svgPath = null;
 
     return {
       points,
@@ -270,6 +296,7 @@ const methods = {
       equation: [coeffA, coeffB],
       string: `y = ${coeffA}x^${coeffB}`,
       r2: round(determinationCoefficient(data, points), options.precision),
+      svgPath,
     };
   },
 
@@ -316,6 +343,7 @@ const methods = {
     ];
 
     const points = data.map((point) => predict(point[0]));
+    const svgPath = null;
 
     let string = 'y = ';
     for (let i = coefficients.length - 1; i >= 0; i--) {
@@ -334,6 +362,7 @@ const methods = {
       predict,
       equation: [...coefficients].reverse(),
       r2: round(determinationCoefficient(data, points), options.precision),
+      svgPath,
     };
   },
 };
