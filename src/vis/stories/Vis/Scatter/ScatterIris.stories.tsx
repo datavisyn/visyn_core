@@ -2,8 +2,9 @@ import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
-import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
+import { BaseVisConfig, ENumericalColorScaleType, ERegressionLineOptions, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
+import { ELabelingOptions } from '../../../scatter/interfaces';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -18,11 +19,12 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchIrisData(), []);
 
   const [selection, setSelection] = useState<string[]>([]);
+  const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
   return (
     <VisProvider>
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: '70%', height: '80%' }}>
-          <Vis columns={columns} {...args} />
+          <Vis {...args} externalConfig={config} setExternalConfig={setConfig} selected={selection} selectionCallback={setSelection} columns={columns} />
         </div>
       </div>
     </VisProvider>
@@ -52,6 +54,8 @@ Basic.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
+    showLabels: ELabelingOptions.NEVER,
+    showRegressionLine: ERegressionLineOptions.NONE,
   } as BaseVisConfig,
 
   filterCallback: (option) => {
@@ -84,6 +88,8 @@ ColorByCategory.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
+    showLabels: ELabelingOptions.NEVER,
+    showRegressionLine: ERegressionLineOptions.NONE,
   } as BaseVisConfig,
 };
 
@@ -112,6 +118,8 @@ ColorByNumerical.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
+    showLabels: ELabelingOptions.NEVER,
+    showRegressionLine: ERegressionLineOptions.NONE,
   } as BaseVisConfig,
 };
 
@@ -141,5 +149,36 @@ SmallMultiples.args = {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
+    showLabels: ELabelingOptions.NEVER,
+    showRegressionLine: ERegressionLineOptions.NONE,
+  } as BaseVisConfig,
+};
+
+export const LinearRegression: typeof Template = Template.bind({}) as typeof Template;
+LinearRegression.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.SCATTER,
+    numColumnsSelected: [
+      {
+        description: '',
+        id: 'sepalLength',
+        name: 'Sepal Length',
+      },
+      {
+        description: '',
+        id: 'petalLength',
+        name: 'Petal length',
+      },
+    ],
+    color: {
+      description: '',
+      id: 'petalLength',
+      name: 'Petal Length',
+    },
+    shape: null,
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    alphaSliderVal: 0.3,
+    showLabels: ELabelingOptions.NEVER,
+    showRegressionLine: ERegressionLineOptions.LINEAR,
   } as BaseVisConfig,
 };

@@ -11,6 +11,7 @@ export interface IScatterConfig extends BaseVisConfig {
   sizeSliderVal: number;
   showLabels: ELabelingOptions;
   showRegressionLine: ERegressionLineOptions;
+  regressionLineStyle?: Partial<Plotly.ShapeLine>;
 }
 
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {

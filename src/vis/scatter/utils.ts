@@ -90,7 +90,6 @@ export async function createScatterTraces(
   scales: Scales,
   shapes: string[] | null,
   showLabels: ELabelingOptions,
-  showRegressionLine: ERegressionLineOptions,
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 

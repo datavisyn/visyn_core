@@ -53,7 +53,7 @@ export enum EScaleType {
 
 export enum ERegressionLineOptions {
   LINEAR = 'Linear',
-  NON_LINEAR = 'Non-linear',
+  NONLINEAR = 'Nonlinear',
   NONE = 'None',
 }
 

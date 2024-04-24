@@ -12,7 +12,7 @@ import { ERegressionLineOptions, EScatterSelectSettings, ICommonVisProps } from 
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { createScatterTraces } from './utils';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
-import { fitRegression } from './Regression';
+import { DEFAULT_REGRESSION_LINE_STYLE, fitRegression } from './Regression';
 
 export function ScatterVis({
   config,
@@ -57,7 +57,6 @@ export function ScatterVis({
     scales,
     shapes,
     config.showLabels,
-    config.showRegressionLine,
   ]);
 
   React.useEffect(() => {
@@ -71,7 +70,14 @@ export function ScatterVis({
       for (const plot of traces.plots) {
         if (plot.data.type === 'scattergl') {
           const curveFit = fitRegression(plot.data.x, plot.data.y, config.showRegressionLine);
-          plotShapes.push({ ...curveFit.plotlyShape, xref: plot.data.xaxis, yref: plot.data.yaxis });
+
+          const shape = {
+            type: 'path',
+            path: curveFit.svgPath,
+            line: config.regressionLineStyle || DEFAULT_REGRESSION_LINE_STYLE,
+          };
+
+          plotShapes.push({ ...shape, xref: plot.data.xaxis, yref: plot.data.yaxis });
         }
       }
     }
@@ -104,7 +110,7 @@ export function ScatterVis({
     setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces, config.dragMode]);
+  }, [traces, config.dragMode, config.showRegressionLine, config.regressionLineStyle]);
 
   const plotsWithSelectedPoints = useMemo(() => {
     if (traces) {
