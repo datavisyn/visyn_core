@@ -3,6 +3,7 @@ Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-
 */
 
 import { Input, SegmentedControl } from '@mantine/core';
+import fitCurve from 'fit-curve';
 import * as React from 'react';
 import { categoricalColors } from '../../utils';
 import { ERegressionLineOptions } from '../interfaces';
@@ -347,7 +348,6 @@ const methods = {
     ];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
 
     let string = 'y = ';
     for (let i = coefficients.length - 1; i >= 0; i--) {
@@ -359,6 +359,13 @@ const methods = {
         string += coefficients[i];
       }
     }
+
+    // Fit a bezier curve and create SVG path for it
+    const samples = [...Array.from({ length: 100 }, (_, i) => Math.round(min + (max - min) * i) / 100)].map((x) => predict(x));
+    const bezier = fitCurve(samples, 10);
+    const svgPath = bezier
+      .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
+      .join(' ');
 
     return {
       string,
