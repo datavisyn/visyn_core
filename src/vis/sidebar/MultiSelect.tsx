@@ -1,4 +1,4 @@
-import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group } from '@mantine/core';
+import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -121,7 +121,11 @@ export function MultiSelect({
       </Combobox.DropdownTarget>
 
       <Combobox.Dropdown>
-        <Combobox.Options>{options.length === 0 ? <Combobox.Empty>All options selected</Combobox.Empty> : options}</Combobox.Options>
+        <Combobox.Options>
+          <ScrollArea.Autosize type="scroll" mah={200}>
+            {options.length === 0 ? <Combobox.Empty>All options selected</Combobox.Empty> : options}
+          </ScrollArea.Autosize>
+        </Combobox.Options>
       </Combobox.Dropdown>
     </Combobox>
   );
