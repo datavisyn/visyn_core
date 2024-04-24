@@ -120,9 +120,6 @@
     "chromatic": "^6.19.9",
     "cypress": "^13.2.0"
   },
-  "resolutions": {
-    "@storybook/node-logger": "7.6.18"
-  },
   "visyn": {
     "entries": {
       "app": {
