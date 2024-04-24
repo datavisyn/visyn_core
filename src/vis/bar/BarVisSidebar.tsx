@@ -34,10 +34,28 @@ export function BarVisSidebar({
   return (
     <>
       <SingleSelect
+        callback={(numColumnSelected: ColumnInfo) =>
+          setConfig({
+            ...config,
+            catColumnSelected: null,
+            aggregateType: EAggregateTypes.NONE,
+            numColumnsSelected: !numColumnSelected ? [] : [numColumnSelected],
+            multiples: config.multiples && config.multiples.id === numColumnSelected?.id ? null : config.multiples,
+            group: config.group && config.group.id === numColumnSelected?.id ? null : config.group,
+          })
+        }
+        columns={columns}
+        currentSelected={config.numColumnsSelected[0]}
+        columnType={EColumnTypes.NUMERICAL}
+        label="Numerical column"
+        disabled={config.catColumnSelected !== null}
+      />
+      <SingleSelect
         callback={(catColumnSelected: ColumnInfo) =>
           setConfig({
             ...config,
             catColumnSelected,
+            numColumnsSelected: [],
             multiples: config.multiples && config.multiples.id === catColumnSelected?.id ? null : config.multiples,
             group: config.group && config.group.id === catColumnSelected?.id ? null : config.group,
           })
@@ -46,6 +64,7 @@ export function BarVisSidebar({
         currentSelected={config.catColumnSelected}
         columnType={EColumnTypes.CATEGORICAL}
         label="Categorical column"
+        disabled={config.numColumnsSelected.length > 0}
       />
       <AggregateTypeSelect
         aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {

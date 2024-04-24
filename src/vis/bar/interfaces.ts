@@ -4,6 +4,8 @@ export enum SortTypes {
   NONE = 'NONE',
   CAT_ASC = 'CAT_ASC',
   CAT_DESC = 'CAT_DESC',
+  NUM_ASC = 'NUM_ASC',
+  NUM_DESC = 'NUM_DESC',
   COUNT_ASC = 'COUNT_ASC',
   COUNT_DESC = 'COUNT_DESC',
 }

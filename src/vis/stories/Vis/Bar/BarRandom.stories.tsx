@@ -1,5 +1,5 @@
 import { ComponentStory } from '@storybook/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
@@ -48,7 +48,10 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       },
       type: EColumnTypes.NUMERICAL,
       domain: [0, undefined],
-      values: () => dataPromise.then((data) => data.pca_x.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.pca_x.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
@@ -58,7 +61,10 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       },
       type: EColumnTypes.NUMERICAL,
       domain: [0, undefined],
-      values: () => dataPromise.then((data) => data.pca_y.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.pca_y.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
@@ -69,7 +75,10 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       domain: [0, 100],
 
       type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.value.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.value.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
@@ -78,7 +87,10 @@ function fetchData(numberOfPoints: number): VisColumn[] {
         name: 'category',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.category.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.category.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
@@ -87,7 +99,10 @@ function fetchData(numberOfPoints: number): VisColumn[] {
         name: 'category2',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.category2.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.category2.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
@@ -96,7 +111,10 @@ function fetchData(numberOfPoints: number): VisColumn[] {
         name: 'category3',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.category3.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.category3.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
   ];
 }
@@ -119,11 +137,13 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
   const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
 
+  const [selection, setSelection] = useState<string[]>([]);
+  const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
   return (
     <VisProvider>
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} setExternalConfig={() => {}} columns={columns} />
+          <Vis {...args} externalConfig={config} setExternalConfig={setConfig} selected={selection} selectionCallback={setSelection} columns={columns} />
         </div>
       </div>
     </VisProvider>
@@ -134,20 +154,16 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 export const Basic: typeof Template = Template.bind({}) as typeof Template;
 Basic.args = {
   externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
-    },
-    multiples: null,
-    group: null,
-    groupType: EBarGroupingType.GROUP,
+    aggregateColumn: null,
+    aggregateType: EAggregateTypes.COUNT,
+    catColumnSelected: { description: '', id: 'category', name: 'category' },
     direction: EBarDirection.HORIZONTAL,
     display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
+    group: null,
+    groupType: EBarGroupingType.GROUP,
+    multiples: null,
     numColumnsSelected: [],
+    type: ESupportedPlotlyVis.BAR,
   } as BaseVisConfig,
 };
 

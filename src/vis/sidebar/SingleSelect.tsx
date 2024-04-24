@@ -9,6 +9,7 @@ export function SingleSelect({
   columnType,
   label,
   isClearable = true,
+  disabled = false,
 }: {
   callback: (value: ColumnInfo) => void;
   columns: VisColumn[];
@@ -17,6 +18,7 @@ export function SingleSelect({
   columnType: EColumnTypes | null;
   label: string;
   isClearable?: boolean;
+  disabled?: boolean;
 }) {
   const filteredColumns = React.useMemo(() => {
     return columnType ? columns.filter((c) => c.type === columnType) : columns;
@@ -64,6 +66,7 @@ export function SingleSelect({
               <Combobox.Chevron />
             )
           }
+          disabled={disabled}
         >
           {currentSelected?.name || <Input.Placeholder>Select a column</Input.Placeholder>}
         </InputBase>

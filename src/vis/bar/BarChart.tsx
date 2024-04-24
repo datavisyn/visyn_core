@@ -1,4 +1,4 @@
-import { Box, Loader, SimpleGrid, Stack, Center } from '@mantine/core';
+import { Box, Center, Loader, SimpleGrid, Stack } from '@mantine/core';
 import { op } from 'arquero';
 import React, { useCallback, useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
@@ -6,28 +6,31 @@ import { EColumnTypes, VisColumn } from '../interfaces';
 import { SingleBarChart } from './SingleBarChart';
 import { Legend } from './barComponents/Legend';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { getBarData } from './utils';
 import { IBarConfig, SortTypes } from './interfaces';
+import { getBarData } from './utils';
 
 export function BarChart({
-  config,
   columns,
-  selectedMap,
+  config,
   selectedList,
+  selectedMap,
   selectionCallback,
 }: {
-  config: IBarConfig;
   columns: VisColumn[];
-  selectedMap: Record<string, boolean>;
+  config: IBarConfig;
   selectedList: string[];
+  selectedMap: Record<string, boolean>;
   selectionCallback?: (ids: string[]) => void;
 }) {
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
-    columns,
-    config.catColumnSelected,
-    config.group,
-    config.multiples,
-    config.aggregateColumn,
+    {
+      columns,
+      catColumn: config.catColumnSelected,
+      numColumn: config.numColumnsSelected?.[0],
+      groupColumn: config.group,
+      multiplesColumn: config.multiples,
+      aggregateColumn: config.aggregateColumn,
+    },
   ]);
 
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
@@ -36,18 +39,18 @@ export function BarChart({
     return [...new Set(allColumns?.multiplesColVals?.resolvedValues.map((v) => v.val))] as string[];
   }, [allColumns]);
 
-  const { groupColorScale, groupedTable } = useGetGroupedBarScales(
+  const { groupColorScale, groupedTable } = useGetGroupedBarScales({
+    aggregateType: config.aggregateType,
     allColumns,
-    0,
-    0,
-    { left: 0, top: 0, right: 0, bottom: 0 },
-    null,
-    true,
+    categoryFilter: null,
+    groupType: config.groupType,
+    height: 0,
+    isVertical: true,
+    margin: { left: 0, top: 0, right: 0, bottom: 0 },
     selectedMap,
-    config.groupType,
     sortType,
-    config.aggregateType,
-  );
+    width: 0,
+  });
 
   const groupedIds = useMemo(() => {
     if (!groupedTable) {
