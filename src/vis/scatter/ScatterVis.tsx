@@ -59,27 +59,31 @@ export function ScatterVis({
     config.showLabels,
   ]);
 
-  React.useEffect(() => {
-    if (!traces) {
-      return;
-    }
-
-    const plotShapes: Partial<Plotly.Shape>[] = [];
-    // Add regression line to all subplots
-    if (config.showRegressionLine !== ERegressionLineOptions.NONE) {
+  // Regression lines for all subplots
+  const regressionLineShapes = useMemo(() => {
+    if (traces?.plots && config.showRegressionLine !== ERegressionLineOptions.NONE) {
+      const regressionShapes: Partial<Plotly.Shape>[] = [];
       for (const plot of traces.plots) {
         if (plot.data.type === 'scattergl') {
           const curveFit = fitRegression(plot.data.x, plot.data.y, config.showRegressionLine);
-
-          const shape = {
+          regressionShapes.push({
             type: 'path',
             path: curveFit.svgPath,
             line: config.regressionLineStyle || DEFAULT_REGRESSION_LINE_STYLE,
-          };
-
-          plotShapes.push({ ...shape, xref: plot.data.xaxis, yref: plot.data.yaxis });
+            xref: plot.data.xaxis,
+            yref: plot.data.yaxis,
+          });
         }
       }
+      return regressionShapes;
+    }
+
+    return [];
+  }, [config.regressionLineStyle, config.showRegressionLine, traces?.plots]);
+
+  React.useEffect(() => {
+    if (!traces) {
+      return;
     }
 
     const innerLayout: Partial<Plotly.Layout> = {
@@ -103,7 +107,7 @@ export function ScatterVis({
         b: 100,
       },
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
-      shapes: plotShapes,
+      shapes: [],
       dragmode: config.dragMode,
     };
 
@@ -179,7 +183,7 @@ export function ScatterVis({
           key={id}
           divId={`plotlyDiv${id}`}
           data={plotlyData}
-          layout={layout}
+          layout={{ ...layout, shapes: [...(layout?.shapes || []), ...regressionLineShapes] }}
           config={{ responsive: true, displayModeBar: false, scrollZoom }}
           useResizeHandler
           style={{ width: '100%', height: '100%' }}

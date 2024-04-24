@@ -179,6 +179,6 @@ LinearRegression.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.3,
     showLabels: ELabelingOptions.NEVER,
-    showRegressionLine: ERegressionLineOptions.LINEAR,
+    showRegressionLine: ERegressionLineOptions.NONLINEAR,
   } as BaseVisConfig,
 };

@@ -4,6 +4,7 @@ Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-
 
 import { Input, SegmentedControl } from '@mantine/core';
 import fitCurve from 'fit-curve';
+import { corrcoeff } from 'jstat';
 import * as React from 'react';
 import { categoricalColors } from '../../utils';
 import { ERegressionLineOptions } from '../interfaces';
@@ -32,11 +33,12 @@ export function RegressionLineOptions({ callback, currentSelected }: RegressionL
 }
 
 export interface IRegressionResult {
-  points: any;
-  predict: (x: number) => number;
-  equation: number[];
-  string: string;
-  r2: number;
+  stats: {
+    r2: number;
+    correlation: number;
+    n: number;
+  };
+  equation: string;
   svgPath: string;
 }
 
@@ -87,7 +89,7 @@ function determinationCoefficient(data: RegressionData, results: RegressionData)
 }
 
 /**
- * Determine the solution of a system of linear equations A * x = b using
+ * Determine the solution of a system of linear equationArrays A * x = b using
  * Gaussian elimination.
  *
  * @param {RegressionData} input - A 2-d matrix of data in row-major form [ A | b ]
@@ -187,11 +189,11 @@ const methods = {
     const points = data.map((point) => predict(point[0]));
 
     return {
-      points,
-      predict,
-      equation: [gradient, intercept],
-      r2: round(determinationCoefficient(data, points), options.precision),
-      string: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
+      stats: {
+        r2: round(determinationCoefficient(data, points), options.precision),
+        n: len,
+      },
+      equation: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
       svgPath: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
     };
   },
@@ -199,8 +201,16 @@ const methods = {
   exponential(data: RegressionData, options: RegressionOptions) {
     const sum = [0, 0, 0, 0, 0, 0];
 
+    let min = null;
+    let max = null;
     for (let n = 0; n < data.length; n++) {
       if (data[n][1] !== null) {
+        if (min === null || data[n][0] < min) {
+          min = data[n][0];
+        }
+        if (max === null || data[n][0] > max) {
+          max = data[n][0];
+        }
         sum[0] += data[n][0];
         sum[1] += data[n][1];
         sum[2] += data[n][0] * data[n][0] * data[n][1];
@@ -218,14 +228,20 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(coeffA * Math.exp(coeffB * x), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
+
+    // SVG does not support polynomial curves, so we approximate it using bezier curves
+    const samples = [...Array.from({ length: 100 }, (_, i) => min + ((max - min) * i) / 100)].map((x) => predict(x));
+    const bezier = fitCurve(samples, 50);
+    const svgPath = bezier
+      .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
+      .join(' ');
 
     return {
-      points,
-      predict,
-      equation: [coeffA, coeffB],
-      string: `y = ${coeffA}e^(${coeffB}x)`,
-      r2: round(determinationCoefficient(data, points), options.precision),
+      stats: {
+        r2: round(determinationCoefficient(data, points), options.precision),
+        n: data.length,
+      },
+      equation: `y = ${coeffA}e^(${coeffB}x)`,
       svgPath,
     };
   },
@@ -234,8 +250,16 @@ const methods = {
     const sum = [0, 0, 0, 0];
     const len = data.length;
 
+    let min = null;
+    let max = null;
     for (let n = 0; n < len; n++) {
       if (data[n][1] !== null) {
+        if (min === null || data[n][0] < min) {
+          min = data[n][0];
+        }
+        if (max === null || data[n][0] > max) {
+          max = data[n][0];
+        }
         sum[0] += Math.log(data[n][0]);
         sum[1] += data[n][1] * Math.log(data[n][0]);
         sum[2] += data[n][1];
@@ -250,14 +274,20 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(round(coeffA + coeffB * Math.log(x), options.precision), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
+
+    // SVG does not support polynomial curves, so we approximate it using bezier curves
+    const samples = [...Array.from({ length: 100 }, (_, i) => min + ((max - min) * i) / 100)].map((x) => predict(x));
+    const bezier = fitCurve(samples, 50);
+    const svgPath = bezier
+      .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
+      .join(' ');
 
     return {
-      points,
-      predict,
-      equation: [coeffA, coeffB],
-      string: `y = ${coeffA} + ${coeffB} ln(x)`,
-      r2: round(determinationCoefficient(data, points), options.precision),
+      stats: {
+        r2: round(determinationCoefficient(data, points), options.precision),
+        n: len,
+      },
+      equation: `y = ${coeffA} + ${coeffB} ln(x)`,
       svgPath,
     };
   },
@@ -266,8 +296,16 @@ const methods = {
     const sum = [0, 0, 0, 0, 0];
     const len = data.length;
 
+    let min = null;
+    let max = null;
     for (let n = 0; n < len; n++) {
       if (data[n][1] !== null) {
+        if (min === null || data[n][0] < min) {
+          min = data[n][0];
+        }
+        if (max === null || data[n][0] > max) {
+          max = data[n][0];
+        }
         sum[0] += Math.log(data[n][0]);
         sum[1] += Math.log(data[n][1]) * Math.log(data[n][0]);
         sum[2] += Math.log(data[n][1]);
@@ -283,14 +321,20 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(round(coeffA * x ** coeffB, options.precision), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
+
+    // SVG does not support polynomial curves, so we approximate it using bezier curves
+    const samples = [...Array.from({ length: 100 }, (_, i) => min + ((max - min) * i) / 100)].map((x) => predict(x));
+    const bezier = fitCurve(samples, 50);
+    const svgPath = bezier
+      .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
+      .join(' ');
 
     return {
-      points,
-      predict,
-      equation: [coeffA, coeffB],
-      string: `y = ${coeffA}x^${coeffB}`,
-      r2: round(determinationCoefficient(data, points), options.precision),
+      stats: {
+        r2: round(determinationCoefficient(data, points), options.precision),
+        n: len,
+      },
+      equation: `y = ${coeffA}x^${coeffB}`,
       svgPath,
     };
   },
@@ -349,30 +393,30 @@ const methods = {
 
     const points = data.map((point) => predict(point[0]));
 
-    let string = 'y = ';
+    let equation = 'y = ';
     for (let i = coefficients.length - 1; i >= 0; i--) {
       if (i > 1) {
-        string += `${coefficients[i]}x^${i} + `;
+        equation += `${coefficients[i]}x^${i} + `;
       } else if (i === 1) {
-        string += `${coefficients[i]}x + `;
+        equation += `${coefficients[i]}x + `;
       } else {
-        string += coefficients[i];
+        equation += coefficients[i];
       }
     }
 
-    // Fit a bezier curve and create SVG path for it
-    const samples = [...Array.from({ length: 100 }, (_, i) => Math.round(min + (max - min) * i) / 100)].map((x) => predict(x));
-    const bezier = fitCurve(samples, 10);
+    // SVG does not support polynomial curves, so we approximate it using bezier curves
+    const samples = [...Array.from({ length: 100 }, (_, i) => min + ((max - min) * i) / 100)].map((x) => predict(x));
+    const bezier = fitCurve(samples, 50);
     const svgPath = bezier
       .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
       .join(' ');
 
     return {
-      string,
-      points,
-      predict,
-      equation: [...coefficients].reverse(),
-      r2: round(determinationCoefficient(data, points), options.precision),
+      stats: {
+        n: data.length,
+        r2: round(determinationCoefficient(data, points), options.precision),
+      },
+      equation,
       svgPath,
     };
   },
@@ -390,5 +434,7 @@ export const fitRegression = (
   options: RegressionOptions = DEFAULT_CURVE_FIT_OPTIONS,
 ): IRegressionResult => {
   const data = x.map((val, i) => [val, y[i]]);
-  return methods[regressionMethodsMapping[method]](data, options);
+  const correlation = round(corrcoeff(x, y), options.precision);
+  const regressionResult = methods[regressionMethodsMapping[method]](data, options);
+  return { ...regressionResult, stats: { correlation, ...regressionResult.stats } };
 };
