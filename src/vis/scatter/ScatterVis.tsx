@@ -65,13 +65,13 @@ export function ScatterVis({
       return;
     }
 
-    const svgShapes: Partial<Plotly.Shape>[] = [];
+    const plotShapes: Partial<Plotly.Shape>[] = [];
     // Add regression line to all subplots
     if (config.showRegressionLine !== ERegressionLineOptions.NONE) {
       for (const plot of traces.plots) {
         if (plot.data.type === 'scattergl') {
           const curveFit = fitRegression(plot.data.x, plot.data.y, config.showRegressionLine);
-          svgShapes.push({ ...curveFit.svgPath, xref: plot.data.xaxis, yref: plot.data.yaxis });
+          plotShapes.push({ ...curveFit.plotlyShape, xref: plot.data.xaxis, yref: plot.data.yaxis });
         }
       }
     }
@@ -97,7 +97,7 @@ export function ScatterVis({
         b: 100,
       },
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
-      shapes: svgShapes,
+      shapes: plotShapes,
       dragmode: config.dragMode,
     };
 

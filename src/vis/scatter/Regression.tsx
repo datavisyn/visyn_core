@@ -35,7 +35,7 @@ export interface IRegressionResult {
   equation: number[];
   string: string;
   r2: number;
-  svgPath: Partial<Plotly.Shape>;
+  plotlyShape: Partial<Plotly.Shape>;
 }
 
 export type RegressionData = Array<Array<number>>;
@@ -185,7 +185,7 @@ const methods = {
 
     const points = data.map((point) => predict(point[0]));
 
-    const svgPath = {
+    const plotlyShape = {
       type: 'path',
       path: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
       line: REGRESSION_LINE_STYLE,
@@ -197,7 +197,7 @@ const methods = {
       equation: [gradient, intercept],
       r2: round(determinationCoefficient(data, points), options.precision),
       string: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
-      svgPath,
+      plotlyShape,
     };
   },
 
@@ -223,7 +223,7 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(coeffA * Math.exp(coeffB * x), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
+    const plotlyShape = null;
 
     return {
       points,
@@ -231,7 +231,7 @@ const methods = {
       equation: [coeffA, coeffB],
       string: `y = ${coeffA}e^(${coeffB}x)`,
       r2: round(determinationCoefficient(data, points), options.precision),
-      svgPath,
+      plotlyShape,
     };
   },
 
@@ -255,7 +255,7 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(round(coeffA + coeffB * Math.log(x), options.precision), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
+    const plotlyShape = null;
 
     return {
       points,
@@ -263,7 +263,7 @@ const methods = {
       equation: [coeffA, coeffB],
       string: `y = ${coeffA} + ${coeffB} ln(x)`,
       r2: round(determinationCoefficient(data, points), options.precision),
-      svgPath,
+      plotlyShape,
     };
   },
 
@@ -288,7 +288,7 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(round(coeffA * x ** coeffB, options.precision), options.precision)];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
+    const plotlyShape = null;
 
     return {
       points,
@@ -296,7 +296,7 @@ const methods = {
       equation: [coeffA, coeffB],
       string: `y = ${coeffA}x^${coeffB}`,
       r2: round(determinationCoefficient(data, points), options.precision),
-      svgPath,
+      plotlyShape,
     };
   },
 
@@ -343,7 +343,7 @@ const methods = {
     ];
 
     const points = data.map((point) => predict(point[0]));
-    const svgPath = null;
+    const plotlyShape = null;
 
     let string = 'y = ';
     for (let i = coefficients.length - 1; i >= 0; i--) {
@@ -362,7 +362,7 @@ const methods = {
       predict,
       equation: [...coefficients].reverse(),
       r2: round(determinationCoefficient(data, points), options.precision),
-      svgPath,
+      plotlyShape,
     };
   },
 };
