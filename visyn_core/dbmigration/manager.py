@@ -180,8 +180,8 @@ class DBMigrationManager:
             version_table_schema = config.get("versionTableSchema") or (p.versionTableSchema if hasattr(p, "versionTableSchema") else None)
             auto_upgrade = (
                 config.get("autoUpgrade")
-                if type(config.get("autoUpgrade")) == bool
-                else (p.autoUpgrade if hasattr(p, "autoUpgrade") and type(p.autoUpgrade) == bool else auto_upgrade_default)
+                if isinstance(config.get("autoUpgrade"), bool)
+                else (p.autoUpgrade if hasattr(p, "autoUpgrade") and isinstance(p.autoUpgrade, bool) else auto_upgrade_default)
             )
 
             # Validate the plugin description
