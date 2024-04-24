@@ -91,9 +91,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       shapes: [],
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, true) });
-    // WARNING: Do not update when layout changes, that would be an infinite loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
   }, [traces]);
 
   return (
