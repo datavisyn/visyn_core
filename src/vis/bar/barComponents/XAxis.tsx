@@ -13,6 +13,7 @@ export function XAxis({
   compact = false,
   label,
   setSortType,
+  shouldRotate = false,
   showLines,
   sortType,
   ticks = [],
@@ -25,6 +26,7 @@ export function XAxis({
   compact?: boolean;
   label: string;
   setSortType: (label: string) => void;
+  shouldRotate?: boolean;
   showLines?: boolean;
   sortType: SortTypes;
   ticks: { value: string | number; offset: number }[];
@@ -65,7 +67,17 @@ export function XAxis({
           <foreignObject x={0 - tickWidth / 2} y={10} width={tickWidth} height={20}>
             <Center>
               <Tooltip withinPortal label={value}>
-                <Text px={2} size={rem('10px')} style={{ textAlign: 'center', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <Text
+                  px={2}
+                  size={rem('10px')}
+                  style={{
+                    textAlign: 'center',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    transform: `translate(0px, 2px) rotate(${shouldRotate ? '-45deg' : '0deg'})`,
+                  }}
+                >
                   {value}
                 </Text>
               </Tooltip>
