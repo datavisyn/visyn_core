@@ -10,29 +10,29 @@ type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({
-  yScale,
-  xRange,
-  horizontalPosition,
-  label,
-  ticks,
-  showLines,
-  compact = false,
   arrowAsc = false,
   arrowDesc = false,
-  sortType,
+  compact = false,
+  horizontalPosition,
+  label,
   setSortType,
+  showLines,
+  sortType,
+  ticks = [],
+  xRange,
+  yScale,
 }: {
-  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
-  xRange: [number, number];
-  horizontalPosition: number;
-  label: string;
-  ticks: { value: string | number; offset: number }[];
-  showLines?: boolean;
-  compact?: boolean;
   arrowAsc?: boolean;
   arrowDesc?: boolean;
-  sortType: SortTypes;
+  compact?: boolean;
+  horizontalPosition: number;
+  label: string;
   setSortType: (label: string) => void;
+  showLines?: boolean;
+  sortType: SortTypes;
+  ticks: { value: string | number; offset: number }[];
+  xRange: [number, number];
+  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
 }) {
   const labelSpacing = useMemo(() => {
     const maxLabelLength = ticks.reduce((max, { value }) => {

@@ -8,29 +8,29 @@ import { SortTypes } from '../interfaces';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({
-  xScale,
-  yRange,
-  vertPosition,
-  label,
-  ticks,
-  showLines,
-  compact = false,
-  sortType,
   arrowAsc = false,
   arrowDesc = false,
+  compact = false,
+  label,
   setSortType,
+  showLines,
+  sortType,
+  ticks = [],
+  vertPosition,
+  xScale,
+  yRange,
 }: {
-  showLines?: boolean;
-  xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
-  yRange: [number, number];
-  vertPosition: number;
-  label: string;
-  ticks: { value: string | number; offset: number }[];
-  compact?: boolean;
-  sortType: SortTypes;
   arrowAsc?: boolean;
   arrowDesc?: boolean;
+  compact?: boolean;
+  label: string;
   setSortType: (label: string) => void;
+  showLines?: boolean;
+  sortType: SortTypes;
+  ticks: { value: string | number; offset: number }[];
+  vertPosition: number;
+  xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
+  yRange: [number, number];
 }) {
   const tickWidth = useMemo(() => {
     if (ticks.length > 1) {
