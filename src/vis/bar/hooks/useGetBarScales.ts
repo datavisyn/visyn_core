@@ -119,7 +119,7 @@ export function useGetBarScales({
 
   const numericalValueScale = useMemo(() => {
     if (!aggregatedTable || !allColumns?.numColVals) return null;
-    const range = isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top];
+    const range = isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left];
     const tableValues = sortTableBySortType(aggregatedTable, sortType).array('numerical');
     const domain = [+d3.min(tableValues), +d3.max(tableValues)];
     return d3.scaleLinear().range(range).domain(domain);
@@ -127,7 +127,7 @@ export function useGetBarScales({
 
   const numericalIdScale = useMemo(() => {
     if (!aggregatedTable || !allColumns?.numColVals) return null;
-    const range = isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left];
+    const range = isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top];
     const domain = aggregatedTable.array('id').slice(0, 100);
     return d3.scaleBand().range(range).domain(domain).padding(0.2);
   }, [aggregatedTable, allColumns?.numColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, width]);
