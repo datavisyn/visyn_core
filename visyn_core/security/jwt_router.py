@@ -31,7 +31,7 @@ def get_login():
     <!DOCTYPE html>
     <html>
         <body>
-            <form name="login" action="/login" method="post" accept-charset="utf-8">
+            <form name="login" action="/api/login" method="post" accept-charset="utf-8">
                 <div><label for="username" class="form-label">User name: </label><input type="text" name="username" placeholder="name" required="required"></div>
                 <div><label for="password" class="form-label">Password</label><input type="password" name="password" placeholder="password" required="required"></div>
                 <div><input type="reset" value="Reset"><input type="submit" value="Login"></div>
