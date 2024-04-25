@@ -1,12 +1,13 @@
+import { useShallowEffect } from '@mantine/hooks';
 import merge from 'lodash/merge';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
+import { SingleSelect } from '../sidebar/SingleSelect';
 import { BarDirectionButtons } from './BarDirectionButtons';
 import { GroupSelect } from './GroupSelect';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
-import { SingleSelect } from '../sidebar/SingleSelect';
 
 const defaultConfig = {
   direction: { enable: true, customComponent: null },
@@ -38,7 +39,8 @@ export function BarVisSidebar({
         : null,
   );
 
-  useEffect(() => {
+  // NOTE: @dv-usama-ansari: useEffect causes an infinite loop here.
+  useShallowEffect(() => {
     setConfig({
       ...config,
       catColumnSelected: selectedColumn?.columnType === EColumnTypes.CATEGORICAL ? selectedColumn?.column : null,
@@ -46,7 +48,7 @@ export function BarVisSidebar({
       multiples: config.multiples && config.multiples.id === selectedColumn?.column?.id ? null : config.multiples,
       group: config.group && config.group.id === selectedColumn?.column?.id ? null : config.group,
     });
-  }, [config, selectedColumn?.column, selectedColumn?.columnType, setConfig]);
+  }, [selectedColumn?.column, selectedColumn?.columnType, setConfig]);
 
   return (
     <>
