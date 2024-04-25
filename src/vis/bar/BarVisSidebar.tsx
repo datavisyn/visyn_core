@@ -107,7 +107,7 @@ export function BarVisSidebar({
                       callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
                       columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
                       currentSelected={config.multiples}
-                      label="Multiples"
+                      label="Facets"
                       columnTypes={[EColumnTypes.CATEGORICAL]}
                     />
                   )
