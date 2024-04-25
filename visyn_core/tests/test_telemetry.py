@@ -23,9 +23,9 @@ from prometheus_client.parser import text_string_to_metric_families
 )
 def test_fastapi_metrics(client: TestClient):
     # Trigger a request
-    client.get("/health")
+    client.get("/api/health")
 
-    metrics_text = client.get("/metrics").text
+    metrics_text = client.get("/api/metrics").text
     parsed = {m.name: m for m in text_string_to_metric_families(metrics_text)}
 
     # Check for app info
@@ -36,20 +36,20 @@ def test_fastapi_metrics(client: TestClient):
     # Check for request counts
     fastapi_requests_metric = parsed["fastapi_requests_1"]  # TODO: Why _1?
     assert len(fastapi_requests_metric.samples) == 2
-    assert fastapi_requests_metric.samples[0].labels["path"] == "/health"
+    assert fastapi_requests_metric.samples[0].labels["path"] == "/api/health"
     assert fastapi_requests_metric.samples[0].value == 1
-    assert fastapi_requests_metric.samples[1].labels["path"] == "/metrics"
+    assert fastapi_requests_metric.samples[1].labels["path"] == "/api/metrics"
     assert fastapi_requests_metric.samples[1].value == 1
 
     # Trigger it again
-    client.get("/health")
-    metrics_text = client.get("/metrics").text
+    client.get("/api/health")
+    metrics_text = client.get("/api/metrics").text
     parsed = {m.name: m for m in text_string_to_metric_families(metrics_text)}
 
     # And check for increased counts
     fastapi_requests_metric = parsed["fastapi_requests_1"]  # TODO: Why _1?
     assert len(fastapi_requests_metric.samples) == 2
-    assert fastapi_requests_metric.samples[0].labels["path"] == "/health"
+    assert fastapi_requests_metric.samples[0].labels["path"] == "/api/health"
     assert fastapi_requests_metric.samples[0].value == 2
-    assert fastapi_requests_metric.samples[1].labels["path"] == "/metrics"
+    assert fastapi_requests_metric.samples[1].labels["path"] == "/api/metrics"
     assert fastapi_requests_metric.samples[1].value == 2

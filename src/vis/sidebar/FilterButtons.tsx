@@ -8,21 +8,21 @@ interface FilterButtonsProps {
 
 export function FilterButtons({ callback }: FilterButtonsProps) {
   return (
-    <Input.Wrapper label="Filter">
+    <Input.Wrapper label="Selected points">
       <Button.Group>
-        <Tooltip label="Filters any point not currently selected">
-          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.IN)} size="xs">
-            {EFilterOptions.IN}
+        <Tooltip label="Keep selected points, remove other points">
+          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.IN)}>
+            Keep
           </Button>
         </Tooltip>
-        <Tooltip label="Filters all currently selected points">
-          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.OUT)} size="xs">
-            {EFilterOptions.OUT}
+        <Tooltip label="Remove selected points, keep other points">
+          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.OUT)}>
+            Remove
           </Button>
         </Tooltip>
-        <Tooltip label="Removes any existing filter">
-          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.CLEAR)} size="xs">
-            {EFilterOptions.CLEAR}
+        <Tooltip label="Clear all point filters">
+          <Button style={{ flexGrow: 1 }} p={0} variant="default" onClick={() => callback(EFilterOptions.CLEAR)}>
+            Clear
           </Button>
         </Tooltip>
       </Button.Group>

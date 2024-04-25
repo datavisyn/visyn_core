@@ -54,9 +54,10 @@ export async function createViolinTraces(
   // if we onl have numerical columns, add them individually.
   if (catColValues.length === 0) {
     for (const numCurr of numColValues) {
+      const y = numCurr.resolvedValues.map((v) => v.val);
       plots.push({
         data: {
-          y: numCurr.resolvedValues.map((v) => v.val),
+          y,
           ids: numCurr.resolvedValues.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
@@ -88,11 +89,15 @@ export async function createViolinTraces(
 
   for (const numCurr of numColValues) {
     for (const catCurr of catColValues) {
+      const y = numCurr.resolvedValues.map((v) => v.val);
+      // Null values in categorical columns would break the plot --> replace with 'missing'
+      const categoriesWithMissing = catCurr.resolvedValues?.map((v) => ({ ...v, val: v.val || 'missing' }));
+      const x = categoriesWithMissing.map((v) => v.val);
       plots.push({
         data: {
-          x: catCurr.resolvedValues.map((v) => v.val),
-          ids: catCurr.resolvedValues.map((v) => v.id),
-          y: numCurr.resolvedValues.map((v) => v.val),
+          x,
+          y,
+          ids: categoriesWithMissing.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           type: 'violin',
@@ -112,14 +117,14 @@ export async function createViolinTraces(
           transforms: [
             {
               type: 'groupby',
-              groups: catCurr.resolvedValues.map((v) => v.val) as string[],
-              styles: [...new Set<string>(catCurr.resolvedValues.map((v) => v.val) as string[])].map((c) => {
+              groups: x as string[],
+              styles: [...new Set(x as string[])].map((c) => {
                 return {
                   target: c,
                   value: {
                     line: {
                       color:
-                        selectedList.length !== 0 && catCurr.resolvedValues.filter((val) => val.val === c).find((val) => selectedMap[val.id])
+                        selectedList.length !== 0 && categoriesWithMissing.filter((val) => val.val === c).find((val) => selectedMap[val.id])
                           ? SELECT_COLOR
                           : '#878E95',
                     },

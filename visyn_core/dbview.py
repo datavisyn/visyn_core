@@ -514,12 +514,10 @@ def add_common_queries(
         .idtype(idtype)
         .table(table)
         .query(
-            """
-        SELECT {id}, {{column}} AS text
+            f"""
+        SELECT {id_query}, {{column}} AS text
         FROM {table} WHERE LOWER({{column}}) LIKE :query
-        ORDER BY {{column}} ASC""".format(
-                id=id_query, table=table
-            )
+        ORDER BY {{column}} ASC"""
         )
         .replace("column", columns)
         .call(call_function)
@@ -533,11 +531,9 @@ def add_common_queries(
         .idtype(idtype)
         .table(table)
         .query(
-            """
-        SELECT {id}, {name} AS text
-        FROM {table}""".format(
-                id=id_query, table=table, name=name_column
-            )
+            f"""
+        SELECT {id_query}, {name_column} AS text
+        FROM {table}"""
         )
         .call(call_function)
         .call(inject_where)
@@ -548,15 +544,13 @@ def add_common_queries(
     queries[prefix + "_unique"] = (
         DBViewBuilder("lookup")
         .query(
-            """
+            f"""
         SELECT d as id, d as text
         FROM (
           SELECT distinct {{column}} AS d
           FROM {table} WHERE LOWER({{column}}) LIKE :query
           ) as t
-        ORDER BY d ASC""".format(
-                table=table
-            )
+        ORDER BY d ASC"""
         )
         .replace("column", columns)
         .call(limit_offset)
@@ -567,11 +561,9 @@ def add_common_queries(
     queries[prefix + "_unique_all"] = (
         DBViewBuilder("helper")
         .query(
-            """
+            f"""
         SELECT distinct {{column}} AS text
-        FROM {table} ORDER BY {{column}} ASC """.format(
-                table=table
-            )
+        FROM {table} ORDER BY {{column}} ASC """
         )
         .replace("column", columns)
         .build()
@@ -625,7 +617,7 @@ class DBConnector:
             "pool_pre_ping": True,
         }
         engine_options.update(config.get("engine", {}))
-        return sqlalchemy.create_engine(self.dburl, **engine_options)
+        return sqlalchemy.create_engine(self.dburl, **engine_options)  # type: ignore
 
     def create_sessionmaker(self, engine) -> sessionmaker:
         return sessionmaker(bind=engine)

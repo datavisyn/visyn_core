@@ -1,4 +1,4 @@
-import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group } from '@mantine/core';
+import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -26,9 +26,9 @@ export function MultiSelect({
     callback(currentSelected.filter((s) => s.id !== id));
   };
 
-  const handleValueSelect = (name: string) => {
-    const itemToAdd = filteredColumns.find((c) => c.info.name === name);
-    currentSelected.find((c) => c.name === name) ? handleValueRemove(itemToAdd.info.id) : callback([...currentSelected, itemToAdd.info]);
+  const handleValueSelect = (id: string) => {
+    const itemToAdd = filteredColumns.find((c) => c.info.id === id);
+    currentSelected.find((c) => c.id === id) ? handleValueRemove(itemToAdd.info.id) : callback([...currentSelected, itemToAdd.info]);
   };
 
   const handleValueRemoveAll = () => {
@@ -39,7 +39,7 @@ export function MultiSelect({
     .filter((c) => !currentSelected.map((s) => s.id).includes(c.info.id))
     .map((item) => {
       return (
-        <Combobox.Option value={item.info.name} key={item.info.id}>
+        <Combobox.Option value={item.info.id} key={item.info.id}>
           <Tooltip
             withinPortal
             withArrow
@@ -121,7 +121,11 @@ export function MultiSelect({
       </Combobox.DropdownTarget>
 
       <Combobox.Dropdown>
-        <Combobox.Options>{options.length === 0 ? <Combobox.Empty>All options selected</Combobox.Empty> : options}</Combobox.Options>
+        <Combobox.Options>
+          <ScrollArea.Autosize type="scroll" mah={200}>
+            {options.length === 0 ? <Combobox.Empty>All options selected</Combobox.Empty> : options}
+          </ScrollArea.Autosize>
+        </Combobox.Options>
       </Combobox.Dropdown>
     </Combobox>
   );
