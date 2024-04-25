@@ -1,6 +1,5 @@
 import merge from 'lodash/merge';
-import * as React from 'react';
-import { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
@@ -31,92 +30,99 @@ export function BarVisSidebar({
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
 
+  const [selectedColumn, setSelectedColumn] = useState<{ column: ColumnInfo; columnType: EColumnTypes }>(
+    config.catColumnSelected
+      ? { column: config.catColumnSelected, columnType: EColumnTypes.CATEGORICAL }
+      : config.numColumnsSelected[0]
+        ? { column: config.numColumnsSelected[0], columnType: EColumnTypes.NUMERICAL }
+        : null,
+  );
+
+  useEffect(() => {
+    setConfig({
+      ...config,
+      catColumnSelected: selectedColumn?.columnType === EColumnTypes.CATEGORICAL ? selectedColumn?.column : null,
+      numColumnsSelected: selectedColumn?.columnType === EColumnTypes.NUMERICAL ? [selectedColumn?.column] : [],
+      multiples: config.multiples && config.multiples.id === selectedColumn?.column?.id ? null : config.multiples,
+      group: config.group && config.group.id === selectedColumn?.column?.id ? null : config.group,
+    });
+  }, [config, selectedColumn?.column, selectedColumn?.columnType, setConfig]);
+
   return (
     <>
       <SingleSelect
-        callback={(numColumnSelected: ColumnInfo) =>
-          setConfig({
-            ...config,
-            catColumnSelected: null,
-            aggregateType: EAggregateTypes.NONE,
-            numColumnsSelected: !numColumnSelected ? [] : [numColumnSelected],
-            multiples: config.multiples && config.multiples.id === numColumnSelected?.id ? null : config.multiples,
-            group: config.group && config.group.id === numColumnSelected?.id ? null : config.group,
-          })
-        }
-        columns={columns}
-        currentSelected={config.numColumnsSelected[0]}
-        columnType={EColumnTypes.NUMERICAL}
-        label="Numerical column"
-        disabled={config.catColumnSelected !== null}
-      />
-      <SingleSelect
-        callback={(catColumnSelected: ColumnInfo) =>
-          setConfig({
-            ...config,
-            catColumnSelected,
-            numColumnsSelected: [],
-            multiples: config.multiples && config.multiples.id === catColumnSelected?.id ? null : config.multiples,
-            group: config.group && config.group.id === catColumnSelected?.id ? null : config.group,
-          })
-        }
-        columns={columns}
-        currentSelected={config.catColumnSelected}
-        columnType={EColumnTypes.CATEGORICAL}
-        label="Categorical column"
-        disabled={config.numColumnsSelected.length > 0}
-      />
-      <AggregateTypeSelect
-        aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
-          if (config.aggregateColumn === null) {
-            setConfig({
-              ...config,
-              aggregateType,
-              aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
-              display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
-            });
-          } else {
-            setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
-          }
+        callback={(column: ColumnInfo) => {
+          setSelectedColumn(() => {
+            const c = columns.find((col) => col.info.id === column?.id);
+            return !c ? null : { column: c.info, columnType: c.type };
+          });
         }}
-        aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
         columns={columns}
-        currentSelected={config.aggregateType}
-        aggregateColumn={config.aggregateColumn}
+        currentSelected={selectedColumn?.column}
+        columnTypes={[EColumnTypes.CATEGORICAL, EColumnTypes.NUMERICAL]}
+        label="Select a column"
       />
+      {!selectedColumn ? null : (
+        <>
+          {selectedColumn?.columnType === EColumnTypes.CATEGORICAL ? (
+            <>
+              <AggregateTypeSelect
+                aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
+                  if (config.aggregateColumn === null) {
+                    setConfig({
+                      ...config,
+                      aggregateType,
+                      aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+                      display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
+                    });
+                  } else {
+                    setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
+                  }
+                }}
+                aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
+                columns={columns}
+                currentSelected={config.aggregateType}
+                aggregateColumn={config.aggregateColumn}
+              />
 
-      {mergedOptionsConfig.group.enable
-        ? mergedOptionsConfig.group.customComponent || (
-            <GroupSelect
-              aggregateType={config.aggregateType}
-              groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
-              groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
-              groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
-              displayType={config.display}
-              groupType={config.groupType}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
-              currentSelected={config.group}
-            />
-          )
-        : null}
-      {mergedOptionsConfig.multiples.enable
-        ? mergedOptionsConfig.multiples.customComponent || (
-            <SingleSelect
-              callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
-              currentSelected={config.multiples}
-              label="Multiples"
-              columnType={EColumnTypes.CATEGORICAL}
-            />
-          )
-        : null}
-      {mergedOptionsConfig.direction.enable
-        ? mergedOptionsConfig.direction.customComponent || (
-            <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
-          )
-        : null}
+              {mergedOptionsConfig.group.enable
+                ? mergedOptionsConfig.group.customComponent || (
+                    <GroupSelect
+                      aggregateType={config.aggregateType}
+                      groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
+                      groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
+                      groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
+                      displayType={config.display}
+                      groupType={config.groupType}
+                      columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+                      currentSelected={config.group}
+                    />
+                  )
+                : null}
+              {mergedOptionsConfig.multiples.enable
+                ? mergedOptionsConfig.multiples.customComponent || (
+                    <SingleSelect
+                      callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
+                      columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+                      currentSelected={config.multiples}
+                      label="Multiples"
+                      columnTypes={[EColumnTypes.CATEGORICAL]}
+                    />
+                  )
+                : null}
+            </>
+          ) : null}
+          {mergedOptionsConfig.direction.enable
+            ? mergedOptionsConfig.direction.customComponent || (
+                <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
+              )
+            : null}
 
-      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+          {filterCallback && mergedOptionsConfig.filter.enable
+            ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} />
+            : null}
+        </>
+      )}
     </>
   );
 }
