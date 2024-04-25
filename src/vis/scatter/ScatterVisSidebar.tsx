@@ -58,7 +58,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         ? mergedOptionsConfig.shape.customComponent || (
             <SingleSelect
               label="Shape"
-              columnType={EColumnTypes.CATEGORICAL}
+              columnTypes={[EColumnTypes.CATEGORICAL]}
               callback={(shape: ColumnInfo) => setConfig({ ...config, shape })}
               columns={columns}
               currentSelected={config.shape}
