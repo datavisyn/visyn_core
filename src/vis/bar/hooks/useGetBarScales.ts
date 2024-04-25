@@ -106,7 +106,7 @@ export function useGetBarScales({
   const categoryValueScale = useMemo(() => {
     if (!aggregatedTable || !allColumns?.catColVals) return null;
     const range = isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top];
-    const domain = sortTableBySortType(aggregatedTable, sortType).array('category').slice(0, 100);
+    const domain = sortTableBySortType(aggregatedTable, sortType).array('category').slice(0, 20);
     return d3.scaleBand().range(range).domain(domain).padding(0.2);
   }, [aggregatedTable, allColumns?.catColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
 
