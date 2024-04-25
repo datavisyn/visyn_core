@@ -46,44 +46,54 @@ export function SimpleBars({
       const aggregatedTableObjects = aggregatedTable.objects().slice(0, 100);
       if (categoryValueScale && categoryCountScale) {
         return aggregatedTableObjects.map((row: { category: string; count: number; aggregateVal: number; selectedCount: number; ids: string[] }, index) => {
+          const w = isVertical ? categoryValueScale.bandwidth() ?? 10 : width - margin.right - categoryCountScale(row.aggregateVal);
+          const h = isVertical ? height - margin.bottom - categoryCountScale(row.aggregateVal) : categoryValueScale.bandwidth();
+          const x = isVertical ? categoryValueScale(row.category) ?? 10 * index : margin.left;
+          const y = isVertical ? categoryCountScale(row.aggregateVal) : categoryValueScale(row.category) ?? 10 * index;
+          const selectedPercent = hasSelected ? row.selectedCount / row.count : null;
           return (
             <SingleBar
               isVertical={isVertical}
               key={row.category}
               onClick={(e) => selectionCallback(e, row.ids)}
-              selectedPercent={hasSelected ? row.selectedCount / row.count : null}
+              selectedPercent={selectedPercent}
               tooltip={
                 <Stack gap={0}>
                   <Text>{`${categoryName}: ${row.category}`}</Text>
                   <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>
                 </Stack>
               }
-              width={isVertical ? categoryValueScale.bandwidth() ?? 10 : width - margin.right - categoryCountScale(row.aggregateVal)}
-              height={isVertical ? height - margin.bottom - categoryCountScale(row.aggregateVal) : categoryValueScale.bandwidth()}
-              x={isVertical ? categoryValueScale(row.category) ?? 10 * index : margin.left}
-              y={isVertical ? categoryCountScale(row.aggregateVal) : categoryValueScale(row.category) ?? 10 * index}
+              width={w}
+              height={h}
+              x={x}
+              y={y}
             />
           );
         });
       }
       if (numericalValueScale && numericalIdScale) {
         return aggregatedTableObjects.map((row: { numerical: number; selected: number; id: string }, index) => {
+          const w = isVertical ? numericalIdScale.bandwidth() ?? 10 : Math.max(width - margin.right - numericalValueScale(row.numerical), 2);
+          const h = isVertical ? Math.max(height - margin.bottom - numericalValueScale(row.numerical), 2) : numericalIdScale.bandwidth();
+          const x = isVertical ? numericalIdScale(row.id) ?? 10 * index : margin.left;
+          const y = isVertical ? numericalValueScale(row.numerical) : numericalIdScale(row.id) ?? 10 * index;
+          const selectedPercent = !hasSelected || row.selected ? 1 : 0;
           return (
             <SingleBar
               isVertical={isVertical}
               key={row.id}
               onClick={(e) => selectionCallback(e, [row.id])}
-              selectedPercent={0}
+              selectedPercent={selectedPercent}
               tooltip={
                 <Stack gap={0}>
                   <Text>{`ID: ${row.id}`}</Text>
                   <Text>{`${numericalName}: ${row.numerical}`}</Text>
                 </Stack>
               }
-              width={isVertical ? numericalIdScale.bandwidth() ?? 10 : width - margin.right - numericalValueScale(row.numerical)}
-              height={isVertical ? height - margin.bottom - numericalValueScale(row.numerical) : numericalIdScale.bandwidth()}
-              x={isVertical ? numericalIdScale(row.id) ?? 10 * index : margin.left}
-              y={isVertical ? numericalValueScale(row.numerical) : numericalIdScale(row.id) ?? 10 * index}
+              width={w}
+              height={h}
+              x={x}
+              y={y}
             />
           );
         });
