@@ -142,9 +142,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   return (
     <VisProvider>
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} externalConfig={config} setExternalConfig={setConfig} selected={selection} selectionCallback={setSelection} columns={columns} />
-        </div>
+        <Vis {...args} externalConfig={config} setExternalConfig={setConfig} selected={selection} selectionCallback={setSelection} columns={columns} />
       </div>
     </VisProvider>
   );
