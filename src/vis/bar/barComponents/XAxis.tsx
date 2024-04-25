@@ -2,9 +2,48 @@ import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Center, Group, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
-import * as React from 'react';
-import { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SortTypes } from '../interfaces';
+
+function TickText({
+  value,
+  shouldRotate,
+  setShouldRotateAxisTicks,
+}: {
+  value: string | number;
+  shouldRotate: boolean;
+  setShouldRotateAxisTicks?: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const textRef = React.useRef<HTMLParagraphElement>(null);
+
+  // NOTE : @dv-usama-ansari: It is safe to use the `useEffect` without dependencies since the refs should update on each render.
+  //  This does not trigger a re-render and the component updates the ref as expected very efficiently.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setShouldRotateAxisTicks(textRef.current?.scrollWidth > textRef.current?.offsetWidth);
+  });
+
+  return (
+    <Center>
+      <Tooltip withinPortal label={value}>
+        <Text
+          ref={textRef}
+          px={2}
+          size={rem('10px')}
+          style={{
+            textAlign: 'center',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            transform: `translate(0px, 2px) rotate(${shouldRotate ? '-45deg' : '0deg'})`,
+          }}
+        >
+          {value}
+        </Text>
+      </Tooltip>
+    </Center>
+  );
+}
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({
@@ -41,6 +80,9 @@ export function XAxis({
 
     return xScale.range()[0] - xScale.range()[1];
   }, [ticks, xScale]);
+
+  const [shouldRotateAxisTicks, setShouldRotateAxisTicks] = useState(shouldRotate);
+
   return (
     <>
       <g transform={`translate(${xScale.range()[1]}, ${vertPosition + 25})`}>
@@ -65,23 +107,13 @@ export function XAxis({
           <line y2="6" stroke="currentColor" />
           {showLines ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke="lightgray" /> : null}
           <foreignObject x={0 - tickWidth / 2} y={10} width={tickWidth} height={20}>
-            <Center>
-              <Tooltip withinPortal label={value}>
-                <Text
-                  px={2}
-                  size={rem('10px')}
-                  style={{
-                    textAlign: 'center',
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    transform: `translate(0px, 2px) rotate(${shouldRotate ? '-45deg' : '0deg'})`,
-                  }}
-                >
-                  {value}
-                </Text>
-              </Tooltip>
-            </Center>
+            <TickText
+              value={value}
+              shouldRotate={shouldRotateAxisTicks}
+              setShouldRotateAxisTicks={(v) => {
+                setShouldRotateAxisTicks(shouldRotate || v);
+              }}
+            />
           </foreignObject>
         </g>
       ))}
