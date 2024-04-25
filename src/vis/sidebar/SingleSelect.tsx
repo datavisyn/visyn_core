@@ -6,7 +6,7 @@ export function SingleSelect({
   callback,
   columns,
   currentSelected,
-  columnType,
+  columnTypes,
   label,
   isClearable = true,
   disabled = false,
@@ -15,14 +15,14 @@ export function SingleSelect({
   columns: VisColumn[];
   currentSelected: ColumnInfo;
   /** If null, all columns are selectable */
-  columnType: EColumnTypes | null;
+  columnTypes: EColumnTypes[] | null;
   label: string;
   isClearable?: boolean;
   disabled?: boolean;
 }) {
   const filteredColumns = React.useMemo(() => {
-    return columnType ? columns.filter((c) => c.type === columnType) : columns;
-  }, [columnType, columns]);
+    return columnTypes ? columns.filter((c) => columnTypes.includes(c.type)) : columns;
+  }, [columnTypes, columns]);
 
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
