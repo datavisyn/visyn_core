@@ -2,34 +2,20 @@
 Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-js
 */
 
-import { Input, SegmentedControl } from '@mantine/core';
+import { Input, Select, Text, Stack, Group, NumberInput } from '@mantine/core';
 import fitCurve from 'fit-curve';
 import { corrcoeff } from 'jstat';
 import * as React from 'react';
 import { categoricalColors } from '../../utils';
-import { ERegressionLineOptions } from '../interfaces';
+import { HelpHoverCard } from '../../components/HelpHoverCard';
 
-interface RegressionLineOptionsProps {
-  callback: (s: ERegressionLineOptions) => void;
-  currentSelected: ERegressionLineOptions | null;
-}
-
-export function RegressionLineOptions({ callback, currentSelected }: RegressionLineOptionsProps) {
-  return (
-    <Input.Wrapper label="Regression line">
-      <SegmentedControl
-        fullWidth
-        size="xs"
-        value={currentSelected}
-        onChange={callback}
-        data={[
-          { label: ERegressionLineOptions.NONE, value: ERegressionLineOptions.NONE },
-          { label: ERegressionLineOptions.LINEAR, value: ERegressionLineOptions.LINEAR },
-          { label: ERegressionLineOptions.NONLINEAR, value: ERegressionLineOptions.NONLINEAR },
-        ]}
-      />
-    </Input.Wrapper>
-  );
+export enum ERegressionLineType {
+  NONE = 'None',
+  LINEAR = 'Linear',
+  POLYNOMIAL = 'Polynomial',
+  EXPONENTIAL = 'Exponential',
+  LOGARITHMIC = 'Logarithmic',
+  POWER = 'Power',
 }
 
 export interface IRegressionResult {
@@ -40,16 +26,85 @@ export interface IRegressionResult {
   };
   equation: string;
   svgPath: string;
+  xref: string;
+  yref: string;
+}
+
+export interface IRegressionFitOptions {
+  order: number;
+  precision: number;
 }
 
 export type RegressionData = Array<Array<number>>;
-// TODO: order only used in polynomial, remove from options in other methods?
-export type RegressionOptions = { order: number; precision: number };
-export const DEFAULT_CURVE_FIT_OPTIONS: RegressionOptions = { order: 2, precision: 3 };
+export const DEFAULT_CURVE_FIT_OPTIONS: IRegressionFitOptions = { order: 2, precision: 3 };
 export const DEFAULT_REGRESSION_LINE_STYLE = {
   color: categoricalColors[9],
   width: 2.5,
 };
+
+export interface IRegressionLineOptions {
+  type: ERegressionLineType;
+  fitOptions: IRegressionFitOptions;
+  showStats?: boolean;
+  lineStyle?: Partial<Plotly.ShapeLine>;
+  setRegressionResults?: (results: IRegressionResult[]) => void;
+}
+
+interface RegressionLineOptionsProps {
+  callback: (s: IRegressionLineOptions) => void;
+  currentSelected: IRegressionLineOptions | null;
+}
+
+export function RegressionLineOptions({ callback, currentSelected }: RegressionLineOptionsProps) {
+  return (
+    <Stack>
+      <Input.Wrapper>
+        <Select
+          searchable
+          label={
+            <HelpHoverCard
+              title={
+                <Text size="sm" fw={500}>
+                  Regression line
+                </Text>
+              }
+              content="Select the type of regression line you would like to fit to the data."
+            />
+          }
+          styles={{
+            label: {
+              width: '100%',
+            },
+          }}
+          onChange={(s) => callback({ ...currentSelected, type: s as ERegressionLineType })}
+          name="regression line types"
+          maxDropdownHeight={200}
+          data={Object.values(ERegressionLineType).map((o) => {
+            return {
+              value: o,
+              label: o,
+            };
+          })}
+          value={currentSelected?.type || ERegressionLineType.NONE}
+        />
+      </Input.Wrapper>
+      {currentSelected.type === ERegressionLineType.POLYNOMIAL && (
+        <Group justify="flex-end">
+          <Text size="sm" fw={500}>
+            Order:
+          </Text>
+          <NumberInput
+            w={100}
+            onChange={(s) => callback({ ...currentSelected, fitOptions: { ...currentSelected.fitOptions, order: s as number } })}
+            value={currentSelected.fitOptions.order}
+            min={2}
+            max={5}
+          />
+        </Group>
+      )}
+    </Stack>
+  );
+}
 
 /**
  * Determine the coefficient of determination (r^2) of a fit from the observations
@@ -156,7 +211,7 @@ function round(number: number, precision: number): number {
  * @namespace
  */
 const methods = {
-  linear(data: RegressionData, options: RegressionOptions) {
+  linear(data: RegressionData, options: IRegressionFitOptions) {
     const sum = [0, 0, 0, 0, 0];
     let len = 0;
 
@@ -198,7 +253,7 @@ const methods = {
     };
   },
 
-  exponential(data: RegressionData, options: RegressionOptions) {
+  exponential(data: RegressionData, options: IRegressionFitOptions) {
     const sum = [0, 0, 0, 0, 0, 0];
 
     let min = null;
@@ -246,7 +301,7 @@ const methods = {
     };
   },
 
-  logarithmic(data: RegressionData, options: RegressionOptions) {
+  logarithmic(data: RegressionData, options: IRegressionFitOptions) {
     const sum = [0, 0, 0, 0];
     const len = data.length;
 
@@ -292,7 +347,7 @@ const methods = {
     };
   },
 
-  power(data: RegressionData, options: RegressionOptions) {
+  power(data: RegressionData, options: IRegressionFitOptions) {
     const sum = [0, 0, 0, 0, 0];
     const len = data.length;
 
@@ -339,7 +394,7 @@ const methods = {
     };
   },
 
-  polynomial(data: RegressionData, options: RegressionOptions) {
+  polynomial(data: RegressionData, options: IRegressionFitOptions) {
     const lhs = [];
     const rhs = [];
     let a = 0;
@@ -423,18 +478,24 @@ const methods = {
 };
 
 const regressionMethodsMapping = {
-  [ERegressionLineOptions.LINEAR]: 'linear',
-  [ERegressionLineOptions.NONLINEAR]: 'polynomial',
+  [ERegressionLineType.LINEAR]: 'linear',
+  [ERegressionLineType.POLYNOMIAL]: 'polynomial',
+  [ERegressionLineType.EXPONENTIAL]: 'exponential',
+  [ERegressionLineType.LOGARITHMIC]: 'logarithmic',
+  [ERegressionLineType.POWER]: 'power',
 };
 
 export const fitRegression = (
-  x: number[],
-  y: number[],
-  method: ERegressionLineOptions,
-  options: RegressionOptions = DEFAULT_CURVE_FIT_OPTIONS,
+  data: Partial<Plotly.PlotData>,
+  method: ERegressionLineType,
+  options: IRegressionFitOptions = DEFAULT_CURVE_FIT_OPTIONS,
 ): IRegressionResult => {
-  const data = x.map((val, i) => [val, y[i]]);
+  const x = data.x as number[];
+  const y = data.y as number[];
   const correlation = round(corrcoeff(x, y), options.precision);
-  const regressionResult = methods[regressionMethodsMapping[method]](data, options);
-  return { ...regressionResult, stats: { correlation, ...regressionResult.stats } };
+  const regressionResult = methods[regressionMethodsMapping[method]](
+    x.map((val, i) => [val, y[i]]),
+    options,
+  );
+  return { ...regressionResult, stats: { correlation, ...regressionResult.stats }, xref: data.xaxis, yref: data.yaxis };
 };

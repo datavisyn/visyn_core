@@ -1,4 +1,5 @@
-import { BaseVisConfig, ColumnInfo, ENumericalColorScaleType, ERegressionLineOptions, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
+import { BaseVisConfig, ColumnInfo, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
+import { IRegressionLineOptions } from './Regression';
 
 export interface IScatterConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.SCATTER;
@@ -10,8 +11,7 @@ export interface IScatterConfig extends BaseVisConfig {
   alphaSliderVal: number;
   sizeSliderVal: number;
   showLabels: ELabelingOptions;
-  showRegressionLine: ERegressionLineOptions;
-  regressionLineStyle?: Partial<Plotly.ShapeLine>;
+  regressionLineOptions: IRegressionLineOptions;
 }
 
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {

@@ -2,9 +2,10 @@ import { ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
-import { BaseVisConfig, ENumericalColorScaleType, ERegressionLineOptions, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
+import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
-import { ELabelingOptions } from '../../../scatter/interfaces';
+import { ELabelingOptions, IScatterConfig } from '../../../scatter/interfaces';
+import { ERegressionLineType } from '../../../scatter/Regression';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -55,7 +56,9 @@ Basic.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
     showLabels: ELabelingOptions.NEVER,
-    showRegressionLine: ERegressionLineOptions.NONE,
+    regressionLineOptions: {
+      type: ERegressionLineType.NONE,
+    },
   } as BaseVisConfig,
 
   filterCallback: (option) => {
@@ -89,7 +92,9 @@ ColorByCategory.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
     showLabels: ELabelingOptions.NEVER,
-    showRegressionLine: ERegressionLineOptions.NONE,
+    regressionLineOptions: {
+      type: ERegressionLineType.NONE,
+    },
   } as BaseVisConfig,
 };
 
@@ -119,7 +124,9 @@ ColorByNumerical.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
     showLabels: ELabelingOptions.NEVER,
-    showRegressionLine: ERegressionLineOptions.NONE,
+    regressionLineOptions: {
+      type: ERegressionLineType.NONE,
+    },
   } as BaseVisConfig,
 };
 
@@ -150,7 +157,9 @@ SmallMultiples.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.5,
     showLabels: ELabelingOptions.NEVER,
-    showRegressionLine: ERegressionLineOptions.NONE,
+    regressionLineOptions: {
+      type: ERegressionLineType.NONE,
+    },
   } as BaseVisConfig,
 };
 
@@ -179,6 +188,9 @@ LinearRegression.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 0.3,
     showLabels: ELabelingOptions.NEVER,
-    showRegressionLine: ERegressionLineOptions.NONLINEAR,
-  } as BaseVisConfig,
+    regressionLineOptions: {
+      type: ERegressionLineType.POLYNOMIAL,
+      showStats: true,
+    },
+  } as IScatterConfig,
 };

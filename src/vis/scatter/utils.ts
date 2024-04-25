@@ -8,7 +8,6 @@ import {
   ColumnInfo,
   EColumnTypes,
   ENumericalColorScaleType,
-  ERegressionLineOptions,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
   PlotlyData,
@@ -21,6 +20,7 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { ERegressionLineType } from './Regression';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -45,7 +45,11 @@ const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
   showLabels: ELabelingOptions.SELECTED,
-  showRegressionLine: ERegressionLineOptions.NONE,
+  regressionLineOptions: {
+    type: ERegressionLineType.NONE,
+    fitOptions: { order: 2, precision: 3 },
+    showStats: true,
+  },
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {

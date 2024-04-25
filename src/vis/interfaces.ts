@@ -51,12 +51,6 @@ export enum EScaleType {
   LOG = 'Log',
 }
 
-export enum ERegressionLineOptions {
-  LINEAR = 'Linear',
-  NONLINEAR = 'Nonlinear',
-  NONE = 'None',
-}
-
 type ValueGetter<T> = () => T | Promise<T>;
 
 export interface IVisCommonValue<Type extends number | string> {

@@ -8,11 +8,37 @@ import { PlotlyComponent } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general/InvalidCols';
 import { beautifyLayout } from '../general/layoutUtils';
-import { ERegressionLineOptions, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
+import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { createScatterTraces } from './utils';
+import { DEFAULT_REGRESSION_LINE_STYLE, ERegressionLineType, IRegressionResult, fitRegression } from './Regression';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
-import { DEFAULT_REGRESSION_LINE_STYLE, fitRegression } from './Regression';
+import { createScatterTraces } from './utils';
+
+const annotationsForRegressionStats = (results: IRegressionResult[]) => {
+  const annotations: Partial<Plotly.Annotations>[] = [];
+  for (const r of results) {
+    annotations.push({
+      x: 0.02,
+      y: 0.98,
+      // @ts-ignore
+      xref: `${r.xref} domain`,
+      // @ts-ignore
+      yref: `${r.yref} domain`,
+      text: `<b>n: ${r.stats.n}</b><br><b>r²: ${r.stats.r2}</b><br><b>corr: ${r.stats.correlation}</b><br>`,
+      showarrow: false,
+      font: {
+        size: results.length > 1 ? 14 : 16,
+        color: '#616161',
+      },
+      align: 'left',
+      xanchor: 'left',
+      yanchor: 'top',
+      bgcolor: '#ffffff',
+      opacity: 0.6,
+    });
+  }
+  return annotations;
+};
 
 export function ScatterVis({
   config,
@@ -60,26 +86,31 @@ export function ScatterVis({
   ]);
 
   // Regression lines for all subplots
-  const regressionLineShapes = useMemo(() => {
-    if (traces?.plots && config.showRegressionLine !== ERegressionLineOptions.NONE) {
+  const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
+    const onRegressionResultsChanged = config.regressionLineOptions.setRegressionResults || (() => null);
+    if (traces?.plots && config.regressionLineOptions.type !== ERegressionLineType.NONE) {
       const regressionShapes: Partial<Plotly.Shape>[] = [];
+      const regressionResults: IRegressionResult[] = [];
       for (const plot of traces.plots) {
         if (plot.data.type === 'scattergl') {
-          const curveFit = fitRegression(plot.data.x, plot.data.y, config.showRegressionLine);
+          const curveFit = fitRegression(plot.data, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
           regressionShapes.push({
             type: 'path',
             path: curveFit.svgPath,
-            line: config.regressionLineStyle || DEFAULT_REGRESSION_LINE_STYLE,
-            xref: plot.data.xaxis,
-            yref: plot.data.yaxis,
+            line: config.regressionLineOptions.lineStyle || DEFAULT_REGRESSION_LINE_STYLE,
+            xref: curveFit.xref as Plotly.XAxisName,
+            yref: curveFit.yref as Plotly.YAxisName,
           });
+          regressionResults.push(curveFit);
         }
       }
-      return regressionShapes;
+
+      onRegressionResultsChanged(regressionResults);
+      return { shapes: regressionShapes, results: regressionResults };
     }
 
-    return [];
-  }, [config.regressionLineStyle, config.showRegressionLine, traces?.plots]);
+    return { shapes: [], results: [] };
+  }, [traces?.plots, config]);
 
   React.useEffect(() => {
     if (!traces) {
@@ -106,15 +137,15 @@ export function ScatterVis({
         l: 100,
         b: 100,
       },
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
+      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       dragmode: config.dragMode,
     };
 
     setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces, config.dragMode, config.showRegressionLine, config.regressionLineStyle]);
+  }, [traces, config.dragMode]);
 
   const plotsWithSelectedPoints = useMemo(() => {
     if (traces) {
@@ -183,7 +214,11 @@ export function ScatterVis({
           key={id}
           divId={`plotlyDiv${id}`}
           data={plotlyData}
-          layout={{ ...layout, shapes: [...(layout?.shapes || []), ...regressionLineShapes] }}
+          layout={{
+            ...layout,
+            shapes: [...(layout?.shapes || []), ...regression.shapes],
+            annotations: config.regressionLineOptions.showStats ? annotationsForRegressionStats(regression.results) : [],
+          }}
           config={{ responsive: true, displayModeBar: false, scrollZoom }}
           useResizeHandler
           style={{ width: '100%', height: '100%' }}
