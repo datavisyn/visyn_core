@@ -13,6 +13,10 @@ import { IRegressionLineOptions, RegressionLineOptions } from './Regression';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
 
 const defaultConfig = {
+  multiples: {
+    enable: true,
+    customComponent: null,
+  },
   color: {
     enable: true,
     customComponent: null,
@@ -48,6 +52,18 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         currentSelected={config.numColumnsSelected || []}
         columnType={EColumnTypes.NUMERICAL}
       />
+
+      {mergedOptionsConfig.multiples.enable
+        ? mergedOptionsConfig.multiples.customComponent || (
+            <SingleSelect
+              callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
+              columns={columns.filter((c) => c.type === EColumnTypes.CATEGORICAL)}
+              currentSelected={config.multiples}
+              label="Multiples"
+              columnType={EColumnTypes.CATEGORICAL}
+            />
+          )
+        : null}
 
       {mergedOptionsConfig.color.enable
         ? mergedOptionsConfig.color.customComponent || (

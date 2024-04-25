@@ -4,6 +4,7 @@ import { IRegressionLineOptions } from './Regression';
 export interface IScatterConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.SCATTER;
   numColumnsSelected: ColumnInfo[];
+  multiples: ColumnInfo | null;
   color: ColumnInfo | null;
   numColorScaleType: ENumericalColorScaleType;
   shape: ColumnInfo | null;

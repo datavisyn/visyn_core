@@ -38,6 +38,7 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
 const defaultConfig: IScatterConfig = {
   type: ESupportedPlotlyVis.SCATTER,
   numColumnsSelected: [],
+  multiples: null,
   color: null,
   numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
   shape: null,
@@ -86,6 +87,7 @@ export function moveSelectedToFront(
 export async function createScatterTraces(
   columns: VisColumn[],
   numColumnsSelected: ColumnInfo[],
+  catColumnsSelected: ColumnInfo,
   shape: ColumnInfo,
   color: ColumnInfo,
   alphaSliderVal: number,
@@ -118,6 +120,19 @@ export async function createScatterTraces(
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
+  const catCol = await resolveSingleColumn(getCol(columns, catColumnsSelected));
+
+  // Split data into segments by catCol
+  const multiplesIdMapping = new Map<string, string[]>();
+  if (catCol) {
+    catCol.resolvedValues.forEach((v, i) => {
+      if (!multiplesIdMapping.has(v.val as string)) {
+        multiplesIdMapping.set(v.val as string, []);
+      }
+      multiplesIdMapping.get(v.val as string).push(v.id);
+    });
+  }
+
   const idToLabelMapper = await createIdToLabelMapper(columns);
 
   const textPositionOptions = ['top center', 'bottom center'];
@@ -155,8 +170,96 @@ export async function createScatterTraces(
     return emptyVal;
   }
 
-  // if exactly 2 then return just one plot. otherwise, loop over and create n*n plots. TODO:: make the diagonal plots that have identical axis a histogram
-  if (validCols.length === 2) {
+  // Case: Facetting by category
+  if (validCols.length === 2 && catCol) {
+    multiplesIdMapping.forEach((ids, category) => {
+      const xDataVals = validCols[0].resolvedValues.filter((v) => ids.includes(v.id)).map((v) => v.val) as number[];
+      const yDataVals = validCols[1].resolvedValues.filter((v) => ids.includes(v.id)).map((v) => v.val) as number[];
+      const filteredValidValues = validCols[0].resolvedValues.filter((v) => ids.includes(v.id));
+      const filteredColorValues = colorCol ? colorCol.resolvedValues.filter((v) => ids.includes(v.id)) : null;
+      const filteredShapeValues = shapeCol ? shapeCol.resolvedValues.filter((v) => ids.includes(v.id)) : null;
+
+      const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, xDataVals);
+      const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, yDataVals);
+
+      plots.push({
+        data: {
+          x: xDataVals,
+          y: yDataVals,
+          ids: filteredValidValues.map((v) => v.id.toString()),
+          xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
+          yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
+          type: 'scattergl',
+          mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+          showlegend: false,
+          hoverlabel: {
+            bgcolor: 'black',
+          },
+          // TODO: Fix hovertext
+          // hovertext: validCols[0].resolvedValues.map(
+          //   (v, i) =>
+          //     `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
+          //       colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${filteredColorValues[i].val}` : ''
+          //     }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${filteredShapeValues[i].val}` : ''}`,
+          // ),
+          hoverinfo: 'text',
+          text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
+          // @ts-ignore
+          textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
+          marker: {
+            symbol: shapeCol ? filteredShapeValues.map((v) => shapeScale(v.val as string)) : 'circle',
+
+            color: colorCol
+              ? filteredColorValues.map((v) =>
+                  colorCol.type === EColumnTypes.NUMERICAL
+                    ? numericalColorScale(v.val as number)
+                    : colorCol.color
+                      ? colorCol.color[v.val]
+                      : scales.color(v.val),
+                )
+              : SELECT_COLOR,
+          },
+          // plotly is stupid and doesnt know its own types
+          // @ts-ignore
+          selected: {
+            marker: {
+              line: {
+                width: 0,
+              },
+              opacity: 1,
+              size: sizeSliderVal,
+            },
+            textfont: {
+              color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
+            },
+          },
+          unselected: {
+            marker: {
+              line: {
+                width: 0,
+              },
+              color: DEFAULT_COLOR,
+              opacity: alphaSliderVal,
+              size: sizeSliderVal,
+            },
+            textfont: {
+              color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
+            },
+          },
+        },
+        xLabel: columnNameWithDescription(validCols[0].info),
+        yLabel: columnNameWithDescription(validCols[1].info),
+        xDomain: calcXDomain,
+        yDomain: calcYDomain,
+        title: category,
+      });
+
+      plotCounter += 1;
+    });
+  }
+
+  // Case: Exactly two numerical columns
+  if (validCols.length === 2 && !catCol) {
     const xDataVals = validCols[0].resolvedValues.map((v) => v.val) as number[];
     const yDataVals = validCols[1].resolvedValues.map((v) => v.val) as number[];
 
@@ -228,7 +331,10 @@ export async function createScatterTraces(
       xDomain: calcXDomain,
       yDomain: calcYDomain,
     });
-  } else {
+  }
+
+  // Case: Multiple numerical columns and no categorical facetting
+  if (validCols.length > 2 && !catCol) {
     for (const yCurr of validCols) {
       for (const xCurr of validCols) {
         // if on the diagonal, make a histogram.
@@ -425,8 +531,8 @@ export async function createScatterTraces(
   return {
     plots,
     legendPlots,
-    rows: Math.sqrt(plots.length),
-    cols: Math.sqrt(plots.length),
+    rows: catCol ? Math.ceil(plots.length / 2) : Math.sqrt(plots.length),
+    cols: catCol ? 2 : Math.sqrt(plots.length),
     errorMessage: i18n.t('visyn:vis.scatterError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
   };

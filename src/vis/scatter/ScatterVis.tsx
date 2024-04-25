@@ -75,6 +75,7 @@ export function ScatterVis({
   } = useAsync(createScatterTraces, [
     columns,
     config.numColumnsSelected,
+    config.multiples,
     config.shape,
     config.color,
     config.alphaSliderVal,
@@ -87,7 +88,7 @@ export function ScatterVis({
 
   // Regression lines for all subplots
   const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
-    const onRegressionResultsChanged = config.regressionLineOptions.setRegressionResults || (() => null);
+    const onRegressionResultsChanged = config.regressionLineOptions?.setRegressionResults || (() => null);
     if (traces?.plots && config.regressionLineOptions.type !== ERegressionLineType.NONE) {
       const regressionShapes: Partial<Plotly.Shape>[] = [];
       const regressionResults: IRegressionResult[] = [];
@@ -111,6 +112,37 @@ export function ScatterVis({
 
     return { shapes: [], results: [] };
   }, [traces?.plots, config]);
+
+  // Plot annotations
+  const annotations: Partial<Plotly.Annotations>[] = useMemo(() => {
+    const combinedAnnotations = [];
+    if (traces && traces.plots) {
+      if (config.multiples) {
+        traces.plots.map((p) =>
+          combinedAnnotations.push({
+            x: 0.5,
+            y: 1,
+            xref: `${p.data.xaxis} domain` as Plotly.XAxisName,
+            yref: `${p.data.yaxis} domain` as Plotly.YAxisName,
+            xanchor: 'center',
+            yanchor: 'bottom',
+            text: p.title,
+            showarrow: false,
+            font: {
+              size: 16,
+              color: '#616161',
+            },
+          }),
+        );
+      }
+
+      if (config.regressionLineOptions.showStats) {
+        combinedAnnotations.push(...annotationsForRegressionStats(regression.results));
+      }
+    }
+
+    return combinedAnnotations;
+  }, [config.multiples, config.regressionLineOptions.showStats, regression.results, traces]);
 
   React.useEffect(() => {
     if (!traces) {
@@ -217,7 +249,7 @@ export function ScatterVis({
           layout={{
             ...layout,
             shapes: [...(layout?.shapes || []), ...regression.shapes],
-            annotations: config.regressionLineOptions.showStats ? annotationsForRegressionStats(regression.results) : [],
+            annotations,
           }}
           config={{ responsive: true, displayModeBar: false, scrollZoom }}
           useResizeHandler
