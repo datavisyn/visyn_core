@@ -4,7 +4,6 @@ import { SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, IViolinConfig } from './interfaces';
-import { PlotlyTypes } from '../../plotly';
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
@@ -56,11 +55,10 @@ export async function createViolinTraces(
   if (catColValues.length === 0) {
     for (const numCurr of numColValues) {
       const y = numCurr.resolvedValues.map((v) => v.val);
-      const indexNullValues = y?.reduce((acc: number[], curr, i) => (curr === null ? [...acc, i] : acc), []) as number[];
       plots.push({
         data: {
-          y: (y as PlotlyTypes.Datum[])?.filter((_, idx) => !indexNullValues?.includes(idx)),
-          ids: numCurr.resolvedValues.map((v) => v.id)?.filter((_, idx) => !indexNullValues?.includes(idx)),
+          y,
+          ids: numCurr.resolvedValues.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           type: 'violin',
@@ -92,14 +90,14 @@ export async function createViolinTraces(
   for (const numCurr of numColValues) {
     for (const catCurr of catColValues) {
       const y = numCurr.resolvedValues.map((v) => v.val);
-      const indexNullValues = y?.reduce((acc: number[], curr, i) => (curr === null ? [...acc, i] : acc), []) as number[];
-      const catCurrFiltered = catCurr.resolvedValues?.filter((_, idx) => !indexNullValues?.includes(idx));
-      const xFiltered = catCurrFiltered.map((v) => v.val);
+      // Null values in categorical columns would break the plot --> replace with 'missing'
+      const categoriesWithMissing = catCurr.resolvedValues?.map((v) => ({ ...v, val: v.val || 'missing' }));
+      const x = categoriesWithMissing.map((v) => v.val);
       plots.push({
         data: {
-          x: xFiltered,
-          y: (y as PlotlyTypes.Datum[])?.filter((_, idx) => !indexNullValues?.includes(idx)),
-          ids: catCurrFiltered.map((v) => v.id),
+          x,
+          y,
+          ids: categoriesWithMissing.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           type: 'violin',
@@ -119,14 +117,14 @@ export async function createViolinTraces(
           transforms: [
             {
               type: 'groupby',
-              groups: xFiltered as string[],
-              styles: [...new Set<string>(xFiltered as string[])].map((c) => {
+              groups: x as string[],
+              styles: [...new Set(x as string[])].map((c) => {
                 return {
                   target: c,
                   value: {
                     line: {
                       color:
-                        selectedList.length !== 0 && catCurrFiltered.filter((val) => val.val === c).find((val) => selectedMap[val.id])
+                        selectedList.length !== 0 && categoriesWithMissing.filter((val) => val.val === c).find((val) => selectedMap[val.id])
                           ? SELECT_COLOR
                           : '#878E95',
                     },
