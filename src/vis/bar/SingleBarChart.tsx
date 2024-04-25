@@ -57,20 +57,31 @@ export function SingleBarChart({
       width,
     });
 
-  const categoryTicks = useMemo(() => {
+  const categoryValueTicks = useMemo(() => {
     return categoryValueScale?.domain().map((value) => ({
       value,
       offset: categoryValueScale(value) + categoryValueScale.bandwidth() / 2,
     }));
   }, [categoryValueScale]);
 
-  const numericalTicks = useMemo(() => {
-    const domain = numericalValueScale?.domain();
+  const numericalIdTicks = useMemo(() => {
+    const domain = numericalIdScale?.domain();
+    if (numericalIdScale?.bandwidth() <= 10) {
+      return domain?.reduce((acc, value, index) => {
+        if (index % 3 === 0) {
+          acc.push({
+            value,
+            offset: numericalIdScale(value) + numericalIdScale.bandwidth() / 2,
+          });
+        }
+        return acc;
+      }, []);
+    }
     return domain?.map((value) => ({
       value,
-      offset: 0,
+      offset: numericalIdScale(value) + numericalIdScale.bandwidth() / 2,
     }));
-  }, [numericalValueScale]);
+  }, [numericalIdScale]);
 
   const normalizedCountScale = useMemo(() => {
     if (config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group) {
@@ -79,7 +90,7 @@ export function SingleBarChart({
     return categoryCountScale;
   }, [config.display, config.group, config.groupType, categoryCountScale]);
 
-  const countTicks = useMemo(() => {
+  const categoryCountTicks = useMemo(() => {
     if (!normalizedCountScale) {
       return null;
     }
@@ -96,6 +107,13 @@ export function SingleBarChart({
     }));
   }, [config.direction, normalizedCountScale]);
 
+  const numericalValueTicks = useMemo(() => {
+    return numericalValueScale?.ticks(5)?.map((value) => ({
+      value,
+      offset: numericalValueScale(config.direction === EBarDirection.VERTICAL ? value : numericalValueScale.domain()[1] - value),
+    }));
+  }, [config.direction, numericalValueScale]);
+
   const sortTypeCallback = useCallback(
     (label: string) => {
       if (label === config.catColumnSelected?.name) {
@@ -106,6 +124,14 @@ export function SingleBarChart({
         } else {
           setSortType(SortTypes.CAT_ASC);
         }
+      } else if (label === config.numColumnsSelected?.[0]?.name) {
+        if (sortType === SortTypes.NUM_ASC) {
+          setSortType(SortTypes.NUM_DESC);
+        } else if (sortType === SortTypes.NUM_DESC) {
+          setSortType(SortTypes.NONE);
+        } else {
+          setSortType(SortTypes.NUM_ASC);
+        }
       } else if (sortType === SortTypes.COUNT_ASC) {
         setSortType(SortTypes.COUNT_DESC);
       } else if (sortType === SortTypes.COUNT_DESC) {
@@ -114,7 +140,7 @@ export function SingleBarChart({
         setSortType(SortTypes.COUNT_ASC);
       }
     },
-    [config.catColumnSelected?.name, setSortType, sortType],
+    [config.catColumnSelected?.name, config.numColumnsSelected, setSortType, sortType],
   );
 
   return (
@@ -152,76 +178,137 @@ export function SingleBarChart({
               y={margin.top}
             />
 
-            {categoryCountScale && categoryValueScale ? (
-              config.direction === EBarDirection.VERTICAL ? (
-                <YAxis
-                  arrowAsc={sortType === SortTypes.COUNT_ASC}
-                  arrowDesc={sortType === SortTypes.COUNT_DESC}
-                  compact={isSmall}
-                  horizontalPosition={margin.left}
-                  label={
-                    config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
-                      ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
-                      : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
-                  }
-                  setSortType={sortTypeCallback}
-                  showLines
-                  sortType={sortType}
-                  ticks={countTicks}
-                  xRange={[categoryValueScale.range()[1], categoryValueScale.range()[0]]}
-                  yScale={allColumns?.catColVals ? categoryValueScale : allColumns?.numColVals ? numericalValueScale : null}
-                />
-              ) : (
-                <YAxis
-                  arrowAsc={sortType === SortTypes.CAT_ASC}
-                  arrowDesc={sortType === SortTypes.CAT_DESC}
-                  compact={isSmall}
-                  horizontalPosition={margin.left}
-                  label={config.catColumnSelected?.name}
-                  setSortType={sortTypeCallback}
-                  showLines={false}
-                  sortType={sortType}
-                  ticks={allColumns?.catColVals ? categoryTicks : allColumns?.numColVals ? numericalTicks : null}
-                  xRange={[categoryCountScale.range()[1], categoryCountScale.range()[0]]}
-                  yScale={allColumns?.catColVals ? categoryValueScale : allColumns?.numColVals ? numericalValueScale : null}
-                />
-              )
+            {config.direction === EBarDirection.VERTICAL ? (
+              categoryCountScale && categoryValueScale ? (
+                <>
+                  <YAxis
+                    arrowAsc={sortType === SortTypes.COUNT_ASC}
+                    arrowDesc={sortType === SortTypes.COUNT_DESC}
+                    compact={isSmall}
+                    horizontalPosition={margin.left}
+                    label={
+                      config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
+                        ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
+                        : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
+                    }
+                    setSortType={sortTypeCallback}
+                    showLines
+                    sortType={sortType}
+                    ticks={categoryCountTicks}
+                    xRange={[categoryValueScale.range()[1], categoryValueScale.range()[0]]}
+                    yScale={categoryCountScale}
+                  />
+                  <XAxis
+                    arrowAsc={sortType === SortTypes.CAT_ASC}
+                    arrowDesc={sortType === SortTypes.CAT_DESC}
+                    compact={isSmall}
+                    label={config.catColumnSelected?.name}
+                    setSortType={sortTypeCallback}
+                    showLines={false}
+                    sortType={sortType}
+                    ticks={categoryValueTicks}
+                    vertPosition={height - margin.bottom}
+                    xScale={categoryValueScale}
+                    yRange={[categoryCountScale.range()[1], categoryCountScale.range()[0]]}
+                  />
+                </>
+              ) : numericalValueScale && numericalIdScale ? (
+                <>
+                  <YAxis
+                    arrowAsc={sortType === SortTypes.NUM_ASC}
+                    arrowDesc={sortType === SortTypes.NUM_DESC}
+                    compact={isSmall}
+                    horizontalPosition={margin.left}
+                    label={config.numColumnsSelected?.[0]?.name}
+                    setSortType={sortTypeCallback}
+                    showLines
+                    sortType={sortType}
+                    ticks={numericalValueTicks}
+                    yScale={numericalValueScale}
+                    xRange={[numericalIdScale.range()[1], numericalIdScale.range()[0]]}
+                  />
+                  <XAxis
+                    arrowAsc={sortType === SortTypes.ID_ASC}
+                    arrowDesc={sortType === SortTypes.ID_DESC}
+                    compact={isSmall}
+                    label={config.numColumnsSelected?.[0]?.id}
+                    setSortType={sortTypeCallback}
+                    showLines={false}
+                    sortType={sortType}
+                    shouldRotate={numericalIdScale?.bandwidth() <= 10}
+                    vertPosition={height - margin.bottom}
+                    ticks={numericalIdTicks}
+                    yRange={[numericalValueScale.range()[1], numericalValueScale.range()[0]]}
+                    xScale={numericalIdScale}
+                  />
+                </>
+              ) : null
+            ) : config.direction === EBarDirection.HORIZONTAL ? (
+              categoryCountScale && categoryValueScale ? (
+                <>
+                  <YAxis
+                    arrowAsc={sortType === SortTypes.CAT_ASC}
+                    arrowDesc={sortType === SortTypes.CAT_DESC}
+                    compact={isSmall}
+                    horizontalPosition={margin.left}
+                    label={config.catColumnSelected?.name}
+                    setSortType={sortTypeCallback}
+                    showLines={false}
+                    sortType={sortType}
+                    ticks={categoryValueTicks}
+                    xRange={[categoryCountScale.range()[1], categoryCountScale.range()[0]]}
+                    yScale={categoryValueScale}
+                  />
+                  <XAxis
+                    arrowAsc={sortType === SortTypes.COUNT_ASC}
+                    arrowDesc={sortType === SortTypes.COUNT_DESC}
+                    compact={isSmall}
+                    label={
+                      config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
+                        ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
+                        : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
+                    }
+                    setSortType={sortTypeCallback}
+                    showLines
+                    sortType={sortType}
+                    ticks={categoryCountTicks}
+                    vertPosition={height - margin.bottom}
+                    xScale={categoryCountScale}
+                    yRange={[categoryValueScale.range()[1], categoryValueScale.range()[0]]}
+                  />
+                </>
+              ) : numericalValueScale && numericalIdScale ? (
+                <>
+                  <YAxis
+                    arrowAsc={sortType === SortTypes.ID_ASC}
+                    arrowDesc={sortType === SortTypes.ID_DESC}
+                    compact={isSmall}
+                    horizontalPosition={margin.left}
+                    label={config.numColumnsSelected?.[0]?.id}
+                    setSortType={sortTypeCallback}
+                    showLines={false}
+                    sortType={sortType}
+                    ticks={numericalIdTicks}
+                    xRange={[numericalValueScale.range()[1], numericalValueScale.range()[0]]}
+                    yScale={numericalIdScale}
+                  />
+                  <XAxis
+                    arrowAsc={sortType === SortTypes.NUM_ASC}
+                    arrowDesc={sortType === SortTypes.NUM_DESC}
+                    compact={isSmall}
+                    label={config.numColumnsSelected?.[0]?.name}
+                    setSortType={sortTypeCallback}
+                    showLines
+                    sortType={sortType}
+                    ticks={numericalValueTicks}
+                    vertPosition={height - margin.bottom}
+                    xScale={numericalValueScale}
+                    yRange={[numericalIdScale.range()[1], numericalIdScale.range()[0]]}
+                  />
+                </>
+              ) : null
             ) : null}
-            {categoryValueScale && categoryCountScale ? (
-              config.direction === EBarDirection.VERTICAL ? (
-                <XAxis
-                  arrowAsc={sortType === SortTypes.CAT_ASC}
-                  arrowDesc={sortType === SortTypes.CAT_DESC}
-                  compact={isSmall}
-                  label={config.catColumnSelected?.name}
-                  setSortType={sortTypeCallback}
-                  showLines={false}
-                  sortType={sortType}
-                  ticks={allColumns?.catColVals ? categoryTicks : allColumns?.numColVals ? numericalTicks : null}
-                  vertPosition={height - margin.bottom}
-                  xScale={allColumns?.catColVals ? categoryValueScale : allColumns?.numColVals ? numericalValueScale : null}
-                  yRange={[categoryCountScale.range()[1], categoryCountScale.range()[0]]}
-                />
-              ) : (
-                <XAxis
-                  arrowAsc={sortType === SortTypes.COUNT_ASC}
-                  arrowDesc={sortType === SortTypes.COUNT_DESC}
-                  compact={isSmall}
-                  label={
-                    config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
-                      ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
-                      : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
-                  }
-                  setSortType={sortTypeCallback}
-                  showLines
-                  sortType={sortType}
-                  ticks={countTicks}
-                  vertPosition={height - margin.bottom}
-                  xScale={allColumns?.catColVals ? categoryValueScale : allColumns?.numColVals ? numericalValueScale : null}
-                  yRange={[categoryValueScale.range()[1], categoryValueScale.range()[0]]}
-                />
-              )
-            ) : null}
+
             {config.group ? (
               config.groupType === EBarGroupingType.GROUP ? (
                 <GroupedBars
@@ -241,7 +328,7 @@ export function SingleBarChart({
                   selectionCallback={selectionCallback}
                   width={width}
                 />
-              ) : (
+              ) : config.groupType === EBarGroupingType.STACK ? (
                 <StackedBars
                   aggregateColumnName={config.aggregateColumn?.name}
                   aggregateType={config.aggregateType}
@@ -259,7 +346,7 @@ export function SingleBarChart({
                   selectionCallback={selectionCallback}
                   width={width}
                 />
-              )
+              ) : null
             ) : (
               <SimpleBars
                 aggregateColumnName={config.aggregateColumn?.name}
