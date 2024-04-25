@@ -56,7 +56,7 @@ def create_visyn_server(
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /metrics" and "GET /health" not in record.getMessage()
+            return "GET /api/metrics" and "GET /api/health" and "GET /metrics" and "GET /health" not in record.getMessage()
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
@@ -69,7 +69,7 @@ def create_visyn_server(
     plugins = load_all_plugins()
     # With all the plugins, load the corresponding configuration files and create a new model based on the global settings, with all plugin models as sub-models
     [plugin_config_files, plugin_settings_models] = get_config_from_plugins(plugins)
-    visyn_server_settings = create_model("VisynServerSettings", __base__=GlobalSettings, **plugin_settings_models)
+    visyn_server_settings = create_model("VisynServerSettings", __base__=GlobalSettings, **plugin_settings_models)  # type: ignore
     # Patch the global settings by instantiating the new settings model with the global config, all config.json(s), and pydantic models
     manager.settings = visyn_server_settings(**deep_update(*plugin_config_files, workspace_config))
 
@@ -140,10 +140,8 @@ def create_visyn_server(
     _log.info(f"Registering {len(namespace_plugins)} legacy namespace(s) via WSGIMiddleware")
     for p in namespace_plugins:
         namespace = p.namespace  # type: ignore
-
         sub_app = p.load().factory()
         init_legacy_app(sub_app)
-
         app.mount(namespace, WSGIMiddleware(sub_app))
 
     # Load all FastAPI apis
@@ -153,11 +151,9 @@ def create_visyn_server(
     for p in router_plugins:
         app.include_router(p.load().factory())
 
-    # TODO: Check mainapp.py what it does and transfer them here. Currently, we cannot mount a flask app at root, such that the flask app is now mounted at /app/
-    from .mainapp import build_info, health
+    from .mainapp import mainapp_router
 
-    app.add_api_route("/health", health, methods=["GET", "HEAD"])  # type: ignore
-    app.add_api_route("/api/buildInfo.json", build_info)  # type: ignore
+    app.include_router(mainapp_router)
 
     @app.on_event("startup")
     async def change_anyio_total_tokens():
