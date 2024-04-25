@@ -225,7 +225,7 @@ export function EagerVis({
                 } as BaseVisConfig)
               : ({
                   type: ESupportedPlotlyVis.BAR,
-                  multiples: null,
+                  facets: null,
                   group: null,
                   direction: EBarDirection.HORIZONTAL,
                   display: EBarDisplayType.ABSOLUTE,

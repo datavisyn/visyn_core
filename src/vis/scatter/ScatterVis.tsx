@@ -57,10 +57,10 @@ export function ScatterVis({
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
-  // TODO: This is a little bit hacky, refactor
-  // Limit numerical columns to 2 if multiples are enabled
+  // TODO: This is a little bit hacky, Also notification should be shown to the user
+  // Limit numerical columns to 2 if facets are enabled
   useEffect(() => {
-    if (config.multiples && config.numColumnsSelected.length > 2) {
+    if (config.facets && config.numColumnsSelected.length > 2) {
       setConfig({ ...config, numColumnsSelected: config.numColumnsSelected.slice(0, 2) });
     }
   }, [config, setConfig]);
@@ -83,7 +83,7 @@ export function ScatterVis({
   } = useAsync(createScatterTraces, [
     columns,
     config.numColumnsSelected,
-    config.multiples,
+    config.facets,
     config.shape,
     config.color,
     config.alphaSliderVal,
@@ -125,7 +125,7 @@ export function ScatterVis({
   const annotations: Partial<Plotly.Annotations>[] = useMemo(() => {
     const combinedAnnotations = [];
     if (traces && traces.plots) {
-      if (config.multiples) {
+      if (config.facets) {
         traces.plots.map((p) =>
           combinedAnnotations.push({
             x: 0.5,
@@ -150,7 +150,7 @@ export function ScatterVis({
     }
 
     return combinedAnnotations;
-  }, [config.multiples, config.regressionLineOptions.showStats, regression.results, traces]);
+  }, [config.facets, config.regressionLineOptions?.showStats, regression.results, traces]);
 
   React.useEffect(() => {
     if (!traces) {
@@ -170,6 +170,7 @@ export function ScatterVis({
       },
       font: {
         family: 'Roboto, sans-serif',
+        size: 13.4,
       },
       margin: {
         t: showDragModeOptions ? 25 : 50,

@@ -1,4 +1,4 @@
-import type { PlotlyTypes } from '../plotly';
+import { PlotlyTypes } from '../plotly';
 
 export enum ESupportedPlotlyVis {
   SCATTER = 'Scatter plot',
@@ -97,7 +97,7 @@ export type PlotlyInfo = {
 };
 
 export type PlotlyData = {
-  data: Partial<PlotlyTypes.PlotData>[];
+  data: Partial<PlotlyTypes.PlotData>;
   xLabel: string;
   yLabel: string;
   xTicks?: string[];

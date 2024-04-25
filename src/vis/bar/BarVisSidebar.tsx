@@ -15,7 +15,7 @@ const defaultConfig = {
   filter: { enable: true, customComponent: null },
   group: { enable: true, customComponent: null },
   groupType: { enable: true, customComponent: null },
-  multiples: { enable: true, customComponent: null },
+  facets: { enable: true, customComponent: null },
 };
 
 export function BarVisSidebar({
@@ -38,7 +38,7 @@ export function BarVisSidebar({
           setConfig({
             ...config,
             catColumnSelected,
-            multiples: config.multiples && config.multiples.id === catColumnSelected?.id ? null : config.multiples,
+            facets: config.facets && config.facets.id === catColumnSelected?.id ? null : config.facets,
             group: config.group && config.group.id === catColumnSelected?.id ? null : config.group,
           })
         }
@@ -80,12 +80,12 @@ export function BarVisSidebar({
             />
           )
         : null}
-      {mergedOptionsConfig.multiples.enable
-        ? mergedOptionsConfig.multiples.customComponent || (
+      {mergedOptionsConfig.facets.enable
+        ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
-              callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
+              callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
               columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
-              currentSelected={config.multiples}
+              currentSelected={config.facets}
               label="Facets"
               columnType={EColumnTypes.CATEGORICAL}
             />

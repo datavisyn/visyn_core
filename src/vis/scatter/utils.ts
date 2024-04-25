@@ -38,7 +38,7 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
 const defaultConfig: IScatterConfig = {
   type: ESupportedPlotlyVis.SCATTER,
   numColumnsSelected: [],
-  multiples: null,
+  facets: null,
   color: null,
   numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
   shape: null,
@@ -114,23 +114,18 @@ export async function createScatterTraces(
     return emptyVal;
   }
 
-  const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
   const plots: PlotlyData[] = [];
+  const legendPlots: PlotlyData[] = [];
 
+  const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
   const catCol = await resolveSingleColumn(getCol(columns, catColumnsSelected));
 
-  // Split data into segments by catCol
-  const multiplesIdMapping = new Map<string, string[]>();
-  if (catCol) {
-    catCol.resolvedValues.forEach((v, i) => {
-      if (!multiplesIdMapping.has(v.val as string)) {
-        multiplesIdMapping.set(v.val as string, []);
-      }
-      multiplesIdMapping.get(v.val as string).push(v.id);
-    });
+  // cant currently do 1d scatterplots
+  if (validCols.length === 1) {
+    return emptyVal;
   }
 
   const idToLabelMapper = await createIdToLabelMapper(columns);
@@ -163,16 +158,17 @@ export async function createScatterTraces(
         )
     : null;
 
-  const legendPlots: PlotlyData[] = [];
-
-  // cant currently do 1d scatterplots
-  if (validCols.length === 1) {
-    return emptyVal;
-  }
-
   // Case: Facetting by category
   if (validCols.length === 2 && catCol) {
-    multiplesIdMapping.forEach((ids, category) => {
+    // Split data into segments by catCol
+    const facetsIdMapping = new Map<string, string[]>();
+    catCol.resolvedValues.forEach((v, i) => {
+      if (!facetsIdMapping.has(v.val as string)) {
+        facetsIdMapping.set(v.val as string, []);
+      }
+      facetsIdMapping.get(v.val as string).push(v.id);
+    });
+    facetsIdMapping.forEach((ids, category) => {
       const xDataVals = validCols[0].resolvedValues.filter((v) => ids.includes(v.id)).map((v) => v.val) as number[];
       const yDataVals = validCols[1].resolvedValues.filter((v) => ids.includes(v.id)).map((v) => v.val) as number[];
       const filteredValidValues = validCols[0].resolvedValues.filter((v) => ids.includes(v.id));

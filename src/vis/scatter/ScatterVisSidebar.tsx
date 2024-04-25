@@ -13,7 +13,7 @@ import { IRegressionLineOptions, RegressionLineOptions } from './Regression';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
 
 const defaultConfig = {
-  multiples: {
+  facets: {
     enable: true,
     customComponent: null,
   },
@@ -53,12 +53,12 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         columnType={EColumnTypes.NUMERICAL}
       />
 
-      {mergedOptionsConfig.multiples.enable
-        ? mergedOptionsConfig.multiples.customComponent || (
+      {mergedOptionsConfig.facets.enable
+        ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
-              callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
+              callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
               columns={columns.filter((c) => c.type === EColumnTypes.CATEGORICAL)}
-              currentSelected={config.multiples}
+              currentSelected={config.facets}
               label="Facets"
               columnType={EColumnTypes.CATEGORICAL}
             />

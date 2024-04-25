@@ -88,7 +88,7 @@ export function RegressionLineOptions({ callback, currentSelected }: RegressionL
           value={currentSelected?.type || ERegressionLineType.NONE}
         />
       </Input.Wrapper>
-      {currentSelected.type === ERegressionLineType.POLYNOMIAL && (
+      {currentSelected?.type === ERegressionLineType.POLYNOMIAL && (
         <Group justify="flex-end">
           <Text size="sm" fw={500}>
             Order:

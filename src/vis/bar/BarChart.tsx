@@ -26,14 +26,14 @@ export function BarChart({
     columns,
     config.catColumnSelected,
     config.group,
-    config.multiples,
+    config.facets,
     config.aggregateColumn,
   ]);
 
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
-  const uniqueMultiplesVals = useMemo(() => {
-    return [...new Set(allColumns?.multiplesColVals?.resolvedValues.map((v) => v.val))] as string[];
+  const uniqueFacetVals = useMemo(() => {
+    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
   }, [allColumns]);
 
   const { groupColorScale, groupedTable } = useGetGroupedBarScales(
@@ -95,12 +95,12 @@ export function BarChart({
           />
         ) : null}
       </Box>
-      <SimpleGrid cols={Math.round(Math.sqrt(uniqueMultiplesVals.length))} spacing={0} style={{ height: 'inherit', overflow: 'hidden' }}>
+      <SimpleGrid cols={Math.round(Math.sqrt(uniqueFacetVals.length))} spacing={0} style={{ height: 'inherit', overflow: 'hidden' }}>
         {colsStatus !== 'success' ? (
           <Center>
             <Loader />
           </Center>
-        ) : !config.multiples || !allColumns.multiplesColVals ? (
+        ) : !config.facets || !allColumns.facetsColVals ? (
           <SingleBarChart
             config={config}
             allColumns={allColumns}
@@ -111,16 +111,16 @@ export function BarChart({
             setSortType={setSortType}
           />
         ) : (
-          uniqueMultiplesVals.map((multiplesVal) => (
+          uniqueFacetVals.map((facetsVal) => (
             <SingleBarChart
               isSmall
               selectedList={selectedList}
               selectedMap={selectedMap}
-              key={multiplesVal as string}
+              key={facetsVal as string}
               config={config}
               allColumns={allColumns}
-              categoryFilter={multiplesVal}
-              title={multiplesVal}
+              categoryFilter={facetsVal}
+              title={facetsVal}
               selectionCallback={customSelectionCallback}
               sortType={sortType}
               setSortType={setSortType}
