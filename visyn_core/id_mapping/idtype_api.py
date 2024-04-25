@@ -54,7 +54,8 @@ def maps_to(idtype: str):
     return manager.id_mapping.maps_to(idtype)
 
 
-@idtype_router.api_route("/{idtype}/{to_idtype}/", methods=["GET", "POST"], response_model=list[str])
+@idtype_router.get("/{idtype}/{to_idtype}/", response_model=list[str])
+@idtype_router.post("/{idtype}/{to_idtype}/", response_model=list[str])
 def mapping_to(body: IdTypeMappingRequest, idtype: str, to_idtype: str):
     first_only = body.mode == "first"
 
