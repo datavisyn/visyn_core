@@ -1,4 +1,4 @@
-import { Combobox, Input, useCombobox, InputBase, CloseButton, Group, Text, CheckIcon } from '@mantine/core';
+import { Box, CheckIcon, CloseButton, Combobox, Group, Input, InputBase, Stack, Text, Tooltip, useCombobox } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -30,51 +30,93 @@ export function SingleSelect({
   });
 
   const options = filteredColumns.map((item) => (
-    <Combobox.Option value={item.info.name} key={item.info.id} active={item.info.id === currentSelected?.id}>
-      <Group gap="xs">
-        {item.info.id === currentSelected?.id && (
-          <Text c="gray.6">
-            <CheckIcon size={12} />
-          </Text>
-        )}
-        <span>{item.info.name}</span>
-      </Group>
+    <Combobox.Option value={item.info.id} key={item.info.id} active={item.info.id === currentSelected?.id}>
+      <Tooltip
+        withinPortal
+        withArrow
+        arrowSize={6}
+        maw={240}
+        label={
+          <Stack gap={0}>
+            <Text size="xs">{item.info.name}</Text>
+            <Text size="xs" c="dimmed" style={{ textWrap: 'wrap' }}>
+              {item.info.description}
+            </Text>
+          </Stack>
+        }
+      >
+        <Group gap="xs" wrap="nowrap">
+          {item.info.id === currentSelected?.id && (
+            <Text c="gray.6">
+              <CheckIcon size={12} />
+            </Text>
+          )}
+          <Stack gap={0}>
+            <Box style={{ display: 'table', tableLayout: 'fixed', width: '100%' }}>
+              <Text size="sm" style={{ cursor: 'pointer', display: 'table-cell', lineHeight: 'normal' }} truncate>
+                {item.info.name}
+              </Text>
+            </Box>
+            <Box style={{ display: 'table', tableLayout: 'fixed', width: '100%' }}>
+              <Text size="xs" style={{ cursor: 'pointer', display: 'table-cell', lineHeight: 'normal' }} truncate opacity={0.5}>
+                {item.info.description}
+              </Text>
+            </Box>
+          </Stack>
+        </Group>
+      </Tooltip>
     </Combobox.Option>
   ));
 
   return (
-    <Combobox
-      store={combobox}
-      withinPortal={false}
-      onOptionSubmit={(val) => {
-        callback(filteredColumns.find((c) => c.info.name === val)?.info);
-        combobox.closeDropdown();
-      }}
+    <Tooltip
+      key={currentSelected?.id}
+      withinPortal
+      withArrow
+      arrowSize={6}
+      label={
+        <Stack gap={0}>
+          <Text size="xs">{currentSelected?.name}</Text>
+          <Text size="xs" c="dimmed">
+            {currentSelected?.description}
+          </Text>
+        </Stack>
+      }
+      disabled={!currentSelected}
     >
-      <Combobox.Target>
-        <InputBase
-          component="button"
-          label={label}
-          type="button"
-          pointer
-          onClick={() => combobox.toggleDropdown()}
-          rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
-          rightSection={
-            currentSelected !== null && isClearable ? (
-              <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
-            ) : (
-              <Combobox.Chevron />
-            )
-          }
-          disabled={disabled}
-        >
-          {currentSelected?.name || <Input.Placeholder>Select a column</Input.Placeholder>}
-        </InputBase>
-      </Combobox.Target>
+      <Combobox
+        store={combobox}
+        withinPortal={false}
+        onOptionSubmit={(val) => {
+          callback(filteredColumns.find((c) => c.info.name === val)?.info);
+          combobox.closeDropdown();
+        }}
+      >
+        <Combobox.Target>
+          <InputBase
+            component="button"
+            label={label}
+            type="button"
+            pointer
+            onClick={() => combobox.toggleDropdown()}
+            rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
+            rightSection={
+              currentSelected !== null && isClearable ? (
+                <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+              ) : (
+                <Combobox.Chevron />
+              )
+            }
+            disabled={disabled}
+          >
+            {currentSelected?.name || <Input.Placeholder>Select a column</Input.Placeholder>}
+          </InputBase>
+        </Combobox.Target>
 
-      <Combobox.Dropdown>
-        <Combobox.Options>{options}</Combobox.Options>
-      </Combobox.Dropdown>
-    </Combobox>
+        <Combobox.Dropdown>
+          <Combobox.Options>{options}</Combobox.Options>
+        </Combobox.Dropdown>
+      </Combobox>
+    </Tooltip>
   );
 }
