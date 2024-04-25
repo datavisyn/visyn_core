@@ -57,6 +57,14 @@ export function ScatterVis({
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
+  // TODO: This is a little bit hacky, refactor
+  // Limit numerical columns to 2 if multiples are enabled
+  useEffect(() => {
+    if (config.multiples && config.numColumnsSelected.length > 2) {
+      setConfig({ ...config, numColumnsSelected: config.numColumnsSelected.slice(0, 2) });
+    }
+  }, [config, setConfig]);
+
   useEffect(() => {
     const plotDiv = document.getElementById(`plotlyDiv${id}`);
     if (plotDiv) {

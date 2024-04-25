@@ -59,7 +59,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
               callback={(multiples: ColumnInfo) => setConfig({ ...config, multiples })}
               columns={columns.filter((c) => c.type === EColumnTypes.CATEGORICAL)}
               currentSelected={config.multiples}
-              label="Multiples"
+              label="Facets"
               columnType={EColumnTypes.CATEGORICAL}
             />
           )
