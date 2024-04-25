@@ -121,7 +121,7 @@ export function useGetBarScales({
     if (!aggregatedTable || !allColumns?.numColVals) return null;
     const range = isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left];
     const tableValues = sortTableBySortType(aggregatedTable, sortType).array('numerical');
-    const domain = [Math.floor(+d3.min(tableValues)), Math.ceil(+d3.max(tableValues))];
+    const domain = [Math.min(Math.floor(+d3.min(tableValues)), 0), Math.max(Math.ceil(+d3.max(tableValues)), 0)];
     return d3.scaleLinear().range(range).domain(domain);
   }, [aggregatedTable, allColumns?.numColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
 
