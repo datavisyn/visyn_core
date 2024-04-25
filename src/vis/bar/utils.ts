@@ -16,14 +16,18 @@ export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes)
       return tempTable.orderby('category');
     case SortTypes.CAT_DESC:
       return tempTable.orderby(desc('category'));
-    case SortTypes.NUM_ASC:
-      return tempTable.orderby('numerical');
-    case SortTypes.NUM_DESC:
-      return tempTable.orderby(desc('numerical'));
     case SortTypes.COUNT_ASC:
       return tempTable.orderby('count');
     case SortTypes.COUNT_DESC:
       return tempTable.orderby(desc('count'));
+    case SortTypes.ID_ASC:
+      return tempTable.orderby('id');
+    case SortTypes.ID_DESC:
+      return tempTable.orderby(desc('id'));
+    case SortTypes.NUM_ASC:
+      return tempTable.orderby('numerical');
+    case SortTypes.NUM_DESC:
+      return tempTable.orderby(desc('numerical'));
     default:
       return tempTable;
   }
