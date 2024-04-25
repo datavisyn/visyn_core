@@ -66,9 +66,8 @@ export function SimpleBars({
           );
         });
       }
-      if (numericalValueScale) {
+      if (numericalValueScale && numericalIdScale) {
         return aggregatedTableObjects.map((row: { numerical: number; selected: number; id: string }, index) => {
-          console.log({ width, height, margin, barWidth: numericalValueScale(row.numerical), bandWidth: numericalIdScale.bandwidth() });
           return (
             <SingleBar
               isVertical={isVertical}
@@ -77,8 +76,8 @@ export function SimpleBars({
               selectedPercent={0}
               tooltip={
                 <Stack gap={0}>
+                  <Text>{`ID: ${row.id}`}</Text>
                   <Text>{`${numericalName}: ${row.numerical}`}</Text>
-                  <Text>{`Value: ${row.id}`}</Text>
                 </Stack>
               }
               width={isVertical ? numericalIdScale.bandwidth() ?? 10 : width - margin.right - numericalValueScale(row.numerical)}
