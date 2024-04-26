@@ -1,5 +1,6 @@
-import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem } from '@mantine/core';
+import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem, ActionIcon } from '@mantine/core';
 import * as d3v7 from 'd3v7';
+import html2canvas from 'html2canvas';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { i18n } from '../../i18n';
@@ -95,6 +96,8 @@ export function HexbinVis({
       .domain(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
   }, [currentColorColumn, allColumns]);
 
+  const plotContainerRef = React.useRef(null);
+
   return (
     <Stack gap={0} style={{ width, height }}>
       {showDragModeOptions ? (
@@ -105,10 +108,30 @@ export function HexbinVis({
               options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
               dragMode={config.dragMode}
             />
+            <Tooltip label="Download plot as PNG" position="top">
+              <ActionIcon
+                title="Download plot as PNG"
+                color="dvGray"
+                variant="subtle"
+                onClick={() => {
+                  html2canvas(plotContainerRef.current, {
+                    width: plotContainerRef.current.offsetWidth,
+                    height: plotContainerRef.current.offsetHeight,
+                  }).then((canvas) => {
+                    const link = document.createElement('a');
+                    link.download = `${config.type}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                  });
+                }}
+              >
+                <i className="fa-solid fa-camera" />
+              </ActionIcon>
+            </Tooltip>
           </Group>
         </Center>
       ) : null}
-      <Group style={{ flexGrow: 1, height: 0 }} wrap="nowrap">
+      <Group style={{ flexGrow: 1, height: 0 }} wrap="nowrap" ref={plotContainerRef}>
         <Box
           style={{
             flexGrow: 1,

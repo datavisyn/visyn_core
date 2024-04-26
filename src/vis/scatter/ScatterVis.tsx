@@ -1,4 +1,4 @@
-import { Center, Group, Stack } from '@mantine/core';
+import { Center, Group, Stack, Button, ActionIcon, Tooltip } from '@mantine/core';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
@@ -149,8 +149,21 @@ export function ScatterVis({
     <Stack gap={0} style={{ height: '100%', width: '100%' }}>
       {showDragModeOptions ? (
         <Center>
-          <Group mt="lg">
+          <Group mt="lg" gap="xs">
             <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
+            <Tooltip label="Download plot as PNG" position="top">
+              <ActionIcon
+                title="Download plot as PNG"
+                color="dvGray"
+                variant="subtle"
+                onClick={() => {
+                  const plotDiv = document.getElementById(`plotlyDiv${id}`);
+                  Plotly.downloadImage(plotDiv, { filename: config.type, format: 'png', height: 800, width: 800 });
+                }}
+              >
+                <i className="fa-solid fa-camera" />
+              </ActionIcon>
+            </Tooltip>
           </Group>
         </Center>
       ) : null}
