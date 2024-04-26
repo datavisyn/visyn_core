@@ -1,10 +1,12 @@
 import logging
+from typing import Literal
 
-from flask import Flask, abort, jsonify, request
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 from .. import manager
 
-app_idtype = Flask(__name__)
+idtype_router = APIRouter(prefix="/api/idtype", tags=["idtype"])
 
 _log = logging.getLogger(__name__)
 
@@ -15,59 +17,65 @@ def to_plural(s):
     return s + "s"
 
 
-@app_idtype.route("/")
-def _list_idtypes():
-    tmp = {}
+class IdType(BaseModel):
+    id: str
+    name: str
+    names: list[str]
+
+
+class IdTypeMappingRequest(BaseModel):
+    q: list[str]
+    mode: Literal["all", "first"] = "all"
+
+
+class IdTypeMappingSearchRequest(BaseModel):
+    q: str
+    limit: int | None = 10
+
+
+class IdTypeMappingSearchResponse(BaseModel):
+    match: str
+    to: str
+
+
+@idtype_router.get("/", response_model=list[IdType])
+def list_idtypes():
     # TODO: We probably don't want to have these idtypes as "all" idtypes
     # for d in list_datasets():
     #     for idtype in d.to_idtype_descriptions():
     #         tmp[idtype["id"]] = idtype
 
     # also include the known elements from the mapping graph
-    for idtype_id in manager.id_mapping.known_idtypes():
-        tmp[idtype_id] = {"id": idtype_id, "name": idtype_id, "names": to_plural(idtype_id)}
-    return jsonify(list(tmp.values()))
+    return [IdType(id=idtype_id, name=idtype_id, names=to_plural(idtype_id)) for idtype_id in manager.id_mapping.known_idtypes()]
 
 
-@app_idtype.route("/<idtype>/")
-def _maps_to(idtype):
-    target_id_types = manager.id_mapping.maps_to(idtype)
-    return jsonify(target_id_types)
+@idtype_router.get("/{idtype}/", response_model=list[IdType])
+def maps_to(idtype: str):
+    return manager.id_mapping.maps_to(idtype)
 
 
-@app_idtype.route("/<idtype>/<to_idtype>", methods=["GET", "POST"])
-def _mapping_to(idtype, to_idtype):
-    return _do_mapping(idtype, to_idtype)
+@idtype_router.get("/{idtype}/{to_idtype}/", response_model=list[str])
+@idtype_router.post("/{idtype}/{to_idtype}/", response_model=list[str])
+def mapping_to(body: IdTypeMappingRequest, idtype: str, to_idtype: str):
+    first_only = body.mode == "first"
 
-
-@app_idtype.route("/<idtype>/<to_idtype>/search")
-def _mapping_to_search(idtype, to_idtype):
-    query = request.args.get("q", None)
-    max_results = int(request.args.get("limit", 10))  # type: ignore
-    if hasattr(manager.id_mapping, "search"):
-        return jsonify(manager.id_mapping.search(idtype, to_idtype, query, max_results))
-    return jsonify([])
-
-
-def _do_mapping(idtype, to_idtype):
-    args = request.values
-    first_only = args.get("mode", "all") == "first"
-
-    if "q" in args:
-        names = args["q"].split(",")
-    elif "q[]" in args:
-        names = args.getlist("q[]")
-    else:
-        abort(400)
-        return
-
+    names = body.q
     mapped_list = manager.id_mapping(idtype, to_idtype, names)
 
     if first_only:
         mapped_list = [None if a is None or len(a) == 0 else a[0] for a in mapped_list]
 
-    return jsonify(mapped_list)
+    return mapped_list
 
 
-def create_idtype():
-    return app_idtype
+@idtype_router.get("/{idtype}/{to_idtype}/search/", response_model=list[IdTypeMappingSearchResponse])
+def mapping_to_search(body: IdTypeMappingSearchRequest, idtype, to_idtype):
+    query = body.q
+    max_results = body.limit
+    if hasattr(manager.id_mapping, "search"):
+        return manager.id_mapping.search(idtype, to_idtype, query, max_results)
+    return []
+
+
+def create():
+    return idtype_router

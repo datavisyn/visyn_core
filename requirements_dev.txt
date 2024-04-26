@@ -1,5 +1,5 @@
-black~=22.12.0
-pyright==1.1.308
-pytest-runner~=6.0.0
-pytest~=7.2.0
-ruff==0.0.218
+black~=24.3.0
+pyright==1.1.356
+pytest-runner~=6.0.1
+pytest~=8.1.1
+ruff==0.3.5

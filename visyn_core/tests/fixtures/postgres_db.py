@@ -16,7 +16,7 @@ class PostgreSQLExecutorWithUrl(PostgreSQLExecutor):
 def postgres_db(postgresql_proc) -> Generator[PostgreSQLExecutorWithUrl, None, None]:
     d = postgresql_proc
     d.url = f"postgresql://{d.user}:{d.password}@{d.host}:{d.port}/{d.dbname}"
-    janitor = DatabaseJanitor(d.user, d.host, d.port, d.dbname, d.version, d.password)
+    janitor = DatabaseJanitor(user=d.user, host=d.host, port=d.port, dbname=d.dbname, version=d.version, password=d.password)
     janitor.init()  # import this ONCE in your conftest.py, not in each test module
     yield d
     janitor.drop()

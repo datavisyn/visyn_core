@@ -30,9 +30,9 @@ class DBManager:
             if not connector.dburl:
                 connector.dburl = config["dburl"]
             if not connector.statement_timeout:
-                connector.statement_timeout = config.get("statement_timeout", None)
+                connector.statement_timeout = config.get("statement_timeout")
             if not connector.statement_timeout_query:
-                connector.statement_timeout_query = config.get("statement_timeout_query", None)
+                connector.statement_timeout_query = config.get("statement_timeout_query")
             if not connector.dburl:
                 _log.critical(
                     "no db url defined for %s at config key %s - is your configuration up to date?",
