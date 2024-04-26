@@ -3,7 +3,7 @@ pkg_src = visyn_core
 
 black = black --line-length 140 $(pkg_src) setup.py
 pyright = pyright $(pkg_src) setup.py
-ruff = ruff $(pkg_src) setup.py --line-length 140 --select E,W,F,N,I,C,B,UP,PT,SIM,RUF --ignore E501,C901,B008
+ruff = ruff check $(pkg_src) setup.py --line-length 140 --select E,W,F,N,I,C,B,UP,PT,SIM,RUF --ignore E501,C901,B008
 
 .PHONY: start  ## Start the development server
 start:
@@ -26,7 +26,7 @@ check-format:
 
 .PHONY: lint  ## Run flake8 and pyright
 lint:
-	$(ruff) --format=github
+	$(ruff) --output-format=github
 	$(pyright)
 
 .PHONY: test  ## Run tests

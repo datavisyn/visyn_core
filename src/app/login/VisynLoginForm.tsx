@@ -18,7 +18,7 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
     <form onSubmit={form.onSubmit((values) => onLogin(values.username, values.password))}>
       <Stack>
         <TextInput
-          data-cy="visyn-login-username"
+          data-testid="visyn-login-username"
           placeholder="Username"
           label="Username"
           name="username"
@@ -27,7 +27,7 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
           required
         />
         <TextInput
-          data-cy="visyn-login-password"
+          data-testid="visyn-login-password"
           type={isShowPassword ? 'text' : 'password'}
           placeholder="Password"
           label="Password"
@@ -43,7 +43,7 @@ export function VisynLoginForm({ onLogin }: { onLogin: (username: string, passwo
         />
       </Stack>
       <Group justify="flex-end">
-        <Button data-cy="visyn-login-submit" fullWidth={false} mt="md" type="submit" className="btn btn-primary">
+        <Button data-testid="visyn-login-submit" fullWidth={false} mt="md" type="submit" className="btn btn-primary">
           Login
         </Button>
       </Group>
