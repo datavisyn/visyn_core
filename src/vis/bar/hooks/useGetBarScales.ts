@@ -119,7 +119,7 @@ export function useGetBarScales({
 
   const numericalValueScale = useMemo(() => {
     if (!aggregatedTable || !allColumns?.numColVals) return null;
-    const range = isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left];
+    const range = isVertical ? [height - margin.bottom, margin.top] : [margin.left, width - margin.right];
     const tableValues = sortTableBySortType(aggregatedTable, sortType).array('numerical');
     const domain = [Math.min(Math.floor(+d3.min(tableValues)), 0), Math.max(Math.ceil(+d3.max(tableValues)), 0)];
     return d3.scaleLinear().range(range).domain(domain);

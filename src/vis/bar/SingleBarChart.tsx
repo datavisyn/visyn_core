@@ -108,11 +108,14 @@ export function SingleBarChart({
   }, [config.direction, normalizedCountScale]);
 
   const numericalValueTicks = useMemo(() => {
-    return numericalValueScale?.ticks(5)?.map((value) => ({
+    const mappedTicks = numericalValueScale?.ticks(5)?.map((value) => ({
       value,
-      offset: numericalValueScale(config.direction === EBarDirection.VERTICAL ? value : numericalValueScale.domain()[1] - value),
+      offset: numericalValueScale?.(value),
     }));
-  }, [config.direction, numericalValueScale]);
+    return mappedTicks.length === 4
+      ? [...mappedTicks, { value: numericalValueScale?.domain()[1], offset: numericalValueScale?.(numericalValueScale?.domain()[1]) }]
+      : mappedTicks;
+  }, [numericalValueScale]);
 
   const sortTypeCallback = useCallback(
     (label: string) => {

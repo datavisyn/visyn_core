@@ -1,12 +1,9 @@
-import React, { useMemo } from 'react';
-
-import * as d3 from 'd3v7';
-
-import ColumnTable from 'arquero/dist/types/table/column-table';
-
 import { Stack, Text } from '@mantine/core';
-import { SingleBar } from '../barComponents/SingleBar';
+import ColumnTable from 'arquero/dist/types/table/column-table';
+import * as d3 from 'd3v7';
+import React, { useCallback, useMemo } from 'react';
 import { EAggregateTypes } from '../../interfaces';
+import { SingleBar } from '../barComponents/SingleBar';
 
 export function SimpleBars({
   aggregateColumnName = null,
@@ -41,6 +38,41 @@ export function SimpleBars({
   selectionCallback: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
   width: number;
 }) {
+  const numericalBarBounds = useCallback(
+    (row: { numerical: number; selected: number; id: string }) => {
+      const zero = numericalValueScale(0);
+      const value = numericalValueScale(row.numerical);
+      const id = numericalIdScale(row.id);
+      const bandwidth = numericalIdScale.bandwidth() ?? 10;
+      let [w, h, x, y] = [0, 0, 0, 0];
+      if (row.numerical < 0) {
+        if (isVertical) {
+          w = bandwidth;
+          h = Math.max(Math.abs(value - zero), 2);
+          x = id;
+          y = zero;
+        } else {
+          w = Math.max(Math.abs(value - zero), 2);
+          h = bandwidth;
+          x = value;
+          y = id;
+        }
+      } else if (isVertical) {
+        w = bandwidth;
+        h = Math.max(Math.abs(value - zero), 2);
+        x = id;
+        y = value;
+      } else {
+        w = Math.max(Math.abs(value - zero), 2);
+        h = bandwidth;
+        x = zero;
+        y = id;
+      }
+      return { w, h, x, y };
+    },
+    [numericalValueScale, numericalIdScale, isVertical],
+  );
+
   const bars = useMemo(() => {
     if (aggregatedTable && width !== 0 && height !== 0) {
       const aggregatedTableObjects = aggregatedTable.objects();
@@ -75,10 +107,7 @@ export function SimpleBars({
       }
       if (numericalValueScale && numericalIdScale) {
         return aggregatedTableObjects.slice(0, 100).map((row: { numerical: number; selected: number; id: string }, index) => {
-          const w = isVertical ? numericalIdScale.bandwidth() ?? 10 : Math.max(width - margin.right - numericalValueScale(row.numerical), 2);
-          const h = isVertical ? Math.max(height - margin.bottom - numericalValueScale(row.numerical), 2) : numericalIdScale.bandwidth();
-          const x = isVertical ? numericalIdScale(row.id) ?? 10 * index : margin.left;
-          const y = isVertical ? numericalValueScale(row.numerical) : numericalIdScale(row.id) ?? 10 * index;
+          const { w, h, x, y } = numericalBarBounds(row);
           const selectedPercent = !hasSelected || row.selected ? 1 : 0;
           return (
             <SingleBar
@@ -111,14 +140,17 @@ export function SimpleBars({
     categoryValueScale,
     categoryCountScale,
     numericalValueScale,
+    numericalIdScale,
     isVertical,
-    margin,
+    margin.right,
+    margin.bottom,
+    margin.left,
     hasSelected,
     categoryName,
     aggregateType,
     aggregateColumnName,
     selectionCallback,
-    numericalIdScale,
+    numericalBarBounds,
     numericalName,
   ]);
 
