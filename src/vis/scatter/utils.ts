@@ -1,7 +1,7 @@
 import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
-import { getCssValue } from '../../utils';
+import { categoricalColors, getCssValue } from '../../utils';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
@@ -19,8 +19,7 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-import { ELabelingOptions, IScatterConfig } from './interfaces';
-import { ERegressionLineType } from './Regression';
+import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -49,6 +48,11 @@ const defaultConfig: IScatterConfig = {
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
+    lineStyle: {
+      color: categoricalColors[9],
+      width: 2,
+      dash: 'solid',
+    },
     showStats: true,
   },
 };

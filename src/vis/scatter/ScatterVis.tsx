@@ -10,8 +10,8 @@ import { InvalidCols } from '../general/InvalidCols';
 import { beautifyLayout } from '../general/layoutUtils';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { DEFAULT_REGRESSION_LINE_STYLE, ERegressionLineType, IRegressionResult, fitRegression } from './Regression';
-import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { fitRegressionLine } from './Regression';
+import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
 import { createScatterTraces } from './utils';
 
 const annotationsForRegressionStats = (results: IRegressionResult[]) => {
@@ -102,11 +102,11 @@ export function ScatterVis({
       const regressionResults: IRegressionResult[] = [];
       for (const plot of traces.plots) {
         if (plot.data.type === 'scattergl') {
-          const curveFit = fitRegression(plot.data, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
+          const curveFit = fitRegressionLine(plot.data, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
           regressionShapes.push({
             type: 'path',
             path: curveFit.svgPath,
-            line: config.regressionLineOptions.lineStyle || DEFAULT_REGRESSION_LINE_STYLE,
+            line: config.regressionLineOptions.lineStyle,
             xref: curveFit.xref as Plotly.XAxisName,
             yref: curveFit.yref as Plotly.YAxisName,
           });

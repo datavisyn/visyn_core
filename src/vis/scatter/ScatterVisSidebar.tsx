@@ -9,8 +9,8 @@ import { SingleSelect } from '../sidebar/SingleSelect';
 import { ColorSelect } from './ColorSelect';
 import { LabelingOptions } from './LabelingOptions';
 import { OpacitySlider } from './OpacitySlider';
-import { IRegressionLineOptions, RegressionLineOptions } from './Regression';
-import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { RegressionLineOptions } from './Regression';
+import { ELabelingOptions, IRegressionLineOptions, IScatterConfig } from './interfaces';
 
 const defaultConfig = {
   facets: {

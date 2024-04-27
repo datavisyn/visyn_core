@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { BaseVisConfig, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../interfaces';
+import { ELabelingOptions, ERegressionLineType, IScatterConfig } from '../../../scatter/interfaces';
 import { fetchIrisData } from '../../fetchIrisData';
-import { ELabelingOptions, IScatterConfig } from '../../../scatter/interfaces';
-import { ERegressionLineType } from '../../../scatter/Regression';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {

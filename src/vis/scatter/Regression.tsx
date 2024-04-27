@@ -2,53 +2,15 @@
 Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-js
 */
 
-import { Input, Select, Text, Stack, Group, NumberInput } from '@mantine/core';
+import { Group, Input, NumberInput, Select, Stack, Text } from '@mantine/core';
 import fitCurve from 'fit-curve';
 import { corrcoeff } from 'jstat';
 import * as React from 'react';
-import { categoricalColors } from '../../utils';
 import { HelpHoverCard } from '../../components/HelpHoverCard';
+import { ERegressionLineType, IRegressionFitOptions, IRegressionLineOptions, IRegressionResult } from './interfaces';
 
-export enum ERegressionLineType {
-  NONE = 'None',
-  LINEAR = 'Linear',
-  POLYNOMIAL = 'Polynomial',
-  EXPONENTIAL = 'Exponential',
-  LOGARITHMIC = 'Logarithmic',
-  POWER = 'Power',
-}
-
-export interface IRegressionResult {
-  stats: {
-    r2: number;
-    correlation: number;
-    n: number;
-  };
-  equation: string;
-  svgPath: string;
-  xref: string;
-  yref: string;
-}
-
-export interface IRegressionFitOptions {
-  order: number;
-  precision: number;
-}
-
-export type RegressionData = Array<Array<number>>;
-export const DEFAULT_CURVE_FIT_OPTIONS: IRegressionFitOptions = { order: 2, precision: 3 };
-export const DEFAULT_REGRESSION_LINE_STYLE = {
-  color: categoricalColors[9],
-  width: 2.5,
-};
-
-export interface IRegressionLineOptions {
-  type: ERegressionLineType;
-  fitOptions: IRegressionFitOptions;
-  showStats?: boolean;
-  lineStyle?: Partial<Plotly.ShapeLine>;
-  setRegressionResults?: (results: IRegressionResult[]) => void;
-}
+type RegressionData = Array<Array<number>>;
+const DEFAULT_CURVE_FIT_OPTIONS: IRegressionFitOptions = { order: 2, precision: 3 };
 
 interface RegressionLineOptionsProps {
   callback: (s: IRegressionLineOptions) => void;
@@ -485,7 +447,7 @@ const regressionMethodsMapping = {
   [ERegressionLineType.POWER]: 'power',
 };
 
-export const fitRegression = (
+export const fitRegressionLine = (
   data: Partial<Plotly.PlotData>,
   method: ERegressionLineType,
   options: IRegressionFitOptions = DEFAULT_CURVE_FIT_OPTIONS,
