@@ -1,8 +1,8 @@
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from fastapi.exception_handlers import http_exception_handler
-from starlette.types import Message
+from starlette.types import ASGIApp, Message
 
 from ..server.utils import detail_from_exception
 
@@ -10,8 +10,8 @@ from ..server.utils import detail_from_exception
 # Use basic ASGI middleware instead of BaseHTTPMiddleware as it is significantly faster: https://github.com/tiangolo/fastapi/issues/2696#issuecomment-768224643
 # Raw middlewares are actually quite complex: https://github.com/encode/starlette/blob/048643adc21e75b668567fc6bcdd3650b89044ea/starlette/middleware/errors.py#L147
 class ExceptionHandlerMiddleware:
-    def __init__(self, app: FastAPI):
-        self.app: FastAPI = app
+    def __init__(self, app: ASGIApp):
+        self.app: ASGIApp = app
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
