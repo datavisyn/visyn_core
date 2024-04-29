@@ -112,7 +112,7 @@ export function SingleBarChart({
       value,
       offset: numericalValueScale?.(value),
     }));
-    return mappedTicks.length === 4
+    return mappedTicks?.length === 4
       ? [...mappedTicks, { value: numericalValueScale?.domain()[1], offset: numericalValueScale?.(numericalValueScale?.domain()[1]) }]
       : mappedTicks;
   }, [numericalValueScale]);
@@ -134,6 +134,14 @@ export function SingleBarChart({
           setSortType(SortTypes.NONE);
         } else {
           setSortType(SortTypes.NUM_ASC);
+        }
+      } else if (label === config.numColumnsSelected?.[0]?.id) {
+        if (sortType === SortTypes.ID_ASC) {
+          setSortType(SortTypes.ID_DESC);
+        } else if (sortType === SortTypes.ID_DESC) {
+          setSortType(SortTypes.NONE);
+        } else {
+          setSortType(SortTypes.ID_ASC);
         }
       } else if (sortType === SortTypes.COUNT_ASC) {
         setSortType(SortTypes.COUNT_DESC);

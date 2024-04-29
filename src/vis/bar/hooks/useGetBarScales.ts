@@ -127,8 +127,8 @@ export function useGetBarScales({
 
   const numericalIdScale = useMemo(() => {
     if (!aggregatedTable || !allColumns?.numColVals) return null;
-    const range = isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top];
-    const domain = aggregatedTable.array('id').slice(0, 100);
+    const range = isVertical ? [margin.left, width - margin.right] : [margin.top, height - margin.bottom];
+    const domain = sortTableBySortType(aggregatedTable, SortTypes.ID_DESC).array('id').slice(0, 100);
     return d3.scaleBand().range(range).domain(domain).padding(0.2);
   }, [aggregatedTable, allColumns?.numColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, width]);
 
