@@ -44,7 +44,7 @@ const defaultConfig: IScatterConfig = {
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
-  showLabels: ELabelingOptions.SELECTED,
+  showLabels: ELabelingOptions.NEVER,
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },

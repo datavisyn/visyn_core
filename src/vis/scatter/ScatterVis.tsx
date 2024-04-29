@@ -1,6 +1,7 @@
 import { Center, Group, Stack } from '@mantine/core';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
+import { XAxisName, YAxisName } from 'plotly.js-dist-min';
 import * as React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useAsync } from '../../hooks';
@@ -20,10 +21,8 @@ const annotationsForRegressionStats = (results: IRegressionResult[]) => {
     annotations.push({
       x: 0.02,
       y: 0.98,
-      // @ts-ignore
-      xref: `${r.xref} domain`,
-      // @ts-ignore
-      yref: `${r.yref} domain`,
+      xref: `${r.xref} domain` as XAxisName,
+      yref: `${r.yref} domain` as YAxisName,
       text: `<b>n: ${r.stats.n}</b><br><b>r²: ${r.stats.r2}</b><br><b>corr: ${r.stats.correlation}</b><br>`,
       showarrow: false,
       font: {
@@ -196,11 +195,13 @@ export function ScatterVis({
         .forEach((p) => {
           const temp = [];
 
-          (p.data.ids as any).forEach((currId, index) => {
-            if (selectedMap[currId] || (selectedList.length === 0 && config.color)) {
-              temp.push(index);
-            }
-          });
+          if (selectedList.length > 0) {
+            selectedList.forEach((selectedId) => {
+              temp.push(p.data.ids.indexOf(selectedId));
+            });
+          } else if (config.color && selectedList.length === 0) {
+            temp.push(...Array.from({ length: p.data.ids.length }, (_, i) => i));
+          }
 
           p.data.selectedpoints = temp;
           // @ts-ignore
@@ -230,7 +231,7 @@ export function ScatterVis({
     }
 
     return [];
-  }, [traces, selectedList.length, config.showLabels, config.color, config.alphaSliderVal, selectedMap]);
+  }, [traces, selectedList, config.color, config.showLabels, config.alphaSliderVal]);
 
   const plotlyData = useMemo(() => {
     if (traces) {
