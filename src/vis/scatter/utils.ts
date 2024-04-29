@@ -422,7 +422,7 @@ export async function createScatterTraces(
             groups: shapeCol.resolvedValues.map((v) => v.val as string),
             styles: [
               ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val) as string[])].map((c) => {
-                return { target: c, value: { name: c } };
+                return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
           },
