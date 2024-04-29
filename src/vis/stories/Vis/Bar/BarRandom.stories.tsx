@@ -5,17 +5,23 @@ import { VisProvider } from '../../../Provider';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
-function RNG(seed) {
+function RNG(seed: number, sign: 'positive' | 'negative' | 'mixed' = 'positive') {
   const m = 2 ** 35 - 31;
   const a = 185852;
   let s = seed % m;
-  return function () {
-    return (s = (s * a) % m) / m;
+  return () => {
+    let value = ((s = (s * a) % m) / m) * 2 - 1; // Generate values between -1 and 1
+    if (sign === 'positive') {
+      value = Math.abs(value);
+    } else if (sign === 'negative') {
+      value = -Math.abs(value);
+    }
+    return value;
   };
 }
 
 function fetchData(numberOfPoints: number): VisColumn[] {
-  const rng = RNG(10);
+  const rng = RNG(10, 'mixed');
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
@@ -42,9 +48,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   return [
     {
       info: {
-        description: '',
+        description: 'PCA_X value',
         id: 'pca_x',
-        name: 'pca_x',
+        name: 'PCA_X',
       },
       type: EColumnTypes.NUMERICAL,
       domain: [0, undefined],
@@ -55,9 +61,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'PCA_Y value of the data point',
         id: 'pca_y',
-        name: 'pca_y',
+        name: 'PCA_Y',
       },
       type: EColumnTypes.NUMERICAL,
       domain: [0, undefined],
@@ -68,9 +74,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'Numerical value of the data point with a long description that should be truncated in the UI',
         id: 'value',
-        name: 'value',
+        name: 'Value',
       },
       domain: [0, 100],
 
@@ -82,9 +88,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'Description for category',
         id: 'category',
-        name: 'category',
+        name: 'Category',
       },
       type: EColumnTypes.CATEGORICAL,
       values: async () => {
@@ -94,9 +100,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'Category 2 description',
         id: 'category2',
-        name: 'category2',
+        name: 'Category 2',
       },
       type: EColumnTypes.CATEGORICAL,
       values: async () => {
@@ -106,9 +112,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
-        description: '',
+        description: 'Category 3 with a long description that should be truncated in the UI',
         id: 'category3',
-        name: 'category3',
+        name: 'Category 3',
       },
       type: EColumnTypes.CATEGORICAL,
       values: async () => {
@@ -127,7 +133,7 @@ export default {
     pointCount: { control: 'number' },
   },
   args: {
-    pointCount: 10000,
+    pointCount: 7,
   },
 };
 
@@ -154,13 +160,13 @@ Basic.args = {
   externalConfig: {
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
-    catColumnSelected: { description: '', id: 'category', name: 'category' },
-    direction: EBarDirection.HORIZONTAL,
+    catColumnSelected: null,
+    direction: EBarDirection.VERTICAL,
     display: EBarDisplayType.ABSOLUTE,
     group: null,
     groupType: EBarGroupingType.GROUP,
     multiples: null,
-    numColumnsSelected: [],
+    numColumnsSelected: [{ description: '', id: 'value', name: 'value' }],
     type: ESupportedPlotlyVis.BAR,
   } as BaseVisConfig,
 };
