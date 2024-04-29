@@ -1,4 +1,4 @@
-import { Center, Group, Stack } from '@mantine/core';
+import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
@@ -27,7 +27,7 @@ export function ScatterVis({
   scrollZoom,
 }: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniqueId('ScatterVis'), []);
-
+  const [showLegend, setShowLegend] = useState(false);
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
   useEffect(() => {
@@ -64,11 +64,12 @@ export function ScatterVis({
     }
 
     const innerLayout: Partial<Plotly.Layout> = {
-      showlegend: true,
+      showlegend: showLegend,
       legend: {
         // @ts-ignore
         itemclick: false,
         itemdoubleclick: false,
+
         font: {
           // same as default label font size in the sidebar
           size: 13.4,
@@ -91,7 +92,7 @@ export function ScatterVis({
     setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces, config.dragMode]);
+  }, [traces, config.dragMode, showLegend]);
 
   const plotsWithSelectedPoints = useMemo(() => {
     if (traces) {
@@ -146,7 +147,7 @@ export function ScatterVis({
   }, [plotsWithSelectedPoints, traces]);
 
   return (
-    <Stack gap={0} style={{ height: '100%', width: '100%' }}>
+    <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
       {showDragModeOptions ? (
         <Center>
           <Group mt="lg">
@@ -154,34 +155,46 @@ export function ScatterVis({
           </Group>
         </Center>
       ) : null}
-
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
-        <PlotlyComponent
-          key={id}
-          divId={`plotlyDiv${id}`}
-          data={plotlyData}
-          layout={layout}
-          config={{ responsive: true, displayModeBar: false, scrollZoom }}
-          useResizeHandler
-          style={{ width: '100%', height: '100%' }}
-          onClick={(event) => {
-            const clickedId = (event.points[0] as any).id;
-            if (selectedMap[clickedId]) {
-              selectionCallback(selectedList.filter((s) => s !== clickedId));
-            } else {
-              selectionCallback([...selectedList, clickedId]);
-            }
-          }}
-          onInitialized={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onUpdate={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onSelected={(sel) => {
-            selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
-          }}
-        />
+        <>
+          <Tooltip label="Toggle legend" refProp="rootRef">
+            <Switch
+              size="xs"
+              disabled={traces.legendPlots.length === 0}
+              style={{ position: 'absolute', right: 42, top: 18 }}
+              defaultChecked
+              label="Legend"
+              onChange={() => setShowLegend((prev) => !prev)}
+              checked={showLegend}
+            />
+          </Tooltip>
+          <PlotlyComponent
+            key={id}
+            divId={`plotlyDiv${id}`}
+            data={plotlyData}
+            layout={layout}
+            config={{ responsive: true, displayModeBar: false, scrollZoom }}
+            useResizeHandler
+            style={{ width: '100%', height: '100%' }}
+            onClick={(event) => {
+              const clickedId = (event.points[0] as any).id;
+              if (selectedMap[clickedId]) {
+                selectionCallback(selectedList.filter((s) => s !== clickedId));
+              } else {
+                selectionCallback([...selectedList, clickedId]);
+              }
+            }}
+            onInitialized={() => {
+              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onUpdate={() => {
+              d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onSelected={(sel) => {
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+            }}
+          />
+        </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
         <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
       ) : null}
