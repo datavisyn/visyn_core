@@ -22,7 +22,7 @@ pytest-postgresql==6.0.0
 python-dateutil==2.8.2
 python-multipart==0.0.9
 requests==2.31.0
-SQLAlchemy>=1.4.40,<=1.4.49
+SQLAlchemy>=1.4.40,<=2.0.29
 starlette-context==0.3.6
 uvicorn[standard]==0.29.0
 # Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/f7e3559bd5997f831fb9b02bef9c767a50facbc3/pyproject.toml#L57-L67
