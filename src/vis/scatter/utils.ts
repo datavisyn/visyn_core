@@ -21,6 +21,10 @@ import {
 import { getCol } from '../sidebar';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
 
+function truncateString(text: string, maxLength = 20): string {
+  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
+}
+
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
   if (domain[0] !== undefined && domain[1] !== undefined) {
@@ -343,7 +347,7 @@ export async function createScatterTraces(
 
         // @ts-ignore
         legendgrouptitle: {
-          text: columnNameWithDescription(colorCol.info),
+          text: colorCol.info.name,
         },
         marker: {
           line: {
@@ -357,10 +361,16 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: colorCol.resolvedValues.map((v) => v.val as string),
+            groups: colorCol.resolvedValues.map((v) => `${v.val}` as string),
             styles: [
               ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val) as string[])].map((c) => {
-                return { target: c, value: { name: c } };
+                return {
+                  target: c,
+                  value: {
+                    name: truncateString(c),
+                    text: c,
+                  },
+                };
               }),
             ],
           },
@@ -385,8 +395,14 @@ export async function createScatterTraces(
         visible: 'legendonly',
         showlegend: true,
         legendgroup: 'shape',
-        hoverinfo: 'skip',
+        hoverinfo: 'all',
 
+        hoverlabel: {
+          namelength: 10,
+          bgcolor: 'black',
+          align: 'left',
+          bordercolor: 'black',
+        },
         // @ts-ignore
         legendgrouptitle: {
           text: columnNameWithDescription(shapeCol.info),
