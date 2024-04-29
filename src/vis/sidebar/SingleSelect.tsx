@@ -88,7 +88,9 @@ export function SingleSelect({
         store={combobox}
         withinPortal={false}
         onOptionSubmit={(val) => {
-          callback(filteredColumns.find((c) => c.info.name === val)?.info);
+          // NOTE: @dv-usama-ansari: For bar charts, the `id` is used to find the matching column.
+          //  This needs to be checked for other vis.
+          callback(filteredColumns.find((c) => c.info.id === val)?.info);
           combobox.closeDropdown();
         }}
       >
