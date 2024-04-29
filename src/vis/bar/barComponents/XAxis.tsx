@@ -75,18 +75,18 @@ export function XAxis({
 }) {
   const tickWidth = useMemo(() => {
     if (ticks.length > 1) {
-      return Math.abs(ticks[1].offset - ticks[0].offset);
+      return Math.abs(ticks[0].offset - ticks[1].offset);
     }
 
-    return xScale.range()[0] - xScale.range()[1];
+    return xScale.range()[1] - xScale.range()[0];
   }, [ticks, xScale]);
 
   const [shouldRotateAxisTicks, setShouldRotateAxisTicks] = useState(shouldRotate);
 
   return (
     <>
-      <g transform={`translate(${xScale.range()[1]}, ${vertPosition + 25})`}>
-        <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
+      <g transform={`translate(${xScale.range()[0]}, ${vertPosition + 25})`}>
+        <foreignObject width={Math.abs(xScale.range()[1] - xScale.range()[0])} height={20}>
           <Center>
             <Group gap={3} style={{ cursor: 'pointer' }}>
               {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
@@ -99,13 +99,22 @@ export function XAxis({
           </Center>
         </foreignObject>
       </g>
-      <path transform={`translate(0, ${vertPosition})`} d={['M', xScale.range()[0], 0, 'H', xScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
-      <path transform={`translate(0, ${yRange[0]})`} d={['M', xScale.range()[0], 0, 'H', xScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
+      <path transform={`translate(0, ${vertPosition})`} d={['M', xScale.range()[1], 0, 'H', xScale.range()[0]].join(' ')} fill="none" stroke="lightgray" />
+      <path transform={`translate(0, ${yRange[1]})`} d={['M', xScale.range()[1], 0, 'H', xScale.range()[0]].join(' ')} fill="none" stroke="lightgray" />
 
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${offset}, ${vertPosition})`}>
-          <line y2="6" stroke="currentColor" />
-          {showLines ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke="lightgray" /> : null}
+          <line x1={0} x2={0} y1={0} y2="6" stroke="currentColor" />
+          {/* 
+            // NOTE: @dv-usama-ansari: The lines which appear with the ticks might not be proper. This needs to be tested.
+            //  Step to reproduce:
+            //  1. Select a numerical column.
+            //  2. Check the lines associated with X-axis ticks.
+            //  3. Change the orientation of the chart to vertical.
+            //  4. Check the lines associated with X-axis ticks.
+            //  5. Select a categorical column and check the lines associated with X-axis ticks in both orientations.
+          */}
+          {showLines ? <line x1={0} x2={0} y1={0} y2={`${yRange[1] - yRange[0]}`} stroke="lightgray" /> : null}
           <foreignObject x={0 - tickWidth / 2} y={10} width={tickWidth} height={20}>
             <TickText
               value={value}
