@@ -36,13 +36,15 @@ def build_info():
 
 
 # health check for docker-compose, kubernetes
-@mainapp_router.api_route("/api/health", methods=["GET", "HEAD"])
+@mainapp_router.head("/api/health")
+@mainapp_router.get("/api/health")
 async def health():
     return "ok"
 
 
 # TODO: Remove this endpoint after everyone switched to it.
-@mainapp_router.api_route("/health", methods=["GET", "HEAD"])
+@mainapp_router.head("/health")
+@mainapp_router.get("/health")
 async def deprecated_health():
     _log.warn("Using deprecated /health endpoint. Consider switching to /api/health.")
     return "ok"
