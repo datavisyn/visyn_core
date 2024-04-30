@@ -3,7 +3,6 @@ import { BaseVisConfig, ColumnInfo, ENumericalColorScaleType, EScatterSelectSett
 export interface IScatterConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.SCATTER;
   numColumnsSelected: ColumnInfo[];
-  facets: ColumnInfo | null;
   color: ColumnInfo | null;
   numColorScaleType: ENumericalColorScaleType;
   shape: ColumnInfo | null;
@@ -11,7 +10,8 @@ export interface IScatterConfig extends BaseVisConfig {
   alphaSliderVal: number;
   sizeSliderVal: number;
   showLabels: ELabelingOptions;
-  regressionLineOptions: IRegressionLineOptions;
+  facets?: ColumnInfo | null;
+  regressionLineOptions?: IRegressionLineOptions;
 }
 
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {
