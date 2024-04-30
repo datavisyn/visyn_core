@@ -4,7 +4,7 @@ Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-
 
 import { Group, Input, NumberInput, Select, Stack, Text } from '@mantine/core';
 import fitCurve from 'fit-curve';
-import { corrcoeff } from 'jstat';
+import { corrcoeff, ttest } from 'jstat';
 import * as React from 'react';
 import { HelpHoverCard } from '../../components/HelpHoverCard';
 import { ERegressionLineType, IRegressionFitOptions, IRegressionLineOptions, IRegressionResult } from './interfaces';
@@ -454,10 +454,17 @@ export const fitRegressionLine = (
 ): IRegressionResult => {
   const x = data.x as number[];
   const y = data.y as number[];
-  const correlation = round(corrcoeff(x, y), options.precision);
+  const r = round(corrcoeff(x, y), options.precision);
+  const n = x.length;
+  const t = r * Math.sqrt((n - 2) / (1 - r ** 2));
+  const pValue = round(ttest(t, n, 2), options.precision);
   const regressionResult = methods[regressionMethodsMapping[method]](
     x.map((val, i) => [val, y[i]]),
     options,
   );
-  return { ...regressionResult, stats: { correlation, ...regressionResult.stats }, xref: data.xaxis, yref: data.yaxis };
+
+  if (method === ERegressionLineType.LINEAR) {
+    return { ...regressionResult, stats: { ...regressionResult.stats, r, pValue }, xref: data.xaxis, yref: data.yaxis };
+  }
+  return { ...regressionResult, xref: data.xaxis, yref: data.yaxis };
 };

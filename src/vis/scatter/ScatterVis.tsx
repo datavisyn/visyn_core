@@ -23,7 +23,7 @@ const annotationsForRegressionStats = (results: IRegressionResult[]) => {
       y: 0.98,
       xref: `${r.xref} domain` as XAxisName,
       yref: `${r.yref} domain` as YAxisName,
-      text: `<b>n: ${r.stats.n}</b><br><b>r²: ${r.stats.r2}</b><br><b>corr: ${r.stats.correlation}</b><br>`,
+      text: `<b>n: ${r.stats.n}</b><br><b>r²: ${r.stats.r2}</b><br><b>r: ${r.stats.r}</b><br><b>p-value: ${r.stats.pValue}</b>`,
       showarrow: false,
       font: {
         size: results.length > 1 ? 14 : 16,

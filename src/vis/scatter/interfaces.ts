@@ -35,9 +35,10 @@ export enum ERegressionLineType {
 
 export interface IRegressionResult {
   stats: {
-    r2: number;
-    correlation: number;
     n: number;
+    r2: number;
+    r?: number;
+    pValue?: number;
   };
   equation: string;
   svgPath: string;
