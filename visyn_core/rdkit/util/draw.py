@@ -33,7 +33,7 @@ def draw_wrapper(trim: bool):
 
 
 @draw_wrapper(trim=True)
-def draw(drawer: MolDraw2DSVG, structure, substructure=None, trim=False):
+def draw(drawer: MolDraw2DSVG, structure, substructure=None):
     highlight_atoms = structure.GetSubstructMatch(substructure) if substructure else None
     drawer.DrawMolecule(structure, highlightAtoms=highlight_atoms, highlightBonds=None, highlightAtomColors=None, highlightBondColors=None)
 
