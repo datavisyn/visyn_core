@@ -48,11 +48,11 @@ const defaultConfig: IScatterConfig = {
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
-    lineStyle: {
-      color: categoricalColors[9],
-      width: 2,
-      dash: 'solid',
-    },
+    // lineStyle: {
+    //   color: categoricalColors[9],
+    //   width: 2,
+    //   dash: 'solid',
+    // },
     showStats: true,
   },
 };

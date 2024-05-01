@@ -55,6 +55,6 @@ export interface IRegressionLineOptions {
   type: ERegressionLineType;
   fitOptions: IRegressionFitOptions;
   showStats?: boolean;
-  lineStyle?: Partial<Plotly.ShapeLine>;
+  // lineStyle?: Partial<Plotly.ShapeLine>;
   setRegressionResults?: (results: IRegressionResult[]) => void;
 }
