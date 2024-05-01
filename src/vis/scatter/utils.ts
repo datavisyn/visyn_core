@@ -51,7 +51,6 @@ const defaultConfig: IScatterConfig = {
     lineStyle: {
       color: categoricalColors[9],
       width: 2,
-      dash: 'solid',
     },
     showStats: true,
   },

@@ -55,6 +55,6 @@ export interface IRegressionLineOptions {
   type: ERegressionLineType;
   fitOptions: IRegressionFitOptions;
   showStats?: boolean;
-  lineStyle?: { width?: number; color?: string; dash?: 'solid' | 'dot' | 'dash' | 'longdash' | 'dashdot' | 'longdashdot' };
+  lineStyle?: { width?: number; color?: string };
   setRegressionResults?: (results: IRegressionResult[]) => void;
 }
