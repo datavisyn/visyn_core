@@ -10,7 +10,7 @@ export interface IScatterConfig extends BaseVisConfig {
   alphaSliderVal: number;
   sizeSliderVal: number;
   showLabels: ELabelingOptions;
-  facets?: ColumnInfo | null;
+  facets: ColumnInfo | null;
   regressionLineOptions?: IRegressionLineOptions;
 }
 
@@ -55,6 +55,6 @@ export interface IRegressionLineOptions {
   type: ERegressionLineType;
   fitOptions: IRegressionFitOptions;
   showStats?: boolean;
-  // lineStyle?: Partial<Plotly.ShapeLine>;
+  lineStyle?: { width?: number; color?: string; dash?: 'solid' | 'dot' | 'dash' | 'longdash' | 'dashdot' | 'longdashdot' };
   setRegressionResults?: (results: IRegressionResult[]) => void;
 }

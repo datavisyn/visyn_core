@@ -105,7 +105,7 @@ export function ScatterVis({
           regressionShapes.push({
             type: 'path',
             path: curveFit.svgPath,
-            // line: config.regressionLineOptions.lineStyle,
+            line: config.regressionLineOptions.lineStyle,
             xref: curveFit.xref as Plotly.XAxisName,
             yref: curveFit.yref as Plotly.YAxisName,
           });
