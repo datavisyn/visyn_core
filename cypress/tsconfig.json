@@ -12,5 +12,11 @@
     "./**/*.ts",
     "./**/*.tsx",
     "../tsd.d.ts"
-  ]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "ESNext",
+      "moduleResolution": "Node"
+    }
+  }
 }
