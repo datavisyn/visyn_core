@@ -149,6 +149,7 @@ export function ScatterVis({
           combinedAnnotations.push({
             x: 0.5,
             y: 1,
+            yshift: 5,
             xref: `${p.data.xaxis} domain` as Plotly.XAxisName,
             yref: `${p.data.yaxis} domain` as Plotly.YAxisName,
             xanchor: 'center',
@@ -157,7 +158,7 @@ export function ScatterVis({
             showarrow: false,
             font: {
               size: 16,
-              color: '#616161',
+              color: '#7f7f7f',
             },
           }),
         );
@@ -192,7 +193,7 @@ export function ScatterVis({
         size: 13.4,
       },
       margin: {
-        t: showDragModeOptions ? 25 : 50,
+        t: showDragModeOptions ? (config.facets ? 30 : 25) : 50,
         r: 25,
         l: 50,
         b: 50,
