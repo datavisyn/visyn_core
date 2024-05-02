@@ -1,7 +1,7 @@
 import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
-import { categoricalColors, getCssValue } from '../../utils';
+import { getCssValue } from '../../utils';
 import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
@@ -34,7 +34,7 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
   return calcDomain;
 }
 
-const defaultConfig: IScatterConfig = {
+export const defaultConfig: IScatterConfig = {
   type: ESupportedPlotlyVis.SCATTER,
   numColumnsSelected: [],
   facets: null,
@@ -49,7 +49,7 @@ const defaultConfig: IScatterConfig = {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
     lineStyle: {
-      color: categoricalColors[9],
+      color: '#7f7f7f',
       width: 2,
     },
     showStats: true,

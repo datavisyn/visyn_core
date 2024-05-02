@@ -13,27 +13,47 @@ import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
 import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
-import { createScatterTraces } from './utils';
+import { createScatterTraces, defaultConfig } from './utils';
+
+const formatPValue = (pValue: number) => {
+  if (!pValue) {
+    return 'N/A';
+  }
+  if (pValue < 0.001) {
+    return '<.001';
+  }
+  return pValue.toFixed(3).toString().replace(/^0+/, '=');
+};
 
 const annotationsForRegressionStats = (results: IRegressionResult[]) => {
   const annotations: Partial<Plotly.Annotations>[] = [];
+
   for (const r of results) {
+    const statsFormatted = [
+      `n: ${r.stats.n}`,
+      `R²: ${r.stats.r2} <i>(P${formatPValue(r.stats.pValue)})</i>`,
+      `Pearson: ${r.stats.pearsonRho?.toFixed(3)}`,
+      `Spearman: ${r.stats.spearmanRho?.toFixed(3)}`,
+    ];
+
     annotations.push({
-      x: 0.02,
-      y: 0.98,
+      x: 0.0,
+      y: 1.0,
       xref: `${r.xref} domain` as XAxisName,
       yref: `${r.yref} domain` as YAxisName,
-      text: `<b>n: ${r.stats.n}</b><br><b>r²: ${r.stats.r2}</b><br><b>r: ${r.stats.r}</b><br><b>p-value: ${r.stats.pValue}</b>`,
+      text: statsFormatted.map((row) => `${row}`).join('<br>'),
       showarrow: false,
       font: {
-        size: results.length > 1 ? 14 : 16,
-        color: '#616161',
+        family: 'Roboto, sans-serif',
+        size: results.length > 1 ? 12 : 13.4,
+        color: '#7f7f7f',
       },
       align: 'left',
       xanchor: 'left',
       yanchor: 'top',
-      bgcolor: '#ffffff',
-      opacity: 0.6,
+      bgcolor: 'rgba(255, 255, 255, 0.8)',
+      xshift: 10,
+      yshift: -10,
     });
   }
   return annotations;
@@ -105,7 +125,7 @@ export function ScatterVis({
           regressionShapes.push({
             type: 'path',
             path: curveFit.svgPath,
-            line: config.regressionLineOptions.lineStyle,
+            line: { ...defaultConfig.regressionLineOptions.lineStyle, ...config.regressionLineOptions.lineStyle },
             xref: curveFit.xref as Plotly.XAxisName,
             yref: curveFit.yref as Plotly.YAxisName,
           });
@@ -174,8 +194,8 @@ export function ScatterVis({
       margin: {
         t: showDragModeOptions ? 25 : 50,
         r: 25,
-        l: 100,
-        b: 100,
+        l: 50,
+        b: 50,
       },
       shapes: [],
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },

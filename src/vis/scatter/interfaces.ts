@@ -37,8 +37,9 @@ export interface IRegressionResult {
   stats: {
     n: number;
     r2: number;
-    r?: number;
     pValue?: number;
+    pearsonRho?: number;
+    spearmanRho?: number;
   };
   equation: string;
   svgPath: string;
@@ -55,6 +56,6 @@ export interface IRegressionLineOptions {
   type: ERegressionLineType;
   fitOptions: IRegressionFitOptions;
   showStats?: boolean;
-  lineStyle?: { width?: number; color?: string };
+  lineStyle?: Partial<Plotly.ShapeLine>;
   setRegressionResults?: (results: IRegressionResult[]) => void;
 }

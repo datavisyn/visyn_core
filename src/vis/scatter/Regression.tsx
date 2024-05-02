@@ -4,7 +4,7 @@ Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-
 
 import { Group, Input, NumberInput, Select, Stack, Text } from '@mantine/core';
 import fitCurve from 'fit-curve';
-import { corrcoeff, ttest } from 'jstat';
+import { corrcoeff, spearmancoeff, ttest } from 'jstat';
 import * as React from 'react';
 import { HelpHoverCard } from '../../components/HelpHoverCard';
 import { ERegressionLineType, IRegressionFitOptions, IRegressionLineOptions, IRegressionResult } from './interfaces';
@@ -447,6 +447,12 @@ const regressionMethodsMapping = {
   [ERegressionLineType.POWER]: 'power',
 };
 
+const pValueForR2 = (r2: number, n: number): number => {
+  const r = Math.sqrt(r2);
+  const t = r * Math.sqrt((n - 2) / (1 - r ** 2));
+  return ttest(t, n, 2);
+};
+
 export const fitRegressionLine = (
   data: Partial<Plotly.PlotData>,
   method: ERegressionLineType,
@@ -454,17 +460,17 @@ export const fitRegressionLine = (
 ): IRegressionResult => {
   const x = data.x as number[];
   const y = data.y as number[];
-  const r = round(corrcoeff(x, y), options.precision);
-  const n = x.length;
-  const t = r * Math.sqrt((n - 2) / (1 - r ** 2));
-  const pValue = round(ttest(t, n, 2), options.precision);
+  const pearsonRho = round(corrcoeff(x, y), options.precision);
+  const spearmanRho = round(spearmancoeff(x, y), options.precision);
   const regressionResult = methods[regressionMethodsMapping[method]](
     x.map((val, i) => [val, y[i]]),
     options,
   );
 
-  if (method === ERegressionLineType.LINEAR) {
-    return { ...regressionResult, stats: { ...regressionResult.stats, r, pValue }, xref: data.xaxis, yref: data.yaxis };
-  }
-  return { ...regressionResult, xref: data.xaxis, yref: data.yaxis };
+  return {
+    ...regressionResult,
+    stats: { ...regressionResult.stats, pearsonRho, spearmanRho, pValue: pValueForR2(regressionResult.stats.r2, regressionResult.stats.n) },
+    xref: data.xaxis,
+    yref: data.yaxis,
+  };
 };
