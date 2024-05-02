@@ -36,6 +36,7 @@ const defaultConfig = {
   regressionLine: {
     enable: true,
     customComponent: null,
+    showColorPicker: true,
   },
 };
 
@@ -119,6 +120,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
                 }
               }}
               currentSelected={config.regressionLineOptions}
+              showColorPicker={mergedOptionsConfig.regressionLine.showColorPicker}
             />
           )
         : null}

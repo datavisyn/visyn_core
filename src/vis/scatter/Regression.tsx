@@ -2,7 +2,7 @@
 Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-js
 */
 
-import { Group, Input, NumberInput, Select, Stack, Text } from '@mantine/core';
+import { Group, Input, NumberInput, Select, Stack, Text, ColorSwatch, CheckIcon, rem } from '@mantine/core';
 import fitCurve from 'fit-curve';
 import { corrcoeff, spearmancoeff, ttest } from 'jstat';
 import * as React from 'react';
@@ -15,9 +15,10 @@ const DEFAULT_CURVE_FIT_OPTIONS: IRegressionFitOptions = { order: 2, precision: 
 interface RegressionLineOptionsProps {
   callback: (s: IRegressionLineOptions) => void;
   currentSelected: IRegressionLineOptions | null;
+  showColorPicker?: boolean;
 }
 
-export function RegressionLineOptions({ callback, currentSelected }: RegressionLineOptionsProps) {
+export function RegressionLineOptions({ callback, currentSelected, showColorPicker }: RegressionLineOptionsProps) {
   return (
     <Stack>
       <Input.Wrapper>
@@ -63,6 +64,23 @@ export function RegressionLineOptions({ callback, currentSelected }: RegressionL
             max={5}
           />
         </Group>
+      )}
+      {showColorPicker && currentSelected?.type !== ERegressionLineType.NONE && (
+        <Input.Wrapper label="Line color">
+          <Group>
+            {currentSelected?.lineStyle.colors.map((color, idx) => (
+              <ColorSwatch
+                key={color}
+                component="button"
+                color={color}
+                style={{ color: '#fff', cursor: 'pointer' }}
+                onClick={() => callback({ ...currentSelected, lineStyle: { ...currentSelected.lineStyle, colorSelected: idx } })}
+              >
+                {currentSelected.lineStyle.colorSelected === idx && <CheckIcon style={{ width: rem(12), height: rem(12) }} />}
+              </ColorSwatch>
+            ))}
+          </Group>
+        </Input.Wrapper>
       )}
     </Stack>
   );
@@ -168,6 +186,18 @@ function round(number: number, precision: number): number {
 }
 
 /**
+ * Calculate the p-value for a given R^2 value
+ * @param r2 Value of R^2
+ * @param n  Number of observations
+ * @returns  The p-value for the given R^2 value
+ */
+const pValueForR2 = (r2: number, n: number): number => {
+  const r = Math.sqrt(r2);
+  const t = r * Math.sqrt((n - 2) / (1 - r ** 2));
+  return ttest(t, n, 2);
+};
+
+/**
  * The set of all fitting methods
  *
  * @namespace
@@ -204,11 +234,14 @@ const methods = {
     const predict = (x: number) => [round(x, options.precision), round(gradient * x + intercept, options.precision)];
 
     const points = data.map((point) => predict(point[0]));
+    const r2 = determinationCoefficient(data, points);
+    const pValue = pValueForR2(r2, len);
 
     return {
       stats: {
-        r2: round(determinationCoefficient(data, points), options.precision),
+        r2: round(r2, options.precision),
         n: len,
+        pValue,
       },
       equation: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
       svgPath: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
@@ -253,10 +286,14 @@ const methods = {
       .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
       .join(' ');
 
+    const r2 = determinationCoefficient(data, points);
+    const pValue = pValueForR2(r2, data.length);
+
     return {
       stats: {
-        r2: round(determinationCoefficient(data, points), options.precision),
+        r2: round(r2, options.precision),
         n: data.length,
+        pValue,
       },
       equation: `y = ${coeffA}e^(${coeffB}x)`,
       svgPath,
@@ -299,10 +336,14 @@ const methods = {
       .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
       .join(' ');
 
+    const r2 = determinationCoefficient(data, points);
+    const pValue = pValueForR2(r2, data.length);
+
     return {
       stats: {
-        r2: round(determinationCoefficient(data, points), options.precision),
+        r2: round(r2, options.precision),
         n: len,
+        pValue,
       },
       equation: `y = ${coeffA} + ${coeffB} ln(x)`,
       svgPath,
@@ -346,10 +387,14 @@ const methods = {
       .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
       .join(' ');
 
+    const r2 = determinationCoefficient(data, points);
+    const pValue = pValueForR2(r2, data.length);
+
     return {
       stats: {
-        r2: round(determinationCoefficient(data, points), options.precision),
+        r2: round(r2, options.precision),
         n: len,
+        pValue,
       },
       equation: `y = ${coeffA}x^${coeffB}`,
       svgPath,
@@ -428,10 +473,14 @@ const methods = {
       .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
       .join(' ');
 
+    const r2 = determinationCoefficient(data, points);
+    const pValue = pValueForR2(r2, data.length);
+
     return {
       stats: {
         n: data.length,
-        r2: round(determinationCoefficient(data, points), options.precision),
+        r2: round(r2, options.precision),
+        pValue,
       },
       equation,
       svgPath,
@@ -445,12 +494,6 @@ const regressionMethodsMapping = {
   [ERegressionLineType.EXPONENTIAL]: 'exponential',
   [ERegressionLineType.LOGARITHMIC]: 'logarithmic',
   [ERegressionLineType.POWER]: 'power',
-};
-
-const pValueForR2 = (r2: number, n: number): number => {
-  const r = Math.sqrt(r2);
-  const t = r * Math.sqrt((n - 2) / (1 - r ** 2));
-  return ttest(t, n, 2);
 };
 
 export const fitRegressionLine = (
@@ -469,7 +512,7 @@ export const fitRegressionLine = (
 
   return {
     ...regressionResult,
-    stats: { ...regressionResult.stats, pearsonRho, spearmanRho, pValue: pValueForR2(regressionResult.stats.r2, regressionResult.stats.n) },
+    stats: { ...regressionResult.stats, pearsonRho, spearmanRho },
     xref: data.xaxis,
     yref: data.yaxis,
   };

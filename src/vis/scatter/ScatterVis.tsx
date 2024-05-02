@@ -25,15 +25,15 @@ const formatPValue = (pValue: number) => {
   return pValue.toFixed(3).toString().replace(/^0+/, '=');
 };
 
-const annotationsForRegressionStats = (results: IRegressionResult[]) => {
+const annotationsForRegressionStats = (results: IRegressionResult[], precision: number) => {
   const annotations: Partial<Plotly.Annotations>[] = [];
 
   for (const r of results) {
     const statsFormatted = [
       `n: ${r.stats.n}`,
-      `R²: ${r.stats.r2} <i>(P${formatPValue(r.stats.pValue)})</i>`,
-      `Pearson: ${r.stats.pearsonRho?.toFixed(3)}`,
-      `Spearman: ${r.stats.spearmanRho?.toFixed(3)}`,
+      `R²: ${r.stats.r2 < 0.001 ? '<0.001' : r.stats.r2} <i>(P${formatPValue(r.stats.pValue)})</i>`,
+      `Pearson: ${r.stats.pearsonRho?.toFixed(precision)}`,
+      `Spearman: ${r.stats.spearmanRho?.toFixed(precision)}`,
     ];
 
     annotations.push({
@@ -113,6 +113,14 @@ export function ScatterVis({
     config.showLabels,
   ]);
 
+  const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected: number; width: number; dash: Plotly.Dash }) => {
+    return {
+      color: lineStyle.colors[lineStyle.colorSelected],
+      width: lineStyle.width,
+      dash: lineStyle.dash,
+    };
+  };
+
   // Regression lines for all subplots
   const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
     const onRegressionResultsChanged = config.regressionLineOptions?.setRegressionResults || (() => null);
@@ -125,7 +133,7 @@ export function ScatterVis({
           regressionShapes.push({
             type: 'path',
             path: curveFit.svgPath,
-            line: { ...defaultConfig.regressionLineOptions.lineStyle, ...config.regressionLineOptions.lineStyle },
+            line: lineStyleToPlotlyShapeLine({ ...defaultConfig.regressionLineOptions.lineStyle, ...config.regressionLineOptions.lineStyle }),
             xref: curveFit.xref as Plotly.XAxisName,
             yref: curveFit.yref as Plotly.YAxisName,
           });
@@ -165,12 +173,12 @@ export function ScatterVis({
       }
 
       if (config.regressionLineOptions.showStats) {
-        combinedAnnotations.push(...annotationsForRegressionStats(regression.results));
+        combinedAnnotations.push(...annotationsForRegressionStats(regression.results, config.regressionLineOptions.fitOptions?.precision || 3));
       }
     }
 
     return combinedAnnotations;
-  }, [config.facets, config.regressionLineOptions?.showStats, regression.results, traces]);
+  }, [config.facets, config.regressionLineOptions, regression.results, traces]);
 
   React.useEffect(() => {
     if (!traces) {

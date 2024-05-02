@@ -54,8 +54,8 @@ export interface IRegressionFitOptions {
 
 export interface IRegressionLineOptions {
   type: ERegressionLineType;
-  fitOptions: IRegressionFitOptions;
+  fitOptions?: IRegressionFitOptions;
   showStats?: boolean;
-  lineStyle?: Partial<Plotly.ShapeLine>;
+  lineStyle?: { colors: string[]; colorSelected: number; width: number; dash: Plotly.Dash }; // Colors must be passed as array of hex strings
   setRegressionResults?: (results: IRegressionResult[]) => void;
 }

@@ -49,8 +49,10 @@ export const defaultConfig: IScatterConfig = {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
     lineStyle: {
-      color: '#7f7f7f',
+      colors: ['#7f7f7f', '#C91A25', '#3561fd'],
+      colorSelected: 0,
       width: 2,
+      dash: 'solid',
     },
     showStats: true,
   },
