@@ -56,6 +56,6 @@ export interface IRegressionLineOptions {
   type: ERegressionLineType;
   fitOptions?: IRegressionFitOptions;
   showStats?: boolean;
-  lineStyle?: { colors: string[]; colorSelected: number; width: number; dash: Plotly.Dash }; // Colors must be passed as array of hex strings
+  lineStyle?: Partial<{ colors: string[]; colorSelected: number; width: number; dash: Plotly.Dash }>; // Colors must be passed as array of hex strings
   setRegressionResults?: (results: IRegressionResult[]) => void;
 }
