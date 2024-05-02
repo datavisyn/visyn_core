@@ -13,7 +13,7 @@ import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
 import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
-import { createScatterTraces, defaultConfig } from './utils';
+import { createScatterTraces, defaultRegressionLineStyle } from './utils';
 
 const formatPValue = (pValue: number) => {
   if (!pValue) {
@@ -133,7 +133,7 @@ export function ScatterVis({
           regressionShapes.push({
             type: 'path',
             path: curveFit.svgPath,
-            line: lineStyleToPlotlyShapeLine({ ...defaultConfig.regressionLineOptions.lineStyle, ...config.regressionLineOptions.lineStyle }),
+            line: lineStyleToPlotlyShapeLine({ ...defaultRegressionLineStyle, ...config.regressionLineOptions.lineStyle }),
             xref: curveFit.xref as Plotly.XAxisName,
             yref: curveFit.yref as Plotly.YAxisName,
           });

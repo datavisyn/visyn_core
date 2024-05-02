@@ -34,6 +34,13 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
   return calcDomain;
 }
 
+export const defaultRegressionLineStyle = {
+  colors: ['#7f7f7f', '#C91A25', '#3561fd'],
+  colorSelected: 0,
+  width: 2,
+  dash: 'solid' as Plotly.Dash,
+};
+
 export const defaultConfig: IScatterConfig = {
   type: ESupportedPlotlyVis.SCATTER,
   numColumnsSelected: [],
@@ -48,12 +55,7 @@ export const defaultConfig: IScatterConfig = {
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
-    lineStyle: {
-      colors: ['#7f7f7f', '#C91A25', '#3561fd'],
-      colorSelected: 0,
-      width: 2,
-      dash: 'solid',
-    },
+    lineStyle: defaultRegressionLineStyle,
     showStats: true,
   },
 };
@@ -196,13 +198,11 @@ export async function createScatterTraces(
           hoverlabel: {
             bgcolor: 'black',
           },
-          // TODO: Fix hovertext
-          // hovertext: validCols[0].resolvedValues.map(
-          //   (v, i) =>
-          //     `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
-          //       colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${filteredColorValues[i].val}` : ''
-          //     }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${filteredShapeValues[i].val}` : ''}`,
-          // ),
+          hovertext: filteredValidValues.map(
+            (v, i) =>
+              `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${yDataVals[i]}
+              ${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${filteredShapeValues[i].val}` : ''}`,
+          ),
           hoverinfo: 'text',
           text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
           // @ts-ignore
