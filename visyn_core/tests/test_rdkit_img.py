@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from starlette.testclient import TestClient
 
-mol_expected = ["C", "O", "OO", "[He]"]
+mol_expected = ["C", "O", "OO", "[He]", "CC(=O)OC1=CC=CC=C1C(=O)O"]
 
 # Whenever the images need to be regenerated, set this to True and run the tests.
 # This will overwrite the existing images with the new ones, such that you can compare them easily.
@@ -26,6 +26,15 @@ def test_invalid(client: TestClient, structure):
 def test_valid(client: TestClient, structure):
     res = client.get("/api/rdkit/", params={"structure": structure})
     existing = Path(__file__).parent.joinpath(f"rdkit/valid_{structure}.svg")
+    if REGENERATE_IMAGES:
+        existing.write_text(res.text)
+    assert res.text == existing.read_text()
+
+
+@pytest.mark.parametrize("structure", mol_expected)
+def test_valid_trimmed(client: TestClient, structure):
+    res = client.get("/api/rdkit/", params={"structure": structure, "size": -1})
+    existing = Path(__file__).parent.joinpath(f"rdkit/valid_{structure}_trimmed.svg")
     if REGENERATE_IMAGES:
         existing.write_text(res.text)
     assert res.text == existing.read_text()
