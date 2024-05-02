@@ -21,6 +21,7 @@ export enum EAggregateTypes {
   AVG = 'Average',
   MED = 'Median',
   MAX = 'Maximum',
+  NONE = 'None',
 }
 
 export enum EColumnTypes {

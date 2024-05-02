@@ -1,6 +1,6 @@
 import { Stack } from '@mantine/core';
 import * as React from 'react';
-import { ColumnInfo, EAggregateTypes, VisColumn } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
 import { EBarDisplayType, EBarGroupingType } from './interfaces';
@@ -34,7 +34,7 @@ export function GroupSelect({
         callback={(e) => groupColumnSelectCallback(e ? columns.find((c) => c.info.id === e.id)?.info : null)}
         columns={columns}
         currentSelected={currentSelected}
-        columnType={null}
+        columnTypes={[EColumnTypes.CATEGORICAL, EColumnTypes.NUMERICAL]}
       />
       {currentSelected ? (
         <BarGroupTypeButtons callback={(newGroupType: EBarGroupingType) => groupTypeSelectCallback(newGroupType)} currentSelected={groupType} />

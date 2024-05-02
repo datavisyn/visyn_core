@@ -6,20 +6,7 @@ import { ColumnInfo, EAggregateTypes, EColumnTypes, VisCategoricalValue, VisColu
 import { IBarConfig, defaultConfig, SortTypes } from './interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
-  const merged = merge({}, defaultConfig, config);
-
-  const catCols = columns.filter((c) => c.type === EColumnTypes.CATEGORICAL);
-  const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
-
-  if (!merged.catColumnSelected && catCols.length > 0) {
-    merged.catColumnSelected = catCols[catCols.length - 1].info;
-  }
-
-  if (!merged.aggregateColumn && numCols.length > 0) {
-    merged.aggregateColumn = numCols[numCols.length - 1].info;
-  }
-
-  return merged;
+  return merge({}, defaultConfig, config);
 }
 
 // Helper function for the bar chart which sorts the data depending on the sort type.
@@ -33,6 +20,14 @@ export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes)
       return tempTable.orderby('count');
     case SortTypes.COUNT_DESC:
       return tempTable.orderby(desc('count'));
+    case SortTypes.ID_ASC:
+      return tempTable.orderby('id');
+    case SortTypes.ID_DESC:
+      return tempTable.orderby(desc('id'));
+    case SortTypes.NUM_ASC:
+      return tempTable.orderby('numerical');
+    case SortTypes.NUM_DESC:
+      return tempTable.orderby(desc('numerical'));
     default:
       return tempTable;
   }
@@ -168,14 +163,27 @@ export function rollupByAggregateType(tempTable: ColumnTable, aggregateType: EAg
   }
 }
 
-export async function getBarData(
-  columns: VisColumn[],
-  catColumn: ColumnInfo,
-  groupColumn: ColumnInfo | null,
-  multiplesColumn: ColumnInfo | null,
-  aggregateColumn: ColumnInfo | null,
-): Promise<{
+export async function getBarData({
+  columns,
+  catColumn,
+  numColumn,
+  groupColumn,
+  multiplesColumn,
+  aggregateColumn,
+}: {
+  columns: VisColumn[];
+  catColumn: ColumnInfo;
+  numColumn: ColumnInfo;
+  groupColumn: ColumnInfo | null;
+  multiplesColumn: ColumnInfo | null;
+  aggregateColumn: ColumnInfo | null;
+}): Promise<{
   catColVals: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
+  };
+  numColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
     info: ColumnInfo;
@@ -197,11 +205,12 @@ export async function getBarData(
     info: ColumnInfo;
   };
 }> {
-  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id));
+  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn?.id));
+  const numColVals = await resolveSingleColumn(columns.find((col) => col.info.id === numColumn?.id));
 
   const groupColVals = await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id) : null);
   const multiplesColVals = await resolveSingleColumn(multiplesColumn ? columns.find((col) => col.info.id === multiplesColumn.id) : null);
   const aggregateColVals = await resolveSingleColumn(aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id) : null);
 
-  return { catColVals, groupColVals, multiplesColVals, aggregateColVals };
+  return { catColVals, numColVals, groupColVals, multiplesColVals, aggregateColVals };
 }

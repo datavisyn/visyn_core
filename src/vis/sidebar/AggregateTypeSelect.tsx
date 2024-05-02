@@ -44,7 +44,7 @@ export function AggregateTypeSelect({
       />
       {currentSelected !== EAggregateTypes.COUNT ? (
         <SingleSelect
-          columnType={EColumnTypes.NUMERICAL}
+          columnTypes={[EColumnTypes.NUMERICAL]}
           isClearable={false}
           label="Aggregate Column"
           callback={(c: ColumnInfo) => aggregateColumnSelectCallback(c)}

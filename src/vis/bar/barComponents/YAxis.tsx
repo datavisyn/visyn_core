@@ -10,29 +10,29 @@ type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({
-  yScale,
-  xRange,
-  horizontalPosition,
-  label,
-  ticks,
-  showLines,
-  compact = false,
   arrowAsc = false,
   arrowDesc = false,
-  sortType,
+  compact = false,
+  horizontalPosition,
+  label,
   setSortType,
+  showLines,
+  sortType,
+  ticks = [],
+  xRange,
+  yScale,
 }: {
-  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
-  xRange: [number, number];
-  horizontalPosition: number;
-  label: string;
-  ticks: { value: string | number; offset: number }[];
-  showLines?: boolean;
-  compact?: boolean;
   arrowAsc?: boolean;
   arrowDesc?: boolean;
-  sortType: SortTypes;
+  compact?: boolean;
+  horizontalPosition: number;
+  label: string;
   setSortType: (label: string) => void;
+  showLines?: boolean;
+  sortType: SortTypes;
+  ticks: { value: string | number; offset: number }[];
+  xRange: [number, number];
+  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
 }) {
   const labelSpacing = useMemo(() => {
     const maxLabelLength = ticks.reduce((max, { value }) => {
@@ -68,8 +68,17 @@ export function YAxis({
       <path transform={`translate(${xRange[1]}, 0)`} d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${offset})`}>
-          <line x2="-6" stroke="currentColor" />
-          {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke="lightgray" /> : null}
+          <line x1={0} x2={-6} y1={0} y2={0} stroke="currentColor" />
+          {/* 
+            // NOTE: @dv-usama-ansari: The lines which appear with the ticks might not be proper. This needs to be tested.
+            //  Step to reproduce:
+            //  1. Select a numerical column.
+            //  2. Check the lines associated with Y-axis ticks.
+            //  3. Change the orientation of the chart to vertical.
+            //  4. Check the lines associated with Y-axis ticks.
+            //  5. Select a categorical column and check the lines associated with Y-axis ticks in both orientations.
+          */}
+          {showLines ? <line x1={0} x2={`${xRange[0] - xRange[1]}`} y1={0} y2={0} stroke="lightgray" /> : null}
           <g
             key={value}
             style={{

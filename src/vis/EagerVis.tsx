@@ -324,26 +324,22 @@ export function EagerVis({
 
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         <Renderer
+          closeButtonCallback={closeCallback}
+          columns={columns}
           config={_visConfig}
           dimensions={dimensions}
-          optionsConfig={{
-            color: {
-              enable: true,
-            },
-          }}
-          showDragModeOptions={showDragModeOptions}
-          shapes={shapes}
-          setConfig={setVisConfig}
           filterCallback={filterCallback}
-          selectionCallback={selectionCallback}
-          selectedMap={selectedMap}
-          selectedList={selected}
-          columns={columns}
+          optionsConfig={{ color: { enable: true } }}
           scales={scales}
-          showSidebar={showSidebar}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
           scrollZoom={scrollZoom}
+          selectedList={selected}
+          selectedMap={selectedMap}
+          selectionCallback={selectionCallback}
+          setConfig={setVisConfig}
+          shapes={shapes}
+          showCloseButton={showCloseButton}
+          showDragModeOptions={showDragModeOptions}
+          showSidebar={showSidebar}
           {...commonProps}
         />
       </Stack>
