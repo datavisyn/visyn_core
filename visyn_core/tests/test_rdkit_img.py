@@ -39,9 +39,17 @@ def test_align(client: TestClient):
     assert res.text == existing.read_text()
 
 
-def test_substructure(client: TestClient):
-    res = client.get("/api/rdkit/", params={"structure": "C", "substructure": "C"})
-    existing = Path(__file__).parent.joinpath("rdkit/substructure.svg")
+def test_align_trimmed(client: TestClient):
+    res = client.get("/api/rdkit/", params={"structure": "C", "align": "C", "size": -1})
+    existing = Path(__file__).parent.joinpath("rdkit/align_trimmed.svg")
+    if REGENERATE_IMAGES:
+        existing.write_text(res.text)
+    assert res.text == existing.read_text()
+
+
+def test_substructure_trimmed(client: TestClient):
+    res = client.get("/api/rdkit/", params={"structure": "C", "substructure": "C", "size": -1})
+    existing = Path(__file__).parent.joinpath("rdkit/substructure_trimmed.svg")
     if REGENERATE_IMAGES:
         existing.write_text(res.text)
     assert res.text == existing.read_text()
