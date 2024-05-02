@@ -1,4 +1,4 @@
-import { Stack } from '@mantine/core';
+import { Stack, Center } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -10,12 +10,23 @@ import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
 import { createViolinTraces } from './utils';
 import { IViolinConfig } from './interfaces';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
-export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
+export function ViolinVis({
+  config,
+  columns,
+  scales,
+  dimensions,
+  selectedList,
+  selectedMap,
+  selectionCallback,
+  uniquePlotId,
+  showDownloadScreenshot,
+}: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
   const [clearTimeoutValue, setClearTimeoutValue] = useState(null);
 
-  const id = useMemo(() => uniqueId('ViolinVis'), []);
+  const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
@@ -83,7 +94,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
   // );
 
   useEffect(() => {
-    const plotDiv = document.getElementById(`plotlyDiv${id}`);
+    const plotDiv = document.getElementById(id);
     if (plotDiv) {
       // NOTE: @dv-usama-ansari: This is a hack to update the plotly plots on resize.
       //  The `setTimeout` is used to pass the resize function to the next event loop, so that the plotly plots are rendered first.
@@ -145,23 +156,30 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       }}
     >
       {traceStatus === 'success' && layout && filteredTraces?.plots.length > 0 ? (
-        <PlotlyComponent
-          divId={`plotlyDiv${id}`}
-          data={[...filteredTraces.plots.map((p) => p.data), ...filteredTraces.legendPlots.map((p) => p.data)]}
-          layout={layout}
-          config={{ responsive: true, displayModeBar: false }}
-          useResizeHandler
-          style={{ width: '100%', height: '100%' }}
-          onClick={onClick}
-          // plotly redraws everything on updates, so you need to reappend title and
-          onUpdate={() => {
-            for (const p of traces.plots) {
-              d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
+        <>
+          {showDownloadScreenshot ? (
+            <Center>
+              <DownloadPlotButton uniquePlotId={id} config={config} />
+            </Center>
+          ) : null}
+          <PlotlyComponent
+            divId={id}
+            data={[...filteredTraces.plots.map((p) => p.data), ...filteredTraces.legendPlots.map((p) => p.data)]}
+            layout={layout}
+            config={{ responsive: true, displayModeBar: false }}
+            useResizeHandler
+            style={{ width: '100%', height: '100%' }}
+            onClick={onClick}
+            // plotly redraws everything on updates, so you need to reappend title and
+            onUpdate={() => {
+              for (const p of traces.plots) {
+                d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
 
-              d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
-            }
-          }}
-        />
+                d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+              }
+            }}
+          />
+        </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
         <InvalidCols headerMessage={filteredTraces?.errorMessageHeader} bodyMessage={traceError?.message || filteredTraces?.errorMessage} />
       ) : null}

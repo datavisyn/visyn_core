@@ -1,12 +1,15 @@
-import { Group, MantineTheme, Stack, lighten, rgba, useMantineTheme } from '@mantine/core';
+import { Group, MantineTheme, Stack, lighten, rgba, useMantineTheme, ActionIcon, Tooltip, Center } from '@mantine/core';
 import * as React from 'react';
+import { uniqueId } from 'lodash';
 import { css } from '@emotion/react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
+import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general/InvalidCols';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -172,9 +175,17 @@ const classes = css({
   },
 });
 
-export function SankeyVis({ config, columns, selectedList, selectionCallback, dimensions }: ICommonVisProps<ISankeyConfig>) {
+export function SankeyVis({
+  config,
+  columns,
+  selectedList,
+  selectionCallback,
+  dimensions,
+  uniquePlotId,
+  showDownloadScreenshot,
+}: ICommonVisProps<ISankeyConfig>) {
   const [selection, setSelection] = React.useState<string[]>([]);
-
+  const id = React.useMemo(() => uniquePlotId || uniqueId('SankeyVis'), [uniquePlotId]);
   const { value: data } = useAsync(fetchData, [columns, config]);
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
@@ -197,18 +208,25 @@ export function SankeyVis({ config, columns, selectedList, selectionCallback, di
   }, [selectedList]);
 
   return (
-    <Group
-      wrap="nowrap"
+    <Stack
       pl={0}
       pr={0}
       className={classes.name}
       style={{
         flexGrow: 1,
+        height: '100%',
+        width: '100%',
       }}
     >
-      <Stack gap={0} style={{ height: '100%', width: '100%' }}>
+      {showDownloadScreenshot ? (
+        <Center>
+          <DownloadPlotButton uniquePlotId={id} config={config} />
+        </Center>
+      ) : null}
+      <Stack gap={0}>
         {plotly ? (
           <PlotlyComponent
+            divId={`plotlyDiv${id}`}
             data={plotly}
             style={{ width: '100%' }}
             config={{ displayModeBar: false }}
@@ -236,6 +254,6 @@ export function SankeyVis({ config, columns, selectedList, selectionCallback, di
           <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a sankey chart, select at least 2 columns." />
         )}
       </Stack>
-    </Group>
+    </Stack>
   );
 }

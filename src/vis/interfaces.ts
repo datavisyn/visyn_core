@@ -149,6 +149,8 @@ export interface ICommonVisProps<T> {
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showSidebarDefault?: boolean;
+  uniquePlotId?: string;
+  showDownloadScreenshot?: boolean;
   setShowSidebar?: (s: boolean) => void;
   extensions?: {
     prePlot?: React.ReactNode;
