@@ -1,4 +1,4 @@
-import { Center, Group, Stack, Button, ActionIcon, Tooltip } from '@mantine/core';
+import { Center, Group, Stack } from '@mantine/core';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';

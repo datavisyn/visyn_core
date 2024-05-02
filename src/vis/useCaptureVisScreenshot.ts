@@ -6,7 +6,7 @@ import { BaseVisConfig, ESupportedPlotlyVis } from './interfaces';
 export function useCaptureVisScreenshot(
   uniquePlotId: string,
   visConfig: BaseVisConfig,
-  screenshotOptions: { width: number; height: number } = { width: 1000, height: 800 },
+  screenshotOptions: { width: number; height: number } = { width: 800, height: 1000 },
 ) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -22,12 +22,14 @@ export function useCaptureVisScreenshot(
       if ([ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY].includes(visConfig.type as ESupportedPlotlyVis)) {
         await Plotly.downloadImage(plotDiv, { format: 'png', filename: `${visConfig.type}.png`, ...screenshotOptions });
       } else {
-        await htmlToImage.toPng(plotDiv, { backgroundColor: 'white', ...screenshotOptions }).then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = `${visConfig.type}.png`;
-          link.href = dataUrl;
-          link.click();
-        });
+        await htmlToImage
+          .toPng(plotDiv, { backgroundColor: 'white', canvasHeight: screenshotOptions.height, canvasWidth: screenshotOptions.width })
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = `${visConfig.type}.png`;
+            link.href = dataUrl;
+            link.click();
+          });
       }
     } catch (e) {
       setIsLoading(false);
