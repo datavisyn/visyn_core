@@ -68,7 +68,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
       {showColorPicker && currentSelected?.type !== ERegressionLineType.NONE && (
         <Input.Wrapper label="Line color">
           <Group>
-            {currentSelected?.lineStyle.colors.map((color, idx) => (
+            {currentSelected?.lineStyle?.colors?.map((color, idx) => (
               <ColorSwatch
                 key={color}
                 component="button"
