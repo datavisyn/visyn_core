@@ -112,7 +112,7 @@ export function HexbinVis({
                 dragMode={config.dragMode}
               />
             ) : null}
-            {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
+            {showDownloadScreenshot && config.numColumnsSelected.length >= 2 ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
           </Group>
         </Center>
       ) : null}

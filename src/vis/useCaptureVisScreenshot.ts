@@ -12,18 +12,17 @@ export function useCaptureVisScreenshot(
   const [error, setError] = React.useState<string | null>(null);
 
   const captureScreenshot = React.useCallback(async () => {
-    const plotDiv = document.getElementById(uniquePlotId);
-
-    if (!plotDiv) {
+    const plotElement = document.getElementById(uniquePlotId);
+    if (plotElement === null) {
       console.error('Could not find plot div to capture screenshot');
       return;
     }
     try {
       if ([ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY].includes(visConfig.type as ESupportedPlotlyVis)) {
-        await Plotly.downloadImage(plotDiv, { format: 'png', filename: `${visConfig.type}.png`, ...screenshotOptions });
+        await Plotly.downloadImage(plotElement, { format: 'png', filename: `${visConfig.type}.png`, ...screenshotOptions });
       } else {
         await htmlToImage
-          .toPng(plotDiv, { backgroundColor: 'white', canvasHeight: screenshotOptions.height, canvasWidth: screenshotOptions.width })
+          .toPng(plotElement, { backgroundColor: 'white', canvasHeight: screenshotOptions.height, canvasWidth: screenshotOptions.width })
           .then((dataUrl) => {
             const link = document.createElement('a');
             link.download = `${visConfig.type}.png`;
@@ -33,7 +32,7 @@ export function useCaptureVisScreenshot(
       }
     } catch (e) {
       setIsLoading(false);
-      setError(e.message || 'Error capturing screenshot');
+      setError(e.message);
     }
 
     setIsLoading(false);

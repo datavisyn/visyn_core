@@ -155,7 +155,7 @@ export function ScatterVis({
             {showDragModeOptions ? (
               <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
             ) : null}
-            {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
+            {showDownloadScreenshot && plotsWithSelectedPoints.length > 0 ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
           </Group>
         </Center>
       ) : null}
