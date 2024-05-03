@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from pydantic import BaseModel
 from rdkit.Chem import Mol, MolFromSmarts, MolFromSmiles  # type: ignore
 from starlette.responses import Response
@@ -6,7 +8,7 @@ from starlette.responses import Response
 class SmilesMolecule(str):
     """We can't directly extend mol, as this would break swagger"""
 
-    parsers = [MolFromSmiles]
+    parsers: ClassVar = [MolFromSmiles]
     _mol: Mol
 
     @property
@@ -32,7 +34,7 @@ class SmilesMolecule(str):
 class SmilesSmartsMolecule(SmilesMolecule):
     """Try parings smiles first, then smarts"""
 
-    parsers = [MolFromSmiles, MolFromSmarts]
+    parsers: ClassVar = [MolFromSmiles, MolFromSmarts]
 
 
 class SvgResponse(Response):

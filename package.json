@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "9.2.1",
+  "version": "10.0.4-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -83,15 +83,15 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@mantine/code-highlight": "~7.6.1",
-    "@mantine/core": "~7.6.1",
-    "@mantine/dates": "~7.6.1",
-    "@mantine/dropzone": "~7.6.1",
-    "@mantine/form": "~7.6.1",
-    "@mantine/hooks": "~7.6.1",
-    "@mantine/modals": "~7.6.1",
-    "@mantine/notifications": "~7.6.1",
+    "@mantine/core": "~7.8.1",
+    "@mantine/dates": "~7.8.1",
+    "@mantine/dropzone": "~7.8.1",
+    "@mantine/form": "~7.8.1",
+    "@mantine/hooks": "~7.8.1",
+    "@mantine/modals": "~7.8.1",
+    "@mantine/notifications": "~7.8.1",
     "@mantine/styles": "~6.0.21",
-    "@mantine/tiptap": "~7.6.1",
+    "@mantine/tiptap": "~7.8.1",
     "@mantine6/core": "npm:@mantine/core@~6.0.21",
     "@types/d3-hexbin": "^0.2.3",
     "@types/d3v7": "npm:@types/d3@^7.4.0",
@@ -115,7 +115,7 @@
     "react-plotly.js": "^2.5.1",
     "react-spring": "^9.7.1",
     "use-deep-compare-effect": "^1.8.0",
-    "visyn_scripts": "^8.0.0"
+    "visyn_scripts": "^9.0.0"
   },
   "devDependencies": {
     "chromatic": "^6.19.9",

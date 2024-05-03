@@ -12,7 +12,7 @@ from .manager import add_access_token_to_response, user_to_access_token, user_to
 from .model import Token
 
 _log = logging.getLogger(__name__)
-jwt_router = APIRouter(tags=["Security"])
+jwt_router = APIRouter(prefix="/api", tags=["Security"])
 
 # TODO: Use schema to allow auto-doc of endpoint
 # from fastapi.security import OAuth2PasswordBearer
@@ -31,7 +31,7 @@ def get_login():
     <!DOCTYPE html>
     <html>
         <body>
-            <form name="login" action="/login" method="post" accept-charset="utf-8">
+            <form name="login" action="/api/login" method="post" accept-charset="utf-8">
                 <div><label for="username" class="form-label">User name: </label><input type="text" name="username" placeholder="name" required="required"></div>
                 <div><label for="password" class="form-label">Password</label><input type="password" name="password" placeholder="password" required="required"></div>
                 <div><input type="reset" value="Reset"><input type="submit" value="Login"></div>
@@ -86,7 +86,7 @@ def loggedinas(request: Request):
     return user_to_dict(user, access_token=user.access_token) if user else '"not_yet_logged_in"'
 
 
-@jwt_router.get("/api/security/stores")
+@jwt_router.get("/security/stores")
 def stores(request: Request) -> list[SecurityStoreResponse]:
     """Returns a list of activated security stores. Can be used to infer the details of the shown login menu."""
     return [

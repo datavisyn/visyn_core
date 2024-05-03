@@ -56,9 +56,11 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                 PeriodicExportingMetricReader(
                     exporter=OTLPMetricExporter(
                         # If we are using the global exporter settings, append the metrics path
-                        endpoint=_append_metrics_path(exporter_settings.endpoint)
-                        if exporter_settings == global_exporter_settings
-                        else exporter_settings.endpoint,
+                        endpoint=(
+                            _append_metrics_path(exporter_settings.endpoint)
+                            if exporter_settings == global_exporter_settings
+                            else exporter_settings.endpoint
+                        ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
@@ -89,11 +91,19 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
         class CustomMetricsResponse(Response):
             media_type = CONTENT_TYPE_LATEST
 
-        @app.get("/metrics", tags=["Telemetry"], response_class=CustomMetricsResponse)
+        @app.get("/api/metrics", tags=["Telemetry"], response_class=CustomMetricsResponse)
         def prometheus_metrics():
             """
             Prometheus metrics endpoint. Is not required as we are pushing metrics using OTLPMetricExporter, but can be used for debugging purposes.
             """
+            return CustomMetricsResponse(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
+
+        @app.get("/metrics", tags=["Telemetry"], response_class=CustomMetricsResponse)
+        def deprecated_prometheus_metrics():
+            """
+            Deprecated: Consider using /api/metrics instead.
+            """
+            _log.warn("Using deprecated /metrics endpoint. Consider switching to /api/metrics.")
             return CustomMetricsResponse(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
 
     tracer_provider: TracerProvider | None = None
@@ -112,9 +122,11 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                 BatchSpanProcessor(
                     OTLPSpanExporter(
                         # If we are using the global exporter settings, append the traces path
-                        endpoint=_append_trace_path(exporter_settings.endpoint)
-                        if exporter_settings == global_exporter_settings
-                        else exporter_settings.endpoint,
+                        endpoint=(
+                            _append_trace_path(exporter_settings.endpoint)
+                            if exporter_settings == global_exporter_settings
+                            else exporter_settings.endpoint
+                        ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,
@@ -155,9 +167,11 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                 BatchLogRecordProcessor(
                     OTLPLogExporter(
                         # If we are using the global exporter settings, append the logs path
-                        endpoint=_append_logs_path(exporter_settings.endpoint)
-                        if exporter_settings == global_exporter_settings
-                        else exporter_settings.endpoint,
+                        endpoint=(
+                            _append_logs_path(exporter_settings.endpoint)
+                            if exporter_settings == global_exporter_settings
+                            else exporter_settings.endpoint
+                        ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
                         **exporter_settings.kwargs,

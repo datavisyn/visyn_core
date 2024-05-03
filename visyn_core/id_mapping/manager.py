@@ -17,7 +17,7 @@ class MappingManager:
         self.mappers = {}
         self.paths = {}
         graph = {}
-        for (from_idtype, to_idtype, mapper) in providers:
+        for from_idtype, to_idtype, mapper in providers:
             # generate mapper mapping
             from_mappings = self.mappers.get(from_idtype, {})
             self.mappers[from_idtype] = from_mappings
