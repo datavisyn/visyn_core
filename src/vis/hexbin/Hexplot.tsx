@@ -13,6 +13,8 @@ import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
 import { IHexbinConfig } from './interfaces';
 import { ResolvedHexValues } from './utils';
+import { checkForInclusion, lassoToSvgPath, m4, useLasso, useScale, useZoom } from '../vishooks';
+import { sxi, txi, tyi } from '../vishooks/math/m4';
 
 interface HexagonalBinProps {
   config: IHexbinConfig;
@@ -24,12 +26,7 @@ interface HexagonalBinProps {
 
 export function Hexplot({ config, allColumns, selectionCallback = () => null, selected = {}, filteredCategories }: HexagonalBinProps) {
   const { ref: hexRef, width: realWidth, height: realHeight } = useElementSize();
-
-  const xZoomedScale = useRef<d3v7.ScaleLinear<number, number, never>>(null);
-  const yZoomedScale = useRef<d3v7.ScaleLinear<number, number, never>>(null);
-  const [xZoomTransform, setXZoomTransform] = useState(0);
-  const [yZoomTransform, setYZoomTransform] = useState(0);
-  const [zoomScale, setZoomScale] = useState(1);
+  const [transform, setTransform] = useState(m4.I());
 
   const id = React.useMemo(() => uniqueId('HexPlot'), []);
 
@@ -49,7 +46,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     return {
       left: 48,
       right: 16,
-      top: 48,
+      top: 0,
       bottom: 48,
     };
   }, []);
@@ -97,41 +94,26 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     return null;
   }, [allColumns, config.color, filteredCategories]);
 
-  // create x scale
-  const xScale = useMemo(() => {
-    if (currentX?.allValues) {
-      const min = d3v7.min<number>(currentX.allValues.map((c) => c.val as number));
-      const max = d3v7.max<number>(currentX.allValues.map((c) => c.val as number));
+  const domains = useMemo(() => {
+    return {
+      x: d3v7.extent(currentX.allValues.map((c) => c.val as number)),
+      y: d3v7.extent(currentY.allValues.map((c) => c.val as number)),
+    };
+  }, [currentX?.allValues, currentY?.allValues]);
 
-      const newScale = d3v7
-        .scaleLinear()
-        .domain([min - min / 20, max + max / 20])
-        .range([margin.left, margin.left + width]);
+  const { base: xBaseScale, scaled: xScale } = useScale({
+    domain: [domains.x[0] - domains.x[0] / 20, domains.x[1] + domains.x[1] / 20],
+    range: [margin.left, margin.left + width],
+    transform,
+    direction: 'x',
+  });
 
-      return newScale;
-    }
-
-    return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentX?.allValues, width]);
-
-  // create y scale
-  const yScale = useMemo(() => {
-    if (currentY?.allValues) {
-      const min = d3v7.min<number>(currentY.allValues.map((c) => c.val as number));
-      const max = d3v7.max<number>(currentY.allValues.map((c) => c.val as number));
-
-      const newScale = d3v7
-        .scaleLinear()
-        .domain([min - min / 20, max + max / 20])
-        .range([margin.top + height, margin.top]);
-
-      return newScale;
-    }
-
-    return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentY?.allValues, height]);
+  const { base: yBaseScale, scaled: yScale } = useScale({
+    domain: [domains.y[0] - domains.y[0] / 20, domains.y[1] + domains.y[1] / 20],
+    range: [margin.top + height, margin.top],
+    transform,
+    direction: 'y',
+  });
 
   // creating d3 hexbin object to do hex math for me
   const d3Hexbin = useMemo(() => {
@@ -151,8 +133,8 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     if (currentX && currentY) {
       currentX.filteredValues.forEach((c, i) => {
         inputForHexbin.push([
-          xScale(c.val as number),
-          yScale(currentY.filteredValues[i].val as number),
+          xBaseScale(c.val as number),
+          yBaseScale(currentY.filteredValues[i].val as number),
           currentColorColumn ? currentColorColumn.filteredValues[i].val : '',
           c.id,
         ]);
@@ -162,7 +144,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     // TODO: Im cheating a bit here by appending the id/color value to each hex, breaking the types.
     // is there a better way to type this?
     return d3Hexbin(inputForHexbin) as unknown as HexbinBin<[number, number, string, string]>[];
-  }, [currentColorColumn, currentX, d3Hexbin, xScale, yScale, currentY]);
+  }, [currentColorColumn, currentX, d3Hexbin, xBaseScale, yBaseScale, currentY]);
 
   // simple radius scale for the hexes
   const radiusScale = useMemo(() => {
@@ -236,81 +218,39 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     config.color,
   ]);
 
+  const contentRef = React.useRef();
+
   // // apply zoom/panning
-  useEffect(() => {
-    const zoom = d3v7.zoom();
+  useZoom(contentRef, {
+    value: transform,
+    onChange: setTransform,
+  });
 
-    if (!xScale || !yScale) {
-      return;
-    }
+  const { value } = useLasso(contentRef, {
+    onChangeEnd: (lasso) => {
+      if (lasso) {
+        const domainLasso = lasso.map((point) => {
+          return {
+            x: xBaseScale.invert(point.x),
+            y: yBaseScale.invert(point.y),
+          };
+        });
 
-    zoom.on('zoom', (event: D3ZoomEvent<any, any>) => {
-      const { transform } = event;
-
-      const newX = transform.rescaleX(xScale);
-      const newY = transform.rescaleY(yScale);
-
-      xZoomedScale.current = newX;
-      yZoomedScale.current = newY;
-
-      setZoomScale(transform.k);
-      setXZoomTransform(transform.x);
-      setYZoomTransform(transform.y);
-    });
-
-    d3v7.select(`#${id}zoom`).call(zoom);
-  }, [id, xScale, yScale, height, width]);
-
-  // apply brushing
-  useEffect(() => {
-    // Since our brush doesnt persist after selection anyways, we can safely just do nothing
-    if (config.dragMode !== EScatterSelectSettings.RECTANGLE) {
-      return undefined;
-    }
-
-    const brush = d3v7.brush().extent([
-      [margin.left, margin.top],
-      [margin.left + width, margin.top + height],
-    ]);
-
-    d3v7.select(`#${id}brush`).call(
-      // this is a real function and not a => so that I can use d3v7.select(this) inside to clear the brush
-      brush.on('end', function (event: D3BrushEvent<any>) {
-        if (!event.sourceEvent) return;
-        if (!event.selection) {
-          selectionCallback([]);
-          return;
-        }
-
-        // To figure out if brushing is finding hexes after changing the axis via pan/zoom, need to do this.
-        // Invert your "zoomed" scale to find the actual scaled values inside of your svg coords. Use the original scale to find the values.
-        const startX = xZoomedScale.current ? xScale(xZoomedScale.current.invert(event.selection[0][0])) : event.selection[0][0];
-        const startY = yZoomedScale.current ? yScale(yZoomedScale.current.invert(event.selection[0][1])) : event.selection[0][1];
-        const endX = xZoomedScale.current ? xScale(xZoomedScale.current.invert(event.selection[1][0])) : event.selection[1][0];
-        const endY = yZoomedScale.current ? yScale(yZoomedScale.current.invert(event.selection[1][1])) : event.selection[1][1];
-
-        // to find the selected hexes
-        const selectedHexes = hexes.filter((currHex) =>
-          xZoomedScale.current
-            ? currHex.x >= startX && currHex.x <= endX && currHex.y >= startY && currHex.y <= endY
-            : currHex.x >= event.selection[0][0] &&
-              currHex.x <= event.selection[1][0] &&
-              currHex.y >= event.selection[0][1] &&
-              currHex.y <= event.selection[1][1],
-        );
+        const selectedHexes = hexes.filter((currHex) => {
+          return checkForInclusion(lasso, {
+            x: currHex.x,
+            y: currHex.y,
+          });
+        });
 
         const allSelectedPoints = selectedHexes.map((currHex) => currHex.map((points) => points[3])).flat();
 
         selectionCallback(allSelectedPoints);
-
-        d3v7.select(this).call(brush.move, null);
-      }),
-    );
-
-    return () => {
-      brush.on('end', null);
-    };
-  }, [width, height, id, hexes, selectionCallback, config.dragMode, xScale, yScale, margin]);
+      } else {
+        selectionCallback([]);
+      }
+    },
+  });
 
   return (
     <Box ref={hexRef}>
@@ -326,7 +266,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           },
         }}
       >
-        <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom}>
+        <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom} ref={contentRef}>
           <defs>
             <clipPath id="clip">
               <rect style={{ transform: `translate(${margin.left}px, ${margin.top}px)` }} width={width} height={height} />
@@ -334,13 +274,13 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           </defs>
           <g clipPath="url(#clip)">
             <g id={`${id}brush`}>
-              <g style={{ transform: `translate(${xZoomTransform}px, ${yZoomTransform}px) scale(${zoomScale})` }}>
+              <g style={{ transform: `translate(${transform[txi]}px, ${transform[tyi]}px) scale(${transform[sxi]})` }}>
                 <g>{hexObjects}</g>
               </g>
             </g>
           </g>
-          {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xZoomedScale.current || xScale} /> : null}
-          {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yZoomedScale.current || yScale} /> : null}
+          {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xScale} /> : null}
+          {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yScale} /> : null}
 
           <text
             dominantBaseline="middle"
@@ -368,6 +308,8 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
             opacity={0}
             pointerEvents={config.dragMode === EScatterSelectSettings.PAN ? 'auto' : 'none'}
           />
+
+          {value ? <path d={lassoToSvgPath(value)} fill="none" stroke="black" strokeDasharray="4" strokeWidth={1} /> : null}
         </svg>
       </Container>
     </Box>

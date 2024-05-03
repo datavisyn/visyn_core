@@ -1,6 +1,7 @@
 import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import * as React from 'react';
+import { css } from '@emotion/css';
 import { useAsync } from '../../hooks/useAsync';
 import { i18n } from '../../i18n';
 import { InvalidCols } from '../general';
@@ -9,52 +10,48 @@ import { BrushOptionButtons } from '../sidebar';
 import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
+import { LegendItem } from '../LegendItem';
 
 function Legend({
   categories,
   filteredCategories,
   colorScale,
   onClick,
-  height,
 }: {
   categories: string[];
   filteredCategories: string[];
   colorScale: d3v7.ScaleOrdinal<string, string>;
   onClick: (string) => void;
-  height: number;
 }) {
   return (
-    <ScrollArea style={{ height }}>
-      <Stack style={{ width: '80px' }} gap={10}>
+    <ScrollArea
+      style={{ height: '100%' }}
+      scrollbars="y"
+      className={css`
+        .mantine-ScrollArea-viewport > div {
+          display: flex !important;
+          flex-direction: column !important;
+        }
+      `}
+    >
+      <Stack gap={0}>
         {categories.map((c) => {
-          return (
-            <Tooltip key={c} label={c} withArrow arrowSize={6}>
-              <Box>
-                <Chip
-                  variant="filled"
-                  onClick={() => onClick(c)}
-                  checked={false}
-                  styles={{
-                    label: {
-                      width: '100%',
-                      backgroundColor: filteredCategories.includes(c) ? 'lightgrey' : `${colorScale(c)} !important`,
-                      textAlign: 'center',
-                      paddingLeft: '10px',
-                      paddingRight: '10px',
-                      overflow: 'hidden',
-                      color: filteredCategories.includes(c) ? 'black' : 'white',
-                      textOverflow: 'ellipsis',
-                    },
-                  }}
-                >
-                  {c}
-                </Chip>
-              </Box>
-            </Tooltip>
-          );
+          return <LegendItem key={c} color={colorScale(c)} label={c} onClick={() => onClick(c)} filtered={filteredCategories.includes(c)} />;
         })}
       </Stack>
     </ScrollArea>
+  );
+}
+
+function PlotContainer({ children }: React.PropsWithChildren<object>) {
+  return (
+    <div
+      className={css`
+        display: grid;
+      `}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -96,10 +93,21 @@ export function HexbinVis({
   }, [currentColorColumn, allColumns]);
 
   return (
-    <Stack gap={0} style={{ width, height }}>
+    <div
+      className={css`
+        display: grid;
+        grid-template-areas:
+          'toolbar corner'
+          'plot legend';
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 1fr fit-content(200px);
+        grid-row-gap: 0.5rem;
+      `}
+      style={{ width, height }}
+    >
       {showDragModeOptions ? (
-        <Center>
-          <Group mt="lg">
+        <Center style={{ gridArea: 'toolbar' }}>
+          <Group>
             <BrushOptionButtons
               callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
               options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
@@ -108,7 +116,23 @@ export function HexbinVis({
           </Group>
         </Center>
       ) : null}
-      <Group style={{ flexGrow: 1, height: 0 }} wrap="nowrap">
+
+      {currentColorColumn ? (
+        <div style={{ gridArea: 'legend', overflow: 'hidden' }}>
+          <Legend
+            categories={colorScale ? colorScale.domain() : []}
+            filteredCategories={colorScale ? filteredCategories : []}
+            colorScale={colorScale || null}
+            onClick={(s) =>
+              filteredCategories.includes(s)
+                ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
+                : setFilteredCategories([...filteredCategories, s])
+            }
+          />
+        </div>
+      ) : null}
+
+      <Group style={{ gridArea: 'plot' }}>
         <Box
           style={{
             flexGrow: 1,
@@ -160,22 +184,7 @@ export function HexbinVis({
               })
             : null}
         </Box>
-        {currentColorColumn ? (
-          <div style={{ width: rem(100) }}>
-            <Legend
-              categories={colorScale ? colorScale.domain() : []}
-              filteredCategories={colorScale ? filteredCategories : []}
-              colorScale={colorScale || null}
-              onClick={(s) =>
-                filteredCategories.includes(s)
-                  ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
-                  : setFilteredCategories([...filteredCategories, s])
-              }
-              height={height - 100}
-            />
-          </div>
-        ) : null}
       </Group>
-    </Stack>
+    </div>
   );
 }
