@@ -3,11 +3,7 @@ import * as React from 'react';
 import { Plotly } from '../plotly/full';
 import { BaseVisConfig, ESupportedPlotlyVis } from './interfaces';
 
-export function useCaptureVisScreenshot(
-  uniquePlotId: string,
-  visConfig: BaseVisConfig,
-  screenshotOptions: { width: number; height: number } = { width: 800, height: 1000 },
-) {
+export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVisConfig) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -19,16 +15,19 @@ export function useCaptureVisScreenshot(
     }
     try {
       if ([ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY].includes(visConfig.type as ESupportedPlotlyVis)) {
-        await Plotly.downloadImage(plotElement, { format: 'png', filename: `${visConfig.type}.png`, ...screenshotOptions });
+        await Plotly.downloadImage(plotElement, {
+          format: 'png',
+          filename: `${visConfig.type}.png`,
+          height: plotElement.offsetHeight,
+          width: plotElement.offsetWidth,
+        });
       } else {
-        await htmlToImage
-          .toPng(plotElement, { backgroundColor: 'white', canvasHeight: screenshotOptions.height, canvasWidth: screenshotOptions.width })
-          .then((dataUrl) => {
-            const link = document.createElement('a');
-            link.download = `${visConfig.type}.png`;
-            link.href = dataUrl;
-            link.click();
-          });
+        await htmlToImage.toPng(plotElement, { backgroundColor: 'white' }).then((dataUrl) => {
+          const link = document.createElement('a');
+          link.download = `${visConfig.type}.png`;
+          link.href = dataUrl;
+          link.click();
+        });
       }
     } catch (e) {
       setIsLoading(false);
@@ -36,7 +35,7 @@ export function useCaptureVisScreenshot(
     }
 
     setIsLoading(false);
-  }, [screenshotOptions, uniquePlotId, visConfig.type]);
+  }, [uniquePlotId, visConfig.type]);
 
   return [{ isLoading, error }, captureScreenshot] as const;
 }
