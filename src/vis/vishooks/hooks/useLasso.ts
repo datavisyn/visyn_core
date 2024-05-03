@@ -28,6 +28,7 @@ export interface LassoProps {
   onChange?: (points: LassoValue) => void;
   onChangeEnd?: (points: LassoValue) => void;
   minDistanceToCreatePoint?: number;
+  skip?: boolean;
 }
 
 export function checkForInclusion(lasso: LassoValue, point: { x: number; y: number }) {
@@ -59,6 +60,7 @@ export function useLasso(ref: RefObject<HTMLElement>, options: LassoProps = {}) 
   callbacksRef.current = options;
 
   useInteractions(ref, {
+    skip: options.skip,
     onDrag: (event) => {
       const bounds = ref.current.getBoundingClientRect();
 

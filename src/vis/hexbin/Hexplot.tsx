@@ -13,7 +13,7 @@ import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
 import { IHexbinConfig } from './interfaces';
 import { ResolvedHexValues } from './utils';
-import { checkForInclusion, lassoToSvgPath, m4, useLasso, useScale, useZoom } from '../vishooks';
+import { checkForInclusion, lassoToSvgPath, m4, useLasso, useLinearScale, usePan, useTransformScale, useZoom } from '../vishooks';
 import { sxi, txi, tyi } from '../vishooks/math/m4';
 
 interface HexagonalBinProps {
@@ -101,14 +101,14 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     };
   }, [currentX?.allValues, currentY?.allValues]);
 
-  const { base: xBaseScale, scaled: xScale } = useScale({
+  const { base: xBaseScale, scaled: xScale } = useTransformScale({
     domain: [domains.x[0] - domains.x[0] / 20, domains.x[1] + domains.x[1] / 20],
     range: [margin.left, margin.left + width],
     transform,
     direction: 'x',
   });
 
-  const { base: yBaseScale, scaled: yScale } = useScale({
+  const { base: yBaseScale, scaled: yScale } = useTransformScale({
     domain: [domains.y[0] - domains.y[0] / 20, domains.y[1] + domains.y[1] / 20],
     range: [margin.top + height, margin.top],
     transform,
@@ -146,26 +146,21 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     return d3Hexbin(inputForHexbin) as unknown as HexbinBin<[number, number, string, string]>[];
   }, [currentColorColumn, currentX, d3Hexbin, xBaseScale, yBaseScale, currentY]);
 
-  // simple radius scale for the hexes
-  const radiusScale = useMemo(() => {
-    const [min, max] = d3v7.extent(hexes, (h) => h.length);
-
-    return d3v7
-      .scaleLinear()
-      .domain([min, max])
-      .range([config.hexRadius / 2, config.hexRadius]);
-
-    return null;
-  }, [hexes, config.hexRadius]);
-
-  // simple opacity scale for the hexes
-  const opacityScale = useMemo(() => {
-    const [min, max] = d3v7.extent(hexes, (h) => h.length);
-
-    return d3v7.scaleLinear().domain([min, max]).range([0.1, 1]);
-
-    return null;
+  const hexDomains = useMemo(() => {
+    return {
+      len: d3v7.extent(hexes, (h) => h.length),
+    };
   }, [hexes]);
+
+  const radiusScale = useLinearScale({
+    domain: hexDomains.len,
+    range: [config.hexRadius / 2, config.hexRadius],
+  });
+
+  const opacityScale = useLinearScale({
+    domain: hexDomains.len,
+    range: [0.1, 1],
+  });
 
   // Create a default color scale
   const colorScale = useMemo(() => {
@@ -220,26 +215,27 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
 
   const contentRef = React.useRef();
 
-  // // apply zoom/panning
   useZoom(contentRef, {
     value: transform,
     onChange: setTransform,
+    zoomExtent: [0.5, 10],
   });
 
   const { value } = useLasso(contentRef, {
+    skip: config.dragMode !== EScatterSelectSettings.RECTANGLE,
     onChangeEnd: (lasso) => {
       if (lasso) {
         const domainLasso = lasso.map((point) => {
           return {
-            x: xBaseScale.invert(point.x),
-            y: yBaseScale.invert(point.y),
+            x: xScale.invert(point.x),
+            y: yScale.invert(point.y),
           };
         });
 
         const selectedHexes = hexes.filter((currHex) => {
-          return checkForInclusion(lasso, {
-            x: currHex.x,
-            y: currHex.y,
+          return checkForInclusion(domainLasso, {
+            x: xBaseScale.invert(currHex.x),
+            y: yBaseScale.invert(currHex.y),
           });
         });
 
@@ -250,6 +246,12 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         selectionCallback([]);
       }
     },
+  });
+
+  usePan(contentRef, {
+    value: transform,
+    onChange: setTransform,
+    skip: config.dragMode !== EScatterSelectSettings.PAN,
   });
 
   return (
@@ -300,14 +302,6 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           >
             {allColumns?.numColVals[1]?.info.name}
           </text>
-          <rect
-            transform={`translate(${margin.left}, ${margin.top})`}
-            id={`${id}zoom`}
-            width={width}
-            height={height}
-            opacity={0}
-            pointerEvents={config.dragMode === EScatterSelectSettings.PAN ? 'auto' : 'none'}
-          />
 
           {value ? <path d={lassoToSvgPath(value)} fill="none" stroke="black" strokeDasharray="4" strokeWidth={1} /> : null}
         </svg>

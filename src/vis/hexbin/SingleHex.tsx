@@ -89,9 +89,8 @@ export function SingleHex({
                 <path
                   d={currPath}
                   style={{
-                    fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(key) : 'gray') : 'black'}`,
+                    fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(key) : '#868E96') : 'black'}`,
                     transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-                    stroke: isSelected ? '#E29609' : 'white',
                     strokeWidth: isSelected ? 1 : 0,
                     fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
                   }}
@@ -106,9 +105,8 @@ export function SingleHex({
           <path
             d={d3Hexbin.hexagon(isSizeScale ? radiusScale(hexData.length) : hexRadius)}
             style={{
-              fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(topCategory) : 'gray') : 'black'}`,
+              fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(topCategory) : '#CED4DA') : 'black'}`,
               transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-              stroke: isSelected ? '#E29609' : 'white',
               strokeWidth: isSelected ? (colorScale ? 1 : 2) : 0,
               fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
             }}
@@ -124,7 +122,6 @@ export function SingleHex({
                 style={{
                   fill: `${'black'}`,
                   transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-                  stroke: isSelected ? '#E29609' : 'white',
                   strokeWidth: isSelected ? 1 : 0,
                   fillOpacity: opacityScale(hexData.length),
                 }}

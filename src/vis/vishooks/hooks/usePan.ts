@@ -19,6 +19,8 @@ interface UsePanProps {
    * Direction to pan. 'x' pans horizontally, 'y' pans vertically, 'xy' pans both.
    */
   direction?: Direction;
+
+  skip?: boolean;
 }
 
 export function usePan(ref: RefObject<HTMLElement>, options: UsePanProps = {}) {
@@ -29,6 +31,7 @@ export function usePan(ref: RefObject<HTMLElement>, options: UsePanProps = {}) {
   });
 
   useInteractions(ref, {
+    skip: options.skip,
     onDrag: (event) => {
       let newMatrix = m4.clone(zoom);
 

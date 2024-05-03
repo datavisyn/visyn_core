@@ -26,6 +26,8 @@ interface ClickEvent {
 }
 
 interface UseInteractionsProps {
+  skip?: boolean;
+
   extent?: Extent;
 
   /**
@@ -101,6 +103,10 @@ export function useInteractions(ref: React.RefObject<HTMLElement>, options: UseI
     };
 
     const handleMouseDown = (mouseDownEvent: MouseEvent) => {
+      if (callbacksRef.current.skip) {
+        return;
+      }
+
       const { x: mouseDownX, y: mouseDownY } = relativeMousePosition(mouseDownEvent);
 
       const { extent } = callbacksRef.current;

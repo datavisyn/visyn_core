@@ -3,14 +3,14 @@ import { scaleLinear } from 'd3-scale';
 import { ZoomTransform } from '../interfaces';
 import { rescaleX, rescaleY } from '../transform';
 
-interface UseScaleProps {
+interface UseTransformScaleProps {
   domain: number[];
   range: number[];
   transform?: ZoomTransform;
   direction: 'x' | 'y';
 }
 
-export function useScale({ domain, range, transform, direction }: UseScaleProps) {
+export function useTransformScale({ domain, range, transform, direction }: UseTransformScaleProps) {
   return useMemo(() => {
     if (!domain || !range) {
       return null;
