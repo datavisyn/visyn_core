@@ -127,7 +127,7 @@ export function ViolinVis({
             </Center>
           ) : null}
           <PlotlyComponent
-            divId={`plotlyDiv${id}`}
+            divId={id}
             data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
             layout={layout}
             config={{ responsive: true, displayModeBar: false }}
