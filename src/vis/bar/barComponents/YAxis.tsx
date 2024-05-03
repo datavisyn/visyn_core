@@ -49,26 +49,18 @@ export function YAxis({
         <foreignObject width={Math.abs(yScale.range()[0] - yScale.range()[1])} height={20}>
           <Center>
             <Group gap={3} style={{ cursor: 'pointer' }}>
-              {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
+              {arrowDesc ? <FontAwesomeIcon style={{ color: '#868E96' }} icon={faCaretLeft} /> : null}
 
-              <Text size={compact ? rem('10px') : 'sm'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
+              <Text size={compact ? rem('10px') : 'sm'} style={{ color: '#868E96' }} onClick={() => setSortType(label)}>
                 {label}
               </Text>
-              {arrowAsc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretRight} /> : null}
+              {arrowAsc ? <FontAwesomeIcon style={{ color: '#868E96' }} icon={faCaretRight} /> : null}
             </Group>
           </Center>
         </foreignObject>
       </g>
-      <path
-        transform={`translate(${horizontalPosition}, 0)`}
-        d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')}
-        fill="none"
-        stroke="lightgray"
-      />
-      <path transform={`translate(${xRange[1]}, 0)`} d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${offset})`}>
-          <line x2="-6" stroke="currentColor" />
           {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke="lightgray" /> : null}
           <g
             key={value}
@@ -78,7 +70,7 @@ export function YAxis({
           >
             <foreignObject width={labelSpacing} height={20}>
               <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Text truncate size={rem('10px')}>
+                <Text c="gray.6" truncate size={rem('10px')}>
                   {value}
                 </Text>
               </Group>

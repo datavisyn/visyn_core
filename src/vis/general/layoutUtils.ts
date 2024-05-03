@@ -52,22 +52,27 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
     layout[`xaxis${i > 0 ? i + 1 : ''}`] = {
       range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
+      color: '#868E96',
+      gridcolor: '#E9ECEF',
+      // gridwidth: 2,
+      // griddash: 'dash',
+      zerolinecolor: '#E9ECEF',
       automargin,
       // rangemode: 'tozero',
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
+      ticks: 'none',
       text: t.xTicks,
       showline: false,
       showspikes: false,
       spikedash: 'dash',
-      ticks: 'outside',
       title: {
         standoff: 5,
         text: traces.plots.length > 1 ? truncateText(t.xLabel, 15) : truncateText(t.xLabel, 50),
         font: {
           family: 'Roboto, sans-serif',
           size: traces.plots.length > 1 ? 10 : 14,
-          color: '#7f7f7f',
+          color: '#868E96',
         },
       },
     };
@@ -76,100 +81,30 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       range: t.yDomain ? t.yDomain : null,
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       automargin,
+      color: '#868E96',
+      gridcolor: '#E9ECEF',
+      // gridwidth: 2,
+      // griddash: 'dash',
+      zerolinecolor: '#E9ECEF',
       // rangemode: 'tozero',
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
+      ticks: 'none',
       text: t.yTicks,
       showline: false,
       showspikes: false,
       spikedash: 'dash',
-      ticks: 'outside',
       title: {
         standoff: 5,
         text: traces.plots.length > 1 ? truncateText(t.yLabel, 15) : truncateText(t.yLabel, 50),
         font: {
           family: 'Roboto, sans-serif',
           size: traces.plots.length > 1 ? 10 : 14,
-          color: '#7f7f7f',
+          color: '#868E96',
+          weight: 'bold',
         },
       },
     };
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 0,
-      y0: 1,
-      x1: 1,
-      y1: 1,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 0,
-      y0: 0,
-      x1: 1,
-      y1: 0,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 0,
-      y0: 0,
-      x1: 0,
-      y1: 1,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 1,
-      y0: 0,
-      x1: 1,
-      y1: 1,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
   });
 
   return layout;
