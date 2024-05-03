@@ -1,12 +1,11 @@
-import { Box, Chip, Container, ScrollArea, Stack, Tooltip } from '@mantine/core';
+import { Box, Container, Text, Center } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as hex from 'd3-hexbin';
 import { HexbinBin } from 'd3-hexbin';
 import * as d3v7 from 'd3v7';
-import { D3BrushEvent, D3ZoomEvent } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { EScatterSelectSettings } from '../interfaces';
 import { SingleHex } from './SingleHex';
 import { XAxis } from './XAxis';
@@ -284,24 +283,21 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xScale} /> : null}
           {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yScale} /> : null}
 
-          <text
-            dominantBaseline="middle"
-            textAnchor="middle"
-            style={{
-              transform: `translate(${margin.left + width / 2}px, ${margin.top + height + 30}px)`,
-            }}
-          >
-            {allColumns?.numColVals[0]?.info.name}
-          </text>
-          <text
-            dominantBaseline="middle"
-            textAnchor="middle"
-            style={{
-              transform: `translate(10px, ${margin.top + height / 2}px) rotate(-90deg)`,
-            }}
-          >
-            {allColumns?.numColVals[1]?.info.name}
-          </text>
+          <g transform={`translate(${margin.left}, ${height + margin.top + 20})`}>
+            <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
+              <Center>
+                <Text c="gray.6">{allColumns?.numColVals[0]?.info.name}</Text>
+              </Center>
+            </foreignObject>
+          </g>
+
+          <g transform={`translate(${margin.left - 20 - 30}, ${yScale.range()[0]}) rotate(-90)`}>
+            <foreignObject height="20px" width={Math.abs(yScale.range()[0] - yScale.range()[1])}>
+              <Center>
+                <Text c="gray.6">{allColumns?.numColVals[1]?.info.name}</Text>
+              </Center>
+            </foreignObject>
+          </g>
 
           {value ? <path d={lassoToSvgPath(value)} fill="none" stroke="black" strokeDasharray="4" strokeWidth={1} /> : null}
         </svg>

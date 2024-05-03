@@ -89,7 +89,15 @@ export function SingleHex({
                 <path
                   d={currPath}
                   style={{
-                    fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(key) : '#868E96') : 'black'}`,
+                    fill: `${
+                      colorScale
+                        ? isSelected || Object.keys(selected).length === 0
+                          ? colorScale(key)
+                          : '#CED4DA'
+                        : isSelected || Object.keys(selected).length === 0
+                          ? '#868E96'
+                          : '#CED4DA'
+                    }`,
                     transform: `translate(${hexData.x}px, ${hexData.y}px)`,
                     strokeWidth: isSelected ? 1 : 0,
                     fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
@@ -105,7 +113,15 @@ export function SingleHex({
           <path
             d={d3Hexbin.hexagon(isSizeScale ? radiusScale(hexData.length) : hexRadius)}
             style={{
-              fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(topCategory) : '#CED4DA') : 'black'}`,
+              fill: `${
+                colorScale
+                  ? isSelected || Object.keys(selected).length === 0
+                    ? colorScale(topCategory)
+                    : '#CED4DA'
+                  : isSelected || Object.keys(selected).length === 0
+                    ? '#868E96'
+                    : '#CED4DA'
+              }`,
               transform: `translate(${hexData.x}px, ${hexData.y}px)`,
               strokeWidth: isSelected ? (colorScale ? 1 : 2) : 0,
               fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
@@ -120,7 +136,15 @@ export function SingleHex({
               <path
                 d={d3Hexbin.hexagon(isSizeScale ? radiusScale(hexData.length) : hexRadius)}
                 style={{
-                  fill: `${'black'}`,
+                  fill: `${
+                    colorScale
+                      ? isSelected || Object.keys(selected).length === 0
+                        ? colorScale(topCategory)
+                        : '#CED4DA'
+                      : isSelected || Object.keys(selected).length === 0
+                        ? '#868E96'
+                        : '#CED4DA'
+                  }`,
                   transform: `translate(${hexData.x}px, ${hexData.y}px)`,
                   strokeWidth: isSelected ? 1 : 0,
                   fillOpacity: opacityScale(hexData.length),
@@ -135,6 +159,8 @@ export function SingleHex({
               radius={isSizeScale ? radiusScale(hexData.length) / 2 : hexRadius / 2}
               transform={`translate(${hexData.x}px, ${hexData.y}px)`}
               colorScale={colorScale}
+              selected={selected}
+              isSelected={isSelected}
             />
           </g>
         </>

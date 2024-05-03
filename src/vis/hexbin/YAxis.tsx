@@ -1,3 +1,4 @@
+import { Tooltip, rem, Text } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
 
@@ -10,30 +11,25 @@ export function YAxis({ yScale, xRange, horizontalPosition }) {
     }));
   }, [yScale]);
 
+  const tickWidth = useMemo(() => {
+    if (ticks.length > 1) {
+      return Math.abs(ticks[1].yOffset - ticks[0].yOffset);
+    }
+    return yScale.range()[0] - yScale.range()[1];
+  }, [ticks, yScale]);
+
   return (
     <>
-      <path
-        transform={`translate(${horizontalPosition}, 0)`}
-        d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')}
-        fill="none"
-        stroke="lightgray"
-      />
-      <path transform={`translate(${xRange[1]}, 0)`} d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
       {ticks.map(({ value, yOffset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${yOffset})`}>
-          <line x2="-6" stroke="currentColor" />
-          <line x2={`${xRange[1] - xRange[0]}`} stroke={`${value === 0 ? 'black' : 'lightgray'}`} />
-          <text
-            key={value}
-            style={{
-              dominantBaseline: 'middle',
-              fontSize: '10px',
-              textAnchor: 'end',
-              transform: 'translateX(-8px)',
-            }}
-          >
-            {value}
-          </text>
+          <line x2={`${xRange[1] - xRange[0]}`} stroke="#E9ECEF" />
+          <foreignObject x={-20} y={-4} height={tickWidth} width={20}>
+            <Tooltip withinPortal label={value}>
+              <Text c="gray.6" px={2} size={rem('10px')} style={{ textAlign: 'left', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                {value}
+              </Text>
+            </Tooltip>
+          </foreignObject>
         </g>
       ))}
     </>
