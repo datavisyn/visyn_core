@@ -9,7 +9,7 @@ export function fetchIrisData(): VisColumn[] {
         id: 'sepalLength',
         name: 'Sepal Length',
       },
-      type: EColumnTypes.CATEGORICAL,
+      type: EColumnTypes.NUMERICAL,
       values: () => dataPromise.map((r) => r.sepalLength).map((val, i) => ({ id: i.toString(), val })),
     },
     {
