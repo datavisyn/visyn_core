@@ -69,13 +69,13 @@ export function BarChart({ config, columns, selectedMap, selectedList, selection
   );
 
   return (
-    <Stack style={{ width: '100%', height: '100%', zIndex: 1000 }}>
+    <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
       {showDownloadScreenshot ? (
-        <Center>
+        <Center h="20px">
           <DownloadPlotButton uniquePlotId={id} config={config} />
         </Center>
       ) : null}
-      <Stack gap={0} id={id} style={{ flex: 1, position: 'relative' }}>
+      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
         {groupColorScale ? (
           <Box style={{ height: '30px' }}>
             <Legend
@@ -93,7 +93,11 @@ export function BarChart({ config, columns, selectedMap, selectedList, selection
           </Box>
         ) : null}
 
-        <SimpleGrid cols={Math.round(Math.sqrt(uniqueMultiplesVals.length))} spacing={0} style={{ flex: 1, overflow: 'hidden' }}>
+        <SimpleGrid
+          cols={Math.round(Math.sqrt(uniqueMultiplesVals.length))}
+          spacing={0}
+          style={{ flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}
+        >
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />
