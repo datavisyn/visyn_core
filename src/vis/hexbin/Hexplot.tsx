@@ -158,7 +158,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
 
   const opacityScale = useLinearScale({
     domain: hexDomains.len,
-    range: [0.1, 1],
+    range: [0.25, 1],
   });
 
   // Create a default color scale
@@ -244,7 +244,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
   useZoom(contentRef, {
     value: transform,
     onChange: setTransform,
-    zoomExtent: [0.5, 10],
+    zoomExtent: [1, 10],
   });
 
   usePan(contentRef, {
@@ -268,6 +268,9 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         }}
       >
         <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom} ref={contentRef}>
+          {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xScale} /> : null}
+          {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yScale} /> : null}
+
           <defs>
             <clipPath id="clip">
               <rect style={{ transform: `translate(${margin.left}px, ${margin.top}px)` }} width={width} height={height} />
@@ -280,8 +283,6 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
               </g>
             </g>
           </g>
-          {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xScale} /> : null}
-          {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yScale} /> : null}
 
           <g transform={`translate(${margin.left}, ${height + margin.top + 20})`}>
             <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
