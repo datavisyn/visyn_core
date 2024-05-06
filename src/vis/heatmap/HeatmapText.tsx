@@ -63,6 +63,7 @@ export function HeatmapText({
             <Center>
               <Tooltip withinPortal withArrow arrowSize={6} label={xVal}>
                 <Text
+                  pb={2} // to make sure the text is not cut off, e.g. "g"s
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
                   style={{ textOverflow: 'ellipsis', userSelect: 'none', overflow: 'hidden', whiteSpace: 'nowrap' }}
