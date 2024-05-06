@@ -33,7 +33,7 @@ export function XAxis({ xScale, yRange, vertPosition, multiples = false }) {
                   size={multiples ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
                   style={{ textAlign: 'left', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
                 >
-                  {value} asdfa sf asdfs fs
+                  {value}
                 </Text>
               </Tooltip>
             </Center>

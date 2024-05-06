@@ -67,7 +67,7 @@ export function HeatmapText({
                   c={VIS_LABEL_COLOR}
                   style={{ textOverflow: 'ellipsis', userSelect: 'none', overflow: 'hidden', whiteSpace: 'nowrap' }}
                 >
-                  {xVal}
+                  {xVal || 'Null'}
                 </Text>
               </Tooltip>
             </Center>
@@ -105,9 +105,10 @@ export function HeatmapText({
                 <Text
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
+                  lh="xs"
                   style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', userSelect: 'none' }}
                 >
-                  {yVal}
+                  {yVal || 'Null'}
                 </Text>
               </Tooltip>
             </Stack>
