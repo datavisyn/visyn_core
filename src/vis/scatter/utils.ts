@@ -57,6 +57,7 @@ export const defaultConfig: IScatterConfig = {
     fitOptions: { order: 2, precision: 3 },
     lineStyle: defaultRegressionLineStyle,
     showStats: true,
+    setRegressionResult: null,
   },
 };
 

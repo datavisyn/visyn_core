@@ -123,7 +123,6 @@ export function ScatterVis({
 
   // Regression lines for all subplots
   const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
-    const onRegressionResultsChanged = config.regressionLineOptions?.setRegressionResults || (() => null);
     if (traces?.plots && config.regressionLineOptions.type !== ERegressionLineType.NONE) {
       const regressionShapes: Partial<Plotly.Shape>[] = [];
       const regressionResults: IRegressionResult[] = [];
@@ -140,8 +139,6 @@ export function ScatterVis({
           regressionResults.push(curveFit);
         }
       }
-
-      onRegressionResultsChanged(regressionResults);
       return { shapes: regressionShapes, results: regressionResults };
     }
 
@@ -186,6 +183,7 @@ export function ScatterVis({
     }
 
     const innerLayout: Partial<Plotly.Layout> = {
+      hovermode: 'closest',
       showlegend: true,
       legend: {
         // @ts-ignore
@@ -289,6 +287,22 @@ export function ScatterVis({
             ...layout,
             shapes: [...(layout?.shapes || []), ...regression.shapes],
             annotations,
+          }}
+          onHover={(event) => {
+            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && config.regressionLineOptions.setRegressionResult) {
+              let result = null;
+              if (regression.results.length > 0) {
+                const xAxis = event.points[0].yaxis.anchor;
+                const yAxis = event.points[0].xaxis.anchor;
+                result = regression.results.find((r) => r.xref === xAxis && r.yref === yAxis) || null;
+              }
+              config.regressionLineOptions.setRegressionResult(result);
+            }
+          }}
+          onUnhover={() => {
+            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && config.regressionLineOptions.setRegressionResult) {
+              config.regressionLineOptions.setRegressionResult(null);
+            }
           }}
           config={{ responsive: true, displayModeBar: false, scrollZoom }}
           useResizeHandler
