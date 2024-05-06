@@ -1,8 +1,7 @@
 import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
-import { getCssValue } from '../../utils';
-import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
+import { getCssValue, selectionColorDark } from '../../utils';
 import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
   ColumnInfo,
@@ -20,6 +19,7 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../constants';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -188,7 +188,7 @@ export async function createScatterTraces(
             ? colorCol.resolvedValues.map((v) =>
                 colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : colorCol.color ? colorCol.color[v.val] : scales.color(v.val),
               )
-            : SELECT_COLOR,
+            : selectionColorDark,
         },
         // plotly is stupid and doesnt know its own types
         // @ts-ignore
@@ -201,7 +201,7 @@ export async function createScatterTraces(
             size: sizeSliderVal,
           },
           textfont: {
-            color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
+            color: showLabels === ELabelingOptions.NEVER ? 'transparent' : VIS_LABEL_COLOR,
           },
         },
         unselected: {
@@ -209,7 +209,7 @@ export async function createScatterTraces(
             line: {
               width: 0,
             },
-            color: DEFAULT_COLOR,
+            color: VIS_UNSELECTED_COLOR,
             opacity: alphaSliderVal,
             size: sizeSliderVal,
           },
@@ -239,7 +239,7 @@ export async function createScatterTraces(
               },
               showlegend: false,
               marker: {
-                color: DEFAULT_COLOR,
+                color: VIS_NEUTRAL_COLOR,
               },
               opacity: alphaSliderVal,
             },
@@ -287,7 +287,7 @@ export async function createScatterTraces(
                           ? colorCol.color[v.val]
                           : scales.color(v.val),
                     )
-                  : SELECT_COLOR,
+                  : selectionColorDark,
               },
               // plotly is stupid and doesnt know its own types
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -308,7 +308,7 @@ export async function createScatterTraces(
                     width: 0,
                   },
                   symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-                  color: DEFAULT_COLOR,
+                  color: VIS_UNSELECTED_COLOR,
                   opacity: alphaSliderVal,
                   size: sizeSliderVal,
                 },
@@ -351,7 +351,7 @@ export async function createScatterTraces(
           },
           symbol: 'circle',
           size: sizeSliderVal,
-          color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : DEFAULT_COLOR,
+          color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : VIS_NEUTRAL_COLOR,
           opacity: 1,
         },
         transforms: [
@@ -398,7 +398,7 @@ export async function createScatterTraces(
           opacity: alphaSliderVal,
           size: sizeSliderVal,
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-          color: DEFAULT_COLOR,
+          color: VIS_NEUTRAL_COLOR,
         },
         transforms: [
           {

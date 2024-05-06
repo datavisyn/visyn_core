@@ -1,7 +1,7 @@
 import { Tooltip, rem, Text, Center } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
+import { VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({ yScale, xRange, horizontalPosition, multiples = false }) {
@@ -23,7 +23,7 @@ export function YAxis({ yScale, xRange, horizontalPosition, multiples = false })
     <>
       {ticks.map(({ value, yOffset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${yOffset})`}>
-          <line x2={`${xRange[1] - xRange[0]}`} stroke="#E9ECEF" />
+          <line x2={`${xRange[1] - xRange[0]}`} stroke={VIS_GRID_COLOR} />
           <foreignObject x={-30} y={-4} height={tickWidth} width={35}>
             <Center>
               <Tooltip withinPortal label={value}>

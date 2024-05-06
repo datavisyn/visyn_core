@@ -1,7 +1,7 @@
 import { Tooltip, rem, Text, Center } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
+import { VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({ xScale, yRange, vertPosition, multiples = false }) {
@@ -23,7 +23,7 @@ export function XAxis({ xScale, yRange, vertPosition, multiples = false }) {
     <>
       {ticks.map(({ value, xOffset }) => (
         <g key={value} transform={`translate(${xOffset}, ${vertPosition})`}>
-          {yRange ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke="#E9ECEF" /> : null}
+          {yRange ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke={VIS_GRID_COLOR} /> : null}
 
           <foreignObject y={8} x={-tickWidth / 2} width={tickWidth} height={20}>
             <Center>

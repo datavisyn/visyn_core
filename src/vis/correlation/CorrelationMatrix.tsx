@@ -11,6 +11,7 @@ import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 import { getCorrelationMatrixData } from './utils';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../constants';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;
@@ -125,15 +126,15 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
       const currentY = yScale(col.info.id);
       return (
         <g key={`label-${col.info.name}`}>
-          <rect stroke="lightgray" strokeWidth={1} fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
+          <rect fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
           <foreignObject x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
             <Center style={{ height: '100%' }} px={5}>
               <Tooltip
                 label={
                   <Stack gap={0}>
-                    <Text>{col.info.name}</Text>
+                    <Text c={VIS_LABEL_COLOR}>{col.info.name}</Text>
                     {col.info.description && (
-                      <Text size="xs" color="dimmed">
+                      <Text size="xs" c={VIS_LABEL_COLOR}>
                         {col.info.description}
                       </Text>
                     )}
@@ -144,11 +145,11 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
                 withArrow
               >
                 <Stack gap={0}>
-                  <Text size="sm" fw={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  <Text size={VIS_AXIS_LABEL_SIZE} c={VIS_LABEL_COLOR} fw="bold" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                     {col.info.name}
                   </Text>
                   {col.info.description && (
-                    <Text size="sm" color="dimmed" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    <Text size={VIS_TICK_LABEL_SIZE} c={VIS_LABEL_COLOR} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                       {col.info.description}
                     </Text>
                   )}

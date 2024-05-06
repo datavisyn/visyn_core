@@ -1,6 +1,6 @@
 import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
 import { PlotlyTypes } from '../../plotly';
-import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
+import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
 
 /**
  * Truncate long texts (e.g., to use as axes title)
@@ -54,10 +54,10 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
       color: VIS_LABEL_COLOR,
-      gridcolor: '#E9ECEF',
+      gridcolor: VIS_GRID_COLOR,
       // gridwidth: 2,
       // griddash: 'dash',
-      zerolinecolor: '#E9ECEF',
+      zerolinecolor: VIS_GRID_COLOR,
       automargin,
       // rangemode: 'tozero',
       tickvals: t.xTicks,
@@ -86,10 +86,10 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       automargin,
       color: VIS_LABEL_COLOR,
-      gridcolor: '#E9ECEF',
+      gridcolor: VIS_GRID_COLOR,
       // gridwidth: 2,
       // griddash: 'dash',
-      zerolinecolor: '#E9ECEF',
+      zerolinecolor: VIS_GRID_COLOR,
       // rangemode: 'tozero',
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,

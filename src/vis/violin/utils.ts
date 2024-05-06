@@ -1,9 +1,9 @@
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
-import { SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, IViolinConfig } from './interfaces';
+import { selectionColorDark } from '../../utils';
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
@@ -71,7 +71,7 @@ export async function createViolinTraces(
             visible: config.violinOverlay === EViolinOverlay.BOX,
           },
           marker: {
-            color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
+            color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? selectionColorDark : '#878E95',
           },
 
           spanmode: 'hard',
@@ -125,7 +125,7 @@ export async function createViolinTraces(
                     line: {
                       color:
                         selectedList.length !== 0 && categoriesWithMissing.filter((val) => val.val === c).find((val) => selectedMap[val.id])
-                          ? SELECT_COLOR
+                          ? selectionColorDark
                           : '#878E95',
                     },
                   },
