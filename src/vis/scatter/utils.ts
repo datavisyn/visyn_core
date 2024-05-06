@@ -336,8 +336,8 @@ export async function createScatterTraces(
 
   // Case: Multiple numerical columns and no categorical facetting
   if (validCols.length > 2 && !catCol) {
-    for (const yCurr of validCols) {
-      for (const xCurr of validCols) {
+    validCols.forEach((yCurr, yIdx) => {
+      validCols.forEach((xCurr) => {
         // if on the diagonal, make a histogram.
         if (xCurr.info.id === yCurr.info.id) {
           plots.push({
@@ -355,8 +355,8 @@ export async function createScatterTraces(
               },
               opacity: alphaSliderVal,
             },
-            xLabel: columnNameWithDescription(xCurr.info),
-            yLabel: columnNameWithDescription(yCurr.info),
+            xLabel: plotCounter > validCols.length * (validCols.length - 1) ? columnNameWithDescription(xCurr.info) : null,
+            yLabel: plotCounter === 1 + 3 * yIdx ? columnNameWithDescription(yCurr.info) : null,
           });
           // otherwise, make a scatterplot
         } else {
@@ -402,16 +402,17 @@ export async function createScatterTraces(
                   : SELECT_COLOR,
               },
               // plotly is stupid and doesnt know its own types
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               selected: {
                 marker: {
                   line: {
                     width: 0,
                   },
-                  symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
                   opacity: 1,
                   size: sizeSliderVal,
+                },
+                textfont: {
+                  color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
                 },
               },
               unselected: {
@@ -419,23 +420,25 @@ export async function createScatterTraces(
                   line: {
                     width: 0,
                   },
-                  symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
                   color: DEFAULT_COLOR,
                   opacity: alphaSliderVal,
                   size: sizeSliderVal,
                 },
+                textfont: {
+                  color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
+                },
               },
             },
-            xLabel: columnNameWithDescription(xCurr.info),
-            yLabel: columnNameWithDescription(yCurr.info),
+            xLabel: plotCounter > validCols.length * (validCols.length - 1) ? columnNameWithDescription(xCurr.info) : null,
+            yLabel: plotCounter === 1 + 3 * yIdx ? columnNameWithDescription(yCurr.info) : null,
             xDomain: calcXDomain,
             yDomain: calcYDomain,
           });
         }
 
         plotCounter += 1;
-      }
-    }
+      });
+    });
   }
 
   // if we have a column for the color, and its a categorical column, add a legendPlot that creates a legend.
