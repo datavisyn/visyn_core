@@ -301,13 +301,13 @@ export function ScatterVis({
             // If we have subplots we set the stats for the current subplot on hover
             // It is up to the application to decide how to display the stats
             if (config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
-              let result = null;
+              let result: IRegressionResult = null;
               if (regression.results.length > 0) {
                 const xAxis = event.points[0].yaxis.anchor;
                 const yAxis = event.points[0].xaxis.anchor;
                 result = regression.results.find((r) => r.xref === xAxis && r.yref === yAxis) || null;
               }
-              statsCallback(result);
+              statsCallback(result.stats);
             }
           }}
           onUnhover={() => {
