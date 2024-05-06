@@ -15,6 +15,7 @@ import {
   ENumericalColorScaleType,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
+  IPlotStats,
   Scales,
   VisColumn,
 } from './interfaces';
@@ -127,6 +128,8 @@ export function useRegisterDefaultVis(visTypes?: string[]) {
 export function EagerVis({
   columns,
   selected = [],
+  stats = null,
+  statsCallback = () => null,
   colors = null,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
@@ -163,6 +166,14 @@ export function EagerVis({
    * Optional Prop which is called when a selection is made in the scatterplot visualization. Passes in the selected points.
    */
   selectionCallback?: (s: string[]) => void;
+  /**
+   * Optional Prop for getting statistics for the current plot.
+   */
+  stats?: IPlotStats;
+  /**
+   * Optional Prop which is called whenever the statistics for the plot change.
+   */
+  statsCallback?: (s: IPlotStats) => void;
   /**
    * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
    */
@@ -334,6 +345,8 @@ export function EagerVis({
           showDragModeOptions={showDragModeOptions}
           shapes={shapes}
           setConfig={setVisConfig}
+          stats={stats}
+          statsCallback={statsCallback}
           filterCallback={filterCallback}
           selectionCallback={selectionCallback}
           selectedMap={selectedMap}

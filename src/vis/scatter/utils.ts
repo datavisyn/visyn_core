@@ -35,7 +35,7 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
 }
 
 export const defaultRegressionLineStyle = {
-  colors: ['#7f7f7f', '#C91A25', '#3561fd'],
+  colors: ['#99A1A9', '#C91A25', '#3561fd'],
   colorSelected: 0,
   width: 2,
   dash: 'solid' as Plotly.Dash,
@@ -57,7 +57,6 @@ export const defaultConfig: IScatterConfig = {
     fitOptions: { order: 2, precision: 3 },
     lineStyle: defaultRegressionLineStyle,
     showStats: true,
-    setRegressionResult: null,
   },
 };
 

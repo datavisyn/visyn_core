@@ -46,7 +46,7 @@ const annotationsForRegressionStats = (results: IRegressionResult[], precision: 
       font: {
         family: 'Roboto, sans-serif',
         size: results.length > 1 ? 12 : 13.4,
-        color: '#7f7f7f',
+        color: '#99A1A9',
       },
       align: 'left',
       xanchor: 'left',
@@ -63,6 +63,8 @@ export function ScatterVis({
   config,
   columns,
   shapes = ['circle', 'square', 'triangle-up', 'star'],
+  stats,
+  statsCallback = () => null,
   selectionCallback = () => null,
   selectedMap = {},
   selectedList = [],
@@ -123,27 +125,34 @@ export function ScatterVis({
 
   // Regression lines for all subplots
   const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
-    if (traces?.plots && config.regressionLineOptions.type !== ERegressionLineType.NONE) {
-      const regressionShapes: Partial<Plotly.Shape>[] = [];
-      const regressionResults: IRegressionResult[] = [];
-      for (const plot of traces.plots) {
-        if (plot.data.type === 'scattergl') {
-          const curveFit = fitRegressionLine(plot.data, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
-          regressionShapes.push({
-            type: 'path',
-            path: curveFit.svgPath,
-            line: lineStyleToPlotlyShapeLine({ ...defaultRegressionLineStyle, ...config.regressionLineOptions.lineStyle }),
-            xref: curveFit.xref as Plotly.XAxisName,
-            yref: curveFit.yref as Plotly.YAxisName,
-          });
-          regressionResults.push(curveFit);
+    if (traces?.plots) {
+      if (config.regressionLineOptions.type !== ERegressionLineType.NONE) {
+        const regressionShapes: Partial<Plotly.Shape>[] = [];
+        const regressionResults: IRegressionResult[] = [];
+        for (const plot of traces.plots) {
+          if (plot.data.type === 'scattergl') {
+            const curveFit = fitRegressionLine(plot.data, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
+            regressionShapes.push({
+              type: 'path',
+              path: curveFit.svgPath,
+              line: lineStyleToPlotlyShapeLine({ ...defaultRegressionLineStyle, ...config.regressionLineOptions.lineStyle }),
+              xref: curveFit.xref as Plotly.XAxisName,
+              yref: curveFit.yref as Plotly.YAxisName,
+            });
+            regressionResults.push(curveFit);
+          }
         }
-      }
-      return { shapes: regressionShapes, results: regressionResults };
-    }
 
+        // If we only have one subplot set the stats directly and not on hover
+        if (regressionResults.length === 1) {
+          statsCallback(regressionResults[0].stats);
+        }
+        return { shapes: regressionShapes, results: regressionResults };
+      }
+      statsCallback(null);
+    }
     return { shapes: [], results: [] };
-  }, [traces?.plots, config]);
+  }, [traces?.plots, config, statsCallback]);
 
   // Plot annotations
   const annotations: Partial<Plotly.Annotations>[] = useMemo(() => {
@@ -289,19 +298,22 @@ export function ScatterVis({
             annotations,
           }}
           onHover={(event) => {
-            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && config.regressionLineOptions.setRegressionResult) {
+            // If we have subplots we set the stats for the current subplot on hover
+            // It is up to the application to decide how to display the stats
+            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
               let result = null;
               if (regression.results.length > 0) {
                 const xAxis = event.points[0].yaxis.anchor;
                 const yAxis = event.points[0].xaxis.anchor;
                 result = regression.results.find((r) => r.xref === xAxis && r.yref === yAxis) || null;
               }
-              config.regressionLineOptions.setRegressionResult(result);
+              statsCallback(result);
             }
           }}
           onUnhover={() => {
-            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && config.regressionLineOptions.setRegressionResult) {
-              config.regressionLineOptions.setRegressionResult(null);
+            // If we have subplots we clear the current stats when the mouse leaves the plot
+            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
+              statsCallback(null);
             }
           }}
           config={{ responsive: true, displayModeBar: false, scrollZoom }}

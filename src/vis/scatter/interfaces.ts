@@ -1,4 +1,4 @@
-import { BaseVisConfig, ColumnInfo, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
+import { BaseVisConfig, ColumnInfo, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, IPlotStats } from '../interfaces';
 
 export interface IScatterConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.SCATTER;
@@ -34,13 +34,7 @@ export enum ERegressionLineType {
 }
 
 export interface IRegressionResult {
-  stats: {
-    n: number;
-    r2: number;
-    pValue?: number;
-    pearsonRho?: number;
-    spearmanRho?: number;
-  };
+  stats: IPlotStats;
   equation: string;
   svgPath: string;
   xref: string;
@@ -57,5 +51,4 @@ export interface IRegressionLineOptions {
   fitOptions?: IRegressionFitOptions;
   showStats?: boolean;
   lineStyle?: Partial<{ colors: string[]; colorSelected: number; width: number; dash: Plotly.Dash }>; // Colors must be passed as array of hex strings
-  setRegressionResult?: (result: IRegressionResult) => void;
 }
