@@ -214,12 +214,6 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
 
   const contentRef = React.useRef();
 
-  useZoom(contentRef, {
-    value: transform,
-    onChange: setTransform,
-    zoomExtent: [0.5, 10],
-  });
-
   const { value } = useLasso(contentRef, {
     skip: config.dragMode !== EScatterSelectSettings.RECTANGLE,
     onChangeEnd: (lasso) => {
@@ -245,6 +239,12 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         selectionCallback([]);
       }
     },
+  });
+
+  useZoom(contentRef, {
+    value: transform,
+    onChange: setTransform,
+    zoomExtent: [0.5, 10],
   });
 
   usePan(contentRef, {
