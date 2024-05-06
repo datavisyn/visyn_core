@@ -1,9 +1,10 @@
 import * as d3 from 'd3v7';
 import * as React from 'react';
-import { Group, Text, Tooltip } from '@mantine/core';
+import { Text, Tooltip, Center, Stack } from '@mantine/core';
 import { useMemo } from 'react';
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
+import { VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../constants';
 
 const textMargin = 2;
 export function HeatmapText({
@@ -59,11 +60,17 @@ export function HeatmapText({
             order={1 - i / xScale.domain().length}
             setImmediate={isImmediate}
           >
-            <Tooltip withinPortal withArrow arrowSize={6} label={xVal}>
-              <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {xVal}
-              </Text>
-            </Tooltip>
+            <Center>
+              <Tooltip withinPortal withArrow arrowSize={6} label={xVal}>
+                <Text
+                  size={`${VIS_TICK_LABEL_SIZE}px`}
+                  c={VIS_LABEL_COLOR}
+                  style={{ textOverflow: 'ellipsis', userSelect: 'none', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                >
+                  {xVal}
+                </Text>
+              </Tooltip>
+            </Center>
           </AnimatedText>
         </g>
       ))}
@@ -93,13 +100,17 @@ export function HeatmapText({
             width={labelSpacing}
             setImmediate={isImmediate}
           >
-            <Tooltip withinPortal withArrow arrowSize={6} label={yVal}>
-              <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+            <Stack justify="center" h="100%">
+              <Tooltip withinPortal withArrow arrowSize={6} label={yVal}>
+                <Text
+                  size={`${VIS_TICK_LABEL_SIZE}px`}
+                  c={VIS_LABEL_COLOR}
+                  style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', userSelect: 'none' }}
+                >
                   {yVal}
                 </Text>
-              </Group>
-            </Tooltip>
+              </Tooltip>
+            </Stack>
           </AnimatedText>
         </g>
       ))}

@@ -52,7 +52,7 @@ export function fetchIrisData(): VisColumn[] {
       info: {
         description: 'Random category',
         id: 'random_category',
-        name: 'Random Category',
+        name: 'Random category',
       },
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val })),

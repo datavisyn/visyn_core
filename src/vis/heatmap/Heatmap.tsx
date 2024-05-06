@@ -1,6 +1,6 @@
-import { faArrowDownShortWide, faArrowDownWideShort, faArrowDownAZ, faArrowDownZA } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDownShortWide, faArrowUpShortWide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, Container, Group, Stack, Text } from '@mantine/core';
+import { Box, Container, Group, Stack, Text, Tooltip } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
@@ -13,6 +13,8 @@ import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
 import { ESortTypes, IHeatmapConfig } from './interfaces';
 import { sequentialBlueColors } from '../../utils/colors';
+import { dvSortAsc, dvSortDesc } from '../../icons';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../constants';
 
 const interRectDistance = 1;
 
@@ -202,7 +204,7 @@ export function Heatmap({
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale, config.isAnimationEnabled]);
 
   return (
-    <Stack style={{ width: '100%', height: '100%' }} gap={0} align="center" justify="center">
+    <Stack style={{ width: '100%', height: '100%', display: 'flex' }} gap={0} align="center" justify="center">
       <Box pl={20}>
         <ColorLegendVert
           width={width - margin.left - margin.right}
@@ -214,8 +216,9 @@ export function Heatmap({
       </Box>
       <Group wrap="nowrap" style={{ width: '100%', height: '100%' }} gap={0} pr="40px">
         <Text
-          color="dimmed"
-          style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
+          c={VIS_LABEL_COLOR}
+          size={VIS_AXIS_LABEL_SIZE}
+          style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer', userSelect: 'none' }}
           onClick={() =>
             setExternalConfig({
               ...config,
@@ -230,20 +233,34 @@ export function Heatmap({
             })
           }
         >
-          <FontAwesomeIcon
-            fontWeight={100}
-            color="#C0C0C0"
-            style={{ marginRight: '10px', fontWeight: 200 }}
-            icon={
+          <Tooltip
+            position="bottom"
+            withArrow
+            label={
               config.ySortedBy === ESortTypes.VAL_ASC
-                ? faArrowDownShortWide
+                ? 'Sorted by values ascending'
                 : config.ySortedBy === ESortTypes.VAL_DESC
-                  ? faArrowDownWideShort
+                  ? 'Sorted by values descending'
                   : config.ySortedBy === ESortTypes.CAT_ASC
-                    ? faArrowDownAZ
-                    : faArrowDownZA
+                    ? 'Sorted by categories ascending'
+                    : 'Sorted by categories descending'
             }
-          />
+          >
+            <FontAwesomeIcon
+              fontWeight={100}
+              color={VIS_LABEL_COLOR}
+              style={{ marginRight: '10px', fontWeight: 200 }}
+              icon={
+                config.ySortedBy === ESortTypes.VAL_ASC
+                  ? faArrowUpShortWide
+                  : config.ySortedBy === ESortTypes.VAL_DESC
+                    ? faArrowDownShortWide
+                    : config.ySortedBy === ESortTypes.CAT_ASC
+                      ? dvSortAsc
+                      : dvSortDesc
+              }
+            />
+          </Tooltip>
           {column2.info.name}
         </Text>
         <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
@@ -265,8 +282,11 @@ export function Heatmap({
         </Box>
       </Group>
       <Text
-        color="dimmed"
-        style={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
+        c={VIS_LABEL_COLOR}
+        size={VIS_AXIS_LABEL_SIZE}
+        lh="xs"
+        pb="xs"
+        style={{ whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}
         onClick={() =>
           setExternalConfig({
             ...config,
@@ -281,19 +301,33 @@ export function Heatmap({
           })
         }
       >
-        <FontAwesomeIcon
-          color="#C0C0C0"
-          style={{ marginRight: '10px' }}
-          icon={
+        <Tooltip
+          position="bottom"
+          withArrow
+          label={
             config.xSortedBy === ESortTypes.VAL_ASC
-              ? faArrowDownShortWide
+              ? 'Sorted by values ascending'
               : config.xSortedBy === ESortTypes.VAL_DESC
-                ? faArrowDownWideShort
+                ? 'Sorted by values descending'
                 : config.xSortedBy === ESortTypes.CAT_ASC
-                  ? faArrowDownAZ
-                  : faArrowDownZA
+                  ? 'Sorted by categories ascending'
+                  : 'Sorted by categories descending'
           }
-        />
+        >
+          <FontAwesomeIcon
+            color={VIS_LABEL_COLOR}
+            style={{ marginRight: '10px' }}
+            icon={
+              config.xSortedBy === ESortTypes.VAL_ASC
+                ? faArrowUpShortWide
+                : config.xSortedBy === ESortTypes.VAL_DESC
+                  ? faArrowDownShortWide
+                  : config.xSortedBy === ESortTypes.CAT_ASC
+                    ? dvSortAsc
+                    : dvSortDesc
+            }
+          />
+        </Tooltip>
         {column1.info.name}
       </Text>
     </Stack>
