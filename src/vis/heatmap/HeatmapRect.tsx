@@ -3,6 +3,7 @@ import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSpring, animated, easings } from 'react-spring';
+import { selectionColorDark, selectionColorDarkHovered } from '../../utils/colors';
 
 const DELAY = 2000;
 export function HeatmapRect({
@@ -60,7 +61,7 @@ export function HeatmapRect({
         {...xSpring}
         {...ySpring}
         width={width}
-        stroke={isSelected ? 'orange' : 'none'}
+        stroke={isSelected ? selectionColorDark : isHovered ? selectionColorDarkHovered : 'none'}
         strokeWidth={3}
         height={height}
         onMouseEnter={() => {
@@ -80,7 +81,7 @@ export function HeatmapRect({
         }}
       />
     );
-  }, [colorSpring, height, isSelected, onClick, setSelected, width, xSpring, ySpring]);
+  }, [colorSpring, height, isHovered, isSelected, onClick, setSelected, width, xSpring, ySpring]);
 
   useEffect(() => {
     currXOrder.current = xOrder;

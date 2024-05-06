@@ -275,8 +275,8 @@ export function Heatmap({
           >
             <svg height={height} width={width}>
               <rect x={margin.left} y={margin.top} height={height - margin.top - margin.bottom} width={width - margin.left - margin.right} fill="#F1F3F5" />
-              {rects}
               {text}
+              {rects}
             </svg>
           </Container>
         </Box>
