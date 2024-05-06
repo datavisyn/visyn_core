@@ -18,5 +18,4 @@ export * from './heatmap/interfaces';
 export * from './violin/interfaces';
 export * from './hexbin/interfaces';
 export * from './scatter/interfaces';
-export * from './raincloud/interfaces';
 export * from './sankey/interfaces';

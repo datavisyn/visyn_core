@@ -37,10 +37,6 @@ import { HexbinVis } from './hexbin/HexbinVis';
 import { HexbinVisSidebar } from './hexbin/HexbinVisSidebar';
 import { IHexbinConfig } from './hexbin/interfaces';
 import { hexinbMergeDefaultConfig } from './hexbin/utils';
-import { RaincloudVis } from './raincloud/RaincloudVis';
-import { RaincloudVisSidebar } from './raincloud/RaincloudVisSidebar';
-import { IRaincloudConfig } from './raincloud/interfaces';
-import { raincloudMergeDefaultConfig } from './raincloud/utils';
 import { SankeyVis } from './sankey/SankeyVis';
 import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
 import { ISankeyConfig } from './sankey/interfaces';
@@ -98,13 +94,6 @@ function registerAllVis(visTypes?: string[]) {
       sidebarRenderer: ViolinVisSidebar,
       mergeConfig: violinMergeDefaultConfig,
       description: 'Visualizes numerical data distribution by combining a box plot and a kernel density plot',
-    }),
-    createVis({
-      type: ESupportedPlotlyVis.RAINCLOUD,
-      renderer: RaincloudVis,
-      sidebarRenderer: RaincloudVisSidebar,
-      mergeConfig: raincloudMergeDefaultConfig,
-      description: 'Visualizes a combination of boxplot, violin plot, and jitter plot',
     }),
     createVis({
       type: ESupportedPlotlyVis.CORRELATION,
@@ -170,16 +159,7 @@ export function EagerVis({
   setExternalConfig?: (config: BaseVisConfig) => void;
   closeCallback?: () => void;
   showCloseButton?: boolean;
-  externalConfig?:
-    | IScatterConfig
-    | IBarConfig
-    | IHexbinConfig
-    | ISankeyConfig
-    | IHeatmapConfig
-    | IViolinConfig
-    | IRaincloudConfig
-    | ICorrelationConfig
-    | BaseVisConfig;
+  externalConfig?: IScatterConfig | IBarConfig | IHexbinConfig | ISankeyConfig | IHeatmapConfig | IViolinConfig | ICorrelationConfig | BaseVisConfig;
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showDragModeOptions?: boolean;

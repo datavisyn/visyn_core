@@ -6,7 +6,6 @@ export enum ESupportedPlotlyVis {
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
   HEATMAP = 'Heatmap plot',
-  RAINCLOUD = 'Raincloud plot',
   SANKEY = 'Sankey',
   CORRELATION = 'Correlation plot',
 }
