@@ -1,4 +1,4 @@
-import { Box, Container, Text, Center } from '@mantine/core';
+import { Box, Container, Text, Center, rem } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as hex from 'd3-hexbin';
 import { HexbinBin } from 'd3-hexbin';
@@ -14,6 +14,7 @@ import { IHexbinConfig } from './interfaces';
 import { ResolvedHexValues } from './utils';
 import { checkForInclusion, lassoToSvgPath, m4, useLasso, useLinearScale, usePan, useTransformScale, useZoom } from '../vishooks';
 import { sxi, txi, tyi } from '../vishooks/math/m4';
+import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR } from '../constants';
 
 interface HexagonalBinProps {
   config: IHexbinConfig;
@@ -21,9 +22,10 @@ interface HexagonalBinProps {
   selectionCallback?: (ids: string[]) => void;
   selected?: { [key: string]: boolean };
   filteredCategories: string[];
+  multiples?: boolean;
 }
 
-export function Hexplot({ config, allColumns, selectionCallback = () => null, selected = {}, filteredCategories }: HexagonalBinProps) {
+export function Hexplot({ config, allColumns, selectionCallback = () => null, selected = {}, filteredCategories, multiples }: HexagonalBinProps) {
   const { ref: hexRef, width: realWidth, height: realHeight } = useElementSize();
   const [transform, setTransform] = useState(m4.I());
 
@@ -268,8 +270,8 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         }}
       >
         <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom} ref={contentRef}>
-          {xScale ? <XAxis vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xScale} /> : null}
-          {yScale ? <YAxis horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yScale} /> : null}
+          {xScale ? <XAxis multiples={multiples} vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xScale} /> : null}
+          {yScale ? <YAxis multiples={multiples} horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yScale} /> : null}
 
           <defs>
             <clipPath id="clip">
@@ -284,18 +286,22 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
             </g>
           </g>
 
-          <g transform={`translate(${margin.left}, ${height + margin.top + 20})`}>
+          <g transform={`translate(${margin.left}, ${height + margin.top + 25})`}>
             <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
               <Center>
-                <Text c="gray.6">{allColumns?.numColVals[0]?.info.name}</Text>
+                <Text size={multiples ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
+                  {allColumns?.numColVals[0]?.info.name}
+                </Text>
               </Center>
             </foreignObject>
           </g>
 
-          <g transform={`translate(${margin.left - 20 - 30}, ${yScale.range()[0]}) rotate(-90)`}>
+          <g transform={`translate(${margin.left - 45}, ${yScale.range()[0]}) rotate(-90)`}>
             <foreignObject height="20px" width={Math.abs(yScale.range()[0] - yScale.range()[1])}>
               <Center>
-                <Text c="gray.6">{allColumns?.numColVals[1]?.info.name}</Text>
+                <Text size={multiples ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
+                  {allColumns?.numColVals[1]?.info.name}
+                </Text>
               </Center>
             </foreignObject>
           </g>

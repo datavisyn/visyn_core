@@ -5,6 +5,7 @@ import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { SortTypes } from '../interfaces';
+import { VIS_LABEL_COLOR } from '../../constants';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({
@@ -45,12 +46,12 @@ export function XAxis({
         <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
           <Center>
             <Group gap={3} style={{ cursor: 'pointer' }}>
-              {arrowDesc ? <FontAwesomeIcon style={{ color: '#868E96' }} icon={faCaretLeft} /> : null}
+              {arrowDesc ? <FontAwesomeIcon style={{ color: VIS_LABEL_COLOR }} icon={faCaretLeft} /> : null}
 
-              <Text size={compact ? rem('10px') : 'sm'} style={{ color: '#868E96' }} onClick={() => setSortType(label)}>
+              <Text size={compact ? rem('10px') : 'sm'} style={{ color: VIS_LABEL_COLOR }} onClick={() => setSortType(label)}>
                 {label}
               </Text>
-              {arrowAsc ? <FontAwesomeIcon style={{ color: '#868E96' }} icon={faCaretRight} /> : null}
+              {arrowAsc ? <FontAwesomeIcon style={{ color: VIS_LABEL_COLOR }} icon={faCaretRight} /> : null}
             </Group>
           </Center>
         </foreignObject>

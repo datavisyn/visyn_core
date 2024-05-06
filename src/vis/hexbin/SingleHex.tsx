@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { PieChart } from './PieChart';
 import { cutHex } from './utils';
 import { EHexbinOptions } from './interfaces';
+import { VIS_LABEL_COLOR } from '../constants';
 
 export interface SingleHexProps {
   hexbinOption: EHexbinOptions;
@@ -95,7 +96,7 @@ export function SingleHex({
                           ? colorScale(key)
                           : '#CED4DA'
                         : isSelected || Object.keys(selected).length === 0
-                          ? '#868E96'
+                          ? VIS_LABEL_COLOR
                           : '#CED4DA'
                     }`,
                     transform: `translate(${hexData.x}px, ${hexData.y}px)`,
@@ -119,7 +120,7 @@ export function SingleHex({
                     ? colorScale(topCategory)
                     : '#CED4DA'
                   : isSelected || Object.keys(selected).length === 0
-                    ? '#868E96'
+                    ? VIS_LABEL_COLOR
                     : '#CED4DA'
               }`,
               transform: `translate(${hexData.x}px, ${hexData.y}px)`,
@@ -142,7 +143,7 @@ export function SingleHex({
                         ? colorScale(topCategory)
                         : '#CED4DA'
                       : isSelected || Object.keys(selected).length === 0
-                        ? '#868E96'
+                        ? VIS_LABEL_COLOR
                         : '#CED4DA'
                   }`,
                   transform: `translate(${hexData.x}px, ${hexData.y}px)`,

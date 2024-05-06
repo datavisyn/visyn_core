@@ -1,5 +1,6 @@
 import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
 import { PlotlyTypes } from '../../plotly';
+import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
 
 /**
  * Truncate long texts (e.g., to use as axes title)
@@ -52,7 +53,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
     layout[`xaxis${i > 0 ? i + 1 : ''}`] = {
       range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
-      color: '#868E96',
+      color: VIS_LABEL_COLOR,
       gridcolor: '#E9ECEF',
       // gridwidth: 2,
       // griddash: 'dash',
@@ -61,6 +62,9 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       // rangemode: 'tozero',
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
+      tickfont: {
+        size: traces.plots.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+      },
       ticks: 'none',
       text: t.xTicks,
       showline: false,
@@ -68,11 +72,11 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       spikedash: 'dash',
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.xLabel, 15) : truncateText(t.xLabel, 50),
+        text: traces.plots.length > 1 ? truncateText(t.xLabel, 20) : truncateText(t.xLabel, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? 10 : 14,
-          color: '#868E96',
+          size: traces.plots.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          color: VIS_LABEL_COLOR,
         },
       },
     };
@@ -81,7 +85,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       range: t.yDomain ? t.yDomain : null,
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       automargin,
-      color: '#868E96',
+      color: VIS_LABEL_COLOR,
       gridcolor: '#E9ECEF',
       // gridwidth: 2,
       // griddash: 'dash',
@@ -89,6 +93,9 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       // rangemode: 'tozero',
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
+      tickfont: {
+        size: traces.plots.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+      },
       ticks: 'none',
       text: t.yTicks,
       showline: false,
@@ -96,11 +103,11 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       spikedash: 'dash',
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.yLabel, 15) : truncateText(t.yLabel, 50),
+        text: traces.plots.length > 1 ? truncateText(t.yLabel, 20) : truncateText(t.yLabel, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? 10 : 14,
-          color: '#868E96',
+          size: traces.plots.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          color: VIS_LABEL_COLOR,
           weight: 'bold',
         },
       },

@@ -1,9 +1,10 @@
-import { Tooltip, rem, Text } from '@mantine/core';
+import { Tooltip, rem, Text, Center } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
+import { VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
-export function XAxis({ xScale, yRange, vertPosition }) {
+export function XAxis({ xScale, yRange, vertPosition, multiples = false }) {
   const ticks = useMemo(() => {
     return xScale.ticks(5).map((value) => ({
       value,
@@ -24,12 +25,18 @@ export function XAxis({ xScale, yRange, vertPosition }) {
         <g key={value} transform={`translate(${xOffset}, ${vertPosition})`}>
           {yRange ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke="#E9ECEF" /> : null}
 
-          <foreignObject y={10} x={-4} width={tickWidth} height={20}>
-            <Tooltip withinPortal label={value}>
-              <Text c="gray.6" px={2} size={rem('10px')} style={{ textAlign: 'left', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {value}
-              </Text>
-            </Tooltip>
+          <foreignObject y={8} x={-tickWidth / 2} width={tickWidth} height={20}>
+            <Center>
+              <Tooltip label={value}>
+                <Text
+                  c={VIS_LABEL_COLOR}
+                  size={multiples ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
+                  style={{ textAlign: 'left', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                >
+                  {value} asdfa sf asdfs fs
+                </Text>
+              </Tooltip>
+            </Center>
           </foreignObject>
         </g>
       ))}

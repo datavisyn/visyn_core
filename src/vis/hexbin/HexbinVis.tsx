@@ -163,6 +163,7 @@ export function HexbinVis({
                   if (xCol.id !== yCol.id) {
                     return (
                       <Hexplot
+                        multiples
                         key={yCol.id + xCol.id}
                         selectionCallback={selectionCallback}
                         selected={selectedMap}

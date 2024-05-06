@@ -2,6 +2,7 @@ import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { useMemo } from 'react';
+import { VIS_LABEL_COLOR } from '../constants';
 
 export interface PieChartProps {
   data: number[];
@@ -41,7 +42,7 @@ export function PieChart({ data, dataCategories, radius, transform, colorScale, 
                   ? colorScale(dataCategories[i])
                   : '#CED4DA'
                 : isSelected || Object.keys(selected).length === 0
-                  ? '#868E96'
+                  ? VIS_LABEL_COLOR
                   : '#CED4DA',
             }}
           />
