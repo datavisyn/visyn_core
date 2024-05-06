@@ -165,6 +165,42 @@ export async function createScatterTraces(
         )
     : null;
 
+  // These are shared data properties beeing the same for all plots
+  const sharedData = {
+    showlegend: false,
+    type: 'scattergl',
+    mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+    hoverinfo: 'text',
+    hoverlabel: {
+      bgcolor: 'black',
+    },
+    selected: {
+      marker: {
+        line: {
+          width: 0,
+        },
+        opacity: 1,
+        size: sizeSliderVal,
+      },
+      textfont: {
+        color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
+      },
+    },
+    unselected: {
+      marker: {
+        line: {
+          width: 0,
+        },
+        color: DEFAULT_COLOR,
+        opacity: alphaSliderVal,
+        size: sizeSliderVal,
+      },
+      textfont: {
+        color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
+      },
+    },
+  };
+
   // Case: Facetting by category
   if (validCols.length === 2 && catCol) {
     // Split data into segments by catCol
@@ -192,18 +228,11 @@ export async function createScatterTraces(
           ids: filteredValidValues.map((v) => v.id.toString()),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          type: 'scattergl',
-          mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-          showlegend: false,
-          hoverlabel: {
-            bgcolor: 'black',
-          },
           hovertext: filteredValidValues.map(
             (v, i) =>
               `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${yDataVals[i]}
               ${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${filteredShapeValues[i].val}` : ''}`,
           ),
-          hoverinfo: 'text',
           text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
           // @ts-ignore
           textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
@@ -220,33 +249,7 @@ export async function createScatterTraces(
                 )
               : SELECT_COLOR,
           },
-          // plotly is stupid and doesnt know its own types
-          // @ts-ignore
-          selected: {
-            marker: {
-              line: {
-                width: 0,
-              },
-              opacity: 1,
-              size: sizeSliderVal,
-            },
-            textfont: {
-              color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
-            },
-          },
-          unselected: {
-            marker: {
-              line: {
-                width: 0,
-              },
-              color: DEFAULT_COLOR,
-              opacity: alphaSliderVal,
-              size: sizeSliderVal,
-            },
-            textfont: {
-              color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
-            },
-          },
+          ...sharedData,
         },
         xLabel: columnNameWithDescription(validCols[0].info),
         yLabel: columnNameWithDescription(validCols[1].info),
@@ -274,19 +277,12 @@ export async function createScatterTraces(
         ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-        type: 'scattergl',
-        mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-        showlegend: false,
-        hoverlabel: {
-          bgcolor: 'black',
-        },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
             `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
               colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
             }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
         ),
-        hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
         textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
@@ -299,33 +295,7 @@ export async function createScatterTraces(
               )
             : SELECT_COLOR,
         },
-        // plotly is stupid and doesnt know its own types
-        // @ts-ignore
-        selected: {
-          marker: {
-            line: {
-              width: 0,
-            },
-            opacity: 1,
-            size: sizeSliderVal,
-          },
-          textfont: {
-            color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
-          },
-        },
-        unselected: {
-          marker: {
-            line: {
-              width: 0,
-            },
-            color: DEFAULT_COLOR,
-            opacity: alphaSliderVal,
-            size: sizeSliderVal,
-          },
-          textfont: {
-            color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
-          },
-        },
+        ...sharedData,
       },
       xLabel: columnNameWithDescription(validCols[0].info),
       yLabel: columnNameWithDescription(validCols[1].info),
@@ -356,7 +326,7 @@ export async function createScatterTraces(
               opacity: alphaSliderVal,
             },
             xLabel: plotCounter > validCols.length * (validCols.length - 1) ? columnNameWithDescription(xCurr.info) : null,
-            yLabel: plotCounter === 1 + 3 * yIdx ? columnNameWithDescription(yCurr.info) : null,
+            yLabel: plotCounter === 1 + validCols.length * yIdx ? columnNameWithDescription(yCurr.info) : null,
           });
           // otherwise, make a scatterplot
         } else {
@@ -374,19 +344,12 @@ export async function createScatterTraces(
               ids: xCurr.resolvedValues.map((v) => v.id.toString()),
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-              type: 'scattergl',
-              mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
                   `${v.id}<br>x: ${v.val}<br>y: ${yCurr.resolvedValues[i].val}<br>${
                     colorCol ? `${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
                   }`,
               ),
-              hoverinfo: 'text',
-              hoverlabel: {
-                bgcolor: 'black',
-              },
-              showlegend: false,
               text: validCols[0].resolvedValues.map((v) => v.id.toString()),
               // @ts-ignore
               textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
@@ -401,36 +364,10 @@ export async function createScatterTraces(
                     )
                   : SELECT_COLOR,
               },
-              // plotly is stupid and doesnt know its own types
-              // @ts-ignore
-              selected: {
-                marker: {
-                  line: {
-                    width: 0,
-                  },
-                  opacity: 1,
-                  size: sizeSliderVal,
-                },
-                textfont: {
-                  color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
-                },
-              },
-              unselected: {
-                marker: {
-                  line: {
-                    width: 0,
-                  },
-                  color: DEFAULT_COLOR,
-                  opacity: alphaSliderVal,
-                  size: sizeSliderVal,
-                },
-                textfont: {
-                  color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
-                },
-              },
+              ...sharedData,
             },
             xLabel: plotCounter > validCols.length * (validCols.length - 1) ? columnNameWithDescription(xCurr.info) : null,
-            yLabel: plotCounter === 1 + 3 * yIdx ? columnNameWithDescription(yCurr.info) : null,
+            yLabel: plotCounter === 1 + validCols.length * yIdx ? columnNameWithDescription(yCurr.info) : null,
             xDomain: calcXDomain,
             yDomain: calcYDomain,
           });
