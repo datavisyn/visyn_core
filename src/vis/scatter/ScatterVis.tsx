@@ -126,6 +126,7 @@ export function ScatterVis({
   // Regression lines for all subplots
   const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
     if (traces?.plots) {
+      statsCallback(null);
       if (config.regressionLineOptions.type !== ERegressionLineType.NONE) {
         const regressionShapes: Partial<Plotly.Shape>[] = [];
         const regressionResults: IRegressionResult[] = [];
@@ -149,7 +150,6 @@ export function ScatterVis({
         }
         return { shapes: regressionShapes, results: regressionResults };
       }
-      statsCallback(null);
     }
     return { shapes: [], results: [] };
   }, [traces?.plots, config, statsCallback]);
