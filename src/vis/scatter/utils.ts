@@ -463,11 +463,13 @@ export async function createScatterTraces(
     });
   }
 
+  const defaultColNum = Math.min(Math.ceil(Math.sqrt(plots.length)), 5);
+
   return {
     plots,
     legendPlots,
-    rows: facetCol ? Math.ceil(plots.length / 2) : Math.sqrt(plots.length),
-    cols: facetCol ? 2 : Math.sqrt(plots.length),
+    rows: facetCol ? Math.ceil(plots.length / defaultColNum) : Math.sqrt(plots.length),
+    cols: facetCol ? defaultColNum : Math.sqrt(plots.length),
     errorMessage: i18n.t('visyn:vis.scatterError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
   };

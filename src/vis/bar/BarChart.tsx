@@ -95,7 +95,7 @@ export function BarChart({
           />
         ) : null}
       </Box>
-      <SimpleGrid cols={Math.round(Math.sqrt(uniqueFacetVals.length))} spacing={0} style={{ height: 'inherit', overflow: 'hidden' }}>
+      <SimpleGrid cols={Math.min(Math.ceil(Math.sqrt(uniqueFacetVals.length)), 5)} spacing={0} style={{ height: 'inherit', overflow: 'hidden' }}>
         {colsStatus !== 'success' ? (
           <Center>
             <Loader />
