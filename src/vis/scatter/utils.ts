@@ -1,3 +1,4 @@
+import { op, table } from 'arquero';
 import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
@@ -203,50 +204,43 @@ export async function createScatterTraces(
 
   // Case: Facetting by category
   if (validCols.length === 2 && facetCol) {
-    // Split data into segments by facetCol
-    const facetsIdMapping = new Map<string, string[]>();
-    facetCol.resolvedValues.forEach((v, i) => {
-      if (!facetsIdMapping.has(v.val as string)) {
-        facetsIdMapping.set(v.val as string, []);
-      }
-      facetsIdMapping.get(v.val as string).push(v.id);
-    });
-    facetsIdMapping.forEach((ids, category) => {
-      const xDataVals = validCols[0].resolvedValues.filter((v) => ids.includes(v.id)).map((v) => v.val) as number[];
-      const yDataVals = validCols[1].resolvedValues.filter((v) => ids.includes(v.id)).map((v) => v.val) as number[];
-      const filteredValidValues = validCols[0].resolvedValues.filter((v) => ids.includes(v.id));
-      const filteredColorValues = colorCol ? colorCol.resolvedValues.filter((v) => ids.includes(v.id)) : null;
-      const filteredShapeValues = shapeCol ? shapeCol.resolvedValues.filter((v) => ids.includes(v.id)) : null;
+    const data = {
+      x: validCols[0].resolvedValues.map((v) => v.val),
+      y: validCols[1].resolvedValues.map((v) => v.val),
+      ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
+      facet: facetCol.resolvedValues.map((v) => v.val),
+      color: colorCol ? colorCol.resolvedValues.map((v) => v.val) : [],
+      shape: shapeCol ? shapeCol.resolvedValues.map((v) => v.val) : [],
+    };
 
-      const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, xDataVals);
-      const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, yDataVals);
+    const groupedData = table(data)
+      .groupby('facet')
+      .rollup({ ids: op.array_agg('ids'), x: op.array_agg('x'), y: op.array_agg('y'), color: op.array_agg('color'), shape: op.array_agg('shape') })
+      .objects() as { facet: string; ids: string[]; x: number[]; y: number[]; color: string[]; shape: string[] }[];
+
+    groupedData.forEach((d) => {
+      const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, d.x);
+      const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, d.y);
 
       plots.push({
         data: {
-          x: xDataVals,
-          y: yDataVals,
-          ids: filteredValidValues.map((v) => v.id.toString()),
+          x: d.x,
+          y: d.y,
+          ids: d.ids,
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          hovertext: filteredValidValues.map(
-            (v, i) =>
-              `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${yDataVals[i]}
-              ${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${filteredShapeValues[i].val}` : ''}`,
+          hovertext: d.ids.map(
+            (id, i) =>
+              `${idToLabelMapper(id)}<br>x: ${d.x[i]}<br>y: ${d.y[i]}
+              ${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape[i]}` : ''}`,
           ),
-          text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
+          text: d.ids.map((id) => idToLabelMapper(id)),
           // @ts-ignore
-          textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
+          textposition: d.x.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
           marker: {
-            symbol: shapeCol ? filteredShapeValues.map((v) => shapeScale(v.val as string)) : 'circle',
-
+            symbol: shapeCol ? d.shape.map((v) => shapeScale(v)) : 'circle',
             color: colorCol
-              ? filteredColorValues.map((v) =>
-                  colorCol.type === EColumnTypes.NUMERICAL
-                    ? numericalColorScale(v.val as number)
-                    : colorCol.color
-                      ? colorCol.color[v.val]
-                      : scales.color(v.val),
-                )
+              ? d.color.map((v) => (colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(+v) : colorCol.color ? colorCol.color[v] : scales.color(v)))
               : SELECT_COLOR,
           },
           ...sharedData,
@@ -255,7 +249,7 @@ export async function createScatterTraces(
         yLabel: columnNameWithDescription(validCols[1].info),
         xDomain: calcXDomain,
         yDomain: calcYDomain,
-        title: category,
+        title: d.facet === null || d.facet === '' ? 'Unknown' : d.facet,
       });
 
       plotCounter += 1;

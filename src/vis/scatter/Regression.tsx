@@ -61,7 +61,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
             onChange={(s) => callback({ ...currentSelected, fitOptions: { ...currentSelected.fitOptions, order: s as number } })}
             value={currentSelected.fitOptions.order}
             min={2}
-            max={5}
+            max={3}
           />
         </Group>
       )}
