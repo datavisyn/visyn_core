@@ -132,6 +132,9 @@ export function MainApp() {
                 setSelection(s.map((i) => iris[+i]));
               }
             }}
+            filterCallback={(f) => {
+              console.log(f);
+            }}
           />
         </SimpleGrid>
       ) : null}

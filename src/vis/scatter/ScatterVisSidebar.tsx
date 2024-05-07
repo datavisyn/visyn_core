@@ -108,20 +108,28 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
             />
           )
         : null}
-
-      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
-      <Divider mt="xs" />
       {mergedOptionsConfig.regressionLine.enable
         ? mergedOptionsConfig.regressionLine.customComponent || (
-            <RegressionLineOptions
-              callback={(regressionLineOptions: IRegressionLineOptions) => {
-                if (config.regressionLineOptions !== regressionLineOptions) {
-                  setConfig({ ...config, regressionLineOptions });
-                }
-              }}
-              currentSelected={config.regressionLineOptions}
-              showColorPicker={mergedOptionsConfig.regressionLine.showColorPicker}
-            />
+            <>
+              <Divider mt="xs" />
+              <RegressionLineOptions
+                callback={(regressionLineOptions: IRegressionLineOptions) => {
+                  if (config.regressionLineOptions !== regressionLineOptions) {
+                    setConfig({ ...config, regressionLineOptions });
+                  }
+                }}
+                currentSelected={config.regressionLineOptions}
+                showColorPicker={mergedOptionsConfig.regressionLine.showColorPicker}
+              />
+            </>
+          )
+        : null}
+      {filterCallback && mergedOptionsConfig.filter.enable
+        ? mergedOptionsConfig.filter.customComponent || (
+            <>
+              <Divider mt="xs" />
+              <FilterButtons callback={filterCallback} />
+            </>
           )
         : null}
     </>
