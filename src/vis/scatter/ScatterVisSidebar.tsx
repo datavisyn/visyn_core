@@ -57,11 +57,11 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
       {mergedOptionsConfig.facets.enable
         ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
+              label="Facets"
+              columnType={EColumnTypes.CATEGORICAL}
               callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
               columns={columns.filter((c) => c.type === EColumnTypes.CATEGORICAL)}
               currentSelected={config.facets}
-              label="Facets"
-              columnType={EColumnTypes.CATEGORICAL}
             />
           )
         : null}

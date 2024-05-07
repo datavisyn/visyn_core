@@ -94,7 +94,7 @@ export function moveSelectedToFront(
 export async function createScatterTraces(
   columns: VisColumn[],
   numColumnsSelected: ColumnInfo[],
-  catColumnsSelected: ColumnInfo,
+  facet: ColumnInfo,
   shape: ColumnInfo,
   color: ColumnInfo,
   alphaSliderVal: number,
@@ -128,7 +128,7 @@ export async function createScatterTraces(
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
-  const catCol = await resolveSingleColumn(getCol(columns, catColumnsSelected));
+  const facetCol = await resolveSingleColumn(getCol(columns, facet));
 
   // cant currently do 1d scatterplots
   if (validCols.length === 1) {
@@ -202,10 +202,10 @@ export async function createScatterTraces(
   };
 
   // Case: Facetting by category
-  if (validCols.length === 2 && catCol) {
-    // Split data into segments by catCol
+  if (validCols.length === 2 && facetCol) {
+    // Split data into segments by facetCol
     const facetsIdMapping = new Map<string, string[]>();
-    catCol.resolvedValues.forEach((v, i) => {
+    facetCol.resolvedValues.forEach((v, i) => {
       if (!facetsIdMapping.has(v.val as string)) {
         facetsIdMapping.set(v.val as string, []);
       }
@@ -263,7 +263,7 @@ export async function createScatterTraces(
   }
 
   // Case: Exactly two numerical columns
-  if (validCols.length === 2 && !catCol) {
+  if (validCols.length === 2 && !facetCol) {
     const xDataVals = validCols[0].resolvedValues.map((v) => v.val) as number[];
     const yDataVals = validCols[1].resolvedValues.map((v) => v.val) as number[];
 
@@ -305,7 +305,7 @@ export async function createScatterTraces(
   }
 
   // Case: Multiple numerical columns and no categorical facetting
-  if (validCols.length > 2 && !catCol) {
+  if (validCols.length > 2 && !facetCol) {
     validCols.forEach((yCurr, yIdx) => {
       validCols.forEach((xCurr) => {
         // if on the diagonal, make a histogram.
@@ -472,8 +472,8 @@ export async function createScatterTraces(
   return {
     plots,
     legendPlots,
-    rows: catCol ? Math.ceil(plots.length / 2) : Math.sqrt(plots.length),
-    cols: catCol ? 2 : Math.sqrt(plots.length),
+    rows: facetCol ? Math.ceil(plots.length / 2) : Math.sqrt(plots.length),
+    cols: facetCol ? 2 : Math.sqrt(plots.length),
     errorMessage: i18n.t('visyn:vis.scatterError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
   };

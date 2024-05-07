@@ -43,7 +43,7 @@ export function SingleSelect({
   return (
     <Combobox
       store={combobox}
-      withinPortal={false}
+      withinPortal
       onOptionSubmit={(val) => {
         callback(filteredColumns.find((c) => c.info.name === val)?.info);
         combobox.closeDropdown();
