@@ -16,13 +16,13 @@ import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfi
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
 
 const formatPValue = (pValue: number) => {
-  if (!pValue) {
-    return 'N/A';
+  if (pValue === null) {
+    return '';
   }
   if (pValue < 0.001) {
-    return '<.001';
+    return `<i>(P<.001)</i>`;
   }
-  return pValue.toFixed(3).toString().replace(/^0+/, '=');
+  return `<i>(P${pValue.toFixed(3).toString().replace(/^0+/, '=')})</i>`;
 };
 
 const annotationsForRegressionStats = (results: IRegressionResult[], precision: number) => {
@@ -31,7 +31,7 @@ const annotationsForRegressionStats = (results: IRegressionResult[], precision: 
   for (const r of results) {
     const statsFormatted = [
       `n: ${r.stats.n}`,
-      `R²: ${r.stats.r2 < 0.001 ? '<0.001' : r.stats.r2} <i>(P${formatPValue(r.stats.pValue)})</i>`,
+      `R²: ${r.stats.r2 < 0.001 ? '<0.001' : r.stats.r2} ${formatPValue(r.stats.pValue)}`,
       `Pearson: ${r.stats.pearsonRho?.toFixed(precision)}`,
       `Spearman: ${r.stats.spearmanRho?.toFixed(precision)}`,
     ];

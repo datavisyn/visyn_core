@@ -4,7 +4,7 @@ Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-
 
 import { Group, Input, NumberInput, Select, Stack, Text, ColorSwatch, CheckIcon, rem } from '@mantine/core';
 import fitCurve from 'fit-curve';
-import { corrcoeff, spearmancoeff, ttest } from 'jstat';
+import { corrcoeff, spearmancoeff, ftest } from 'jstat';
 import * as React from 'react';
 import { HelpHoverCard } from '../../components/HelpHoverCard';
 import { ERegressionLineType, IRegressionFitOptions, IRegressionLineOptions, IRegressionResult } from './interfaces';
@@ -186,18 +186,6 @@ function round(number: number, precision: number): number {
 }
 
 /**
- * Calculate the p-value for a given R^2 value
- * @param r2 Value of R^2
- * @param n  Number of observations
- * @returns  The p-value for the given R^2 value
- */
-const pValueForR2 = (r2: number, n: number): number => {
-  const r = Math.sqrt(r2);
-  const t = r * Math.sqrt((n - 2) / (1 - r ** 2));
-  return ttest(t, n, 2);
-};
-
-/**
  * The set of all fitting methods
  *
  * @namespace
@@ -235,13 +223,16 @@ const methods = {
 
     const points = data.map((point) => predict(point[0]));
     const r2 = determinationCoefficient(data, points);
-    const pValue = pValueForR2(r2, len);
+
+    // Do a F-test --> F = (r^2 / k) / ((1 - r^2) / (n - k - 1))
+    const F = r2 / ((1 - r2) / (len - 2));
+    const pValue = ftest(F, 1, len - 2) as number; // F-test with k = #predictors = 1, dfn = k, dfd = n - k - 1
 
     return {
       stats: {
         r2: round(r2, options.precision),
         n: len,
-        pValue,
+        pValue: Number.isNaN(pValue) ? null : pValue,
       },
       equation: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
       svgPath: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
@@ -287,7 +278,7 @@ const methods = {
       .join(' ');
 
     const r2 = determinationCoefficient(data, points);
-    const pValue = pValueForR2(r2, data.length);
+    const pValue = null; // did not define p-value for exponential regression
 
     return {
       stats: {
@@ -337,7 +328,7 @@ const methods = {
       .join(' ');
 
     const r2 = determinationCoefficient(data, points);
-    const pValue = pValueForR2(r2, data.length);
+    const pValue = null; // did not define p-value for exponential regression
 
     return {
       stats: {
@@ -388,7 +379,7 @@ const methods = {
       .join(' ');
 
     const r2 = determinationCoefficient(data, points);
-    const pValue = pValueForR2(r2, data.length);
+    const pValue = null; // did not define p-value for exponential regression
 
     return {
       stats: {
@@ -474,7 +465,7 @@ const methods = {
       .join(' ');
 
     const r2 = determinationCoefficient(data, points);
-    const pValue = pValueForR2(r2, data.length);
+    const pValue = null; // did not define p-value for exponential regression
 
     return {
       stats: {
@@ -509,7 +500,6 @@ export const fitRegressionLine = (
     x.map((val, i) => [val, y[i]]),
     options,
   );
-
   return {
     ...regressionResult,
     stats: { ...regressionResult.stats, pearsonRho, spearmanRho },
