@@ -24,13 +24,14 @@ export enum ELabelingOptions {
   SELECTED = 'Selected',
 }
 
+// Disabled all methods using Math.log for now, as this causes NaN values in the prediction for negative xy values
 export enum ERegressionLineType {
   NONE = 'None',
   LINEAR = 'Linear',
   POLYNOMIAL = 'Polynomial',
-  EXPONENTIAL = 'Exponential',
-  LOGARITHMIC = 'Logarithmic',
-  POWER = 'Power',
+  // EXPONENTIAL = 'Exponential',
+  // LOGARITHMIC = 'Logarithmic',
+  // POWER = 'Power',
 }
 
 export interface IRegressionResult {

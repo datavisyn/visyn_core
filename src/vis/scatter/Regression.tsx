@@ -252,6 +252,7 @@ const methods = {
         if (max === null || data[n][0] > max) {
           max = data[n][0];
         }
+        // TODO: Math.log of negative number is NaN, how to handle this?
         sum[0] += data[n][0];
         sum[1] += data[n][1];
         sum[2] += data[n][0] * data[n][0] * data[n][1];
@@ -305,6 +306,7 @@ const methods = {
         if (max === null || data[n][0] > max) {
           max = data[n][0];
         }
+        // TODO: Math.log of negative number is NaN, how to handle this?
         sum[0] += Math.log(data[n][0]);
         sum[1] += data[n][1] * Math.log(data[n][0]);
         sum[2] += data[n][1];
@@ -355,6 +357,7 @@ const methods = {
         if (max === null || data[n][0] > max) {
           max = data[n][0];
         }
+        // TODO: Math.log of negative number is NaN, how to handle this?
         sum[0] += Math.log(data[n][0]);
         sum[1] += Math.log(data[n][1]) * Math.log(data[n][0]);
         sum[2] += Math.log(data[n][1]);
