@@ -133,13 +133,15 @@ export function ScatterVis({
         for (const plot of traces.plots) {
           if (plot.data.type === 'scattergl') {
             const curveFit = fitRegressionLine(plot.data, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
-            regressionShapes.push({
-              type: 'path',
-              path: curveFit.svgPath,
-              line: lineStyleToPlotlyShapeLine({ ...defaultRegressionLineStyle, ...config.regressionLineOptions.lineStyle }),
-              xref: curveFit.xref as Plotly.XAxisName,
-              yref: curveFit.yref as Plotly.YAxisName,
-            });
+            if (!curveFit.svgPath.includes('NaN')) {
+              regressionShapes.push({
+                type: 'path',
+                path: curveFit.svgPath,
+                line: lineStyleToPlotlyShapeLine({ ...defaultRegressionLineStyle, ...config.regressionLineOptions.lineStyle }),
+                xref: curveFit.xref as Plotly.XAxisName,
+                yref: curveFit.yref as Plotly.YAxisName,
+              });
+            }
             regressionResults.push(curveFit);
           }
         }
