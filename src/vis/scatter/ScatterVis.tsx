@@ -22,7 +22,7 @@ const formatPValue = (pValue: number) => {
   if (pValue < 0.001) {
     return `<i>(P<.001)</i>`;
   }
-  return `<i>(P${pValue.toFixed(3).toString().replace(/^0+/, '=')})</i>`;
+  return `<i>(P=${pValue.toFixed(3).toString().replace(/^0+/, '')})</i>`;
 };
 
 const annotationsForRegressionStats = (results: IRegressionResult[], precision: number) => {
