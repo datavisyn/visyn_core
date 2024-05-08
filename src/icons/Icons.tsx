@@ -4,9 +4,9 @@ import { IconDefinition, IconName, IconPrefix } from '@fortawesome/fontawesome-c
  * Visualization icons
  */
 
-export const dvAddVisualization = {
-  prefix: 'dv',
-  iconName: 'addVisualization',
+export const dvAddVisualization: IconDefinition = {
+  prefix: 'dv' as IconPrefix,
+  iconName: 'addVisualization' as IconName,
   icon: [
     512,
     512,
@@ -78,9 +78,9 @@ export const dvHexbinplot: IconDefinition = {
   ],
 };
 
-export const dvSankey = {
-  prefix: 'dv',
-  iconName: 'sankey',
+export const dvSankey: IconDefinition = {
+  prefix: 'dv' as IconPrefix,
+  iconName: 'sankey' as IconName,
   icon: [
     512,
     512,
@@ -90,9 +90,9 @@ export const dvSankey = {
   ],
 };
 
-export const dvHeatmap = {
-  prefix: 'dv',
-  iconName: 'heatmap',
+export const dvHeatmap: IconDefinition = {
+  prefix: 'dv' as IconPrefix,
+  iconName: 'heatmap' as IconName,
   icon: [
     512,
     512,
@@ -102,9 +102,9 @@ export const dvHeatmap = {
   ],
 };
 
-export const dvCorrelationplot = {
-  prefix: 'dv',
-  iconName: 'correlationplot',
+export const dvCorrelationplot: IconDefinition = {
+  prefix: 'dv' as IconPrefix,
+  iconName: 'correlationplot' as IconName,
   icon: [
     512,
     512,
