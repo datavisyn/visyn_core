@@ -485,9 +485,9 @@ const methods = {
 const regressionMethodsMapping = {
   [ERegressionLineType.LINEAR]: 'linear',
   [ERegressionLineType.POLYNOMIAL]: 'polynomial',
-  [ERegressionLineType.EXPONENTIAL]: 'exponential',
-  [ERegressionLineType.LOGARITHMIC]: 'logarithmic',
-  [ERegressionLineType.POWER]: 'power',
+  // [ERegressionLineType.EXPONENTIAL]: 'exponential',
+  // [ERegressionLineType.LOGARITHMIC]: 'logarithmic',
+  // [ERegressionLineType.POWER]: 'power',
 };
 
 export const fitRegressionLine = (
