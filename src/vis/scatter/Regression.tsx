@@ -198,7 +198,7 @@ const methods = {
     let min = null;
     let max = null;
     for (let n = 0; n < data.length; n++) {
-      if (data[n][0] !== null && data[n][1] !== null) {
+      if (data[n][0] && data[n][1]) {
         if (min === null || data[n][0] < min) {
           min = data[n][0];
         }
@@ -245,7 +245,7 @@ const methods = {
     let min = null;
     let max = null;
     for (let n = 0; n < data.length; n++) {
-      if (data[n][0] !== null && data[n][1] !== null) {
+      if (data[n][0] && data[n][1]) {
         if (min === null || data[n][0] < min) {
           min = data[n][0];
         }
@@ -298,7 +298,7 @@ const methods = {
     let min = null;
     let max = null;
     for (let n = 0; n < len; n++) {
-      if (data[n][0] !== null && data[n][1] !== null) {
+      if (data[n][0] && data[n][1]) {
         if (min === null || data[n][0] < min) {
           min = data[n][0];
         }
@@ -348,7 +348,7 @@ const methods = {
     let min = null;
     let max = null;
     for (let n = 0; n < len; n++) {
-      if (data[n][0] !== null && data[n][1] !== null) {
+      if (data[n][0] && data[n][1]) {
         if (min === null || data[n][0] < min) {
           min = data[n][0];
         }
@@ -404,7 +404,7 @@ const methods = {
     let max = null;
     for (let i = 0; i < k; i++) {
       for (let l = 0; l < len; l++) {
-        if (data[l][0] !== null && data[l][1] !== null) {
+        if (data[l][0] && data[l][1]) {
           if (min === null || data[l][0] < min) {
             min = data[l][0];
           }
