@@ -2,9 +2,9 @@
 Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-js
 */
 
-import { Group, Input, NumberInput, Select, Stack, Text, ColorSwatch, CheckIcon, rem } from '@mantine/core';
+import { CheckIcon, ColorSwatch, Group, Input, SegmentedControl, Select, Stack, Text, rem } from '@mantine/core';
 import fitCurve from 'fit-curve';
-import { corrcoeff, spearmancoeff, ftest } from 'jstat';
+import { corrcoeff, ftest, spearmancoeff } from 'jstat';
 import * as React from 'react';
 import { HelpHoverCard } from '../../components/HelpHoverCard';
 import { ERegressionLineType, IRegressionFitOptions, IRegressionLineOptions, IRegressionResult } from './interfaces';
@@ -52,18 +52,18 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
         />
       </Input.Wrapper>
       {currentSelected?.type === ERegressionLineType.POLYNOMIAL && (
-        <Group justify="flex-end">
-          <Text size="sm" fw={500}>
-            Order:
-          </Text>
-          <NumberInput
-            w={100}
-            onChange={(s) => callback({ ...currentSelected, fitOptions: { ...currentSelected.fitOptions, order: s as number } })}
-            value={currentSelected.fitOptions.order}
-            min={2}
-            max={3}
+        <Input.Wrapper label="Order">
+          <SegmentedControl
+            fullWidth
+            size="xs"
+            value={`${currentSelected.fitOptions.order}`}
+            onChange={(s) => callback({ ...currentSelected, fitOptions: { ...currentSelected.fitOptions, order: Number.parseInt(s, 10) } })}
+            data={[
+              { label: 'Quadratic', value: '2' },
+              { label: 'Cubic', value: '3' },
+            ]}
           />
-        </Group>
+        </Input.Wrapper>
       )}
       {showColorPicker && currentSelected?.type !== ERegressionLineType.NONE && (
         <Input.Wrapper label="Line color">
