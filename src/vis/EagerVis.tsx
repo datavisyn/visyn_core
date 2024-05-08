@@ -263,9 +263,13 @@ export function EagerVis({
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
       // if the vis type changed we need to wrap the new config with defaults, i.e. selectedColumns
-      _setVisConfig?.(v.type === _visConfig?.type ? v : wrapWithDefaults(v));
+      // also, we need to clear the current stats
+      if (_setVisConfig && v.type !== _visConfig?.type) {
+        _setVisConfig(wrapWithDefaults(v));
+        statsCallback(null);
+      }
     },
-    [_setVisConfig, _visConfig, wrapWithDefaults],
+    [_setVisConfig, _visConfig?.type, statsCallback, wrapWithDefaults],
   );
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
