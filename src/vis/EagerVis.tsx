@@ -263,10 +263,12 @@ export function EagerVis({
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
       // if the vis type changed we need to wrap the new config with defaults, i.e. selectedColumns
-      // also, we need to clear the current stats
-      if (_setVisConfig && v.type !== _visConfig?.type) {
-        _setVisConfig(wrapWithDefaults(v));
+      // also we need to reset the stats on vis type change
+      if (v.type !== _visConfig?.type) {
+        _setVisConfig?.(wrapWithDefaults(v));
         statsCallback(null);
+      } else {
+        _setVisConfig?.(v);
       }
     },
     [_setVisConfig, _visConfig?.type, statsCallback, wrapWithDefaults],
