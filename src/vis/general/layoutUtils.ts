@@ -63,7 +63,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       ticks: 'outside',
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.xLabel, 30) : truncateText(t.xLabel, 50),
+        text: traces.plots.length > 1 ? truncateText(t.xLabel, 25) : truncateText(t.xLabel, 50),
         font: {
           family: 'Roboto, sans-serif',
           size: traces.plots.length > 1 ? 12 : 13.4,
