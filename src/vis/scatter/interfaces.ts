@@ -29,9 +29,6 @@ export enum ERegressionLineType {
   NONE = 'None',
   LINEAR = 'Linear',
   POLYNOMIAL = 'Polynomial',
-  // EXPONENTIAL = 'Exponential',
-  // LOGARITHMIC = 'Logarithmic',
-  // POWER = 'Power',
 }
 
 export interface IRegressionResult {

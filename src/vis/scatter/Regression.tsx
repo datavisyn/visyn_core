@@ -1,5 +1,6 @@
 /* This file holds utility functions for the regression line options.
 Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-js
+Currently we only support linear and polynomial regression.
 */
 
 import { CheckIcon, ColorSwatch, Group, Input, SegmentedControl, Select, Stack, Text, rem } from '@mantine/core';
@@ -238,163 +239,6 @@ const methods = {
       svgPath: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
     };
   },
-
-  exponential(data: RegressionData, options: IRegressionFitOptions) {
-    const sum = [0, 0, 0, 0, 0, 0];
-
-    let min = null;
-    let max = null;
-    for (let n = 0; n < data.length; n++) {
-      if (data[n][0] && data[n][1]) {
-        if (min === null || data[n][0] < min) {
-          min = data[n][0];
-        }
-        if (max === null || data[n][0] > max) {
-          max = data[n][0];
-        }
-        // TODO: Math.log of negative number is NaN, how to handle this?
-        sum[0] += data[n][0];
-        sum[1] += data[n][1];
-        sum[2] += data[n][0] * data[n][0] * data[n][1];
-        sum[3] += data[n][1] * Math.log(data[n][1]);
-        sum[4] += data[n][0] * data[n][1] * Math.log(data[n][1]);
-        sum[5] += data[n][0] * data[n][1];
-      }
-    }
-
-    const denominator = sum[1] * sum[2] - sum[5] * sum[5];
-    const a = Math.exp((sum[2] * sum[3] - sum[5] * sum[4]) / denominator);
-    const b = (sum[1] * sum[4] - sum[5] * sum[3]) / denominator;
-    const coeffA = round(a, options.precision);
-    const coeffB = round(b, options.precision);
-    const predict = (x: number) => [round(x, options.precision), round(coeffA * Math.exp(coeffB * x), options.precision)];
-
-    const points = data.map((point) => predict(point[0]));
-
-    // SVG does not support polynomial curves, so we approximate it using bezier curves
-    const samples = [...Array.from({ length: 100 }, (_, i) => min + ((max - min) * i) / 100)].map((x) => predict(x));
-    const bezier = fitCurve(samples, 50);
-    const svgPath = bezier
-      .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
-      .join(' ');
-
-    const r2 = determinationCoefficient(data, points);
-    const pValue = null; // did not define p-value for exponential regression
-
-    return {
-      stats: {
-        r2: round(r2, options.precision),
-        n: data.length,
-        pValue,
-      },
-      equation: `y = ${coeffA}e^(${coeffB}x)`,
-      svgPath,
-    };
-  },
-
-  logarithmic(data: RegressionData, options: IRegressionFitOptions) {
-    const sum = [0, 0, 0, 0];
-    const len = data.length;
-
-    let min = null;
-    let max = null;
-    for (let n = 0; n < len; n++) {
-      if (data[n][0] && data[n][1]) {
-        if (min === null || data[n][0] < min) {
-          min = data[n][0];
-        }
-        if (max === null || data[n][0] > max) {
-          max = data[n][0];
-        }
-        // TODO: Math.log of negative number is NaN, how to handle this?
-        sum[0] += Math.log(data[n][0]);
-        sum[1] += data[n][1] * Math.log(data[n][0]);
-        sum[2] += data[n][1];
-        sum[3] += Math.log(data[n][0]) ** 2;
-      }
-    }
-
-    const a = (len * sum[1] - sum[2] * sum[0]) / (len * sum[3] - sum[0] * sum[0]);
-    const coeffB = round(a, options.precision);
-    const coeffA = round((sum[2] - coeffB * sum[0]) / len, options.precision);
-
-    const predict = (x: number) => [round(x, options.precision), round(round(coeffA + coeffB * Math.log(x), options.precision), options.precision)];
-
-    const points = data.map((point) => predict(point[0]));
-
-    // SVG does not support polynomial curves, so we approximate it using bezier curves
-    const samples = [...Array.from({ length: 100 }, (_, i) => min + ((max - min) * i) / 100)].map((x) => predict(x));
-    const bezier = fitCurve(samples, 50);
-    const svgPath = bezier
-      .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
-      .join(' ');
-
-    const r2 = determinationCoefficient(data, points);
-    const pValue = null; // did not define p-value for exponential regression
-
-    return {
-      stats: {
-        r2: round(r2, options.precision),
-        n: len,
-        pValue,
-      },
-      equation: `y = ${coeffA} + ${coeffB} ln(x)`,
-      svgPath,
-    };
-  },
-
-  power(data: RegressionData, options: IRegressionFitOptions) {
-    const sum = [0, 0, 0, 0, 0];
-    const len = data.length;
-
-    let min = null;
-    let max = null;
-    for (let n = 0; n < len; n++) {
-      if (data[n][0] && data[n][1]) {
-        if (min === null || data[n][0] < min) {
-          min = data[n][0];
-        }
-        if (max === null || data[n][0] > max) {
-          max = data[n][0];
-        }
-        // TODO: Math.log of negative number is NaN, how to handle this?
-        sum[0] += Math.log(data[n][0]);
-        sum[1] += Math.log(data[n][1]) * Math.log(data[n][0]);
-        sum[2] += Math.log(data[n][1]);
-        sum[3] += Math.log(data[n][0]) ** 2;
-      }
-    }
-
-    const b = (len * sum[1] - sum[0] * sum[2]) / (len * sum[3] - sum[0] ** 2);
-    const a = (sum[2] - b * sum[0]) / len;
-    const coeffA = round(Math.exp(a), options.precision);
-    const coeffB = round(b, options.precision);
-
-    const predict = (x: number) => [round(x, options.precision), round(round(coeffA * x ** coeffB, options.precision), options.precision)];
-
-    const points = data.map((point) => predict(point[0]));
-
-    // SVG does not support polynomial curves, so we approximate it using bezier curves
-    const samples = [...Array.from({ length: 100 }, (_, i) => min + ((max - min) * i) / 100)].map((x) => predict(x));
-    const bezier = fitCurve(samples, 50);
-    const svgPath = bezier
-      .map((curve) => `M ${curve[0][0]} ${curve[0][1]} C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]}`)
-      .join(' ');
-
-    const r2 = determinationCoefficient(data, points);
-    const pValue = null; // did not define p-value for exponential regression
-
-    return {
-      stats: {
-        r2: round(r2, options.precision),
-        n: len,
-        pValue,
-      },
-      equation: `y = ${coeffA}x^${coeffB}`,
-      svgPath,
-    };
-  },
-
   polynomial(data: RegressionData, options: IRegressionFitOptions) {
     const lhs = [];
     const rhs = [];
@@ -485,9 +329,6 @@ const methods = {
 const regressionMethodsMapping = {
   [ERegressionLineType.LINEAR]: 'linear',
   [ERegressionLineType.POLYNOMIAL]: 'polynomial',
-  // [ERegressionLineType.EXPONENTIAL]: 'exponential',
-  // [ERegressionLineType.LOGARITHMIC]: 'logarithmic',
-  // [ERegressionLineType.POWER]: 'power',
 };
 
 export const fitRegressionLine = (
