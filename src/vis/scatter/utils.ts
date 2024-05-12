@@ -1,5 +1,5 @@
-import { op, table } from 'arquero';
 import * as d3v7 from 'd3v7';
+import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue } from '../../utils';
@@ -204,43 +204,52 @@ export async function createScatterTraces(
 
   // Case: Facetting by category
   if (validCols.length === 2 && facetCol) {
-    const data = {
-      x: validCols[0].resolvedValues.map((v) => v.val),
-      y: validCols[1].resolvedValues.map((v) => v.val),
-      ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
-      facet: facetCol.resolvedValues.map((v) => v.val),
-      color: colorCol ? colorCol.resolvedValues.map((v) => v.val) : [],
-      shape: shapeCol ? shapeCol.resolvedValues.map((v) => v.val) : [],
-    };
+    const data = validCols[0].resolvedValues.map((v, i) => ({
+      x: v.val,
+      y: validCols[1].resolvedValues[i].val,
+      ids: v.id.toString(),
+      facet: facetCol.resolvedValues[i].val.toString(),
+      color: colorCol ? colorCol.resolvedValues[i].val : undefined,
+      shape: shapeCol ? shapeCol.resolvedValues[i].val : undefined,
+    }));
 
-    const groupedData = table(data)
-      .groupby('facet')
-      .rollup({ ids: op.array_agg('ids'), x: op.array_agg('x'), y: op.array_agg('y'), color: op.array_agg('color'), shape: op.array_agg('shape') })
-      .objects() as { facet: string; ids: string[]; x: number[]; y: number[]; color: string[]; shape: string[] }[];
+    const groupedData = _.groupBy(data, 'facet');
 
-    groupedData.forEach((d) => {
-      const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, d.x);
-      const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, d.y);
+    _.flatMap(groupedData, (group) => {
+      const calcXDomain = calculateDomain(
+        (validCols[0] as VisNumericalColumn).domain,
+        group.map((d) => d.x as number),
+      );
+      const calcYDomain = calculateDomain(
+        (validCols[1] as VisNumericalColumn).domain,
+        group.map((d) => d.y as number),
+      );
 
       plots.push({
         data: {
-          x: d.x,
-          y: d.y,
-          ids: d.ids,
+          x: group.map((d) => d.x as number),
+          y: group.map((d) => d.y as number),
+          ids: group.map((d) => d.ids),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          hovertext: d.ids.map(
-            (id, i) =>
-              `${idToLabelMapper(id)}<br>x: ${d.x[i]}<br>y: ${d.y[i]}
-              ${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape[i]}` : ''}`,
+          hovertext: group.map(
+            (d) =>
+              `${idToLabelMapper(d.ids)}<br>x: ${d.x}<br>y: ${d.y}
+              ${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape}` : ''}`,
           ),
-          text: d.ids.map((id) => idToLabelMapper(id)),
+          text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
-          textposition: d.x.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
+          textposition: group.map((d, i) => textPositionOptions[i % textPositionOptions.length]),
           marker: {
-            symbol: shapeCol ? d.shape.map((v) => shapeScale(v)) : 'circle',
+            symbol: shapeCol ? group.map((d) => shapeScale(d.shape as string)) : 'circle',
             color: colorCol
-              ? d.color.map((v) => (colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(+v) : colorCol.color ? colorCol.color[v] : scales.color(v)))
+              ? group.map((d) =>
+                  colorCol.type === EColumnTypes.NUMERICAL
+                    ? numericalColorScale(d.color as number)
+                    : colorCol.color
+                      ? colorCol.color[d.color]
+                      : scales.color(d.color),
+                )
               : SELECT_COLOR,
           },
           ...sharedData,
@@ -249,9 +258,8 @@ export async function createScatterTraces(
         yLabel: columnNameWithDescription(validCols[1].info),
         xDomain: calcXDomain,
         yDomain: calcYDomain,
-        title: d.facet === null || d.facet === '' ? 'Unknown' : d.facet,
+        title: group[0].facet === null || group[0].facet === '' ? 'Unknown' : group[0].facet,
       });
-
       plotCounter += 1;
     });
   }
