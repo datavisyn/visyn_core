@@ -43,18 +43,6 @@ function Legend({
   );
 }
 
-function PlotContainer({ children }: React.PropsWithChildren<object>) {
-  return (
-    <div
-      className={css`
-        display: grid;
-      `}
-    >
-      {children}
-    </div>
-  );
-}
-
 export function HexbinVis({
   config,
   columns,

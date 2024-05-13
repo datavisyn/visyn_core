@@ -22,6 +22,9 @@ export function BarChart({
   selectedList: string[];
   selectionCallback?: (ids: string[]) => void;
 }) {
+  const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
+  const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
+
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
     config.catColumnSelected,
@@ -29,8 +32,6 @@ export function BarChart({
     config.multiples,
     config.aggregateColumn,
   ]);
-
-  const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
   const uniqueMultiplesVals = useMemo(() => {
     return [...new Set(allColumns?.multiplesColVals?.resolvedValues.map((v) => v.val))] as string[];
@@ -79,18 +80,22 @@ export function BarChart({
 
   return (
     <Stack style={{ width: '100%', height: '100%', position: 'relative' }} gap={0}>
-      <Box style={{ height: '30px' }}>
+      <Box>
         {groupColorScale ? (
           <Legend
             groupedIds={groupedIds}
-            selectedList={selectedList}
-            selectionCallback={customSelectionCallback}
+            filteredOut={filteredOut}
             left={60}
             categories={groupColorScale.domain()}
             isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
             colorScale={groupColorScale}
-            height={30}
-            onClick={() => null}
+            onFilteredOut={(id) => {
+              if (filteredOut.includes(id)) {
+                setFilteredOut(filteredOut.filter((v) => v !== id));
+              } else {
+                setFilteredOut([...filteredOut, id]);
+              }
+            }}
             stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
           />
         ) : null}
