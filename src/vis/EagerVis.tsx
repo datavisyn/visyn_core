@@ -193,9 +193,14 @@ export function EagerVis({
    */
   visTypes?: string[];
 
-  /* uniqueId for the plot, used to download a screenshot of the plot
+  /**
+   * Unique id for the visualization instance. It is currently used to identify the DOM element and download a screenshot of the plot.
    */
   uniquePlotId?: string;
+
+  /**
+   * Optional property to show the download screenshot button in the sidebar.
+   */
   showDownloadScreenshot?: boolean;
 }) {
   const [showSidebar, setShowSidebar] = useUncontrolled<boolean>({
