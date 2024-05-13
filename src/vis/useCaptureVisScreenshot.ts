@@ -17,7 +17,7 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
       if ([ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY].includes(visConfig.type as ESupportedPlotlyVis)) {
         await Plotly.downloadImage(plotElement, {
           format: 'png',
-          filename: `${visConfig.type}.png`,
+          filename: `${visConfig.type}`,
           height: plotElement.offsetHeight,
           width: plotElement.offsetWidth,
         });
