@@ -6,7 +6,7 @@ import { useCaptureVisScreenshot } from '../useCaptureVisScreenshot';
 export function DownloadPlotButton({ uniquePlotId, config }: { config: BaseVisConfig; uniquePlotId: string }) {
   const [{ isLoading }, captureScreenshot] = useCaptureVisScreenshot(uniquePlotId, config);
   return (
-    <Tooltip label="Download plot as PNG" position="top">
+    <Tooltip label="Download as image" position="top">
       <ActionIcon color="dvGray" loading={isLoading} variant="subtle" onClick={captureScreenshot}>
         <i className="fa-solid fa-camera" />
       </ActionIcon>
