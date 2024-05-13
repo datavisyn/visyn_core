@@ -14,7 +14,7 @@ export function RaincloudVis({
   uniquePlotId,
   showDownloadScreenshot,
 }: ICommonVisProps<IRaincloudConfig>) {
-  const id = React.useMemo(() => uniquePlotId || uniqueId('RaIncloudVis'), [uniquePlotId]);
+  const id = React.useMemo(() => uniquePlotId || uniqueId('RaincloudVis'), [uniquePlotId]);
 
   return (
     <Stack pl={0} pr={0} style={{ flexGrow: 1, height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }}>
