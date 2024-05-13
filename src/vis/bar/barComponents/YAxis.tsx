@@ -71,7 +71,7 @@ export function YAxis({
           >
             <foreignObject width={labelSpacing} height={20}>
               <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Text c="gray.6" truncate size={rem('10px')}>
+                <Text c={VIS_LABEL_COLOR} truncate size={rem('10px')}>
                   {value}
                 </Text>
               </Group>

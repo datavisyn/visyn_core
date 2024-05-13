@@ -63,7 +63,12 @@ export function XAxis({
           <foreignObject x={0 - tickWidth / 2} y={10} width={tickWidth} height={20}>
             <Center>
               <Tooltip withinPortal label={value}>
-                <Text c="gray.6" px={2} size={rem('10px')} style={{ textAlign: 'center', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <Text
+                  c={VIS_LABEL_COLOR}
+                  px={2}
+                  size={rem('10px')}
+                  style={{ textAlign: 'center', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                >
                   {value}
                 </Text>
               </Tooltip>
