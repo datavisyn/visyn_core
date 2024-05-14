@@ -207,8 +207,8 @@ export async function createScatterTraces(
     const data = validCols[0].resolvedValues.map((v, i) => ({
       x: v.val,
       y: validCols[1].resolvedValues[i].val,
-      ids: v.id.toString(),
-      facet: facetCol.resolvedValues[i].val.toString(),
+      ids: v.id?.toString(),
+      facet: facetCol.resolvedValues[i].val?.toString(),
       color: colorCol ? colorCol.resolvedValues[i].val : undefined,
       shape: shapeCol ? shapeCol.resolvedValues[i].val : undefined,
     }));
@@ -258,7 +258,7 @@ export async function createScatterTraces(
         yLabel: columnNameWithDescription(validCols[1].info),
         xDomain: calcXDomain,
         yDomain: calcYDomain,
-        title: group[0].facet === null || group[0].facet === '' ? 'Unknown' : group[0].facet,
+        title: !group[0].facet || group[0].facet === '' ? 'Unknown' : group[0].facet,
       });
       plotCounter += 1;
     });
@@ -276,7 +276,7 @@ export async function createScatterTraces(
       data: {
         x: xDataVals,
         y: yDataVals,
-        ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
+        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         hovertext: validCols[0].resolvedValues.map(
@@ -343,7 +343,7 @@ export async function createScatterTraces(
             data: {
               x: xDataVals,
               y: yDataVals,
-              ids: xCurr.resolvedValues.map((v) => v.id.toString()),
+              ids: xCurr.resolvedValues.map((v) => v.id?.toString()),
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               hovertext: xCurr.resolvedValues.map(
@@ -352,7 +352,7 @@ export async function createScatterTraces(
                     colorCol ? `${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
                   }`,
               ),
-              text: validCols[0].resolvedValues.map((v) => v.id.toString()),
+              text: validCols[0].resolvedValues.map((v) => v.id?.toString()),
               // @ts-ignore
               textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
               marker: {
@@ -386,7 +386,7 @@ export async function createScatterTraces(
       data: {
         x: validCols[0].resolvedValues.map((v) => v.val),
         y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
+        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
         xaxis: 'x',
         yaxis: 'y',
         type: 'scattergl',
@@ -411,9 +411,9 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: colorCol.resolvedValues.map((v) => v.val as string),
+            groups: colorCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
             styles: [
-              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val) as string[])].map((c) => {
+              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
                 return { target: c, value: { name: c } };
               }),
             ],
@@ -431,7 +431,7 @@ export async function createScatterTraces(
       data: {
         x: validCols[0].resolvedValues.map((v) => v.val),
         y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
+        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
         xaxis: 'x',
         yaxis: 'y',
         type: 'scattergl',
@@ -457,9 +457,9 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: shapeCol.resolvedValues.map((v) => v.val as string),
+            groups: shapeCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
             styles: [
-              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val) as string[])].map((c) => {
+              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
                 return { target: c, value: { name: c } };
               }),
             ],
