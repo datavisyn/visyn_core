@@ -3,13 +3,14 @@ import { i18n } from '../../i18n';
 import { SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
-import { EViolinOverlay, IViolinConfig } from './interfaces';
+import { EViolinMultiplesMode, EViolinOverlay, IViolinConfig } from './interfaces';
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
   numColumnsSelected: [],
   catColumnsSelected: [],
   violinOverlay: EViolinOverlay.NONE,
+  multiplesMode: EViolinMultiplesMode.GROUP,
 };
 
 export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IViolinConfig {
@@ -51,7 +52,21 @@ export async function createViolinTraces(
   const numColValues = await resolveColumnValues(numCols);
   const catColValues = await resolveColumnValues(catCols);
 
-  // if we onl have numerical columns, add them individually.
+  const sharedData = {
+    type: 'violin' as Plotly.PlotType,
+    pointpos: 0,
+    jitter: 0.3,
+    points: false,
+    box: {
+      visible: config.violinOverlay === EViolinOverlay.BOX,
+    },
+    spanmode: 'hard',
+    hoverinfo: 'y',
+    scalemode: 'width',
+    showlegend: false,
+  };
+
+  // case: only numerical columns selected
   if (catColValues.length === 0) {
     for (const numCurr of numColValues) {
       const y = numCurr.resolvedValues.map((v) => v.val);
@@ -59,85 +74,87 @@ export async function createViolinTraces(
         data: {
           y,
           ids: numCurr.resolvedValues.map((v) => v.id),
-          xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
-          yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          type: 'violin',
-          pointpos: 0,
-          jitter: 0.3,
-          // @ts-ignore
-          hoveron: 'violins',
-          points: false,
-          box: {
-            visible: config.violinOverlay === EViolinOverlay.BOX,
-          },
+          xaxis: config.multiplesMode === EViolinMultiplesMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
+          yaxis: config.multiplesMode === EViolinMultiplesMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
           marker: {
             color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
           },
-
-          spanmode: 'hard',
           name: `${columnNameWithDescription(numCurr.info)}`,
-          hoverinfo: 'y',
-          scalemode: 'width',
-          showlegend: false,
+          // @ts-ignore
+          hoveron: 'violins',
+          ...sharedData,
         },
-        xLabel: columnNameWithDescription(numCurr.info),
-        yLabel: columnNameWithDescription(numCurr.info),
       });
       plotCounter += 1;
     }
   }
 
-  for (const numCurr of numColValues) {
-    for (const catCurr of catColValues) {
-      const y = numCurr.resolvedValues.map((v) => v.val);
-      // Null values in categorical columns would break the plot --> replace with 'missing'
-      const categoriesWithMissing = catCurr.resolvedValues?.map((v) => ({ ...v, val: v.val || 'missing' }));
-      const x = categoriesWithMissing.map((v) => v.val);
-      plots.push({
-        data: {
-          x,
-          y,
-          ids: categoriesWithMissing.map((v) => v.id),
-          xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
-          yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          type: 'violin',
-          // @ts-ignore
-          hoveron: 'violins',
-          hoverinfo: 'y',
-          name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
-          scalemode: 'width',
-          pointpos: 0,
-          jitter: 0.3,
-          spanmode: 'hard',
-          points: false,
-          box: {
-            visible: config.violinOverlay === EViolinOverlay.BOX,
-          },
-          showlegend: false,
-          transforms: [
-            {
-              type: 'groupby',
-              groups: x as string[],
-              styles: [...new Set(x as string[])].map((c) => {
-                return {
-                  target: c,
-                  value: {
-                    line: {
-                      color:
-                        selectedList.length !== 0 && categoriesWithMissing.filter((val) => val.val === c).find((val) => selectedMap[val.id])
-                          ? SELECT_COLOR
-                          : '#878E95',
+  // Case: Exactly one numerical and multiple categorical columns selected
+  if (numColValues.length === 1 && catColValues.length > 0) {
+    for (const numCurr of numColValues) {
+      for (const catCurr of catColValues) {
+        const y = numCurr.resolvedValues.map((v) => v.val);
+        // Null values in categorical columns would break the plot --> replace with 'missing'
+        const categoriesWithMissing = catCurr.resolvedValues?.map((v) => ({ ...v, val: v.val || 'missing' }));
+        const x = categoriesWithMissing.map((v) => v.val);
+        plots.push({
+          data: {
+            x,
+            y,
+            ids: categoriesWithMissing.map((v) => v.id),
+            xaxis: config.multiplesMode === EViolinMultiplesMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
+            yaxis: config.multiplesMode === EViolinMultiplesMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
+            // @ts-ignore
+            hoveron: 'violins',
+            name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
+            transforms: [
+              {
+                type: 'groupby',
+                groups: x as string[],
+                styles: [...new Set(x as string[])].map((c) => {
+                  return {
+                    target: c,
+                    value: {
+                      line: {
+                        color:
+                          selectedList.length !== 0 && categoriesWithMissing.filter((val) => val.val === c).find((val) => selectedMap[val.id])
+                            ? SELECT_COLOR
+                            : '#878E95',
+                      },
                     },
-                  },
-                };
-              }),
-            },
-          ],
-        },
-        xLabel: columnNameWithDescription(catCurr.info),
-        yLabel: columnNameWithDescription(numCurr.info),
-      });
-      plotCounter += 1;
+                  };
+                }),
+              },
+            ],
+            ...sharedData,
+          },
+          xLabel: columnNameWithDescription(catCurr.info),
+          yLabel: columnNameWithDescription(numCurr.info),
+        });
+        plotCounter += 1;
+      }
+    }
+  }
+
+  // Case: Multiple numerical columns and multiple categorical columns selected
+  if (numColValues.length > 1 && catColValues.length > 0) {
+    for (const numCurr of numColValues) {
+      for (const catCurr of catColValues) {
+        const y = numCurr.resolvedValues.map((v) => v.val);
+        // Null values in categorical columns would break the plot --> replace with 'missing'
+        const categoriesWithMissing = catCurr.resolvedValues?.map((v) => ({ ...v, val: v.val || 'missing' }));
+        const x = categoriesWithMissing.map((v) => v.val + ' ' + columnNameWithDescription(numCurr.info));
+        plots.push({
+          data: {
+            x,
+            y,
+            // @ts-ignore
+            hoveron: 'violins',
+            ...sharedData,
+          },
+        });
+        plotCounter += 1;
+      }
     }
   }
 

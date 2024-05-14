@@ -4,11 +4,15 @@ import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
-import { ViolinOverlayButtons } from './ViolinOverlayButtons';
-import { EViolinOverlay, IViolinConfig } from './interfaces';
+import { ViolinMultiplesSegmentedControl, ViolinOverlaySegmentedControl } from './ViolinSegmentedControl';
+import { EViolinMultiplesMode, EViolinOverlay, IViolinConfig } from './interfaces';
 
 const defaultConfig = {
   overlay: {
+    enable: true,
+    customComponent: null,
+  },
+  multiplesMode: {
     enable: true,
     customComponent: null,
   },
@@ -48,9 +52,18 @@ export function ViolinVisSidebar({
 
       {mergedOptionsConfig.overlay.enable
         ? mergedOptionsConfig.overlay.customComponent || (
-            <ViolinOverlayButtons
+            <ViolinOverlaySegmentedControl
               callback={(violinOverlay: EViolinOverlay) => setConfig({ ...config, violinOverlay })}
               currentSelected={config.violinOverlay}
+            />
+          )
+        : null}
+
+      {mergedOptionsConfig.multiplesMode.enable
+        ? mergedOptionsConfig.multiplesMode.customComponent || (
+            <ViolinMultiplesSegmentedControl
+              callback={(multiplesMode: EViolinMultiplesMode) => setConfig({ ...config, multiplesMode })}
+              currentSelected={config.multiplesMode}
             />
           )
         : null}

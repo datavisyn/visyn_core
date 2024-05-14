@@ -8,7 +8,7 @@ import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { IViolinConfig } from './interfaces';
+import { EViolinMultiplesMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
 
 export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
@@ -87,12 +87,14 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       clickmode: 'event+select',
       dragmode: false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: config.multiplesMode === EViolinMultiplesMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
+      // @ts-ignore
+      violinmode: 'group',
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
-  }, [traces]);
+  }, [config.multiplesMode, traces]);
 
   return (
     <Stack
