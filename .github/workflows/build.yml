@@ -12,7 +12,7 @@ on:
 
 jobs:
   build-hosted:
-    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_selfhosted
+    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_self_hosted
     secrets: inherit
     with:
       cypress_enable: true
@@ -20,7 +20,7 @@ jobs:
   build-selfhosted:
     needs: build-hosted
     if: always()
-    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_selfhosted
+    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_self_hosted
     secrets: inherit
     with:
       runs_on: self-hosted
