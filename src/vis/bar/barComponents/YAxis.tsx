@@ -1,11 +1,10 @@
-import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Center, Group, Text, rem } from '@mantine/core';
+import { ActionIcon, Center, Group, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { SortTypes } from '../interfaces';
-import { VIS_LABEL_COLOR } from '../../constants';
+import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../../constants';
+import { dvSort, dvSortAsc, dvSortDesc } from '../../../icons';
 
 type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
 
@@ -18,9 +17,8 @@ export function YAxis({
   ticks,
   showLines,
   compact = false,
-  arrowAsc = false,
-  arrowDesc = false,
-  sortType,
+  sortedAsc = false,
+  sortedDesc = false,
   setSortType,
 }: {
   yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
@@ -30,9 +28,8 @@ export function YAxis({
   ticks: { value: string | number; offset: number }[];
   showLines?: boolean;
   compact?: boolean;
-  arrowAsc?: boolean;
-  arrowDesc?: boolean;
-  sortType: SortTypes;
+  sortedAsc?: boolean;
+  sortedDesc?: boolean;
   setSortType: (label: string) => void;
 }) {
   const labelSpacing = useMemo(() => {
@@ -44,18 +41,22 @@ export function YAxis({
     return maxLabelLength > 5 ? 30 : maxLabelLength * 6;
   }, [ticks]);
 
+  const sortIcon = sortedDesc ? dvSortAsc : sortedAsc ? dvSortDesc : dvSort;
+
   return (
     <>
       <g transform={`translate(${horizontalPosition - labelSpacing - 30}, ${yScale.range()[0]}) rotate(-90)`}>
         <foreignObject width={Math.abs(yScale.range()[0] - yScale.range()[1])} height={20}>
           <Center>
             <Group gap={3} style={{ cursor: 'pointer' }}>
-              {arrowDesc ? <FontAwesomeIcon style={{ color: VIS_LABEL_COLOR }} icon={faCaretLeft} /> : null}
-
-              <Text size={compact ? rem('10px') : 'sm'} style={{ color: VIS_LABEL_COLOR }} onClick={() => setSortType(label)}>
+              <Text size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none' }} c={VIS_LABEL_COLOR}>
                 {label}
               </Text>
-              {arrowAsc ? <FontAwesomeIcon style={{ color: VIS_LABEL_COLOR }} icon={faCaretRight} /> : null}
+              <Tooltip withArrow withinPortal label={sortedDesc ? 'Sorted ascending' : sortedAsc ? 'Sorted descending' : 'Click to sort'}>
+                <ActionIcon onClick={() => setSortType(label)} ml="xs" size="sm" color={VIS_LABEL_COLOR} variant="subtle">
+                  <FontAwesomeIcon size="xs" icon={sortIcon} />
+                </ActionIcon>
+              </Tooltip>
             </Group>
           </Center>
         </foreignObject>
@@ -71,9 +72,17 @@ export function YAxis({
           >
             <foreignObject width={labelSpacing} height={20}>
               <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Text c={VIS_LABEL_COLOR} truncate size={rem('10px')}>
-                  {value}
-                </Text>
+                <Tooltip withArrow label={value} withinPortal>
+                  <Text
+                    c={VIS_LABEL_COLOR}
+                    pb={2} // to make sure the text is not cut off on the bottom, e.g. "g"s
+                    truncate
+                    style={{ userSelect: 'none' }}
+                    size={compact ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
+                  >
+                    {value}
+                  </Text>
+                </Tooltip>
               </Group>
             </foreignObject>
           </g>

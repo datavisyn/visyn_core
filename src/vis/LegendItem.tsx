@@ -18,6 +18,7 @@ export function LegendItem({ color, label, filtered, onClick }: { color: string;
         &:hover {
           background-color: #f9f9f9;
         }
+        cursor: pointer;
       `}
       onClick={onClick}
       opacity={filtered ? 0.6 : 1}

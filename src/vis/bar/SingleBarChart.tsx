@@ -161,9 +161,8 @@ export function SingleBarChart({
                       : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
                   }
                   ticks={countTicks}
-                  arrowDesc={sortType === SortTypes.COUNT_DESC}
-                  arrowAsc={sortType === SortTypes.COUNT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.COUNT_DESC}
+                  sortedAsc={sortType === SortTypes.COUNT_ASC}
                   setSortType={sortTypeCallback}
                 />
               ) : (
@@ -175,9 +174,8 @@ export function SingleBarChart({
                   showLines={false}
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
-                  arrowDesc={sortType === SortTypes.CAT_DESC}
-                  arrowAsc={sortType === SortTypes.CAT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.CAT_DESC}
+                  sortedAsc={sortType === SortTypes.CAT_ASC}
                   setSortType={sortTypeCallback}
                 />
               )
@@ -192,9 +190,8 @@ export function SingleBarChart({
                   label={config.catColumnSelected.name}
                   showLines={false}
                   ticks={categoryTicks}
-                  arrowDesc={sortType === SortTypes.CAT_DESC}
-                  arrowAsc={sortType === SortTypes.CAT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.CAT_DESC}
+                  sortedAsc={sortType === SortTypes.CAT_ASC}
                   setSortType={sortTypeCallback}
                 />
               ) : (
@@ -210,9 +207,8 @@ export function SingleBarChart({
                   }
                   showLines
                   ticks={countTicks}
-                  arrowDesc={sortType === SortTypes.COUNT_DESC}
-                  arrowAsc={sortType === SortTypes.COUNT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.COUNT_DESC}
+                  sortedAsc={sortType === SortTypes.COUNT_ASC}
                   setSortType={sortTypeCallback}
                 />
               )
