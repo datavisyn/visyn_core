@@ -11,14 +11,14 @@ on:
   push:
 
 jobs:
-  build-hosted:
-    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_self_hosted
-    secrets: inherit
-    with:
-      cypress_enable: true
-      cypress_run_because_flag: ${{ inputs.cypress == true }}
+  #build-hosted:
+  #  uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_self_hosted
+  #  secrets: inherit
+  #  with:
+  #    cypress_enable: true
+  #    cypress_run_because_flag: ${{ inputs.cypress == true }}
   build-selfhosted:
-    needs: build-hosted
+    #needs: build-hosted
     if: always()
     uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@vdelev_self_hosted
     secrets: inherit
