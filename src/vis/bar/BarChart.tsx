@@ -11,7 +11,15 @@ import { getBarData } from './utils';
 import { IBarConfig, SortTypes } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
-export function BarChart({ config, columns, selectedMap, selectedList, selectionCallback, uniquePlotId, showDownloadScreenshot }: ICommonVisProps<IBarConfig>) {
+export function BarChart({
+  config,
+  columns,
+  selectedMap,
+  selectedList,
+  selectionCallback,
+  uniquePlotId,
+  showDownloadScreenshot,
+}: Pick<ICommonVisProps<IBarConfig>, 'config' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,

@@ -19,7 +19,12 @@ const CIRCLE_MIN_SIZE = 4;
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-export function CorrelationMatrix({ config, columns, uniquePlotId, showDownloadScreenshot }: ICommonVisProps<ICorrelationConfig>) {
+export function CorrelationMatrix({
+  config,
+  columns,
+  uniquePlotId,
+  showDownloadScreenshot,
+}: Pick<ICommonVisProps<ICorrelationConfig>, 'config' | 'columns' | 'uniquePlotId' | 'showDownloadScreenshot'>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('CorrelationVis'), [uniquePlotId]);
   const { value: dataAll, status } = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
   const [data, setData] = React.useState<{ resolvedValues: (VisNumericalValue | VisCategoricalValue)[]; type: EColumnTypes; info: ColumnInfo }[]>(null);
