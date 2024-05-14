@@ -15,6 +15,7 @@ import {
   ENumericalColorScaleType,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
+  IPlotStats,
   Scales,
   VisColumn,
 } from './interfaces';
@@ -127,6 +128,8 @@ export function useRegisterDefaultVis(visTypes?: string[]) {
 export function EagerVis({
   columns,
   selected = [],
+  stats = null,
+  statsCallback = () => null,
   colors = null,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
@@ -165,6 +168,14 @@ export function EagerVis({
    * Optional Prop which is called when a selection is made in the scatterplot visualization. Passes in the selected points.
    */
   selectionCallback?: (s: string[]) => void;
+  /**
+   * Optional Prop for getting statistics for the current plot.
+   */
+  stats?: IPlotStats;
+  /**
+   * Optional Prop which is called whenever the statistics for the plot change.
+   */
+  statsCallback?: (s: IPlotStats) => void;
   /**
    * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
    */
@@ -237,7 +248,7 @@ export function EagerVis({
                 } as BaseVisConfig)
               : ({
                   type: ESupportedPlotlyVis.BAR,
-                  multiples: null,
+                  facets: null,
                   group: null,
                   direction: EBarDirection.HORIZONTAL,
                   display: EBarDisplayType.ABSOLUTE,
@@ -264,9 +275,15 @@ export function EagerVis({
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
       // if the vis type changed we need to wrap the new config with defaults, i.e. selectedColumns
-      _setVisConfig?.(v.type === _visConfig?.type ? v : wrapWithDefaults(v));
+      // also we need to reset the stats on vis type change
+      if (v.type !== _visConfig?.type) {
+        _setVisConfig?.(wrapWithDefaults(v));
+        statsCallback(null);
+      } else {
+        _setVisConfig?.(v);
+      }
     },
-    [_setVisConfig, _visConfig, wrapWithDefaults],
+    [_setVisConfig, _visConfig?.type, statsCallback, wrapWithDefaults],
   );
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
@@ -348,6 +365,8 @@ export function EagerVis({
           showDragModeOptions={showDragModeOptions}
           shapes={shapes}
           setConfig={setVisConfig}
+          stats={stats}
+          statsCallback={statsCallback}
           filterCallback={filterCallback}
           selectionCallback={selectionCallback}
           selectedMap={selectedMap}

@@ -1,4 +1,4 @@
-import { Combobox, Input, useCombobox, InputBase, CloseButton, Group, Text, CheckIcon } from '@mantine/core';
+import { CheckIcon, CloseButton, Combobox, Group, Input, InputBase, ScrollArea, Text, useCombobox } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -43,7 +43,7 @@ export function SingleSelect({
   return (
     <Combobox
       store={combobox}
-      withinPortal={false}
+      withinPortal
       onOptionSubmit={(val) => {
         callback(filteredColumns.find((c) => c.info.name === val)?.info);
         combobox.closeDropdown();
@@ -70,7 +70,9 @@ export function SingleSelect({
       </Combobox.Target>
 
       <Combobox.Dropdown>
-        <Combobox.Options>{options}</Combobox.Options>
+        <ScrollArea.Autosize type="scroll" mah={200}>
+          <Combobox.Options>{options}</Combobox.Options>
+        </ScrollArea.Autosize>
       </Combobox.Dropdown>
     </Combobox>
   );

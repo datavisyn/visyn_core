@@ -25,14 +25,14 @@ export function BarChart({
     columns,
     config.catColumnSelected,
     config.group,
-    config.multiples,
+    config.facets,
     config.aggregateColumn,
   ]);
 
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
-  const uniqueMultiplesVals = useMemo(() => {
-    return [...new Set(allColumns?.multiplesColVals?.resolvedValues.map((v) => v.val))] as string[];
+  const uniqueFacetVals = useMemo(() => {
+    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
   }, [allColumns]);
 
   const { groupColorScale, groupedTable } = useGetGroupedBarScales(
@@ -102,7 +102,7 @@ export function BarChart({
         ) : null}
 
         <SimpleGrid
-          cols={Math.round(Math.sqrt(uniqueMultiplesVals.length))}
+          cols={Math.min(Math.ceil(Math.sqrt(uniqueFacetVals.length)), 5)}
           spacing={0}
           style={{ flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}
         >
@@ -110,7 +110,7 @@ export function BarChart({
             <Center>
               <Loader />
             </Center>
-          ) : !config.multiples || !allColumns.multiplesColVals ? (
+          ) : !config.facets || !allColumns.facetsColVals ? (
             <SingleBarChart
               config={config}
               allColumns={allColumns}
@@ -121,7 +121,7 @@ export function BarChart({
               setSortType={setSortType}
             />
           ) : (
-            uniqueMultiplesVals.map((multiplesVal) => (
+            uniqueFacetVals.map((multiplesVal) => (
               <SingleBarChart
                 isSmall
                 selectedList={selectedList}
