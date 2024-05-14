@@ -1,4 +1,4 @@
-import { Box, Center, Group, Loader, Stack, Text, Tooltip } from '@mantine/core';
+import { Box, Center, Group, Loader, Stack, Text, Tooltip, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import { scaleBand } from 'd3v7';
@@ -11,7 +11,7 @@ import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 import { getCorrelationMatrixData } from './utils';
-import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../constants';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../constants';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;
@@ -131,25 +131,26 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
             <Center style={{ height: '100%' }} px={5}>
               <Tooltip
                 label={
-                  <Stack gap={0}>
-                    <Text c={VIS_LABEL_COLOR}>{col.info.name}</Text>
-                    {col.info.description && (
-                      <Text size="xs" c={VIS_LABEL_COLOR}>
-                        {col.info.description}
-                      </Text>
-                    )}
+                  <Stack gap={0} align="center">
+                    <Text>{col.info.name}</Text>
+                    {col.info.description && <Text size="xs">{col.info.description}</Text>}
                   </Stack>
                 }
                 arrowSize={6}
                 withinPortal
                 withArrow
               >
-                <Stack gap={0}>
-                  <Text size={VIS_AXIS_LABEL_SIZE} c={VIS_LABEL_COLOR} fw="bold" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <Stack gap="xs" align="center" justify="center">
+                  <Text
+                    size={rem(VIS_AXIS_LABEL_SIZE)}
+                    c={VIS_LABEL_COLOR}
+                    fw="bold"
+                    style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                  >
                     {col.info.name}
                   </Text>
                   {col.info.description && (
-                    <Text size={VIS_TICK_LABEL_SIZE} c={VIS_LABEL_COLOR} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    <Text size={rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                       {col.info.description}
                     </Text>
                   )}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Group, Stack, Text, Center } from '@mantine/core';
+import { Group, Stack, Text, Center, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import { useEffect, useMemo, useRef } from 'react';
 import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../constants';
@@ -58,7 +58,7 @@ export function ColorLegendVert({
     <Stack gap={3} style={{ width: `100%` }}>
       {title ? (
         <Center>
-          <Text lh="xs" size={VIS_AXIS_LABEL_SIZE} c={VIS_LABEL_COLOR}>
+          <Text size={rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
             {title}
           </Text>
         </Center>

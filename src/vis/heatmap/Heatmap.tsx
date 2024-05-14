@@ -1,6 +1,6 @@
 import { faArrowDownShortWide, faArrowUpShortWide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, Container, Group, Stack, Text, Tooltip } from '@mantine/core';
+import { Box, Container, Group, Stack, Text, Tooltip, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
@@ -217,7 +217,7 @@ export function Heatmap({
       <Group wrap="nowrap" style={{ width: '100%', height: '100%' }} gap={0} pr="40px">
         <Text
           c={VIS_LABEL_COLOR}
-          size={VIS_AXIS_LABEL_SIZE}
+          size={rem(VIS_AXIS_LABEL_SIZE)}
           style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer', userSelect: 'none' }}
           onClick={() =>
             setExternalConfig({
@@ -283,7 +283,7 @@ export function Heatmap({
       </Group>
       <Text
         c={VIS_LABEL_COLOR}
-        size={VIS_AXIS_LABEL_SIZE}
+        size={rem(VIS_AXIS_LABEL_SIZE)}
         lh="xs"
         pb="xs"
         style={{ whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}
