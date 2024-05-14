@@ -3,8 +3,14 @@ import { ActionIcon, Center, Group, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { SortTypes } from '../interfaces';
-import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../../constants';
+import {
+  VIS_AXIS_LABEL_SIZE,
+  VIS_AXIS_LABEL_SIZE_SMALL,
+  VIS_GRID_COLOR,
+  VIS_LABEL_COLOR,
+  VIS_TICK_LABEL_SIZE,
+  VIS_TICK_LABEL_SIZE_SMALL,
+} from '../../constants';
 import { dvSortAsc, dvSortDesc, dvSort } from '../../../icons';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
@@ -62,7 +68,7 @@ export function XAxis({
 
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${offset}, ${vertPosition})`}>
-          {showLines ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke="lightgray" /> : null}
+          {showLines ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke={VIS_GRID_COLOR} /> : null}
           <foreignObject x={0 - tickWidth / 2} y={10} width={tickWidth} height={20}>
             <Center>
               <Tooltip withinPortal label={value} withArrow>

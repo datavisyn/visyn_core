@@ -3,7 +3,14 @@ import { ActionIcon, Center, Group, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../../constants';
+import {
+  VIS_AXIS_LABEL_SIZE,
+  VIS_AXIS_LABEL_SIZE_SMALL,
+  VIS_GRID_COLOR,
+  VIS_LABEL_COLOR,
+  VIS_TICK_LABEL_SIZE,
+  VIS_TICK_LABEL_SIZE_SMALL,
+} from '../../constants';
 import { dvSort, dvSortAsc, dvSortDesc } from '../../../icons';
 
 type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
@@ -63,7 +70,7 @@ export function YAxis({
       </g>
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${offset})`}>
-          {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke="lightgray" /> : null}
+          {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke={VIS_GRID_COLOR} /> : null}
           <g
             key={value}
             style={{
