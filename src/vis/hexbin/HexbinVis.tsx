@@ -1,5 +1,6 @@
 import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem } from '@mantine/core';
 import * as d3v7 from 'd3v7';
+import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { i18n } from '../../i18n';
@@ -9,6 +10,7 @@ import { BrushOptionButtons } from '../sidebar';
 import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 function Legend({
   categories,
@@ -66,7 +68,10 @@ export function HexbinVis({
   selectionCallback = () => null,
   selectedMap = {},
   showDragModeOptions = true,
+  uniquePlotId,
+  showDownloadScreenshot,
 }: ICommonVisProps<IHexbinConfig>) {
+  const id = React.useMemo(() => uniquePlotId || uniqueId('HexbinVis'), [uniquePlotId]);
   const { width, height } = dimensions;
   const { value: allColumns, status: colsStatus } = useAsync(getHexData, [columns, config.numColumnsSelected, config.color]);
 
@@ -97,18 +102,21 @@ export function HexbinVis({
 
   return (
     <Stack gap={0} style={{ width, height }}>
-      {showDragModeOptions ? (
+      {showDragModeOptions || showDownloadScreenshot ? (
         <Center>
           <Group mt="lg">
-            <BrushOptionButtons
-              callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
-              options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
-              dragMode={config.dragMode}
-            />
+            {showDragModeOptions ? (
+              <BrushOptionButtons
+                callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+                options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
+                dragMode={config.dragMode}
+              />
+            ) : null}
+            {showDownloadScreenshot && config.numColumnsSelected.length >= 2 ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
           </Group>
         </Center>
       ) : null}
-      <Group style={{ flexGrow: 1, height: 0 }} wrap="nowrap">
+      <Group style={{ flexGrow: 1, height: 0 }} wrap="nowrap" id={id}>
         <Box
           style={{
             flexGrow: 1,

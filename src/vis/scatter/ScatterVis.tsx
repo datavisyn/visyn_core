@@ -12,6 +12,7 @@ import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { createScatterTraces } from './utils';
 import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 export function ScatterVis({
   config,
@@ -25,13 +26,15 @@ export function ScatterVis({
   showDragModeOptions,
   scales,
   scrollZoom,
+  uniquePlotId,
+  showDownloadScreenshot,
 }: ICommonVisProps<IScatterConfig>) {
-  const id = React.useMemo(() => uniqueId('ScatterVis'), []);
+  const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
   useEffect(() => {
-    const plotDiv = document.getElementById(`plotlyDiv${id}`);
+    const plotDiv = document.getElementById(`${id}`);
     if (plotDiv) {
       Plotly.Plots.resize(plotDiv);
     }
@@ -144,13 +147,15 @@ export function ScatterVis({
 
     return [];
   }, [plotsWithSelectedPoints, traces]);
-
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }}>
-      {showDragModeOptions ? (
+      {showDragModeOptions || showDownloadScreenshot ? (
         <Center>
-          <Group mt="lg">
-            <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
+          <Group>
+            {showDragModeOptions ? (
+              <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
+            ) : null}
+            {showDownloadScreenshot && plotsWithSelectedPoints.length > 0 ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
           </Group>
         </Center>
       ) : null}
@@ -158,7 +163,7 @@ export function ScatterVis({
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
         <PlotlyComponent
           key={id}
-          divId={`plotlyDiv${id}`}
+          divId={id}
           data={plotlyData}
           layout={layout}
           config={{ responsive: true, displayModeBar: false, scrollZoom }}
@@ -173,10 +178,10 @@ export function ScatterVis({
             }
           }}
           onInitialized={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
           }}
           onUpdate={() => {
-            d3.select(`#plotlyDiv${id}`).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
           }}
           onSelected={(sel) => {
             selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
