@@ -1,23 +1,31 @@
-import { Box, Center, Group, Loader, Stack, Text, Tooltip } from '@mantine/core';
+import { Box, Center, Loader, Stack, Text, Tooltip } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
+import { uniqueId } from 'lodash';
 import { scaleBand } from 'd3v7';
 import { corrcoeff, spearmancoeff, tukeyhsd } from 'jstat';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
-import { ColumnInfo, EColumnTypes, EScaleType, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, EScaleType, ICommonVisProps, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 import { getCorrelationMatrixData } from './utils';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;
 
 const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-export function CorrelationMatrix({ config, columns }: { config: ICorrelationConfig; columns: VisColumn[] }) {
+export function CorrelationMatrix({
+  config,
+  columns,
+  uniquePlotId,
+  showDownloadScreenshot,
+}: Pick<ICommonVisProps<ICorrelationConfig>, 'config' | 'columns' | 'uniquePlotId' | 'showDownloadScreenshot'>) {
+  const id = React.useMemo(() => uniquePlotId || uniqueId('CorrelationVis'), [uniquePlotId]);
   const { value: dataAll, status } = useAsync(getCorrelationMatrixData, [columns, config.numColumnsSelected]);
   const [data, setData] = React.useState<{ resolvedValues: (VisNumericalValue | VisCategoricalValue)[]; type: EColumnTypes; info: ColumnInfo }[]>(null);
 
@@ -162,9 +170,14 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
   }, [data, xScale, yScale]);
 
   return (
-    <Group style={{ height: '100%', width: '100%' }} wrap="nowrap" pr="40px">
+    <Stack pr="40px" style={{ height: '100%', width: '100%' }}>
       {status === 'success' ? (
-        <Stack style={{ height: '100%', width: '100%' }} align="center" gap={0}>
+        <Stack align="center" gap={0} id={id} style={{ height: '100%', width: '100%' }}>
+          {showDownloadScreenshot ? (
+            <Center>
+              <DownloadPlotButton uniquePlotId={id} config={config} />
+            </Center>
+          ) : null}
           <Box pl={margin.left} pr={margin.right}>
             <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
           </Box>
@@ -192,6 +205,6 @@ export function CorrelationMatrix({ config, columns }: { config: ICorrelationCon
           <Loader />
         </Center>
       )}
-    </Group>
+    </Stack>
   );
 }

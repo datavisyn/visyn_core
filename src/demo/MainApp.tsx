@@ -125,6 +125,7 @@ export function MainApp() {
             columns={columns}
             showSidebarDefault
             externalConfig={visConfig}
+            showDownloadScreenshot
             setExternalConfig={setVisConfig}
             selected={visSelection}
             selectionCallback={(s) => {

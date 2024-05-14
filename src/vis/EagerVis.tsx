@@ -145,6 +145,8 @@ export function EagerVis({
   showSidebarDefault = false,
   scrollZoom = true,
   visTypes,
+  uniquePlotId,
+  showDownloadScreenshot = false,
 }: {
   /**
    * Required data columns which are displayed.
@@ -201,6 +203,16 @@ export function EagerVis({
    * Optional property which enables the user to specify which vis types to show as options in the sidebar. If not specified, all vis types will be used.
    */
   visTypes?: string[];
+
+  /**
+   * Unique id for the visualization instance. It is currently used to identify the DOM element and download a screenshot of the plot.
+   */
+  uniquePlotId?: string;
+
+  /**
+   * Optional property to show the download screenshot button in the sidebar.
+   */
+  showDownloadScreenshot?: boolean;
 }) {
   const [showSidebar, setShowSidebar] = useUncontrolled<boolean>({
     value: internalShowSidebar,
@@ -348,6 +360,8 @@ export function EagerVis({
               enable: true,
             },
           }}
+          uniquePlotId={uniquePlotId}
+          showDownloadScreenshot={showDownloadScreenshot}
           showDragModeOptions={showDragModeOptions}
           shapes={shapes}
           setConfig={setVisConfig}
