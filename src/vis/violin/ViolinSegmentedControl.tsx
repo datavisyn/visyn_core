@@ -1,6 +1,6 @@
 import { Input, SegmentedControl } from '@mantine/core';
 import * as React from 'react';
-import { EViolinMultiplesMode, EViolinOverlay } from './interfaces';
+import { EViolinSeparationMode, EViolinOverlay } from './interfaces';
 
 interface SegmentedControlProps<T> {
   callback: (s: T) => void;
@@ -24,17 +24,17 @@ export function ViolinOverlaySegmentedControl({ callback, currentSelected }: Seg
   );
 }
 
-export function ViolinMultiplesSegmentedControl({ callback, currentSelected }: SegmentedControlProps<EViolinMultiplesMode>) {
+export function ViolinSeparationSegmentedControl({ callback, currentSelected }: SegmentedControlProps<EViolinSeparationMode>) {
   return (
-    <Input.Wrapper label="Multiples">
+    <Input.Wrapper label="Separation">
       <SegmentedControl
         fullWidth
         size="xs"
         value={currentSelected}
         onChange={callback}
         data={[
-          { label: EViolinMultiplesMode.GROUP, value: EViolinMultiplesMode.GROUP },
-          { label: EViolinMultiplesMode.FACETS, value: EViolinMultiplesMode.FACETS },
+          { label: EViolinSeparationMode.GROUP, value: EViolinSeparationMode.GROUP },
+          { label: EViolinSeparationMode.FACETS, value: EViolinSeparationMode.FACETS },
         ]}
       />
     </Input.Wrapper>

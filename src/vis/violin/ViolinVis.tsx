@@ -8,7 +8,7 @@ import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { EViolinMultiplesMode, IViolinConfig } from './interfaces';
+import { EViolinSeparationMode, IViolinConfig } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { createViolinTraces } from './utils';
 
@@ -98,14 +98,19 @@ export function ViolinVis({
       clickmode: 'event+select',
       dragmode: false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: config.multiplesMode === EViolinMultiplesMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: config.multiplesMode === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
       // @ts-ignore
-      violinmode: 'group',
+      violinmode:
+        config.multiplesMode === EViolinSeparationMode.GROUP && config.catColumnsSelected?.length > 0 && config.numColumnsSelected?.length > 1
+          ? 'group'
+          : 'overlay',
+      violingap: 0.1,
+      violingroupgap: 0.1,
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
-  }, [config.multiplesMode, traces]);
+  }, [config.catColumnsSelected, config.multiplesMode, config.numColumnsSelected.length, traces]);
 
   return (
     <Stack
