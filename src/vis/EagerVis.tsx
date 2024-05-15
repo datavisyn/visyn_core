@@ -101,6 +101,13 @@ function registerAllVis(visTypes?: string[]) {
       description: 'Visualizes numerical data distribution by combining a box plot and a kernel density plot',
     }),
     createVis({
+      type: ESupportedPlotlyVis.BOXPLOT,
+      renderer: ViolinVis,
+      sidebarRenderer: ViolinVisSidebar,
+      mergeConfig: violinMergeDefaultConfig,
+      description: 'Visualizes numerical data distribution by combining a box plot and a kernel density plot',
+    }),
+    createVis({
       type: ESupportedPlotlyVis.RAINCLOUD,
       renderer: RaincloudVis,
       sidebarRenderer: RaincloudVisSidebar,

@@ -3,6 +3,7 @@ import { PlotlyTypes } from '../plotly';
 export enum ESupportedPlotlyVis {
   SCATTER = 'Scatter plot',
   VIOLIN = 'Violin plot',
+  BOXPLOT = 'Box plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
   HEATMAP = 'Heatmap plot',

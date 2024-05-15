@@ -1,4 +1,5 @@
 import merge from 'lodash/merge';
+import { PlotData } from 'plotly.js-dist-min';
 import { i18n } from '../../i18n';
 import { SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
@@ -51,33 +52,63 @@ export async function createViolinTraces(
   const numColValues = await resolveColumnValues(numCols);
   const catColValues = await resolveColumnValues(catCols);
 
+  const isViolin = config.type === ESupportedPlotlyVis.VIOLIN;
+
+  const violinProps: Partial<PlotData> = {
+    type: 'violin',
+    // @ts-ignore
+    box: {
+      visible: config.violinOverlay === EViolinOverlay.BOX,
+    },
+    pointpos: 0,
+    jitter: 0.3,
+    // @ts-ignore
+    hoveron: 'violins',
+    points: false,
+    marker: {
+      color: SELECT_COLOR,
+    },
+    spanmode: 'hard',
+    scalemode: 'width',
+    showlegend: false,
+  };
+
+  const boxProps: Partial<PlotData> = {
+    type: 'box',
+    // @ts-ignore
+    hoveron: 'violins',
+    hoverinfo: 'y',
+    scalemode: 'width',
+    pointpos: 0,
+    jitter: 0.3,
+    spanmode: 'hard',
+    points: false,
+    box: {
+      visible: config.violinOverlay === EViolinOverlay.BOX,
+    },
+    showlegend: false,
+  };
+  const typeSpecificProps = (isViolin ? violinProps : boxProps) as Partial<PlotData>;
+
   // if we onl have numerical columns, add them individually.
   if (catColValues.length === 0) {
     for (const numCurr of numColValues) {
       const y = numCurr.resolvedValues.map((v) => v.val);
       plots.push({
         data: {
+          ...typeSpecificProps,
           y,
           ids: numCurr.resolvedValues.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          type: 'violin',
-          pointpos: 0,
-          jitter: 0.3,
-          // @ts-ignore
-          hoveron: 'violins',
-          points: false,
-          box: {
-            visible: config.violinOverlay === EViolinOverlay.BOX,
-          },
           marker: {
             color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
           },
 
-          spanmode: 'hard',
+          // spanmode: 'hard',
           name: `${columnNameWithDescription(numCurr.info)}`,
           hoverinfo: 'y',
-          scalemode: 'width',
+          // scalemode: 'width',
           showlegend: false,
         },
         xLabel: columnNameWithDescription(numCurr.info),
@@ -97,22 +128,14 @@ export async function createViolinTraces(
         data: {
           x,
           y,
+          ...typeSpecificProps,
           ids: categoriesWithMissing.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          type: 'violin',
-          // @ts-ignore
-          hoveron: 'violins',
           hoverinfo: 'y',
           name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
-          scalemode: 'width',
           pointpos: 0,
           jitter: 0.3,
-          spanmode: 'hard',
-          points: false,
-          box: {
-            visible: config.violinOverlay === EViolinOverlay.BOX,
-          },
           showlegend: false,
           transforms: [
             {
