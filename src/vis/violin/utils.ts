@@ -60,7 +60,7 @@ export async function createViolinTraces(
     box: {
       visible: config.violinOverlay === EViolinOverlay.BOX,
     },
-    // boxpoints: 'all',
+    boxpoints: 'all',
     // @ts-ignore
     hoveron: 'violins',
     hoverinfo: 'y',
