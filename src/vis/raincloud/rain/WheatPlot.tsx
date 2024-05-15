@@ -61,8 +61,6 @@ export function WheatPlot({
         });
     });
 
-    console.log(circles.flat());
-
     circleCallback(circles.flat());
   }, [bins, circleCallback, xScale, yPos]);
 

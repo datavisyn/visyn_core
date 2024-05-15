@@ -1,5 +1,6 @@
-import { Group, MantineTheme, Stack, lighten, rgba, useMantineTheme } from '@mantine/core';
+import { MantineTheme, Stack, lighten, rgba, useMantineTheme, Center } from '@mantine/core';
 import * as React from 'react';
+import { uniqueId } from 'lodash';
 import { css } from '@emotion/react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
@@ -7,6 +8,7 @@ import { InvalidCols } from '../general/InvalidCols';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -172,9 +174,17 @@ const classes = css({
   },
 });
 
-export function SankeyVis({ config, columns, selectedList, selectionCallback, dimensions }: ICommonVisProps<ISankeyConfig>) {
+export function SankeyVis({
+  config,
+  columns,
+  selectedList,
+  selectionCallback,
+  dimensions,
+  uniquePlotId,
+  showDownloadScreenshot,
+}: ICommonVisProps<ISankeyConfig>) {
   const [selection, setSelection] = React.useState<string[]>([]);
-
+  const id = React.useMemo(() => uniquePlotId || uniqueId('SankeyVis'), [uniquePlotId]);
   const { value: data } = useAsync(fetchData, [columns, config]);
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
@@ -197,45 +207,52 @@ export function SankeyVis({ config, columns, selectedList, selectionCallback, di
   }, [selectedList]);
 
   return (
-    <Group
-      wrap="nowrap"
+    <Stack
       pl={0}
       pr={0}
       className={classes.name}
       style={{
         flexGrow: 1,
+        height: '100%',
+        width: '100%',
       }}
     >
-      <Stack gap={0} style={{ height: '100%', width: '100%' }}>
-        {plotly ? (
-          <PlotlyComponent
-            data={plotly}
-            style={{ width: '100%' }}
-            config={{ displayModeBar: false }}
-            layout={{
-              font: {
-                size: 12,
-              },
-              autosize: true,
-            }}
-            onClick={(sel) => {
-              if (!sel.points[0]) {
-                return;
-              }
+      {showDownloadScreenshot && plotly ? (
+        <Center>
+          <DownloadPlotButton uniquePlotId={id} config={config} />
+        </Center>
+      ) : null}
+      {plotly ? (
+        <PlotlyComponent
+          divId={id}
+          data={plotly}
+          style={{ width: '100%' }}
+          config={{ displayModeBar: false }}
+          layout={{
+            font: {
+              size: 12,
+            },
+            autosize: true,
+          }}
+          onClick={(sel) => {
+            if (!sel.points[0]) {
+              return;
+            }
 
-              const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
+            const element = sel.points[0] as (typeof sel.points)[0] & { index: number };
 
-              if ('sourceLinks' in element) {
-                selectionCallback(data.nodes.inverseLookup[element.index]);
-              } else {
-                selectionCallback(data.links.inverseLookup[element.index]);
-              }
-            }}
-          />
-        ) : (
+            if ('sourceLinks' in element) {
+              selectionCallback(data.nodes.inverseLookup[element.index]);
+            } else {
+              selectionCallback(data.links.inverseLookup[element.index]);
+            }
+          }}
+        />
+      ) : (
+        <Center h="100%">
           <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a sankey chart, select at least 2 columns." />
-        )}
-      </Stack>
-    </Group>
+        </Center>
+      )}
+    </Stack>
   );
 }
