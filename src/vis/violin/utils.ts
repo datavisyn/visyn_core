@@ -60,11 +60,13 @@ export async function createViolinTraces(
     box: {
       visible: config.violinOverlay === EViolinOverlay.BOX,
     },
-    pointpos: 0,
-    jitter: 0.3,
+    // boxpoints: 'all',
     // @ts-ignore
     hoveron: 'violins',
-    points: false,
+    hoverinfo: 'y',
+    points: 'all',
+    jitter: 0.3,
+    whiskerwidth: 0.3,
     marker: {
       color: SELECT_COLOR,
     },
@@ -79,7 +81,8 @@ export async function createViolinTraces(
     hoveron: 'violins',
     hoverinfo: 'y',
     scalemode: 'width',
-    pointpos: 0,
+    boxpoints: 'all',
+    whiskerwidth: 0.2,
     jitter: 0.3,
     spanmode: 'hard',
     points: false,
@@ -107,7 +110,6 @@ export async function createViolinTraces(
 
           // spanmode: 'hard',
           name: `${columnNameWithDescription(numCurr.info)}`,
-          hoverinfo: 'y',
           // scalemode: 'width',
           showlegend: false,
         },
@@ -132,10 +134,7 @@ export async function createViolinTraces(
           ids: categoriesWithMissing.map((v) => v.id),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          hoverinfo: 'y',
           name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
-          pointpos: 0,
-          jitter: 0.3,
           showlegend: false,
           transforms: [
             {
