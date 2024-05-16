@@ -26,9 +26,9 @@ export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig):
 export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes) {
   switch (sortType) {
     case SortTypes.CAT_ASC:
-      return tempTable.orderby('category');
-    case SortTypes.CAT_DESC:
       return tempTable.orderby(desc('category'));
+    case SortTypes.CAT_DESC:
+      return tempTable.orderby('category');
     case SortTypes.COUNT_ASC:
       return tempTable.orderby('count');
     case SortTypes.COUNT_DESC:

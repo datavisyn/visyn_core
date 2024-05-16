@@ -10,6 +10,7 @@ import { StackedBars } from './barTypes/StackedBars';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { getBarData } from './utils';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
+import { ESortStates } from '../general/SortIcon';
 
 const margin = {
   top: 30,
@@ -88,24 +89,24 @@ export function SingleBarChart({
   }, [config.direction, normalizedCountScale]);
 
   const sortTypeCallback = useCallback(
-    (label: string) => {
+    (label: string, nextSortState: ESortStates) => {
       if (label === config.catColumnSelected.name) {
-        if (sortType === SortTypes.CAT_ASC) {
-          setSortType(SortTypes.CAT_DESC);
-        } else if (sortType === SortTypes.CAT_DESC) {
-          setSortType(SortTypes.NONE);
-        } else {
+        if (nextSortState === ESortStates.ASC) {
           setSortType(SortTypes.CAT_ASC);
+        } else if (nextSortState === ESortStates.DESC) {
+          setSortType(SortTypes.CAT_DESC);
+        } else {
+          setSortType(SortTypes.NONE);
         }
-      } else if (sortType === SortTypes.COUNT_ASC) {
-        setSortType(SortTypes.COUNT_DESC);
-      } else if (sortType === SortTypes.COUNT_DESC) {
-        setSortType(SortTypes.NONE);
-      } else {
+      } else if (nextSortState === ESortStates.ASC) {
         setSortType(SortTypes.COUNT_ASC);
+      } else if (nextSortState === ESortStates.DESC) {
+        setSortType(SortTypes.COUNT_DESC);
+      } else {
+        setSortType(SortTypes.NONE);
       }
     },
-    [config.catColumnSelected.name, setSortType, sortType],
+    [config.catColumnSelected.name, setSortType],
   );
 
   return (

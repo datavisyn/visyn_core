@@ -1,6 +1,4 @@
-import { faArrowDownShortWide, faArrowUpShortWide } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, Container, Group, Stack, Text, Tooltip, rem } from '@mantine/core';
+import { Box, Center, Container, Group, Stack, Text, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
@@ -13,8 +11,8 @@ import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
 import { ESortTypes, IHeatmapConfig } from './interfaces';
 import { sequentialBlueColors } from '../../utils/colors';
-import { dvSortAsc, dvSortDesc } from '../../icons';
 import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../constants';
+import { ESortStates, SortIcon } from '../general/SortIcon';
 
 const interRectDistance = 1;
 
@@ -214,55 +212,26 @@ export function Heatmap({
           title={`${config.aggregateType} ${config.aggregateType === EAggregateTypes.COUNT ? '' : config.aggregateColumn.name}`}
         />
       </Box>
-      <Group wrap="nowrap" style={{ width: '100%', height: '100%' }} gap={0} pr="40px">
-        <Text
-          c={VIS_LABEL_COLOR}
-          size={rem(VIS_AXIS_LABEL_SIZE)}
-          style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer', userSelect: 'none' }}
-          onClick={() =>
-            setExternalConfig({
-              ...config,
-              ySortedBy:
-                config.ySortedBy === ESortTypes.CAT_ASC
-                  ? ESortTypes.CAT_DESC
-                  : config.ySortedBy === ESortTypes.CAT_DESC
-                    ? ESortTypes.VAL_ASC
-                    : config.ySortedBy === ESortTypes.VAL_ASC
-                      ? ESortTypes.VAL_DESC
-                      : ESortTypes.CAT_ASC,
-            })
-          }
-        >
-          <Tooltip
-            position="bottom"
-            withArrow
-            label={
-              config.ySortedBy === ESortTypes.VAL_ASC
-                ? 'Sorted by values ascending'
-                : config.ySortedBy === ESortTypes.VAL_DESC
-                  ? 'Sorted by values descending'
-                  : config.ySortedBy === ESortTypes.CAT_ASC
-                    ? 'Sorted by categories ascending'
-                    : 'Sorted by categories descending'
-            }
-          >
-            <FontAwesomeIcon
-              fontWeight={100}
-              color={VIS_LABEL_COLOR}
-              style={{ marginRight: '10px', fontWeight: 200 }}
-              icon={
-                config.ySortedBy === ESortTypes.VAL_ASC
-                  ? faArrowUpShortWide
-                  : config.ySortedBy === ESortTypes.VAL_DESC
-                    ? faArrowDownShortWide
-                    : config.ySortedBy === ESortTypes.CAT_ASC
-                      ? dvSortAsc
-                      : dvSortDesc
+      <Group wrap="nowrap" style={{ width: '100%', height: '100%', display: 'flex' }} gap={0} pr="40px">
+        <Center>
+          <Group style={{ transform: 'rotate(-90deg)' }} gap="0" wrap="nowrap" maw={20}>
+            <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none', textWrap: 'nowrap' }}>
+              {column2.info.name}
+            </Text>
+            <SortIcon
+              sortState={
+                config.ySortedBy === ESortTypes.CAT_ASC ? ESortStates.ASC : config.ySortedBy === ESortTypes.CAT_DESC ? ESortStates.DESC : ESortStates.NONE
               }
+              setSortState={(nextSort: ESortStates) => {
+                const next = nextSort === ESortStates.ASC ? ESortTypes.CAT_ASC : nextSort === ESortStates.DESC ? ESortTypes.CAT_DESC : ESortTypes.NONE;
+                setExternalConfig({
+                  ...config,
+                  ySortedBy: next,
+                });
+              }}
             />
-          </Tooltip>
-          {column2.info.name}
-        </Text>
+          </Group>
+        </Center>
         <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
           <Container
             fluid
@@ -281,55 +250,22 @@ export function Heatmap({
           </Container>
         </Box>
       </Group>
-      <Text
-        c={VIS_LABEL_COLOR}
-        size={rem(VIS_AXIS_LABEL_SIZE)}
-        lh="xs"
-        pb="xs"
-        style={{ whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}
-        onClick={() =>
-          setExternalConfig({
-            ...config,
-            xSortedBy:
-              config.xSortedBy === ESortTypes.CAT_ASC
-                ? ESortTypes.CAT_DESC
-                : config.xSortedBy === ESortTypes.CAT_DESC
-                  ? ESortTypes.VAL_ASC
-                  : config.xSortedBy === ESortTypes.VAL_ASC
-                    ? ESortTypes.VAL_DESC
-                    : ESortTypes.CAT_ASC,
-          })
-        }
-      >
-        <Tooltip
-          position="bottom"
-          withArrow
-          label={
-            config.xSortedBy === ESortTypes.VAL_ASC
-              ? 'Sorted by values ascending'
-              : config.xSortedBy === ESortTypes.VAL_DESC
-                ? 'Sorted by values descending'
-                : config.xSortedBy === ESortTypes.CAT_ASC
-                  ? 'Sorted by categories ascending'
-                  : 'Sorted by categories descending'
-          }
-        >
-          <FontAwesomeIcon
-            color={VIS_LABEL_COLOR}
-            style={{ marginRight: '10px' }}
-            icon={
-              config.xSortedBy === ESortTypes.VAL_ASC
-                ? faArrowUpShortWide
-                : config.xSortedBy === ESortTypes.VAL_DESC
-                  ? faArrowDownShortWide
-                  : config.xSortedBy === ESortTypes.CAT_ASC
-                    ? dvSortAsc
-                    : dvSortDesc
-            }
-          />
-        </Tooltip>
-        {column1.info.name}
-      </Text>
+      <Group gap="0" wrap="nowrap" justify="center" align="center">
+        <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ whiteSpace: 'nowrap', userSelect: 'none' }}>
+          {column1.info.name}
+        </Text>
+        <SortIcon
+          unsortedState={ESortStates.ASC}
+          sortState={config.xSortedBy === ESortTypes.CAT_ASC ? ESortStates.ASC : config.xSortedBy === ESortTypes.CAT_DESC ? ESortStates.DESC : ESortStates.NONE}
+          setSortState={(nextSort: ESortStates) => {
+            const next = nextSort === ESortStates.ASC ? ESortTypes.CAT_ASC : nextSort === ESortStates.DESC ? ESortTypes.CAT_DESC : ESortTypes.NONE;
+            setExternalConfig({
+              ...config,
+              xSortedBy: next,
+            });
+          }}
+        />
+      </Group>
     </Stack>
   );
 }

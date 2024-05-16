@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ActionIcon, Center, Group, Text, Tooltip, rem } from '@mantine/core';
+import { Center, Group, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -11,7 +10,7 @@ import {
   VIS_TICK_LABEL_SIZE,
   VIS_TICK_LABEL_SIZE_SMALL,
 } from '../../constants';
-import { dvSortAsc, dvSortDesc, dvSort } from '../../../icons';
+import { ESortStates, SortIcon } from '../../general/SortIcon';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({
@@ -35,7 +34,7 @@ export function XAxis({
   compact?: boolean;
   sortedAsc?: boolean;
   sortedDesc?: boolean;
-  setSortType: (label: string) => void;
+  setSortType: (label: string, nextSortState: ESortStates) => void;
 }) {
   const tickWidth = useMemo(() => {
     if (ticks.length > 1) {
@@ -44,8 +43,6 @@ export function XAxis({
 
     return xScale.range()[0] - xScale.range()[1];
   }, [ticks, xScale]);
-
-  const sortIcon = sortedDesc ? dvSortAsc : sortedAsc ? dvSortDesc : dvSort;
 
   return (
     <>
@@ -56,11 +53,10 @@ export function XAxis({
               <Text style={{ userSelect: 'none' }} size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
                 {label}
               </Text>
-              <Tooltip withArrow withinPortal label={sortedDesc ? 'Sorted ascending' : sortedAsc ? 'Sorted descending' : 'Click to sort'}>
-                <ActionIcon onClick={() => setSortType(label)} ml="xs" size="sm" color={VIS_LABEL_COLOR} variant="subtle">
-                  <FontAwesomeIcon size="xs" icon={sortIcon} />
-                </ActionIcon>
-              </Tooltip>
+              <SortIcon
+                sortState={sortedDesc ? ESortStates.DESC : sortedAsc ? ESortStates.ASC : ESortStates.NONE}
+                setSortState={(nextSort: ESortStates) => setSortType(label, nextSort)}
+              />
             </Group>
           </Center>
         </foreignObject>
@@ -74,7 +70,7 @@ export function XAxis({
               <Tooltip withinPortal label={value} withArrow>
                 <Text
                   c={VIS_LABEL_COLOR}
-                  px={2}
+                  p={2}
                   size={compact ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
                   style={{ userSelect: 'none', textAlign: 'center', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
                 >
