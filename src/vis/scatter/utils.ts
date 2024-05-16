@@ -392,11 +392,8 @@ export async function createScatterTraces(
   if (colorCol && colorCol.type === EColumnTypes.CATEGORICAL && validCols.length > 0) {
     legendPlots.push({
       data: {
-        x: validCols[0].resolvedValues.map((v) => v.val),
-        y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
-        xaxis: 'x',
-        yaxis: 'y',
+        x: [null],
+        y: [null],
         type: 'scattergl',
         mode: 'markers',
         visible: 'legendonly',
@@ -428,8 +425,8 @@ export async function createScatterTraces(
           },
         ],
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[0].info),
+      xLabel: null,
+      yLabel: null,
     });
   }
 
@@ -437,11 +434,8 @@ export async function createScatterTraces(
   if (shapeCol) {
     legendPlots.push({
       data: {
-        x: validCols[0].resolvedValues.map((v) => v.val),
-        y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
-        xaxis: 'x',
-        yaxis: 'y',
+        x: [null],
+        y: [null],
         type: 'scattergl',
         mode: 'markers',
         visible: 'legendonly',
@@ -474,8 +468,8 @@ export async function createScatterTraces(
           },
         ],
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[0].info),
+      xLabel: null,
+      yLabel: null,
     });
   }
 
