@@ -153,7 +153,9 @@ export async function createViolinTraces(
       const data = [];
       for (const numCurr of numColValues) {
         for (const catCurr of catColValues) {
-          numCurr.resolvedValues.forEach((v, i) => data.push({ y: v.val, x: numCurr.info.name, group: catCurr.resolvedValues[i].val, ids: v.id?.toString() }));
+          numCurr.resolvedValues.forEach((v, i) =>
+            data.push({ y: v.val, x: columnNameWithDescription(numCurr.info), group: catCurr.resolvedValues[i].val, ids: v.id?.toString() }),
+          );
         }
       }
       const groupedData = _.groupBy(data, 'group');
