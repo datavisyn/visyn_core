@@ -35,6 +35,7 @@ export async function createViolinTraces(
   selectedMap: { [key: string]: boolean },
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
+  let hasFacets = false;
 
   if (!config.numColumnsSelected || !config.catColumnsSelected) {
     return {
@@ -75,6 +76,7 @@ export async function createViolinTraces(
 
   // case: only numerical columns selected
   if (numColValues.length > 0 && catColValues.length === 0) {
+    hasFacets = true; // Must always be set to true in this case
     for (const numCurr of numColValues) {
       const y = numCurr.resolvedValues.map((v) => v.val);
       plots.push({
@@ -91,6 +93,7 @@ export async function createViolinTraces(
           hoveron: 'violins',
           ...sharedData,
         },
+        yLabel: config.multiplesMode === EViolinSeparationMode.FACETS && columnNameWithDescription(numCurr.info),
       });
       plotCounter += 1;
     }
@@ -98,63 +101,113 @@ export async function createViolinTraces(
 
   // Case: Exactly one numerical and multiple categorical columns selected
   if (numColValues.length === 1 && catColValues.length > 0) {
-    for (const numCurr of numColValues) {
+    if (config.multiplesMode === EViolinSeparationMode.GROUP && catColValues.length > 1) {
+      hasFacets = false;
+      const data: { y: number; x: string; group: string; ids: string }[] = [];
       for (const catCurr of catColValues) {
-        const y = numCurr.resolvedValues.map((v) => v.val);
-        const x = catCurr.resolvedValues.map((v) => v.val);
+        numColValues[0].resolvedValues.forEach((v, i) =>
+          data.push({ y: v.val as number, x: catCurr.resolvedValues[i].val as string, group: columnNameWithDescription(catCurr.info), ids: v.id?.toString() }),
+        );
+      }
+      const groupedData = _.groupBy(data, 'group');
+
+      _.flatMap(groupedData, (group, key) => {
         plots.push({
           data: {
-            x,
-            y,
-            ids: catCurr.resolvedValues.map((v) => v.id),
-            xaxis: config.multiplesMode === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
-            yaxis: config.multiplesMode === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
+            y: group.map((g) => g.y),
+            x: group.map((g) => g.x),
+            ids: group.map((g) => g.ids),
+            marker: {
+              color: categoricalColors[plotCounter],
+            },
             // @ts-ignore
             hoveron: 'violins',
-            name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
-            transforms: [
-              {
-                type: 'groupby',
-                groups: x as string[],
-                styles: [...new Set(x as string[])].map((c) => {
-                  return {
-                    target: c,
-                    value: {
-                      line: {
-                        color:
-                          selectedList.length !== 0 && catCurr.resolvedValues.filter((val) => val.val === c).find((val) => selectedMap[val.id])
-                            ? SELECT_COLOR
-                            : '#878E95',
-                      },
-                    },
-                  };
-                }),
-              },
-            ],
+            scalegroup: key,
+            legendgroup: key,
+            name: key,
             ...sharedData,
           },
-          xLabel: catColValues.length > 1 ? null : columnNameWithDescription(catCurr.info),
-          yLabel: columnNameWithDescription(numCurr.info),
+        });
+        legendPlots.push({
+          data: {
+            x: [null] as Plotly.Datum[],
+            y: [null] as Plotly.Datum[],
+            marker: {
+              color: categoricalColors[plotCounter],
+            },
+            // @ts-ignore
+            hoveron: 'violins',
+            name: key,
+            showlegend: true,
+            type: 'violin',
+            hoverinfo: 'skip',
+          },
         });
         plotCounter += 1;
+      });
+    } else {
+      hasFacets = true;
+      for (const numCurr of numColValues) {
+        for (const catCurr of catColValues) {
+          const y = numCurr.resolvedValues.map((v) => v.val);
+          const x = catCurr.resolvedValues.map((v) => v.val);
+          plots.push({
+            data: {
+              x,
+              y,
+              ids: catCurr.resolvedValues.map((v) => v.id),
+              xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
+              yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
+              // @ts-ignore
+              hoveron: 'violins',
+              name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
+              transforms: [
+                {
+                  type: 'groupby',
+                  groups: x as string[],
+                  styles: [...new Set(x as string[])].map((c) => {
+                    return {
+                      target: c,
+                      value: {
+                        line: {
+                          color:
+                            selectedList.length !== 0 && catCurr.resolvedValues.filter((val) => val.val === c).find((val) => selectedMap[val.id])
+                              ? SELECT_COLOR
+                              : '#878E95',
+                        },
+                      },
+                    };
+                  }),
+                },
+              ],
+              ...sharedData,
+            },
+            xLabel: columnNameWithDescription(catCurr.info),
+            yLabel: columnNameWithDescription(numCurr.info),
+          });
+          plotCounter += 1;
+        }
       }
     }
   }
 
   // Case: Multiple numerical columns and multiple categorical columns selected
   if (numColValues.length > 1 && catColValues.length > 0) {
-    const allCategories = [...new Set(catColValues.map((cat) => cat.resolvedValues.map((v) => v.val)).flat())];
-    const colorMap = allCategories.reduce((acc, curr, i) => {
-      acc[curr] = categoricalColors[i % categoricalColors.length];
-      return acc;
-    }, {});
-
     if (config.multiplesMode === EViolinSeparationMode.GROUP) {
-      const data = [];
+      hasFacets = false;
+      const data: { y: number; x: string; group: string; ids: string }[] = [];
       for (const numCurr of numColValues) {
         for (const catCurr of catColValues) {
           numCurr.resolvedValues.forEach((v, i) =>
-            data.push({ y: v.val, x: columnNameWithDescription(numCurr.info), group: catCurr.resolvedValues[i].val, ids: v.id?.toString() }),
+            data.push({
+              y: v.val as number,
+              x: catCurr.resolvedValues[i].val as string,
+              group:
+                catColValues.length > 1
+                  ? `${columnNameWithDescription(numCurr.info)} / ${columnNameWithDescription(catCurr.info)}`
+                  : columnNameWithDescription(numCurr.info),
+              ids: v.id?.toString(),
+            }),
           );
         }
       }
@@ -167,8 +220,7 @@ export async function createViolinTraces(
             x: group.map((g) => g.x),
             ids: group.map((g) => g.ids),
             marker: {
-              color:
-                selectedList.length !== 0 && group.find((val) => selectedMap[val.ids]) ? SELECT_COLOR : selectedList.length > 0 ? '#878E95' : colorMap[key],
+              color: categoricalColors[plotCounter],
             },
             // @ts-ignore
             hoveron: 'violins',
@@ -178,74 +230,68 @@ export async function createViolinTraces(
             ...sharedData,
           },
         });
+        legendPlots.push({
+          data: {
+            x: [null] as Plotly.Datum[],
+            y: [null] as Plotly.Datum[],
+            marker: {
+              color: categoricalColors[plotCounter],
+            },
+            // @ts-ignore
+            hoveron: 'violins',
+            name: key,
+            showlegend: true,
+            type: 'violin',
+            hoverinfo: 'skip',
+          },
+        });
         plotCounter += 1;
       });
     } else if (config.multiplesMode === EViolinSeparationMode.FACETS) {
+      hasFacets = true;
       for (const numCurr of numColValues) {
-        const data: { y: number; x: string; ids: string }[] = [];
         for (const catCurr of catColValues) {
-          catCurr.resolvedValues.forEach((v, i) =>
-            data.push({ y: numCurr.resolvedValues[i].val as number, x: v.val as string, ids: numCurr.resolvedValues[i].id?.toString() }),
-          );
-        }
-        plots.push({
-          data: {
-            x: data.map((d) => d.x),
-            y: data.map((d) => d.y),
-            ids: data.map((d) => d.ids),
-            xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
-            yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-            transforms: [
-              {
-                type: 'groupby',
-                groups: data.map((d) => d.x),
-                styles: allCategories.map((c) => {
-                  return {
-                    target: c,
-                    value: {
-                      line: {
-                        color:
-                          selectedList.length !== 0 && data.filter((val) => val.x === c).find((val) => selectedMap[val.ids])
-                            ? SELECT_COLOR
-                            : selectedList.length > 0
-                              ? '#878E95'
-                              : colorMap[c],
+          const y = numCurr.resolvedValues.map((v) => v.val);
+          // Null values in categorical columns would break the plot --> replace with 'missing'
+          const x = catCurr.resolvedValues.map((v) => v.val);
+          plots.push({
+            data: {
+              x,
+              y,
+              ids: catCurr.resolvedValues.map((v) => v.id),
+              xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
+              yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
+              // @ts-ignore
+              hoveron: 'violins',
+              name: `${columnNameWithDescription(catCurr.info)} + ${columnNameWithDescription(numCurr.info)}`,
+              transforms: [
+                {
+                  type: 'groupby',
+                  groups: x as string[],
+                  styles: [...new Set(x as string[])].map((c) => {
+                    return {
+                      target: c,
+                      value: {
+                        line: {
+                          color:
+                            selectedList.length !== 0 && catCurr.resolvedValues.filter((val) => val.val === c).find((val) => selectedMap[val.id])
+                              ? SELECT_COLOR
+                              : '#878E95',
+                        },
                       },
-                    },
-                  };
-                }),
-              },
-            ],
-            name: `${columnNameWithDescription(numCurr.info)}`,
-            // @ts-ignore
-            hoveron: 'violins',
-            ...sharedData,
-          },
-          yLabel: columnNameWithDescription(numCurr.info),
-        });
-        plotCounter += 1;
+                    };
+                  }),
+                },
+              ],
+              ...sharedData,
+            },
+            xLabel: columnNameWithDescription(catCurr.info),
+            yLabel: columnNameWithDescription(numCurr.info),
+          });
+          plotCounter += 1;
+        }
       }
     }
-
-    // Add legend as separate traces
-    allCategories.forEach((c) => {
-      legendPlots.push({
-        data: {
-          x: [null] as Plotly.Datum[],
-          y: [null] as Plotly.Datum[],
-          marker: {
-            color: colorMap[c],
-          },
-          // @ts-ignore
-          hoveron: 'violins',
-          name: c as string,
-          showlegend: true,
-          type: 'violin',
-          legendgroup: 'shape',
-          hoverinfo: 'skip',
-        },
-      });
-    });
   }
 
   const defaultColNum = Math.min(Math.ceil(Math.sqrt(plots.length)), 5);
@@ -257,5 +303,6 @@ export async function createViolinTraces(
     cols: defaultColNum,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
+    hasFacets,
   };
 }

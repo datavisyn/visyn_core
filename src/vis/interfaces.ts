@@ -94,6 +94,7 @@ export type PlotlyInfo = {
   cols: number;
   errorMessage: string;
   errorMessageHeader: string;
+  hasFacets?: boolean;
 };
 
 export type PlotlyData = {

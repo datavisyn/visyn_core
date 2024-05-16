@@ -1,4 +1,4 @@
-import { Stack, Center } from '@mantine/core';
+import { Center, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -6,10 +6,10 @@ import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
 import { EViolinSeparationMode, IViolinConfig } from './interfaces';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { createViolinTraces } from './utils';
 
 export function ViolinVis({
@@ -36,7 +36,15 @@ export function ViolinVis({
     }
 
     const shiftPressed = e.event.shiftKey;
-    const eventIds = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
+
+    const catSelected = e.points[0].x;
+    const data = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[]; x: string[] } })?.fullData;
+    const eventIds = data.x.reduce((acc: string[], x: string, i: number) => {
+      if (x === catSelected && data.ids[i]) {
+        acc.push(data.ids[i]);
+      }
+      return acc;
+    }, []);
 
     // Multiselect enabled
     if (shiftPressed) {
@@ -101,10 +109,7 @@ export function ViolinVis({
       grid: config.multiplesMode === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
       // @ts-ignore
-      violinmode:
-        config.multiplesMode === EViolinSeparationMode.GROUP && config.catColumnsSelected?.length > 0 && config.numColumnsSelected?.length > 1
-          ? 'group'
-          : 'overlay',
+      violinmode: traces.hasFacets ? 'overlay' : 'group',
       violingap: 0.1,
       violingroupgap: 0.1,
     };
