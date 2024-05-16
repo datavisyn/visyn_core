@@ -1,4 +1,4 @@
-import { Box, Center, Container, Group, Stack, Text, rem } from '@mantine/core';
+import { Box, Center, Container, Group, Space, Stack, Text, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
@@ -218,6 +218,7 @@ export function Heatmap({
             <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none', textWrap: 'nowrap' }}>
               {column2.info.name}
             </Text>
+            <Space ml="xs" />
             <SortIcon
               sortState={
                 config.ySortedBy === ESortTypes.CAT_ASC ? ESortStates.ASC : config.ySortedBy === ESortTypes.CAT_DESC ? ESortStates.DESC : ESortStates.NONE
@@ -254,8 +255,8 @@ export function Heatmap({
         <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ whiteSpace: 'nowrap', userSelect: 'none' }}>
           {column1.info.name}
         </Text>
+        <Space ml="xs" />
         <SortIcon
-          unsortedState={ESortStates.ASC}
           sortState={config.xSortedBy === ESortTypes.CAT_ASC ? ESortStates.ASC : config.xSortedBy === ESortTypes.CAT_DESC ? ESortStates.DESC : ESortStates.NONE}
           setSortState={(nextSort: ESortStates) => {
             const next = nextSort === ESortStates.ASC ? ESortTypes.CAT_ASC : nextSort === ESortStates.DESC ? ESortTypes.CAT_DESC : ESortTypes.NONE;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tooltip, ActionIcon } from '@mantine/core';
+import { Tooltip, ActionIcon, Text } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDownShortWide, faArrowUpShortWide } from '@fortawesome/free-solid-svg-icons';
 import { VIS_LABEL_COLOR } from '../constants';
@@ -16,12 +16,12 @@ export function SortIcon({
   sortState,
   setSortState,
   variant = 'default',
-  unsortedState = ESortStates.NONE,
+  priority = 0,
 }: {
   variant?: 'default' | 'values';
-  unsortedState?: ESortStates.NONE | ESortStates.ASC;
   sortState: ESortStates;
   setSortState: (sortState: ESortStates) => void;
+  priority?: number;
 }) {
   const sortIcon =
     variant === 'values'
@@ -29,16 +29,12 @@ export function SortIcon({
         ? faArrowDownShortWide
         : sortState === ESortStates.ASC
           ? faArrowUpShortWide
-          : unsortedState === ESortStates.NONE
-            ? dvSort
-            : faArrowUpShortWide
+          : dvSort
       : sortState === ESortStates.DESC
         ? dvSortDesc
         : sortState === ESortStates.ASC
           ? dvSortAsc
-          : unsortedState === ESortStates.NONE
-            ? dvSort
-            : dvSortAsc;
+          : dvSort;
   const getNextSortState = (s) => {
     switch (s) {
       case ESortStates.ASC:
@@ -58,11 +54,15 @@ export function SortIcon({
     >
       <ActionIcon
         onClick={() => setSortState(getNextSortState(sortState))}
-        ml="xs"
         size="sm"
         color={sortState !== ESortStates.NONE ? selectionColorDark : VIS_LABEL_COLOR}
         variant="subtle"
       >
+        {priority !== null && priority > 0 && (
+          <Text size="0.6rem" mr="2px" fw={500}>
+            {priority}.
+          </Text>
+        )}
         <FontAwesomeIcon size="xs" icon={sortIcon} />
       </ActionIcon>
     </Tooltip>

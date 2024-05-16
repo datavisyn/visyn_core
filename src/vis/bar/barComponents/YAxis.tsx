@@ -1,4 +1,4 @@
-import { Center, Group, Text, Tooltip, rem } from '@mantine/core';
+import { Center, Group, Space, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -54,6 +54,7 @@ export function YAxis({
               <Text size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none' }} c={VIS_LABEL_COLOR}>
                 {label}
               </Text>
+              <Space ml="xs" />
               <SortIcon
                 sortState={sortedDesc ? ESortStates.DESC : sortedAsc ? ESortStates.ASC : ESortStates.NONE}
                 setSortState={(nextSort: ESortStates) => setSortType(label, nextSort)}
