@@ -11,6 +11,7 @@ import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
 import { EViolinSeparationMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
+import { SELECT_COLOR } from '../general/constants';
 
 export function ViolinVis({
   config,
@@ -109,13 +110,45 @@ export function ViolinVis({
       grid: config.multiplesMode === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
       // @ts-ignore
-      violinmode: traces.hasFacets ? 'overlay' : 'group',
-      violingap: 0.1,
+      violinmode: traces && traces.hasFacets ? 'overlay' : 'group',
+      violingap: 0.25,
       violingroupgap: 0.1,
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
   }, [config.catColumnsSelected, config.multiplesMode, config.numColumnsSelected.length, traces]);
+
+  const highlightSelectionShapes: Partial<Plotly.Shape>[] = useMemo(() => {
+    if (!traces?.plots || !traces?.selectedXMap) {
+      return [];
+    }
+
+    const offset = 0.01;
+    const lineLength = 1 / Object.keys(traces.selectedXMap).length;
+    let start = 0;
+    const shapes = [];
+
+    Object.keys(traces.selectedXMap).forEach((key) => {
+      if (traces.selectedXMap[key]) {
+        shapes.push({
+          type: 'line',
+          xref: 'paper',
+          yref: 'paper',
+          x0: start + offset,
+          x1: start + lineLength - offset,
+          y0: offset,
+          y1: offset,
+          layer: 'below',
+          line: {
+            width: 4,
+            color: SELECT_COLOR,
+          },
+        });
+      }
+      start += lineLength;
+    });
+    return shapes;
+  }, [traces]);
 
   return (
     <Stack
@@ -141,7 +174,10 @@ export function ViolinVis({
           <PlotlyComponent
             divId={id}
             data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
-            layout={layout}
+            layout={{
+              ...layout,
+              shapes: [...(layout?.shapes || []), ...highlightSelectionShapes],
+            }}
             config={{ responsive: true, displayModeBar: false }}
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
