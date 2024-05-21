@@ -298,6 +298,7 @@ export function ScatterVis({
         <>
           <Tooltip label="Toggle legend" refProp="rootRef">
             <Switch
+              styles={{ label: { paddingLeft: '5px' } }}
               size="xs"
               disabled={traces.legendPlots.length === 0}
               style={{ position: 'absolute', right: 42, top: 18 }}
