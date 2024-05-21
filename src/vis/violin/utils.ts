@@ -1,4 +1,5 @@
 import merge from 'lodash/merge';
+import { isEqual } from 'lodash';
 import { PlotData } from 'plotly.js-dist-min';
 import { i18n } from '../../i18n';
 import { SELECT_COLOR } from '../general/constants';
@@ -60,16 +61,24 @@ export async function createViolinTraces(
     box: {
       visible: config.violinOverlay === EViolinOverlay.BOX,
     },
-    boxpoints: 'all',
     // @ts-ignore
-    hoveron: 'violins',
+    hoveron: 'violins+points',
     hoverinfo: 'y',
     points: 'all',
-    jitter: 0.3,
-    whiskerwidth: 0.3,
-    marker: {
-      color: SELECT_COLOR,
+    selected: {
+      marker: {
+        point: {
+          color: SELECT_COLOR,
+        },
+      },
+      textfont: {
+        color: 'blue',
+      },
     },
+    jitter: 0.2,
+    whiskerwidth: 0.3,
+    pointpos: -1.5,
+    opacity: 0.6,
     spanmode: 'hard',
     scalemode: 'width',
     showlegend: false,
@@ -96,6 +105,10 @@ export async function createViolinTraces(
   // if we onl have numerical columns, add them individually.
   if (catColValues.length === 0) {
     for (const numCurr of numColValues) {
+      console.log(
+        numCurr.resolvedValues.map((v) => v.id),
+        selectedList,
+      );
       const y = numCurr.resolvedValues.map((v) => v.val);
       plots.push({
         data: {
@@ -105,7 +118,14 @@ export async function createViolinTraces(
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           marker: {
-            color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? SELECT_COLOR : '#878E95',
+            color:
+              selectedList.length !== 0 &&
+              isEqual(
+                numCurr.resolvedValues.map((v) => v.id),
+                selectedList,
+              )
+                ? SELECT_COLOR
+                : '#878E95',
           },
 
           // spanmode: 'hard',

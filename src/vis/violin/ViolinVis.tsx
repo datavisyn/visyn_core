@@ -24,9 +24,8 @@ export function ViolinVis({
   showDownloadScreenshot,
 }: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
-
   const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
-
+  console.log('selectedList', selectedList);
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
   const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
@@ -34,27 +33,34 @@ export function ViolinVis({
       selectionCallback([]);
       return;
     }
-
+    // whole violin selection vs single point selection
+    const isViolinSelection = e.points.length === 5 && e.points.every((p) => p.pointIndex === 0);
     const shiftPressed = e.event.shiftKey;
-    const eventIds = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
+    const allPoints = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
+
+    if (!isViolinSelection) {
+      const selected = allPoints[e.points[0].pointIndex];
+      selectionCallback(selectedList.filter((s) => s === selected));
+      return;
+    }
 
     // Multiselect enabled
     if (shiftPressed) {
       // Filter out incoming ids in order to deselect violin/box element
-      const newSelected = selectedList.filter((s) => !eventIds.includes(s));
+      const newSelected = selectedList.filter((s) => !allPoints.includes(s));
 
       // If incoming ids were not in selected already, add them
       if (newSelected.length === selectedList.length) {
-        newSelected.push(...eventIds);
+        newSelected.push(...allPoints);
       }
 
       selectionCallback(newSelected);
     }
     // Multiselect disabled
-    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
+    else if (selectedList.length === allPoints.length && allPoints.every((tempId) => selectedMap[tempId])) {
       selectionCallback([]);
     } else {
-      selectionCallback(eventIds);
+      selectionCallback(allPoints);
     }
   };
 
@@ -96,7 +102,7 @@ export function ViolinVis({
         family: 'Roboto, sans-serif',
       },
       clickmode: 'event+select',
-      dragmode: false, // Disables zoom (makes no sense in violin plots)
+      dragmode: 'lasso',
       autosize: true,
       grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
@@ -134,6 +140,11 @@ export function ViolinVis({
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
             onClick={onClick}
+            onSelected={(s) => {
+              console.log('selecting');
+              // @ts-ignore
+              selectionCallback(s.points.map((p) => p.fullData.ids[p.pointIndex]));
+            }}
             // plotly redraws everything on updates, so you need to reappend title and
             onUpdate={() => {
               for (const p of traces.plots) {
