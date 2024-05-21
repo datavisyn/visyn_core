@@ -67,9 +67,7 @@ export async function createViolinTraces(
     points: 'all',
     selected: {
       marker: {
-        point: {
-          color: SELECT_COLOR,
-        },
+        color: SELECT_COLOR,
       },
       textfont: {
         color: 'blue',
