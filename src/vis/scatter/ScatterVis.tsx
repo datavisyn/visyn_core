@@ -130,7 +130,7 @@ export function ScatterVis({
   const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
     if (traces?.plots) {
       statsCallback(null);
-      if (config.regressionLineOptions.type !== ERegressionLineType.NONE) {
+      if (config.regressionLineOptions?.type && config.regressionLineOptions.type !== ERegressionLineType.NONE) {
         const regressionShapes: Partial<Plotly.Shape>[] = [];
         const regressionResults: IRegressionResult[] = [];
         for (const plot of traces.plots) {
@@ -183,7 +183,7 @@ export function ScatterVis({
         );
       }
 
-      if (config.regressionLineOptions.showStats) {
+      if (config.regressionLineOptions?.showStats) {
         combinedAnnotations.push(...annotationsForRegressionStats(regression.results, config.regressionLineOptions.fitOptions?.precision || 3));
       }
     }
@@ -308,7 +308,6 @@ export function ScatterVis({
               checked={showLegend}
             />
           </Tooltip>
-
           <PlotlyComponent
             key={id}
             divId={id}
@@ -321,7 +320,7 @@ export function ScatterVis({
             onHover={(event) => {
               // If we have subplots we set the stats for the current subplot on hover
               // It is up to the application to decide how to display the stats
-              if (config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
+              if (config.regressionLineOptions?.type && config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
                 let result: IRegressionResult = null;
                 if (regression.results.length > 0) {
                   const xAxis = event.points[0].yaxis.anchor;
@@ -333,7 +332,7 @@ export function ScatterVis({
             }}
             onUnhover={() => {
               // If we have subplots we clear the current stats when the mouse leaves the plot
-              if (config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
+              if (config.regressionLineOptions?.type && config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
                 statsCallback(null);
               }
             }}
