@@ -3,10 +3,19 @@ import * as React from 'react';
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
-import { BaseVisConfig, ELabelingOptions, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, IScatterConfig, Vis } from '../vis';
+import {
+  BaseVisConfig,
+  ELabelingOptions,
+  ENumericalColorScaleType,
+  ERegressionLineType,
+  EScatterSelectSettings,
+  ESupportedPlotlyVis,
+  IScatterConfig,
+  Vis,
+} from '../vis';
+import { fetchIrisData } from '../vis/stories/fetchIrisData';
 import { iris } from '../vis/stories/irisData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
-import { fetchIrisData } from '../vis/stories/fetchIrisData';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -35,6 +44,10 @@ export function MainApp() {
     alphaSliderVal: 1,
     sizeSliderVal: 5,
     showLabels: ELabelingOptions.SELECTED,
+    regressionLineOptions: {
+      type: ERegressionLineType.LINEAR,
+      showStats: true,
+    },
   } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof iris>([]);
@@ -112,12 +125,16 @@ export function MainApp() {
             columns={columns}
             showSidebarDefault
             externalConfig={visConfig}
+            showDownloadScreenshot
             setExternalConfig={setVisConfig}
             selected={visSelection}
             selectionCallback={(s) => {
               if (s) {
                 setSelection(s.map((i) => iris[+i]));
               }
+            }}
+            filterCallback={(f) => {
+              console.log(f);
             }}
           />
         </SimpleGrid>

@@ -106,12 +106,13 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
 
   const [selected, setSelected] = React.useState<string[]>([]);
+  const [config, setConfig] = React.useState<BaseVisConfig>(args.externalConfig);
 
   return (
     <VisProvider>
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} selected={selected} selectionCallback={setSelected} columns={columns} />
+          <Vis {...args} externalConfig={config} setExternalConfig={setConfig} selected={selected} selectionCallback={setSelected} columns={columns} />
         </div>
       </div>
     </VisProvider>

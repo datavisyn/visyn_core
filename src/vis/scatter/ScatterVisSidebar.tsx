@@ -1,3 +1,4 @@
+import { Divider } from '@mantine/core';
 import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -6,11 +7,16 @@ import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
 import { SingleSelect } from '../sidebar/SingleSelect';
 import { ColorSelect } from './ColorSelect';
-import { OpacitySlider } from './OpacitySlider';
-import { ELabelingOptions, IScatterConfig } from './interfaces';
 import { LabelingOptions } from './LabelingOptions';
+import { OpacitySlider } from './OpacitySlider';
+import { RegressionLineOptions } from './Regression';
+import { ELabelingOptions, IRegressionLineOptions, IScatterConfig } from './interfaces';
 
 const defaultConfig = {
+  facets: {
+    enable: true,
+    customComponent: null,
+  },
   color: {
     enable: true,
     customComponent: null,
@@ -27,6 +33,11 @@ const defaultConfig = {
     enable: true,
     customComponent: null,
   },
+  regressionLine: {
+    enable: true,
+    customComponent: null,
+    showColorPicker: true,
+  },
 };
 
 export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
@@ -42,6 +53,18 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         currentSelected={config.numColumnsSelected || []}
         columnType={EColumnTypes.NUMERICAL}
       />
+
+      {mergedOptionsConfig.facets.enable
+        ? mergedOptionsConfig.facets.customComponent || (
+            <SingleSelect
+              label="Facets"
+              columnType={EColumnTypes.CATEGORICAL}
+              callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
+              columns={columns.filter((c) => c.type === EColumnTypes.CATEGORICAL)}
+              currentSelected={config.facets}
+            />
+          )
+        : null}
 
       {mergedOptionsConfig.color.enable
         ? mergedOptionsConfig.color.customComponent || (
@@ -85,8 +108,30 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
             />
           )
         : null}
-
-      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+      {mergedOptionsConfig.regressionLine.enable
+        ? mergedOptionsConfig.regressionLine.customComponent || (
+            <>
+              <Divider mt="xs" />
+              <RegressionLineOptions
+                callback={(regressionLineOptions: IRegressionLineOptions) => {
+                  if (config.regressionLineOptions !== regressionLineOptions) {
+                    setConfig({ ...config, regressionLineOptions });
+                  }
+                }}
+                currentSelected={config.regressionLineOptions}
+                showColorPicker={mergedOptionsConfig.regressionLine.showColorPicker}
+              />
+            </>
+          )
+        : null}
+      {filterCallback && mergedOptionsConfig.filter.enable
+        ? mergedOptionsConfig.filter.customComponent || (
+            <>
+              <Divider mt="xs" />
+              <FilterButtons callback={filterCallback} />
+            </>
+          )
+        : null}
     </>
   );
 }

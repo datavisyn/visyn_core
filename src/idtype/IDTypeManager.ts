@@ -113,7 +113,7 @@ export class IDTypeManager {
    */
   public searchMapping = (idType: IDType, pattern: string, toIDType: string | IDType, limit = 10): Promise<{ match: string; to: string }[]> => {
     const target = this.resolveIdType(toIDType);
-    return appContext.getAPIJSON(`/idtype/${idType.id}/${target.id}/search`, { q: pattern, limit });
+    return appContext.getAPIJSON(`/idtype/${idType.id}/${target.id}/search/`, { q: pattern, limit });
   };
 
   /**
@@ -140,7 +140,7 @@ export class IDTypeManager {
     if (idType.id === target.id) {
       return names;
     }
-    return IDType.chooseRequestMethod(`/idtype/${idType.id}/${target.id}`, { q: names, mode: 'first' });
+    return IDType.chooseRequestMethod(`/idtype/${idType.id}/${target.id}/`, { q: names, mode: 'first' });
   };
 
   public mapNameToName = async (idType: IDType, names: string[], toIDtype: IDTypeLike): Promise<string[][]> => {
@@ -149,7 +149,7 @@ export class IDTypeManager {
     // if(idType.id === target.id) {
     //   return names.map((name) => [name]);
     // }
-    return IDType.chooseRequestMethod(`/idtype/${idType.id}/${target.id}`, { q: names });
+    return IDType.chooseRequestMethod(`/idtype/${idType.id}/${target.id}/`, { q: names });
   };
 
   public findMappablePlugins = (target: IDType, all: IPluginDesc[]) => {

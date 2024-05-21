@@ -17,20 +17,22 @@ app = APIRouter(prefix="/api/rdkit", tags=["RDKit"])
 
 
 @app.get("/", response_class=SvgResponse)
-def draw_smiles(structure: SmilesMolecule, substructure: SmilesMolecule | None = None, align: SmilesMolecule | None = None):
-    return draw(structure.mol, aligned(structure.mol, align and align.mol) or substructure and substructure.mol)
+def draw_smiles(
+    structure: SmilesMolecule, substructure: SmilesMolecule | None = None, align: SmilesMolecule | None = None, size: int = 300
+):
+    return draw(structure.mol, size=size, substructure=aligned(structure.mol, align and align.mol) or substructure and substructure.mol)
 
 
 @app.post("/")
-def multiple_images(structures: set[SmilesMolecule]):
-    return {m: draw(m.mol) for m in structures}
+def multiple_images(structures: set[SmilesMolecule], size: int = 300):
+    return {m: draw(m.mol, size=size) for m in structures}
 
 
 @app.get("/murcko/", response_class=SvgResponse)
-def draw_murcko(structure: SmilesMolecule):
+def draw_murcko(structure: SmilesMolecule, size: int = 300):
     """https://www.rdkit.org/docs/GettingStartedInPython.html#murcko-decomposition"""
     murcko = MurckoScaffold.GetScaffoldForMol(structure.mol)
-    return draw(murcko)
+    return draw(murcko, size=size)
 
 
 @app.get("/similarity/", response_class=SvgResponse)
@@ -44,12 +46,12 @@ def draw_molecule_similarity(structure: SmilesMolecule, reference: SmilesMolecul
 
 
 @app.post("/mcs/", response_class=SvgResponse)
-def draw_maximum_common_substructure_molecule(structures: list[SmilesMolecule]):
+def draw_maximum_common_substructure_molecule(structures: list[SmilesMolecule], size: int = 300):
     unique = [m.mol for m in set(structures)]
     mcs = maximum_common_substructure_query_mol(unique)
     if not mcs or not isinstance(mcs, Mol):
         return Response("null", status_code=HTTP_204_NO_CONTENT)
-    return draw(mcs)
+    return draw(mcs, size=size)
 
 
 @app.post("/substructures/")

@@ -22,7 +22,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
       <div style={{ width: '70%', height: '80%' }}>
-        <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
+        <Vis {...args} setExternalConfig={() => {}} columns={columns} selected={selection} selectionCallback={setSelection} />
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ export const BarChart: typeof Template = Template.bind({});
 BarChart.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
-    multiples: null,
+    facets: null,
     group: null,
     direction: EBarDirection.VERTICAL,
     display: EBarDisplayType.ABSOLUTE,

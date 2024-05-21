@@ -123,7 +123,7 @@ const Template: ComponentStory<typeof Vis> = (args) => {
     <VisProvider>
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} columns={columns} />
+          <Vis {...args} setExternalConfig={() => {}} columns={columns} />
         </div>
       </div>
     </VisProvider>
@@ -140,7 +140,7 @@ Basic.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: null,
+    facets: null,
     group: null,
     groupType: EBarGroupingType.GROUP,
     direction: EBarDirection.HORIZONTAL,
@@ -160,7 +160,7 @@ Vertical.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: null,
+    facets: null,
     group: null,
     groupType: EBarGroupingType.GROUP,
     direction: EBarDirection.VERTICAL,
@@ -180,7 +180,7 @@ Grouped.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: null,
+    facets: null,
     group: {
       description: '',
       id: 'category2',
@@ -204,7 +204,7 @@ GroupedStack.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: null,
+    facets: null,
     group: {
       description: '',
       id: 'category2',
@@ -228,7 +228,7 @@ GroupedNumerical.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: null,
+    facets: null,
     group: {
       description: '',
       id: 'pca_y',
@@ -252,7 +252,7 @@ GroupedNumericalStack.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: null,
+    facets: null,
     group: {
       description: '',
       id: 'pca_y',
@@ -267,8 +267,8 @@ GroupedNumericalStack.args = {
   } as BaseVisConfig,
 };
 
-export const Multiples: typeof Template = Template.bind({}) as typeof Template;
-Multiples.args = {
+export const facets: typeof Template = Template.bind({}) as typeof Template;
+facets.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
@@ -276,7 +276,7 @@ Multiples.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: {
+    facets: {
       description: '',
       id: 'category2',
       name: 'category2',
@@ -291,8 +291,8 @@ Multiples.args = {
   } as BaseVisConfig,
 };
 
-export const MultiplesAndGrouped: typeof Template = Template.bind({}) as typeof Template;
-MultiplesAndGrouped.args = {
+export const facetsAndGrouped: typeof Template = Template.bind({}) as typeof Template;
+facetsAndGrouped.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
@@ -300,7 +300,7 @@ MultiplesAndGrouped.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: {
+    facets: {
       description: '',
       id: 'category2',
       name: 'category2',
@@ -319,8 +319,8 @@ MultiplesAndGrouped.args = {
   } as BaseVisConfig,
 };
 
-export const MultiplesAndGroupedStack: typeof Template = Template.bind({}) as typeof Template;
-MultiplesAndGroupedStack.args = {
+export const facetsAndGroupedStack: typeof Template = Template.bind({}) as typeof Template;
+facetsAndGroupedStack.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
@@ -328,7 +328,7 @@ MultiplesAndGroupedStack.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: {
+    facets: {
       description: '',
       id: 'category2',
       name: 'category2',
@@ -356,7 +356,7 @@ AggregateAverage.args = {
       id: 'category',
       name: 'category',
     },
-    multiples: null,
+    facets: null,
     group: null,
     groupType: EBarGroupingType.GROUP,
     direction: EBarDirection.HORIZONTAL,
