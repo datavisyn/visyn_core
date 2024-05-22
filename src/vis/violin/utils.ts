@@ -102,7 +102,7 @@ export async function createViolinTraces(
   }
 
   // Case: Numerical columns and multiple categorical columns selected
-  if (numColValues.length > 0 && catColValues.length > 0) {
+  else if (numColValues.length > 0 && catColValues.length > 0) {
     if (config.multiplesMode === EViolinSeparationMode.GROUP && (catColValues.length > 1 || numColValues.length > 1)) {
       hasFacets = false;
       const data: { y: number; x: string; group: { g1: string; g2: string }; ids: string }[] = [];
