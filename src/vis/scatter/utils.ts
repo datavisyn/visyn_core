@@ -170,7 +170,7 @@ export async function createScatterTraces(
         )
     : null;
 
-  // These are shared data properties beeing the same for all plots
+  // These are shared data properties between the traces
   const sharedData = {
     showlegend: false,
     type: 'scattergl',
@@ -406,7 +406,7 @@ export async function createScatterTraces(
 
         // @ts-ignore
         legendgrouptitle: {
-          text: colorCol.info.name,
+          text: truncateString(colorCol.info.name),
         },
         marker: {
           line: {
@@ -455,7 +455,7 @@ export async function createScatterTraces(
         },
         // @ts-ignore
         legendgrouptitle: {
-          text: shapeCol.info.name,
+          text: truncateString(shapeCol.info.name),
         },
         marker: {
           line: {
