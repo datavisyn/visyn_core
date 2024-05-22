@@ -63,7 +63,7 @@ export const BarChart: typeof Template = Template.bind({});
 BarChart.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
-    multiples: null,
+    facets: null,
     group: null,
     direction: EBarDirection.VERTICAL,
     display: EBarDisplayType.ABSOLUTE,

@@ -172,7 +172,7 @@ export async function getBarData(
   columns: VisColumn[],
   catColumn: ColumnInfo,
   groupColumn: ColumnInfo | null,
-  multiplesColumn: ColumnInfo | null,
+  facetsColumn: ColumnInfo | null,
   aggregateColumn: ColumnInfo | null,
 ): Promise<{
   catColVals: {
@@ -186,7 +186,7 @@ export async function getBarData(
     info: ColumnInfo;
     color?: Record<string, string>;
   };
-  multiplesColVals: {
+  facetsColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
     info: ColumnInfo;
@@ -200,8 +200,8 @@ export async function getBarData(
   const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id));
 
   const groupColVals = await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id) : null);
-  const multiplesColVals = await resolveSingleColumn(multiplesColumn ? columns.find((col) => col.info.id === multiplesColumn.id) : null);
+  const facetsColVals = await resolveSingleColumn(facetsColumn ? columns.find((col) => col.info.id === facetsColumn.id) : null);
   const aggregateColVals = await resolveSingleColumn(aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id) : null);
 
-  return { catColVals, groupColVals, multiplesColVals, aggregateColVals };
+  return { catColVals, groupColVals, facetsColVals, aggregateColVals };
 }

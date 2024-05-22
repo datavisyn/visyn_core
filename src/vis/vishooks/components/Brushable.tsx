@@ -1,5 +1,4 @@
-import React from 'react';
-import { PropsWithChildren, forwardRef } from 'react';
+import React, { PropsWithChildren, forwardRef } from 'react';
 
 const Brushable = forwardRef<SVGSVGElement, PropsWithChildren<unknown>>(function Brushable(props, ref) {
   return (

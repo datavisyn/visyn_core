@@ -1,13 +1,15 @@
 import { Box, Loader, SimpleGrid, Stack, Center } from '@mantine/core';
 import { op } from 'arquero';
 import React, { useCallback, useMemo } from 'react';
+import { uniqueId } from 'lodash';
 import { useAsync } from '../../hooks/useAsync';
-import { EColumnTypes, VisColumn } from '../interfaces';
+import { EColumnTypes, ICommonVisProps } from '../interfaces';
 import { SingleBarChart } from './SingleBarChart';
 import { Legend } from './barComponents/Legend';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { getBarData } from './utils';
 import { IBarConfig, SortTypes } from './interfaces';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 export function BarChart({
   config,
@@ -15,13 +17,10 @@ export function BarChart({
   selectedMap,
   selectedList,
   selectionCallback,
-}: {
-  config: IBarConfig;
-  columns: VisColumn[];
-  selectedMap: Record<string, boolean>;
-  selectedList: string[];
-  selectionCallback?: (ids: string[]) => void;
-}) {
+  uniquePlotId,
+  showDownloadScreenshot,
+}: Pick<ICommonVisProps<IBarConfig>, 'config' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'>) {
+  const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
@@ -29,12 +28,12 @@ export function BarChart({
     columns,
     config.catColumnSelected,
     config.group,
-    config.multiples,
+    config.facets,
     config.aggregateColumn,
   ]);
 
-  const uniqueMultiplesVals = useMemo(() => {
-    return [...new Set(allColumns?.multiplesColVals?.resolvedValues.map((v) => v.val))] as string[];
+  const uniqueFacetVals = useMemo(() => {
+    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
   }, [allColumns]);
 
   const { groupColorScale, groupedTable } = useGetGroupedBarScales(
@@ -79,60 +78,72 @@ export function BarChart({
   );
 
   return (
-    <Stack style={{ width: '100%', height: '100%', position: 'relative' }} gap={0}>
-      <Box>
+    <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
+      {showDownloadScreenshot ? (
+        <Center h="20px">
+          <DownloadPlotButton uniquePlotId={id} config={config} />
+        </Center>
+      ) : null}
+      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
         {groupColorScale ? (
-          <Legend
-            groupedIds={groupedIds}
-            filteredOut={filteredOut}
-            left={60}
-            categories={groupColorScale.domain()}
-            isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
-            colorScale={groupColorScale}
-            onFilteredOut={(id) => {
-              if (filteredOut.includes(id)) {
-                setFilteredOut(filteredOut.filter((v) => v !== id));
-              } else {
-                setFilteredOut([...filteredOut, id]);
-              }
-            }}
-            stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
-          />
+          <Box>
+            <Legend
+              groupedIds={groupedIds}
+              left={60}
+              categories={groupColorScale.domain()}
+              filteredOut={filteredOut}
+              isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
+              colorScale={groupColorScale}
+              stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
+              onFilteredOut={(newId) => {
+                if (filteredOut.includes(newId)) {
+                  setFilteredOut(filteredOut.filter((v) => v !== newId));
+                } else {
+                  setFilteredOut([...filteredOut, newId]);
+                }
+              }}
+            />
+          </Box>
         ) : null}
-      </Box>
-      <SimpleGrid cols={Math.round(Math.sqrt(uniqueMultiplesVals.length))} spacing={0} style={{ height: 'inherit', overflow: 'hidden' }}>
-        {colsStatus !== 'success' ? (
-          <Center>
-            <Loader />
-          </Center>
-        ) : !config.multiples || !allColumns.multiplesColVals ? (
-          <SingleBarChart
-            config={config}
-            allColumns={allColumns}
-            selectedMap={selectedMap}
-            selectionCallback={customSelectionCallback}
-            selectedList={selectedList}
-            sortType={sortType}
-            setSortType={setSortType}
-          />
-        ) : (
-          uniqueMultiplesVals.map((multiplesVal) => (
+
+        <SimpleGrid
+          cols={Math.min(Math.ceil(Math.sqrt(uniqueFacetVals.length)), 5)}
+          spacing={0}
+          style={{ flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}
+        >
+          {colsStatus !== 'success' ? (
+            <Center>
+              <Loader />
+            </Center>
+          ) : !config.facets || !allColumns.facetsColVals ? (
             <SingleBarChart
-              isSmall
-              selectedList={selectedList}
-              selectedMap={selectedMap}
-              key={multiplesVal as string}
               config={config}
               allColumns={allColumns}
-              categoryFilter={multiplesVal}
-              title={multiplesVal}
+              selectedMap={selectedMap}
               selectionCallback={customSelectionCallback}
+              selectedList={selectedList}
               sortType={sortType}
               setSortType={setSortType}
             />
-          ))
-        )}
-      </SimpleGrid>
+          ) : (
+            uniqueFacetVals.map((multiplesVal) => (
+              <SingleBarChart
+                isSmall
+                selectedList={selectedList}
+                selectedMap={selectedMap}
+                key={multiplesVal as string}
+                config={config}
+                allColumns={allColumns}
+                categoryFilter={multiplesVal}
+                title={multiplesVal}
+                selectionCallback={customSelectionCallback}
+                sortType={sortType}
+                setSortType={setSortType}
+              />
+            ))
+          )}
+        </SimpleGrid>
+      </Stack>
     </Stack>
   );
 }

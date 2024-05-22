@@ -34,7 +34,7 @@ export function PieChart({ data, dataCategories, radius, transform, colorScale, 
         // eslint-disable-next-line react/no-array-index-key
         return (
           <path
-            key={`${id}, ${i}`}
+            key={`${id}, ${slice.startAngle}`}
             d={createArc(slice as any)}
             style={{
               fill: colorScale

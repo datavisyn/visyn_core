@@ -1,5 +1,6 @@
 import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem } from '@mantine/core';
 import * as d3v7 from 'd3v7';
+import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { css } from '@emotion/css';
 import { useAsync } from '../../hooks/useAsync';
@@ -11,6 +12,7 @@ import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
 import { LegendItem } from '../LegendItem';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 function Legend({
   categories,
@@ -51,7 +53,10 @@ export function HexbinVis({
   selectionCallback = () => null,
   selectedMap = {},
   showDragModeOptions = true,
+  uniquePlotId,
+  showDownloadScreenshot,
 }: ICommonVisProps<IHexbinConfig>) {
+  const id = React.useMemo(() => uniquePlotId || uniqueId('HexbinVis'), [uniquePlotId]);
   const { width, height } = dimensions;
   const { value: allColumns, status: colsStatus } = useAsync(getHexData, [columns, config.numColumnsSelected, config.color]);
 
@@ -92,15 +97,19 @@ export function HexbinVis({
         grid-row-gap: 0.5rem;
       `}
       style={{ width, height }}
+      id={id}
     >
-      {showDragModeOptions ? (
-        <Center style={{ gridArea: 'toolbar' }}>
-          <Group>
-            <BrushOptionButtons
-              callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
-              options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
-              dragMode={config.dragMode}
-            />
+      {showDragModeOptions || showDownloadScreenshot ? (
+        <Center>
+          <Group mt="lg">
+            {showDragModeOptions ? (
+              <BrushOptionButtons
+                callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })}
+                options={[EScatterSelectSettings.RECTANGLE, EScatterSelectSettings.PAN]}
+                dragMode={config.dragMode}
+              />
+            ) : null}
+            {showDownloadScreenshot && config.numColumnsSelected.length >= 2 ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
           </Group>
         </Center>
       ) : null}

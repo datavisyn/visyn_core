@@ -46,8 +46,8 @@ export function useGetGroupedBarScales(
     if (allColumns.groupColVals) {
       let filteredTable = baseTable;
 
-      if (categoryFilter && allColumns.multiplesColVals) {
-        filteredTable = baseTable.filter(escape((d) => d.multiples === categoryFilter));
+      if (categoryFilter && allColumns.facetsColVals) {
+        filteredTable = baseTable.filter(escape((d) => d.facets === categoryFilter));
       }
       return allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? binByAggregateType(filteredTable, aggregateType)
@@ -92,8 +92,8 @@ export function useGetGroupedBarScales(
   const newCountScale = useMemo(() => {
     if (!allColumns) return null;
 
-    // No multiples, only group
-    if (!allColumns.multiplesColVals) {
+    // No facets, only group
+    if (!allColumns.facetsColVals) {
       // No group or group is a stack of count, dont need to change scale
       if (!groupedTable || (groupType === EBarGroupingType.STACK && aggregateType === EAggregateTypes.COUNT)) {
         return countScale;
@@ -115,25 +115,25 @@ export function useGetGroupedBarScales(
       return countScale.copy().domain([0, max + max / 25]);
     }
 
-    // Multiples only, or multiples and stacked.
+    // facets only, or facets and stacked.
     if (!groupedTable || (groupType === EBarGroupingType.STACK && aggregateType === EAggregateTypes.COUNT)) {
-      const max = +d3.max(rollupByAggregateType(baseTable.groupby('category', 'multiples'), aggregateType).array('aggregateVal'));
+      const max = +d3.max(rollupByAggregateType(baseTable.groupby('category', 'facets'), aggregateType).array('aggregateVal'));
       return countScale.copy().domain([0, max + max / 25]);
     }
 
-    // Multiples + stacking with something other than count. Tricky one. Change max
+    // facets + stacking with something other than count. Tricky one. Change max
     if (groupType === EBarGroupingType.STACK) {
       const max = +d3.max(
-        rollupByAggregateType(baseTable.groupby('category', 'group', 'multiples'), aggregateType)
-          .groupby('category', 'multiples')
+        rollupByAggregateType(baseTable.groupby('category', 'group', 'facets'), aggregateType)
+          .groupby('category', 'facets')
           .rollup({ sum: (d) => op.sum(d.aggregateVal) })
           .array('sum'),
       );
       return countScale.copy().domain([0, max + max / 25]);
     }
 
-    // Multiples + grouped but not stacked. Change max.
-    const max = +d3.max(rollupByAggregateType(baseTable.groupby('group', 'category', 'multiples'), aggregateType).array('aggregateVal'));
+    // facets + grouped but not stacked. Change max.
+    const max = +d3.max(rollupByAggregateType(baseTable.groupby('group', 'category', 'facets'), aggregateType).array('aggregateVal'));
 
     const tempScale = countScale.copy().domain([0, max + max / 25]);
 

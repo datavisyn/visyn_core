@@ -23,7 +23,7 @@ export function useGetBarScales(
       return table({
         category: allColumns.catColVals.resolvedValues.map((val) => val.val),
         group: allColumns?.groupColVals?.resolvedValues.map((val) => val.val),
-        multiples: allColumns?.multiplesColVals?.resolvedValues.map((val) => val.val) || [],
+        facets: allColumns?.facetsColVals?.resolvedValues.map((val) => val.val) || [],
         selected: allColumns.catColVals.resolvedValues.map((val) => (selectedMap[val.id] ? 1 : 0)),
         aggregateVal: allColumns?.aggregateColVals?.resolvedValues.map((val) => val.val) || [],
         id: allColumns.catColVals.resolvedValues.map((val) => val.id),
@@ -54,8 +54,8 @@ export function useGetBarScales(
     if (allColumns?.catColVals) {
       let myTable = baseTable;
 
-      if (categoryFilter && allColumns?.multiplesColVals) {
-        myTable = baseTable.params({ categoryFilter }).filter((d, $) => d.multiples === $.categoryFilter);
+      if (categoryFilter && allColumns?.facetsColVals) {
+        myTable = baseTable.params({ categoryFilter }).filter((d, $) => d.facets === $.categoryFilter);
       }
 
       addFunction('aggregateFunc', aggregateFunc, { override: true });
@@ -72,7 +72,7 @@ export function useGetBarScales(
     }
 
     return null;
-  }, [aggregateFunc, allColumns?.catColVals, allColumns?.multiplesColVals, baseTable, categoryFilter]);
+  }, [aggregateFunc, allColumns?.catColVals, allColumns?.facetsColVals, baseTable, categoryFilter]);
 
   const countScale = useMemo(() => {
     if (!aggregatedTable) return null;

@@ -27,7 +27,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
     return value.title && self.findIndex((v) => v.title === value.title) === index;
   });
 
-  // This is for adding titles to subplots, specifically for bar charts with small multiples.
+  // This is for adding titles to subplots, specifically for bar charts with small facets.
   // As explained here https://github.com/plotly/plotly.js/issues/2746#issuecomment-810354140, this doesnt work very well if you have a lot of subplots because plotly.
   // "So above and beyond the fact that Plotly.js doesn't have a first-class "subplot" concept,
   // Plotly.js also doesn't really do any kind of automated layout beyond automatically growing the plot margins to leave enough room for legends"

@@ -1,4 +1,4 @@
-import type { PlotlyTypes } from '../plotly';
+import { PlotlyTypes } from '../plotly';
 
 export enum ESupportedPlotlyVis {
   SCATTER = 'Scatter plot',
@@ -118,6 +118,14 @@ export type Scales = {
   color: any;
 };
 
+export interface IPlotStats {
+  n?: number;
+  r2?: number;
+  pValue?: number;
+  pearsonRho?: number;
+  spearmanRho?: number;
+}
+
 /**
  * Common props for all vis sidebars.
  */
@@ -138,6 +146,8 @@ export interface ICommonVisProps<T> {
   optionsConfig?: any;
   colors?: string[];
   shapes?: string[];
+  stats?: IPlotStats;
+  statsCallback?: (s: IPlotStats) => void;
   filterCallback?: (s: EFilterOptions) => void;
   selectionCallback?: (s: string[]) => void;
   selectedMap?: { [key: string]: boolean };
@@ -148,6 +158,8 @@ export interface ICommonVisProps<T> {
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showSidebarDefault?: boolean;
+  uniquePlotId?: string;
+  showDownloadScreenshot?: boolean;
   setShowSidebar?: (s: boolean) => void;
   extensions?: {
     prePlot?: React.ReactNode;
