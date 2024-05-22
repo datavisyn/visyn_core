@@ -94,7 +94,7 @@ export function MultiSelect({
   ));
 
   return (
-    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={false}>
+    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal>
       <Combobox.DropdownTarget>
         <PillsInput
           rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />}

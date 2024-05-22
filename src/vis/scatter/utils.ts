@@ -1,4 +1,5 @@
 import * as d3v7 from 'd3v7';
+import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue } from '../../utils';
@@ -19,7 +20,7 @@ import {
   VisNumericalValue,
 } from '../interfaces';
 import { getCol } from '../sidebar';
-import { ELabelingOptions, IScatterConfig } from './interfaces';
+import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
 
 function truncateString(text: string, maxLength = 20): string {
   return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
@@ -38,16 +39,30 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
   return calcDomain;
 }
 
-const defaultConfig: IScatterConfig = {
+export const defaultRegressionLineStyle = {
+  colors: ['#99A1A9', '#C91A25', '#3561fd'],
+  colorSelected: 0,
+  width: 2,
+  dash: 'solid' as Plotly.Dash,
+};
+
+export const defaultConfig: IScatterConfig = {
   type: ESupportedPlotlyVis.SCATTER,
   numColumnsSelected: [],
+  facets: null,
   color: null,
   numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
   shape: null,
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
-  showLabels: ELabelingOptions.SELECTED,
+  showLabels: ELabelingOptions.NEVER,
+  regressionLineOptions: {
+    type: ERegressionLineType.NONE,
+    fitOptions: { order: 2, precision: 3 },
+    lineStyle: defaultRegressionLineStyle,
+    showStats: true,
+  },
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {
@@ -84,6 +99,7 @@ export function moveSelectedToFront(
 export async function createScatterTraces(
   columns: VisColumn[],
   numColumnsSelected: ColumnInfo[],
+  facet: ColumnInfo,
   shape: ColumnInfo,
   color: ColumnInfo,
   alphaSliderVal: number,
@@ -110,12 +126,20 @@ export async function createScatterTraces(
     return emptyVal;
   }
 
-  const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
   const plots: PlotlyData[] = [];
+  const legendPlots: PlotlyData[] = [];
 
+  const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
+  const facetCol = await resolveSingleColumn(getCol(columns, facet));
+
+  // cant currently do 1d scatterplots
+  if (validCols.length === 1) {
+    return emptyVal;
+  }
+
   const idToLabelMapper = await createIdToLabelMapper(columns);
 
   const textPositionOptions = ['top center', 'bottom center'];
@@ -146,42 +170,131 @@ export async function createScatterTraces(
         )
     : null;
 
-  const legendPlots: PlotlyData[] = [];
+  // These are shared data properties beeing the same for all plots
+  const sharedData = {
+    showlegend: false,
+    type: 'scattergl',
+    mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+    hoverinfo: 'text',
+    hoverlabel: {
+      bgcolor: 'black',
+    },
+    selected: {
+      marker: {
+        line: {
+          width: 0,
+        },
+        opacity: 1,
+        size: sizeSliderVal,
+      },
+      textfont: {
+        color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
+      },
+    },
+    unselected: {
+      marker: {
+        line: {
+          width: 0,
+        },
+        color: DEFAULT_COLOR,
+        opacity: alphaSliderVal,
+        size: sizeSliderVal,
+      },
+      textfont: {
+        color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
+      },
+    },
+  };
 
-  // cant currently do 1d scatterplots
-  if (validCols.length === 1) {
-    return emptyVal;
+  // Case: Facetting by category
+  if (validCols.length === 2 && facetCol) {
+    const xLabel = columnNameWithDescription(validCols[0].info);
+    const yLabel = columnNameWithDescription(validCols[1].info);
+
+    const data = validCols[0].resolvedValues.map((v, i) => ({
+      x: v.val,
+      y: validCols[1].resolvedValues[i].val,
+      ids: v.id?.toString(),
+      facet: facetCol.resolvedValues[i].val?.toString(),
+      color: colorCol ? colorCol.resolvedValues[i].val : undefined,
+      shape: shapeCol ? shapeCol.resolvedValues[i].val : undefined,
+    }));
+
+    const groupedData = _.groupBy(data, 'facet');
+
+    _.flatMap(groupedData, (group, key) => {
+      const calcXDomain = calculateDomain(
+        (validCols[0] as VisNumericalColumn).domain,
+        group.map((d) => d.x as number),
+      );
+      const calcYDomain = calculateDomain(
+        (validCols[1] as VisNumericalColumn).domain,
+        group.map((d) => d.y as number),
+      );
+
+      plots.push({
+        data: {
+          x: group.map((d) => d.x as number),
+          y: group.map((d) => d.y as number),
+          ids: group.map((d) => d.ids),
+          xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
+          yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
+          hovertext: group.map(
+            (d) =>
+              `${idToLabelMapper(d.ids)}<br>${xLabel}: ${d.x}<br>${yLabel}: ${d.y}
+              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${d.color || 'Unknown'}` : ''}
+              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape || 'Unknown'}` : ''}`,
+          ),
+          text: group.map((d) => idToLabelMapper(d.ids)),
+          // @ts-ignore
+          textposition: group.map((d, i) => textPositionOptions[i % textPositionOptions.length]),
+          marker: {
+            symbol: shapeCol ? group.map((d) => shapeScale(d.shape as string)) : 'circle',
+            color: colorCol
+              ? group.map((d) =>
+                  colorCol.type === EColumnTypes.NUMERICAL
+                    ? numericalColorScale(d.color as number)
+                    : colorCol.color
+                      ? colorCol.color[d.color]
+                      : scales.color(d.color),
+                )
+              : SELECT_COLOR,
+          },
+          ...sharedData,
+        },
+        xLabel,
+        yLabel,
+        xDomain: calcXDomain,
+        yDomain: calcYDomain,
+        title: !group[0].facet || group[0].facet === '' ? 'Unknown' : group[0].facet,
+      });
+      plotCounter += 1;
+    });
   }
 
-  // if exactly 2 then return just one plot. otherwise, loop over and create n*n plots. TODO:: make the diagonal plots that have identical axis a histogram
-  if (validCols.length === 2) {
-    const xDataVals = validCols[0].resolvedValues.map((v) => v.val);
+  // Case: Exactly two numerical columns
+  if (validCols.length === 2 && !facetCol) {
+    const xDataVals = validCols[0].resolvedValues.map((v) => v.val) as number[];
+    const yDataVals = validCols[1].resolvedValues.map((v) => v.val) as number[];
+    const xLabel = columnNameWithDescription(validCols[0].info);
+    const yLabel = columnNameWithDescription(validCols[1].info);
 
-    const yDataVals = validCols[1].resolvedValues.map((v) => v.val);
-
-    const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, xDataVals as number[]);
-    const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, yDataVals as number[]);
+    const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, xDataVals);
+    const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, yDataVals);
 
     plots.push({
       data: {
         x: xDataVals,
         y: yDataVals,
-        ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
+        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-        type: 'scattergl',
-        mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-        showlegend: false,
-        hoverlabel: {
-          bgcolor: 'black',
-        },
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
-              colorCol ? `<br>${colorCol.info.name}: ${colorCol.resolvedValues[i].val}` : ''
-            }${shapeCol ? `<br>${shapeCol.info.name}: ${shapeCol.resolvedValues[i].val}` : ''}`,
+            `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
+            ${colorCol ? `<br>${colorCol.info.name}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${shapeCol.info.name}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
         ),
-        hoverinfo: 'text',
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
         textposition: validCols[0].resolvedValues.map((v, i) => textPositionOptions[i % textPositionOptions.length]),
@@ -194,42 +307,19 @@ export async function createScatterTraces(
               )
             : SELECT_COLOR,
         },
-        // plotly is stupid and doesnt know its own types
-        // @ts-ignore
-        selected: {
-          marker: {
-            line: {
-              width: 0,
-            },
-            opacity: 1,
-            size: sizeSliderVal,
-          },
-          textfont: {
-            color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
-          },
-        },
-        unselected: {
-          marker: {
-            line: {
-              width: 0,
-            },
-            color: DEFAULT_COLOR,
-            opacity: alphaSliderVal,
-            size: sizeSliderVal,
-          },
-          textfont: {
-            color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
-          },
-        },
+        ...sharedData,
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[1].info),
+      xLabel,
+      yLabel,
       xDomain: calcXDomain,
       yDomain: calcYDomain,
     });
-  } else {
-    for (const yCurr of validCols) {
-      for (const xCurr of validCols) {
+  }
+
+  // Case: Multiple numerical columns and no categorical facetting
+  if (validCols.length > 2 && !facetCol) {
+    validCols.forEach((yCurr, yIdx) => {
+      validCols.forEach((xCurr) => {
         // if on the diagonal, make a histogram.
         if (xCurr.info.id === yCurr.info.id) {
           plots.push({
@@ -247,14 +337,16 @@ export async function createScatterTraces(
               },
               opacity: alphaSliderVal,
             },
-            xLabel: columnNameWithDescription(xCurr.info),
-            yLabel: columnNameWithDescription(yCurr.info),
+            xLabel: plotCounter > validCols.length * (validCols.length - 1) ? columnNameWithDescription(xCurr.info) : null,
+            yLabel: plotCounter === 1 + validCols.length * yIdx ? columnNameWithDescription(yCurr.info) : null,
           });
           // otherwise, make a scatterplot
         } else {
           const xDataVals = xCurr.resolvedValues.map((v) => v.val);
-
           const yDataVals = yCurr.resolvedValues.map((v) => v.val);
+
+          const xLabel = columnNameWithDescription(xCurr.info);
+          const yLabel = columnNameWithDescription(yCurr.info);
 
           const calcXDomain = calculateDomain((xCurr as VisNumericalColumn).domain, xDataVals as number[]);
           const calcYDomain = calculateDomain((yCurr as VisNumericalColumn).domain, yDataVals as number[]);
@@ -263,23 +355,16 @@ export async function createScatterTraces(
             data: {
               x: xDataVals,
               y: yDataVals,
-              ids: xCurr.resolvedValues.map((v) => v.id.toString()),
+              ids: xCurr.resolvedValues.map((v) => v.id?.toString()),
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-              type: 'scattergl',
-              mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
-                  `${v.id}<br>x: ${v.val}<br>y: ${yCurr.resolvedValues[i].val}<br>${
-                    colorCol ? `${colorCol.info.name}: ${colorCol.resolvedValues[i].val}` : ''
-                  }`,
+                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}<br>
+                  ${colorCol ? `<br>${colorCol.info.name}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
+                  ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${shapeCol.info.name}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
               ),
-              hoverinfo: 'text',
-              hoverlabel: {
-                bgcolor: 'black',
-              },
-              showlegend: false,
-              text: validCols[0].resolvedValues.map((v) => v.id.toString()),
+              text: validCols[0].resolvedValues.map((v) => v.id?.toString()),
               // @ts-ignore
               textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
               marker: {
@@ -293,52 +378,26 @@ export async function createScatterTraces(
                     )
                   : SELECT_COLOR,
               },
-              // plotly is stupid and doesnt know its own types
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              selected: {
-                marker: {
-                  line: {
-                    width: 0,
-                  },
-                  symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-                  opacity: 1,
-                  size: sizeSliderVal,
-                },
-              },
-              unselected: {
-                marker: {
-                  line: {
-                    width: 0,
-                  },
-                  symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-                  color: DEFAULT_COLOR,
-                  opacity: alphaSliderVal,
-                  size: sizeSliderVal,
-                },
-              },
+              ...sharedData,
             },
-            xLabel: columnNameWithDescription(xCurr.info),
-            yLabel: columnNameWithDescription(yCurr.info),
+            xLabel: plotCounter > validCols.length * (validCols.length - 1) ? xLabel : null,
+            yLabel: plotCounter === 1 + validCols.length * yIdx ? yLabel : null,
             xDomain: calcXDomain,
             yDomain: calcYDomain,
           });
         }
 
         plotCounter += 1;
-      }
-    }
+      });
+    });
   }
 
   // if we have a column for the color, and its a categorical column, add a legendPlot that creates a legend.
   if (colorCol && colorCol.type === EColumnTypes.CATEGORICAL && validCols.length > 0) {
     legendPlots.push({
       data: {
-        x: validCols[0].resolvedValues.map((v) => v.val),
-        y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
-        xaxis: 'x',
-        yaxis: 'y',
+        x: [null],
+        y: [null],
         type: 'scattergl',
         mode: 'markers',
         visible: 'legendonly',
@@ -361,23 +420,17 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: colorCol.resolvedValues.map((v) => `${v.val}` as string),
+            groups: colorCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
             styles: [
-              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val) as string[])].map((c) => {
-                return {
-                  target: c,
-                  value: {
-                    name: truncateString(c),
-                    text: c,
-                  },
-                };
+              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
+                return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
           },
         ],
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[0].info),
+      xLabel: null,
+      yLabel: null,
     });
   }
 
@@ -385,11 +438,8 @@ export async function createScatterTraces(
   if (shapeCol) {
     legendPlots.push({
       data: {
-        x: validCols[0].resolvedValues.map((v) => v.val),
-        y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id.toString()),
-        xaxis: 'x',
-        yaxis: 'y',
+        x: [null],
+        y: [null],
         type: 'scattergl',
         mode: 'markers',
         visible: 'legendonly',
@@ -419,25 +469,27 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: shapeCol.resolvedValues.map((v) => v.val as string),
+            groups: shapeCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
             styles: [
-              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val) as string[])].map((c) => {
+              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
                 return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
           },
         ],
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[0].info),
+      xLabel: null,
+      yLabel: null,
     });
   }
+
+  const defaultColNum = Math.min(Math.ceil(Math.sqrt(plots.length)), 5);
 
   return {
     plots,
     legendPlots,
-    rows: Math.sqrt(plots.length),
-    cols: Math.sqrt(plots.length),
+    rows: facetCol ? Math.ceil(plots.length / defaultColNum) : Math.sqrt(plots.length),
+    cols: facetCol ? defaultColNum : Math.sqrt(plots.length),
     errorMessage: i18n.t('visyn:vis.scatterError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
   };
