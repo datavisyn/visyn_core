@@ -213,7 +213,7 @@ export function ScatterVis({
         size: 13.4,
       },
       margin: {
-        t: showDragModeOptions ? (config.facets ? 30 : 25) : 50,
+        t: showDragModeOptions ? (config.facets ? 40 : 25) : config.facets ? 65 : 50,
         r: 25,
         l: 50,
         b: 50,
