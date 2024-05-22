@@ -296,12 +296,12 @@ export function ScatterVis({
       ) : null}
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
         <>
-          <Tooltip label="Toggle legend" refProp="rootRef" zIndex={100}>
+          <Tooltip label="Toggle legend" refProp="rootRef">
             <Switch
               styles={{ label: { paddingLeft: '5px' } }}
               size="xs"
               disabled={traces.legendPlots.length === 0}
-              style={{ position: 'absolute', right: 42, top: 18 }}
+              style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
               defaultChecked
               label="Legend"
               onChange={() => setShowLegend((prev) => !prev)}
