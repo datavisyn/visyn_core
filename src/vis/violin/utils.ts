@@ -2,7 +2,7 @@ import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
-import { SELECT_COLOR } from '../general/constants';
+import { NAN_REPLACEMENT, SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EViolinSeparationMode, IViolinConfig } from './interfaces';
@@ -55,10 +55,10 @@ export async function createViolinTraces(
   const legendPlots: PlotlyData[] = [];
 
   const numColValues = await resolveColumnValues(numCols);
-  // Null values in categorical columns would break the plot --> replace with 'missing'
+  // Null values in categorical columns would break the plot --> replace with NAN_REPLACEMENT
   const catColValues = (await resolveColumnValues(catCols)).map((col) => ({
     ...col,
-    resolvedValues: col.resolvedValues.map((v) => ({ ...v, val: v.val || 'missing' })),
+    resolvedValues: col.resolvedValues.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })),
   }));
 
   const sharedData = {
