@@ -1,4 +1,5 @@
 import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
+import { useUncontrolled } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import { XAxisName, YAxisName } from 'plotly.js-dist-min';
@@ -78,7 +79,10 @@ export function ScatterVis({
   showDownloadScreenshot,
 }: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
-  const [showLegend, setShowLegend] = useState(false);
+  const [showLegend, setShowLegend] = useUncontrolled({
+    defaultValue: false,
+    value: config.showLegend,
+  });
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
   // TODO: This is a little bit hacky, Also notification should be shown to the user
@@ -296,18 +300,20 @@ export function ScatterVis({
       ) : null}
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
         <>
-          <Tooltip label="Toggle legend" refProp="rootRef">
-            <Switch
-              styles={{ label: { paddingLeft: '5px' } }}
-              size="xs"
-              disabled={traces.legendPlots.length === 0}
-              style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
-              defaultChecked
-              label="Legend"
-              onChange={() => setShowLegend((prev) => !prev)}
-              checked={showLegend}
-            />
-          </Tooltip>
+          {config.showLegend === undefined ? (
+            <Tooltip label="Toggle legend" refProp="rootRef">
+              <Switch
+                styles={{ label: { paddingLeft: '5px' } }}
+                size="xs"
+                disabled={traces.legendPlots.length === 0}
+                style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
+                defaultChecked
+                label="Legend"
+                onChange={() => setShowLegend(!showLegend)}
+                checked={showLegend}
+              />
+            </Tooltip>
+          ) : null}
           <PlotlyComponent
             key={id}
             divId={id}
