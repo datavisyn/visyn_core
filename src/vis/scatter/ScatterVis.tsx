@@ -296,7 +296,7 @@ export function ScatterVis({
       ) : null}
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
         <>
-          <Tooltip label="Toggle legend" refProp="rootRef">
+          <Tooltip label="Toggle legend" refProp="rootRef" zIndex={99}>
             <Switch
               styles={{ label: { paddingLeft: '5px' } }}
               size="xs"
