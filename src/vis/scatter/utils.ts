@@ -360,7 +360,7 @@ export async function createScatterTraces(
                 ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
                 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
               ),
-              text: validCols[0].resolvedValues.map((v) => v.id?.toString()),
+              text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore
               textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
               marker: {
