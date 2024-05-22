@@ -2,3 +2,8 @@ body,
 html {
   font-family: Roboto, sans-serif;
 }
+
+:root {
+  // Globally set 1rem to 14px (instead of 16px)
+  font-size: 14px;
+}
