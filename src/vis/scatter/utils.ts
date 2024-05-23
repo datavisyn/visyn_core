@@ -22,6 +22,10 @@ import {
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
 
+function truncateString(text: string, maxLength = 20): string {
+  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
+}
+
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
   if (domain[0] !== undefined && domain[1] !== undefined) {
@@ -166,7 +170,7 @@ export async function createScatterTraces(
         )
     : null;
 
-  // These are shared data properties beeing the same for all plots
+  // These are shared data properties between the traces
   const sharedData = {
     showlegend: false,
     type: 'scattergl',
@@ -288,8 +292,8 @@ export async function createScatterTraces(
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
             `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
-            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
-            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
+            ${colorCol ? `<br>${colorCol.info.name}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${shapeCol.info.name}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
         ),
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
@@ -356,9 +360,9 @@ export async function createScatterTraces(
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
-                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}
-                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
-                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
+                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}<br>
+                  ${colorCol ? `<br>${colorCol.info.name}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
+                  ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${shapeCol.info.name}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
               ),
               text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore
@@ -402,7 +406,7 @@ export async function createScatterTraces(
 
         // @ts-ignore
         legendgrouptitle: {
-          text: columnNameWithDescription(colorCol.info),
+          text: truncateString(colorCol.info.name),
         },
         marker: {
           line: {
@@ -419,7 +423,7 @@ export async function createScatterTraces(
             groups: colorCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
             styles: [
               ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
-                return { target: c, value: { name: c } };
+                return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
           },
@@ -441,11 +445,17 @@ export async function createScatterTraces(
         visible: 'legendonly',
         showlegend: true,
         legendgroup: 'shape',
-        hoverinfo: 'skip',
+        hoverinfo: 'all',
 
+        hoverlabel: {
+          namelength: 10,
+          bgcolor: 'black',
+          align: 'left',
+          bordercolor: 'black',
+        },
         // @ts-ignore
         legendgrouptitle: {
-          text: columnNameWithDescription(shapeCol.info),
+          text: truncateString(shapeCol.info.name),
         },
         marker: {
           line: {
@@ -462,7 +472,7 @@ export async function createScatterTraces(
             groups: shapeCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
             styles: [
               ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
-                return { target: c, value: { name: c } };
+                return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
           },
