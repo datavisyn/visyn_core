@@ -80,7 +80,7 @@ export function ScatterVis({
 }: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
   const [showLegend, setShowLegend] = useUncontrolled({
-    defaultValue: false,
+    defaultValue: true,
     value: config.showLegend,
   });
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
