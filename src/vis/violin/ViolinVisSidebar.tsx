@@ -12,7 +12,7 @@ const defaultConfig = {
     enable: true,
     customComponent: null,
   },
-  multiplesMode: {
+  separation: {
     enable: true,
     customComponent: null,
   },
@@ -59,11 +59,12 @@ export function ViolinVisSidebar({
           )
         : null}
 
-      {mergedOptionsConfig.multiplesMode.enable
-        ? mergedOptionsConfig.multiplesMode.customComponent || (
+      {mergedOptionsConfig.separation.enable
+        ? mergedOptionsConfig.separation.customComponent || (
             <ViolinSeparationSegmentedControl
-              callback={(multiplesMode: EViolinSeparationMode) => setConfig({ ...config, multiplesMode })}
-              currentSelected={config.multiplesMode}
+              callback={(separation: EViolinSeparationMode) => setConfig({ ...config, separation })}
+              currentSelected={config.separation}
+              disabled={config.numColumnsSelected.length === 1 && config.catColumnsSelected.length === 1}
             />
           )
         : null}

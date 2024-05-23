@@ -12,7 +12,7 @@ const defaultConfig: IViolinConfig = {
   numColumnsSelected: [],
   catColumnsSelected: [],
   violinOverlay: EViolinOverlay.NONE,
-  multiplesMode: EViolinSeparationMode.GROUP,
+  separation: EViolinSeparationMode.FACETS,
 };
 
 export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IViolinConfig {
@@ -85,8 +85,8 @@ export async function createViolinTraces(
         data: {
           y,
           ids: numCurr.resolvedValues.map((v) => v.id),
-          xaxis: config.multiplesMode === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
-          yaxis: config.multiplesMode === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
+          xaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
+          yaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
           marker: {
             color: '#878E95',
           },
@@ -95,7 +95,7 @@ export async function createViolinTraces(
           hoveron: 'violins',
           ...sharedData,
         },
-        yLabel: config.multiplesMode === EViolinSeparationMode.FACETS && yLabel,
+        yLabel: config.separation === EViolinSeparationMode.FACETS && yLabel,
       });
       plotCounter += 1;
     }
@@ -103,7 +103,7 @@ export async function createViolinTraces(
 
   // Case: Numerical columns and multiple categorical columns selected
   else if (numColValues.length > 0 && catColValues.length > 0) {
-    if (config.multiplesMode === EViolinSeparationMode.GROUP && (catColValues.length > 1 || numColValues.length > 1)) {
+    if (config.separation === EViolinSeparationMode.GROUP && (catColValues.length > 1 || numColValues.length > 1)) {
       hasFacets = false;
       const data: { y: number; x: string; group: { g1: string; g2: string }; ids: string }[] = [];
       numColValues.forEach((numCurr) => {

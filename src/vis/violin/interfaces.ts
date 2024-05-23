@@ -15,7 +15,7 @@ export interface IViolinConfig extends BaseVisConfig {
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
-  multiplesMode: EViolinSeparationMode;
+  separation: EViolinSeparationMode;
 }
 
 export function isViolinConfig(s: BaseVisConfig): s is IViolinConfig {

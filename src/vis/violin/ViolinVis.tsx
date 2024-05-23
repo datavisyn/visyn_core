@@ -107,7 +107,7 @@ export function ViolinVis({
       clickmode: 'event+select',
       dragmode: false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: config.multiplesMode === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: config.separation === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
       // @ts-ignore
       violinmode: traces && traces.hasFacets ? 'overlay' : 'group',
@@ -116,7 +116,7 @@ export function ViolinVis({
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
-  }, [config.catColumnsSelected, config.multiplesMode, config.numColumnsSelected.length, traces]);
+  }, [config.catColumnsSelected, config.separation, config.numColumnsSelected.length, traces]);
 
   const highlightSelectionShapes: Partial<Plotly.Shape>[] = useMemo(() => {
     if (!traces?.plots || !traces?.selectedXMap) {
