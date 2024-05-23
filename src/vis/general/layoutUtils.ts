@@ -11,7 +11,7 @@ export function truncateText(text: string, maxLength = 50) {
 }
 
 export function columnNameWithDescription(col: ColumnInfo) {
-  return col.description ? `${col.name}: ${col.description}` : col.name;
+  return col?.description ? `${col.name}: ${col.description}` : col.name;
 }
 
 /**

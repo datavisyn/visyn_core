@@ -40,7 +40,7 @@ export function ViolinVis({
 
     const catSelected = e.points[0].x;
     const data = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[]; x: string[] } })?.fullData;
-    const eventIds = data.x.reduce((acc: string[], x: string, i: number) => {
+    const eventIds = data.x?.reduce((acc: string[], x: string, i: number) => {
       if (x === catSelected && data.ids[i]) {
         acc.push(data.ids[i]);
       }
@@ -53,14 +53,14 @@ export function ViolinVis({
       const newSelected = selectedList.filter((s) => !eventIds.includes(s));
 
       // If incoming ids were not in selected already, add them
-      if (newSelected.length === selectedList.length) {
+      if (newSelected?.length === selectedList.length) {
         newSelected.push(...eventIds);
       }
 
       selectionCallback(newSelected);
     }
     // Multiselect disabled
-    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
+    else if (selectedList.length === eventIds?.length && eventIds?.every((tempId) => selectedMap[tempId])) {
       selectionCallback([]);
     } else {
       selectionCallback(eventIds);

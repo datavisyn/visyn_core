@@ -206,55 +206,53 @@ export async function createViolinTraces(
       });
     } else {
       hasFacets = true;
-      for (const numCurr of numColValues) {
-        for (const catCurr of catColValues) {
-          const y = numCurr.resolvedValues.map((v) => v.val);
-          const x = catCurr.resolvedValues.map((v) => v.val);
-          plots.push({
-            data: {
-              x,
-              y,
-              ids: catCurr.resolvedValues.map((v) => v.id),
-              xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
-              yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-              // @ts-ignore
-              hoveron: 'violins',
-              transforms: [
-                {
-                  type: 'groupby',
-                  groups: x as string[],
-                  styles: [...new Set(x as string[])].map((c) => {
-                    return {
-                      target: c,
-                      value: {
-                        line: {
-                          color:
-                            selectedList.length !== 0 && catCurr.resolvedValues.filter((val) => val.val === c).find((val) => selectedMap[val.id])
-                              ? SELECT_COLOR
-                              : '#878E95',
-                        },
-                      },
-                    };
-                  }),
+      numColValues.forEach((numCurr) => {
+        catColValues.forEach((catCurr) => {
+          const data: { y: number; x: string; ids: string }[] = catCurr.resolvedValues.map((v, i) => ({
+            y: numCurr.resolvedValues[i].val as number,
+            x: v.val as string,
+            ids: numCurr.resolvedValues[i].id?.toString(),
+          }));
+
+          const groupedData = _.groupBy(data, 'x');
+
+          _.flatMap(groupedData, (group, key) => {
+            if (group.some((v) => v.y !== null)) {
+              const ids = group.map((g) => g.ids);
+              const x = group.map((g) => g.x);
+              const y = group.map((g) => g.y);
+              plots.push({
+                data: {
+                  y,
+                  x,
+                  ids,
+                  xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
+                  yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
+                  marker: {
+                    color: ids.find((id) => selectedMap[id]) ? SELECT_COLOR : '#878E95',
+                  },
+                  // Cannot use transform for selection color of violins, as it overrides the violing grouping
+                  // @ts-ignore
+                  hoveron: 'violins',
+                  name: key,
+                  ...sharedData,
                 },
-              ],
-              ...sharedData,
-            },
-            xLabel: columnNameWithDescription(catCurr.info),
-            yLabel: columnNameWithDescription(numCurr.info),
+                yLabel: numColValues.length === 1 && columnNameWithDescription(numColValues[0].info),
+              });
+            }
           });
           plotCounter += 1;
-        }
-      }
+        });
+      });
     }
   }
 
-  const defaultColNum = Math.min(Math.ceil(Math.sqrt(plots.length)), 5);
+  const defaultColNum = Math.min(Math.ceil(Math.sqrt(plotCounter - 1)), 5);
 
   return {
     plots,
     legendPlots,
-    rows: Math.ceil(plots.length / defaultColNum),
+    rows: Math.ceil((plotCounter - 1) / defaultColNum),
     cols: defaultColNum,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
