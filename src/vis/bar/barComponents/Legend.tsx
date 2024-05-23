@@ -45,7 +45,7 @@ export function Legend({
                   <rect width="60px" height="10px" fill={colorScale(c)} opacity={selectedCat ? (selectedCat === c ? 1 : 0.5) : 1} />
                 </svg>
                 <Center>
-                  <Text size="xs" onClick={() => onClick(c)}>
+                  <Text size="xs" truncate onClick={() => onClick(c)} maw={60}>
                     {isNumerical ? `${c} - ${+c + stepSize}` : c}
                   </Text>
                 </Center>
