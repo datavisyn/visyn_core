@@ -3,7 +3,7 @@ import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue } from '../../utils';
-import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
+import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
   ColumnInfo,
@@ -242,8 +242,8 @@ export async function createScatterTraces(
           hovertext: group.map(
             (d) =>
               `${idToLabelMapper(d.ids)}<br>${xLabel}: ${d.x}<br>${yLabel}: ${d.y}
-              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${d.color || 'Unknown'}` : ''}
-              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape || 'Unknown'}` : ''}`,
+              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${d.color || NAN_REPLACEMENT}` : ''}
+              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape || NAN_REPLACEMENT}` : ''}`,
           ),
           text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
@@ -266,7 +266,7 @@ export async function createScatterTraces(
         yLabel,
         xDomain: calcXDomain,
         yDomain: calcYDomain,
-        title: !group[0].facet || group[0].facet === '' ? 'Unknown' : group[0].facet,
+        title: !group[0].facet || group[0].facet === '' ? NAN_REPLACEMENT : group[0].facet,
       });
       plotCounter += 1;
     });
@@ -292,8 +292,8 @@ export async function createScatterTraces(
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
             `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
-            ${colorCol ? `<br>${colorCol.info.name}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
-            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${shapeCol.info.name}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
+            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}`,
         ),
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
@@ -360,9 +360,9 @@ export async function createScatterTraces(
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
-                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}<br>
-                  ${colorCol ? `<br>${colorCol.info.name}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
-                  ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${shapeCol.info.name}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
+                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}
+                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}
+                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}`,
               ),
               text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore
@@ -420,9 +420,9 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: colorCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
+            groups: colorCol.resolvedValues.map((v) => (v.val || NAN_REPLACEMENT) as string),
             styles: [
-              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
+              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || NAN_REPLACEMENT) as string[])].map((c) => {
                 return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
@@ -469,9 +469,9 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: shapeCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
+            groups: shapeCol.resolvedValues.map((v) => (v.val || NAN_REPLACEMENT) as string),
             styles: [
-              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
+              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || NAN_REPLACEMENT) as string[])].map((c) => {
                 return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],

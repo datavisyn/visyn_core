@@ -5,11 +5,17 @@ export enum EViolinOverlay {
   BOX = 'Box',
 }
 
+export enum EViolinSeparationMode {
+  GROUP = 'Group',
+  FACETS = 'Facets',
+}
+
 export interface IViolinConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
   catColumnsSelected: ColumnInfo[];
   violinOverlay: EViolinOverlay;
+  separation: EViolinSeparationMode;
 }
 
 export function isViolinConfig(s: BaseVisConfig): s is IViolinConfig {

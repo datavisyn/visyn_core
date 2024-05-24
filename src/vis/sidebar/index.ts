@@ -9,5 +9,5 @@ export * from './NumericalColorButtons';
 export * from './MultiSelect';
 export * from '../scatter/OpacitySlider';
 export * from './utils';
-export * from '../violin/ViolinOverlayButtons';
+export * from '../violin/ViolinSegmentedControl';
 export * from './VisTypeSelect';
