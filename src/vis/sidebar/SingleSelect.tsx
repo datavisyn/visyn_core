@@ -1,4 +1,4 @@
-import { Combobox, Input, useCombobox, InputBase, CloseButton, Group, Text, CheckIcon } from '@mantine/core';
+import { CheckIcon, CloseButton, Combobox, Group, Input, InputBase, ScrollArea, Text, Tooltip, useCombobox } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -29,21 +29,25 @@ export function SingleSelect({
 
   const options = filteredColumns.map((item) => (
     <Combobox.Option value={item.info.name} key={item.info.id} active={item.info.id === currentSelected?.id}>
-      <Group gap="xs">
-        {item.info.id === currentSelected?.id && (
-          <Text c="gray.6">
-            <CheckIcon size={12} />
+      <Tooltip label={item.info.name} position="left" withArrow>
+        <Group gap="xs" wrap="nowrap">
+          {item.info.id === currentSelected?.id && (
+            <Text c="gray.6">
+              <CheckIcon size={12} />
+            </Text>
+          )}
+          <Text size="sm" truncate maw={120}>
+            {item.info.name}
           </Text>
-        )}
-        <span>{item.info.name}</span>
-      </Group>
+        </Group>
+      </Tooltip>
     </Combobox.Option>
   ));
 
   return (
     <Combobox
       store={combobox}
-      withinPortal={false}
+      withinPortal
       onOptionSubmit={(val) => {
         callback(filteredColumns.find((c) => c.info.name === val)?.info);
         combobox.closeDropdown();
@@ -65,12 +69,20 @@ export function SingleSelect({
             )
           }
         >
-          {currentSelected?.name || <Input.Placeholder>Select a column</Input.Placeholder>}
+          {currentSelected?.name ? (
+            <Text size="sm" truncate maw={120}>
+              {currentSelected?.name}
+            </Text>
+          ) : (
+            <Input.Placeholder>Select a column</Input.Placeholder>
+          )}
         </InputBase>
       </Combobox.Target>
 
       <Combobox.Dropdown>
-        <Combobox.Options>{options}</Combobox.Options>
+        <ScrollArea.Autosize type="scroll" mah={200}>
+          <Combobox.Options>{options}</Combobox.Options>
+        </ScrollArea.Autosize>
       </Combobox.Dropdown>
     </Combobox>
   );

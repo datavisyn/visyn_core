@@ -5,7 +5,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { rollupByAggregateType } from '../bar/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
@@ -31,6 +31,7 @@ export function Heatmap({
   selected,
   selectionCallback,
   setExternalConfig,
+  plotId,
 }: {
   column1: CatColumn;
   column2: CatColumn;
@@ -40,9 +41,9 @@ export function Heatmap({
   selectionCallback: (ids: string[]) => void;
   selected?: { [key: string]: boolean };
   setExternalConfig?: (config: IHeatmapConfig) => void;
+  plotId: string;
 }) {
   const [ref, { width, height }] = useResizeObserver();
-
   const baseTable = useMemo(() => {
     if (!column1 || !column2) return null;
 
@@ -202,7 +203,7 @@ export function Heatmap({
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale, config.isAnimationEnabled]);
 
   return (
-    <Stack style={{ width: '100%', height: '100%' }} gap={0} align="center" justify="center">
+    <Stack style={{ width: '100%', height: '100%' }} gap={0} align="center" justify="center" id={plotId}>
       <Box pl={20}>
         <ColorLegendVert
           width={width - margin.left - margin.right}

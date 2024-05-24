@@ -24,7 +24,7 @@ export function VisSidebarWrapper({ children, config, setConfig, onClick }: { ch
                 </Tooltip>
               </Group>
               <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config.type} />
-              <Divider />
+              <Divider mt="xs" />
               {children}
             </Stack>
           </Box>

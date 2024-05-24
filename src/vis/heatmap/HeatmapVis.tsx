@@ -10,13 +10,20 @@ export function HeatmapVis({
   setConfig,
   selectionCallback = () => null,
   selectedMap = {},
-  enableSidebar,
-  setShowSidebar,
-  showSidebar,
+  uniquePlotId,
+  showDownloadScreenshot,
 }: ICommonVisProps<IHeatmapConfig>) {
   return (
     <Group style={{ height: '100%', width: '100%' }} wrap="nowrap">
-      <HeatmapGrid config={config} columns={columns} selected={selectedMap} selectionCallback={selectionCallback} setExternalConfig={setConfig} />
+      <HeatmapGrid
+        config={config}
+        columns={columns}
+        selected={selectedMap}
+        selectionCallback={selectionCallback}
+        setExternalConfig={setConfig}
+        showDownloadScreenshot={showDownloadScreenshot}
+        uniquePlotId={uniquePlotId}
+      />
     </Group>
   );
 }

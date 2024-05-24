@@ -1,4 +1,4 @@
-import { Stack } from '@mantine/core';
+import { Center, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -6,15 +6,27 @@ import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { IViolinConfig } from './interfaces';
+import { EViolinSeparationMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
+import { SELECT_COLOR } from '../general/constants';
 
-export function ViolinVis({ config, columns, scales, dimensions, selectedList, selectedMap, selectionCallback }: ICommonVisProps<IViolinConfig>) {
+export function ViolinVis({
+  config,
+  columns,
+  scales,
+  dimensions,
+  selectedList,
+  selectedMap,
+  selectionCallback,
+  uniquePlotId,
+  showDownloadScreenshot,
+}: ICommonVisProps<IViolinConfig>) {
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
 
-  const id = useMemo(() => uniqueId('ViolinVis'), []);
+  const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
@@ -25,7 +37,15 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
     }
 
     const shiftPressed = e.event.shiftKey;
-    const eventIds = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
+
+    const catSelected = e.points[0].x;
+    const data = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[]; x: string[] } })?.fullData;
+    const eventIds = data.x?.reduce((acc: string[], x: string, i: number) => {
+      if (x === catSelected && data.ids[i]) {
+        acc.push(data.ids[i]);
+      }
+      return acc;
+    }, []);
 
     // Multiselect enabled
     if (shiftPressed) {
@@ -33,14 +53,14 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       const newSelected = selectedList.filter((s) => !eventIds.includes(s));
 
       // If incoming ids were not in selected already, add them
-      if (newSelected.length === selectedList.length) {
+      if (newSelected?.length === selectedList.length) {
         newSelected.push(...eventIds);
       }
 
       selectionCallback(newSelected);
     }
     // Multiselect disabled
-    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
+    else if (selectedList.length === eventIds?.length && eventIds?.every((tempId) => selectedMap[tempId])) {
       selectionCallback([]);
     } else {
       selectionCallback(eventIds);
@@ -56,7 +76,7 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
   // );
 
   useEffect(() => {
-    const plotDiv = document.getElementById(`plotlyDiv${id}`);
+    const plotDiv = document.getElementById(id);
     if (plotDiv) {
       // NOTE: @dv-usama-ansari: This is a hack to update the plotly plots on resize.
       //  The `setTimeout` is used to pass the resize function to the next event loop, so that the plotly plots are rendered first.
@@ -87,11 +107,47 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       clickmode: 'event+select',
       dragmode: false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: config.separation === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
+      // @ts-ignore
+      violinmode: traces && traces.hasFacets ? 'overlay' : 'group',
+      violingap: 0.25,
+      violingroupgap: 0.1,
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
+  }, [config.catColumnsSelected, config.separation, config.numColumnsSelected.length, traces]);
+
+  const highlightSelectionShapes: Partial<Plotly.Shape>[] = useMemo(() => {
+    if (!traces?.plots || !traces?.selectedXMap) {
+      return [];
+    }
+
+    const offset = 0.01;
+    const lineLength = 1 / Object.keys(traces.selectedXMap).length;
+    let start = 0;
+    const shapes = [];
+
+    Object.keys(traces.selectedXMap).forEach((key) => {
+      if (traces.selectedXMap[key]) {
+        shapes.push({
+          type: 'line',
+          xref: 'paper',
+          yref: 'paper',
+          x0: start + offset,
+          x1: start + lineLength - offset,
+          y0: offset,
+          y1: offset,
+          layer: 'below',
+          line: {
+            width: 4,
+            color: SELECT_COLOR,
+          },
+        });
+      }
+      start += lineLength;
+    });
+    return shapes;
   }, [traces]);
 
   return (
@@ -109,23 +165,33 @@ export function ViolinVis({ config, columns, scales, dimensions, selectedList, s
       }}
     >
       {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
-        <PlotlyComponent
-          divId={`plotlyDiv${id}`}
-          data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
-          layout={layout}
-          config={{ responsive: true, displayModeBar: false }}
-          useResizeHandler
-          style={{ width: '100%', height: '100%' }}
-          onClick={onClick}
-          // plotly redraws everything on updates, so you need to reappend title and
-          onUpdate={() => {
-            for (const p of traces.plots) {
-              d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
+        <>
+          {showDownloadScreenshot ? (
+            <Center>
+              <DownloadPlotButton uniquePlotId={id} config={config} />
+            </Center>
+          ) : null}
+          <PlotlyComponent
+            divId={id}
+            data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
+            layout={{
+              ...layout,
+              shapes: [...(layout?.shapes || []), ...highlightSelectionShapes],
+            }}
+            config={{ responsive: true, displayModeBar: false }}
+            useResizeHandler
+            style={{ width: '100%', height: '100%' }}
+            onClick={onClick}
+            // plotly redraws everything on updates, so you need to reappend title and
+            onUpdate={() => {
+              for (const p of traces.plots) {
+                d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
 
-              d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
-            }
-          }}
-        />
+                d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+              }
+            }}
+          />
+        </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
         <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
       ) : null}

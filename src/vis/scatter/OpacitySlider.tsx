@@ -23,7 +23,7 @@ export function OpacitySlider({ callback, currentValue }: OpacitySliderProps) {
         step={0.05}
         value={+currentValue.toFixed(2)}
         max={1}
-        min={0}
+        min={0.1}
         marks={[
           { value: 0.2, label: '20%' },
           { value: 0.5, label: '50%' },
