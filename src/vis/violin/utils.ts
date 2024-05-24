@@ -105,7 +105,7 @@ export async function createViolinTraces(
   else if (numColValues.length > 0 && catColValues.length > 0) {
     if (config.separation === EViolinSeparationMode.GROUP && (catColValues.length > 1 || numColValues.length > 1)) {
       hasFacets = false;
-      const data: { y: number; x: string; group: { g1: string; g2: string }; ids: string }[] = [];
+      let data: { y: number; x: string; group: { g1: string; g2: string }; ids: string }[] = [];
       numColValues.forEach((numCurr) => {
         catColValues.forEach((catCurr) => {
           const group =
@@ -126,9 +126,15 @@ export async function createViolinTraces(
         });
       });
 
+      // Ensore NAN_REPLACEMENT is always at the end of the x-axis
+      // This also ensures that plotly does not draw the violins if there are no y values for this group
+      data = data.sort((a) => (a.x === NAN_REPLACEMENT ? 1 : -1));
+
       const groupedX = _.groupBy(data, 'x');
       selectedXMap = Object.keys(groupedX).reduce((acc, key) => {
-        acc[key] = groupedX[key].some((d) => selectedMap[d.ids]);
+        if (groupedX[key].some((v) => v.y !== null)) {
+          acc[key] = groupedX[key].some((d) => selectedMap[d.ids]);
+        }
         return acc;
       }, {});
 
@@ -237,6 +243,7 @@ export async function createViolinTraces(
                   name: key,
                   ...sharedData,
                 },
+                xLabel: columnNameWithDescription(catCurr.info),
                 yLabel: numColValues.length === 1 && columnNameWithDescription(numColValues[0].info),
               });
             }

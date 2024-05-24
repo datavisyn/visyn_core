@@ -56,7 +56,8 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
   };
 
   traces.plots.forEach((t, i) => {
-    layout[`xaxis${i > 0 ? i + 1 : ''}`] = {
+    const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
+    layout[axisX] = {
       range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
       automargin,
@@ -80,7 +81,8 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       ...plotFrame,
     };
 
-    layout[`yaxis${i > 0 ? i + 1 : ''}`] = {
+    const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
+    layout[axisY] = {
       range: t.yDomain ? t.yDomain : null,
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       automargin,
