@@ -64,7 +64,7 @@ export function ViolinVisSidebar({
             <ViolinSeparationSegmentedControl
               callback={(separation: EViolinSeparationMode) => setConfig({ ...config, separation })}
               currentSelected={config.separation}
-              disabled={config.numColumnsSelected.length === 1 && config.catColumnsSelected.length === 1}
+              disabled={config.numColumnsSelected.length === 0 || (config.numColumnsSelected.length <= 1 && config.catColumnsSelected.length <= 1)}
             />
           )
         : null}
