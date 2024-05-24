@@ -29,7 +29,10 @@ export function ViolinOverlaySegmentedControl({ callback, currentSelected, disab
 export function ViolinSeparationSegmentedControl({ callback, currentSelected, disabled }: SegmentedControlProps<EViolinSeparationMode>) {
   return (
     <Input.Wrapper label="Separation">
-      <Tooltip label={disabled ? 'Faceting not possible' : 'Group within plot or split into facets'} withArrow>
+      <Tooltip
+        label={disabled ? 'Faceting not possible. Select at least two numerical or categorical columns.' : 'Group within plot or split into facets'}
+        withArrow
+      >
         <SegmentedControl
           fullWidth
           disabled={disabled}
