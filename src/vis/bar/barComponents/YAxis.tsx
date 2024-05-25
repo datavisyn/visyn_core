@@ -50,7 +50,7 @@ export function YAxis({
       <g transform={`translate(${horizontalPosition - labelSpacing - 30}, ${yScale.range()[0]}) rotate(-90)`}>
         <foreignObject width={Math.abs(yScale.range()[0] - yScale.range()[1])} height={20}>
           <Center>
-            <Group gap={3} style={{ cursor: 'pointer' }}>
+            <Group gap={3}>
               <Text size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none' }} c={VIS_LABEL_COLOR}>
                 {label}
               </Text>

@@ -51,13 +51,13 @@ function TickText({
             paddingRight: shouldRotate ? '10px' : 0,
             top: 0,
             transform: `translate(0px, 2px) rotate(${shouldRotate ? '-45deg' : '0deg'})`,
+            userSelect: 'none',
           }}
         >
           {value}
         </Text>
       </Tooltip>
     </Center>
-    // </div>
   );
 }
 
@@ -143,18 +143,22 @@ export function XAxis({
 
       <g transform={`translate(${xScale.range()[1]}, ${vertPosition + 35})`}>
         <foreignObject width={Math.abs(xScale.range()[1] - xScale.range()[0])} height={60}>
-          <Center>
-            <Group gap={3} style={{ cursor: 'pointer' }}>
-              <Text style={{ userSelect: 'none' }} size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
+          <Group justify="center" gap={3} w="100%" wrap="nowrap">
+            <Tooltip label={label} withArrow>
+              <Text
+                style={{ userSelect: 'none', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)}
+                c={VIS_LABEL_COLOR}
+              >
                 {label}
               </Text>
-              <Space ml="xs" />
-              <SortIcon
-                sortState={sortedDesc ? ESortStates.DESC : sortedAsc ? ESortStates.ASC : ESortStates.NONE}
-                setSortState={(nextSort: ESortStates) => setSortType(label, nextSort)}
-              />
-            </Group>
-          </Center>
+            </Tooltip>
+            <Space ml="xs" />
+            <SortIcon
+              sortState={sortedDesc ? ESortStates.DESC : sortedAsc ? ESortStates.ASC : ESortStates.NONE}
+              setSortState={(nextSort: ESortStates) => setSortType(label, nextSort)}
+            />
+          </Group>
         </foreignObject>
       </g>
     </>
