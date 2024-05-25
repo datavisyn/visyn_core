@@ -13,11 +13,10 @@ import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes
 import { ESortStates } from '../general/SortIcon';
 
 // bottom offset which also defines the lenght of the rotated labels
-const rotatedAxisLabelOffset = 70;
 
 const getMargin = (rotatAxisLabel: boolean) => ({
   top: 30,
-  bottom: rotatAxisLabel ? 30 + rotatedAxisLabelOffset : 60,
+  bottom: rotatAxisLabel ? 80 : 60,
   left: 60,
   right: 25,
 });
@@ -46,12 +45,13 @@ export function SingleBarChart({
   setSortType: (sortType: SortTypes) => void;
 }) {
   const [ref, { height, width }] = useResizeObserver();
+  const [shouldRotateXAxisTicks, setShouldRotateXAxisTicks] = React.useState(false);
 
   const { aggregatedTable, categoryScale, countScale, groupColorScale, groupScale, groupedTable } = useGetGroupedBarScales(
     allColumns,
     height,
     width,
-    getMargin(false),
+    getMargin(shouldRotateXAxisTicks),
     categoryFilter,
     config.direction === EBarDirection.VERTICAL,
     selectedMap,
@@ -112,10 +112,6 @@ export function SingleBarChart({
     [config.catColumnSelected.name, setSortType],
   );
 
-  const shouldRotateAxisLabel = useMemo(() => {
-    return config.direction === EBarDirection.VERTICAL ? categoryScale.bandwidth() < 50 : false;
-  }, [categoryScale, config.direction]);
-
   return (
     <Box ref={ref} style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}>
       <Container
@@ -141,16 +137,16 @@ export function SingleBarChart({
                   config.direction === EBarDirection.VERTICAL
                     ? (categoryScale.range()[0] + categoryScale.range()[1]) / 2
                     : (countScale.range()[0] + countScale.range()[1]) / 2
-                }, ${getMargin(shouldRotateAxisLabel).top - 20})`}
+                }, ${getMargin(shouldRotateXAxisTicks).top - 20})`}
               >
                 {title}
               </text>
             ) : null}
             <rect
-              x={getMargin(shouldRotateAxisLabel).left}
-              y={getMargin(shouldRotateAxisLabel).top}
-              width={width - getMargin(shouldRotateAxisLabel).left - getMargin(shouldRotateAxisLabel).right}
-              height={height - getMargin(shouldRotateAxisLabel).top - getMargin(false).bottom}
+              x={getMargin(shouldRotateXAxisTicks).left}
+              y={getMargin(shouldRotateXAxisTicks).top}
+              width={width - getMargin(shouldRotateXAxisTicks).left - getMargin(shouldRotateXAxisTicks).right}
+              height={height - getMargin(shouldRotateXAxisTicks).top - getMargin(shouldRotateXAxisTicks).bottom}
               fill="transparent"
               onClick={(e) => selectionCallback(e, [])}
             />
@@ -161,8 +157,7 @@ export function SingleBarChart({
                   compact={isSmall}
                   yScale={countScale}
                   xRange={[categoryScale.range()[1], categoryScale.range()[0]]}
-                  vertPosition={-rotatedAxisLabelOffset}
-                  horizontalPosition={getMargin(shouldRotateAxisLabel).left}
+                  horizontalPosition={getMargin(shouldRotateXAxisTicks).left}
                   showLines
                   label={
                     config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
@@ -179,9 +174,8 @@ export function SingleBarChart({
                   compact={isSmall}
                   yScale={categoryScale}
                   xRange={[countScale.range()[1], countScale.range()[0]]}
-                  vertPosition={-rotatedAxisLabelOffset}
-                  horizontalPosition={getMargin(shouldRotateAxisLabel).left}
-                  showLines={false}
+                  horizontalPosition={getMargin(shouldRotateXAxisTicks).left}
+                  showLines
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
                   sortedDesc={sortType === SortTypes.CAT_DESC}
@@ -194,13 +188,12 @@ export function SingleBarChart({
               config.direction === EBarDirection.VERTICAL ? (
                 <XAxis
                   compact={isSmall}
-                  shouldRotate={shouldRotateAxisLabel}
-                  rotatedAxisLabelOffset={rotatedAxisLabelOffset}
+                  shouldRotate={shouldRotateXAxisTicks}
                   xScale={categoryScale}
                   yRange={[countScale.range()[1], countScale.range()[0]]}
-                  vertPosition={height - getMargin(shouldRotateAxisLabel).bottom}
+                  vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
                   label={config.catColumnSelected.name}
-                  showLines={false}
+                  showLines
                   ticks={categoryTicks}
                   sortedDesc={sortType === SortTypes.CAT_DESC}
                   sortedAsc={sortType === SortTypes.CAT_ASC}
@@ -209,11 +202,10 @@ export function SingleBarChart({
               ) : (
                 <XAxis
                   compact={isSmall}
-                  shouldRotate={false}
-                  rotatedAxisLabelOffset={rotatedAxisLabelOffset}
+                  shouldRotate={shouldRotateXAxisTicks}
                   xScale={countScale}
                   yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
-                  vertPosition={height - getMargin(shouldRotateAxisLabel).bottom}
+                  vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
                   label={
                     config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
                       ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
@@ -241,7 +233,7 @@ export function SingleBarChart({
                   groupColorScale={groupColorScale}
                   width={width}
                   height={height}
-                  margin={getMargin(shouldRotateAxisLabel)}
+                  margin={getMargin(shouldRotateXAxisTicks)}
                   aggregateType={config.aggregateType}
                   isVertical={config.direction === EBarDirection.VERTICAL}
                   aggregateColumnName={config.aggregateColumn?.name}
@@ -257,7 +249,7 @@ export function SingleBarChart({
                   countScale={countScale}
                   groupColorScale={groupColorScale}
                   height={height}
-                  margin={getMargin(shouldRotateAxisLabel)}
+                  margin={getMargin(shouldRotateXAxisTicks)}
                   width={width}
                   isVertical={config.direction === EBarDirection.VERTICAL}
                   normalized={config.display === EBarDisplayType.NORMALIZED}
@@ -274,7 +266,7 @@ export function SingleBarChart({
                 categoryScale={categoryScale}
                 countScale={countScale}
                 height={height}
-                margin={getMargin(shouldRotateAxisLabel)}
+                margin={getMargin(shouldRotateXAxisTicks)}
                 width={width}
                 aggregateType={config.aggregateType}
                 isVertical={config.direction === EBarDirection.VERTICAL}

@@ -24,7 +24,6 @@ export function YAxis({
   sortedAsc = false,
   sortedDesc = false,
   setSortType,
-  vertPosition,
 }: {
   yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
   xRange: [number, number];
@@ -36,7 +35,6 @@ export function YAxis({
   sortedAsc?: boolean;
   sortedDesc?: boolean;
   setSortType: (label: string, nextSortState: ESortStates) => void;
-  vertPosition: number;
 }) {
   const labelSpacing = useMemo(() => {
     const maxLabelLength = ticks.reduce((max, { value }) => {
@@ -66,7 +64,7 @@ export function YAxis({
         </foreignObject>
       </g>
       {ticks.map(({ value, offset }) => (
-        <g key={value} transform={`translate(${horizontalPosition}, ${offset + vertPosition})`}>
+        <g key={value} transform={`translate(${horizontalPosition}, ${offset})`}>
           {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke={VIS_GRID_COLOR} /> : null}
           <g
             key={value}

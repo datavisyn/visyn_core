@@ -27,26 +27,10 @@ function TickText({
 
   React.useEffect(() => {
     setShouldRotateAxisTicks(textRef.current?.scrollWidth > textRef.current?.offsetWidth);
-  }, [value, setShouldRotateAxisTicks]);
+  });
 
   return (
-    <div
-      style={{
-        userSelect: 'none',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        maxWidth: shouldRotate ? 'calc(100% - 10px)' : '100%',
-        height: shouldRotate ? '30%' : '100%',
-        display: 'inline-block',
-        transform: shouldRotate ? 'translate(0,100%) rotate(-45deg)' : 'none',
-        transformOrigin: 'top right',
-        verticalAlign: shouldRotate ? 'top' : 'middle',
-        marginTop: shouldRotate ? '-30%' : 0,
-        paddingLeft: shouldRotate ? '8px' : '2px',
-        paddingBottom: shouldRotate ? '2px' : 0,
-        float: 'right',
-      }}
-    >
+    <Center>
       <Tooltip label={value} withArrow position="right">
         <Text
           ref={textRef}
@@ -54,17 +38,20 @@ function TickText({
           pb={2}
           size={compact ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
           style={{
-            userSelect: 'none',
+            marginRight: shouldRotate ? '5px' : 0,
+            paddingBottom: shouldRotate ? 0 : '4px',
+            textAlign: 'center',
             textOverflow: 'ellipsis',
-            textAlign: shouldRotate ? 'end' : 'center',
-            whiteSpace: 'nowrap',
             overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            transform: `translate(0px, 2px) rotate(${shouldRotate ? '-45deg' : '0deg'})`,
           }}
         >
           {value}
         </Text>
       </Tooltip>
-    </div>
+    </Center>
+    // </div>
   );
 }
 
@@ -80,8 +67,7 @@ export function XAxis({
   sortedAsc = false,
   sortedDesc = false,
   setSortType,
-  shouldRotate = false,
-  rotatedAxisLabelOffset = 0,
+  shouldRotate,
 }: {
   showLines?: boolean;
   xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
@@ -94,33 +80,28 @@ export function XAxis({
   sortedDesc?: boolean;
   setSortType: (label: string, nextSortState: ESortStates) => void;
   shouldRotate?: boolean;
-  rotatedAxisLabelOffset?: number;
 }) {
-  const [shouldRotateAxisTicks, setShouldRotateAxisTicks] = React.useState(shouldRotate);
   const tickWidth = useMemo(() => {
     if (ticks.length > 1) {
-      return Math.abs(ticks[1].offset - ticks[0].offset);
+      return Math.abs(ticks[0].offset - ticks[1].offset);
     }
-    return xScale.range()[0] - xScale.range()[1];
+    return xScale.range()[1] - xScale.range()[0];
   }, [ticks, xScale]);
-  const w = shouldRotate ? rotatedAxisLabelOffset : tickWidth;
+
+  const [shouldRotateAxisTicks, setShouldRotateAxisTicks] = React.useState(shouldRotate);
+
   return (
     <>
-      {ticks.map(({ value, offset }) => (
+      {ticks.map(({ value, offset }, index) => (
         <g
           key={value}
-          transform={`translate(${shouldRotate ? offset - w / 2 : offset}, ${vertPosition + 0})`}
+          transform={`translate(${offset}, ${vertPosition + 0})`}
           style={{
-            // padding: '100% 0 0',
-            // transformOrigin: 'top left',
             display: 'inline-block',
             overflow: 'hidden',
-            // width: 0,
-            // width: xScale.bandWidth() + 20,
-            paddingTop: shouldRotateAxisTicks ? '20px' : 0,
-            paddingRight: shouldRotateAxisTicks ? '20px' : 0,
-            height: 20,
-            width: 20,
+            paddingTop: shouldRotate ? '20px' : 0,
+            paddingRight: shouldRotate ? '20px' : 0,
+            height: 120,
           }}
         >
           {/* Ticks for testing - should not be shown! */}
@@ -128,32 +109,34 @@ export function XAxis({
 
           {showLines ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke={VIS_GRID_COLOR} /> : null}
           <foreignObject
-            x={0 - w / 2}
-            y={shouldRotate ? 5 : 10}
-            width={w}
-            height={shouldRotateAxisTicks ? rotatedAxisLabelOffset : 20}
+            x={0 - tickWidth / 2}
+            y={10}
+            width={tickWidth}
+            height={shouldRotate ? 150 : 40}
             style={{
               textAlign: 'center',
               verticalAlign: 'center',
               display: 'flex',
               alignItems: 'flex-end',
               justifyContent: 'flex-end',
+              paddingRight: '6px',
+              // border: '1px solid green',
             }}
           >
             <TickText
               value={value}
+              compact={compact}
               shouldRotate={shouldRotateAxisTicks}
               setShouldRotateAxisTicks={(v) => {
                 setShouldRotateAxisTicks(shouldRotate || v);
               }}
-              compact={compact}
             />
           </foreignObject>
         </g>
       ))}
 
-      <g transform={`translate(${xScale.range()[1]}, ${vertPosition + (shouldRotate ? rotatedAxisLabelOffset : 25)})`}>
-        <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
+      <g transform={`translate(${xScale.range()[1]}, ${vertPosition + 35})`}>
+        <foreignObject width={Math.abs(xScale.range()[1] - xScale.range()[0])} height={60}>
           <Center>
             <Group gap={3} style={{ cursor: 'pointer' }}>
               <Text style={{ userSelect: 'none' }} size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
