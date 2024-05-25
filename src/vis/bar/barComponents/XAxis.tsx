@@ -24,13 +24,14 @@ function TickText({
   compact: boolean;
 }) {
   const textRef = React.useRef<HTMLParagraphElement>(null);
+  const containerRef = React.useRef<HTMLParagraphElement>(null);
 
   React.useEffect(() => {
-    setShouldRotateAxisTicks(textRef.current?.scrollWidth > textRef.current?.offsetWidth);
-  });
+    setShouldRotateAxisTicks(textRef.current?.offsetWidth > containerRef.current?.offsetWidth);
+  }, [setShouldRotateAxisTicks, containerRef, textRef]);
 
   return (
-    <Center>
+    <Center ref={containerRef}>
       <Tooltip label={value} withArrow position="right">
         <Text
           ref={textRef}
@@ -44,6 +45,11 @@ function TickText({
             textOverflow: 'ellipsis',
             overflow: 'hidden',
             whiteSpace: 'nowrap',
+            position: shouldRotate ? 'absolute' : 'absolute',
+            right: shouldRotate ? '-15px' : 'auto',
+            width: shouldRotate ? '45px' : containerRef.current?.clientWidth,
+            paddingRight: shouldRotate ? '10px' : 0,
+            top: 0,
             transform: `translate(0px, 2px) rotate(${shouldRotate ? '-45deg' : '0deg'})`,
           }}
         >
@@ -92,15 +98,15 @@ export function XAxis({
 
   return (
     <>
-      {ticks.map(({ value, offset }, index) => (
+      {ticks.map(({ value, offset }) => (
         <g
           key={value}
           transform={`translate(${offset}, ${vertPosition + 0})`}
           style={{
             display: 'inline-block',
-            overflow: 'hidden',
-            paddingTop: shouldRotate ? '20px' : 0,
-            paddingRight: shouldRotate ? '20px' : 0,
+            overflow: shouldRotateAxisTicks ? 'visible' : 'hidden',
+            paddingTop: shouldRotateAxisTicks ? '20px' : 0,
+            paddingRight: shouldRotateAxisTicks ? '20px' : 0,
             height: 120,
           }}
         >
@@ -112,7 +118,7 @@ export function XAxis({
             x={0 - tickWidth / 2}
             y={10}
             width={tickWidth}
-            height={shouldRotate ? 150 : 40}
+            height={shouldRotateAxisTicks ? 150 : 40}
             style={{
               textAlign: 'center',
               verticalAlign: 'center',
@@ -120,7 +126,7 @@ export function XAxis({
               alignItems: 'flex-end',
               justifyContent: 'flex-end',
               paddingRight: '6px',
-              // border: '1px solid green',
+              overflow: 'inherit',
             }}
           >
             <TickText
