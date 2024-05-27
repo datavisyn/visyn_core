@@ -3,7 +3,7 @@ import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue } from '../../utils';
-import { DEFAULT_COLOR, SELECT_COLOR } from '../general/constants';
+import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR } from '../general/constants';
 import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
   ColumnInfo,
@@ -21,6 +21,10 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
+
+function truncateString(text: string, maxLength = 20): string {
+  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
+}
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -166,7 +170,7 @@ export async function createScatterTraces(
         )
     : null;
 
-  // These are shared data properties beeing the same for all plots
+  // These are shared data properties between the traces
   const sharedData = {
     showlegend: false,
     type: 'scattergl',
@@ -204,6 +208,9 @@ export async function createScatterTraces(
 
   // Case: Facetting by category
   if (validCols.length === 2 && facetCol) {
+    const xLabel = columnNameWithDescription(validCols[0].info);
+    const yLabel = columnNameWithDescription(validCols[1].info);
+
     const data = validCols[0].resolvedValues.map((v, i) => ({
       x: v.val,
       y: validCols[1].resolvedValues[i].val,
@@ -215,7 +222,7 @@ export async function createScatterTraces(
 
     const groupedData = _.groupBy(data, 'facet');
 
-    _.flatMap(groupedData, (group) => {
+    _.flatMap(groupedData, (group, key) => {
       const calcXDomain = calculateDomain(
         (validCols[0] as VisNumericalColumn).domain,
         group.map((d) => d.x as number),
@@ -234,8 +241,9 @@ export async function createScatterTraces(
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           hovertext: group.map(
             (d) =>
-              `${idToLabelMapper(d.ids)}<br>x: ${d.x}<br>y: ${d.y}
-              ${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape}` : ''}`,
+              `${idToLabelMapper(d.ids)}<br>${xLabel}: ${d.x}<br>${yLabel}: ${d.y}
+              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${d.color || NAN_REPLACEMENT}` : ''}
+              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape || NAN_REPLACEMENT}` : ''}`,
           ),
           text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
@@ -254,11 +262,11 @@ export async function createScatterTraces(
           },
           ...sharedData,
         },
-        xLabel: columnNameWithDescription(validCols[0].info),
-        yLabel: columnNameWithDescription(validCols[1].info),
+        xLabel,
+        yLabel,
         xDomain: calcXDomain,
         yDomain: calcYDomain,
-        title: !group[0].facet || group[0].facet === '' ? 'Unknown' : group[0].facet,
+        title: !group[0].facet || group[0].facet === '' ? NAN_REPLACEMENT : group[0].facet,
       });
       plotCounter += 1;
     });
@@ -268,6 +276,8 @@ export async function createScatterTraces(
   if (validCols.length === 2 && !facetCol) {
     const xDataVals = validCols[0].resolvedValues.map((v) => v.val) as number[];
     const yDataVals = validCols[1].resolvedValues.map((v) => v.val) as number[];
+    const xLabel = columnNameWithDescription(validCols[0].info);
+    const yLabel = columnNameWithDescription(validCols[1].info);
 
     const calcXDomain = calculateDomain((validCols[0] as VisNumericalColumn).domain, xDataVals);
     const calcYDomain = calculateDomain((validCols[1] as VisNumericalColumn).domain, yDataVals);
@@ -281,9 +291,9 @@ export async function createScatterTraces(
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
-            `${idToLabelMapper(v.id)}<br>x: ${v.val}<br>y: ${validCols[1].resolvedValues[i].val}${
-              colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
-            }${shapeCol ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val}` : ''}`,
+            `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
+            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}`,
         ),
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
@@ -299,8 +309,8 @@ export async function createScatterTraces(
         },
         ...sharedData,
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[1].info),
+      xLabel,
+      yLabel,
       xDomain: calcXDomain,
       yDomain: calcYDomain,
     });
@@ -333,8 +343,10 @@ export async function createScatterTraces(
           // otherwise, make a scatterplot
         } else {
           const xDataVals = xCurr.resolvedValues.map((v) => v.val);
-
           const yDataVals = yCurr.resolvedValues.map((v) => v.val);
+
+          const xLabel = columnNameWithDescription(xCurr.info);
+          const yLabel = columnNameWithDescription(yCurr.info);
 
           const calcXDomain = calculateDomain((xCurr as VisNumericalColumn).domain, xDataVals as number[]);
           const calcYDomain = calculateDomain((yCurr as VisNumericalColumn).domain, yDataVals as number[]);
@@ -348,11 +360,11 @@ export async function createScatterTraces(
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
-                  `${v.id}<br>x: ${v.val}<br>y: ${yCurr.resolvedValues[i].val}<br>${
-                    colorCol ? `${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val}` : ''
-                  }`,
+                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}
+                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}
+                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}`,
               ),
-              text: validCols[0].resolvedValues.map((v) => v.id?.toString()),
+              text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore
               textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
               marker: {
@@ -368,8 +380,8 @@ export async function createScatterTraces(
               },
               ...sharedData,
             },
-            xLabel: plotCounter > validCols.length * (validCols.length - 1) ? columnNameWithDescription(xCurr.info) : null,
-            yLabel: plotCounter === 1 + validCols.length * yIdx ? columnNameWithDescription(yCurr.info) : null,
+            xLabel: plotCounter > validCols.length * (validCols.length - 1) ? xLabel : null,
+            yLabel: plotCounter === 1 + validCols.length * yIdx ? yLabel : null,
             xDomain: calcXDomain,
             yDomain: calcYDomain,
           });
@@ -384,11 +396,8 @@ export async function createScatterTraces(
   if (colorCol && colorCol.type === EColumnTypes.CATEGORICAL && validCols.length > 0) {
     legendPlots.push({
       data: {
-        x: validCols[0].resolvedValues.map((v) => v.val),
-        y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
-        xaxis: 'x',
-        yaxis: 'y',
+        x: [null],
+        y: [null],
         type: 'scattergl',
         mode: 'markers',
         visible: 'legendonly',
@@ -397,7 +406,7 @@ export async function createScatterTraces(
 
         // @ts-ignore
         legendgrouptitle: {
-          text: columnNameWithDescription(colorCol.info),
+          text: truncateString(colorCol.info.name),
         },
         marker: {
           line: {
@@ -411,17 +420,17 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: colorCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
+            groups: colorCol.resolvedValues.map((v) => (v.val || NAN_REPLACEMENT) as string),
             styles: [
-              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
-                return { target: c, value: { name: c } };
+              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || NAN_REPLACEMENT) as string[])].map((c) => {
+                return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
           },
         ],
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[0].info),
+      xLabel: null,
+      yLabel: null,
     });
   }
 
@@ -429,21 +438,24 @@ export async function createScatterTraces(
   if (shapeCol) {
     legendPlots.push({
       data: {
-        x: validCols[0].resolvedValues.map((v) => v.val),
-        y: validCols[0].resolvedValues.map((v) => v.val),
-        ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
-        xaxis: 'x',
-        yaxis: 'y',
+        x: [null],
+        y: [null],
         type: 'scattergl',
         mode: 'markers',
         visible: 'legendonly',
         showlegend: true,
         legendgroup: 'shape',
-        hoverinfo: 'skip',
+        hoverinfo: 'all',
 
+        hoverlabel: {
+          namelength: 10,
+          bgcolor: 'black',
+          align: 'left',
+          bordercolor: 'black',
+        },
         // @ts-ignore
         legendgrouptitle: {
-          text: columnNameWithDescription(shapeCol.info),
+          text: truncateString(shapeCol.info.name),
         },
         marker: {
           line: {
@@ -457,17 +469,17 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: shapeCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
+            groups: shapeCol.resolvedValues.map((v) => (v.val || NAN_REPLACEMENT) as string),
             styles: [
-              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
-                return { target: c, value: { name: c } };
+              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || NAN_REPLACEMENT) as string[])].map((c) => {
+                return { target: c, value: { name: truncateString(c), text: c } };
               }),
             ],
           },
         ],
       },
-      xLabel: columnNameWithDescription(validCols[0].info),
-      yLabel: columnNameWithDescription(validCols[0].info),
+      xLabel: null,
+      yLabel: null,
     });
   }
 

@@ -340,10 +340,12 @@ export const fitRegressionLine = (
   const y = data.y as number[];
   const pearsonRho = round(corrcoeff(x, y), options.precision);
   const spearmanRho = round(spearmancoeff(x, y), options.precision);
-  const regressionResult = methods[regressionMethodsMapping[method]](
-    x.map((val, i) => [val, y[i]]),
-    options,
-  );
+  const regressionResult = regressionMethodsMapping[method]
+    ? methods[regressionMethodsMapping[method]](
+        x.map((val, i) => [val, y[i]]),
+        options,
+      )
+    : null;
   return {
     ...regressionResult,
     stats: { ...regressionResult.stats, pearsonRho, spearmanRho },

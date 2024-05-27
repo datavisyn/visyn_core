@@ -1,4 +1,4 @@
-import { Stack, Center } from '@mantine/core';
+import { Center, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -6,11 +6,12 @@ import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { IViolinConfig } from './interfaces';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { EViolinSeparationMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
+import { SELECT_COLOR } from '../general/constants';
 
 export function ViolinVis({
   config,
@@ -36,31 +37,39 @@ export function ViolinVis({
     // whole violin selection vs single point selection
     const isViolinSelection = e.points.length === 5 && e.points.every((p) => p.pointIndex === 0);
     const shiftPressed = e.event.shiftKey;
-    const allPoints = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
+    const data = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[]; x: string[] } })?.fullData;
 
     if (!isViolinSelection) {
-      const selected = allPoints[e.points[0].pointIndex];
+      const selected = data.ids[e.points[0].pointIndex];
       selectionCallback(selectedList.filter((s) => s === selected));
       return;
     }
 
+    const catSelected = e.points[0].x;
+    const eventIds = data.x?.reduce((acc: string[], x: string, i: number) => {
+      if (x === catSelected && data.ids[i]) {
+        acc.push(data.ids[i]);
+      }
+      return acc;
+    }, []);
+
     // Multiselect enabled
     if (shiftPressed) {
       // Filter out incoming ids in order to deselect violin/box element
-      const newSelected = selectedList.filter((s) => !allPoints.includes(s));
+      const newSelected = selectedList.filter((s) => !eventIds.includes(s));
 
       // If incoming ids were not in selected already, add them
-      if (newSelected.length === selectedList.length) {
-        newSelected.push(...allPoints);
+      if (newSelected?.length === selectedList.length) {
+        newSelected.push(...eventIds);
       }
 
       selectionCallback(newSelected);
     }
     // Multiselect disabled
-    else if (selectedList.length === allPoints.length && allPoints.every((tempId) => selectedMap[tempId])) {
+    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
       selectionCallback([]);
     } else {
-      selectionCallback(allPoints);
+      selectionCallback(eventIds);
     }
   };
 
@@ -104,11 +113,47 @@ export function ViolinVis({
       clickmode: 'event+select',
       dragmode: 'lasso',
       autosize: true,
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: config.separation === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
+      // @ts-ignore
+      violinmode: traces && traces.hasFacets ? 'overlay' : 'group',
+      violingap: 0.25,
+      violingroupgap: 0.1,
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
+  }, [config.catColumnsSelected, config.separation, config.numColumnsSelected.length, traces]);
+
+  const highlightSelectionShapes: Partial<Plotly.Shape>[] = useMemo(() => {
+    if (!traces?.plots || !traces?.selectedXMap) {
+      return [];
+    }
+
+    const offset = 0.01;
+    const lineLength = 1 / Object.keys(traces.selectedXMap).length;
+    let start = 0;
+    const shapes = [];
+
+    Object.keys(traces.selectedXMap).forEach((key) => {
+      if (traces.selectedXMap[key]) {
+        shapes.push({
+          type: 'line',
+          xref: 'paper',
+          yref: 'paper',
+          x0: start + offset,
+          x1: start + lineLength - offset,
+          y0: offset,
+          y1: offset,
+          layer: 'below',
+          line: {
+            width: 4,
+            color: SELECT_COLOR,
+          },
+        });
+      }
+      start += lineLength;
+    });
+    return shapes;
   }, [traces]);
 
   return (
@@ -135,7 +180,10 @@ export function ViolinVis({
           <PlotlyComponent
             divId={id}
             data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
-            layout={layout}
+            layout={{
+              ...layout,
+              shapes: [...(layout?.shapes || []), ...highlightSelectionShapes],
+            }}
             config={{ responsive: true, displayModeBar: false }}
             useResizeHandler
             style={{ width: '100%', height: '100%' }}

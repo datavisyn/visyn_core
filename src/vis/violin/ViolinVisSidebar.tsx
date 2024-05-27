@@ -4,11 +4,15 @@ import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
-import { ViolinOverlayButtons } from './ViolinOverlayButtons';
-import { EViolinOverlay, IViolinConfig } from './interfaces';
+import { ViolinSeparationSegmentedControl, ViolinOverlaySegmentedControl } from './ViolinSegmentedControl';
+import { EViolinSeparationMode, EViolinOverlay, IViolinConfig } from './interfaces';
 
 const defaultConfig = {
   overlay: {
+    enable: true,
+    customComponent: null,
+  },
+  separation: {
     enable: true,
     customComponent: null,
   },
@@ -48,9 +52,19 @@ export function ViolinVisSidebar({
 
       {mergedOptionsConfig.overlay.enable
         ? mergedOptionsConfig.overlay.customComponent || (
-            <ViolinOverlayButtons
+            <ViolinOverlaySegmentedControl
               callback={(violinOverlay: EViolinOverlay) => setConfig({ ...config, violinOverlay })}
               currentSelected={config.violinOverlay}
+            />
+          )
+        : null}
+
+      {mergedOptionsConfig.separation.enable
+        ? mergedOptionsConfig.separation.customComponent || (
+            <ViolinSeparationSegmentedControl
+              callback={(separation: EViolinSeparationMode) => setConfig({ ...config, separation })}
+              currentSelected={config.separation}
+              disabled={config.numColumnsSelected.length === 0 || (config.numColumnsSelected.length <= 1 && config.catColumnsSelected.length <= 1)}
             />
           )
         : null}
