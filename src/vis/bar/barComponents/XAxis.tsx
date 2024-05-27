@@ -2,6 +2,7 @@ import { Center, Group, Space, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
+import { useResizeObserver } from '@mantine/hooks';
 import {
   VIS_AXIS_LABEL_SIZE,
   VIS_AXIS_LABEL_SIZE_SMALL,
@@ -23,12 +24,12 @@ function TickText({
   setShouldRotateAxisTicks?: React.Dispatch<React.SetStateAction<boolean>>;
   compact: boolean;
 }) {
-  const textRef = React.useRef<HTMLParagraphElement>(null);
-  const containerRef = React.useRef<HTMLParagraphElement>(null);
+  const [containerRef] = useResizeObserver();
+  const [textRef] = useResizeObserver();
 
   React.useEffect(() => {
-    setShouldRotateAxisTicks(textRef.current?.offsetWidth > containerRef.current?.offsetWidth);
-  }, [setShouldRotateAxisTicks, containerRef, textRef]);
+    setShouldRotateAxisTicks(textRef.current?.offsetWidth > containerRef.current?.clientWidth);
+  }, [containerRef, setShouldRotateAxisTicks, textRef]);
 
   return (
     <Center ref={containerRef}>
@@ -45,7 +46,7 @@ function TickText({
             textOverflow: 'ellipsis',
             overflow: 'hidden',
             whiteSpace: 'nowrap',
-            position: shouldRotate ? 'absolute' : 'absolute',
+            position: 'absolute',
             right: shouldRotate ? '-15px' : 'auto',
             width: shouldRotate ? '45px' : containerRef.current?.clientWidth,
             paddingRight: shouldRotate ? '10px' : 0,
