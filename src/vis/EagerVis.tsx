@@ -1,8 +1,10 @@
-import { Group, Stack } from '@mantine/core';
+import { Alert, Group, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 import * as d3v7 from 'd3v7';
 import * as React from 'react';
 import { useEffect, useMemo } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { useSyncedRef } from '../hooks/useSyncedRef';
 import { getCssValue } from '../utils';
 import { createVis, useVisProvider } from './Provider';
@@ -18,6 +20,7 @@ import {
   IPlotStats,
   Scales,
   VisColumn,
+  isESupportedPlotlyVis,
 } from './interfaces';
 
 import { VisSidebar } from './VisSidebar';
@@ -242,7 +245,7 @@ export function EagerVis({
       : {}),
   });
 
-  const isSelectedVisTypeRegistered = useMemo(() => getVisByType(_visConfig.type), [_visConfig.type, getVisByType]);
+  const isSelectedVisTypeRegistered = useMemo(() => getVisByType(_visConfig?.type), [_visConfig?.type, getVisByType]);
 
   useEffect(() => {
     // this will run only once
@@ -305,12 +308,16 @@ export function EagerVis({
     setShowSidebar,
     enableSidebar,
   };
-
   const Renderer = getVisByType(_visConfig?.type)?.renderer;
 
-  if (!_visConfig || !Renderer || !isSelectedVisTypeRegistered) {
-    return null;
-  }
+  const visTypeNotSupported = React.useMemo(() => {
+    return !isESupportedPlotlyVis(_visConfig?.type);
+  }, [_visConfig]);
+
+  const visHasError = React.useMemo(
+    () => !_visConfig || !Renderer || !isSelectedVisTypeRegistered || !isESupportedPlotlyVis(_visConfig?.type),
+    [Renderer, _visConfig, isSelectedVisTypeRegistered],
+  );
 
   return (
     <Group
@@ -330,35 +337,44 @@ export function EagerVis({
       }}
     >
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
-
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
-        <Renderer
-          config={_visConfig}
-          dimensions={dimensions}
-          optionsConfig={{
-            color: {
-              enable: true,
-            },
-          }}
-          uniquePlotId={uniquePlotId}
-          showDownloadScreenshot={showDownloadScreenshot}
-          showDragModeOptions={showDragModeOptions}
-          shapes={shapes}
-          setConfig={setVisConfig}
-          stats={stats}
-          statsCallback={statsCallback}
-          filterCallback={filterCallback}
-          selectionCallback={selectionCallback}
-          selectedMap={selectedMap}
-          selectedList={selected}
-          columns={columns}
-          scales={scales}
-          showSidebar={showSidebar}
-          showCloseButton={showCloseButton}
-          closeButtonCallback={closeCallback}
-          scrollZoom={scrollZoom}
-          {...commonProps}
-        />
+        {visTypeNotSupported ? (
+          <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+            The visualization type &quot;{_visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
+          </Alert>
+        ) : visHasError ? (
+          <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+            An error occured in the visualization. Please try to select something different in the sidebar.
+          </Alert>
+        ) : (
+          <Renderer
+            config={_visConfig}
+            dimensions={dimensions}
+            optionsConfig={{
+              color: {
+                enable: true,
+              },
+            }}
+            uniquePlotId={uniquePlotId}
+            showDownloadScreenshot={showDownloadScreenshot}
+            showDragModeOptions={showDragModeOptions}
+            shapes={shapes}
+            setConfig={setVisConfig}
+            stats={stats}
+            statsCallback={statsCallback}
+            filterCallback={filterCallback}
+            selectionCallback={selectionCallback}
+            selectedMap={selectedMap}
+            selectedList={selected}
+            columns={columns}
+            scales={scales}
+            showSidebar={showSidebar}
+            showCloseButton={showCloseButton}
+            closeButtonCallback={closeCallback}
+            scrollZoom={scrollZoom}
+            {...commonProps}
+          />
+        )}
       </Stack>
       {showSidebar ? (
         <VisSidebarWrapper config={_visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>

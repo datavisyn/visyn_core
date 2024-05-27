@@ -10,6 +10,10 @@ export enum ESupportedPlotlyVis {
   CORRELATION = 'Correlation plot',
 }
 
+export function isESupportedPlotlyVis(value: string): value is ESupportedPlotlyVis {
+  return Object.values(ESupportedPlotlyVis).includes(value as ESupportedPlotlyVis);
+}
+
 export interface BaseVisConfig {
   type: string;
 }
