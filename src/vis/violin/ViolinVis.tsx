@@ -1,4 +1,4 @@
-import { Center, Stack } from '@mantine/core';
+import { Center, Stack, Text } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -28,7 +28,6 @@ export function ViolinVis({
   const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
   console.log('selectedList', selectedList);
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
-
   const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
     if (!e || !e.points || !e.points[0]) {
       selectionCallback([]);
@@ -36,22 +35,29 @@ export function ViolinVis({
     }
     // whole violin selection vs single point selection
     const isViolinSelection = e.points.length === 5 && e.points.every((p) => p.pointIndex === 0);
+
     const shiftPressed = e.event.shiftKey;
     const data = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[]; x: string[] } })?.fullData;
-
+    console.log('isViolinSelection', isViolinSelection, e, data.x);
     if (!isViolinSelection) {
-      const selected = data.ids[e.points[0].pointIndex];
-      selectionCallback(selectedList.filter((s) => s === selected));
+      console.log('isViolinSelection not', isViolinSelection);
+      const clickedId = (e.points[0] as any).id;
+      if (selectedList.includes(clickedId)) {
+        selectionCallback(selectedList.filter((s) => s !== clickedId));
+      } else {
+        selectionCallback([...selectedList, clickedId]);
+      }
       return;
     }
-
     const catSelected = e.points[0].x;
-    const eventIds = data.x?.reduce((acc: string[], x: string, i: number) => {
-      if (x === catSelected && data.ids[i]) {
-        acc.push(data.ids[i]);
-      }
-      return acc;
-    }, []);
+    const eventIds = data.x
+      ? data.x?.reduce((acc: string[], x: string, i: number) => {
+          if (x === catSelected && data.ids[i]) {
+            acc.push(data.ids[i]);
+          }
+          return acc;
+        }, [])
+      : data.ids;
 
     // Multiselect enabled
     if (shiftPressed) {
@@ -80,6 +86,40 @@ export function ViolinVis({
   //   }),
   //   [],
   // );
+
+  // const plotsWithSelectedPoints = useMemo(() => {
+  //   if (traces) {
+  //     const allPlots = traces.plots;
+  //     allPlots
+  //       .filter((trace) => trace.data.type === 'violin')
+  //       .forEach((p) => {
+  //         const temp = [];
+
+  //         if (selectedList.length > 0) {
+  //           selectedList.forEach((selectedId) => {
+  //             temp.push(p.data.ids.indexOf(selectedId));
+  //           });
+  //         }
+
+  //         p.data.selectedpoints = temp;
+  //         // @ts-ignore
+  //         if (p.data?.selected?.textfont) {
+  //             // @ts-ignore
+  //             p.data.selected.textfont.color = `rgba(102, 102, 102, 1)`;
+
+  //         }
+
+  //         if (selectedList.length === 0) {
+  //           // @ts-ignore
+  //           p.data.selected.marker.opacity = config.alphaSliderVal;
+  //         } else {
+  //           // @ts-ignore
+  //           p.data.selected.marker.opacity = 1;
+  //         }
+  //       });
+
+  //     return allPlots;
+  //   }
 
   useEffect(() => {
     const plotDiv = document.getElementById(id);
@@ -172,6 +212,9 @@ export function ViolinVis({
     >
       {traceStatus === 'success' && layout && traces?.plots.length > 0 ? (
         <>
+          <Text p="xs" bg="white" pos="absolute" top={0}>
+            {selectedList.join(',')}
+          </Text>
           {showDownloadScreenshot ? (
             <Center>
               <DownloadPlotButton uniquePlotId={id} config={config} />
@@ -188,10 +231,9 @@ export function ViolinVis({
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
             onClick={onClick}
-            onSelected={(s) => {
-              console.log('selecting');
-              // @ts-ignore
-              selectionCallback(s.points.map((p) => p.fullData.ids[p.pointIndex]));
+            onSelected={(sel) => {
+              console.log('selection from onSelection', sel);
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
             }}
             // plotly redraws everything on updates, so you need to reappend title and
             onUpdate={() => {

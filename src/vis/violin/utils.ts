@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 import { PlotData } from 'plotly.js-dist-min';
 import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
-import { NAN_REPLACEMENT, SELECT_COLOR } from '../general/constants';
+import { NAN_REPLACEMENT, SELECT_COLOR, DEFAULT_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EViolinSeparationMode, IViolinConfig } from './interfaces';
@@ -77,14 +77,41 @@ export async function createViolinTraces(
     showlegend: false,
   };
 
+  const isViolin = config.type === ESupportedPlotlyVis.VIOLIN;
+
+  const violinProps: Partial<PlotData> = {
+    type: 'violin' as Plotly.PlotType,
+    // @ts-ignore
+    hoveron: 'violins+points',
+    points: 'all',
+    selected: {
+      marker: {
+        color: SELECT_COLOR,
+      },
+    },
+    jitter: 0.2,
+    whiskerwidth: 0.3,
+    pointpos: -1.5,
+  };
+
+  const boxProps: Partial<PlotData> = {
+    type: 'box' as Plotly.PlotType,
+    // @ts-ignore
+    hoveron: 'violins',
+    hoverinfo: 'y',
+    scalemode: 'width',
+    boxpoints: 'all',
+    whiskerwidth: 0.2,
+    jitter: 0.3,
+    points: false,
+  };
+
+  const typeSpecificProps = (isViolin ? violinProps : boxProps) as Partial<PlotData>;
+
   // case: Only numerical columns selected
   if (numColValues.length > 0 && catColValues.length === 0) {
     hasFacets = true; // Must always be set to true in this case
     for (const numCurr of numColValues) {
-      console.log(
-        numCurr.resolvedValues.map((v) => v.id),
-        selectedList,
-      );
       const y = numCurr.resolvedValues.map((v) => v.val);
       const yLabel = columnNameWithDescription(numCurr.info);
       plots.push({
@@ -94,12 +121,13 @@ export async function createViolinTraces(
           xaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
           marker: {
-            color: '#878E95',
+            color: DEFAULT_COLOR,
           },
           name: yLabel,
           // @ts-ignore
           hoveron: 'violins',
           ...sharedData,
+          ...typeSpecificProps,
         },
         yLabel: config.separation === EViolinSeparationMode.FACETS && yLabel,
       });
@@ -160,6 +188,17 @@ export async function createViolinTraces(
             hoveron: 'violins',
             name: key,
             ...sharedData,
+            ...typeSpecificProps,
+            // marker: {
+            //   color:
+            //     selectedList.length !== 0 &&
+            //     isEqual(
+            //       group.map((g) => g.ids),
+            //       selectedList,
+            //     )
+            //       ? SELECT_COLOR
+            //       : '#878E95',
+            // },
           },
           yLabel: numColValues.length === 1 && columnNameWithDescription(numColValues[0].info),
         });
@@ -240,14 +279,15 @@ export async function createViolinTraces(
                   ids,
                   xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
                   yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-                  marker: {
-                    color: ids.find((id) => selectedMap[id]) ? SELECT_COLOR : '#878E95',
-                  },
+                  // marker: {
+                  //   color: ids.find((id) => selectedMap[id]) ? SELECT_COLOR : DEFAULT_COLOR,
+                  // },
                   // Cannot use transform for selection color of violins, as it overrides the violing grouping
                   // @ts-ignore
                   hoveron: 'violins',
                   name: key,
                   ...sharedData,
+                  ...typeSpecificProps,
                 },
                 xLabel: columnNameWithDescription(catCurr.info),
                 yLabel: numColValues.length === 1 && columnNameWithDescription(numColValues[0].info),
