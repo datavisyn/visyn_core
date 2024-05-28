@@ -3,6 +3,7 @@ import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { Notifications, NotificationsProps } from '@mantine/notifications';
 import merge from 'lodash/merge';
 import * as React from 'react';
+import { BrowserOptions } from '@sentry/react';
 import { loadClientConfig } from '../base/clientConfig';
 import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
 import { VisProvider } from '../vis/Provider';
@@ -25,6 +26,7 @@ export function VisynAppProvider({
   mantineProviderProps,
   mantineModalsProviderProps,
   mantineNotificationsProviderProps,
+  sentryInitProps,
 }: {
   /**
    * Set this to true to disable the MantineProvider of Mantine 6. Use only if no Mantine 6 components are used.
@@ -38,6 +40,7 @@ export function VisynAppProvider({
   mantineProviderProps?: Omit<MantineProviderProps, 'children'>;
   mantineModalsProviderProps?: Omit<ModalsProviderProps, 'children'>;
   mantineNotificationsProviderProps?: Omit<NotificationsProps, 'children'>;
+  sentryInitProps?: Omit<BrowserOptions, 'dsn'>;
 }) {
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
@@ -66,6 +69,28 @@ export function VisynAppProvider({
     }),
     [user, appName, clientConfig],
   );
+
+  React.useEffect(() => {
+    if (clientConfig?.sentry_dsn) {
+      import('@sentry/react').then((Sentry) => {
+        Sentry.init({
+          dsn: clientConfig.sentry_dsn,
+          integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+
+          // Set tracesSampleRate to 1.0 to capture 100%
+          // of transactions for performance monitoring.
+          tracesSampleRate: 1.0,
+
+          // Capture Replay for 10% of all sessions,
+          // plus for 100% of sessions with an error
+          replaysSessionSampleRate: 0.1,
+          replaysOnErrorSampleRate: 1.0,
+
+          ...(sentryInitProps || {}),
+        });
+      });
+    }
+  }, [clientConfig?.sentry_dsn, sentryInitProps]);
 
   const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
   const mergedMantine6ProviderProps = React.useMemo(
