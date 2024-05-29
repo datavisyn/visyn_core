@@ -175,7 +175,6 @@ export function SingleBarChart({
                   yScale={categoryScale}
                   xRange={[countScale.range()[1], countScale.range()[0]]}
                   horizontalPosition={getMargin(shouldRotateXAxisTicks).left}
-                  showLines
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
                   sortedDesc={sortType === SortTypes.CAT_DESC}
@@ -193,7 +192,6 @@ export function SingleBarChart({
                   yRange={[countScale.range()[1], countScale.range()[0]]}
                   vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
                   label={config.catColumnSelected.name}
-                  showLines
                   ticks={categoryTicks}
                   sortedDesc={sortType === SortTypes.CAT_DESC}
                   sortedAsc={sortType === SortTypes.CAT_ASC}
