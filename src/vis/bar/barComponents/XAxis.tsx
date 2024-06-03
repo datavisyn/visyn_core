@@ -12,6 +12,7 @@ import {
   VIS_TICK_LABEL_SIZE_SMALL,
 } from '../../constants';
 import { ESortStates, SortIcon } from '../../general/SortIcon';
+import { getLabelOrUnknown } from '../../utils';
 
 function TickText({
   value,
@@ -33,7 +34,7 @@ function TickText({
 
   return (
     <Center ref={containerRef}>
-      <Tooltip label={value} withArrow position="right">
+      <Tooltip label={getLabelOrUnknown(value)} withArrow position="top">
         <Text
           ref={textRef}
           c={VIS_LABEL_COLOR}
@@ -55,7 +56,7 @@ function TickText({
             userSelect: 'none',
           }}
         >
-          {value}
+          {getLabelOrUnknown(value)}
         </Text>
       </Tooltip>
     </Center>
@@ -145,13 +146,13 @@ export function XAxis({
       <g transform={`translate(${xScale.range()[1]}, ${vertPosition + 35})`}>
         <foreignObject width={Math.abs(xScale.range()[1] - xScale.range()[0])} height={60}>
           <Group justify="center" gap={3} w="100%" wrap="nowrap">
-            <Tooltip label={label} withArrow>
+            <Tooltip label={getLabelOrUnknown(label)} withArrow>
               <Text
                 style={{ userSelect: 'none', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
                 size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)}
                 c={VIS_LABEL_COLOR}
               >
-                {label}
+                {getLabelOrUnknown(label)}
               </Text>
             </Tooltip>
             <Space ml="xs" />

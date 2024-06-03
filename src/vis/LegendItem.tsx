@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { Group, ColorSwatch, Text } from '@mantine/core';
 import React from 'react';
+import { getLabelOrUnknown } from './utils';
 
 /**
  * Generic legend item partially copied from mantine.
@@ -25,8 +26,8 @@ export function LegendItem({ color, label, filtered, onClick }: { color: string;
     >
       <ColorSwatch color={color} size={12} withShadow={false} />
 
-      <Text size="sm" m={0} p={0} lh={1} truncate td={filtered ? 'line-through' : 'none'}>
-        {label}
+      <Text size="sm" m={0} p={0} lh={1.1} truncate td={filtered ? 'line-through' : 'none'}>
+        {getLabelOrUnknown(label)}
       </Text>
     </Group>
   );

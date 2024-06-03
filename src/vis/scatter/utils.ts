@@ -21,6 +21,7 @@ import {
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
 import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../constants';
+import { getLabelOrUnknown } from '../utils';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -238,8 +239,8 @@ export async function createScatterTraces(
           hovertext: group.map(
             (d) =>
               `${idToLabelMapper(d.ids)}<br>${xLabel}: ${d.x}<br>${yLabel}: ${d.y}
-              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${d.color || 'Unknown'}` : ''}
-              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape || 'Unknown'}` : ''}`,
+              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
+              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`,
           ),
           text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
@@ -262,7 +263,7 @@ export async function createScatterTraces(
         yLabel,
         xDomain: calcXDomain,
         yDomain: calcYDomain,
-        title: !group[0].facet || group[0].facet === '' ? 'Unknown' : group[0].facet,
+        title: getLabelOrUnknown(group[0].facet),
       });
       plotCounter += 1;
     });
@@ -288,8 +289,8 @@ export async function createScatterTraces(
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
             `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
-            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
-            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
+            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
         ),
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
@@ -357,8 +358,8 @@ export async function createScatterTraces(
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
                   `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}
-                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || 'Unknown'}` : ''}
-                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || 'Unknown'}` : ''}`,
+                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
               ),
               text: validCols[0].resolvedValues.map((v) => v.id?.toString()),
               // @ts-ignore
@@ -416,9 +417,9 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: colorCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
+            groups: colorCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
             styles: [
-              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
+              ...[...new Set<string>(colorCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
                 return { target: c, value: { name: c } };
               }),
             ],
@@ -459,9 +460,9 @@ export async function createScatterTraces(
         transforms: [
           {
             type: 'groupby',
-            groups: shapeCol.resolvedValues.map((v) => (v.val || 'Unknown') as string),
+            groups: shapeCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
             styles: [
-              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || 'Unknown') as string[])].map((c) => {
+              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
                 return { target: c, value: { name: c } };
               }),
             ],

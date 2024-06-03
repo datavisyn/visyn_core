@@ -11,6 +11,7 @@ import {
   VIS_TICK_LABEL_SIZE_SMALL,
 } from '../../constants';
 import { ESortStates, SortIcon } from '../../general/SortIcon';
+import { getLabelOrUnknown } from '../../utils';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({
@@ -51,9 +52,11 @@ export function YAxis({
         <foreignObject width={Math.abs(yScale.range()[0] - yScale.range()[1])} height={20}>
           <Center>
             <Group gap={3}>
-              <Text size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none' }} c={VIS_LABEL_COLOR}>
-                {label}
-              </Text>
+              <Tooltip withArrow label={getLabelOrUnknown(label)} withinPortal>
+                <Text size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none' }} c={VIS_LABEL_COLOR}>
+                  {getLabelOrUnknown(label)}
+                </Text>
+              </Tooltip>
               <Space ml="xs" />
               <SortIcon
                 sortState={sortedDesc ? ESortStates.DESC : sortedAsc ? ESortStates.ASC : ESortStates.NONE}
@@ -74,7 +77,7 @@ export function YAxis({
           >
             <foreignObject width={labelSpacing + 5} height={20}>
               <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Tooltip withArrow label={value} withinPortal>
+                <Tooltip withArrow label={getLabelOrUnknown(value)} withinPortal>
                   <Text
                     c={VIS_LABEL_COLOR}
                     pb={2} // to make sure the text is not cut off on the bottom, e.g. "g"s
@@ -82,7 +85,7 @@ export function YAxis({
                     style={{ userSelect: 'none' }}
                     size={compact ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
                   >
-                    {value}
+                    {getLabelOrUnknown(value)}
                   </Text>
                 </Tooltip>
               </Group>
