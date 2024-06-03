@@ -1,11 +1,10 @@
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Group, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 import * as d3v7 from 'd3v7';
 import * as React from 'react';
 import { useEffect, useMemo } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-import { useSyncedRef } from '../hooks/useSyncedRef';
 import { getCssValue } from '../utils';
 import { createVis, useVisProvider } from './Provider';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
@@ -348,30 +347,26 @@ export function EagerVis({
           </Alert>
         ) : (
           <Renderer
+            closeButtonCallback={closeCallback}
+            columns={columns}
             config={_visConfig}
             dimensions={dimensions}
-            optionsConfig={{
-              color: {
-                enable: true,
-              },
-            }}
-            uniquePlotId={uniquePlotId}
+            filterCallback={filterCallback}
+            optionsConfig={{ color: { enable: true } }}
+            scales={scales}
+            scrollZoom={scrollZoom}
+            selectedList={selected}
+            selectedMap={selectedMap}
+            selectionCallback={selectionCallback}
+            setConfig={setVisConfig}
+            shapes={shapes}
+            showCloseButton={showCloseButton}
             showDownloadScreenshot={showDownloadScreenshot}
             showDragModeOptions={showDragModeOptions}
-            shapes={shapes}
-            setConfig={setVisConfig}
+            showSidebar={showSidebar}
             stats={stats}
             statsCallback={statsCallback}
-            filterCallback={filterCallback}
-            selectionCallback={selectionCallback}
-            selectedMap={selectedMap}
-            selectedList={selected}
-            columns={columns}
-            scales={scales}
-            showSidebar={showSidebar}
-            showCloseButton={showCloseButton}
-            closeButtonCallback={closeCallback}
-            scrollZoom={scrollZoom}
+            uniquePlotId={uniquePlotId}
             {...commonProps}
           />
         )}

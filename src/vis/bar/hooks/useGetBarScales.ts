@@ -1,32 +1,56 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { addFunction, op, table } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
-import { desc, op, table, addFunction } from 'arquero';
-import { useMemo } from 'react';
 import * as d3 from 'd3v7';
-import { getBarData, sortTableBySortType } from '../utils';
-import { SortTypes } from '../interfaces';
+import { useMemo } from 'react';
 import { EAggregateTypes } from '../../interfaces';
+import { SortTypes } from '../interfaces';
+import { getBarData, sortTableBySortType } from '../utils';
 
-export function useGetBarScales(
-  allColumns: Awaited<ReturnType<typeof getBarData>>,
-  height: number,
-  width: number,
-  margin: { top: number; left: number; bottom: number; right: number },
-  categoryFilter: string | null,
-  isVertical: boolean,
-  selectedMap: Record<string, boolean>,
-  sortType: SortTypes,
-  aggregateType: EAggregateTypes,
-): { aggregatedTable: ColumnTable; baseTable: ColumnTable; countScale: d3.ScaleLinear<number, number>; categoryScale: d3.ScaleBand<string> } {
+export function useGetBarScales({
+  aggregateType,
+  allColumns,
+  categoryFilter,
+  height,
+  isVertical,
+  margin,
+  selectedMap,
+  sortType,
+  width,
+}: {
+  aggregateType: EAggregateTypes;
+  allColumns: Awaited<ReturnType<typeof getBarData>>;
+  categoryFilter: string | null;
+  height: number;
+  isVertical: boolean;
+  margin: { top: number; left: number; bottom: number; right: number };
+  selectedMap: Record<string, boolean>;
+  sortType: SortTypes;
+  width: number;
+}): {
+  aggregatedTable: ColumnTable;
+  baseTable: ColumnTable;
+  categoryValueScale: d3.ScaleBand<string>;
+  categoryCountScale: d3.ScaleLinear<number, number>;
+  numericalValueScale: d3.ScaleLinear<number, number>;
+  numericalIdScale: d3.ScaleBand<string>;
+} {
   const baseTable = useMemo(() => {
     if (allColumns?.catColVals) {
       return table({
-        category: allColumns.catColVals.resolvedValues.map((val) => val.val),
-        group: allColumns?.groupColVals?.resolvedValues.map((val) => val.val),
-        facets: allColumns?.facetsColVals?.resolvedValues.map((val) => val.val) || [],
-        selected: allColumns.catColVals.resolvedValues.map((val) => (selectedMap[val.id] ? 1 : 0)),
-        aggregateVal: allColumns?.aggregateColVals?.resolvedValues.map((val) => val.val) || [],
-        id: allColumns.catColVals.resolvedValues.map((val) => val.id),
+        category: allColumns?.catColVals?.resolvedValues?.map((val) => val?.val) ?? [],
+        group: allColumns?.groupColVals?.resolvedValues?.map((val) => val?.val) ?? [],
+        facets: allColumns?.facetsColVals?.resolvedValues?.map((val) => val?.val) ?? [],
+        selected: allColumns?.catColVals?.resolvedValues?.map((val) => (selectedMap[val?.id] ? 1 : 0)) ?? [],
+        aggregateVal: allColumns?.aggregateColVals?.resolvedValues?.map((val) => val?.val) ?? [],
+        id: allColumns?.catColVals?.resolvedValues?.map((val) => val?.id) ?? [],
+      });
+    }
+    if (allColumns?.numColVals) {
+      return table({
+        numerical: allColumns?.numColVals?.resolvedValues?.map((val) => val?.val) ?? [],
+        selected: allColumns?.numColVals?.resolvedValues?.map((val) => (selectedMap[val?.id] ? 1 : 0)) ?? [],
+        id: allColumns?.numColVals?.resolvedValues?.map((val) => val?.id) ?? [],
       });
     }
 
@@ -52,15 +76,15 @@ export function useGetBarScales(
 
   const aggregatedTable = useMemo(() => {
     if (allColumns?.catColVals) {
-      let myTable = baseTable;
+      let catColTable = baseTable;
 
       if (categoryFilter && allColumns?.facetsColVals) {
-        myTable = baseTable.params({ categoryFilter }).filter((d, $) => d.facets === $.categoryFilter);
+        catColTable = baseTable.params({ categoryFilter }).filter((d, $) => d.facets === $.categoryFilter);
       }
 
       addFunction('aggregateFunc', aggregateFunc, { override: true });
 
-      return myTable
+      return catColTable
         .groupby('category')
         .rollup({
           aggregateVal: aggregateFunc,
@@ -71,25 +95,49 @@ export function useGetBarScales(
         .orderby('category');
     }
 
+    if (allColumns?.numColVals) {
+      const numColTable = baseTable;
+      return numColTable.groupby('numerical');
+    }
+
     return null;
-  }, [aggregateFunc, allColumns?.catColVals, allColumns?.facetsColVals, baseTable, categoryFilter]);
+  }, [aggregateFunc, allColumns?.catColVals, allColumns?.facetsColVals, allColumns?.numColVals, baseTable, categoryFilter]);
 
-  const countScale = useMemo(() => {
-    if (!aggregatedTable) return null;
-    return d3
-      .scaleLinear()
-      .range(isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left])
-      .domain([0, +d3.max(aggregatedTable.array('aggregateVal')) + +d3.max(aggregatedTable.array('aggregateVal')) / 25]);
-  }, [aggregatedTable, height, isVertical, margin, width]);
+  const categoryValueScale = useMemo(() => {
+    if (!aggregatedTable || !allColumns?.catColVals) return null;
+    const range = isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top];
+    const domain = sortTableBySortType(aggregatedTable, sortType).array('category').slice(0, 20);
+    return d3.scaleBand().range(range).domain(domain).padding(0.2);
+  }, [aggregatedTable, allColumns?.catColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
 
-  const categoryScale = useMemo(() => {
-    if (!aggregatedTable) return null;
-    return d3
-      .scaleBand()
-      .range(isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top])
-      .domain(sortTableBySortType(aggregatedTable, sortType).array('category'))
-      .padding(0.2);
-  }, [aggregatedTable, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
+  const categoryCountScale = useMemo(() => {
+    if (!aggregatedTable || !allColumns?.catColVals) return null;
+    const range = isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left];
+    const domain = [0, +d3.max(aggregatedTable.array('aggregateVal')) + +d3.max(aggregatedTable.array('aggregateVal')) / 25];
+    return d3.scaleLinear().range(range).domain(domain);
+  }, [aggregatedTable, allColumns?.catColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, width]);
 
-  return { aggregatedTable, baseTable, countScale, categoryScale };
+  const numericalValueScale = useMemo(() => {
+    if (!aggregatedTable || !allColumns?.numColVals) return null;
+    const range = isVertical ? [height - margin.bottom, margin.top] : [margin.left, width - margin.right];
+    const tableValues = sortTableBySortType(aggregatedTable, sortType).array('numerical');
+    const domain = [Math.min(Math.floor(+d3.min(tableValues)), 0), Math.max(Math.ceil(+d3.max(tableValues)), 0)];
+    return d3.scaleLinear().range(range).domain(domain);
+  }, [aggregatedTable, allColumns?.numColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
+
+  const numericalIdScale = useMemo(() => {
+    if (!aggregatedTable || !allColumns?.numColVals) return null;
+    const range = isVertical ? [margin.left, width - margin.right] : [margin.top, height - margin.bottom];
+    const domain = sortTableBySortType(aggregatedTable, SortTypes.ID_DESC).array('id').slice(0, 100);
+    return d3.scaleBand().range(range).domain(domain).padding(0.2);
+  }, [aggregatedTable, allColumns?.numColVals, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, width]);
+
+  return {
+    aggregatedTable,
+    baseTable,
+    categoryValueScale,
+    categoryCountScale,
+    numericalValueScale,
+    numericalIdScale,
+  };
 }

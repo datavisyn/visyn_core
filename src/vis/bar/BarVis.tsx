@@ -17,7 +17,7 @@ export function BarVis({
 }: ICommonVisProps<IBarConfig>) {
   return (
     <Stack p={0} style={{ height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }}>
-      {config.catColumnSelected ? (
+      {config.catColumnSelected || config.numColumnsSelected.length > 0 ? (
         <BarChart
           config={config}
           columns={columns}

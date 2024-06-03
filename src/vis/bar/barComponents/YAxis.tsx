@@ -14,27 +14,29 @@ import { ESortStates, SortIcon } from '../../general/SortIcon';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({
-  yScale,
-  xRange,
-  horizontalPosition,
-  label,
-  ticks,
-  showLines,
   compact = false,
+  horizontalPosition,
+  isVertical = false,
+  label,
+  setSortType,
+  showLines,
   sortedAsc = false,
   sortedDesc = false,
-  setSortType,
+  ticks,
+  xRange,
+  yScale,
 }: {
-  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
-  xRange: [number, number];
+  compact?: boolean;
+  isVertical?: boolean;
   horizontalPosition: number;
   label: string;
-  ticks: { value: string | number; offset: number }[];
+  setSortType: (label: string, nextSortState: ESortStates) => void;
   showLines?: boolean;
-  compact?: boolean;
   sortedAsc?: boolean;
   sortedDesc?: boolean;
-  setSortType: (label: string, nextSortState: ESortStates) => void;
+  ticks: { value: string | number; offset: number }[];
+  xRange: [number, number];
+  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
 }) {
   const labelSpacing = useMemo(() => {
     const maxLabelLength = ticks.reduce((max, { value }) => {

@@ -12,42 +12,45 @@ import { IBarConfig, SortTypes } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 export function BarChart({
-  config,
   columns,
-  selectedMap,
+  config,
   selectedList,
+  selectedMap,
   selectionCallback,
-  uniquePlotId,
   showDownloadScreenshot,
+  uniquePlotId,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
-    columns,
-    config.catColumnSelected,
-    config.group,
-    config.facets,
-    config.aggregateColumn,
+    {
+      columns,
+      catColumn: config.catColumnSelected,
+      numColumn: config.numColumnsSelected?.[0],
+      groupColumn: config.group,
+      facetsColumn: config.facets,
+      aggregateColumn: config.aggregateColumn,
+    },
   ]);
 
   const uniqueFacetVals = useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
   }, [allColumns]);
 
-  const { groupColorScale, groupedTable } = useGetGroupedBarScales(
+  const { groupColorScale, groupedTable } = useGetGroupedBarScales({
+    aggregateType: config.aggregateType,
     allColumns,
-    0,
-    0,
-    { left: 0, top: 0, right: 0, bottom: 0 },
-    null,
-    true,
+    categoryFilter: null,
+    groupType: config.groupType,
+    height: 0,
+    isVertical: true,
+    margin: { left: 0, top: 0, right: 0, bottom: 0 },
     selectedMap,
-    config.groupType,
     sortType,
-    config.aggregateType,
-  );
+    width: 0,
+  });
 
   const groupedIds = useMemo(() => {
     if (!groupedTable) {

@@ -1,13 +1,13 @@
+import { useShallowEffect } from '@mantine/hooks';
 import merge from 'lodash/merge';
-import * as React from 'react';
-import { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
+import { SingleSelect } from '../sidebar/SingleSelect';
 import { BarDirectionButtons } from './BarDirectionButtons';
 import { GroupSelect } from './GroupSelect';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
-import { SingleSelect } from '../sidebar/SingleSelect';
 
 const defaultConfig = {
   direction: { enable: true, customComponent: null },
@@ -31,73 +31,100 @@ export function BarVisSidebar({
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
 
+  const [selectedColumn, setSelectedColumn] = useState<{ column: ColumnInfo; columnType: EColumnTypes }>(
+    config.catColumnSelected
+      ? { column: config.catColumnSelected, columnType: EColumnTypes.CATEGORICAL }
+      : config.numColumnsSelected[0]
+        ? { column: config.numColumnsSelected[0], columnType: EColumnTypes.NUMERICAL }
+        : null,
+  );
+
+  // NOTE: @dv-usama-ansari: useEffect causes an infinite loop here.
+  useShallowEffect(() => {
+    setConfig({
+      ...config,
+      catColumnSelected: selectedColumn?.columnType === EColumnTypes.CATEGORICAL ? selectedColumn?.column : null,
+      numColumnsSelected: selectedColumn?.columnType === EColumnTypes.NUMERICAL ? [selectedColumn?.column] : [],
+      facets: config.facets && config.facets.id === selectedColumn?.column?.id ? null : config.facets,
+      group: config.group && config.group.id === selectedColumn?.column?.id ? null : config.group,
+    });
+  }, [selectedColumn?.column, selectedColumn?.columnType, setConfig]);
+
   return (
     <>
       <SingleSelect
-        callback={(catColumnSelected: ColumnInfo) =>
-          setConfig({
-            ...config,
-            catColumnSelected,
-            facets: config.facets && config.facets.id === catColumnSelected?.id ? null : config.facets,
-            group: config.group && config.group.id === catColumnSelected?.id ? null : config.group,
-          })
-        }
-        columns={columns}
-        currentSelected={config.catColumnSelected}
-        columnType={EColumnTypes.CATEGORICAL}
-        label="Categorical column"
-      />
-      <AggregateTypeSelect
-        aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
-          if (config.aggregateColumn === null) {
-            setConfig({
-              ...config,
-              aggregateType,
-              aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
-              display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
-            });
-          } else {
-            setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
-          }
+        callback={(column: ColumnInfo) => {
+          setSelectedColumn(() => {
+            const c = columns.find((col) => col.info.id === column?.id);
+            return !c ? null : { column: c.info, columnType: c.type };
+          });
         }}
-        aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
         columns={columns}
-        currentSelected={config.aggregateType}
-        aggregateColumn={config.aggregateColumn}
+        currentSelected={selectedColumn?.column}
+        columnTypes={[EColumnTypes.CATEGORICAL, EColumnTypes.NUMERICAL]}
+        label="Select a column"
       />
+      {!selectedColumn ? null : (
+        <>
+          {selectedColumn?.columnType === EColumnTypes.CATEGORICAL ? (
+            <>
+              <AggregateTypeSelect
+                aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
+                  if (config.aggregateColumn === null) {
+                    setConfig({
+                      ...config,
+                      aggregateType,
+                      aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+                      display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
+                    });
+                  } else {
+                    setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
+                  }
+                }}
+                aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
+                columns={columns}
+                currentSelected={config.aggregateType}
+                aggregateColumn={config.aggregateColumn}
+              />
 
-      {mergedOptionsConfig.group.enable
-        ? mergedOptionsConfig.group.customComponent || (
-            <GroupSelect
-              aggregateType={config.aggregateType}
-              groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
-              groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
-              groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
-              displayType={config.display}
-              groupType={config.groupType}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
-              currentSelected={config.group}
-            />
-          )
-        : null}
-      {mergedOptionsConfig.facets.enable
-        ? mergedOptionsConfig.facets.customComponent || (
-            <SingleSelect
-              callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
-              currentSelected={config.facets}
-              label="Facets"
-              columnType={EColumnTypes.CATEGORICAL}
-            />
-          )
-        : null}
-      {mergedOptionsConfig.direction.enable
-        ? mergedOptionsConfig.direction.customComponent || (
-            <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
-          )
-        : null}
+              {mergedOptionsConfig.group.enable
+                ? mergedOptionsConfig.group.customComponent || (
+                    <GroupSelect
+                      aggregateType={config.aggregateType}
+                      groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
+                      groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
+                      groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
+                      displayType={config.display}
+                      groupType={config.groupType}
+                      columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+                      currentSelected={config.group}
+                    />
+                  )
+                : null}
+              {mergedOptionsConfig.facets.enable
+                ? mergedOptionsConfig.facets.customComponent || (
+                    <SingleSelect
+                      callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
+                      columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+                      currentSelected={config.facets}
+                      label="Facets"
+                      columnTypes={[EColumnTypes.CATEGORICAL]}
+                    />
+                  )
+                : null}
+            </>
+          ) : null}
+          {mergedOptionsConfig.direction.enable
+            ? mergedOptionsConfig.direction.customComponent || (
+                <BarDirectionButtons callback={(direction: EBarDirection) => setConfig({ ...config, direction })} currentSelected={config.direction} />
+              )
+            : null}
 
-      {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
+          {filterCallback && mergedOptionsConfig.filter.enable
+            ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} />
+            : null}
+        </>
+      )}
     </>
   );
 }

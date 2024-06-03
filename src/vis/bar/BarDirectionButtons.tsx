@@ -14,7 +14,9 @@ export function BarDirectionButtons({ callback, currentSelected }: BarDirectionP
         fullWidth
         size="xs"
         value={currentSelected}
-        onChange={callback}
+        onChange={(value) => {
+          callback(value as EBarDirection);
+        }}
         data={[
           { label: EBarDirection.VERTICAL, value: EBarDirection.VERTICAL },
           { label: EBarDirection.HORIZONTAL, value: EBarDirection.HORIZONTAL },

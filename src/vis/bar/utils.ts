@@ -33,6 +33,14 @@ export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes)
       return tempTable.orderby('count');
     case SortTypes.COUNT_DESC:
       return tempTable.orderby(desc('count'));
+    case SortTypes.ID_ASC:
+      return tempTable.orderby('id');
+    case SortTypes.ID_DESC:
+      return tempTable.orderby(desc('id'));
+    case SortTypes.NUM_ASC:
+      return tempTable.orderby('numerical');
+    case SortTypes.NUM_DESC:
+      return tempTable.orderby(desc('numerical'));
     default:
       return tempTable;
   }
@@ -168,14 +176,27 @@ export function rollupByAggregateType(tempTable: ColumnTable, aggregateType: EAg
   }
 }
 
-export async function getBarData(
-  columns: VisColumn[],
-  catColumn: ColumnInfo,
-  groupColumn: ColumnInfo | null,
-  facetsColumn: ColumnInfo | null,
-  aggregateColumn: ColumnInfo | null,
-): Promise<{
+export async function getBarData({
+  aggregateColumn,
+  catColumn,
+  numColumn,
+  columns,
+  facetsColumn,
+  groupColumn,
+}: {
+  columns: VisColumn[];
+  catColumn: ColumnInfo;
+  numColumn: ColumnInfo;
+  groupColumn: ColumnInfo | null;
+  facetsColumn: ColumnInfo | null;
+  aggregateColumn: ColumnInfo | null;
+}): Promise<{
   catColVals: {
+    resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
+    type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
+    info: ColumnInfo;
+  };
+  numColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
     info: ColumnInfo;
@@ -197,11 +218,12 @@ export async function getBarData(
     info: ColumnInfo;
   };
 }> {
-  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id));
+  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn?.id));
+  const numColVals = await resolveSingleColumn(columns.find((col) => col.info.id === numColumn?.id));
 
   const groupColVals = await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id) : null);
   const facetsColVals = await resolveSingleColumn(facetsColumn ? columns.find((col) => col.info.id === facetsColumn.id) : null);
   const aggregateColVals = await resolveSingleColumn(aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id) : null);
 
-  return { catColVals, groupColVals, facetsColVals, aggregateColVals };
+  return { catColVals, numColVals, groupColVals, facetsColVals, aggregateColVals };
 }

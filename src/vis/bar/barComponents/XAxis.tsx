@@ -1,8 +1,8 @@
 import { Center, Group, Space, Text, Tooltip, rem } from '@mantine/core';
+import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { useResizeObserver } from '@mantine/hooks';
 import {
   VIS_AXIS_LABEL_SIZE,
   VIS_AXIS_LABEL_SIZE_SMALL,
@@ -14,15 +14,15 @@ import {
 import { ESortStates, SortIcon } from '../../general/SortIcon';
 
 function TickText({
-  value,
-  shouldRotate,
-  setShouldRotateAxisTicks,
   compact,
+  setShouldRotateAxisTicks,
+  shouldRotate,
+  value,
 }: {
-  value: string | number;
-  shouldRotate: boolean;
-  setShouldRotateAxisTicks?: React.Dispatch<React.SetStateAction<boolean>>;
   compact: boolean;
+  setShouldRotateAxisTicks?: React.Dispatch<React.SetStateAction<boolean>>;
+  shouldRotate: boolean;
+  value: string | number;
 }) {
   const [containerRef] = useResizeObserver();
   const [textRef] = useResizeObserver();
@@ -64,34 +64,37 @@ function TickText({
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function XAxis({
-  xScale,
-  yRange,
-  vertPosition,
-  label,
-  ticks,
-  showLines,
   compact = false,
-  sortedAsc = false,
-  sortedDesc = false,
+  isVertical = false,
+  label,
   setSortType,
   shouldRotate,
+  showLines,
+  sortedAsc = false,
+  sortedDesc = false,
+  ticks,
+  vertPosition,
+  xScale,
+  yRange,
 }: {
-  showLines?: boolean;
-  xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
-  yRange: [number, number];
-  vertPosition: number;
-  label: string;
-  ticks: { value: string | number; offset: number }[];
   compact?: boolean;
-  sortedAsc?: boolean;
-  sortedDesc?: boolean;
+  isVertical?: boolean;
+  label: string;
   setSortType: (label: string, nextSortState: ESortStates) => void;
   shouldRotate?: boolean;
+  showLines?: boolean;
+  sortedAsc?: boolean;
+  sortedDesc?: boolean;
+  ticks: { value: string | number; offset: number }[];
+  vertPosition: number;
+  xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
+  yRange: [number, number];
 }) {
   const tickWidth = useMemo(() => {
     if (ticks.length > 1) {
       return Math.abs(ticks[0].offset - ticks[1].offset);
     }
+
     return xScale.range()[1] - xScale.range()[0];
   }, [ticks, xScale]);
 
@@ -114,7 +117,7 @@ export function XAxis({
           {/* Ticks for testing - should not be shown! */}
           {/* <line y2="6" stroke="currentColor" /> */}
 
-          {showLines ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke={VIS_GRID_COLOR} /> : null}
+          {showLines ? <line y2={`${yRange[1] - yRange[0]}`} stroke={VIS_GRID_COLOR} /> : null}
           <foreignObject
             x={0 - tickWidth / 2}
             y={10}
