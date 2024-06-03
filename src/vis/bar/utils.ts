@@ -30,9 +30,9 @@ export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes)
     case SortTypes.CAT_DESC:
       return tempTable.orderby('category');
     case SortTypes.COUNT_ASC:
-      return tempTable.orderby('count');
-    case SortTypes.COUNT_DESC:
       return tempTable.orderby(desc('count'));
+    case SortTypes.COUNT_DESC:
+      return tempTable.orderby('count');
     default:
       return tempTable;
   }
