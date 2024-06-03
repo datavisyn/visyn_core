@@ -20,7 +20,7 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
-import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../constants';
+import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../constants';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -36,7 +36,7 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
 }
 
 export const defaultRegressionLineStyle = {
-  colors: ['#99A1A9', '#C91A25', '#3561fd'],
+  colors: [VIS_NEUTRAL_COLOR, '#C91A25', '#3561fd'],
   colorSelected: 0,
   width: 2,
   dash: 'solid' as Plotly.Dash,
@@ -192,7 +192,7 @@ export async function createScatterTraces(
         line: {
           width: 0,
         },
-        color: VIS_UNSELECTED_COLOR,
+        color: VIS_NEUTRAL_COLOR,
         opacity: alphaSliderVal,
         size: sizeSliderVal,
       },

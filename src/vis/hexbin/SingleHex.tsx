@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { PieChart } from './PieChart';
 import { cutHex } from './utils';
 import { EHexbinOptions } from './interfaces';
-import { VIS_LABEL_COLOR } from '../constants';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../constants';
 
 export interface SingleHexProps {
   hexbinOption: EHexbinOptions;
@@ -94,10 +94,10 @@ export function SingleHex({
                       colorScale
                         ? isSelected || Object.keys(selected).length === 0
                           ? colorScale(key)
-                          : '#CED4DA'
+                          : VIS_UNSELECTED_COLOR // TODO ask bob
                         : isSelected || Object.keys(selected).length === 0
-                          ? VIS_LABEL_COLOR
-                          : '#CED4DA'
+                          ? VIS_NEUTRAL_COLOR
+                          : VIS_UNSELECTED_COLOR // TODO ask bob
                     }`,
                     transform: `translate(${hexData.x}px, ${hexData.y}px)`,
                     strokeWidth: isSelected ? 1 : 0,
@@ -118,10 +118,10 @@ export function SingleHex({
                 colorScale
                   ? isSelected || Object.keys(selected).length === 0
                     ? colorScale(topCategory)
-                    : '#CED4DA'
+                    : VIS_UNSELECTED_COLOR // TODO ask bob
                   : isSelected || Object.keys(selected).length === 0
-                    ? VIS_LABEL_COLOR
-                    : '#CED4DA'
+                    ? VIS_NEUTRAL_COLOR
+                    : VIS_UNSELECTED_COLOR // TODO ask bob
               }`,
               transform: `translate(${hexData.x}px, ${hexData.y}px)`,
               strokeWidth: isSelected ? (colorScale ? 1 : 2) : 0,
@@ -141,10 +141,10 @@ export function SingleHex({
                     colorScale
                       ? isSelected || Object.keys(selected).length === 0
                         ? colorScale(topCategory)
-                        : '#CED4DA'
+                        : VIS_UNSELECTED_COLOR // TODO ask bob
                       : isSelected || Object.keys(selected).length === 0
-                        ? VIS_LABEL_COLOR
-                        : '#CED4DA'
+                        ? VIS_NEUTRAL_COLOR
+                        : VIS_UNSELECTED_COLOR // TODO ask bob
                   }`,
                   transform: `translate(${hexData.x}px, ${hexData.y}px)`,
                   strokeWidth: isSelected ? 1 : 0,

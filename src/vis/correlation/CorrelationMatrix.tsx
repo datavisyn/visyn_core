@@ -12,7 +12,7 @@ import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 import { getCorrelationMatrixData } from './utils';
-import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../constants';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR, VIS_GRID_COLOR } from '../constants';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
@@ -134,7 +134,7 @@ export function CorrelationMatrix({
       const currentY = yScale(col.info.id);
       return (
         <g key={`label-${col.info.name}`}>
-          <rect fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
+          <rect stroke={VIS_GRID_COLOR} strokeWidth={1} fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
           <foreignObject x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
             <Center style={{ height: '100%' }} px={5}>
               <Tooltip

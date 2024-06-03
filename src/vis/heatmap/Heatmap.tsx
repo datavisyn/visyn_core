@@ -3,7 +3,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { rollupByAggregateType } from '../bar/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
@@ -245,7 +245,13 @@ export function Heatmap({
             }}
           >
             <svg height={height} width={width}>
-              <rect x={margin.left} y={margin.top} height={height - margin.top - margin.bottom} width={width - margin.left - margin.right} fill="#F1F3F5" />
+              <rect
+                x={margin.left}
+                y={margin.top}
+                height={height - margin.top - margin.bottom - interRectDistance}
+                width={width - margin.left - margin.right - interRectDistance}
+                fill="#fff" // I'm not using the grid color here on purpose TODO ask bob
+              />
               {text}
               {rects}
             </svg>

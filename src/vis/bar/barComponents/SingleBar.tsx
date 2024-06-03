@@ -1,6 +1,7 @@
 import { Tooltip } from '@mantine/core';
 import React from 'react';
 import { animated, useSpring, easings } from 'react-spring';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../../constants';
 
 export function SingleBar({
   selectedPercent,
@@ -9,7 +10,7 @@ export function SingleBar({
   y,
   height,
   tooltip,
-  color = '#878E95',
+  color = VIS_NEUTRAL_COLOR,
   isVertical = true,
   onClick,
 }: {
@@ -58,7 +59,7 @@ export function SingleBar({
           <animated.rect {...style} fill={color} />
         ) : (
           <g>
-            <animated.rect {...style} fill={color} opacity={0.3} />
+            <animated.rect {...style} fill={color} opacity={VIS_UNSELECTED_OPACITY} />
             <animated.rect {...selectedRectStyle} fill={color} />
           </g>
         )}

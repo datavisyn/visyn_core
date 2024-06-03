@@ -3,6 +3,7 @@ import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
 import { ICorrelationConfig } from '../interfaces';
+import { VIS_GRID_COLOR } from '../../constants';
 
 const marginRect = { top: 0, right: 0, bottom: 0, left: 0 };
 
@@ -48,7 +49,7 @@ export function CorrelationPair({
       <g>
         <rect
           strokeWidth={1}
-          stroke="lightgray"
+          stroke={VIS_GRID_COLOR}
           width={boundingRect.width - marginRect.left - marginRect.right}
           height={boundingRect.height - marginRect.top - marginRect.bottom}
           x={value.cxUT - boundingRect.width / 2 + marginRect.left}
@@ -65,7 +66,7 @@ export function CorrelationPair({
       <g>
         <rect
           strokeWidth={1}
-          stroke="lightgray"
+          stroke={VIS_GRID_COLOR}
           width={boundingRect.width - marginRect.left - marginRect.right}
           height={boundingRect.height - marginRect.top - marginRect.bottom}
           x={value.cxLT - boundingRect.width / 2 + marginRect.left}

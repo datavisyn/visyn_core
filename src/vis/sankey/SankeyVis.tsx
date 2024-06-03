@@ -9,6 +9,7 @@ import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../constants';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -136,8 +137,8 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
 
 function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineTheme) {
   // @TODO @MORITZ
-  const selected = lighten(theme.colors[theme.primaryColor][5], 0.2);
-  const def = optimisedSelection.size > 0 ? rgba(theme.colors.gray[4], 0.5) : selected;
+  const selected = VIS_NEUTRAL_COLOR;
+  const def = optimisedSelection.size > 0 ? VIS_UNSELECTED_COLOR : selected;
 
   return [
     {
