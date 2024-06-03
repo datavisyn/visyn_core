@@ -32,6 +32,7 @@ export function SingleBarChart({
   isSmall = false,
   sortType,
   setSortType,
+  legendHeight,
 }: {
   allColumns: Awaited<ReturnType<typeof getBarData>>;
   config: IBarConfig;
@@ -43,6 +44,7 @@ export function SingleBarChart({
   isSmall?: boolean;
   sortType: SortTypes;
   setSortType: (sortType: SortTypes) => void;
+  legendHeight: number;
 }) {
   const [ref, { height, width }] = useResizeObserver();
   const [shouldRotateXAxisTicks, setShouldRotateXAxisTicks] = React.useState(false);
@@ -146,7 +148,7 @@ export function SingleBarChart({
               x={getMargin(shouldRotateXAxisTicks).left}
               y={getMargin(shouldRotateXAxisTicks).top}
               width={width - getMargin(shouldRotateXAxisTicks).left - getMargin(shouldRotateXAxisTicks).right}
-              height={height - getMargin(shouldRotateXAxisTicks).top - getMargin(shouldRotateXAxisTicks).bottom}
+              height={height - getMargin(shouldRotateXAxisTicks).top - getMargin(shouldRotateXAxisTicks).bottom - legendHeight}
               fill="transparent"
               onClick={(e) => selectionCallback(e, [])}
             />
@@ -190,7 +192,7 @@ export function SingleBarChart({
                   shouldRotate={shouldRotateXAxisTicks}
                   xScale={categoryScale}
                   yRange={[countScale.range()[1], countScale.range()[0]]}
-                  vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
+                  vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom - legendHeight}
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
                   sortedDesc={sortType === SortTypes.CAT_DESC}
@@ -203,7 +205,7 @@ export function SingleBarChart({
                   shouldRotate={shouldRotateXAxisTicks}
                   xScale={countScale}
                   yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
-                  vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
+                  vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom - legendHeight}
                   label={
                     config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
                       ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`

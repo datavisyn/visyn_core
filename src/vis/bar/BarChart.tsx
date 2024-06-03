@@ -2,6 +2,7 @@ import { Box, Loader, SimpleGrid, Stack, Center } from '@mantine/core';
 import { op } from 'arquero';
 import React, { useCallback, useMemo } from 'react';
 import { uniqueId } from 'lodash';
+import { useResizeObserver } from '@mantine/hooks';
 import { useAsync } from '../../hooks/useAsync';
 import { EColumnTypes, ICommonVisProps } from '../interfaces';
 import { SingleBarChart } from './SingleBarChart';
@@ -49,6 +50,8 @@ export function BarChart({
     config.aggregateType,
   );
 
+  const [legendBoxRef] = useResizeObserver();
+
   const groupedIds = useMemo(() => {
     if (!groupedTable) {
       return [];
@@ -85,8 +88,8 @@ export function BarChart({
         </Center>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        {groupColorScale ? (
-          <Box>
+        <Box ref={legendBoxRef}>
+          {groupColorScale ? (
             <Legend
               groupedIds={groupedIds}
               left={60}
@@ -95,16 +98,10 @@ export function BarChart({
               isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
               colorScale={groupColorScale}
               stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
-              onFilteredOut={(newId) => {
-                if (filteredOut.includes(newId)) {
-                  setFilteredOut(filteredOut.filter((v) => v !== newId));
-                } else {
-                  setFilteredOut([...filteredOut, newId]);
-                }
-              }}
+              onFilteredOut={() => {}} // disable legend click for now
             />
-          </Box>
-        ) : null}
+          ) : null}
+        </Box>
 
         <SimpleGrid
           cols={Math.min(Math.ceil(Math.sqrt(uniqueFacetVals.length)), 5)}
@@ -124,6 +121,7 @@ export function BarChart({
               selectedList={selectedList}
               sortType={sortType}
               setSortType={setSortType}
+              legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
             />
           ) : (
             uniqueFacetVals.map((multiplesVal) => (
@@ -139,6 +137,7 @@ export function BarChart({
                 selectionCallback={customSelectionCallback}
                 sortType={sortType}
                 setSortType={setSortType}
+                legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
               />
             ))
           )}
