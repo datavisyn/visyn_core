@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { PieChart } from './PieChart';
 import { cutHex } from './utils';
 import { EHexbinOptions } from './interfaces';
-import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../constants';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
 
 export interface SingleHexProps {
   hexbinOption: EHexbinOptions;

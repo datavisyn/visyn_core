@@ -4,7 +4,7 @@ import { Text, Tooltip, Center, Stack } from '@mantine/core';
 import { useMemo } from 'react';
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
-import { VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../constants';
+import { VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../general/constants';
 
 const textMargin = 2;
 export function HeatmapText({

@@ -9,7 +9,7 @@ import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../constants';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
 
 /**
  * Performs the data transformation that maps the fetched data to

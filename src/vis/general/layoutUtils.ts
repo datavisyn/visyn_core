@@ -1,6 +1,6 @@
 import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
 import { PlotlyTypes } from '../../plotly';
-import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
+import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from './constants';
 
 /**
  * Truncate long texts (e.g., to use as axes title)
@@ -49,13 +49,6 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
     }
   });
 
-  const plotFrame = {
-    showline: true,
-    linecolor: 'rgb(238, 238, 238)',
-    linewidth: 2,
-    mirror: true,
-  };
-
   traces.plots.forEach((t, i) => {
     const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
     layout[axisX] = {
@@ -86,7 +79,6 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
           color: VIS_LABEL_COLOR,
         },
       },
-      ...plotFrame,
     };
 
     const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
@@ -119,7 +111,6 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
           weight: 'bold',
         },
       },
-      ...plotFrame,
     };
   });
 

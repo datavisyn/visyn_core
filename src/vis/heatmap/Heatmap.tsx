@@ -11,7 +11,7 @@ import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
 import { ESortTypes, IHeatmapConfig } from './interfaces';
 import { sequentialBlueColors } from '../../utils/colors';
-import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../constants';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../general/constants';
 import { ESortStates, SortIcon } from '../general/SortIcon';
 
 const interRectDistance = 1;

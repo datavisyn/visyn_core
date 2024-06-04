@@ -12,7 +12,7 @@ import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 import { getCorrelationMatrixData } from './utils';
-import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR, VIS_GRID_COLOR } from '../constants';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR, VIS_GRID_COLOR } from '../general/constants';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };

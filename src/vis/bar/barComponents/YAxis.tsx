@@ -9,7 +9,7 @@ import {
   VIS_LABEL_COLOR,
   VIS_TICK_LABEL_SIZE,
   VIS_TICK_LABEL_SIZE_SMALL,
-} from '../../constants';
+} from '../../general/constants';
 import { ESortStates, SortIcon } from '../../general/SortIcon';
 import { getLabelOrUnknown } from '../../utils';
 

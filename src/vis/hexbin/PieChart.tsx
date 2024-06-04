@@ -2,7 +2,7 @@ import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { VIS_LABEL_COLOR } from '../constants';
+import { VIS_LABEL_COLOR } from '../general/constants';
 
 export interface PieChartProps {
   data: number[];

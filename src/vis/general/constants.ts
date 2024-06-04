@@ -1,3 +1,13 @@
 export const DEFAULT_COLOR = '#2e2e2e';
 export const SELECT_COLOR = '#E29609';
 export const NAN_REPLACEMENT = 'Unknown';
+
+export const VIS_LABEL_COLOR = '#99A1A9';
+export const VIS_GRID_COLOR = '#E9ECEF';
+export const VIS_NEUTRAL_COLOR = '#71787E'; // e.g. histogram in scatterplot matrix
+export const VIS_UNSELECTED_COLOR = `${VIS_NEUTRAL_COLOR}4D`; // VIS_NEUTRAL_COLOR 0.3
+export const VIS_UNSELECTED_OPACITY = 0.3;
+export const VIS_AXIS_LABEL_SIZE = '14';
+export const VIS_TICK_LABEL_SIZE = '12';
+export const VIS_AXIS_LABEL_SIZE_SMALL = '12';
+export const VIS_TICK_LABEL_SIZE_SMALL = '10';

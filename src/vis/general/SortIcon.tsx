@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Tooltip, ActionIcon, Text } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDownShortWide, faArrowUpShortWide } from '@fortawesome/free-solid-svg-icons';
-import { VIS_LABEL_COLOR } from '../constants';
+import { VIS_LABEL_COLOR } from './constants';
 import { dvSort, dvSortAsc, dvSortDesc } from '../../icons';
 import { selectionColorDark } from '../../utils';
 

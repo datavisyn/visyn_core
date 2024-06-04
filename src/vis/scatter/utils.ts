@@ -20,7 +20,7 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
-import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../constants';
+import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { getLabelOrUnknown } from '../utils';
 
 function truncateString(text: string, maxLength = 20): string {
