@@ -51,7 +51,7 @@ export function SingleBarChart({
 
   const { aggregatedTable, categoryScale, countScale, groupColorScale, groupScale, groupedTable } = useGetGroupedBarScales(
     allColumns,
-    height,
+    height - legendHeight,
     width,
     getMargin(shouldRotateXAxisTicks),
     categoryFilter,
@@ -232,7 +232,7 @@ export function SingleBarChart({
                   countScale={countScale}
                   groupColorScale={groupColorScale}
                   width={width}
-                  height={height}
+                  height={height - legendHeight}
                   margin={getMargin(shouldRotateXAxisTicks)}
                   aggregateType={config.aggregateType}
                   isVertical={config.direction === EBarDirection.VERTICAL}
@@ -248,7 +248,7 @@ export function SingleBarChart({
                   categoryScale={categoryScale}
                   countScale={countScale}
                   groupColorScale={groupColorScale}
-                  height={height}
+                  height={height - legendHeight}
                   margin={getMargin(shouldRotateXAxisTicks)}
                   width={width}
                   isVertical={config.direction === EBarDirection.VERTICAL}
