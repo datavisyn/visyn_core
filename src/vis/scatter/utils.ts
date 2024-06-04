@@ -23,6 +23,10 @@ import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfa
 import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../constants';
 import { getLabelOrUnknown } from '../utils';
 
+function truncateString(text: string, maxLength = 20): string {
+  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
+}
+
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
   if (domain[0] !== undefined && domain[1] !== undefined) {
@@ -167,7 +171,7 @@ export async function createScatterTraces(
         )
     : null;
 
-  // These are shared data properties beeing the same for all plots
+  // These are shared data properties between the traces
   const sharedData = {
     showlegend: false,
     type: 'scattergl',
@@ -361,7 +365,7 @@ export async function createScatterTraces(
                 ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
                 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
               ),
-              text: validCols[0].resolvedValues.map((v) => v.id?.toString()),
+              text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore
               textposition: validCols[0].resolvedValues.map((v, i) => (i % textPositions.length === 0 ? 'top center' : 'bottom center')),
               marker: {
@@ -403,7 +407,7 @@ export async function createScatterTraces(
 
         // @ts-ignore
         legendgrouptitle: {
-          text: columnNameWithDescription(colorCol.info),
+          text: truncateString(colorCol.info.name),
         },
         marker: {
           line: {
@@ -442,11 +446,17 @@ export async function createScatterTraces(
         visible: 'legendonly',
         showlegend: true,
         legendgroup: 'shape',
-        hoverinfo: 'skip',
+        hoverinfo: 'all',
 
+        hoverlabel: {
+          namelength: 10,
+          bgcolor: 'black',
+          align: 'left',
+          bordercolor: 'black',
+        },
         // @ts-ignore
         legendgrouptitle: {
-          text: columnNameWithDescription(shapeCol.info),
+          text: truncateString(shapeCol.info.name),
         },
         marker: {
           line: {

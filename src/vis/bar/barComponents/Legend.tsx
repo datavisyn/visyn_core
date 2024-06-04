@@ -1,6 +1,6 @@
-import { Center, Group, ScrollArea, Stack, Text, Tooltip } from '@mantine/core';
+import { Group, ScrollArea } from '@mantine/core';
 import * as d3v7 from 'd3v7';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { LegendItem } from '../../LegendItem';
 
 export function Legend({

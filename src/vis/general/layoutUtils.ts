@@ -12,7 +12,7 @@ export function truncateText(text: string, maxLength = 50) {
 }
 
 export function columnNameWithDescription(col: ColumnInfo) {
-  return col.description ? `${col.name}: ${col.description}` : col.name;
+  return col?.description ? `${col.name}: ${col.description}` : col.name;
 }
 
 /**
@@ -49,8 +49,16 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
     }
   });
 
+  const plotFrame = {
+    showline: true,
+    linecolor: 'rgb(238, 238, 238)',
+    linewidth: 2,
+    mirror: true,
+  };
+
   traces.plots.forEach((t, i) => {
-    layout[`xaxis${i > 0 ? i + 1 : ''}`] = {
+    const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
+    layout[axisX] = {
       range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
       color: VIS_LABEL_COLOR,
@@ -67,7 +75,6 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       },
       ticks: 'none',
       text: t.xTicks,
-      showline: false,
       showspikes: false,
       spikedash: 'dash',
       title: {
@@ -79,9 +86,11 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
           color: VIS_LABEL_COLOR,
         },
       },
+      ...plotFrame,
     };
 
-    layout[`yaxis${i > 0 ? i + 1 : ''}`] = {
+    const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
+    layout[axisY] = {
       range: t.yDomain ? t.yDomain : null,
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       automargin,
@@ -98,7 +107,6 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       },
       ticks: 'none',
       text: t.yTicks,
-      showline: false,
       showspikes: false,
       spikedash: 'dash',
       title: {
@@ -111,6 +119,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
           weight: 'bold',
         },
       },
+      ...plotFrame,
     };
   });
 
