@@ -79,6 +79,7 @@ export function StackedBars({
               }
               height={isVertical ? height - margin.bottom - normalizedCount : categoryScale.bandwidth()}
               color={groupColorScale(row.group)}
+              isGroupedOrStacked
             />
           );
         });

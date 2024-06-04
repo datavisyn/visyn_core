@@ -64,6 +64,7 @@ export function GroupedBars({
               }
               height={isVertical ? height - margin.bottom - countScale(row.aggregateVal) : groupScale.bandwidth()}
               color={groupColorScale(row.group)}
+              isGroupedOrStacked
             />
           );
         });
