@@ -6,6 +6,7 @@ import { PieChart } from './PieChart';
 import { cutHex } from './utils';
 import { EHexbinOptions } from './interfaces';
 import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
+import { selectionColorDark } from '../../utils';
 
 export interface SingleHexProps {
   hexbinOption: EHexbinOptions;
@@ -94,13 +95,12 @@ export function SingleHex({
                       colorScale
                         ? isSelected || Object.keys(selected).length === 0
                           ? colorScale(key)
-                          : VIS_UNSELECTED_COLOR // TODO ask bob
+                          : VIS_UNSELECTED_COLOR
                         : isSelected || Object.keys(selected).length === 0
                           ? VIS_NEUTRAL_COLOR
-                          : VIS_UNSELECTED_COLOR // TODO ask bob
+                          : VIS_UNSELECTED_COLOR
                     }`,
                     transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-                    strokeWidth: isSelected ? 1 : 0,
                     fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
                   }}
                 />
@@ -118,13 +118,14 @@ export function SingleHex({
                 colorScale
                   ? isSelected || Object.keys(selected).length === 0
                     ? colorScale(topCategory)
-                    : VIS_UNSELECTED_COLOR // TODO ask bob
+                    : VIS_UNSELECTED_COLOR
                   : isSelected || Object.keys(selected).length === 0
                     ? VIS_NEUTRAL_COLOR
-                    : VIS_UNSELECTED_COLOR // TODO ask bob
+                    : VIS_UNSELECTED_COLOR
               }`,
               transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-              strokeWidth: isSelected ? (colorScale ? 1 : 2) : 0,
+              strokeWidth: isSelected ? (colorScale ? 0 : 2) : 0,
+              stroke: selectionColorDark,
               fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
             }}
           />
@@ -141,13 +142,12 @@ export function SingleHex({
                     colorScale
                       ? isSelected || Object.keys(selected).length === 0
                         ? colorScale(topCategory)
-                        : VIS_UNSELECTED_COLOR // TODO ask bob
+                        : VIS_UNSELECTED_COLOR
                       : isSelected || Object.keys(selected).length === 0
                         ? VIS_NEUTRAL_COLOR
-                        : VIS_UNSELECTED_COLOR // TODO ask bob
+                        : VIS_UNSELECTED_COLOR
                   }`,
                   transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-                  strokeWidth: isSelected ? 1 : 0,
                   fillOpacity: opacityScale(hexData.length),
                 }}
               />

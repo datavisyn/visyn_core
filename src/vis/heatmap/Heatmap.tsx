@@ -250,7 +250,7 @@ export function Heatmap({
                 y={margin.top}
                 height={height - margin.top - margin.bottom - interRectDistance}
                 width={width - margin.left - margin.right - interRectDistance}
-                fill="#fff" // I'm not using the grid color here on purpose TODO ask bob
+                fill="#fff" // I'm not using the grid color here on purpose (coordinated with Bob)
               />
               {text}
               {rects}
