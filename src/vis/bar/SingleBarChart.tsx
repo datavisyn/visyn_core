@@ -10,7 +10,7 @@ import { SimpleBars } from './barTypes/SimpleBars';
 import { StackedBars } from './barTypes/StackedBars';
 import { useExperimentalGetGroupedBarScales, useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
-import { experimentalGetBarData, experimentalGroupColumnAndAggregateColumnByAggregateType, getBarData } from './utils';
+import { experimentalGetBarData, experimentalGroupByAggregateType, getBarData } from './utils';
 
 // bottom offset which also defines the length of the rotated labels
 
@@ -183,7 +183,7 @@ export function SingleBarChart({
   });
 
   const experimentalAggregatedData = useMemo(() => {
-    return experimentalGroupColumnAndAggregateColumnByAggregateType({ aggregateType: config.aggregateType, experimentalBarDataColumns, selectedMap });
+    return experimentalGroupByAggregateType({ aggregateType: config.aggregateType, experimentalBarDataColumns, selectedMap });
   }, [config.aggregateType, experimentalBarDataColumns, selectedMap]);
 
   const experimentalCategoryValueTicks = useMemo(() => {
@@ -469,6 +469,7 @@ export function SingleBarChart({
                   categoryScale={experimentalCategoryValueScale}
                   countScale={experimentalCategoryCountScale}
                   groupColorScale={groupColorScale}
+                  groupedData={experimentalAggregatedData}
                   groupedTable={groupedTable}
                   groupName={config.group.name}
                   groupScale={groupScale}

@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import * as d3 from 'd3v7';
-
 import ColumnTable from 'arquero/dist/types/table/column-table';
-
 import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
 import { EAggregateTypes } from '../../interfaces';
+import type { experimentalGroupByAggregateType } from '../utils';
 
 export function GroupedBars({
+  groupedData,
   groupedTable,
   categoryScale,
   countScale,
@@ -24,6 +24,7 @@ export function GroupedBars({
   aggregateType,
   aggregateColumnName = null,
 }: {
+  groupedData: ReturnType<typeof experimentalGroupByAggregateType>;
   groupedTable: ColumnTable;
   categoryScale: d3.ScaleBand<string>;
   countScale: d3.ScaleLinear<number, number>;
@@ -40,6 +41,11 @@ export function GroupedBars({
   aggregateType?: EAggregateTypes;
   aggregateColumnName?: string;
 }) {
+  const orderedMap = groupedTable
+    ?.orderby('category', 'group')
+    .objects()
+    .map((row) => row);
+
   const bars = useMemo(() => {
     if (groupedTable && width !== 0 && height !== 0) {
       return groupedTable

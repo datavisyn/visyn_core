@@ -5,13 +5,7 @@ import * as d3 from 'd3v7';
 import { useMemo } from 'react';
 import { EAggregateTypes } from '../../interfaces';
 import { EBarDirection, IBarConfig, SortTypes } from '../interfaces';
-import {
-  experimentalGetBarData,
-  experimentalGroupColumnAndAggregateColumnByAggregateType,
-  experimentalSortBySortType,
-  getBarData,
-  sortTableBySortType,
-} from '../utils';
+import { experimentalGetBarData, experimentalGroupByAggregateType, experimentalSortBySortType, getBarData, sortTableBySortType } from '../utils';
 
 export function useGetBarScales({
   aggregateType,
@@ -164,27 +158,9 @@ export function useExperimentalGetBarScales({
   width: number;
 }) {
   const isVertical = useMemo(() => config.direction === EBarDirection.VERTICAL, [config.direction]);
-
-  // const getAggregatedValue = useCallback(() => {
-  //   switch (config.aggregateType) {
-  //     case EAggregateTypes.COUNT:
-  //       return experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.length;
-  //     case EAggregateTypes.AVG:
-  //       return +d3.mean(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
-  //     case EAggregateTypes.MIN:
-  //       return +d3.min(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
-  //     case EAggregateTypes.MED:
-  //       return +d3.median(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
-  //     case EAggregateTypes.MAX:
-  //       return +d3.max(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
-  //     default:
-  //       return experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.length;
-  //   }
-  // }, [experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues, config.aggregateType]);
-
   const experimentalAggregatedData = useMemo(
     () =>
-      experimentalGroupColumnAndAggregateColumnByAggregateType({
+      experimentalGroupByAggregateType({
         aggregateType: config.aggregateType,
         experimentalBarDataColumns,
         selectedMap: {},

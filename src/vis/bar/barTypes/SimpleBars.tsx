@@ -4,7 +4,7 @@ import * as d3 from 'd3v7';
 import React, { useCallback, useMemo } from 'react';
 import { EAggregateTypes } from '../../interfaces';
 import { SingleBar } from '../barComponents/SingleBar';
-import { experimentalGroupColumnAndAggregateColumnByAggregateType } from '../utils';
+import { experimentalGroupByAggregateType } from '../utils';
 
 export function SimpleBars({
   experimentalAggregatedData,
@@ -24,7 +24,7 @@ export function SimpleBars({
   selectionCallback,
   width,
 }: {
-  experimentalAggregatedData?: ReturnType<typeof experimentalGroupColumnAndAggregateColumnByAggregateType>;
+  experimentalAggregatedData?: ReturnType<typeof experimentalGroupByAggregateType>;
   aggregateColumnName?: string;
   aggregatedTable: ColumnTable;
   aggregateType: EAggregateTypes;
@@ -42,7 +42,7 @@ export function SimpleBars({
   width: number;
 }) {
   const numericalBarBounds = useCallback(
-    (row: ReturnType<typeof experimentalGroupColumnAndAggregateColumnByAggregateType>[number]) => {
+    (row: ReturnType<typeof experimentalGroupByAggregateType>[number]) => {
       const zero = numericalValueScale(0);
       const value = numericalValueScale(row.aggregatedValue);
       const id = numericalIdScale(row.ids[0]);
@@ -77,7 +77,7 @@ export function SimpleBars({
   );
 
   const bars = useMemo(() => {
-    if (aggregatedTable && width !== 0 && height !== 0) {
+    if (experimentalAggregatedData && width !== 0 && height !== 0) {
       // const aggregatedTableObjects = aggregatedTable.objects();
       if (categoryValueScale && categoryCountScale) {
         // return aggregatedTableObjects
@@ -136,7 +136,6 @@ export function SimpleBars({
 
     return null;
   }, [
-    aggregatedTable,
     width,
     height,
     categoryValueScale,

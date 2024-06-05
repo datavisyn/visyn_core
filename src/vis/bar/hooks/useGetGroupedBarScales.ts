@@ -9,7 +9,7 @@ import { EBarGroupingType, IBarConfig, SortTypes } from '../interfaces';
 import {
   binByAggregateType,
   experimentalGetBarData,
-  experimentalGroupColumnAndAggregateColumnByAggregateType,
+  experimentalGroupByAggregateType,
   getBarData,
   groupByAggregateType,
   rollupByAggregateType,
@@ -69,9 +69,11 @@ export function useGetGroupedBarScales({
       if (categoryFilter && allColumns.facetsColVals) {
         filteredTable = baseTable.filter(escape((d) => d.facets === categoryFilter));
       }
-      return allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? binByAggregateType(filteredTable, aggregateType)
-        : groupByAggregateType(filteredTable, aggregateType);
+      const tableGroupedOnColumnType =
+        allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+          ? binByAggregateType(filteredTable, aggregateType)
+          : groupByAggregateType(filteredTable, aggregateType);
+      return tableGroupedOnColumnType;
     }
 
     return null;

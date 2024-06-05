@@ -242,10 +242,7 @@ export async function experimentalGetBarData({ columns, config }: { columns: Vis
 }
 
 // Helper function for the bar chart which sorts the data depending on the sort type.
-export function experimentalSortBySortType(
-  aggregatedData: ReturnType<typeof experimentalGroupColumnAndAggregateColumnByAggregateType> | undefined,
-  sortType: SortTypes,
-) {
+export function experimentalSortBySortType(aggregatedData: ReturnType<typeof experimentalGroupByAggregateType> | undefined, sortType: SortTypes) {
   switch (sortType) {
     case SortTypes.CAT_ASC:
       return aggregatedData?.sort((a, b) => (a.category as string).localeCompare(b.category as string));
@@ -284,38 +281,6 @@ export function experimentalSortBySortType(
   }
 }
 
-function experimentalSimpleCategoricalAggregation({
-  experimentalBarDataColumns,
-  selectedMap,
-}: {
-  experimentalBarDataColumns: Awaited<ReturnType<typeof experimentalGetBarData>> | undefined;
-  selectedMap: Record<string, boolean>;
-}) {
-  const resolvedValuesMap = new Map<string, string | number>(
-    experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((item) => [item.id, item.val]) ?? [],
-  );
-
-  const selectedIdsMap = new Map<string, boolean>(
-    experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((val) => [val.id, Boolean(selectedMap?.[val?.id])] as const) ?? [],
-  );
-
-  const mergedData =
-    experimentalBarDataColumns?.awaitedAggregateColumnValues?.resolvedValues.map((v) => {
-      const matchingValue = resolvedValuesMap.get(v.id);
-      const selectedFlag = selectedIdsMap.get(v.id);
-      return { id: v.id, value: v.val, category: matchingValue, selected: selectedFlag };
-    }) ?? [];
-
-  const groupedData = d3.group(mergedData, (d) => d.category);
-
-  const groupedDataArray = Array.from(groupedData, ([key, value]) => ({
-    category: key as string | number,
-    values: value as { id: string; value: number; category: string; selected: boolean }[],
-  }));
-
-  return groupedDataArray;
-}
-
 function experimentalSimpleNumericalAggregation({
   experimentalBarDataColumns,
   selectedMap,
@@ -326,11 +291,9 @@ function experimentalSimpleNumericalAggregation({
   const resolvedValuesMap = new Map<string, string | number>(
     experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((item) => [item.id, item.val]) ?? [],
   );
-
   const selectedIdsMap = new Map<string, boolean>(
     experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((val) => [val.id, Boolean(selectedMap?.[val?.id])] as const) ?? [],
   );
-
   const mergedData =
     experimentalBarDataColumns?.awaitedAggregateColumnValues?.resolvedValues.map((v) => {
       const matchingValue = resolvedValuesMap.get(v.id);
@@ -341,8 +304,341 @@ function experimentalSimpleNumericalAggregation({
   return mergedData;
 }
 
+function experimentalNumericalAggregationBasedOnAggregationType(
+  aggregateType: EAggregateTypes,
+  simpleNumericalAggregation: { id: string; value: string | number; category: string | number; selected: boolean }[],
+) {
+  switch (aggregateType) {
+    case EAggregateTypes.COUNT:
+      return simpleNumericalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.selected ? [d.id] : [],
+        aggregatedValue: 1,
+        count: 1,
+        ids: [d.id],
+      }));
+    case EAggregateTypes.AVG:
+      return simpleNumericalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.selected ? [d.id] : [],
+        aggregatedValue: 1,
+        count: 1,
+        ids: [d.id],
+      }));
+    case EAggregateTypes.MIN:
+      return simpleNumericalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.selected ? [d.id] : [],
+        aggregatedValue: 1,
+        count: 1,
+        ids: [d.id],
+      }));
+    case EAggregateTypes.MED:
+      return simpleNumericalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.selected ? [d.id] : [],
+        aggregatedValue: 1,
+        count: 1,
+        ids: [d.id],
+      }));
+    case EAggregateTypes.MAX:
+      return simpleNumericalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.selected ? [d.id] : [],
+        aggregatedValue: 1,
+        count: 1,
+        ids: [d.id],
+      }));
+    default:
+      return [];
+  }
+}
+
+function experimentalSimpleCategoricalAggregation({
+  experimentalBarDataColumns,
+  selectedMap,
+}: {
+  experimentalBarDataColumns: Awaited<ReturnType<typeof experimentalGetBarData>> | undefined;
+  selectedMap: Record<string, boolean>;
+}) {
+  const mergedData = experimentalSimpleNumericalAggregation({ experimentalBarDataColumns, selectedMap });
+  const groupedData = d3.group(mergedData, (d) => d.category);
+  const groupedDataArray = Array.from(groupedData, ([key, value]) => ({
+    category: key as string | number,
+    values: value as { id: string; value: number; category: string; selected: boolean }[],
+  }));
+
+  return groupedDataArray;
+}
+
+function experimentalCategoricalAggregationBasedOnAggregationType(
+  aggregateType: EAggregateTypes,
+  simpleCategoricalAggregation: { category: string | number; values: { id: string; value: number; category: string; selected: boolean }[] }[],
+) {
+  switch (aggregateType) {
+    case EAggregateTypes.COUNT:
+      return simpleCategoricalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        aggregatedValue: d.values.length,
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.AVG:
+      return simpleCategoricalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        aggregatedValue: d3.mean(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.MIN:
+      return simpleCategoricalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        aggregatedValue: d3.min(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.MED:
+      return simpleCategoricalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        aggregatedValue: d3.median(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.MAX:
+      return simpleCategoricalAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        aggregatedValue: d3.max(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    default:
+      return [];
+  }
+}
+
+function experimentalBinnedAggregation({
+  experimentalBarDataColumns,
+  selectedMap,
+}: {
+  experimentalBarDataColumns: Awaited<ReturnType<typeof experimentalGetBarData>> | undefined;
+  selectedMap: Record<string, boolean>;
+}) {
+  // TODO: @dv-usama-ansari: WIP
+  return [];
+  // const resolvedCategoricalValuesMap = new Map<string, string | number>(
+  //   experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((item) => [item.id, item.val]) ?? [],
+  // );
+
+  // const categoryCountMap = d3.group(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues, (d) => d.val);
+
+  // const resolvedGroupedValuesMap = new Map<string, string | number>(
+  //   experimentalBarDataColumns?.awaitedGroupColumnValues?.resolvedValues?.map((item) => [item.id, item.val]) ?? [],
+  // );
+  // const selectedIdsMap = new Map<string, boolean>(
+  //   experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((val) => [val.id, Boolean(selectedMap?.[val?.id])] as const) ?? [],
+  // );
+  // const mergedData =
+  //   experimentalBarDataColumns?.awaitedGroupColumnValues?.resolvedValues.map((v) => {
+  //     const category = resolvedCategoricalValuesMap.get(v.id);
+  //     const group = resolvedGroupedValuesMap.get(v.id);
+  //     const selectedFlag = selectedIdsMap.get(v.id);
+  //     return { id: v.id, value: v.val, group, category, selected: selectedFlag };
+  //   }) ?? [];
+
+  // const groupedData = d3.group(
+  //   mergedData,
+  //   (d) => d.group,
+  //   (d) => d.category,
+  // );
+
+  // const binnedData = Array.from(groupedData, ([group, categories]) => {
+  //   const categoryArray = Array.from(categories, ([category, values]) => {
+  //     return { category, values };
+  //   });
+  //   return { group, categories: categoryArray };
+  // }).reduce((acc, point) => {
+  //   point.categories.forEach((category) => {
+  //     acc.push({ ...category, group: point.group, categoryCount: categoryCountMap.get(category.category).length });
+  //   });
+  //   return acc;
+  // }, []);
+
+  // return binnedData;
+}
+
+function experimentalGroupedAggregation({
+  experimentalBarDataColumns,
+  selectedMap,
+}: {
+  experimentalBarDataColumns: Awaited<ReturnType<typeof experimentalGetBarData>> | undefined;
+  selectedMap: Record<string, boolean>;
+}) {
+  const resolvedCategoricalValuesMap = new Map<string, string | number>(
+    experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((item) => [item.id, item.val]) ?? [],
+  );
+
+  const categoryCountMap = d3.group(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues, (d) => d.val);
+
+  const resolvedGroupedValuesMap = new Map<string, string | number>(
+    experimentalBarDataColumns?.awaitedGroupColumnValues?.resolvedValues?.map((item) => [item.id, item.val]) ?? [],
+  );
+  const selectedIdsMap = new Map<string, boolean>(
+    experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues?.map((val) => [val.id, Boolean(selectedMap?.[val?.id])] as const) ?? [],
+  );
+  const mergedData =
+    experimentalBarDataColumns?.awaitedGroupColumnValues?.resolvedValues.map((v) => {
+      const category = resolvedCategoricalValuesMap.get(v.id);
+      const group = resolvedGroupedValuesMap.get(v.id);
+      const selectedFlag = selectedIdsMap.get(v.id);
+      return { id: v.id, value: v.val, group, category, selected: selectedFlag };
+    }) ?? [];
+
+  const groupedData = d3.group(
+    mergedData,
+    (d) => d.group,
+    (d) => d.category,
+  );
+
+  const flattenedGroupedData = Array.from(groupedData, ([group, categories]) => {
+    const categoryArray = Array.from(categories, ([category, values]) => {
+      return { category, values };
+    });
+    return { group, categories: categoryArray };
+  }).reduce((acc, point) => {
+    point.categories.forEach((category) => {
+      acc.push({ ...category, group: point.group, categoryCount: categoryCountMap.get(category.category).length });
+    });
+    return acc;
+  }, []);
+
+  return flattenedGroupedData;
+}
+
+function experimentalGroupedDataAggregation({
+  experimentalBarDataColumns,
+  selectedMap,
+}: {
+  experimentalBarDataColumns: Awaited<ReturnType<typeof experimentalGetBarData>> | undefined;
+  selectedMap: Record<string, boolean>;
+}) {
+  const isNumericalGrouping = experimentalBarDataColumns?.awaitedGroupColumnValues?.type === EColumnTypes.NUMERICAL;
+  const isCategoricalGrouping = experimentalBarDataColumns?.awaitedGroupColumnValues?.type === EColumnTypes.CATEGORICAL;
+
+  if (isNumericalGrouping) {
+    const binnedAggregation = experimentalBinnedAggregation({ experimentalBarDataColumns, selectedMap });
+    return binnedAggregation;
+  }
+
+  if (isCategoricalGrouping) {
+    const groupedAggregation = experimentalGroupedAggregation({ experimentalBarDataColumns, selectedMap });
+    return groupedAggregation;
+  }
+
+  return [];
+}
+
+function experimentalGroupedDataAggregationBasedOnAggregationType(
+  aggregateType: EAggregateTypes,
+  groupedDataAggregation: {
+    group: string | number;
+    category: string | number;
+    categoryCount: number;
+    values: { id: string; value: number; category: string | number; selected: boolean; group: string | number }[];
+  }[],
+) {
+  switch (aggregateType) {
+    case EAggregateTypes.COUNT:
+      return groupedDataAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        group: d.group,
+        categoryCount: d.categoryCount,
+        aggregatedValue: d.values.length,
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.AVG:
+      return groupedDataAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        group: d.group,
+        categoryCount: d.categoryCount,
+        aggregatedValue: d3.mean(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.MIN:
+      return groupedDataAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        group: d.group,
+        categoryCount: d.categoryCount,
+        aggregatedValue: d3.min(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.MED:
+      return groupedDataAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        group: d.group,
+        categoryCount: d.categoryCount,
+        aggregatedValue: d3.median(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    case EAggregateTypes.MAX:
+      return groupedDataAggregation.map((d) => ({
+        category: d.category,
+        selectedIds: d.values.reduce((acc: string[], point) => {
+          if (point.selected) acc.push(point.id);
+          return acc;
+        }, []),
+        group: d.group,
+        categoryCount: d.categoryCount,
+        aggregatedValue: d3.max(d.values.map((value) => value.value)),
+        count: d.values.length,
+        ids: d.values.map((value) => value.id),
+      }));
+    default:
+      return [];
+  }
+}
+
 // TODO: @dv-usama-ansari: Implement grouping and binning as per the existing implementation
-export function experimentalGroupColumnAndAggregateColumnByAggregateType({
+export function experimentalGroupByAggregateType({
   experimentalBarDataColumns,
   selectedMap,
   aggregateType,
@@ -353,114 +649,21 @@ export function experimentalGroupColumnAndAggregateColumnByAggregateType({
 }) {
   const isCategoricalColumn = experimentalBarDataColumns?.awaitedColumnValues?.type === EColumnTypes.CATEGORICAL;
   const isNumericalColumn = experimentalBarDataColumns?.awaitedColumnValues?.type === EColumnTypes.NUMERICAL;
+  const isGroupedColumn = !!experimentalBarDataColumns?.awaitedGroupColumnValues;
+
+  if (isGroupedColumn) {
+    const groupedDataAggregation = experimentalGroupedDataAggregation({ experimentalBarDataColumns, selectedMap });
+    return experimentalGroupedDataAggregationBasedOnAggregationType(aggregateType, groupedDataAggregation);
+  }
+
   if (isCategoricalColumn) {
-    const groupedDataArray = experimentalSimpleCategoricalAggregation({ experimentalBarDataColumns, selectedMap });
-    switch (aggregateType) {
-      case EAggregateTypes.COUNT:
-        return groupedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.values.reduce((acc: string[], point) => {
-            if (point.selected) acc.push(point.id);
-            return acc;
-          }, []),
-          aggregatedValue: d.values.length,
-          count: d.values.length,
-          ids: d.values.map((value) => value.id),
-        }));
-      case EAggregateTypes.AVG:
-        return groupedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.values.reduce((acc: string[], point) => {
-            if (point.selected) acc.push(point.id);
-            return acc;
-          }, []),
-          aggregatedValue: d3.mean(d.values.map((value) => value.value)),
-          count: d.values.length,
-          ids: d.values.map((value) => value.id),
-        }));
-      case EAggregateTypes.MIN:
-        return groupedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.values.reduce((acc: string[], point) => {
-            if (point.selected) acc.push(point.id);
-            return acc;
-          }, []),
-          aggregatedValue: d3.min(d.values.map((value) => value.value)),
-          count: d.values.length,
-          ids: d.values.map((value) => value.id),
-        }));
-      case EAggregateTypes.MED:
-        return groupedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.values.reduce((acc: string[], point) => {
-            if (point.selected) acc.push(point.id);
-            return acc;
-          }, []),
-          aggregatedValue: d3.median(d.values.map((value) => value.value)),
-          count: d.values.length,
-          ids: d.values.map((value) => value.id),
-        }));
-      case EAggregateTypes.MAX:
-        return groupedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.values.reduce((acc: string[], point) => {
-            if (point.selected) acc.push(point.id);
-            return acc;
-          }, []),
-          aggregatedValue: d3.max(d.values.map((value) => value.value)),
-          count: d.values.length,
-          ids: d.values.map((value) => value.id),
-        }));
-      default:
-        return [];
-    }
+    const simpleCategoricalAggregation = experimentalSimpleCategoricalAggregation({ experimentalBarDataColumns, selectedMap });
+    return experimentalCategoricalAggregationBasedOnAggregationType(aggregateType, simpleCategoricalAggregation);
   }
   if (isNumericalColumn) {
-    const mergedDataArray = experimentalSimpleNumericalAggregation({ experimentalBarDataColumns, selectedMap });
-    switch (aggregateType) {
-      case EAggregateTypes.COUNT:
-        return mergedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.selected ? [d.id] : [],
-          aggregatedValue: 1,
-          count: 1,
-          ids: [d.id],
-        }));
-      case EAggregateTypes.AVG:
-        return mergedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.selected ? [d.id] : [],
-          aggregatedValue: 1,
-          count: 1,
-          ids: [d.id],
-        }));
-      case EAggregateTypes.MIN:
-        return mergedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.selected ? [d.id] : [],
-          aggregatedValue: 1,
-          count: 1,
-          ids: [d.id],
-        }));
-      case EAggregateTypes.MED:
-        return mergedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.selected ? [d.id] : [],
-          aggregatedValue: 1,
-          count: 1,
-          ids: [d.id],
-        }));
-      case EAggregateTypes.MAX:
-        return mergedDataArray.map((d) => ({
-          category: d.category,
-          selectedIds: d.selected ? [d.id] : [],
-          aggregatedValue: 1,
-          count: 1,
-          ids: [d.id],
-        }));
-      default:
-        return [];
-    }
+    const simpleNumericalAggregation = experimentalSimpleNumericalAggregation({ experimentalBarDataColumns, selectedMap });
+    return experimentalNumericalAggregationBasedOnAggregationType(aggregateType, simpleNumericalAggregation);
   }
+
   return [];
 }
