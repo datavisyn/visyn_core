@@ -4,8 +4,14 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import * as d3 from 'd3v7';
 import { useMemo } from 'react';
 import { EAggregateTypes } from '../../interfaces';
-import { SortTypes } from '../interfaces';
-import { getBarData, sortTableBySortType } from '../utils';
+import { EBarDirection, IBarConfig, SortTypes } from '../interfaces';
+import {
+  experimentalGetBarData,
+  experimentalGroupColumnAndAggregateColumnByAggregateType,
+  experimentalSortBySortType,
+  getBarData,
+  sortTableBySortType,
+} from '../utils';
 
 export function useGetBarScales({
   aggregateType,
@@ -140,4 +146,84 @@ export function useGetBarScales({
     numericalValueScale,
     numericalIdScale,
   };
+}
+
+export function useExperimentalGetBarScales({
+  experimentalBarDataColumns,
+  config,
+  height,
+  margin,
+  sortType,
+  width,
+}: {
+  config: IBarConfig;
+  experimentalBarDataColumns: Awaited<ReturnType<typeof experimentalGetBarData>>;
+  height: number;
+  margin: { top: number; left: number; bottom: number; right: number };
+  sortType: SortTypes;
+  width: number;
+}) {
+  const isVertical = useMemo(() => config.direction === EBarDirection.VERTICAL, [config.direction]);
+
+  // const getAggregatedValue = useCallback(() => {
+  //   switch (config.aggregateType) {
+  //     case EAggregateTypes.COUNT:
+  //       return experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.length;
+  //     case EAggregateTypes.AVG:
+  //       return +d3.mean(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
+  //     case EAggregateTypes.MIN:
+  //       return +d3.min(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
+  //     case EAggregateTypes.MED:
+  //       return +d3.median(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
+  //     case EAggregateTypes.MAX:
+  //       return +d3.max(experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.map((value) => value.val as number));
+  //     default:
+  //       return experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues.length;
+  //   }
+  // }, [experimentalBarDataColumns?.awaitedColumnValues?.resolvedValues, config.aggregateType]);
+
+  const experimentalAggregatedData = useMemo(
+    () =>
+      experimentalGroupColumnAndAggregateColumnByAggregateType({
+        aggregateType: config.aggregateType,
+        experimentalBarDataColumns,
+        selectedMap: {},
+      }),
+    [config.aggregateType, experimentalBarDataColumns],
+  );
+
+  const categoryValueScale = useMemo(() => {
+    if (!config.catColumnSelected?.name) return null;
+    const range = isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top];
+    const sortedData = experimentalSortBySortType([...experimentalAggregatedData], sortType);
+    const domain = (sortedData ?? [])?.map((value) => value.category as string);
+    return d3.scaleBand().range(range).domain(domain).padding(0.2);
+  }, [config.catColumnSelected?.name, experimentalAggregatedData, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
+
+  const categoryCountScale = useMemo(() => {
+    if (!config.catColumnSelected?.name) return null;
+    const range = isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left];
+    const aggregatedValue = Math.max(...experimentalAggregatedData.map((group) => group.aggregatedValue));
+    const domain = [0, aggregatedValue + aggregatedValue / 25];
+    return d3.scaleLinear().range(range).domain(domain);
+  }, [config.catColumnSelected?.name, experimentalAggregatedData, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, width]);
+
+  const numericalValueScale = useMemo(() => {
+    if (!config.numColumnSelected) return null;
+    const range = isVertical ? [height - margin.bottom, margin.top] : [margin.left, width - margin.right];
+    const sortedData = experimentalSortBySortType([...experimentalAggregatedData], sortType);
+    const tableValues = (sortedData ?? []).map((value) => value.aggregatedValue);
+    const domain = [Math.min(Math.floor(+d3.min(tableValues)), 0), Math.max(Math.ceil(+d3.max(tableValues)), 0)];
+    return d3.scaleLinear().range(range).domain(domain);
+  }, [config.numColumnSelected, experimentalAggregatedData, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
+
+  const numericalIdScale = useMemo(() => {
+    if (!config.numColumnSelected) return null;
+    const range = isVertical ? [margin.left, width - margin.right] : [margin.top, height - margin.bottom];
+    const sortedData = experimentalSortBySortType([...experimentalAggregatedData], sortType);
+    const domain = (sortedData ?? []).map((value) => value.category as string).slice(0, 100);
+    return d3.scaleBand().range(range).domain(domain).padding(0.2);
+  }, [config.numColumnSelected, experimentalAggregatedData, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
+
+  return { categoryValueScale, categoryCountScale, numericalValueScale, numericalIdScale };
 }

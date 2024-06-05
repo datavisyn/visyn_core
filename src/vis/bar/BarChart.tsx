@@ -1,15 +1,15 @@
-import { Box, Loader, SimpleGrid, Stack, Center } from '@mantine/core';
+import { Box, Center, Loader, SimpleGrid, Stack } from '@mantine/core';
 import { op } from 'arquero';
-import React, { useCallback, useMemo } from 'react';
 import { uniqueId } from 'lodash';
+import React, { useCallback, useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { EColumnTypes, ICommonVisProps } from '../interfaces';
 import { SingleBarChart } from './SingleBarChart';
 import { Legend } from './barComponents/Legend';
-import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { getBarData } from './utils';
+import { useExperimentalGetGroupedBarScales, useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { IBarConfig, SortTypes } from './interfaces';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { experimentalGetBarData, getBarData } from './utils';
 
 export function BarChart({
   columns,
@@ -28,16 +28,14 @@ export function BarChart({
     {
       columns,
       catColumn: config.catColumnSelected,
-      numColumn: config.numColumnsSelected?.[0],
+      numColumn: config.numColumnSelected,
       groupColumn: config.group,
       facetsColumn: config.facets,
       aggregateColumn: config.aggregateColumn,
     },
   ]);
 
-  const uniqueFacetVals = useMemo(() => {
-    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
-  }, [allColumns]);
+  const uniqueFacetVals = useMemo(() => [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[], [allColumns]);
 
   const { groupColorScale, groupedTable } = useGetGroupedBarScales({
     aggregateType: config.aggregateType,
@@ -80,6 +78,27 @@ export function BarChart({
     [selectedList, selectionCallback],
   );
 
+  // NOTE: @dv-usama-ansari: Experimental section starts
+
+  const { value: experimentalBarDataColumns, status: experimentalBarDataStatus } = useAsync(experimentalGetBarData, [
+    {
+      columns,
+      config,
+    },
+  ]);
+
+  // const { categoryCountScale, categoryValueScale, numericalIdScale, numericalValueScale } = useExperimentalGetGroupedBarScales({
+  //   experimentalBarDataColumns,
+  //   config,
+  //   margin: { left: 0, top: 0, right: 0, bottom: 0 },
+  //   sortType,
+  //   selectedMap,
+  //   height: 0,
+  //   width: 0,
+  // });
+
+  // NOTE: @dv-usama-ansari: Experimental section ends
+
   return (
     <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
       {showDownloadScreenshot ? (
@@ -120,6 +139,7 @@ export function BarChart({
             </Center>
           ) : !config.facets || !allColumns.facetsColVals ? (
             <SingleBarChart
+              experimentalBarDataColumns={experimentalBarDataColumns}
               config={config}
               allColumns={allColumns}
               selectedMap={selectedMap}

@@ -1,4 +1,4 @@
-import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
+import { ColumnInfo, PlotlyInfo, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { PlotlyTypes } from '../../plotly';
 import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../constants';
 
@@ -121,7 +121,7 @@ export function resolveColumnValues(columns: VisColumn[]) {
   return Promise.all(columns.map(async (col) => ({ ...col, resolvedValues: (await col?.values()) || [] })));
 }
 
-export async function resolveSingleColumn(column: VisColumn) {
+export async function resolveSingleColumn(column: VisColumn): Promise<VisColumn & { resolvedValues: (VisNumericalValue | VisCategoricalValue)[] }> {
   if (!column) {
     return null;
   }

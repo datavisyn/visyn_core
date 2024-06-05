@@ -4,8 +4,10 @@ import * as d3 from 'd3v7';
 import React, { useCallback, useMemo } from 'react';
 import { EAggregateTypes } from '../../interfaces';
 import { SingleBar } from '../barComponents/SingleBar';
+import { experimentalGroupColumnAndAggregateColumnByAggregateType } from '../utils';
 
 export function SimpleBars({
+  experimentalAggregatedData,
   aggregateColumnName = null,
   aggregatedTable,
   aggregateType,
@@ -22,6 +24,7 @@ export function SimpleBars({
   selectionCallback,
   width,
 }: {
+  experimentalAggregatedData?: ReturnType<typeof experimentalGroupColumnAndAggregateColumnByAggregateType>;
   aggregateColumnName?: string;
   aggregatedTable: ColumnTable;
   aggregateType: EAggregateTypes;
@@ -39,13 +42,13 @@ export function SimpleBars({
   width: number;
 }) {
   const numericalBarBounds = useCallback(
-    (row: { numerical: number; selected: number; id: string }) => {
+    (row: ReturnType<typeof experimentalGroupColumnAndAggregateColumnByAggregateType>[number]) => {
       const zero = numericalValueScale(0);
-      const value = numericalValueScale(row.numerical);
-      const id = numericalIdScale(row.id);
+      const value = numericalValueScale(row.aggregatedValue);
+      const id = numericalIdScale(row.ids[0]);
       const bandwidth = numericalIdScale.bandwidth() ?? 10;
       let [w, h, x, y] = [0, 0, 0, 0];
-      if (row.numerical < 0) {
+      if (row.aggregatedValue < 0) {
         if (isVertical) {
           w = bandwidth;
           h = Math.max(Math.abs(value - zero), 2);
@@ -75,50 +78,49 @@ export function SimpleBars({
 
   const bars = useMemo(() => {
     if (aggregatedTable && width !== 0 && height !== 0) {
-      const aggregatedTableObjects = aggregatedTable.objects();
+      // const aggregatedTableObjects = aggregatedTable.objects();
       if (categoryValueScale && categoryCountScale) {
-        return aggregatedTableObjects
-          .slice(0, 20)
-          .map((row: { category: string; count: number; aggregateVal: number; selectedCount: number; ids: string[] }, index) => {
-            const w = isVertical ? categoryValueScale.bandwidth() ?? 10 : width - margin.right - categoryCountScale(row.aggregateVal);
-            const h = isVertical ? height - margin.bottom - categoryCountScale(row.aggregateVal) : categoryValueScale.bandwidth();
-            const x = isVertical ? categoryValueScale(row.category) ?? 10 * index : margin.left;
-            const y = isVertical ? categoryCountScale(row.aggregateVal) : categoryValueScale(row.category) ?? 10 * index;
-            const selectedPercent = hasSelected ? row.selectedCount / row.count : null;
-            return (
-              <SingleBar
-                isVertical={isVertical}
-                key={row.category}
-                onClick={(e) => selectionCallback(e, row.ids)}
-                selectedPercent={selectedPercent}
-                tooltip={
-                  <Stack gap={0}>
-                    <Text>{`${categoryName}: ${row.category}`}</Text>
-                    <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>
-                  </Stack>
-                }
-                width={w}
-                height={h}
-                x={x}
-                y={y}
-              />
-            );
-          });
-      }
-      if (numericalValueScale && numericalIdScale) {
-        return aggregatedTableObjects.slice(0, 100).map((row: { numerical: number; selected: number; id: string }, index) => {
-          const { w, h, x, y } = numericalBarBounds(row);
-          const selectedPercent = !hasSelected || row.selected ? 1 : 0;
+        // return aggregatedTableObjects
+        return experimentalAggregatedData.slice(0, 20).map((row, index) => {
+          const w = isVertical ? categoryValueScale.bandwidth() ?? 10 : width - margin.right - categoryCountScale(row.aggregatedValue);
+          const h = isVertical ? height - margin.bottom - categoryCountScale(row.aggregatedValue) : categoryValueScale.bandwidth();
+          const x = isVertical ? categoryValueScale(row.category as string) ?? 10 * index : margin.left;
+          const y = isVertical ? categoryCountScale(row.aggregatedValue) : categoryValueScale(row.category as string) ?? 10 * index;
+          const selectedPercent = hasSelected ? row.selectedIds.length / row.count : null;
           return (
             <SingleBar
               isVertical={isVertical}
-              key={row.id}
-              onClick={(e) => selectionCallback(e, [row.id])}
+              key={row.category}
+              onClick={(e) => selectionCallback(e, row.ids)}
               selectedPercent={selectedPercent}
               tooltip={
                 <Stack gap={0}>
-                  <Text>{`ID: ${row.id}`}</Text>
-                  <Text>{`${numericalName}: ${row.numerical}`}</Text>
+                  <Text>{`${categoryName}: ${row.category}`}</Text>
+                  <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregatedValue}`}</Text>
+                </Stack>
+              }
+              width={w}
+              height={h}
+              x={x}
+              y={y}
+            />
+          );
+        });
+      }
+      if (numericalValueScale && numericalIdScale) {
+        return experimentalAggregatedData.slice(0, 100).map((row, index) => {
+          const { w, h, x, y } = numericalBarBounds(row);
+          const selectedPercent = !hasSelected || row.selectedIds.length > 0 ? 1 : 0;
+          return (
+            <SingleBar
+              isVertical={isVertical}
+              key={row.ids[0]}
+              onClick={(e) => selectionCallback(e, row.ids)}
+              selectedPercent={selectedPercent}
+              tooltip={
+                <Stack gap={0}>
+                  <Text>{`ID: ${row.ids[0]}`}</Text>
+                  <Text>{`${numericalName}: ${row.aggregatedValue}`}</Text>
                 </Stack>
               }
               width={w}
@@ -141,6 +143,7 @@ export function SimpleBars({
     categoryCountScale,
     numericalValueScale,
     numericalIdScale,
+    experimentalAggregatedData,
     isVertical,
     margin.right,
     margin.bottom,

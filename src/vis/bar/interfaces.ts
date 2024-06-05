@@ -33,7 +33,7 @@ export interface IBarConfig extends BaseVisConfig {
   direction: EBarDirection;
   display: EBarDisplayType;
   groupType: EBarGroupingType;
-  numColumnsSelected: ColumnInfo[];
+  numColumnSelected: ColumnInfo;
   catColumnSelected: ColumnInfo;
   aggregateType: EAggregateTypes;
   aggregateColumn: ColumnInfo | null;
@@ -41,7 +41,7 @@ export interface IBarConfig extends BaseVisConfig {
 
 export const defaultConfig: IBarConfig = {
   type: ESupportedPlotlyVis.BAR,
-  numColumnsSelected: [],
+  numColumnSelected: null,
   catColumnSelected: null,
   group: null,
   groupType: EBarGroupingType.STACK,

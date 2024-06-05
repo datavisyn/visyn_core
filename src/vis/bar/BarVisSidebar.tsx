@@ -34,8 +34,8 @@ export function BarVisSidebar({
   const [selectedColumn, setSelectedColumn] = useState<{ column: ColumnInfo; columnType: EColumnTypes }>(
     config.catColumnSelected
       ? { column: config.catColumnSelected, columnType: EColumnTypes.CATEGORICAL }
-      : config.numColumnsSelected[0]
-        ? { column: config.numColumnsSelected[0], columnType: EColumnTypes.NUMERICAL }
+      : config.numColumnSelected
+        ? { column: config.numColumnSelected, columnType: EColumnTypes.NUMERICAL }
         : null,
   );
 
@@ -44,7 +44,7 @@ export function BarVisSidebar({
     setConfig({
       ...config,
       catColumnSelected: selectedColumn?.columnType === EColumnTypes.CATEGORICAL ? selectedColumn?.column : null,
-      numColumnsSelected: selectedColumn?.columnType === EColumnTypes.NUMERICAL ? [selectedColumn?.column] : [],
+      numColumnSelected: selectedColumn?.columnType === EColumnTypes.NUMERICAL ? selectedColumn?.column : null,
       facets: config.facets && config.facets.id === selectedColumn?.column?.id ? null : config.facets,
       group: config.group && config.group.id === selectedColumn?.column?.id ? null : config.group,
     });

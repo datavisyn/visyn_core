@@ -3,11 +3,18 @@ import { escape, op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import * as d3 from 'd3v7';
 import { useMemo } from 'react';
-import { EAggregateTypes, EColumnTypes } from '../../interfaces';
-import { binByAggregateType, getBarData, groupByAggregateType, rollupByAggregateType } from '../utils';
-import { EBarGroupingType, SortTypes } from '../interfaces';
-import { useGetBarScales } from './useGetBarScales';
 import { categoricalColors as colorScale } from '../../../utils/colors';
+import { EAggregateTypes, EColumnTypes } from '../../interfaces';
+import { EBarGroupingType, IBarConfig, SortTypes } from '../interfaces';
+import {
+  binByAggregateType,
+  experimentalGetBarData,
+  experimentalGroupColumnAndAggregateColumnByAggregateType,
+  getBarData,
+  groupByAggregateType,
+  rollupByAggregateType,
+} from '../utils';
+import { useExperimentalGetBarScales, useGetBarScales } from './useGetBarScales';
 
 export function useGetGroupedBarScales({
   aggregateType,
@@ -163,4 +170,43 @@ export function useGetGroupedBarScales({
     numericalIdScale,
     numericalValueScale,
   };
+}
+
+export function useExperimentalGetGroupedBarScales({
+  experimentalBarDataColumns,
+  config,
+  height,
+  margin,
+  sortType,
+  width,
+  selectedMap,
+}: {
+  config: IBarConfig;
+  experimentalBarDataColumns: Awaited<ReturnType<typeof experimentalGetBarData>>;
+  height: number;
+  margin: { top: number; left: number; bottom: number; right: number };
+  sortType: SortTypes;
+  width: number;
+  selectedMap: Record<string, boolean>;
+}) {
+  const { categoryCountScale, categoryValueScale, numericalIdScale, numericalValueScale } = useExperimentalGetBarScales({
+    config,
+    experimentalBarDataColumns,
+    sortType,
+    height,
+    width,
+    margin,
+  });
+
+  // const groups = useMemo(
+  //   () =>
+  //     experimentalGroupColumnAndAggregateColumnByAggregateType({
+  //       aggregateType: config.aggregateType,
+  //       experimentalBarDataColumns,
+  //       selectedMap,
+  //     }),
+  //   [config.aggregateType, experimentalBarDataColumns, selectedMap],
+  // );
+
+  return { categoryCountScale, categoryValueScale, numericalIdScale, numericalValueScale };
 }

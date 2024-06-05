@@ -1,18 +1,18 @@
 import { Box, Container } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import React, { useCallback, useMemo } from 'react';
+import { ESortStates } from '../general/SortIcon';
 import { EAggregateTypes } from '../interfaces';
 import { XAxis } from './barComponents/XAxis';
 import { YAxis } from './barComponents/YAxis';
 import { GroupedBars } from './barTypes/GroupedBars';
 import { SimpleBars } from './barTypes/SimpleBars';
 import { StackedBars } from './barTypes/StackedBars';
-import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { getBarData } from './utils';
+import { useExperimentalGetGroupedBarScales, useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
-import { ESortStates } from '../general/SortIcon';
+import { experimentalGetBarData, experimentalGroupColumnAndAggregateColumnByAggregateType, getBarData } from './utils';
 
-// bottom offset which also defines the lenght of the rotated labels
+// bottom offset which also defines the length of the rotated labels
 
 const getMargin = (rotatAxisLabel: boolean) => ({
   top: 30,
@@ -22,6 +22,7 @@ const getMargin = (rotatAxisLabel: boolean) => ({
 });
 
 export function SingleBarChart({
+  experimentalBarDataColumns,
   allColumns,
   categoryFilter,
   config,
@@ -33,6 +34,7 @@ export function SingleBarChart({
   sortType,
   title,
 }: {
+  experimentalBarDataColumns?: Awaited<ReturnType<typeof experimentalGetBarData>>;
   allColumns: Awaited<ReturnType<typeof getBarData>>;
   categoryFilter?: string;
   config: IBarConfig;
@@ -61,21 +63,144 @@ export function SingleBarChart({
       width,
     });
 
-  const categoryValueTicks = useMemo(() => {
-    return categoryValueScale?.domain().map((value) => ({
-      value,
-      offset: categoryValueScale(value) + categoryValueScale.bandwidth() / 2,
-    }));
-  }, [categoryValueScale]);
+  // const categoryValueTicks = useMemo(() => {
+  //   return categoryValueScale?.domain().map((value) => ({
+  //     value,
+  //     offset: categoryValueScale(value) + categoryValueScale.bandwidth() / 2,
+  //   }));
+  // }, [categoryValueScale]);
 
-  const numericalIdTicks = useMemo(() => {
-    const domain = numericalIdScale?.domain();
-    if (numericalIdScale?.bandwidth() <= 10) {
+  // const numericalIdTicks = useMemo(() => {
+  //   const domain = numericalIdScale?.domain();
+  //   if (numericalIdScale?.bandwidth() <= 10) {
+  //     return domain?.reduce((acc, value, index) => {
+  //       if (index % 3 === 0) {
+  //         acc.push({
+  //           value,
+  //           offset: numericalIdScale(value) + numericalIdScale.bandwidth() / 2,
+  //         });
+  //       }
+  //       return acc;
+  //     }, []);
+  //   }
+  //   return domain?.map((value) => ({
+  //     value,
+  //     offset: numericalIdScale(value) + numericalIdScale.bandwidth() / 2,
+  //   }));
+  // }, [numericalIdScale]);
+
+  // const normalizedCountScale = useMemo(() => {
+  //   if (config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group) {
+  //     return categoryCountScale.copy().domain([0, 1]);
+  //   }
+  //   return categoryCountScale;
+  // }, [config.display, config.group, config.groupType, categoryCountScale]);
+
+  // const categoryCountTicks = useMemo(() => {
+  //   if (!normalizedCountScale) {
+  //     return null;
+  //   }
+  //   if (config.direction !== EBarDirection.VERTICAL) {
+  //     const newScale = normalizedCountScale.copy().domain([normalizedCountScale.domain()[1], normalizedCountScale.domain()[0]]);
+  //     return newScale.ticks(5).map((value) => ({
+  //       value,
+  //       offset: newScale(value),
+  //     }));
+  //   }
+  //   return normalizedCountScale.ticks(5).map((value) => ({
+  //     value,
+  //     offset: normalizedCountScale(value),
+  //   }));
+  // }, [config.direction, normalizedCountScale]);
+
+  // const numericalValueTicks = useMemo(() => {
+  //   const mappedTicks = numericalValueScale?.ticks(5)?.map((value) => ({
+  //     value,
+  //     offset: numericalValueScale?.(value),
+  //   }));
+  //   return mappedTicks?.length === 4
+  //     ? [...mappedTicks, { value: numericalValueScale?.domain()[1], offset: numericalValueScale?.(numericalValueScale?.domain()[1]) }]
+  //     : mappedTicks;
+  // }, [numericalValueScale]);
+
+  // TODO: @dv-usama-ansari: Ask @dvdanielamoitzi about this.
+  const sortTypeCallback = useCallback(
+    (label: string, nextSortState: ESortStates) => {
+      if (label && config.catColumnSelected?.name) {
+        if (label === config.catColumnSelected?.name) {
+          if (nextSortState === ESortStates.ASC) {
+            setSortType(SortTypes.CAT_ASC);
+          } else if (nextSortState === ESortStates.DESC) {
+            setSortType(SortTypes.CAT_DESC);
+          } else {
+            setSortType(SortTypes.NONE);
+          }
+        } else if (nextSortState === ESortStates.ASC) {
+          setSortType(SortTypes.COUNT_ASC);
+        } else if (nextSortState === ESortStates.DESC) {
+          setSortType(SortTypes.COUNT_DESC);
+        } else {
+          setSortType(SortTypes.NONE);
+        }
+      } else if (label && config.numColumnSelected?.name) {
+        if (label === config.numColumnSelected?.name) {
+          if (nextSortState === ESortStates.ASC) {
+            setSortType(SortTypes.NUM_ASC);
+          } else if (nextSortState === ESortStates.DESC) {
+            setSortType(SortTypes.NUM_DESC);
+          } else {
+            setSortType(SortTypes.NONE);
+          }
+        } else if (nextSortState === ESortStates.ASC) {
+          setSortType(SortTypes.ID_ASC);
+        } else if (nextSortState === ESortStates.DESC) {
+          setSortType(SortTypes.ID_DESC);
+        } else {
+          setSortType(SortTypes.NONE);
+        }
+      } else {
+        setSortType(SortTypes.NONE);
+      }
+    },
+    [config.catColumnSelected?.name, config.numColumnSelected?.name, setSortType],
+  );
+
+  // NOTE: @dv-usama-ansari: Experimental section starts
+
+  const {
+    categoryCountScale: experimentalCategoryCountScale,
+    categoryValueScale: experimentalCategoryValueScale,
+    numericalIdScale: experimentalNumericalIdScale,
+    numericalValueScale: experimentalNumericalValueScale,
+  } = useExperimentalGetGroupedBarScales({
+    config,
+    experimentalBarDataColumns,
+    selectedMap,
+    sortType,
+    height,
+    width,
+    margin: { left: 0, top: 0, right: 0, bottom: 0 },
+  });
+
+  const experimentalAggregatedData = useMemo(() => {
+    return experimentalGroupColumnAndAggregateColumnByAggregateType({ aggregateType: config.aggregateType, experimentalBarDataColumns, selectedMap });
+  }, [config.aggregateType, experimentalBarDataColumns, selectedMap]);
+
+  const experimentalCategoryValueTicks = useMemo(() => {
+    return experimentalCategoryValueScale?.domain().map((value) => ({
+      value,
+      offset: experimentalCategoryValueScale(value) + experimentalCategoryValueScale.bandwidth() / 2,
+    }));
+  }, [experimentalCategoryValueScale]);
+
+  const experimentalNumericalIdTicks = useMemo(() => {
+    const domain = experimentalNumericalIdScale?.domain();
+    if (experimentalNumericalIdScale?.bandwidth() <= 10) {
       return domain?.reduce((acc, value, index) => {
         if (index % 3 === 0) {
           acc.push({
             value,
-            offset: numericalIdScale(value) + numericalIdScale.bandwidth() / 2,
+            offset: experimentalNumericalIdScale(value) + experimentalNumericalIdScale.bandwidth() / 2,
           });
         }
         return acc;
@@ -83,65 +208,50 @@ export function SingleBarChart({
     }
     return domain?.map((value) => ({
       value,
-      offset: numericalIdScale(value) + numericalIdScale.bandwidth() / 2,
+      offset: experimentalNumericalIdScale(value) + experimentalNumericalIdScale.bandwidth() / 2,
     }));
-  }, [numericalIdScale]);
+  }, [experimentalNumericalIdScale]);
 
-  const normalizedCountScale = useMemo(() => {
-    if (config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group) {
-      return categoryCountScale.copy().domain([0, 1]);
-    }
-    return categoryCountScale;
-  }, [config.display, config.group, config.groupType, categoryCountScale]);
+  const experimentalCategoryCountTicks = useMemo(() => {
+    const experimentalNormalizedCountScale =
+      config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
+        ? experimentalCategoryCountScale.copy().domain([0, 1])
+        : experimentalCategoryCountScale;
 
-  const categoryCountTicks = useMemo(() => {
-    if (!normalizedCountScale) {
+    if (!experimentalNormalizedCountScale) {
       return null;
     }
+
     if (config.direction !== EBarDirection.VERTICAL) {
-      const newScale = normalizedCountScale.copy().domain([normalizedCountScale.domain()[1], normalizedCountScale.domain()[0]]);
+      const newScale = experimentalNormalizedCountScale
+        .copy()
+        .domain([experimentalNormalizedCountScale.domain()[1], experimentalNormalizedCountScale.domain()[0]]);
       return newScale.ticks(5).map((value) => ({
         value,
         offset: newScale(value),
       }));
     }
-    return normalizedCountScale.ticks(5).map((value) => ({
-      value,
-      offset: normalizedCountScale(value),
-    }));
-  }, [config.direction, normalizedCountScale]);
 
-  const numericalValueTicks = useMemo(() => {
-    const mappedTicks = numericalValueScale?.ticks(5)?.map((value) => ({
+    return experimentalNormalizedCountScale.ticks(5).map((value) => ({
       value,
-      offset: numericalValueScale?.(value),
+      offset: experimentalNormalizedCountScale(value),
+    }));
+  }, [config.direction, config.display, config.group, config.groupType, experimentalCategoryCountScale]);
+
+  const experimentalNumericalValueTicks = useMemo(() => {
+    const mappedTicks = experimentalNumericalValueScale?.ticks(5)?.map((value) => ({
+      value,
+      offset: experimentalNumericalValueScale?.(value),
     }));
     return mappedTicks?.length === 4
-      ? [...mappedTicks, { value: numericalValueScale?.domain()[1], offset: numericalValueScale?.(numericalValueScale?.domain()[1]) }]
+      ? [
+          ...mappedTicks,
+          { value: experimentalNumericalValueScale?.domain()[1], offset: experimentalNumericalValueScale?.(experimentalNumericalValueScale?.domain()[1]) },
+        ]
       : mappedTicks;
-  }, [numericalValueScale]);
+  }, [experimentalNumericalValueScale]);
 
-  // TODO: @dv-usama-ansari: Ask @dvdanielamoitzi about this.
-  const sortTypeCallback = useCallback(
-    (label: string, nextSortState: ESortStates) => {
-      if (label === config.catColumnSelected?.name) {
-        if (nextSortState === ESortStates.ASC) {
-          setSortType(SortTypes.CAT_ASC);
-        } else if (nextSortState === ESortStates.DESC) {
-          setSortType(SortTypes.CAT_DESC);
-        } else {
-          setSortType(SortTypes.NONE);
-        }
-      } else if (nextSortState === ESortStates.ASC) {
-        setSortType(SortTypes.COUNT_ASC);
-      } else if (nextSortState === ESortStates.DESC) {
-        setSortType(SortTypes.COUNT_DESC);
-      } else {
-        setSortType(SortTypes.NONE);
-      }
-    },
-    [config.catColumnSelected?.name, setSortType],
-  );
+  // NOTE: @dv-usama-ansari: Experimental section ends
 
   return (
     <Box ref={ref} style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}>
@@ -159,15 +269,15 @@ export function SingleBarChart({
       >
         <svg width={width} height={height}>
           <g>
-            {categoryCountScale && categoryValueScale ? (
+            {experimentalCategoryCountScale && experimentalCategoryValueScale ? (
               <text
                 dominantBaseline="middle"
                 style={{ fontWeight: 500, fill: '#505459' }}
                 textAnchor="middle"
                 transform={`translate(${
                   config.direction === EBarDirection.VERTICAL
-                    ? (categoryValueScale.range()[0] + categoryValueScale.range()[1]) / 2
-                    : (categoryCountScale.range()[0] + categoryCountScale.range()[1]) / 2
+                    ? (experimentalCategoryValueScale.range()[0] + experimentalCategoryValueScale.range()[1]) / 2
+                    : (experimentalCategoryCountScale.range()[0] + experimentalCategoryCountScale.range()[1]) / 2
                 }, ${getMargin(shouldRotateXAxisTicks).top - 20})`}
               >
                 {title}
@@ -183,7 +293,7 @@ export function SingleBarChart({
             />
 
             {config.direction === EBarDirection.VERTICAL ? (
-              categoryCountScale && categoryValueScale ? (
+              experimentalCategoryCountScale && experimentalCategoryValueScale ? (
                 <>
                   <YAxis
                     compact={isSmall}
@@ -197,9 +307,12 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.COUNT_ASC}
                     sortedDesc={sortType === SortTypes.COUNT_DESC}
-                    ticks={categoryCountTicks}
-                    xRange={[categoryValueScale.range()[1], categoryValueScale.range()[0]]}
-                    yScale={categoryCountScale}
+                    // ticks={categoryCountTicks}
+                    // xRange={[categoryValueScale.range()[1], categoryValueScale.range()[0]]}
+                    // yScale={categoryCountScale}
+                    ticks={experimentalCategoryCountTicks}
+                    xRange={[experimentalCategoryCountScale.range()[1], experimentalCategoryCountScale.range()[0]]}
+                    yScale={experimentalCategoryCountScale}
                     isVertical
                   />
                   <XAxis
@@ -210,14 +323,18 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.CAT_ASC}
                     sortedDesc={sortType === SortTypes.CAT_DESC}
-                    ticks={categoryValueTicks}
+                    // ticks={categoryValueTicks}
+                    // vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
+                    // xScale={categoryValueScale}
+                    // yRange={[categoryCountScale.range()[0], categoryCountScale.range()[1]]}
+                    ticks={experimentalCategoryValueTicks}
                     vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
-                    xScale={categoryValueScale}
-                    yRange={[categoryCountScale.range()[0], categoryCountScale.range()[1]]}
+                    xScale={experimentalCategoryValueScale}
+                    yRange={[experimentalCategoryCountScale.range()[0], experimentalCategoryCountScale.range()[1]]}
                     isVertical
                   />
                 </>
-              ) : numericalValueScale && numericalIdScale ? (
+              ) : experimentalNumericalValueScale && experimentalNumericalIdScale ? (
                 <>
                   <YAxis
                     compact={isSmall}
@@ -231,9 +348,12 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.COUNT_ASC}
                     sortedDesc={sortType === SortTypes.COUNT_DESC}
-                    ticks={numericalValueTicks}
-                    xRange={[numericalIdScale.range()[0], numericalIdScale.range()[1]]}
-                    yScale={numericalValueScale}
+                    // ticks={numericalValueTicks}
+                    // xRange={[numericalIdScale.range()[0], numericalIdScale.range()[1]]}
+                    // yScale={numericalValueScale}
+                    ticks={experimentalNumericalValueTicks}
+                    xRange={[experimentalNumericalIdScale.range()[0], experimentalNumericalIdScale.range()[1]]}
+                    yScale={experimentalNumericalValueScale}
                     isVertical
                   />
                   <XAxis
@@ -244,16 +364,20 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.CAT_ASC}
                     sortedDesc={sortType === SortTypes.CAT_DESC}
-                    ticks={numericalIdTicks}
+                    // ticks={numericalIdTicks}
+                    // vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
+                    // xScale={numericalValueScale}
+                    // yRange={[numericalIdScale.range()[1], numericalIdScale.range()[0]]}
+                    ticks={experimentalNumericalIdTicks}
                     vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
-                    xScale={numericalValueScale}
-                    yRange={[numericalIdScale.range()[1], numericalIdScale.range()[0]]}
+                    xScale={experimentalNumericalValueScale}
+                    yRange={[experimentalNumericalIdScale.range()[1], experimentalNumericalIdScale.range()[0]]}
                     isVertical
                   />
                 </>
               ) : null
             ) : config.direction === EBarDirection.HORIZONTAL ? (
-              categoryCountScale && categoryValueScale ? (
+              experimentalCategoryCountScale && experimentalCategoryValueScale ? (
                 <>
                   <YAxis
                     compact={isSmall}
@@ -263,9 +387,12 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.CAT_ASC}
                     sortedDesc={sortType === SortTypes.CAT_DESC}
-                    ticks={categoryValueTicks}
-                    xRange={[categoryCountScale.range()[1], categoryCountScale.range()[0]]}
-                    yScale={categoryValueScale}
+                    // ticks={categoryValueTicks}
+                    // xRange={[categoryCountScale.range()[1], categoryCountScale.range()[0]]}
+                    // yScale={categoryValueScale}
+                    ticks={experimentalCategoryValueTicks}
+                    xRange={[experimentalCategoryCountScale.range()[1], experimentalCategoryCountScale.range()[0]]}
+                    yScale={experimentalCategoryValueScale}
                   />
                   <XAxis
                     compact={isSmall}
@@ -279,13 +406,17 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.COUNT_ASC}
                     sortedDesc={sortType === SortTypes.COUNT_DESC}
-                    ticks={categoryCountTicks}
+                    // ticks={categoryCountTicks}
+                    // vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
+                    // xScale={categoryCountScale}
+                    // yRange={[categoryValueScale.range()[0], categoryValueScale.range()[1]]}
+                    ticks={experimentalCategoryCountTicks}
                     vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
-                    xScale={categoryCountScale}
-                    yRange={[categoryValueScale.range()[0], categoryValueScale.range()[1]]}
+                    xScale={experimentalCategoryCountScale}
+                    yRange={[experimentalCategoryValueScale.range()[0], experimentalCategoryValueScale.range()[1]]}
                   />
                 </>
-              ) : numericalValueScale && numericalIdScale ? (
+              ) : experimentalNumericalValueScale && experimentalNumericalIdScale ? (
                 <>
                   <YAxis
                     compact={isSmall}
@@ -295,9 +426,12 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.CAT_ASC}
                     sortedDesc={sortType === SortTypes.CAT_DESC}
-                    ticks={numericalIdTicks}
-                    xRange={[numericalValueScale.range()[0], numericalValueScale.range()[1]]}
-                    yScale={numericalIdScale}
+                    // ticks={numericalIdTicks}
+                    // xRange={[numericalValueScale.range()[0], numericalValueScale.range()[1]]}
+                    // yScale={numericalIdScale}
+                    ticks={experimentalNumericalIdTicks}
+                    xRange={[experimentalNumericalValueScale.range()[0], experimentalNumericalValueScale.range()[1]]}
+                    yScale={experimentalNumericalIdScale}
                   />
                   <XAxis
                     compact={isSmall}
@@ -311,10 +445,14 @@ export function SingleBarChart({
                     showLines
                     sortedAsc={sortType === SortTypes.COUNT_ASC}
                     sortedDesc={sortType === SortTypes.COUNT_DESC}
-                    ticks={numericalValueTicks}
+                    // ticks={numericalValueTicks}
+                    // vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
+                    // xScale={numericalValueScale}
+                    // yRange={[numericalIdScale.range()[1], numericalIdScale.range()[0]]}
+                    ticks={experimentalNumericalValueTicks}
                     vertPosition={height - getMargin(shouldRotateXAxisTicks).bottom}
-                    xScale={numericalValueScale}
-                    yRange={[numericalIdScale.range()[1], numericalIdScale.range()[0]]}
+                    xScale={experimentalNumericalValueScale}
+                    yRange={[experimentalNumericalIdScale.range()[1], experimentalNumericalIdScale.range()[0]]}
                   />
                 </>
               ) : null
@@ -326,8 +464,10 @@ export function SingleBarChart({
                   aggregateColumnName={config.aggregateColumn?.name}
                   aggregateType={config.aggregateType}
                   categoryName={config.catColumnSelected?.name}
-                  categoryScale={categoryValueScale}
-                  countScale={categoryCountScale}
+                  // categoryScale={categoryValueScale}
+                  // countScale={categoryCountScale}
+                  categoryScale={experimentalCategoryValueScale}
+                  countScale={experimentalCategoryCountScale}
                   groupColorScale={groupColorScale}
                   groupedTable={groupedTable}
                   groupName={config.group.name}
@@ -344,8 +484,10 @@ export function SingleBarChart({
                   aggregateColumnName={config.aggregateColumn?.name}
                   aggregateType={config.aggregateType}
                   categoryName={config.catColumnSelected?.name}
-                  categoryScale={categoryValueScale}
-                  countScale={categoryCountScale}
+                  // categoryScale={categoryValueScale}
+                  // countScale={categoryCountScale}
+                  categoryScale={experimentalCategoryValueScale}
+                  countScale={experimentalCategoryCountScale}
                   groupColorScale={groupColorScale}
                   groupedTable={groupedTable}
                   groupName={config.group.name}
@@ -361,18 +503,23 @@ export function SingleBarChart({
             ) : (
               <SimpleBars
                 aggregateColumnName={config.aggregateColumn?.name}
+                experimentalAggregatedData={experimentalAggregatedData}
                 aggregatedTable={aggregatedTable}
                 aggregateType={config.aggregateType}
                 categoryName={config.catColumnSelected?.name}
-                numericalName={config.numColumnsSelected?.[0]?.name}
-                categoryValueScale={categoryValueScale}
-                categoryCountScale={categoryCountScale}
+                numericalName={config.numColumnSelected?.name}
+                // categoryValueScale={categoryValueScale}
+                // categoryCountScale={categoryCountScale}
+                categoryValueScale={experimentalCategoryValueScale}
+                categoryCountScale={experimentalCategoryCountScale}
                 hasSelected={selectedList.length > 0}
                 height={height}
                 isVertical={config.direction === EBarDirection.VERTICAL}
                 margin={getMargin(shouldRotateXAxisTicks)}
-                numericalIdScale={numericalIdScale}
-                numericalValueScale={numericalValueScale}
+                // numericalIdScale={numericalIdScale}
+                // numericalValueScale={numericalValueScale}
+                numericalIdScale={experimentalNumericalIdScale}
+                numericalValueScale={experimentalNumericalValueScale}
                 selectionCallback={selectionCallback}
                 width={width}
               />

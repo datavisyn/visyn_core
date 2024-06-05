@@ -20,24 +20,41 @@ function RNG(seed: number, sign: 'positive' | 'negative' | 'mixed' = 'positive')
   };
 }
 
-function fetchData(numberOfPoints: number): VisColumn[] {
-  const rng = RNG(10, 'mixed');
+function fetchData(numberOfPoints: number, numberOfCategories: number = 10, withNullValues: boolean = false): VisColumn[] {
+  const rng = RNG(10, 'positive');
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
       .map(() => rng() * 100),
     pca_x: Array(numberOfPoints)
       .fill(null)
-      .map(() => rng() * 100),
+      .map(() => {
+        const randomNumber = rng();
+        return withNullValues ? (randomNumber < -0.5 ? null : randomNumber * 100) : randomNumber * 100;
+      }),
     pca_y: Array(numberOfPoints)
       .fill(null)
       .map(() => rng() * 100),
     category: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 10).toString(), 10).toString()),
+      .map(() => {
+        const randomNumber = rng();
+        return withNullValues
+          ? randomNumber < -0.5
+            ? null
+            : parseInt((randomNumber * numberOfCategories).toString(), 10).toString()
+          : parseInt((randomNumber * numberOfCategories).toString(), 10).toString();
+      }),
     category2: Array(numberOfPoints)
       .fill(null)
-      .map(() => parseInt((rng() * 5).toString(), 5).toString()),
+      .map(() => {
+        const randomNumber = rng();
+        return withNullValues
+          ? randomNumber < -0.5
+            ? null
+            : parseInt((randomNumber * numberOfCategories).toString(), 10).toString()
+          : parseInt((randomNumber * numberOfCategories).toString(), 10).toString();
+      }),
     category3: Array(numberOfPoints)
       .fill(null)
       .map(() => parseInt((rng() * 2).toString(), 2).toString()),
@@ -133,7 +150,8 @@ export default {
     pointCount: { control: 'number' },
   },
   args: {
-    pointCount: 7,
+    pointCount: 50,
+    categoryCount: 10,
   },
 };
 
@@ -141,8 +159,7 @@ export default {
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
   // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
-
+  const columns = React.useMemo(() => fetchData(args.pointCount, args.categoryCount, true), [args.categoryCount, args.pointCount]);
   const [selection, setSelection] = useState<string[]>([]);
   const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
   return (
