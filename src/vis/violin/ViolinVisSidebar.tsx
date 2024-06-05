@@ -4,10 +4,19 @@ import { useMemo } from 'react';
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
-import { ViolinSeparationSegmentedControl, ViolinOverlaySegmentedControl } from './ViolinSegmentedControl';
-import { EViolinSeparationMode, EViolinOverlay, IViolinConfig } from './interfaces';
+import { SingleSelect } from '../sidebar/SingleSelect';
+import { ViolinOverlaySegmentedControl } from './ViolinSegmentedControl';
+import { EViolinOverlay, IViolinConfig } from './interfaces';
 
 const defaultConfig = {
+  subCategory: {
+    enable: true,
+    customComponent: null,
+  },
+  facets: {
+    enable: true,
+    customComponent: null,
+  },
   overlay: {
     enable: true,
     customComponent: null,
@@ -43,13 +52,36 @@ export function ViolinVisSidebar({
         currentSelected={config.numColumnsSelected || []}
         columnType={EColumnTypes.NUMERICAL}
       />
-      <MultiSelect
-        callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
-        columns={columns}
-        currentSelected={config.catColumnsSelected || []}
-        columnType={EColumnTypes.CATEGORICAL}
-      />
 
+      <SingleSelect
+        label="Categorical column"
+        columnType={EColumnTypes.CATEGORICAL}
+        callback={(catColumnSelected: ColumnInfo) => setConfig({ ...config, catColumnSelected })}
+        columns={columns.filter((c) => c.info.id !== config.facetBy?.id && c.info.id !== config.subCategorySelected?.id)}
+        currentSelected={config.catColumnSelected}
+      />
+      {mergedOptionsConfig.facets.enable
+        ? mergedOptionsConfig.facets.customComponent || (
+            <SingleSelect
+              label="Facets"
+              columnType={EColumnTypes.CATEGORICAL}
+              callback={(facetBy: ColumnInfo) => setConfig({ ...config, facetBy })}
+              columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.subCategorySelected?.id)}
+              currentSelected={config.facetBy}
+            />
+          )
+        : null}
+      {mergedOptionsConfig.subCategory.enable
+        ? mergedOptionsConfig.subCategory.customComponent || (
+            <SingleSelect
+              label="Sub category"
+              columnType={EColumnTypes.CATEGORICAL}
+              callback={(subCategorySelected: ColumnInfo) => setConfig({ ...config, subCategorySelected })}
+              columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.facetBy?.id)}
+              currentSelected={config.subCategorySelected}
+            />
+          )
+        : null}
       {mergedOptionsConfig.overlay.enable
         ? mergedOptionsConfig.overlay.customComponent || (
             <ViolinOverlaySegmentedControl
@@ -58,17 +90,6 @@ export function ViolinVisSidebar({
             />
           )
         : null}
-
-      {mergedOptionsConfig.separation.enable
-        ? mergedOptionsConfig.separation.customComponent || (
-            <ViolinSeparationSegmentedControl
-              callback={(separation: EViolinSeparationMode) => setConfig({ ...config, separation })}
-              currentSelected={config.separation}
-              disabled={config.numColumnsSelected.length === 0 || (config.numColumnsSelected.length <= 1 && config.catColumnsSelected.length <= 1)}
-            />
-          )
-        : null}
-
       {filterCallback && mergedOptionsConfig.filter.enable ? mergedOptionsConfig.filter.customComponent || <FilterButtons callback={filterCallback} /> : null}
     </>
   );

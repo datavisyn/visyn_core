@@ -24,7 +24,7 @@ export function columnNameWithDescription(col: ColumnInfo) {
 export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.Layout>, oldLayout: Partial<PlotlyTypes.Layout>, automargin = true) {
   layout.annotations = [];
   const titlePlots = traces.plots.filter((value, index, self) => {
-    return value.title && self.findIndex((v) => v.title === value.title) === index;
+    return value.title && self.findIndex((v) => v.title === value.title && v.data.xaxis === value.data.xaxis) === index;
   });
 
   // This is for adding titles to subplots, specifically for bar charts with small facets.
@@ -40,11 +40,14 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
         text: t.title,
         showarrow: false,
         x: 0.5,
-        y: 1.1,
-        // @ts-ignore
-        xref: `${t.data.xaxis} domain`,
-        // @ts-ignore
-        yref: `${t.data.yaxis} domain`,
+        y: 1.0,
+        yshift: 5,
+        xref: `${t.data.xaxis} domain` as Plotly.XAxisName,
+        yref: `${t.data.yaxis} domain` as Plotly.YAxisName,
+        font: {
+          size: 13.4,
+          color: '#7f7f7f',
+        },
       });
     }
   });
@@ -106,6 +109,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
         text: traces.plots.length > 1 ? truncateText(t.yLabel, 20) : truncateText(t.yLabel, 55),
         font: {
           family: 'Roboto, sans-serif',
+          // TODO: traces plots does not hold the actual number of facets
           size: traces.plots.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
           color: VIS_LABEL_COLOR,
           weight: 'bold',

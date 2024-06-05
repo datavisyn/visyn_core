@@ -2,7 +2,7 @@ import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
-import { NAN_REPLACEMENT, SELECT_COLOR } from '../general/constants';
+import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EViolinSeparationMode, IViolinConfig } from './interfaces';
@@ -10,7 +10,9 @@ import { EViolinOverlay, EViolinSeparationMode, IViolinConfig } from './interfac
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
   numColumnsSelected: [],
-  catColumnsSelected: [],
+  catColumnSelected: null,
+  subCategorySelected: null,
+  facetBy: null,
   violinOverlay: EViolinOverlay.NONE,
   separation: EViolinSeparationMode.FACETS,
 };
@@ -27,46 +29,128 @@ export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinCo
   return merged;
 }
 
+interface IGroupDefinition {
+  num: { id: string; val: string };
+  cat?: { id: string; val: string };
+  subCat?: { id: string; val: string };
+  facet?: { id: string; val: string };
+  plotId: number;
+}
+
+interface IViolinDataRow {
+  ids: string;
+  x: string;
+  y: number;
+  groups: IGroupDefinition;
+}
+
+const concatGroup = (group: IGroupDefinition) => `${group.num.val}${group.cat?.val}${group.subCat?.val}${group.facet?.val}${group.plotId}`;
+
 export async function createViolinTraces(
   columns: VisColumn[],
   config: IViolinConfig,
   scales: Scales,
   selectedList: string[],
   selectedMap: { [key: string]: boolean },
-): Promise<PlotlyInfo & { hasFacets?: boolean; selectedXMap?: { [key: string]: boolean } }> {
+): Promise<PlotlyInfo & { violinMode: string; hasSplit: boolean }> {
   let plotCounter = 1;
-  let hasFacets = false;
-  let selectedXMap = null;
+  const baseOpacity = config.violinOverlay === EViolinOverlay.STRIP ? 0.6 : 1;
 
-  if (!config.numColumnsSelected || !config.catColumnsSelected) {
+  if (!config.numColumnsSelected) {
     return {
       plots: [],
       legendPlots: [],
       rows: 0,
       cols: 0,
+      violinMode: 'overlay',
+      hasSplit: false,
       errorMessage: i18n.t('visyn:vis.violinError'),
       errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
     };
   }
 
   const numCols: VisNumericalColumn[] = config.numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
-  const catCols: VisCategoricalColumn[] = config.catColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisCategoricalColumn);
+  const catCol: VisCategoricalColumn = config.catColumnSelected
+    ? (columns.find((col) => col.info.id === config.catColumnSelected.id) as VisCategoricalColumn)
+    : null;
+  const subCatCol: VisCategoricalColumn = config.subCategorySelected
+    ? (columns.find((col) => col.info.id === config.subCategorySelected.id) as VisCategoricalColumn)
+    : null;
+  const facetCol: VisCategoricalColumn = config.facetBy ? (columns.find((col) => col.info.id === config.facetBy.id) as VisCategoricalColumn) : null;
   const plots: PlotlyData[] = [];
   const legendPlots: PlotlyData[] = [];
 
   const numColValues = await resolveColumnValues(numCols);
   // Null values in categorical columns would break the plot --> replace with NAN_REPLACEMENT
-  const catColValues = (await resolveColumnValues(catCols)).map((col) => ({
-    ...col,
-    resolvedValues: col.resolvedValues.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })),
-  }));
+  const catColValues = (await catCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
 
+  const facetColValues = (await facetCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
+  const uniqueFacetValues = [...new Set(facetColValues.map((v) => v.val))];
+  const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
+  const subCatMap: { [key: string]: { color: string; idx: number } } = [...new Set(subCatColValues.map((v) => v.val))].reduce((map, cat, idx) => {
+    map[cat] = { color: categoricalColors[idx], idx };
+    return map;
+  }, {});
+  const hasSplit = Object.keys(subCatMap).length === 2;
+
+  // We do the grouping here to avoid having to do it in the plotly trace creation
+  // This simplifies selection and highlighting of violins
+  let data: IViolinDataRow[] = [];
+  let currentPlotId = 1;
+  numColValues.forEach((numCurr) => {
+    if (!catCol) {
+      numCurr.resolvedValues.forEach((v, i) => {
+        const subCatVal = (subCatColValues[i]?.val as string) || null;
+        data.push({
+          ids: v.id?.toString(),
+          x: columnNameWithDescription(numCurr.info),
+          y: v.val as number,
+          groups: {
+            num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
+            cat: null,
+            subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
+            facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
+            plotId: currentPlotId,
+          },
+        });
+      });
+      if (config.separation === EViolinSeparationMode.FACETS) {
+        currentPlotId += 1;
+      }
+    } else {
+      numCurr.resolvedValues.forEach((v, i) => {
+        const catVal = catColValues[i].val as string;
+        const subCatVal = (subCatColValues[i]?.val as string) || null;
+        data.push({
+          ids: v.id?.toString(),
+          x: catVal,
+          y: v.val as number,
+          groups: {
+            num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
+            cat: { id: columnNameWithDescription(catCol.info), val: catVal },
+            subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
+            facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
+            plotId: currentPlotId,
+          },
+        });
+      });
+      currentPlotId += 1;
+    }
+  });
+
+  // Ensore NAN_REPLACEMENT is always at the end of the x-axis
+  // This also ensures that plotly does not draw the violins if there are no y values for this group
+  data = data.sort((a) => (a.x === NAN_REPLACEMENT ? 1 : -1));
+  const groupedData = _.groupBy(data, (d) => concatGroup(d.groups));
+
+  // Common data for all violin traces
   const sharedData = {
     type: 'violin' as Plotly.PlotType,
-    pointpos: 0,
+    // pointpos: 0,
     jitter: 0.3,
-    points: false,
+    points: config.violinOverlay === EViolinOverlay.STRIP ? 'all' : 'outliers',
     box: {
+      width: hasSplit ? 0.5 : 0.3,
       visible: config.violinOverlay === EViolinOverlay.BOX,
     },
     spanmode: 'hard',
@@ -75,196 +159,94 @@ export async function createViolinTraces(
     showlegend: false,
   };
 
-  // case: Only numerical columns selected
-  if (numColValues.length > 0 && catColValues.length === 0) {
-    hasFacets = true; // Must always be set to true in this case
-    for (const numCurr of numColValues) {
-      const y = numCurr.resolvedValues.map((v) => v.val);
-      const yLabel = columnNameWithDescription(numCurr.info);
-      plots.push({
-        data: {
-          y,
-          ids: numCurr.resolvedValues.map((v) => v.id),
-          xaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
-          yaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          marker: {
-            // color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? selectionColorDark : '#878E95',
-            color: '#878E95',
-          },
-          name: yLabel,
-          // @ts-ignore
-          hoveron: 'violins',
-          ...sharedData,
+  // Add new trace for each violin
+  _.flatMap(groupedData, (group) => {
+    const { plotId, facet, subCat } = group[0].groups;
+    const patchedPlotId = facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
+    if (patchedPlotId > plotCounter) {
+      plotCounter = patchedPlotId;
+    }
+    const ids = group.map((g) => g.ids);
+    plots.push({
+      data: {
+        y: group.map((g) => g.y),
+        x: group.map((g) => g.x),
+        xaxis: patchedPlotId === 1 ? 'x' : `x${patchedPlotId}`,
+        yaxis: patchedPlotId === 1 ? 'y' : `y${patchedPlotId}`,
+        ids,
+        side: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 'positive' : 'negative') : null,
+        pointpos: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 0.5 : -0.5) : 0,
+        marker: {
+          color: subCat ? subCatMap[subCat.val].color : '#878E95',
         },
-        yLabel: config.separation === EViolinSeparationMode.FACETS && yLabel,
-      });
-      plotCounter += 1;
-    }
-  }
+        opacity: selectedList.length > 0 ? (group.some((g) => selectedMap[g.ids]) ? baseOpacity : 0.3) : baseOpacity,
+        selectedpoints: ids.reduce((acc, id, i) => (selectedMap[id] ? acc.concat(i) : acc), [] as number[]),
+        selected: {
+          marker: {
+            color: SELECT_COLOR,
+            opacity: 1,
+          },
+        },
+        unselected: {
+          marker: {
+            color: VIS_NEUTRAL_COLOR,
+            opacity: 1,
+          },
+        },
+        // @ts-ignore
+        hoveron: config.violinOverlay === EViolinOverlay.STRIP ? 'violins+points' : 'violins',
+        name: subCat?.val,
+        scalegroup: subCat?.val,
+        legendgroup: subCat?.val,
+        ...sharedData,
+      },
+      yLabel: group[0].groups.num.id,
+      xLabel: catCol ? group[0].groups.cat.id : null,
+      title: facetCol ? `${columnNameWithDescription(facetCol.info)} - ${group[0].groups.facet.val}` : null,
+    });
+  });
 
-  // Case: Numerical columns and multiple categorical columns selected
-  else if (numColValues.length > 0 && catColValues.length > 0) {
-    if (config.separation === EViolinSeparationMode.GROUP && (catColValues.length > 1 || numColValues.length > 1)) {
-      hasFacets = false;
-      let data: { y: number; x: string; group: { g1: string; g2: string }; ids: string }[] = [];
-      numColValues.forEach((numCurr) => {
-        catColValues.forEach((catCurr) => {
-          const group =
-            catColValues.length > 1 && numColValues.length > 1
-              ? { g1: columnNameWithDescription(numCurr.info), g2: columnNameWithDescription(catCurr.info) }
-              : numColValues.length > 1
-                ? { g1: columnNameWithDescription(numCurr.info), g2: null }
-                : { g1: columnNameWithDescription(catCurr.info), g2: null };
-
-          numCurr.resolvedValues.forEach((v, i) =>
-            data.push({
-              y: v.val as number,
-              x: catCurr.resolvedValues[i].val as string,
-              group,
-              ids: v.id?.toString(),
+  // Add separate legend
+  if (subCatCol) {
+    legendPlots.push({
+      data: {
+        x: [null] as Plotly.Datum[],
+        y: [null] as Plotly.Datum[],
+        // @ts-ignore
+        hoveron: 'violins',
+        showlegend: true,
+        type: 'violin',
+        hoverinfo: 'skip',
+        visible: 'legendonly',
+        // legendgroup: legend.legendgroup,
+        // legendgrouptitle: {
+        //   text: legend.legendgroup,
+        // },
+        transforms: [
+          {
+            type: 'groupby',
+            groups: Object.keys(subCatMap),
+            styles: Object.keys(subCatMap).map((e) => {
+              return { target: e, value: { name: e, marker: { color: subCatMap[e].color } } };
             }),
-          );
-        });
-      });
-
-      // Ensore NAN_REPLACEMENT is always at the end of the x-axis
-      // This also ensures that plotly does not draw the violins if there are no y values for this group
-      data = data.sort((a) => (a.x === NAN_REPLACEMENT ? 1 : -1));
-
-      const groupedX = _.groupBy(data, 'x');
-      selectedXMap = Object.keys(groupedX).reduce((acc, key) => {
-        if (groupedX[key].some((v) => v.y !== null)) {
-          acc[key] = groupedX[key].some((d) => selectedMap[d.ids]);
-        }
-        return acc;
-      }, {});
-
-      const groupedData = _.groupBy(data, (d) => d.group.g1 + d.group.g2);
-
-      _.flatMap(groupedData, (group, key) => {
-        plots.push({
-          data: {
-            y: group.map((g) => g.y),
-            x: group.map((g) => g.x),
-            ids: group.map((g) => g.ids),
-            marker: {
-              color: categoricalColors[plotCounter - 1],
-            },
-            // Cannot use transform for selection color of violins, as it overrides the violing grouping
-            // @ts-ignore
-            hoveron: 'violins',
-            name: key,
-            ...sharedData,
           },
-          yLabel: numColValues.length === 1 && columnNameWithDescription(numColValues[0].info),
-        });
-        plotCounter += 1;
-      });
-
-      // Add legend trace for the group keys
-      const legendData: { legendgroup?: string; elements: { val: string; color: string }[] }[] = [];
-      if (numColValues.length > 1 && catColValues.length === 1) {
-        legendData.push({
-          legendgroup: null,
-          elements: numColValues.map((num, idx) => ({ val: columnNameWithDescription(num.info), color: categoricalColors[idx] })),
-        });
-      } else if (numColValues.length === 1 && catColValues.length > 1) {
-        legendData.push({
-          legendgroup: null,
-          elements: catColValues.map((cat, idx) => ({ val: columnNameWithDescription(cat.info), color: categoricalColors[idx] })),
-        });
-      } else if (numColValues.length > 1 && catColValues.length > 1) {
-        numColValues.forEach((num, numIdx) => {
-          legendData.push({
-            legendgroup: columnNameWithDescription(num.info),
-            elements: catColValues.map((cat, idx) => ({
-              val: columnNameWithDescription(cat.info),
-              color: categoricalColors[idx + numIdx * catColValues.length],
-            })),
-          });
-        });
-      }
-      legendData.forEach((legend) => {
-        legendPlots.push({
-          data: {
-            x: [null] as Plotly.Datum[],
-            y: [null] as Plotly.Datum[],
-            // @ts-ignore
-            hoveron: 'violins',
-            showlegend: true,
-            type: 'violin',
-            hoverinfo: 'skip',
-            visible: 'legendonly',
-            legendgroup: legend.legendgroup,
-            legendgrouptitle: {
-              text: legend.legendgroup,
-            },
-            transforms: [
-              {
-                type: 'groupby',
-                groups: legend.elements.map((e) => e.val),
-                styles: legend.elements.map((e) => {
-                  return { target: e.val, value: { name: e.val, marker: { color: e.color } } };
-                }),
-              },
-            ],
-          },
-        });
-      });
-    } else {
-      hasFacets = true;
-      numColValues.forEach((numCurr) => {
-        catColValues.forEach((catCurr) => {
-          const data: { y: number; x: string; ids: string }[] = catCurr.resolvedValues.map((v, i) => ({
-            y: numCurr.resolvedValues[i].val as number,
-            x: v.val as string,
-            ids: numCurr.resolvedValues[i].id?.toString(),
-          }));
-
-          const groupedData = _.groupBy(data, 'x');
-
-          _.flatMap(groupedData, (group, key) => {
-            if (group.some((v) => v.y !== null)) {
-              const ids = group.map((g) => g.ids);
-              const x = group.map((g) => g.x);
-              const y = group.map((g) => g.y);
-              plots.push({
-                data: {
-                  y,
-                  x,
-                  ids,
-                  xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
-                  yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-                  marker: {
-                    color: ids.find((id) => selectedMap[id]) ? SELECT_COLOR : '#878E95',
-                  },
-                  // Cannot use transform for selection color of violins, as it overrides the violing grouping
-                  // @ts-ignore
-                  hoveron: 'violins',
-                  name: key,
-                  ...sharedData,
-                },
-                xLabel: columnNameWithDescription(catCurr.info),
-                yLabel: numColValues.length === 1 && columnNameWithDescription(numColValues[0].info),
-              });
-            }
-          });
-          plotCounter += 1;
-        });
-      });
-    }
+        ],
+      },
+    });
   }
 
-  const defaultColNum = Math.min(Math.ceil(Math.sqrt(plotCounter - 1)), 5);
+  // Try to get the best grid layout
+  const cols = Math.min(Math.ceil(Math.sqrt(plotCounter)), 5);
+  const rows = Math.ceil(plotCounter / cols);
 
   return {
     plots,
     legendPlots,
-    rows: Math.ceil((plotCounter - 1) / defaultColNum),
-    cols: defaultColNum,
+    rows,
+    cols,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
-    hasFacets,
-    selectedXMap,
+    violinMode: Object.keys(subCatMap).length > 2 ? 'group' : 'overlay',
+    hasSplit,
   };
 }

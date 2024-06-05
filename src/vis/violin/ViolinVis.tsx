@@ -9,7 +9,7 @@ import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { EViolinSeparationMode, IViolinConfig } from './interfaces';
+import { EViolinOverlay, EViolinSeparationMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
 import { SELECT_COLOR } from '../general/constants';
 
@@ -84,6 +84,31 @@ export function ViolinVis({
     }
   }, [id, dimensions, traces]);
 
+  // Title annotations
+  // const annotations: Partial<Plotly.Annotations>[] = useMemo(() => {
+  //   const combinedAnnotations = [];
+  //   if (traces && traces.titles.length > 0) {
+  //     traces.titles.forEach((title, idx) => {
+  //       combinedAnnotations.push({
+  //         x: 0.5,
+  //         y: 1,
+  //         yshift: 5,
+  //         xref: `x${idx + 1} domain` as Plotly.XAxisName,
+  //         yref: `y${idx + 1} domain` as Plotly.YAxisName,
+  //         xanchor: 'center',
+  //         yanchor: 'bottom',
+  //         text: title,
+  //         showarrow: false,
+  //         font: {
+  //           size: 13,
+  //           color: '#7f7f7f',
+  //         },
+  //       });
+  //     });
+  //   }
+  //   return combinedAnnotations;
+  // }, [traces]);
+
   useEffect(() => {
     if (!traces) {
       return;
@@ -105,50 +130,18 @@ export function ViolinVis({
         family: 'Roboto, sans-serif',
       },
       clickmode: 'event+select',
-      dragmode: false, // Disables zoom (makes no sense in violin plots)
+      dragmode: config.violinOverlay === EViolinOverlay.STRIP ? 'lasso' : false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: config.separation === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
       shapes: [],
       // @ts-ignore
-      violinmode: traces && traces.hasFacets ? 'overlay' : 'group',
-      violingap: 0.25,
-      violingroupgap: 0.1,
+      violinmode: traces.violinMode,
+      violingap: traces.hasSplit ? null : 0.1,
+      violingroupgap: traces.hasSplit ? null : 0.1,
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
-  }, [config.catColumnsSelected, config.separation, config.numColumnsSelected.length, traces]);
-
-  const highlightSelectionShapes: Partial<Plotly.Shape>[] = useMemo(() => {
-    if (!traces?.plots || !traces?.selectedXMap) {
-      return [];
-    }
-
-    const offset = 0.01;
-    const lineLength = 1 / Object.keys(traces.selectedXMap).length;
-    let start = 0;
-    const shapes = [];
-
-    Object.keys(traces.selectedXMap).forEach((key) => {
-      if (traces.selectedXMap[key]) {
-        shapes.push({
-          type: 'line',
-          xref: 'paper',
-          yref: 'paper',
-          x0: start + offset,
-          x1: start + lineLength - offset,
-          y0: offset,
-          y1: offset,
-          layer: 'below',
-          line: {
-            width: 4,
-            color: SELECT_COLOR,
-          },
-        });
-      }
-      start += lineLength;
-    });
-    return shapes;
-  }, [traces]);
+  }, [config.violinOverlay, traces]);
 
   return (
     <Stack
@@ -174,14 +167,14 @@ export function ViolinVis({
           <PlotlyComponent
             divId={id}
             data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
-            layout={{
-              ...layout,
-              shapes: [...(layout?.shapes || []), ...highlightSelectionShapes],
-            }}
+            layout={layout}
             config={{ responsive: true, displayModeBar: false }}
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
             onClick={onClick}
+            onSelected={(sel) => {
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+            }}
             // plotly redraws everything on updates, so you need to reappend title and
             onUpdate={() => {
               for (const p of traces.plots) {
