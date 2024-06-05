@@ -156,6 +156,13 @@ class TelemetrySettings(BaseModel):
 
 class SentrySettings(BaseModel):
     dsn: str | None = None
+    """
+    Public DSN of the Sentry project.
+    """
+    proxy_to: str | None = None
+    """
+    Proxy Sentry envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
+    """
 
 
 class VisynCoreSettings(BaseModel):

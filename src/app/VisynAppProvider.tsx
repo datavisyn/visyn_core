@@ -90,6 +90,7 @@ export function VisynAppProvider({
         if (!Sentry.isInitialized()) {
           Sentry.init({
             dsn: clientConfig.sentry_dsn,
+            tunnel: '/api/sentry/',
             integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
 
             // Set tracesSampleRate to 1.0 to capture 100%
