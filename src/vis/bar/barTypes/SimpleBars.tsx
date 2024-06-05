@@ -41,6 +41,34 @@ export function SimpleBars({
   selectionCallback: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
   width: number;
 }) {
+  const categoricalBarBounds = useCallback(
+    (row: ReturnType<typeof experimentalGroupByAggregateType>[number]) => {
+      const zero = categoryCountScale(0);
+      const value = categoryCountScale(row.aggregatedValue);
+      const id = categoryValueScale(row.category as string);
+      const bandwidth = categoryValueScale.bandwidth() ?? 10;
+      let [w, h, x, y] = [0, 0, 0, 0];
+
+      if (isVertical) {
+        w = bandwidth;
+        h = Math.max(Math.abs(zero - value), 2);
+        x = id;
+        y = value;
+      } else {
+        w = Math.max(Math.abs(value - zero), 2);
+        h = bandwidth;
+        x = zero;
+        y = id;
+      }
+
+      // NOTE: @dv-usama-ansari: Use circles for debugging
+      const circles = { id, value, zero };
+
+      return { w, h, x, y, circles };
+    },
+    [categoryCountScale, categoryValueScale, isVertical],
+  );
+
   const numericalBarBounds = useCallback(
     (row: ReturnType<typeof experimentalGroupByAggregateType>[number]) => {
       const zero = numericalValueScale(0);
@@ -71,44 +99,51 @@ export function SimpleBars({
         x = zero;
         y = id;
       }
-      return { w, h, x, y };
+
+      // NOTE: @dv-usama-ansari: Use circles for debugging
+      const circles = { id, value, zero };
+
+      return { w, h, x, y, circles };
     },
     [numericalValueScale, numericalIdScale, isVertical],
   );
 
   const bars = useMemo(() => {
     if (experimentalAggregatedData && width !== 0 && height !== 0) {
-      // const aggregatedTableObjects = aggregatedTable.objects();
       if (categoryValueScale && categoryCountScale) {
-        // return aggregatedTableObjects
         return experimentalAggregatedData.slice(0, 20).map((row, index) => {
-          const w = isVertical ? categoryValueScale.bandwidth() ?? 10 : width - margin.right - categoryCountScale(row.aggregatedValue);
-          const h = isVertical ? height - margin.bottom - categoryCountScale(row.aggregatedValue) : categoryValueScale.bandwidth();
-          const x = isVertical ? categoryValueScale(row.category as string) ?? 10 * index : margin.left;
-          const y = isVertical ? categoryCountScale(row.aggregatedValue) : categoryValueScale(row.category as string) ?? 10 * index;
+          const { w, h, x, y, circles } = categoricalBarBounds(row);
           const selectedPercent = hasSelected ? row.selectedIds.length / row.count : null;
           return (
-            <SingleBar
-              isVertical={isVertical}
-              key={row.category}
-              onClick={(e) => selectionCallback(e, row.ids)}
-              selectedPercent={selectedPercent}
-              tooltip={
-                <Stack gap={0}>
-                  <Text>{`${categoryName}: ${row.category}`}</Text>
-                  <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregatedValue}`}</Text>
-                </Stack>
-              }
-              width={w}
-              height={h}
-              x={x}
-              y={y}
-            />
+            <>
+              <SingleBar
+                isVertical={isVertical}
+                key={row.category}
+                onClick={(e) => selectionCallback(e, row.ids)}
+                selectedPercent={selectedPercent}
+                tooltip={
+                  <Stack gap={0}>
+                    <Text>{`${categoryName}: ${row.category}`}</Text>
+                    <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregatedValue}`}</Text>
+                  </Stack>
+                }
+                width={w}
+                height={h}
+                x={x}
+                y={y}
+              />
+              {false /* && index === 3 */ && (
+                <g>
+                  <circle cx={circles.value} cy={circles.id} r={5} fill="red" />
+                  <circle cx={circles.zero} cy={circles.id} r={5} fill="red" />
+                </g>
+              )}
+            </>
           );
         });
       }
       if (numericalValueScale && numericalIdScale) {
-        return experimentalAggregatedData.slice(0, 100).map((row, index) => {
+        return experimentalAggregatedData.slice(0, 100).map((row) => {
           const { w, h, x, y } = numericalBarBounds(row);
           const selectedPercent = !hasSelected || row.selectedIds.length > 0 ? 1 : 0;
           return (
@@ -136,18 +171,16 @@ export function SimpleBars({
 
     return null;
   }, [
+    experimentalAggregatedData,
     width,
     height,
     categoryValueScale,
     categoryCountScale,
     numericalValueScale,
     numericalIdScale,
-    experimentalAggregatedData,
-    isVertical,
-    margin.right,
-    margin.bottom,
-    margin.left,
+    categoricalBarBounds,
     hasSelected,
+    isVertical,
     categoryName,
     aggregateType,
     aggregateColumnName,

@@ -178,9 +178,9 @@ export function useExperimentalGetBarScales({
 
   const categoryCountScale = useMemo(() => {
     if (!config.catColumnSelected?.name) return null;
-    const range = isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left];
-    const aggregatedValue = Math.max(...experimentalAggregatedData.map((group) => group.aggregatedValue));
-    const domain = [0, aggregatedValue + aggregatedValue / 25];
+    const range = isVertical ? [height - margin.bottom, margin.top] : [margin.left, width - margin.right];
+    const upperBound = Math.max(...experimentalAggregatedData.map((group) => group.aggregatedValue));
+    const domain = [0, upperBound + upperBound / 25];
     return d3.scaleLinear().range(range).domain(domain);
   }, [config.catColumnSelected?.name, experimentalAggregatedData, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, width]);
 
@@ -197,7 +197,7 @@ export function useExperimentalGetBarScales({
     if (!config.numColumnSelected) return null;
     const range = isVertical ? [margin.left, width - margin.right] : [margin.top, height - margin.bottom];
     const sortedData = experimentalSortBySortType([...experimentalAggregatedData], sortType);
-    const domain = (sortedData ?? []).map((value) => value.category as string).slice(0, 100);
+    const domain = (sortedData ?? []).map((value) => value.ids[0] as string).slice(0, 100);
     return d3.scaleBand().range(range).domain(domain).padding(0.2);
   }, [config.numColumnSelected, experimentalAggregatedData, height, isVertical, margin.bottom, margin.left, margin.right, margin.top, sortType, width]);
 

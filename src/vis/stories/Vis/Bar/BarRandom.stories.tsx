@@ -20,8 +20,13 @@ function RNG(seed: number, sign: 'positive' | 'negative' | 'mixed' = 'positive')
   };
 }
 
-function fetchData(numberOfPoints: number, numberOfCategories: number = 10, withNullValues: boolean = false): VisColumn[] {
-  const rng = RNG(10, 'positive');
+function fetchData(
+  numberOfPoints: number,
+  numberOfCategories: number = 10,
+  withNullValues: boolean = false,
+  sign: 'positive' | 'negative' | 'mixed' = 'positive',
+): VisColumn[] {
+  const rng = RNG(10, sign);
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
@@ -159,7 +164,7 @@ export default {
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
   // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount, args.categoryCount, true), [args.categoryCount, args.pointCount]);
+  const columns = React.useMemo(() => fetchData(args.pointCount, args.categoryCount, true, 'mixed'), [args.categoryCount, args.pointCount]);
   const [selection, setSelection] = useState<string[]>([]);
   const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
   return (

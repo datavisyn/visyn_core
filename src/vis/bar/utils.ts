@@ -306,7 +306,7 @@ function experimentalSimpleNumericalAggregation({
 
 function experimentalNumericalAggregationBasedOnAggregationType(
   aggregateType: EAggregateTypes,
-  simpleNumericalAggregation: { id: string; value: string | number; category: string | number; selected: boolean }[],
+  simpleNumericalAggregation: { id: string; value: string | number; selected: boolean }[],
 ) {
   switch (aggregateType) {
     case EAggregateTypes.COUNT:
@@ -318,9 +318,11 @@ function experimentalNumericalAggregationBasedOnAggregationType(
       // NOTE: @puehringer: In the future, if different types are used, make sure it is exhaustive:
       // const aggT: never = aggregateType;
       return simpleNumericalAggregation.map((d) => ({
-        category: d.category,
+        category: undefined as undefined,
         selectedIds: d.selected ? [d.id] : [],
-        aggregatedValue: 1,
+        group: undefined as undefined,
+        categoryCount: undefined as undefined,
+        aggregatedValue: d.value as number,
         count: 1,
         ids: [d.id],
       }));
@@ -348,13 +350,13 @@ function experimentalCategoricalAggregationBasedOnAggregationType(
   aggregateType: EAggregateTypes,
   simpleCategoricalAggregation: { category: string | number; values: { id: string; value: number; category: string; selected: boolean }[] }[],
 ) {
-  const aggregationLookup = {
+  const aggregationLookup: Record<EAggregateTypes, (values: { id: string; value: number; category: string; selected: boolean }[]) => number> = {
     [EAggregateTypes.COUNT]: (values) => values.length,
     [EAggregateTypes.AVG]: (values) => d3.mean(values.map((value) => value.value)),
     [EAggregateTypes.MIN]: (values) => d3.min(values.map((value) => value.value)),
     [EAggregateTypes.MED]: (values) => d3.median(values.map((value) => value.value)),
     [EAggregateTypes.MAX]: (values) => d3.max(values.map((value) => value.value)),
-  } satisfies Record<EAggregateTypes, (values: { id: string; value: number; category: string; selected: boolean }[]) => number>;
+  };
 
   return simpleCategoricalAggregation.map((d) => ({
     category: d.category,
@@ -362,6 +364,8 @@ function experimentalCategoricalAggregationBasedOnAggregationType(
       if (point.selected) acc.push(point.id);
       return acc;
     }, []),
+    group: undefined as undefined,
+    categoryCount: undefined as undefined,
     aggregatedValue: aggregationLookup[aggregateType](d.values),
     count: d.values.length,
     ids: d.values.map((value) => value.id),

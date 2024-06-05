@@ -179,7 +179,7 @@ export function SingleBarChart({
     sortType,
     height,
     width,
-    margin: { left: 0, top: 0, right: 0, bottom: 0 },
+    margin: getMargin(shouldRotateXAxisTicks),
   });
 
   const experimentalAggregatedData = useMemo(() => {
@@ -225,7 +225,7 @@ export function SingleBarChart({
     if (config.direction !== EBarDirection.VERTICAL) {
       const newScale = experimentalNormalizedCountScale
         .copy()
-        .domain([experimentalNormalizedCountScale.domain()[1], experimentalNormalizedCountScale.domain()[0]]);
+        .domain([experimentalNormalizedCountScale.domain()[0], experimentalNormalizedCountScale.domain()[1]]);
       return newScale.ticks(5).map((value) => ({
         value,
         offset: newScale(value),
@@ -391,7 +391,7 @@ export function SingleBarChart({
                     // xRange={[categoryCountScale.range()[1], categoryCountScale.range()[0]]}
                     // yScale={categoryValueScale}
                     ticks={experimentalCategoryValueTicks}
-                    xRange={[experimentalCategoryCountScale.range()[1], experimentalCategoryCountScale.range()[0]]}
+                    xRange={[experimentalCategoryCountScale.range()[0], experimentalCategoryCountScale.range()[1]]}
                     yScale={experimentalCategoryValueScale}
                   />
                   <XAxis
