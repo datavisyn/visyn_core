@@ -67,24 +67,26 @@ export function BarVisSidebar({
       {!selectedColumn ? null : (
         <>
           <>
-            <AggregateTypeSelect
-              aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
-                if (config.aggregateColumn === null) {
-                  setConfig({
-                    ...config,
-                    aggregateType,
-                    aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
-                    display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
-                  });
-                } else {
-                  setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
-                }
-              }}
-              aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
-              columns={columns}
-              currentSelected={config.aggregateType}
-              aggregateColumn={config.aggregateColumn}
-            />
+            {selectedColumn?.columnType === EColumnTypes.CATEGORICAL ? (
+              <AggregateTypeSelect
+                aggregateTypeSelectCallback={(aggregateType: EAggregateTypes) => {
+                  if (config.aggregateColumn === null) {
+                    setConfig({
+                      ...config,
+                      aggregateType,
+                      aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+                      display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
+                    });
+                  } else {
+                    setConfig({ ...config, aggregateType, display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE });
+                  }
+                }}
+                aggregateColumnSelectCallback={(aggregateColumn: ColumnInfo) => setConfig({ ...config, aggregateColumn })}
+                columns={columns}
+                currentSelected={config.aggregateType}
+                aggregateColumn={config.aggregateColumn}
+              />
+            ) : null}
 
             {mergedOptionsConfig.group.enable
               ? mergedOptionsConfig.group.customComponent || (
@@ -95,7 +97,11 @@ export function BarVisSidebar({
                     groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
                     displayType={config.display}
                     groupType={config.groupType}
-                    columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+                    columns={columns.filter(
+                      (c) =>
+                        (config.catColumnSelected && c.info.id !== config.catColumnSelected.id) ||
+                        (config.numColumnSelected && c.info.id !== config.numColumnSelected.id),
+                    )}
                     currentSelected={config.group}
                   />
                 )
@@ -104,7 +110,11 @@ export function BarVisSidebar({
               ? mergedOptionsConfig.facets.customComponent || (
                   <SingleSelect
                     callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
-                    columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+                    columns={columns.filter(
+                      (c) =>
+                        (config.catColumnSelected && c.info.id !== config.catColumnSelected.id) ||
+                        (config.numColumnSelected && c.info.id !== config.numColumnSelected.id),
+                    )}
                     currentSelected={config.facets}
                     label="Facets"
                     columnTypes={[EColumnTypes.CATEGORICAL]}

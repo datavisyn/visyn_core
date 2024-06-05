@@ -35,7 +35,7 @@ function fetchData(
       .fill(null)
       .map(() => {
         const randomNumber = rng();
-        return withNullValues ? (randomNumber < -0.5 ? null : randomNumber * 100) : randomNumber * 100;
+        return withNullValues ? (randomNumber < 0.75 ? null : randomNumber * 100) : randomNumber * 100;
       }),
     pca_y: Array(numberOfPoints)
       .fill(null)
@@ -45,7 +45,7 @@ function fetchData(
       .map(() => {
         const randomNumber = rng();
         return withNullValues
-          ? randomNumber < -0.5
+          ? randomNumber < 0.75
             ? null
             : parseInt((randomNumber * numberOfCategories).toString(), 10).toString()
           : parseInt((randomNumber * numberOfCategories).toString(), 10).toString();
@@ -55,7 +55,7 @@ function fetchData(
       .map(() => {
         const randomNumber = rng();
         return withNullValues
-          ? randomNumber < -0.5
+          ? randomNumber < 0.75
             ? null
             : parseInt((randomNumber * numberOfCategories).toString(), 10).toString()
           : parseInt((randomNumber * numberOfCategories).toString(), 10).toString();
@@ -164,7 +164,7 @@ export default {
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
   // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount, args.categoryCount, true, 'mixed'), [args.categoryCount, args.pointCount]);
+  const columns = React.useMemo(() => fetchData(args.pointCount, args.categoryCount, false, 'positive'), [args.categoryCount, args.pointCount]);
   const [selection, setSelection] = useState<string[]>([]);
   const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
   return (
@@ -182,11 +182,19 @@ Basic.args = {
   externalConfig: {
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
-    catColumnSelected: { description: '', id: 'category', name: 'category' },
-    direction: EBarDirection.HORIZONTAL,
+    catColumnSelected: {
+      description: 'Description for category',
+      id: 'category',
+      name: 'Category',
+    },
+    direction: EBarDirection.VERTICAL,
     display: EBarDisplayType.ABSOLUTE,
     facets: null,
-    group: null,
+    group: {
+      description: 'Category 2 description',
+      id: 'category2',
+      name: 'Category 2',
+    },
     groupType: EBarGroupingType.GROUP,
     numColumnsSelected: [],
     type: ESupportedPlotlyVis.BAR,

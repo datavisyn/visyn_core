@@ -35,7 +35,7 @@ export function SingleBarChart({
   title,
 }: {
   experimentalBarDataColumns?: Awaited<ReturnType<typeof experimentalGetBarData>>;
-  allColumns: Awaited<ReturnType<typeof getBarData>>;
+  allColumns?: Awaited<ReturnType<typeof getBarData>>;
   categoryFilter?: string;
   config: IBarConfig;
   isSmall?: boolean;
@@ -49,19 +49,19 @@ export function SingleBarChart({
   const [ref, { height, width }] = useResizeObserver();
   const [shouldRotateXAxisTicks, setShouldRotateXAxisTicks] = React.useState(false);
 
-  const { aggregatedTable, categoryCountScale, categoryValueScale, groupColorScale, groupedTable, groupScale, numericalIdScale, numericalValueScale } =
-    useGetGroupedBarScales({
-      aggregateType: config.aggregateType,
-      allColumns,
-      categoryFilter,
-      groupType: config.groupType,
-      height,
-      isVertical: config.direction === EBarDirection.VERTICAL,
-      margin: getMargin(shouldRotateXAxisTicks),
-      selectedMap,
-      sortType,
-      width,
-    });
+  // const { aggregatedTable, categoryCountScale, categoryValueScale, groupColorScale, groupedTable, groupScale, numericalIdScale, numericalValueScale } =
+  //   useGetGroupedBarScales({
+  //     aggregateType: config.aggregateType,
+  //     allColumns,
+  //     categoryFilter,
+  //     groupType: config.groupType,
+  //     height,
+  //     isVertical: config.direction === EBarDirection.VERTICAL,
+  //     margin: getMargin(shouldRotateXAxisTicks),
+  //     selectedMap,
+  //     sortType,
+  //     width,
+  //   });
 
   // const categoryValueTicks = useMemo(() => {
   //   return categoryValueScale?.domain().map((value) => ({
@@ -172,10 +172,11 @@ export function SingleBarChart({
     categoryValueScale: experimentalCategoryValueScale,
     numericalIdScale: experimentalNumericalIdScale,
     numericalValueScale: experimentalNumericalValueScale,
+    groupedColorScale: experimentalGroupColorScale,
+    groupedScale: experimentalGroupScale,
   } = useExperimentalGetGroupedBarScales({
     config,
     experimentalBarDataColumns,
-    selectedMap,
     sortType,
     height,
     width,
@@ -466,13 +467,17 @@ export function SingleBarChart({
                   categoryName={config.catColumnSelected?.name}
                   // categoryScale={categoryValueScale}
                   // countScale={categoryCountScale}
-                  categoryScale={experimentalCategoryValueScale}
-                  countScale={experimentalCategoryCountScale}
-                  groupColorScale={groupColorScale}
+                  categoryValueScale={experimentalCategoryValueScale}
+                  categoryCountScale={experimentalCategoryCountScale}
+                  numericalIdScale={experimentalNumericalIdScale}
+                  numericalValueScale={experimentalNumericalValueScale}
+                  // groupColorScale={groupColorScale}
+                  // groupScale={groupScale}
+                  groupColorScale={experimentalGroupColorScale}
+                  groupScale={experimentalGroupScale}
                   groupedData={experimentalAggregatedData}
-                  groupedTable={groupedTable}
+                  // groupedTable={groupedTable}
                   groupName={config.group.name}
-                  groupScale={groupScale}
                   hasSelected={selectedList.length > 0}
                   height={height}
                   isVertical={config.direction === EBarDirection.VERTICAL}
@@ -481,6 +486,7 @@ export function SingleBarChart({
                   width={width}
                 />
               ) : (
+                // TODO: @dv-usama-ansari: Implement the stacked bars when arquero is removed.
                 <StackedBars
                   aggregateColumnName={config.aggregateColumn?.name}
                   aggregateType={config.aggregateType}
@@ -489,8 +495,9 @@ export function SingleBarChart({
                   // countScale={categoryCountScale}
                   categoryScale={experimentalCategoryValueScale}
                   countScale={experimentalCategoryCountScale}
-                  groupColorScale={groupColorScale}
-                  groupedTable={groupedTable}
+                  // groupColorScale={groupColorScale}
+                  groupColorScale={experimentalGroupColorScale}
+                  // groupedTable={groupedTable}
                   groupName={config.group.name}
                   hasSelected={selectedList.length > 0}
                   height={height}
@@ -505,7 +512,7 @@ export function SingleBarChart({
               <SimpleBars
                 aggregateColumnName={config.aggregateColumn?.name}
                 experimentalAggregatedData={experimentalAggregatedData}
-                aggregatedTable={aggregatedTable}
+                // aggregatedTable={aggregatedTable}
                 aggregateType={config.aggregateType}
                 categoryName={config.catColumnSelected?.name}
                 numericalName={config.numColumnSelected?.name}

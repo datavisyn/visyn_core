@@ -23,7 +23,7 @@ export function StackedBars({
   aggregateType,
   aggregateColumnName,
 }: {
-  groupedTable: ColumnTable;
+  groupedTable?: ColumnTable;
   categoryScale: d3.ScaleBand<string>;
   categoryName: string;
   groupName: string;

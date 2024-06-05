@@ -47,6 +47,8 @@ export function YAxis({
     return maxLabelLength > 5 ? 30 : maxLabelLength * 6;
   }, [ticks]);
 
+  const circles = false;
+
   return (
     <>
       <g transform={`translate(${horizontalPosition - labelSpacing - 30}, ${yScale.range()[0]}) rotate(-90)`}>
@@ -68,6 +70,12 @@ export function YAxis({
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${offset})`}>
           {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke={VIS_GRID_COLOR} /> : null}
+          {circles && (
+            <g>
+              <circle cx={0} cy={0} r={5} fill="red" />
+              <circle cx={xRange[1]} cy={0} r={5} fill="red" />
+            </g>
+          )}
           <g
             key={value}
             style={{

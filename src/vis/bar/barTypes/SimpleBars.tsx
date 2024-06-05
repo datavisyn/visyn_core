@@ -26,7 +26,7 @@ export function SimpleBars({
 }: {
   experimentalAggregatedData?: ReturnType<typeof experimentalGroupByAggregateType>;
   aggregateColumnName?: string;
-  aggregatedTable: ColumnTable;
+  aggregatedTable?: ColumnTable;
   aggregateType: EAggregateTypes;
   categoryName: string;
   categoryValueScale: d3.ScaleBand<string>;
@@ -132,7 +132,7 @@ export function SimpleBars({
                 x={x}
                 y={y}
               />
-              {false /* && index === 3 */ && (
+              {false && index === 3 && (
                 <g>
                   <circle cx={circles.value} cy={circles.id} r={5} fill="red" />
                   <circle cx={circles.zero} cy={circles.id} r={5} fill="red" />

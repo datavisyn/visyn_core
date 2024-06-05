@@ -337,13 +337,13 @@ function experimentalSimpleCategoricalAggregation({
   selectedMap: Record<string, boolean>;
 }) {
   const mergedData = experimentalSimpleNumericalAggregation({ experimentalBarDataColumns, selectedMap });
-  const groupedData = d3.group(mergedData, (d) => d.category);
-  const groupedDataArray = Array.from(groupedData, ([key, value]) => ({
-    category: key as string | number,
+  const categoricalGrouping = d3.group(mergedData, (d) => d.category);
+  const categoricalGroupingArray = Array.from(categoricalGrouping, ([key, value]) => ({
+    category: (key as string | number) ?? 'Unknown',
     values: value as { id: string; value: number; category: string; selected: boolean }[],
   }));
 
-  return groupedDataArray;
+  return categoricalGroupingArray;
 }
 
 function experimentalCategoricalAggregationBasedOnAggregationType(
@@ -462,7 +462,11 @@ function experimentalGroupedAggregation({
     return { group, categories: categoryArray };
   }).reduce((acc, point) => {
     point.categories.forEach((category) => {
-      acc.push({ ...category, group: point.group, categoryCount: categoryCountMap.get(category.category).length });
+      acc.push({
+        ...category,
+        group: point.group ?? 'Unknown',
+        categoryCount: categoryCountMap.get(category.category).length,
+      });
     });
     return acc;
   }, []);
