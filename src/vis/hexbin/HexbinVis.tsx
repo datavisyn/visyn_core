@@ -81,8 +81,8 @@ export function HexbinVis({
     const colorOptions = currentColorColumn.allValues.map((val) => val.val as string);
 
     return d3v7
-      .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : d3v7.schemeCategory10)
-      .domain(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
+      .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : d3v7.schemeCategory10)
+      .domain(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
   }, [currentColorColumn, allColumns]);
 
   return (
@@ -152,6 +152,7 @@ export function HexbinVis({
               config={config}
               allColumns={allColumns}
               filteredCategories={filteredCategories}
+              colorScale={colorScale}
             />
           ) : null}
           {config.numColumnsSelected.length > 2 && allColumns?.numColVals.length === config.numColumnsSelected.length && colsStatus === 'success'
@@ -173,6 +174,7 @@ export function HexbinVis({
                           ],
                           colorColVals: allColumns.colorColVals,
                         }}
+                        colorScale={colorScale}
                       />
                     );
                   }
