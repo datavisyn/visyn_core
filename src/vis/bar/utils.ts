@@ -310,38 +310,13 @@ function experimentalNumericalAggregationBasedOnAggregationType(
 ) {
   switch (aggregateType) {
     case EAggregateTypes.COUNT:
-      return simpleNumericalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.selected ? [d.id] : [],
-        aggregatedValue: 1,
-        count: 1,
-        ids: [d.id],
-      }));
     case EAggregateTypes.AVG:
-      return simpleNumericalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.selected ? [d.id] : [],
-        aggregatedValue: 1,
-        count: 1,
-        ids: [d.id],
-      }));
     case EAggregateTypes.MIN:
-      return simpleNumericalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.selected ? [d.id] : [],
-        aggregatedValue: 1,
-        count: 1,
-        ids: [d.id],
-      }));
     case EAggregateTypes.MED:
-      return simpleNumericalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.selected ? [d.id] : [],
-        aggregatedValue: 1,
-        count: 1,
-        ids: [d.id],
-      }));
     case EAggregateTypes.MAX:
+    default:
+      // NOTE: @puehringer: In the future, if different types are used, make sure it is exhaustive:
+      // const aggT: never = aggregateType;
       return simpleNumericalAggregation.map((d) => ({
         category: d.category,
         selectedIds: d.selected ? [d.id] : [],
@@ -349,8 +324,6 @@ function experimentalNumericalAggregationBasedOnAggregationType(
         count: 1,
         ids: [d.id],
       }));
-    default:
-      return [];
   }
 }
 
@@ -375,65 +348,24 @@ function experimentalCategoricalAggregationBasedOnAggregationType(
   aggregateType: EAggregateTypes,
   simpleCategoricalAggregation: { category: string | number; values: { id: string; value: number; category: string; selected: boolean }[] }[],
 ) {
-  switch (aggregateType) {
-    case EAggregateTypes.COUNT:
-      return simpleCategoricalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        aggregatedValue: d.values.length,
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.AVG:
-      return simpleCategoricalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        aggregatedValue: d3.mean(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.MIN:
-      return simpleCategoricalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        aggregatedValue: d3.min(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.MED:
-      return simpleCategoricalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        aggregatedValue: d3.median(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.MAX:
-      return simpleCategoricalAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        aggregatedValue: d3.max(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    default:
-      return [];
-  }
+  const aggregationLookup = {
+    [EAggregateTypes.COUNT]: (values) => values.length,
+    [EAggregateTypes.AVG]: (values) => d3.mean(values.map((value) => value.value)),
+    [EAggregateTypes.MIN]: (values) => d3.min(values.map((value) => value.value)),
+    [EAggregateTypes.MED]: (values) => d3.median(values.map((value) => value.value)),
+    [EAggregateTypes.MAX]: (values) => d3.max(values.map((value) => value.value)),
+  } satisfies Record<EAggregateTypes, (values: { id: string; value: number; category: string; selected: boolean }[]) => number>;
+
+  return simpleCategoricalAggregation.map((d) => ({
+    category: d.category,
+    selectedIds: d.values.reduce((acc: string[], point) => {
+      if (point.selected) acc.push(point.id);
+      return acc;
+    }, []),
+    aggregatedValue: aggregationLookup[aggregateType](d.values),
+    count: d.values.length,
+    ids: d.values.map((value) => value.id),
+  }));
 }
 
 function experimentalBinnedAggregation({
@@ -566,75 +498,26 @@ function experimentalGroupedDataAggregationBasedOnAggregationType(
     values: { id: string; value: number; category: string | number; selected: boolean; group: string | number }[];
   }[],
 ) {
-  switch (aggregateType) {
-    case EAggregateTypes.COUNT:
-      return groupedDataAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        group: d.group,
-        categoryCount: d.categoryCount,
-        aggregatedValue: d.values.length,
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.AVG:
-      return groupedDataAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        group: d.group,
-        categoryCount: d.categoryCount,
-        aggregatedValue: d3.mean(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.MIN:
-      return groupedDataAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        group: d.group,
-        categoryCount: d.categoryCount,
-        aggregatedValue: d3.min(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.MED:
-      return groupedDataAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        group: d.group,
-        categoryCount: d.categoryCount,
-        aggregatedValue: d3.median(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    case EAggregateTypes.MAX:
-      return groupedDataAggregation.map((d) => ({
-        category: d.category,
-        selectedIds: d.values.reduce((acc: string[], point) => {
-          if (point.selected) acc.push(point.id);
-          return acc;
-        }, []),
-        group: d.group,
-        categoryCount: d.categoryCount,
-        aggregatedValue: d3.max(d.values.map((value) => value.value)),
-        count: d.values.length,
-        ids: d.values.map((value) => value.id),
-      }));
-    default:
-      return [];
-  }
+  const aggregationLookup = {
+    [EAggregateTypes.COUNT]: (values) => values.length,
+    [EAggregateTypes.AVG]: (values) => d3.mean(values.map((value) => value.value)),
+    [EAggregateTypes.MIN]: (values) => d3.min(values.map((value) => value.value)),
+    [EAggregateTypes.MED]: (values) => d3.median(values.map((value) => value.value)),
+    [EAggregateTypes.MAX]: (values) => d3.max(values.map((value) => value.value)),
+  } satisfies Record<EAggregateTypes, (values: { id: string; value: number; category: string | number; selected: boolean }[]) => number>;
+
+  return groupedDataAggregation.map((d) => ({
+    category: d.category,
+    selectedIds: d.values.reduce((acc: string[], point) => {
+      if (point.selected) acc.push(point.id);
+      return acc;
+    }, []),
+    group: d.group,
+    categoryCount: d.categoryCount,
+    aggregatedValue: aggregationLookup[aggregateType](d.values),
+    count: d.values.length,
+    ids: d.values.map((value) => value.id),
+  }));
 }
 
 // TODO: @dv-usama-ansari: Implement grouping and binning as per the existing implementation
