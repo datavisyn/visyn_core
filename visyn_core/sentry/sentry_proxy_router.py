@@ -16,7 +16,7 @@ _log = logging.getLogger(__name__)
 async def http_proxy(request: Request):  # pyright: ignore[reportUnusedFunction]
     dsn = manager.settings.visyn_core.sentry.dsn
     if dsn:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=None) as client:
             # Example to parse a sentry envelope: https://github.com/getsentry/examples/blob/66da5f8c9559f64f1bfa57f8dd9b0731f75cd0e9/tunneling/python/app.py
             envelope = await request.body()
             piece = envelope.split(b"\n")[0].decode("utf-8")
