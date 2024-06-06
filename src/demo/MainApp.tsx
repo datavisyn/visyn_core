@@ -20,7 +20,7 @@ import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyString
 export function MainApp() {
   const { user } = useVisynAppContext();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
-    type: 'test',
+    type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
       {
         description: '',
@@ -48,7 +48,7 @@ export function MainApp() {
       type: ERegressionLineType.LINEAR,
       showStats: true,
     },
-  } as unknown as IScatterConfig);
+  } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof iris>([]);
 
