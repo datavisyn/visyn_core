@@ -63,7 +63,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         return {
           allValues: allColumns.numColVals[0].resolvedValues,
           filteredValues: allColumns.numColVals[0].resolvedValues.filter((val, i) => {
-            return !filteredCategories.includes(allColumns.colorColVals.resolvedValues[i].val as string);
+            return !filteredCategories.includes(`${allColumns.colorColVals.resolvedValues[i].val}` as string); // need to have a string, even if it's 'undefined' or 'null'
           }),
         };
       }

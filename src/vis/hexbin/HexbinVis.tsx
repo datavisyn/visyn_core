@@ -1,4 +1,4 @@
-import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem } from '@mantine/core';
+import { Box, Center, Group, ScrollArea, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
@@ -13,6 +13,7 @@ import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
 import { LegendItem } from '../LegendItem';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { assignGrayColorToNullValues } from '../utils';
 
 function Legend({
   categories,
@@ -66,7 +67,7 @@ export function HexbinVis({
     if (config.color && allColumns?.colorColVals) {
       return {
         allValues: allColumns.colorColVals.resolvedValues,
-        filteredValues: allColumns.colorColVals.resolvedValues.filter((val) => !filteredCategories.includes(val.val as string)),
+        filteredValues: allColumns.colorColVals.resolvedValues.filter((val) => !filteredCategories.includes(`${val.val}` as string)), // need to have a string, even if it's 'undefined' or 'null'
       };
     }
 
@@ -78,10 +79,15 @@ export function HexbinVis({
       return null;
     }
 
-    const colorOptions = currentColorColumn.allValues.map((val) => val.val as string);
+    const colorOptions = currentColorColumn.allValues.map((val) => {
+      return `${val.val}` as string; // need to have a string, even if it's 'undefined' or 'null'
+    });
 
     return d3v7
-      .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : d3v7.schemeCategory10)
+      .scaleOrdinal<
+        string,
+        string
+      >(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : assignGrayColorToNullValues(Array.from(new Set<string>(colorOptions)), [...d3v7.schemeCategory10]))
       .domain(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
   }, [currentColorColumn, allColumns]);
 
@@ -120,11 +126,11 @@ export function HexbinVis({
             categories={colorScale ? colorScale.domain() : []}
             filteredCategories={colorScale ? filteredCategories : []}
             colorScale={colorScale || null}
-            onClick={(s) =>
+            onClick={(s) => {
               filteredCategories.includes(s)
                 ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
-                : setFilteredCategories([...filteredCategories, s])
-            }
+                : setFilteredCategories([...filteredCategories, s]);
+            }}
           />
         </div>
       ) : null}
