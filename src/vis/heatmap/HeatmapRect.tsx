@@ -3,6 +3,7 @@ import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSpring, animated, easings } from 'react-spring';
+import { css } from '@emotion/css';
 import { selectionColorDark, selectionColorDarkHovered } from '../../utils/colors';
 
 const DELAY = 2000;
@@ -57,11 +58,16 @@ export function HeatmapRect({
   const rect = useMemo(() => {
     return (
       <animated.rect
+        className={css`
+          &:hover {
+            stroke: ${selectionColorDarkHovered};
+          }
+        `}
         {...colorSpring}
         {...xSpring}
         {...ySpring}
         width={width}
-        stroke={isSelected ? selectionColorDark : isHovered ? selectionColorDarkHovered : 'none'}
+        stroke={isSelected ? selectionColorDark : 'none'}
         strokeWidth={3}
         height={height}
         onMouseEnter={() => {
@@ -70,7 +76,6 @@ export function HeatmapRect({
         }}
         onMouseLeave={() => {
           if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
-
           setIsHovered(false);
         }}
         onMouseDown={(e) => {
@@ -81,7 +86,7 @@ export function HeatmapRect({
         }}
       />
     );
-  }, [colorSpring, height, isHovered, isSelected, onClick, setSelected, width, xSpring, ySpring]);
+  }, [colorSpring, height, isSelected, onClick, setSelected, width, xSpring, ySpring]);
 
   useEffect(() => {
     currXOrder.current = xOrder;
