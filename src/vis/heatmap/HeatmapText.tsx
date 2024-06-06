@@ -61,14 +61,14 @@ export function HeatmapText({
             setImmediate={isImmediate}
           >
             <Center>
-              <Tooltip withinPortal withArrow arrowSize={6} label={xVal}>
+              <Tooltip withinPortal withArrow arrowSize={6} label={xVal ?? 'Unknown'}>
                 <Text
                   pb={2} // to make sure the text is not cut off, e.g. "g"s
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
                   style={{ textOverflow: 'ellipsis', userSelect: 'none', overflow: 'hidden', whiteSpace: 'nowrap' }}
                 >
-                  {xVal || 'Null'}
+                  {xVal || 'Unknown'}
                 </Text>
               </Tooltip>
             </Center>
@@ -102,14 +102,14 @@ export function HeatmapText({
             setImmediate={isImmediate}
           >
             <Stack justify="center" h="100%">
-              <Tooltip withinPortal withArrow arrowSize={6} label={yVal}>
+              <Tooltip withinPortal withArrow arrowSize={6} label={yVal ?? 'Unknown'}>
                 <Text
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
                   lh="xs"
                   style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', userSelect: 'none' }}
                 >
-                  {yVal || 'Null'}
+                  {yVal || 'Unknown'}
                 </Text>
               </Tooltip>
             </Stack>
