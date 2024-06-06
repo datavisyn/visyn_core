@@ -227,7 +227,7 @@ export function ScatterVis({
       dragmode: config.dragMode,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
+    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, null, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [traces, config.dragMode, showLegend]);
@@ -351,6 +351,9 @@ export function ScatterVis({
               } else {
                 selectionCallback([...selectedList, clickedId]);
               }
+            }}
+            onDoubleClick={() => {
+              selectionCallback([]);
             }}
             onInitialized={() => {
               d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);

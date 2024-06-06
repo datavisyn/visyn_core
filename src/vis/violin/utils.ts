@@ -4,7 +4,7 @@ import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
-import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
+import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 
 const defaultConfig: IViolinConfig = {
@@ -55,10 +55,10 @@ const alphaToHex = (alpha: number) => {
 export async function createViolinTraces(
   columns: VisColumn[],
   config: IViolinConfig,
-  scales: Scales,
+  sortBy: { col: string; asc: boolean },
   selectedList: string[],
   selectedMap: { [key: string]: boolean },
-): Promise<PlotlyInfo & { violinMode: string; hasSplit: boolean }> {
+): Promise<PlotlyInfo & { violinMode: string; hasSplit: boolean; categoryOrder: string[] }> {
   let plotCounter = 1;
 
   // Setting the opacity of the violins and point overlays here globally
@@ -75,6 +75,7 @@ export async function createViolinTraces(
       cols: 0,
       violinMode: 'overlay',
       hasSplit: false,
+      categoryOrder: null,
       errorMessage: i18n.t('visyn:vis.violinError'),
       errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
     };
@@ -171,6 +172,20 @@ export async function createViolinTraces(
   data = data.sort((a) => (a.x === NAN_REPLACEMENT ? 1 : -1));
   const groupedData = _.groupBy(data, (d) => concatGroup(d.groups));
   const hasSplit = Object.keys(subCatMap).length === 2;
+
+  // Get category sort order
+  let categoryOrder = null;
+  if (sortBy?.col) {
+    const filteredGroupKeys = Object.keys(groupedData).filter((g) => g.includes(sortBy.col));
+    const meanValues = filteredGroupKeys.map((g) => {
+      const group = groupedData[g];
+      const values = group.map((d) => d.y);
+      return { key: g, mean: _.mean(values) };
+    });
+    const sortedGroups = _.orderBy(meanValues, ['mean'], [sortBy.asc ? 'asc' : 'desc']);
+    const sortedCategories = sortedGroups.map((g) => groupedData[g.key][0].x);
+    categoryOrder = [...new Set(sortedCategories)];
+  }
 
   // Common data for all violin traces
   const sharedData = {
@@ -283,6 +298,7 @@ export async function createViolinTraces(
     legendPlots,
     rows,
     cols,
+    categoryOrder,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
     violinMode: Object.keys(subCatMap).length > 2 ? 'group' : 'overlay',

@@ -23,11 +23,22 @@ export function ViolinVis({
   uniquePlotId,
   showDownloadScreenshot,
 }: ICommonVisProps<IViolinConfig>) {
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
-
   const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
+  const [sortState, setSortState] = useState<{ col: string; asc: boolean }>(null);
+
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, sortState, selectedList, selectedMap]);
+
+  const toggleSortState = (col: string) => {
+    if (sortState?.col === col && sortState?.asc) {
+      setSortState(null);
+    } else if (sortState?.col === col) {
+      setSortState({ col, asc: !sortState.asc });
+    } else {
+      setSortState({ col, asc: false });
+    }
+  };
 
   const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
     if (!e || !e.points || !e.points[0]) {
@@ -114,7 +125,7 @@ export function ViolinVis({
       violingroupgap: traces.hasSplit ? (traces.plots.length > 4 ? 0 : null) : 0.1,
     };
 
-    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, 'median descending', true, config.syncYAxis === EYAxisMode.UNSYNC) }));
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, traces.categoryOrder, true, config.syncYAxis === EYAxisMode.UNSYNC) }));
   }, [config.syncYAxis, config.violinOverlay, traces]);
 
   return (
@@ -149,13 +160,22 @@ export function ViolinVis({
             onSelected={(sel) => {
               selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
             }}
-            // plotly redraws everything on updates, so you need to reappend title and
-            // onUpdate={() => {
-            //   for (const p of traces.plots) {
-            //     d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
-            //     d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
-            //   }
-            // }}
+            onDoubleClick={() => {
+              selectionCallback([]);
+            }}
+            onUpdate={() => {
+              const sharedAxisTraces = traces.plots.filter((value, index, self) => {
+                return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
+              });
+              for (const p of sharedAxisTraces) {
+                d3v7
+                  .select(`g .${p.data.yaxis}title`)
+                  .style('pointer-events', 'all')
+                  .on('click', () => {
+                    toggleSortState(p.yLabel);
+                  });
+              }
+            }}
           />
         </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (

@@ -31,7 +31,7 @@ export function beautifyLayout(
   traces: PlotlyInfo,
   layout: Partial<PlotlyTypes.Layout>,
   oldLayout: Partial<PlotlyTypes.Layout>,
-  xaxisOrder = null,
+  categoryOrder: string[] = null,
   automargin = true,
   autorange = true,
 ) {
@@ -92,7 +92,8 @@ export function beautifyLayout(
       text: t.xTicks,
       showspikes: false,
       spikedash: 'dash',
-      categoryorder: xaxisOrder,
+      categoryarray: categoryOrder,
+      categoryorder: categoryOrder ? 'array' : null,
 
       title: {
         standoff: 5,
