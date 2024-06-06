@@ -5,10 +5,16 @@ import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_GRID_COLOR, VIS_LAB
 /**
  * Truncate long texts (e.g., to use as axes title)
  * @param text Input text to be truncated
+ * @param middle If true, truncate from the middle (default: false)
  * @param maxLength Maximum text length (default: 50)
  */
-export function truncateText(text: string, maxLength = 50) {
-  return text?.length > maxLength ? `${text.substring(0, maxLength)}\u2026` : text;
+export function truncateText(text: string, middle: boolean = false, maxLength = 50) {
+  const half = maxLength / 2;
+  return text?.length > maxLength
+    ? middle
+      ? `${text.substring(0, half)}\u2026${text.substring(text.length - half)}`
+      : `${text.substring(0, maxLength)}\u2026`
+    : text;
 }
 
 export function columnNameWithDescription(col: ColumnInfo) {
@@ -50,7 +56,7 @@ export function beautifyLayout(
   titleTraces.forEach((t) => {
     if (t.title) {
       layout.annotations.push({
-        text: t.title,
+        text: truncateText(t.title, true, 30),
         showarrow: false,
         x: 0.5,
         y: 1.0,
@@ -90,7 +96,7 @@ export function beautifyLayout(
 
       title: {
         standoff: 5,
-        text: sharedAxisTraces.length > 1 ? truncateText(t.xLabel, 20) : truncateText(t.xLabel, 55),
+        text: sharedAxisTraces.length > 1 ? truncateText(t.xLabel, false, 20) : truncateText(t.xLabel, true, 55),
         font: {
           family: 'Roboto, sans-serif',
           size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
@@ -122,7 +128,7 @@ export function beautifyLayout(
       spikedash: 'dash',
       title: {
         standoff: 5,
-        text: sharedAxisTraces.length > 1 ? truncateText(t.yLabel, 20) : truncateText(t.yLabel, 55),
+        text: sharedAxisTraces.length > 1 ? truncateText(t.yLabel, false, 20) : truncateText(t.yLabel, true, 55),
         font: {
           family: 'Roboto, sans-serif',
           size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
