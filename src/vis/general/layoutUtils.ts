@@ -27,6 +27,7 @@ export function beautifyLayout(
   oldLayout: Partial<PlotlyTypes.Layout>,
   xaxisOrder = null,
   automargin = true,
+  autorange = true,
 ) {
   layout.annotations = [];
 
@@ -67,8 +68,8 @@ export function beautifyLayout(
   sharedAxisTraces.forEach((t, i) => {
     const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
     layout[axisX] = {
-      range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
+      range: t.xDomain ? t.xDomain : null,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
       // gridwidth: 2,
@@ -100,9 +101,10 @@ export function beautifyLayout(
 
     const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
     layout[axisY] = {
-      range: t.yDomain ? t.yDomain : null,
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
+      range: t.yDomain ? t.yDomain : null,
       automargin,
+      autorange,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
       // gridwidth: 2,

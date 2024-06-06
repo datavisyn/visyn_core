@@ -9,7 +9,7 @@ import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { EViolinOverlay, IViolinConfig } from './interfaces';
+import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
 
 export function ViolinVis({
@@ -114,8 +114,8 @@ export function ViolinVis({
       violingroupgap: traces.hasSplit ? (traces.plots.length > 4 ? 0 : null) : 0.1,
     };
 
-    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, 'median descending', true) }));
-  }, [config.violinOverlay, traces]);
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, 'median descending', true, config.syncYAxis === EYAxisMode.UNSYNC) }));
+  }, [config.syncYAxis, config.violinOverlay, traces]);
 
   return (
     <Stack

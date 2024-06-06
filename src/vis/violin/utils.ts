@@ -5,7 +5,7 @@ import { categoricalColors } from '../../utils';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, Scales, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
-import { EViolinOverlay, EViolinSeparationMode, IViolinConfig } from './interfaces';
+import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
@@ -14,7 +14,7 @@ const defaultConfig: IViolinConfig = {
   subCategorySelected: null,
   facetBy: null,
   violinOverlay: EViolinOverlay.NONE,
-  separation: EViolinSeparationMode.FACETS,
+  syncYAxis: EYAxisMode.UNSYNC,
 };
 
 export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IViolinConfig {
@@ -87,7 +87,8 @@ export async function createViolinTraces(
   const subCatCol: VisCategoricalColumn = config.subCategorySelected
     ? (columns.find((col) => col.info.id === config.subCategorySelected.id) as VisCategoricalColumn)
     : null;
-  const facetCol: VisCategoricalColumn = config.facetBy ? (columns.find((col) => col.info.id === config.facetBy.id) as VisCategoricalColumn) : null;
+  const facetCol: VisCategoricalColumn =
+    config.facetBy && numCols.length === 1 ? (columns.find((col) => col.info.id === config.facetBy.id) as VisCategoricalColumn) : null;
   const plots: PlotlyData[] = [];
   const legendPlots: PlotlyData[] = [];
 
@@ -98,52 +99,68 @@ export async function createViolinTraces(
   const facetColValues = (await facetCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const uniqueFacetValues = [...new Set(facetColValues.map((v) => v.val))];
   const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
-  const subCatMap: { [key: string]: { color: string; idx: number } } = [...new Set(subCatColValues.map((v) => v.val))].reduce((map, cat, idx) => {
-    map[cat] = { color: categoricalColors[idx], idx };
-    return map;
-  }, {});
-  const hasSplit = Object.keys(subCatMap).length === 2;
+  const subCatMap: { [key: string]: { color: string; idx: number } } = {};
 
   // We do the grouping here to avoid having to do it in the plotly trace creation
   // This simplifies selection and highlighting of violins
   let data: IViolinDataRow[] = [];
+  const dataRange: { min: number; max: number } = { min: null, max: null };
+  const updateDataRange = (val: number) => {
+    if (!dataRange.max || val < dataRange.min) {
+      dataRange.min = val;
+    }
+    if (!dataRange.max || val > dataRange.max) {
+      dataRange.max = val;
+    }
+  };
+
   let currentPlotId = 1;
   numColValues.forEach((numCurr) => {
     if (!catCol) {
       numCurr.resolvedValues.forEach((v, i) => {
-        const subCatVal = (subCatColValues[i]?.val as string) || null;
-        data.push({
-          ids: v.id?.toString(),
-          x: columnNameWithDescription(numCurr.info),
-          y: v.val as number,
-          groups: {
-            num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
-            cat: null,
-            subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
-            facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
-            plotId: currentPlotId,
-          },
-        });
+        if (v.val) {
+          updateDataRange(v.val as number);
+          const subCatVal = (subCatColValues[i]?.val as string) || null;
+          if (subCatCol && !subCatMap[subCatVal]) {
+            subCatMap[subCatVal] = { color: categoricalColors[Object.keys(subCatMap).length], idx: Object.keys(subCatMap).length };
+          }
+          data.push({
+            ids: v.id?.toString(),
+            x: columnNameWithDescription(numCurr.info),
+            y: v.val as number,
+            groups: {
+              num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
+              cat: null,
+              subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
+              facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
+              plotId: currentPlotId,
+            },
+          });
+        }
       });
-      if (config.separation === EViolinSeparationMode.FACETS) {
-        currentPlotId += 1;
-      }
+      currentPlotId += 1;
     } else {
       numCurr.resolvedValues.forEach((v, i) => {
-        const catVal = catColValues[i].val as string;
-        const subCatVal = (subCatColValues[i]?.val as string) || null;
-        data.push({
-          ids: v.id?.toString(),
-          x: catVal,
-          y: v.val as number,
-          groups: {
-            num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
-            cat: { id: columnNameWithDescription(catCol.info), val: catVal },
-            subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
-            facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
-            plotId: currentPlotId,
-          },
-        });
+        if (v.val) {
+          const catVal = catColValues[i].val as string;
+          const subCatVal = (subCatColValues[i]?.val as string) || null;
+          if (subCatCol && !subCatMap[subCatVal]) {
+            subCatMap[subCatVal] = { color: categoricalColors[Object.keys(subCatMap).length], idx: Object.keys(subCatMap).length };
+          }
+          updateDataRange(v.val as number);
+          data.push({
+            ids: v.id?.toString(),
+            x: catVal,
+            y: v.val as number,
+            groups: {
+              num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
+              cat: { id: columnNameWithDescription(catCol.info), val: catVal },
+              subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
+              facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
+              plotId: currentPlotId,
+            },
+          });
+        }
       });
       currentPlotId += 1;
     }
@@ -153,11 +170,12 @@ export async function createViolinTraces(
   // This also ensures that plotly does not draw the violins if there are no y values for this group
   data = data.sort((a) => (a.x === NAN_REPLACEMENT ? 1 : -1));
   const groupedData = _.groupBy(data, (d) => concatGroup(d.groups));
+  const hasSplit = Object.keys(subCatMap).length === 2;
 
   // Common data for all violin traces
   const sharedData = {
     type: 'violin' as Plotly.PlotType,
-    jitter: 0.3,
+    jitter: hasSplit ? 0.2 : 0.6,
     points: config.violinOverlay === EViolinOverlay.STRIP ? 'all' : false,
     box: {
       width: hasSplit ? 0.5 : 0.3,
@@ -227,6 +245,7 @@ export async function createViolinTraces(
       yLabel: group[0].groups.num.id,
       xLabel: catCol ? group[0].groups.cat.id : null,
       title: facetCol ? `${columnNameWithDescription(facetCol.info)} - ${group[0].groups.facet.val}` : null,
+      yDomain: config.syncYAxis === EYAxisMode.SYNC ? [dataRange.min, dataRange.max] : null,
     });
   });
 
@@ -242,10 +261,6 @@ export async function createViolinTraces(
         type: 'violin',
         hoverinfo: 'skip',
         visible: 'legendonly',
-        // legendgroup: legend.legendgroup,
-        // legendgrouptitle: {
-        //   text: legend.legendgroup,
-        // },
         transforms: [
           {
             type: 'groupby',

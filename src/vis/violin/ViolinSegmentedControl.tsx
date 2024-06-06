@@ -1,6 +1,6 @@
-import { Input, SegmentedControl, Tooltip } from '@mantine/core';
+import { Input, SegmentedControl, Tooltip, Text } from '@mantine/core';
 import * as React from 'react';
-import { EViolinSeparationMode, EViolinOverlay } from './interfaces';
+import { EViolinOverlay, EYAxisMode } from './interfaces';
 
 interface SegmentedControlProps<T> {
   callback: (s: T) => void;
@@ -10,7 +10,13 @@ interface SegmentedControlProps<T> {
 
 export function ViolinOverlaySegmentedControl({ callback, currentSelected, disabled }: SegmentedControlProps<EViolinOverlay>) {
   return (
-    <Input.Wrapper label="Overlay">
+    <Input.Wrapper
+      label={
+        <Text size="sm" fw={500} c={disabled ? 'dimmed' : 'black'}>
+          Overlay
+        </Text>
+      }
+    >
       <SegmentedControl
         disabled={disabled}
         fullWidth
@@ -27,22 +33,25 @@ export function ViolinOverlaySegmentedControl({ callback, currentSelected, disab
   );
 }
 
-export function ViolinSeparationSegmentedControl({ callback, currentSelected, disabled }: SegmentedControlProps<EViolinSeparationMode>) {
+export function ViolinSyncYAxisSegmentedControl({ callback, currentSelected, disabled }: SegmentedControlProps<EYAxisMode>) {
   return (
-    <Input.Wrapper label="Separation">
-      <Tooltip
-        label={disabled ? 'Faceting not possible. Select at least two numerical or categorical columns.' : 'Group within plot or split into facets'}
-        withArrow
-      >
+    <Input.Wrapper
+      label={
+        <Text size="sm" fw={500} c={disabled ? 'dimmed' : 'black'}>
+          Y-Axis
+        </Text>
+      }
+    >
+      <Tooltip label={disabled ? 'Sync only available when having multiple plots' : 'Sync the y-axis range of all plots'} withArrow>
         <SegmentedControl
           fullWidth
           disabled={disabled}
           size="xs"
-          value={disabled ? EViolinSeparationMode.GROUP : currentSelected}
+          value={currentSelected}
           onChange={callback}
           data={[
-            { label: EViolinSeparationMode.GROUP, value: EViolinSeparationMode.GROUP },
-            { label: EViolinSeparationMode.FACETS, value: EViolinSeparationMode.FACETS },
+            { label: EYAxisMode.UNSYNC, value: EYAxisMode.UNSYNC },
+            { label: EYAxisMode.SYNC, value: EYAxisMode.SYNC },
           ]}
         />
       </Tooltip>

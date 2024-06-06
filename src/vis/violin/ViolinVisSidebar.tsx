@@ -5,8 +5,8 @@ import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces'
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
 import { SingleSelect } from '../sidebar/SingleSelect';
-import { ViolinOverlaySegmentedControl } from './ViolinSegmentedControl';
-import { EViolinOverlay, IViolinConfig } from './interfaces';
+import { ViolinOverlaySegmentedControl, ViolinSyncYAxisSegmentedControl } from './ViolinSegmentedControl';
+import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 
 const defaultConfig = {
   subCategory: {
@@ -21,7 +21,7 @@ const defaultConfig = {
     enable: true,
     customComponent: null,
   },
-  separation: {
+  syncXAxis: {
     enable: true,
     customComponent: null,
   },
@@ -79,6 +79,16 @@ export function ViolinVisSidebar({
               callback={(facetBy: ColumnInfo) => setConfig({ ...config, facetBy })}
               columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.subCategorySelected?.id)}
               currentSelected={config.facetBy}
+              disabled={config.numColumnsSelected.length > 1}
+            />
+          )
+        : null}
+      {mergedOptionsConfig.syncXAxis.enable
+        ? mergedOptionsConfig.syncXAxis.customComponent || (
+            <ViolinSyncYAxisSegmentedControl
+              callback={(syncYAxis: EYAxisMode) => setConfig({ ...config, syncYAxis })}
+              currentSelected={config.syncYAxis}
+              disabled={config.numColumnsSelected.length < 2 && !config.facetBy}
             />
           )
         : null}
