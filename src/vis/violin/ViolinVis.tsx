@@ -9,9 +9,8 @@ import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { EViolinOverlay, EViolinSeparationMode, IViolinConfig } from './interfaces';
+import { EViolinOverlay, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
-import { SELECT_COLOR } from '../general/constants';
 
 export function ViolinVis({
   config,
@@ -84,31 +83,6 @@ export function ViolinVis({
     }
   }, [id, dimensions, traces]);
 
-  // Title annotations
-  // const annotations: Partial<Plotly.Annotations>[] = useMemo(() => {
-  //   const combinedAnnotations = [];
-  //   if (traces && traces.titles.length > 0) {
-  //     traces.titles.forEach((title, idx) => {
-  //       combinedAnnotations.push({
-  //         x: 0.5,
-  //         y: 1,
-  //         yshift: 5,
-  //         xref: `x${idx + 1} domain` as Plotly.XAxisName,
-  //         yref: `y${idx + 1} domain` as Plotly.YAxisName,
-  //         xanchor: 'center',
-  //         yanchor: 'bottom',
-  //         text: title,
-  //         showarrow: false,
-  //         font: {
-  //           size: 13,
-  //           color: '#7f7f7f',
-  //         },
-  //       });
-  //     });
-  //   }
-  //   return combinedAnnotations;
-  // }, [traces]);
-
   useEffect(() => {
     if (!traces) {
       return;
@@ -136,11 +110,11 @@ export function ViolinVis({
       shapes: [],
       // @ts-ignore
       violinmode: traces.violinMode,
-      violingap: traces.hasSplit ? null : 0.1,
-      violingroupgap: traces.hasSplit ? null : 0.1,
+      violingap: traces.hasSplit ? (traces.plots.length > 4 ? 0 : null) : 0.1,
+      violingroupgap: traces.hasSplit ? (traces.plots.length > 4 ? 0 : null) : 0.1,
     };
 
-    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, 'median descending', true) }));
   }, [config.violinOverlay, traces]);
 
   return (
@@ -176,13 +150,12 @@ export function ViolinVis({
               selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
             }}
             // plotly redraws everything on updates, so you need to reappend title and
-            onUpdate={() => {
-              for (const p of traces.plots) {
-                d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
-
-                d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
-              }
-            }}
+            // onUpdate={() => {
+            //   for (const p of traces.plots) {
+            //     d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
+            //     d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+            //   }
+            // }}
           />
         </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (

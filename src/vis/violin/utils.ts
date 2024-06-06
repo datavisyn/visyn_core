@@ -46,6 +46,12 @@ interface IViolinDataRow {
 
 const concatGroup = (group: IGroupDefinition) => `${group.num.val}${group.cat?.val}${group.subCat?.val}${group.facet?.val}${group.plotId}`;
 
+const alphaToHex = (alpha: number) => {
+  const alphaInt = Math.round(alpha * 255);
+  const alphaHex = alphaInt.toString(16).toUpperCase();
+  return alphaHex.padStart(2, '0');
+};
+
 export async function createViolinTraces(
   columns: VisColumn[],
   config: IViolinConfig,
@@ -54,7 +60,12 @@ export async function createViolinTraces(
   selectedMap: { [key: string]: boolean },
 ): Promise<PlotlyInfo & { violinMode: string; hasSplit: boolean }> {
   let plotCounter = 1;
-  const baseOpacity = config.violinOverlay === EViolinOverlay.STRIP ? 0.6 : 1;
+
+  // Setting the opacity of the violins and point overlays here globally
+  const baseOpacities =
+    config.violinOverlay === EViolinOverlay.STRIP
+      ? { selected: { line: 0.6, fill: 0.2, point: 1.0 }, unselected: { line: 0.2, fill: 0.2, point: 0.6 } }
+      : { selected: { line: 0.8, fill: 0.6, point: 1.0 }, unselected: { line: 0.4, fill: 0.3, point: 1.0 } };
 
   if (!config.numColumnsSelected) {
     return {
@@ -162,6 +173,8 @@ export async function createViolinTraces(
   // Add new trace for each violin
   _.flatMap(groupedData, (group) => {
     const { plotId, facet, subCat } = group[0].groups;
+    const opacities =
+      selectedList.length > 0 ? (group.some((g) => selectedMap[g.ids]) ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
     const patchedPlotId = facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
     if (patchedPlotId > plotCounter) {
       plotCounter = patchedPlotId;
@@ -176,21 +189,21 @@ export async function createViolinTraces(
         ids,
         side: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 'positive' : 'negative') : null,
         pointpos: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 0.5 : -0.5) : 0,
+        fillcolor: subCat ? `${subCatMap[subCat.val].color}${alphaToHex(opacities.fill)}` : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.fill)}`,
         marker: {
-          color: subCat ? subCatMap[subCat.val].color : '#878E95',
+          color: subCat ? `${subCatMap[subCat.val].color}${alphaToHex(opacities.line)}` : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.line)}`,
         },
-        opacity: selectedList.length > 0 ? (group.some((g) => selectedMap[g.ids]) ? baseOpacity : 0.3) : baseOpacity,
         selectedpoints: ids.reduce((acc, id, i) => (selectedMap[id] ? acc.concat(i) : acc), [] as number[]),
         selected: {
           marker: {
             color: SELECT_COLOR,
-            opacity: 1,
+            opacity: baseOpacities.selected.point,
           },
         },
         unselected: {
           marker: {
             color: VIS_NEUTRAL_COLOR,
-            opacity: 1,
+            opacity: baseOpacities.unselected.point,
           },
         },
         // @ts-ignore

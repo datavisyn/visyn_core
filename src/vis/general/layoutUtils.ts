@@ -21,10 +21,22 @@ export function columnNameWithDescription(col: ColumnInfo) {
  * @param layout the current layout to be changed. Typed to any because the plotly types complain.p
  * @returns the changed layout
  */
-export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.Layout>, oldLayout: Partial<PlotlyTypes.Layout>, automargin = true) {
+export function beautifyLayout(
+  traces: PlotlyInfo,
+  layout: Partial<PlotlyTypes.Layout>,
+  oldLayout: Partial<PlotlyTypes.Layout>,
+  xaxisOrder = null,
+  automargin = true,
+) {
   layout.annotations = [];
-  const titlePlots = traces.plots.filter((value, index, self) => {
-    return value.title && self.findIndex((v) => v.title === value.title && v.data.xaxis === value.data.xaxis) === index;
+
+  // Sometimes we have multiple traces that share the same axis. For layout changes we only need to consider one per axis.
+  const sharedAxisTraces = traces.plots.filter((value, index, self) => {
+    return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
+  });
+
+  const titleTraces = sharedAxisTraces.filter((value, index, self) => {
+    return value.title && self.findIndex((v) => v.title === value.title) === index;
   });
 
   // This is for adding titles to subplots, specifically for bar charts with small facets.
@@ -34,7 +46,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
 
   // We should stop using plotly for a component like this one which wants a lot of unique functionality, and does not require complex rendering logic (like a canvas)
 
-  titlePlots.forEach((t) => {
+  titleTraces.forEach((t) => {
     if (t.title) {
       layout.annotations.push({
         text: t.title,
@@ -52,7 +64,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
     }
   });
 
-  traces.plots.forEach((t, i) => {
+  sharedAxisTraces.forEach((t, i) => {
     const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
     layout[axisX] = {
       range: t.xDomain ? t.xDomain : null,
@@ -67,18 +79,20 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
       tickfont: {
-        size: traces.plots.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+        size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
       },
       ticks: 'none',
       text: t.xTicks,
       showspikes: false,
       spikedash: 'dash',
+      categoryorder: xaxisOrder,
+
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.xLabel, 20) : truncateText(t.xLabel, 55),
+        text: sharedAxisTraces.length > 1 ? truncateText(t.xLabel, 20) : truncateText(t.xLabel, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
           color: VIS_LABEL_COLOR,
         },
       },
@@ -98,7 +112,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
       tickfont: {
-        size: traces.plots.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+        size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
       },
       ticks: 'none',
       text: t.yTicks,
@@ -106,11 +120,10 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       spikedash: 'dash',
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.yLabel, 20) : truncateText(t.yLabel, 55),
+        text: sharedAxisTraces.length > 1 ? truncateText(t.yLabel, 20) : truncateText(t.yLabel, 55),
         font: {
           family: 'Roboto, sans-serif',
-          // TODO: traces plots does not hold the actual number of facets
-          size: traces.plots.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
           color: VIS_LABEL_COLOR,
           weight: 'bold',
         },

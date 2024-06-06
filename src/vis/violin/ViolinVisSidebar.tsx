@@ -60,6 +60,17 @@ export function ViolinVisSidebar({
         columns={columns.filter((c) => c.info.id !== config.facetBy?.id && c.info.id !== config.subCategorySelected?.id)}
         currentSelected={config.catColumnSelected}
       />
+      {mergedOptionsConfig.subCategory.enable
+        ? mergedOptionsConfig.subCategory.customComponent || (
+            <SingleSelect
+              label="Subcategory"
+              columnType={EColumnTypes.CATEGORICAL}
+              callback={(subCategorySelected: ColumnInfo) => setConfig({ ...config, subCategorySelected })}
+              columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.facetBy?.id)}
+              currentSelected={config.subCategorySelected}
+            />
+          )
+        : null}
       {mergedOptionsConfig.facets.enable
         ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
@@ -68,17 +79,6 @@ export function ViolinVisSidebar({
               callback={(facetBy: ColumnInfo) => setConfig({ ...config, facetBy })}
               columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.subCategorySelected?.id)}
               currentSelected={config.facetBy}
-            />
-          )
-        : null}
-      {mergedOptionsConfig.subCategory.enable
-        ? mergedOptionsConfig.subCategory.customComponent || (
-            <SingleSelect
-              label="Sub category"
-              columnType={EColumnTypes.CATEGORICAL}
-              callback={(subCategorySelected: ColumnInfo) => setConfig({ ...config, subCategorySelected })}
-              columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.facetBy?.id)}
-              currentSelected={config.subCategorySelected}
             />
           )
         : null}
