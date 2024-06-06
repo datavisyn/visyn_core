@@ -7,6 +7,7 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
 import { EAggregateTypes } from '../../interfaces';
+import { getLabelOrUnknown } from '../../utils';
 
 export function SimpleBars({
   aggregatedTable,
@@ -49,8 +50,8 @@ export function SimpleBars({
             y={isVertical ? countScale(row.aggregateVal) : categoryScale(row.category)}
             tooltip={
               <Stack gap={0}>
-                <Text>{`${categoryName}: ${row.category}`}</Text>
-                <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>
+                <Text>{`${categoryName}: ${getLabelOrUnknown(row.category)}`}</Text>
+                <Text>{`${aggregateType}${aggregateColumnName ? ` ${getLabelOrUnknown(aggregateColumnName)}` : ''}: ${row.aggregateVal}`}</Text>
               </Stack>
             }
             height={isVertical ? height - margin.bottom - countScale(row.aggregateVal) : categoryScale.bandwidth()}

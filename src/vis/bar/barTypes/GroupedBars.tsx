@@ -6,6 +6,7 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
 import { EAggregateTypes } from '../../interfaces';
+import { getLabelOrUnknown } from '../../utils';
 
 export function GroupedBars({
   groupedTable,
@@ -57,8 +58,8 @@ export function GroupedBars({
               y={isVertical ? countScale(row.aggregateVal) : categoryScale(row.category) + groupScale(row.group)}
               tooltip={
                 <Stack gap={0}>
-                  <Text>{`${categoryName}: ${row.category}`}</Text>
-                  <Text>{`${groupName}: ${row.group}`}</Text>
+                  <Text>{`${categoryName}: ${getLabelOrUnknown(row.category)}`}</Text>
+                  <Text>{`${groupName}: ${getLabelOrUnknown(row.group)}`}</Text>
                   <Text>{`${aggregateType}${aggregateColumnName ? ` ${aggregateColumnName}` : ''}: ${row.aggregateVal}`}</Text>
                 </Stack>
               }
