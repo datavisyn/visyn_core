@@ -157,9 +157,8 @@ export async function createViolinTraces(
   // Common data for all violin traces
   const sharedData = {
     type: 'violin' as Plotly.PlotType,
-    // pointpos: 0,
     jitter: 0.3,
-    points: config.violinOverlay === EViolinOverlay.STRIP ? 'all' : 'outliers',
+    points: config.violinOverlay === EViolinOverlay.STRIP ? 'all' : false,
     box: {
       width: hasSplit ? 0.5 : 0.3,
       visible: config.violinOverlay === EViolinOverlay.BOX,
@@ -173,8 +172,8 @@ export async function createViolinTraces(
   // Add new trace for each violin
   _.flatMap(groupedData, (group) => {
     const { plotId, facet, subCat } = group[0].groups;
-    const opacities =
-      selectedList.length > 0 ? (group.some((g) => selectedMap[g.ids]) ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
+    const isSelected = selectedList.length > 0 && group.some((g) => selectedMap[g.ids]);
+    const opacities = selectedList.length > 0 ? (isSelected ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
     const patchedPlotId = facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
     if (patchedPlotId > plotCounter) {
       plotCounter = patchedPlotId;
@@ -189,9 +188,21 @@ export async function createViolinTraces(
         ids,
         side: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 'positive' : 'negative') : null,
         pointpos: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 0.5 : -0.5) : 0,
-        fillcolor: subCat ? `${subCatMap[subCat.val].color}${alphaToHex(opacities.fill)}` : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.fill)}`,
+        fillcolor: subCat
+          ? selectedList.length === 0 || isSelected
+            ? `${subCatMap[subCat.val].color}${alphaToHex(opacities.fill)}`
+            : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.fill)}`
+          : isSelected
+            ? `${SELECT_COLOR}${alphaToHex(opacities.fill)}`
+            : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.fill)}`,
         marker: {
-          color: subCat ? `${subCatMap[subCat.val].color}${alphaToHex(opacities.line)}` : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.line)}`,
+          color: subCat
+            ? selectedList.length === 0 || isSelected
+              ? `${subCatMap[subCat.val].color}${alphaToHex(opacities.line)}`
+              : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.line)}`
+            : isSelected
+              ? `${SELECT_COLOR}${alphaToHex(opacities.line)}`
+              : `${VIS_NEUTRAL_COLOR}${alphaToHex(opacities.line)}`,
         },
         selectedpoints: ids.reduce((acc, id, i) => (selectedMap[id] ? acc.concat(i) : acc), [] as number[]),
         selected: {
