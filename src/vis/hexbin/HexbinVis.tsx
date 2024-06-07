@@ -13,7 +13,7 @@ import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
 import { LegendItem } from '../LegendItem';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { assignGrayColorToNullValues } from '../utils';
+import { assignColorToNullValues } from '../utils';
 
 function Legend({
   categories,
@@ -87,7 +87,7 @@ export function HexbinVis({
       .scaleOrdinal<
         string,
         string
-      >(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : assignGrayColorToNullValues(Array.from(new Set<string>(colorOptions)), [...d3v7.schemeCategory10]))
+      >(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : assignColorToNullValues(Array.from(new Set<string>(colorOptions)), [...d3v7.schemeCategory10]))
       .domain(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
   }, [currentColorColumn, allColumns]);
 

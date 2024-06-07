@@ -47,6 +47,13 @@ export function fetchIrisData(): VisColumn[] {
       },
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val })),
+      // color: {
+      //   Setosa: 'red',
+      //   Virginica: 'blue',
+      //   Versicolor: 'green',
+      //   'Setosa long name label 2': 'rebeccapurple',
+      //   'Setosa long name label': 'orange',
+      // },
     },
     {
       info: {

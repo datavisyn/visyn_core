@@ -20,3 +20,6 @@ export * from './violin/interfaces';
 export * from './hexbin/interfaces';
 export * from './scatter/interfaces';
 export * from './sankey/interfaces';
+
+// export utility functions
+export * from './utils';

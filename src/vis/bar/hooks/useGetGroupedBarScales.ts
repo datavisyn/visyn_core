@@ -8,7 +8,7 @@ import { binByAggregateType, getBarData, groupByAggregateType, rollupByAggregate
 import { EBarGroupingType, SortTypes } from '../interfaces';
 import { useGetBarScales } from './useGetBarScales';
 import { categoricalColors as colorScale } from '../../../utils/colors';
-import { assignGrayColorToNullValues } from '../../utils';
+import { assignColorToNullValues } from '../../utils';
 
 export function useGetGroupedBarScales(
   allColumns: Awaited<ReturnType<typeof getBarData>>,
@@ -71,7 +71,7 @@ export function useGetGroupedBarScales(
             i += 1;
             return allColumns.groupColVals.color[value] || colorScale[i % colorScale.length];
           })
-      : assignGrayColorToNullValues(
+      : assignColorToNullValues(
           Array.from(
             new Set<string>(
               allColumns.groupColVals.resolvedValues.map((val) => {

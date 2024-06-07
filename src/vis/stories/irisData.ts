@@ -148,5 +148,6 @@ export const iris = [
   { sepalLength: 6.3, sepalWidth: 2.5, petalLength: 5.0, petalWidth: 1.9, species: 'Virginica' },
   { sepalLength: 6.5, sepalWidth: 3.0, petalLength: 5.2, petalWidth: 2.0, species: 'Virginica' },
   { sepalLength: 6.2, sepalWidth: 3.4, petalLength: 5.4, petalWidth: 2.3, species: 'Virginica' },
-  { sepalLength: 5.9, sepalWidth: 3.0, petalLength: 5.1, petalWidth: 1.8, species: 'Virginica' },
+  { sepalLength: 5.9, sepalWidth: 3.5, petalLength: 5.1, petalWidth: 1.8, species: 'Virginica' },
+  { sepalLength: 5.9, sepalWidth: 3, petalLength: 5.1, petalWidth: 1.8 },
 ];
