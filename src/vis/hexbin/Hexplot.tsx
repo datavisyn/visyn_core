@@ -22,10 +22,11 @@ interface HexagonalBinProps {
   selectionCallback?: (ids: string[]) => void;
   selected?: { [key: string]: boolean };
   filteredCategories: string[];
+  colorScale: d3v7.ScaleOrdinal<string, string>;
   multiples?: boolean;
 }
 
-export function Hexplot({ config, allColumns, selectionCallback = () => null, selected = {}, filteredCategories, multiples }: HexagonalBinProps) {
+export function Hexplot({ config, allColumns, selectionCallback = () => null, selected = {}, filteredCategories, multiples, colorScale }: HexagonalBinProps) {
   const { ref: hexRef, width: realWidth, height: realHeight } = useElementSize();
   const [transform, setTransform] = useState(m4.I());
 
@@ -62,7 +63,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
         return {
           allValues: allColumns.numColVals[0].resolvedValues,
           filteredValues: allColumns.numColVals[0].resolvedValues.filter((val, i) => {
-            return !filteredCategories.includes(allColumns.colorColVals.resolvedValues[i].val as string);
+            return !filteredCategories.includes(`${allColumns.colorColVals.resolvedValues[i].val}` as string); // need to have a string, even if it's 'undefined' or 'null'
           }),
         };
       }
@@ -162,19 +163,6 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     domain: hexDomains.len,
     range: [0.25, 1],
   });
-
-  // Create a default color scale
-  const colorScale = useMemo(() => {
-    if (!currentColorColumn?.allValues) {
-      return null;
-    }
-
-    const colorOptions = currentColorColumn.allValues.map((val) => val.val as string);
-
-    return d3v7
-      .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : d3v7.schemeCategory10)
-      .domain(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
-  }, [allColumns, currentColorColumn]);
 
   // memoize the actual hexes since they do not need to change on zoom/drag
   const hexObjects = React.useMemo(() => {

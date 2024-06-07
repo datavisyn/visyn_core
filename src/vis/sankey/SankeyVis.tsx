@@ -10,6 +10,7 @@ import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces'
 import { ISankeyConfig } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
+import { selectionColorDark } from '../../utils';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -126,6 +127,9 @@ export async function fetchData(columns: VisColumn[], config: ISankeyConfig) {
 }
 
 function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
+  if (selection.size <= 0) {
+    return false;
+  }
   for (const value of inverseLookup) {
     if (selection.has(value)) {
       return true;
@@ -137,8 +141,8 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
 
 function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineTheme) {
   // @TODO @MORITZ
-  const selected = VIS_NEUTRAL_COLOR;
-  const def = optimisedSelection.size > 0 ? VIS_UNSELECTED_COLOR : selected;
+  const selected = selectionColorDark;
+  const def = optimisedSelection.size > 0 ? VIS_UNSELECTED_COLOR : VIS_NEUTRAL_COLOR;
 
   return [
     {

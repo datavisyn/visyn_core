@@ -58,7 +58,6 @@ export function SingleHex({
         highestCategory = i;
       }
     }
-
     return highestCategory;
   }, [catMap]);
 
@@ -119,13 +118,12 @@ export function SingleHex({
                   ? isSelected || Object.keys(selected).length === 0
                     ? colorScale(topCategory)
                     : VIS_UNSELECTED_COLOR
-                  : isSelected || Object.keys(selected).length === 0
-                    ? VIS_NEUTRAL_COLOR
+                  : isSelected
+                    ? selectionColorDark
                     : VIS_UNSELECTED_COLOR
               }`,
               transform: `translate(${hexData.x}px, ${hexData.y}px)`,
               strokeWidth: isSelected ? (colorScale ? 0 : 2) : 0,
-              stroke: selectionColorDark,
               fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
             }}
           />

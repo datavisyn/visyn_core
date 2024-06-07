@@ -8,6 +8,7 @@ import { binByAggregateType, getBarData, groupByAggregateType, rollupByAggregate
 import { EBarGroupingType, SortTypes } from '../interfaces';
 import { useGetBarScales } from './useGetBarScales';
 import { categoricalColors as colorScale } from '../../../utils/colors';
+import { assignGrayColorToNullValues } from '../../utils';
 
 export function useGetGroupedBarScales(
   allColumns: Awaited<ReturnType<typeof getBarData>>,
@@ -61,7 +62,6 @@ export function useGetGroupedBarScales(
     if (!groupedTable) return null;
 
     let i = -1;
-
     const newGroup = groupedTable.ungroup().groupby('group').count();
     const categoricalColors = allColumns.groupColVals.color
       ? newGroup
@@ -71,8 +71,16 @@ export function useGetGroupedBarScales(
             i += 1;
             return allColumns.groupColVals.color[value] || colorScale[i % colorScale.length];
           })
-      : colorScale;
-
+      : assignGrayColorToNullValues(
+          Array.from(
+            new Set<string>(
+              allColumns.groupColVals.resolvedValues.map((val) => {
+                return `${val.val}` as string; // need to have a string, even if it's 'undefined' or 'null'
+              }),
+            ),
+          ),
+          colorScale,
+        );
     const domain = newGroup.array('group').sort();
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
