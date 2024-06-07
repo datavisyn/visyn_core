@@ -127,6 +127,7 @@ export function HexbinVis({
             filteredCategories={colorScale ? filteredCategories : []}
             colorScale={colorScale || null}
             onClick={(s) => {
+              return null; // deactivate legend interactions for now
               filteredCategories.includes(s)
                 ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
                 : setFilteredCategories([...filteredCategories, s]);
