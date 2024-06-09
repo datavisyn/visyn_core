@@ -3,7 +3,7 @@ import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
-import { columnNameWithDescription, resolveColumnValues } from '../general/layoutUtils';
+import { columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 
@@ -276,6 +276,9 @@ export async function createViolinTraces(
         type: 'violin',
         hoverinfo: 'skip',
         visible: 'legendonly',
+        legendgrouptitle: {
+          text: truncateText(columnNameWithDescription(subCatCol.info), true, 20),
+        },
         transforms: [
           {
             type: 'groupby',
