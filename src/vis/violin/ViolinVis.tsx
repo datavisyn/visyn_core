@@ -11,6 +11,8 @@ import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
+import { selectionColorDark } from '../../utils/colors';
+import { VIS_LABEL_COLOR } from '../general/constants';
 
 export function ViolinVis({
   config,
@@ -168,12 +170,31 @@ export function ViolinVis({
                 return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
               });
               for (const p of sharedAxisTraces) {
+                // Add sorting icons + click events
+                const icon = sortState?.col === p.yLabel ? (sortState.asc ? 'fa-arrow-up-short-wide' : 'fa-arrow-down-short-wide') : 'fa-arrow-down-short-wide';
+                const color = sortState?.col === p.yLabel ? selectionColorDark : VIS_LABEL_COLOR;
+
+                const titleElement = d3v7.select(`g .${p.data.yaxis}title`);
+                // @ts-ignore
+                const yOffset = titleElement.node().getBoundingClientRect().height / 2 + 40;
+                // @ts-ignore
+                const xOffset = titleElement.node().getBoundingClientRect().width - 5;
+                const y = Number.parseInt(titleElement.attr('y'), 10) - yOffset;
+                // TODO: How to get the proper x offset?
+                const x = Number.parseInt(titleElement.attr('x'), 10) - xOffset;
+
                 d3v7
-                  .select(`g .${p.data.yaxis}title`)
+                  .select(`g .g-${p.data.yaxis}title`)
                   .style('pointer-events', 'all')
                   .on('click', () => {
                     toggleSortState(p.yLabel);
-                  });
+                  })
+                  .append('foreignObject')
+                  .attr('width', 20)
+                  .attr('height', 20)
+                  .attr('y', y)
+                  .attr('x', x)
+                  .html(`<span style="font-size: 0.8em; color: ${color}; transform: rotate(270deg); display: block;"><i class="fa-solid ${icon}"></i></span>`);
               }
             }}
           />

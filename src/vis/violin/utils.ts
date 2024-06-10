@@ -96,11 +96,15 @@ export async function createViolinTraces(
   const numColValues = await resolveColumnValues(numCols);
   // Null values in categorical columns would break the plot --> replace with NAN_REPLACEMENT
   const catColValues = (await catCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
-
+  const uniqueCatColValues = [...new Set(catColValues.map((v) => v.val))];
   const facetColValues = (await facetCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const uniqueFacetValues = [...new Set(facetColValues.map((v) => v.val))];
   const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
+  const uniqueSubCatValues = [...new Set(subCatColValues.map((v) => v.val))];
   const subCatMap: { [key: string]: { color: string; idx: number } } = {};
+  uniqueSubCatValues.forEach((v, i) => {
+    subCatMap[v] = { color: categoricalColors[i % categoricalColors.length], idx: i };
+  });
 
   // We do the grouping here to avoid having to do it in the plotly trace creation
   // This simplifies selection and highlighting of violins
@@ -122,10 +126,6 @@ export async function createViolinTraces(
         if (v.val) {
           updateDataRange(v.val as number);
           const subCatVal = (subCatColValues[i]?.val as string) || null;
-          if (subCatCol && !subCatMap[subCatVal]) {
-            const colorIndex = Object.keys(subCatMap).length % categoricalColors.length;
-            subCatMap[subCatVal] = { color: categoricalColors[colorIndex], idx: Object.keys(subCatMap).length };
-          }
           data.push({
             ids: v.id?.toString(),
             x: columnNameWithDescription(numCurr.info),
@@ -146,9 +146,6 @@ export async function createViolinTraces(
         if (v.val) {
           const catVal = catColValues[i].val as string;
           const subCatVal = (subCatColValues[i]?.val as string) || null;
-          if (subCatCol && !subCatMap[subCatVal]) {
-            subCatMap[subCatVal] = { color: categoricalColors[Object.keys(subCatMap).length], idx: Object.keys(subCatMap).length };
-          }
           updateDataRange(v.val as number);
           data.push({
             ids: v.id?.toString(),
@@ -171,20 +168,40 @@ export async function createViolinTraces(
   // Ensore NAN_REPLACEMENT is always at the end of the x-axis
   // This also ensures that plotly does not draw the violins if there are no y values for this group
   data = data.sort((a) => (a.x === NAN_REPLACEMENT ? 1 : -1));
+  // Continue with the rest of the code...
   const groupedData = _.groupBy(data, (d) => concatGroup(d.groups));
+
+  // Apply domain sorting
+  const catOrder = new Set([...(catCol?.domain ?? []), ...uniqueSubCatValues]);
+  const subCatOrder = new Set([...(subCatCol?.domain ?? []), ...uniqueSubCatValues]);
+  const facetOrder = new Set([...(facetCol?.domain ?? []), ...uniqueFacetValues]);
+  const groupKeysSorted = Object.keys(groupedData).sort((a, b) => {
+    const groupA = groupedData[a][0].groups;
+    const groupB = groupedData[b][0].groups;
+    const catIndexA = groupA.cat ? (catOrder.has(groupA.cat.val) ? [...catOrder].indexOf(groupA.cat.val) : Infinity) : Infinity;
+    const catIndexB = groupB.cat ? (catOrder.has(groupB.cat.val) ? [...catOrder].indexOf(groupB.cat.val) : Infinity) : Infinity;
+    const subCatIndexA = groupA.subCat ? (subCatOrder.has(groupA.subCat.val) ? [...subCatOrder].indexOf(groupA.subCat.val) : Infinity) : Infinity;
+    const subCatIndexB = groupB.subCat ? (subCatOrder.has(groupB.subCat.val) ? [...subCatOrder].indexOf(groupB.subCat.val) : Infinity) : Infinity;
+    const facetIndexA = groupA.facet ? (facetOrder.has(groupA.facet.val) ? [...facetOrder].indexOf(groupA.facet.val) : Infinity) : Infinity;
+    const facetIndexB = groupB.facet ? (facetOrder.has(groupB.facet.val) ? [...facetOrder].indexOf(groupB.facet.val) : Infinity) : Infinity;
+    return catIndexA - catIndexB || subCatIndexA - subCatIndexB || facetIndexA - facetIndexB;
+  });
+
   const hasSplit = Object.keys(subCatMap).length === 2;
 
-  // Get category sort order
+  // Sort by mean if order is set
   let categoryOrder = null;
   if (sortBy?.col) {
     const filteredGroupKeys = Object.keys(groupedData).filter((g) => g.includes(sortBy.col));
     const meanValues = filteredGroupKeys.map((g) => {
       const group = groupedData[g];
       const values = group.map((d) => d.y);
-      return { key: g, mean: _.mean(values) };
+      return { key: g, mean: _.mean(values), cat: group[0].groups.cat?.val || group[0].groups.num.val };
     });
-    const sortedGroups = _.orderBy(meanValues, ['mean'], [sortBy.asc ? 'asc' : 'desc']);
-    const sortedCategories = sortedGroups.map((g) => groupedData[g.key][0].x);
+
+    const summedMeanValues = Object.values(_.groupBy(meanValues, (m) => m.cat)).map((group) => ({ key: group[0].cat, mean: _.sumBy(group, 'mean') }));
+    const sortedGroups = _.orderBy(summedMeanValues, ['mean'], [sortBy.asc ? 'asc' : 'desc']);
+    const sortedCategories = sortedGroups.map((g) => g.key);
     categoryOrder = [...new Set(sortedCategories)];
   }
 
@@ -212,7 +229,8 @@ export async function createViolinTraces(
   };
 
   // Add new trace for each violin
-  _.flatMap(groupedData, (group) => {
+  groupKeysSorted.forEach((key) => {
+    const group = groupedData[key];
     const { plotId, facet, subCat, cat, num } = group[0].groups;
     const isSelected = selectedList.length > 0 && group.some((g) => selectedMap[g.ids]);
     const opacities = selectedList.length > 0 ? (isSelected ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
