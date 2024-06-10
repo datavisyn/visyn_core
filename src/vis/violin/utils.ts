@@ -172,7 +172,7 @@ export async function createViolinTraces(
   const groupedData = _.groupBy(data, (d) => concatGroup(d.groups));
 
   // Apply domain sorting
-  const catOrder = new Set([...(catCol?.domain ?? []), ...uniqueSubCatValues]);
+  const catOrder = new Set([...(catCol?.domain ?? []), ...uniqueCatColValues]);
   const subCatOrder = new Set([...(subCatCol?.domain ?? []), ...uniqueSubCatValues]);
   const facetOrder = new Set([...(facetCol?.domain ?? []), ...uniqueFacetValues]);
   const groupKeysSorted = Object.keys(groupedData).sort((a, b) => {
