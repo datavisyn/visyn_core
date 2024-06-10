@@ -6,6 +6,7 @@ import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general/con
 import { columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
+import { ESortStates } from '../general/SortIcon';
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
@@ -55,7 +56,7 @@ const alphaToHex = (alpha: number) => {
 export async function createViolinTraces(
   columns: VisColumn[],
   config: IViolinConfig,
-  sortBy: { col: string; asc: boolean },
+  sortBy: { col: string; state: ESortStates },
   selectedList: string[],
   selectedMap: { [key: string]: boolean },
 ): Promise<PlotlyInfo & { violinMode: string; hasSplit: boolean; categoryOrder: string[] }> {
@@ -191,7 +192,7 @@ export async function createViolinTraces(
 
   // Sort by mean if order is set
   let categoryOrder = null;
-  if (sortBy?.col) {
+  if (sortBy?.col && sortBy?.state !== ESortStates.NONE) {
     const filteredGroupKeys = Object.keys(groupedData).filter((g) => g.includes(sortBy.col));
     const meanValues = filteredGroupKeys.map((g) => {
       const group = groupedData[g];
@@ -200,7 +201,7 @@ export async function createViolinTraces(
     });
 
     const summedMeanValues = Object.values(_.groupBy(meanValues, (m) => m.cat)).map((group) => ({ key: group[0].cat, mean: _.sumBy(group, 'mean') }));
-    const sortedGroups = _.orderBy(summedMeanValues, ['mean'], [sortBy.asc ? 'asc' : 'desc']);
+    const sortedGroups = _.orderBy(summedMeanValues, ['mean'], [sortBy.state === ESortStates.ASC ? 'asc' : 'desc']);
     const sortedCategories = sortedGroups.map((g) => g.key);
     categoryOrder = [...new Set(sortedCategories)];
   }
