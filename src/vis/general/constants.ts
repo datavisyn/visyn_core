@@ -1,5 +1,7 @@
+import { selectionColorDark } from '../../utils/colors';
+
 export const DEFAULT_COLOR = '#2e2e2e';
-export const SELECT_COLOR = '#E29609';
+export const SELECT_COLOR = selectionColorDark;
 export const NAN_REPLACEMENT = 'Unknown';
 
 export const VIS_LABEL_COLOR = '#99A1A9';
