@@ -1,0 +1,14 @@
+name: Chromatic UI test
+
+on:
+  push:
+    paths:
+      - 'src/vis/**/*' # trigger whenever something changed in the VIS (?)
+      - '**.stories.*' # trigger whenever any story has changed
+
+jobs:
+  build:
+    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
+    secrets: inherit
+    with:
+      chromatic_enable: true
