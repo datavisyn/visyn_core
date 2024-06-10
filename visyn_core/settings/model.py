@@ -178,6 +178,11 @@ class VisynCoreSettings(BaseModel):
     ```
     """
 
+    bundles_dir: str | None = None
+    """
+    Directory where the bundles are stored. If set, a StaticFiles route at / is added to the application.
+    """
+
     disable: DisableSettings = DisableSettings()
     enabled_plugins: list[str] = []
 
