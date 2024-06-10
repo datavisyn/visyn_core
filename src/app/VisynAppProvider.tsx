@@ -90,7 +90,7 @@ export function VisynAppProvider({
         if (!Sentry.isInitialized()) {
           Sentry.init({
             dsn: clientConfig.sentry_dsn,
-            tunnel: clientConfig.sentry_tunnel,
+            tunnel: clientConfig.sentry_proxy_to,
             integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
 
             // Set tracesSampleRate to 1.0 to capture 100%
@@ -107,7 +107,7 @@ export function VisynAppProvider({
         }
       });
     }
-  }, [clientConfig?.sentry_dsn, clientConfig?.sentry_tunnel, sentryInitOptions]);
+  }, [clientConfig?.sentry_dsn, clientConfig?.sentry_proxy_to, sentryInitOptions]);
 
   React.useEffect(() => {
     // Hook to set the user in Sentry if a DSN is provided and the user is set.
