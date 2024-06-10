@@ -123,7 +123,8 @@ export async function createViolinTraces(
           updateDataRange(v.val as number);
           const subCatVal = (subCatColValues[i]?.val as string) || null;
           if (subCatCol && !subCatMap[subCatVal]) {
-            subCatMap[subCatVal] = { color: categoricalColors[Object.keys(subCatMap).length], idx: Object.keys(subCatMap).length };
+            const colorIndex = Object.keys(subCatMap).length % categoricalColors.length;
+            subCatMap[subCatVal] = { color: categoricalColors[colorIndex], idx: Object.keys(subCatMap).length };
           }
           data.push({
             ids: v.id?.toString(),
@@ -191,10 +192,18 @@ export async function createViolinTraces(
   const sharedData = {
     type: 'violin' as Plotly.PlotType,
     jitter: hasSplit ? 0.2 : 0.6,
+    bandwidth: 0,
     points: config.violinOverlay === EViolinOverlay.STRIP ? 'all' : false,
     box: {
       width: hasSplit ? 0.5 : 0.3,
       visible: config.violinOverlay === EViolinOverlay.BOX,
+    },
+    hoverlabel: {
+      font: {
+        color: 'rgba(0,0,0,0.75)',
+        size: 12,
+      },
+      namelength: 100,
     },
     spanmode: 'hard',
     hoverinfo: 'y+name',
@@ -220,6 +229,7 @@ export async function createViolinTraces(
         yaxis: patchedPlotId === 1 ? 'y' : `y${patchedPlotId}`,
         ids,
         side: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 'positive' : 'negative') : null,
+        width: hasSplit ? 0.8 : null,
         pointpos: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 0.5 : -0.5) : 0,
         fillcolor: subCat
           ? selectedList.length === 0 || isSelected
@@ -253,8 +263,7 @@ export async function createViolinTraces(
         // @ts-ignore
         hoveron: config.violinOverlay === EViolinOverlay.STRIP ? 'violins+points' : 'violins',
         name: subCat ? subCat.val : cat ? cat.val : num.val,
-        scalegroup: subCat?.val,
-        legendgroup: subCat?.val,
+        offsetgroup: subCat?.val,
         ...sharedData,
       },
       yLabel: group[0].groups.num.id,

@@ -121,12 +121,12 @@ export function ViolinVis({
       shapes: [],
       // @ts-ignore
       violinmode: traces.violinMode,
-      violingap: traces.hasSplit ? (traces.plots.length > 4 ? 0 : null) : 0.1,
-      violingroupgap: traces.hasSplit ? (traces.plots.length > 4 ? 0 : null) : 0.1,
+      violingap: config.subCategorySelected && !traces.hasSplit ? 0.25 : 0.1,
+      violingroupgap: 0.1,
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, traces.categoryOrder, true, config.syncYAxis === EYAxisMode.UNSYNC) }));
-  }, [config.syncYAxis, config.violinOverlay, traces]);
+  }, [config.subCategorySelected, config.syncYAxis, config.violinOverlay, traces]);
 
   return (
     <Stack
