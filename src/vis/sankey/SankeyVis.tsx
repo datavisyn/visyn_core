@@ -194,8 +194,6 @@ export function SankeyVis({
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
 
-  const theme = useMantineTheme();
-
   // When we have new data -> recreate plotly
   React.useEffect(() => {
     const optimisedSelection = new Set(selection);
@@ -203,9 +201,9 @@ export function SankeyVis({
     if (!data) {
       setPlotly(null);
     } else {
-      setPlotly(generatePlotly(data, optimisedSelection, theme));
+      setPlotly(generatePlotly(data, optimisedSelection));
     }
-  }, [selection, data, theme]);
+  }, [selection, data]);
 
   React.useEffect(() => {
     setSelection(selectedList);
