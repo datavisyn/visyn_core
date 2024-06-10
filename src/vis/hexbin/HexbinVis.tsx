@@ -80,7 +80,7 @@ export function HexbinVis({
     }
 
     const colorOptions = currentColorColumn.allValues.map((val) => {
-      return `${val.val}` as string; // need to have a string, even if it's 'undefined' or 'null'
+      return String(val.val); // need to have a string, even if it's 'undefined' or 'null'
     });
 
     return d3v7
@@ -126,11 +126,11 @@ export function HexbinVis({
             categories={colorScale ? colorScale.domain() : []}
             filteredCategories={colorScale ? filteredCategories : []}
             colorScale={colorScale || null}
-            onClick={(s) => {
-              return null; // deactivate legend interactions for now
-              filteredCategories.includes(s)
-                ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
-                : setFilteredCategories([...filteredCategories, s]);
+            onClick={() => {
+              return null; // TODO: activate legend interactions later on by removing this line
+              // filteredCategories.includes(s)
+              //   ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
+              //   : setFilteredCategories([...filteredCategories, s]);
             }}
           />
         </div>
