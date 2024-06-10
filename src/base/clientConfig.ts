@@ -16,6 +16,8 @@ import { Ajax } from './ajax';
  */
 export interface IClientConfig {
   env?: 'development' | 'production';
+  sentry_dsn?: string;
+  sentry_proxy_to?: string;
 }
 
 /**
