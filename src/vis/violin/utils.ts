@@ -197,14 +197,14 @@ export async function createViolinTraces(
       visible: config.violinOverlay === EViolinOverlay.BOX,
     },
     spanmode: 'hard',
-    hoverinfo: 'y',
+    hoverinfo: 'y+name',
     scalemode: 'width',
     showlegend: false,
   };
 
   // Add new trace for each violin
   _.flatMap(groupedData, (group) => {
-    const { plotId, facet, subCat } = group[0].groups;
+    const { plotId, facet, subCat, cat, num } = group[0].groups;
     const isSelected = selectedList.length > 0 && group.some((g) => selectedMap[g.ids]);
     const opacities = selectedList.length > 0 ? (isSelected ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
     const patchedPlotId = facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
@@ -252,7 +252,7 @@ export async function createViolinTraces(
         },
         // @ts-ignore
         hoveron: config.violinOverlay === EViolinOverlay.STRIP ? 'violins+points' : 'violins',
-        name: subCat?.val,
+        name: subCat ? subCat.val : cat ? cat.val : num.val,
         scalegroup: subCat?.val,
         legendgroup: subCat?.val,
         ...sharedData,
