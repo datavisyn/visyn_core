@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      chromatic:
+        description: 'Run chromatic'
+        required: false
+        type: boolean
+        default: false
   push:
 
 jobs:
@@ -15,5 +20,6 @@ jobs:
     uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
     secrets: inherit
     with:
+      chromatic_enable: ${{ inputs.chromatic == true }}
       cypress_enable: true
       cypress_run_because_flag: ${{ inputs.cypress == true }}
