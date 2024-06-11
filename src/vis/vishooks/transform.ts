@@ -8,14 +8,14 @@ export function identityZoom(): ZoomTransform {
 }
 
 export function invertX(transform: ZoomTransform, x: number) {
-  const translation = m4.getTranslation(v3.identityMatrixV3(), transform);
-  const scale = m4.getScaling(v3.identityMatrixV3(), transform);
+  const translation = m4.getTranslation(v3.vector3(), transform);
+  const scale = m4.getScaling(v3.vector3(), transform);
   return (x - translation[0]) / scale[0];
 }
 
 export function invertY(transform: ZoomTransform, y: number) {
-  const translation = m4.getTranslation(v3.identityMatrixV3(), transform);
-  const scale = m4.getScaling(v3.identityMatrixV3(), transform);
+  const translation = m4.getTranslation(v3.vector3(), transform);
+  const scale = m4.getScaling(v3.vector3(), transform);
   return (y - translation[1]) / scale[1];
 }
 
@@ -36,7 +36,7 @@ export function rescaleY(transform: ZoomTransform, y: ScaleLinear<number, number
 }
 
 export function translate(transform: ZoomTransform, x: number, y: number) {
-  const scale = m4.getScaling(v3.identityMatrixV3(), transform);
+  const scale = m4.getScaling(v3.vector3(), transform);
   const newTransform = m4.clone(transform);
   newTransform[12] += x * scale[0];
   newTransform[13] += y * scale[1];
@@ -58,8 +58,8 @@ export function defaultConstraint(transform: ZoomTransform, width: number, heigh
  * The translation extent is applied at a later stage.
  */
 export function calculateTransform(zoom: ZoomTransform, x: number, y: number, wheel: number, direction: 'x' | 'y' | 'xy', zoomExtent?: ZoomExtent) {
-  const translation = m4.getTranslation(v3.identityMatrixV3(), zoom);
-  const scale = m4.getScaling(v3.identityMatrixV3(), zoom);
+  const translation = m4.getTranslation(v3.vector3(), zoom);
+  const scale = m4.getScaling(v3.vector3(), zoom);
 
   const zoomFactor = Math.exp(wheel * 0.1);
 

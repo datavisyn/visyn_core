@@ -13,7 +13,7 @@ import { YAxis } from './YAxis';
 import { IHexbinConfig } from './interfaces';
 import { ResolvedHexValues } from './utils';
 import { checkForInclusion, lassoToSvgPath, m4, useLasso, useLinearScale, usePan, useTransformScale, useZoom } from '../vishooks';
-import { sxi, txi, tyi } from '../vishooks/math/m4';
+import { sxi, txi, tyi } from '../vishooks/math/matrix4x4';
 import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR } from '../general/constants';
 
 interface HexagonalBinProps {
