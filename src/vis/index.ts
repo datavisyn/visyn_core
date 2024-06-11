@@ -22,4 +22,4 @@ export * from './scatter/interfaces';
 export * from './sankey/interfaces';
 
 // export utility functions
-export * from './utils';
+export * from './general/utils';

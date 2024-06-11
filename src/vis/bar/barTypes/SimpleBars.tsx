@@ -7,7 +7,7 @@ import ColumnTable from 'arquero/dist/types/table/column-table';
 import { Stack, Text } from '@mantine/core';
 import { SingleBar } from '../barComponents/SingleBar';
 import { EAggregateTypes } from '../../interfaces';
-import { getLabelOrUnknown } from '../../utils';
+import { getLabelOrUnknown } from '../../general/utils';
 
 export function SimpleBars({
   aggregatedTable,

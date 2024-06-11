@@ -4,7 +4,7 @@ import { Text, Tooltip, Center, Stack } from '@mantine/core';
 import { useMemo } from 'react';
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
-import { VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../general/constants';
+import { NAN_REPLACEMENT, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../general/constants';
 
 const textMargin = 2;
 export function HeatmapText({
@@ -61,14 +61,14 @@ export function HeatmapText({
             setImmediate={isImmediate}
           >
             <Center>
-              <Tooltip withinPortal withArrow arrowSize={6} label={xVal ?? 'Unknown'}>
+              <Tooltip withinPortal withArrow arrowSize={6} label={xVal ?? NAN_REPLACEMENT}>
                 <Text
                   pb={2} // to make sure the text is not cut off, e.g. "g"s
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
                   style={{ textOverflow: 'ellipsis', userSelect: 'none', overflow: 'hidden', whiteSpace: 'nowrap' }}
                 >
-                  {xVal || 'Unknown'}
+                  {xVal || NAN_REPLACEMENT}
                 </Text>
               </Tooltip>
             </Center>
@@ -102,14 +102,14 @@ export function HeatmapText({
             setImmediate={isImmediate}
           >
             <Stack justify="center" h="100%">
-              <Tooltip withinPortal withArrow arrowSize={6} label={yVal ?? 'Unknown'}>
+              <Tooltip withinPortal withArrow arrowSize={6} label={yVal ?? NAN_REPLACEMENT}>
                 <Text
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
                   lh="xs"
                   style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', userSelect: 'none' }}
                 >
-                  {yVal || 'Unknown'}
+                  {yVal || NAN_REPLACEMENT}
                 </Text>
               </Tooltip>
             </Stack>
