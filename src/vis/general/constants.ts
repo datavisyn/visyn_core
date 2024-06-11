@@ -31,6 +31,11 @@ export const VIS_GRID_COLOR = '#E9ECEF';
 export const VIS_NEUTRAL_COLOR = '#71787E';
 
 /**
+ * Trace color (e.g., Dot labels in scatter plot)
+ */
+export const VIS_TRACES_COLOR = '#7f7f7f';
+
+/**
  * Color for unselected items. It is the VIS_NEUTRAL_COLOR but with 0.3 opacity.
  */
 export const VIS_UNSELECTED_COLOR = `${VIS_NEUTRAL_COLOR}4D`;

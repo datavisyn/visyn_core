@@ -16,6 +16,7 @@ import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
 import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
+import { VIS_TRACES_COLOR } from '../general/constants';
 
 const formatPValue = (pValue: number) => {
   if (pValue === null) {
@@ -181,7 +182,7 @@ export function ScatterVis({
             showarrow: false,
             font: {
               size: 16,
-              color: '#7f7f7f',
+              color: VIS_TRACES_COLOR,
             },
           }),
         );
