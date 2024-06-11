@@ -37,6 +37,7 @@ export function AggregateTypeSelect({
     <>
       <Select
         label="Aggregate type"
+        allowDeselect={false}
         onChange={(option) => aggregateTypeSelectCallback(option as EAggregateTypes)}
         name="numColumns"
         data={selectOptions || []}
