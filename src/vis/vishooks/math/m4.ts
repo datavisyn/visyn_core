@@ -41,7 +41,7 @@ export const szi = 10;
 /**
  * Returns a new identity matrix. If out is specified, the result is copied into out.
  */
-export function identityMatrix(out: Matrix4x4 = new Float32Array(16)): Matrix4x4 {
+export function identityMatrix4x4(out: Matrix4x4 = new Float32Array(16)): Matrix4x4 {
   out[0] = 1;
   out[1] = 0;
   out[2] = 0;

@@ -12,8 +12,8 @@ type UseBandScaleProps = {
 
 export function useBandScale({ direction, domain, range, transform }: UseBandScaleProps) {
   return useMemo(() => {
-    const s = m4.getScaling(v3.I(), transform);
-    const t = m4.getTranslation(v3.I(), transform);
+    const s = m4.getScaling(v3.identityMatrixV3(), transform);
+    const t = m4.getTranslation(v3.identityMatrixV3(), transform);
     const scaledRange = direction === 'x' ? range.map((r) => r * s[0] + t[0]) : range.map((r) => r * s[1] + t[1]);
     return scaleBand().domain(domain).range(scaledRange);
   }, [domain, range, direction, transform]);

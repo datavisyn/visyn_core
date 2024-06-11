@@ -46,7 +46,7 @@ interface UseZoomProps {
 export function useZoom(ref: RefObject<HTMLElement>, options: UseZoomProps = {}) {
   const [internalValue, setInternalValue] = useControlledUncontrolled({
     value: options.value,
-    defaultValue: options.defaultValue || m4.identityMatrix(),
+    defaultValue: options.defaultValue || m4.identityMatrix4x4(),
     onChange: options.onChange,
   });
 
