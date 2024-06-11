@@ -2,7 +2,7 @@ import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
-import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
+import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
 import { columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
@@ -66,7 +66,7 @@ export async function createViolinTraces(
   const baseOpacities =
     config.violinOverlay === EViolinOverlay.STRIP
       ? { selected: { line: 0.6, fill: 0.2, point: 1.0 }, unselected: { line: 0.2, fill: 0.2, point: 0.6 } }
-      : { selected: { line: 0.8, fill: 0.6, point: 1.0 }, unselected: { line: 0.4, fill: 0.3, point: 1.0 } };
+      : { selected: { line: 0.8, fill: 0.6, point: 1.0 }, unselected: { line: VIS_UNSELECTED_OPACITY * 1.3, fill: VIS_UNSELECTED_OPACITY, point: 1.0 } };
 
   if (!config.numColumnsSelected) {
     return {
@@ -104,7 +104,7 @@ export async function createViolinTraces(
   const uniqueSubCatValues = [...new Set(subCatColValues.map((v) => v.val))];
   const subCatMap: { [key: string]: { color: string; idx: number } } = {};
   uniqueSubCatValues.forEach((v, i) => {
-    subCatMap[v] = { color: categoricalColors[i % categoricalColors.length], idx: i };
+    subCatMap[v] = { color: v === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[i % categoricalColors.length], idx: i };
   });
 
   // We do the grouping here to avoid having to do it in the plotly trace creation

@@ -72,7 +72,7 @@ export function createPlotlySortIcon({
   const isYAxis = axis.includes('y');
   const titleElement = d3v7.select(`g .${axis}title`);
 
-  if (titleElement) {
+  if (titleElement.node()) {
     // @ts-ignore
     const bounds = titleElement.node().getBoundingClientRect();
     const yOffset = isYAxis ? bounds.height / 2 + 30 : bounds.height - 5;
