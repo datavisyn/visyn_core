@@ -52,17 +52,6 @@ export function BarChart({
 
   const [legendBoxRef] = useResizeObserver();
 
-  const groupedIds = useMemo(() => {
-    if (!groupedTable) {
-      return [];
-    }
-    return groupedTable
-      .groupby('group')
-      .rollup({ ids: op.array_agg('ids') })
-      .objects()
-      .map((val: { group: string; ids: string[][] }) => ({ group: val.group, ids: val.ids.flat() }));
-  }, [groupedTable]);
-
   const customSelectionCallback = useCallback(
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
       if (e.ctrlKey) {
@@ -91,7 +80,6 @@ export function BarChart({
         <Box ref={legendBoxRef}>
           {groupColorScale ? (
             <Legend
-              groupedIds={groupedIds}
               left={60}
               categories={groupColorScale.domain()}
               filteredOut={filteredOut}
