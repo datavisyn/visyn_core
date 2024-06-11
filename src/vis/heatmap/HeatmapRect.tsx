@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSpring, animated, easings } from 'react-spring';
 import { css } from '@emotion/css';
 import { selectionColorDark, selectionColorDarkHovered } from '../../utils/colors';
+import { NAN_REPLACEMENT } from '../general/constants';
 
 const DELAY = 2000;
 export function HeatmapRect({
@@ -98,7 +99,7 @@ export function HeatmapRect({
   }, []);
 
   return isHovered ? (
-    <Tooltip withArrow arrowSize={6} label={label === null ? 'Unknown' : formatter(label)}>
+    <Tooltip withArrow arrowSize={6} label={label === null ? NAN_REPLACEMENT : formatter(label)}>
       {rect}
     </Tooltip>
   ) : (

@@ -73,9 +73,9 @@ export function useGetGroupedBarScales(
           })
       : assignColorToNullValues(
           Array.from(
-            new Set<string>(
+            new Set(
               allColumns.groupColVals.resolvedValues.map((val) => {
-                return `${val.val}` as string; // need to have a string, even if it's 'undefined' or 'null'
+                return String(val.val); // need to have a string, even if it's 'undefined' or 'null'
               }),
             ),
           ),

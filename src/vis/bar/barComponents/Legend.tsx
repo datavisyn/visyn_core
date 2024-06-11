@@ -6,7 +6,6 @@ import { LegendItem } from '../../LegendItem';
 export function Legend({
   categories,
   colorScale,
-  groupedIds,
   left,
   isNumerical = false,
   stepSize = 0,
@@ -14,7 +13,6 @@ export function Legend({
   onFilteredOut,
 }: {
   categories: string[];
-  groupedIds: { group: string; ids: string[] }[];
   colorScale: d3v7.ScaleOrdinal<string, string>;
   left: number;
   isNumerical?: boolean;

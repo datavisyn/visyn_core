@@ -139,8 +139,7 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
   return false;
 }
 
-function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineTheme) {
-  // @TODO @MORITZ
+function generatePlotly(data, optimisedSelection: Set<string>) {
   const selected = selectionColorDark;
   const def = optimisedSelection.size > 0 ? VIS_UNSELECTED_COLOR : VIS_NEUTRAL_COLOR;
 
@@ -194,8 +193,6 @@ export function SankeyVis({
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
 
-  const theme = useMantineTheme();
-
   // When we have new data -> recreate plotly
   React.useEffect(() => {
     const optimisedSelection = new Set(selection);
@@ -203,9 +200,9 @@ export function SankeyVis({
     if (!data) {
       setPlotly(null);
     } else {
-      setPlotly(generatePlotly(data, optimisedSelection, theme));
+      setPlotly(generatePlotly(data, optimisedSelection));
     }
-  }, [selection, data, theme]);
+  }, [selection, data]);
 
   React.useEffect(() => {
     setSelection(selectedList);

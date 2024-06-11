@@ -78,11 +78,8 @@ export function beautifyLayout(
       range: t.xDomain ? t.xDomain : null,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
-      // gridwidth: 2,
-      // griddash: 'dash',
       zerolinecolor: VIS_GRID_COLOR,
       automargin,
-      // rangemode: 'tozero',
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
       tickfont: {
@@ -114,10 +111,7 @@ export function beautifyLayout(
       autorange,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
-      // gridwidth: 2,
-      // griddash: 'dash',
       zerolinecolor: VIS_GRID_COLOR,
-      // rangemode: 'tozero',
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
       tickfont: {

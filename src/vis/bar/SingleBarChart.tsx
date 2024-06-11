@@ -12,8 +12,11 @@ import { getBarData } from './utils';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
 import { ESortStates } from '../general/SortIcon';
 
-// bottom offset which also defines the lenght of the rotated labels
-
+/**
+ * Return the margin object and adjust the bottom offset which also defines the lenght of the rotated labels
+ * @param rotatAxisLabel if set to true, the labels on the x-axis have 80 px offset from the bottom. Otherwise, 60 px.
+ * @returns the margin object with the top, bottom, left and right offsets
+ */
 const getMargin = (rotatAxisLabel: boolean) => ({
   top: 30,
   bottom: rotatAxisLabel ? 80 : 60,
