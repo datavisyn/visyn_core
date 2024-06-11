@@ -1,7 +1,7 @@
 import { Group, ScrollArea } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import React from 'react';
-import { LegendItem } from '../../LegendItem';
+import { LegendItem } from '../../general/LegendItem';
 
 export function Legend({
   categories,
