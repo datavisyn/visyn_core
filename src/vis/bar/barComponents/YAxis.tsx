@@ -11,7 +11,7 @@ import {
   VIS_TICK_LABEL_SIZE_SMALL,
 } from '../../general/constants';
 import { ESortStates, SortIcon } from '../../general/SortIcon';
-import { getLabelOrUnknown } from '../../utils';
+import { getLabelOrUnknown } from '../../general/utils';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({

@@ -1,4 +1,4 @@
-import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from './general/constants';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from './constants';
 
 /**
  *

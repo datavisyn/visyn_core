@@ -11,9 +11,8 @@ import { BrushOptionButtons } from '../sidebar';
 import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
-import { LegendItem } from '../LegendItem';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { assignColorToNullValues } from '../utils';
+import { assignColorToNullValues } from '../general/utils';
 
 function Legend({
   categories,

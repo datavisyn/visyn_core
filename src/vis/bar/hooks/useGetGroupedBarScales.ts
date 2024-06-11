@@ -8,7 +8,7 @@ import { binByAggregateType, getBarData, groupByAggregateType, rollupByAggregate
 import { EBarGroupingType, SortTypes } from '../interfaces';
 import { useGetBarScales } from './useGetBarScales';
 import { categoricalColors as colorScale } from '../../../utils/colors';
-import { assignColorToNullValues } from '../../utils';
+import { assignColorToNullValues } from '../../general/utils';
 
 export function useGetGroupedBarScales(
   allColumns: Awaited<ReturnType<typeof getBarData>>,
