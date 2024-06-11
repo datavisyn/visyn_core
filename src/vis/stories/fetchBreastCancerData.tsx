@@ -11,6 +11,7 @@ export function fetchBreastCancerData(): VisColumn[] {
       },
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.map((r) => r.breastSurgeryType).map((val, i) => ({ id: i.toString(), val })),
+      domain: ['MASTECTOMY', 'BREAST CONSERVING'],
     },
     {
       info: {
@@ -20,6 +21,7 @@ export function fetchBreastCancerData(): VisColumn[] {
       },
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.map((r) => r.cellularity).map((val, i) => ({ id: i.toString(), val })),
+      domain: ['High', 'Moderate', 'Low'],
     },
     {
       info: {

@@ -6,7 +6,7 @@ import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { ESortStates, createPlotlySortIconY } from '../general/SortIcon';
+import { ESortStates, createPlotlySortIcon } from '../general/SortIcon';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
@@ -168,8 +168,9 @@ export function ViolinVis({
                 return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
               });
               for (const p of sharedAxisTraces) {
-                // Add sorting icons + click events
-                createPlotlySortIconY({ sortState, yAxis: p.data.yaxis, yLabel: p.yLabel, onToggleSort: toggleSortState });
+                // Add sorting icon for both x and y axis
+                createPlotlySortIcon({ sortState, axis: p.data.yaxis, axisLabel: p.yLabel, onToggleSort: toggleSortState });
+                createPlotlySortIcon({ sortState, axis: p.data.xaxis, axisLabel: p.xLabel, onToggleSort: toggleSortState });
               }
             }}
           />

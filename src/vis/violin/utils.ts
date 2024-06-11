@@ -194,16 +194,25 @@ export async function createViolinTraces(
   let categoryOrder = null;
   if (sortBy?.col && sortBy?.state !== ESortStates.NONE) {
     const filteredGroupKeys = Object.keys(groupedData).filter((g) => g.includes(sortBy.col));
-    const meanValues = filteredGroupKeys.map((g) => {
-      const group = groupedData[g];
-      const values = group.map((d) => d.y);
-      return { key: g, mean: _.mean(values), cat: group[0].groups.cat?.val || group[0].groups.num.val };
-    });
 
-    const summedMeanValues = Object.values(_.groupBy(meanValues, (m) => m.cat)).map((group) => ({ key: group[0].cat, mean: _.sumBy(group, 'mean') }));
-    const sortedGroups = _.orderBy(summedMeanValues, ['mean'], [sortBy.state === ESortStates.ASC ? 'asc' : 'desc']);
-    const sortedCategories = sortedGroups.map((g) => g.key);
-    categoryOrder = [...new Set(sortedCategories)];
+    // Sort by mean value for selected y axis
+    if (filteredGroupKeys.length > 0) {
+      const meanValues = filteredGroupKeys.map((g) => {
+        const group = groupedData[g];
+        const values = group.map((d) => d.y);
+        return { key: g, mean: _.mean(values), cat: group[0].groups.cat?.val || group[0].groups.num.val };
+      });
+
+      const summedMeanValues = Object.values(_.groupBy(meanValues, (m) => m.cat)).map((group) => ({ key: group[0].cat, mean: _.sumBy(group, 'mean') }));
+      const sortedGroups = _.orderBy(summedMeanValues, ['mean'], [sortBy.state === ESortStates.ASC ? 'asc' : 'desc']);
+      const sortedCategories = sortedGroups.map((g) => g.key);
+      categoryOrder = [...new Set(sortedCategories)];
+    }
+    // Sort alphabetically for selected x axis
+    else {
+      const sortedCategories = Object.keys(groupedData).map((g) => groupedData[g][0].groups.cat?.val || groupedData[g][0].groups.num.val);
+      categoryOrder = sortBy.state === ESortStates.ASC ? sortedCategories.sort() : sortedCategories.sort().reverse();
+    }
   }
 
   // Common data for all violin traces
