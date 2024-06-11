@@ -31,12 +31,12 @@ export function ViolinVis({
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, sortState, selectedList, selectedMap]);
 
   const toggleSortState = (col: string) => {
-    if (sortState?.col === col && sortState?.state === ESortStates.ASC) {
+    if (sortState?.col === col && sortState?.state === ESortStates.DESC) {
       setSortState(null);
     } else if (sortState?.col === col) {
-      setSortState({ col, state: ESortStates.ASC });
-    } else {
       setSortState({ col, state: ESortStates.DESC });
+    } else {
+      setSortState({ col, state: ESortStates.ASC });
     }
   };
 
@@ -169,8 +169,12 @@ export function ViolinVis({
               });
               for (const p of sharedAxisTraces) {
                 // Add sorting icon for both x and y axis
-                createPlotlySortIcon({ sortState, axis: p.data.yaxis, axisLabel: p.yLabel, onToggleSort: toggleSortState });
-                createPlotlySortIcon({ sortState, axis: p.data.xaxis, axisLabel: p.xLabel, onToggleSort: toggleSortState });
+                if (p.yLabel) {
+                  createPlotlySortIcon({ sortState, axis: p.data.yaxis, axisLabel: p.yLabel, onToggleSort: toggleSortState });
+                }
+                if (p.xLabel) {
+                  createPlotlySortIcon({ sortState, axis: p.data.xaxis, axisLabel: p.xLabel, onToggleSort: toggleSortState });
+                }
               }
             }}
           />

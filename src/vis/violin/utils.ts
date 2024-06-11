@@ -103,9 +103,6 @@ export async function createViolinTraces(
   const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const uniqueSubCatValues = [...new Set(subCatColValues.map((v) => v.val))];
   const subCatMap: { [key: string]: { color: string; idx: number } } = {};
-  uniqueSubCatValues.forEach((v, i) => {
-    subCatMap[v] = { color: v === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[i % categoricalColors.length], idx: i };
-  });
 
   // We do the grouping here to avoid having to do it in the plotly trace creation
   // This simplifies selection and highlighting of violins
@@ -185,7 +182,15 @@ export async function createViolinTraces(
     const subCatIndexB = groupB.subCat ? (subCatOrder.has(groupB.subCat.val) ? [...subCatOrder].indexOf(groupB.subCat.val) : Infinity) : Infinity;
     const facetIndexA = groupA.facet ? (facetOrder.has(groupA.facet.val) ? [...facetOrder].indexOf(groupA.facet.val) : Infinity) : Infinity;
     const facetIndexB = groupB.facet ? (facetOrder.has(groupB.facet.val) ? [...facetOrder].indexOf(groupB.facet.val) : Infinity) : Infinity;
-    return catIndexA - catIndexB || subCatIndexA - subCatIndexB || facetIndexA - facetIndexB;
+    // Ensure that NAN_REPLACEMENT is always at the end
+    const nanIndexA = groupedData[a][0].x === NAN_REPLACEMENT ? Infinity : -Infinity;
+    const nanIndexB = groupedData[b][0].x === NAN_REPLACEMENT ? Infinity : -Infinity;
+    return catIndexA - catIndexB || subCatIndexA - subCatIndexB || facetIndexA - facetIndexB || nanIndexA - nanIndexB;
+  });
+
+  // Create subcategory map for coloring and legend
+  [...subCatOrder].forEach((v, i) => {
+    subCatMap[v] = { color: v === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[i % categoricalColors.length], idx: i };
   });
 
   const hasSplit = Object.keys(subCatMap).length === 2;
@@ -256,7 +261,7 @@ export async function createViolinTraces(
         xaxis: patchedPlotId === 1 ? 'x' : `x${patchedPlotId}`,
         yaxis: patchedPlotId === 1 ? 'y' : `y${patchedPlotId}`,
         ids,
-        side: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 'positive' : 'negative') : null,
+        side: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 'negative' : 'positive') : null,
         width: hasSplit ? 0.8 : null,
         pointpos: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 0.5 : -0.5) : 0,
         fillcolor: subCat
