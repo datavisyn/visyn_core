@@ -4,7 +4,7 @@ import { clamp } from './util';
 import { m4, v3 } from './math';
 
 export function identityZoom(): ZoomTransform {
-  return m4.I();
+  return m4.identityMatrix();
 }
 
 export function invertX(transform: ZoomTransform, x: number) {
@@ -81,7 +81,7 @@ export function calculateTransform(zoom: ZoomTransform, x: number, y: number, wh
   const newX = translation[0] + offsetX;
   const newY = translation[1] + offsetY;
 
-  const mtx = m4.I();
+  const mtx = m4.identityMatrix();
   m4.setTranslation(mtx, direction !== 'y' ? newX : translation[0], direction !== 'x' ? newY : translation[1], 0);
   m4.setScaling(mtx, direction !== 'y' ? newScaleX : scale[0], direction !== 'x' ? newScaleY : scale[1], 0);
   return mtx;

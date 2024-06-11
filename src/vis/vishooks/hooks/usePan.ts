@@ -26,7 +26,7 @@ interface UsePanProps {
 export function usePan(ref: RefObject<HTMLElement>, options: UsePanProps = {}) {
   const [zoom, setZoom] = useControlledUncontrolled({
     value: options.value,
-    defaultValue: options.defaultValue || m4.I(),
+    defaultValue: options.defaultValue || m4.identityMatrix(),
     onChange: options.onChange,
   });
 

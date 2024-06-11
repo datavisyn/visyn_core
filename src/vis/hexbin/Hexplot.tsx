@@ -28,7 +28,7 @@ interface HexagonalBinProps {
 
 export function Hexplot({ config, allColumns, selectionCallback = () => null, selected = {}, filteredCategories, multiples, colorScale }: HexagonalBinProps) {
   const { ref: hexRef, width: realWidth, height: realHeight } = useElementSize();
-  const [transform, setTransform] = useState(m4.I());
+  const [transform, setTransform] = useState(m4.identityMatrix());
 
   const id = React.useMemo(() => uniqueId('HexPlot'), []);
 
