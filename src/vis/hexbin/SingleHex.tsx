@@ -5,6 +5,8 @@ import { useMemo } from 'react';
 import { PieChart } from './PieChart';
 import { cutHex } from './utils';
 import { EHexbinOptions } from './interfaces';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
+import { selectionColorDark } from '../../utils';
 
 export interface SingleHexProps {
   hexbinOption: EHexbinOptions;
@@ -56,7 +58,6 @@ export function SingleHex({
         highestCategory = i;
       }
     }
-
     return highestCategory;
   }, [catMap]);
 
@@ -89,10 +90,16 @@ export function SingleHex({
                 <path
                   d={currPath}
                   style={{
-                    fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(key) : 'gray') : 'black'}`,
+                    fill: `${
+                      colorScale
+                        ? isSelected || Object.keys(selected).length === 0
+                          ? colorScale(key)
+                          : VIS_UNSELECTED_COLOR
+                        : isSelected || Object.keys(selected).length === 0
+                          ? VIS_NEUTRAL_COLOR
+                          : VIS_UNSELECTED_COLOR
+                    }`,
                     transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-                    stroke: isSelected ? '#E29609' : 'white',
-                    strokeWidth: isSelected ? 1 : 0,
                     fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
                   }}
                 />
@@ -106,10 +113,17 @@ export function SingleHex({
           <path
             d={d3Hexbin.hexagon(isSizeScale ? radiusScale(hexData.length) : hexRadius)}
             style={{
-              fill: `${colorScale ? (isSelected || Object.keys(selected).length === 0 ? colorScale(topCategory) : 'gray') : 'black'}`,
+              fill: `${
+                colorScale
+                  ? isSelected || Object.keys(selected).length === 0
+                    ? colorScale(topCategory)
+                    : VIS_UNSELECTED_COLOR
+                  : isSelected
+                    ? selectionColorDark
+                    : VIS_UNSELECTED_COLOR
+              }`,
               transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-              stroke: isSelected ? '#E29609' : 'white',
-              strokeWidth: isSelected ? (colorScale ? 1 : 2) : 0,
+              strokeWidth: isSelected ? (colorScale ? 0 : 2) : 0,
               fillOpacity: isOpacityScale ? opacityScale(hexData.length) : '1',
             }}
           />
@@ -122,10 +136,16 @@ export function SingleHex({
               <path
                 d={d3Hexbin.hexagon(isSizeScale ? radiusScale(hexData.length) : hexRadius)}
                 style={{
-                  fill: `${'black'}`,
+                  fill: `${
+                    colorScale
+                      ? isSelected || Object.keys(selected).length === 0
+                        ? colorScale(topCategory)
+                        : VIS_UNSELECTED_COLOR
+                      : isSelected || Object.keys(selected).length === 0
+                        ? VIS_NEUTRAL_COLOR
+                        : VIS_UNSELECTED_COLOR
+                  }`,
                   transform: `translate(${hexData.x}px, ${hexData.y}px)`,
-                  stroke: isSelected ? '#E29609' : 'white',
-                  strokeWidth: isSelected ? 1 : 0,
                   fillOpacity: opacityScale(hexData.length),
                 }}
               />
@@ -138,6 +158,8 @@ export function SingleHex({
               radius={isSizeScale ? radiusScale(hexData.length) / 2 : hexRadius / 2}
               transform={`translate(${hexData.x}px, ${hexData.y}px)`}
               colorScale={colorScale}
+              selected={selected}
+              isSelected={isSelected}
             />
           </g>
         </>

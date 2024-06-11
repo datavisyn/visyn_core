@@ -6,9 +6,12 @@ export enum ESupportedPlotlyVis {
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
   HEATMAP = 'Heatmap plot',
-  RAINCLOUD = 'Raincloud plot',
   SANKEY = 'Sankey',
   CORRELATION = 'Correlation plot',
+}
+
+export function isESupportedPlotlyVis(value: string): value is ESupportedPlotlyVis {
+  return Object.values(ESupportedPlotlyVis).includes(value as ESupportedPlotlyVis);
 }
 
 export interface BaseVisConfig {

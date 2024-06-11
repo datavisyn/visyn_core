@@ -47,7 +47,7 @@ export function MultiSelect({
             label={
               <Stack gap={0}>
                 <Text size="xs">{item.info.name}</Text>
-                <Text size="xs" color="dimmed">
+                <Text size="xs" c="dimmed">
                   {item.info.description}
                 </Text>
               </Stack>
@@ -76,7 +76,7 @@ export function MultiSelect({
       label={
         <Stack gap={0}>
           <Text size="xs">{item.name}</Text>
-          <Text size="xs" color="dimmed">
+          <Text size="xs" c="dimmed">
             {item.description}
           </Text>
         </Stack>

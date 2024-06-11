@@ -17,6 +17,7 @@ export enum ESortTypes {
   CAT_DESC = 'CAT_DESC',
   VAL_ASC = 'VAL_ASC',
   VAL_DESC = 'VAL_DESC',
+  NONE = 'NONE',
 }
 
 export function isHeatmapConfig(vis: BaseVisConfig): vis is IHeatmapConfig {

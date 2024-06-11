@@ -10,13 +10,19 @@ import { StackedBars } from './barTypes/StackedBars';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { getBarData } from './utils';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
+import { ESortStates } from '../general/SortIcon';
 
-const margin = {
+/**
+ * Return the margin object and adjust the bottom offset which also defines the lenght of the rotated labels
+ * @param rotatAxisLabel if set to true, the labels on the x-axis have 80 px offset from the bottom. Otherwise, 60 px.
+ * @returns the margin object with the top, bottom, left and right offsets
+ */
+const getMargin = (rotatAxisLabel: boolean) => ({
   top: 30,
-  bottom: 60,
+  bottom: rotatAxisLabel ? 80 : 60,
   left: 60,
   right: 25,
-};
+});
 
 export function SingleBarChart({
   allColumns,
@@ -29,6 +35,7 @@ export function SingleBarChart({
   isSmall = false,
   sortType,
   setSortType,
+  legendHeight,
 }: {
   allColumns: Awaited<ReturnType<typeof getBarData>>;
   config: IBarConfig;
@@ -40,14 +47,16 @@ export function SingleBarChart({
   isSmall?: boolean;
   sortType: SortTypes;
   setSortType: (sortType: SortTypes) => void;
+  legendHeight: number;
 }) {
   const [ref, { height, width }] = useResizeObserver();
+  const [rotateXAxisTicks, setRotateXAxisTicks] = React.useState(false);
 
   const { aggregatedTable, categoryScale, countScale, groupColorScale, groupScale, groupedTable } = useGetGroupedBarScales(
     allColumns,
-    height,
+    height - legendHeight,
     width,
-    margin,
+    getMargin(rotateXAxisTicks),
     categoryFilter,
     config.direction === EBarDirection.VERTICAL,
     selectedMap,
@@ -88,24 +97,24 @@ export function SingleBarChart({
   }, [config.direction, normalizedCountScale]);
 
   const sortTypeCallback = useCallback(
-    (label: string) => {
+    (label: string, nextSortState: ESortStates) => {
       if (label === config.catColumnSelected.name) {
-        if (sortType === SortTypes.CAT_ASC) {
-          setSortType(SortTypes.CAT_DESC);
-        } else if (sortType === SortTypes.CAT_DESC) {
-          setSortType(SortTypes.NONE);
-        } else {
+        if (nextSortState === ESortStates.ASC) {
           setSortType(SortTypes.CAT_ASC);
+        } else if (nextSortState === ESortStates.DESC) {
+          setSortType(SortTypes.CAT_DESC);
+        } else {
+          setSortType(SortTypes.NONE);
         }
-      } else if (sortType === SortTypes.COUNT_ASC) {
-        setSortType(SortTypes.COUNT_DESC);
-      } else if (sortType === SortTypes.COUNT_DESC) {
-        setSortType(SortTypes.NONE);
-      } else {
+      } else if (nextSortState === ESortStates.ASC) {
         setSortType(SortTypes.COUNT_ASC);
+      } else if (nextSortState === ESortStates.DESC) {
+        setSortType(SortTypes.COUNT_DESC);
+      } else {
+        setSortType(SortTypes.NONE);
       }
     },
-    [config.catColumnSelected.name, setSortType, sortType],
+    [config.catColumnSelected.name, setSortType],
   );
 
   return (
@@ -133,16 +142,16 @@ export function SingleBarChart({
                   config.direction === EBarDirection.VERTICAL
                     ? (categoryScale.range()[0] + categoryScale.range()[1]) / 2
                     : (countScale.range()[0] + countScale.range()[1]) / 2
-                }, ${margin.top - 20})`}
+                }, ${getMargin(rotateXAxisTicks).top - 20})`}
               >
                 {title}
               </text>
             ) : null}
             <rect
-              x={margin.left}
-              y={margin.top}
-              width={width - margin.left - margin.right}
-              height={height - margin.top - margin.bottom}
+              x={getMargin(rotateXAxisTicks).left}
+              y={getMargin(rotateXAxisTicks).top}
+              width={width - getMargin(rotateXAxisTicks).left - getMargin(rotateXAxisTicks).right}
+              height={height - getMargin(rotateXAxisTicks).top - getMargin(rotateXAxisTicks).bottom - legendHeight}
               fill="transparent"
               onClick={(e) => selectionCallback(e, [])}
             />
@@ -153,7 +162,7 @@ export function SingleBarChart({
                   compact={isSmall}
                   yScale={countScale}
                   xRange={[categoryScale.range()[1], categoryScale.range()[0]]}
-                  horizontalPosition={margin.left}
+                  horizontalPosition={getMargin(rotateXAxisTicks).left}
                   showLines
                   label={
                     config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
@@ -161,9 +170,8 @@ export function SingleBarChart({
                       : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
                   }
                   ticks={countTicks}
-                  arrowDesc={sortType === SortTypes.COUNT_DESC}
-                  arrowAsc={sortType === SortTypes.COUNT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.COUNT_DESC}
+                  sortedAsc={sortType === SortTypes.COUNT_ASC}
                   setSortType={sortTypeCallback}
                 />
               ) : (
@@ -171,13 +179,11 @@ export function SingleBarChart({
                   compact={isSmall}
                   yScale={categoryScale}
                   xRange={[countScale.range()[1], countScale.range()[0]]}
-                  horizontalPosition={margin.left}
-                  showLines={false}
+                  horizontalPosition={getMargin(rotateXAxisTicks).left}
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
-                  arrowDesc={sortType === SortTypes.CAT_DESC}
-                  arrowAsc={sortType === SortTypes.CAT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.CAT_DESC}
+                  sortedAsc={sortType === SortTypes.CAT_ASC}
                   setSortType={sortTypeCallback}
                 />
               )
@@ -186,23 +192,23 @@ export function SingleBarChart({
               config.direction === EBarDirection.VERTICAL ? (
                 <XAxis
                   compact={isSmall}
+                  shouldRotate={rotateXAxisTicks}
                   xScale={categoryScale}
                   yRange={[countScale.range()[1], countScale.range()[0]]}
-                  vertPosition={height - margin.bottom}
+                  vertPosition={height - getMargin(rotateXAxisTicks).bottom - legendHeight}
                   label={config.catColumnSelected.name}
-                  showLines={false}
                   ticks={categoryTicks}
-                  arrowDesc={sortType === SortTypes.CAT_DESC}
-                  arrowAsc={sortType === SortTypes.CAT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.CAT_DESC}
+                  sortedAsc={sortType === SortTypes.CAT_ASC}
                   setSortType={sortTypeCallback}
                 />
               ) : (
                 <XAxis
                   compact={isSmall}
+                  shouldRotate={rotateXAxisTicks}
                   xScale={countScale}
                   yRange={[categoryScale.range()[1], categoryScale.range()[0]]}
-                  vertPosition={height - margin.bottom}
+                  vertPosition={height - getMargin(rotateXAxisTicks).bottom - legendHeight}
                   label={
                     config.display === EBarDisplayType.NORMALIZED && config.groupType === EBarGroupingType.STACK && config.group
                       ? `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''} %`
@@ -210,9 +216,8 @@ export function SingleBarChart({
                   }
                   showLines
                   ticks={countTicks}
-                  arrowDesc={sortType === SortTypes.COUNT_DESC}
-                  arrowAsc={sortType === SortTypes.COUNT_ASC}
-                  sortType={sortType}
+                  sortedDesc={sortType === SortTypes.COUNT_DESC}
+                  sortedAsc={sortType === SortTypes.COUNT_ASC}
                   setSortType={sortTypeCallback}
                 />
               )
@@ -230,8 +235,8 @@ export function SingleBarChart({
                   countScale={countScale}
                   groupColorScale={groupColorScale}
                   width={width}
-                  height={height}
-                  margin={margin}
+                  height={height - legendHeight}
+                  margin={getMargin(rotateXAxisTicks)}
                   aggregateType={config.aggregateType}
                   isVertical={config.direction === EBarDirection.VERTICAL}
                   aggregateColumnName={config.aggregateColumn?.name}
@@ -246,8 +251,8 @@ export function SingleBarChart({
                   categoryScale={categoryScale}
                   countScale={countScale}
                   groupColorScale={groupColorScale}
-                  height={height}
-                  margin={margin}
+                  height={height - legendHeight}
+                  margin={getMargin(rotateXAxisTicks)}
                   width={width}
                   isVertical={config.direction === EBarDirection.VERTICAL}
                   normalized={config.display === EBarDisplayType.NORMALIZED}
@@ -264,7 +269,7 @@ export function SingleBarChart({
                 categoryScale={categoryScale}
                 countScale={countScale}
                 height={height}
-                margin={margin}
+                margin={getMargin(rotateXAxisTicks)}
                 width={width}
                 aggregateType={config.aggregateType}
                 isVertical={config.direction === EBarDirection.VERTICAL}

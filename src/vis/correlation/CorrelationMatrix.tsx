@@ -1,4 +1,4 @@
-import { Box, Center, Loader, Stack, Text, Tooltip } from '@mantine/core';
+import { Box, Center, Loader, Stack, Text, Tooltip, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import { uniqueId } from 'lodash';
@@ -12,6 +12,7 @@ import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 import { getCorrelationMatrixData } from './utils';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR, VIS_GRID_COLOR } from '../general/constants';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
@@ -133,30 +134,31 @@ export function CorrelationMatrix({
       const currentY = yScale(col.info.id);
       return (
         <g key={`label-${col.info.name}`}>
-          <rect stroke="lightgray" strokeWidth={1} fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
+          <rect stroke={VIS_GRID_COLOR} strokeWidth={1} fill="none" x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()} />
           <foreignObject x={currentX} y={currentY} width={xScale.bandwidth()} height={yScale.bandwidth()}>
             <Center style={{ height: '100%' }} px={5}>
               <Tooltip
                 label={
-                  <Stack gap={0}>
+                  <Stack gap={0} align="center">
                     <Text>{col.info.name}</Text>
-                    {col.info.description && (
-                      <Text size="xs" color="dimmed">
-                        {col.info.description}
-                      </Text>
-                    )}
+                    {col.info.description && <Text size="xs">{col.info.description}</Text>}
                   </Stack>
                 }
                 arrowSize={6}
                 withinPortal
                 withArrow
               >
-                <Stack gap={0}>
-                  <Text size="sm" fw={600} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <Stack gap="xs" align="center" justify="center">
+                  <Text
+                    size={rem(VIS_AXIS_LABEL_SIZE)}
+                    c={VIS_LABEL_COLOR}
+                    fw="bold"
+                    style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                  >
                     {col.info.name}
                   </Text>
                   {col.info.description && (
-                    <Text size="sm" color="dimmed" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    <Text size={rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                       {col.info.description}
                     </Text>
                   )}

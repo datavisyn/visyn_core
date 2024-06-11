@@ -204,10 +204,6 @@ export function ScatterVis({
       hovermode: 'closest',
       showlegend: showLegend,
       legend: {
-        // @ts-ignore
-        itemclick: false,
-        itemdoubleclick: false,
-
         font: {
           // same as default label font size in the sidebar
           size: 13.4,
