@@ -88,7 +88,6 @@ export async function createViolinTraces(
           xaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: config.separation === EViolinSeparationMode.GROUP || plotCounter === 1 ? 'y' : `y${plotCounter}`,
           marker: {
-            // color: selectedList.length !== 0 && numCurr.resolvedValues.find((val) => selectedMap[val.id]) ? selectionColorDark : '#878E95',
             color: '#878E95',
           },
           name: yLabel,

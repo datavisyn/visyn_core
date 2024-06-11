@@ -250,7 +250,7 @@ export function Heatmap({
                 y={margin.top}
                 height={height - margin.top - margin.bottom - interRectDistance}
                 width={width - margin.left - margin.right - interRectDistance}
-                fill="#fff" // I'm not using the grid color here on purpose (coordinated with Bob)
+                fill="#fff" // I'm not using the grid color here on purpose, as you would see a lot of grid lines for a very sparse heatmap which would be too much and not really necessary. (coordinated with Bob)
               />
               {text}
               {rects}

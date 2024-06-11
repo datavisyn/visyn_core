@@ -56,11 +56,8 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
-      // gridwidth: 2,
-      // griddash: 'dash',
       zerolinecolor: VIS_GRID_COLOR,
       automargin,
-      // rangemode: 'tozero',
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
       tickfont: {
@@ -88,10 +85,7 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       automargin,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
-      // gridwidth: 2,
-      // griddash: 'dash',
       zerolinecolor: VIS_GRID_COLOR,
-      // rangemode: 'tozero',
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
       tickfont: {

@@ -140,7 +140,6 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
 }
 
 function generatePlotly(data, optimisedSelection: Set<string>) {
-  // @TODO @MORITZ
   const selected = selectionColorDark;
   const def = optimisedSelection.size > 0 ? VIS_UNSELECTED_COLOR : VIS_NEUTRAL_COLOR;
 
