@@ -1,6 +1,25 @@
 import { PlotlyTypes } from '../../plotly';
 import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
-import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL, VIS_TRACES_COLOR } from './constants';
+import {
+  VIS_AXIS_LABEL_SIZE,
+  VIS_AXIS_LABEL_SIZE_SMALL,
+  VIS_GRID_COLOR,
+  VIS_LABEL_COLOR,
+  VIS_TICK_LABEL_SIZE,
+  VIS_TICK_LABEL_SIZE_SMALL,
+  VIS_TRACES_COLOR,
+} from './constants';
+
+/**
+ *
+ * @param alpha Alpha value from 0-1 to convert to hex representation
+ * @returns Hex representation of the given alpha value
+ */
+export const alphaToHex = (alpha: number) => {
+  const alphaInt = Math.round(alpha * 255);
+  const alphaHex = alphaInt.toString(16).toUpperCase();
+  return alphaHex.padStart(2, '0');
+};
 
 /**
  * Truncate long texts (e.g., to use as axes title)

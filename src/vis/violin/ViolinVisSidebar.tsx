@@ -80,6 +80,7 @@ export function ViolinVisSidebar({
               columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.subCategorySelected?.id)}
               currentSelected={config.facetBy}
               disabled={config.numColumnsSelected.length > 1}
+              disabledTooltip="Facets are disabled with more than one numerical column selected."
             />
           )
         : null}

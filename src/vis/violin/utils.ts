@@ -2,11 +2,11 @@ import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
+import { ESortStates } from '../general/SortIcon';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
-import { columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
+import { alphaToHex, columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
-import { ESortStates } from '../general/SortIcon';
 
 const defaultConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
@@ -46,12 +46,6 @@ interface IViolinDataRow {
 }
 
 const concatGroup = (group: IGroupDefinition) => `${group.num.val}${group.cat?.val}${group.subCat?.val}${group.facet?.val}${group.plotId}`;
-
-const alphaToHex = (alpha: number) => {
-  const alphaInt = Math.round(alpha * 255);
-  const alphaHex = alphaInt.toString(16).toUpperCase();
-  return alphaHex.padStart(2, '0');
-};
 
 export async function createViolinTraces(
   columns: VisColumn[],

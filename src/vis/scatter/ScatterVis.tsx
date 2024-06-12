@@ -221,7 +221,7 @@ export function ScatterVis({
         b: 50,
       },
       shapes: [],
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.15, ygap: config.facets ? 0.2 : 0.15, pattern: 'independent' },
       dragmode: config.dragMode,
     };
 
