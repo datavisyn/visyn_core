@@ -257,7 +257,7 @@ export async function createViolinTraces(
         ids,
         side: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 'negative' : 'positive') : null,
         width: hasSplit ? 0.8 : null,
-        pointpos: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? 0.5 : -0.5) : 0,
+        pointpos: subCat && hasSplit ? (subCatMap[subCat.val].idx === 0 ? -0.5 : 0.5) : 0,
         fillcolor: subCat
           ? selectedList.length === 0 || isSelected
             ? `${subCatMap[subCat.val].color}${alphaToHex(opacities.fill)}`
