@@ -350,6 +350,7 @@ export function ScatterVis({
                 selectionCallback([...selectedList, clickedId]);
               }
             }}
+            onLegendClick={() => false}
             onDoubleClick={() => {
               selectionCallback([]);
             }}

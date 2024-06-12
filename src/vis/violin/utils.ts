@@ -324,7 +324,6 @@ export async function createViolinTraces(
         showlegend: true,
         type: 'violin',
         hoverinfo: 'skip',
-        visible: 'legendonly',
         legendgrouptitle: {
           text: truncateText(columnNameWithDescription(subCatCol.info), true, 20),
         },

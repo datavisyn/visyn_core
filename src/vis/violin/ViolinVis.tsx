@@ -163,6 +163,7 @@ export function ViolinVis({
             onDoubleClick={() => {
               selectionCallback([]);
             }}
+            onLegendClick={() => false}
             onUpdate={() => {
               const sharedAxisTraces = traces.plots.filter((value, index, self) => {
                 return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;

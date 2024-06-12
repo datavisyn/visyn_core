@@ -397,7 +397,6 @@ export async function createScatterTraces(
         y: [null],
         type: 'scattergl',
         mode: 'markers',
-        visible: 'legendonly',
         legendgroup: 'color',
         hoverinfo: 'skip',
 
@@ -439,7 +438,6 @@ export async function createScatterTraces(
         y: [null],
         type: 'scattergl',
         mode: 'markers',
-        visible: 'legendonly',
         showlegend: true,
         legendgroup: 'shape',
         hoverinfo: 'all',
