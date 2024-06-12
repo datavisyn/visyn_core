@@ -30,7 +30,7 @@ export function fetchBreastCancerData(): VisColumn[] {
         name: 'Chemotherapy',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.map((r) => r.chemotherapie).map((val, i) => ({ id: i.toString(), val: val.toString() })),
+      values: () => dataPromise.map((r) => r.chemotherapie).map((val, i) => ({ id: i.toString(), val: val?.toString() })),
     },
     {
       info: {
@@ -93,7 +93,7 @@ export function fetchBreastCancerData(): VisColumn[] {
         name: 'Hormone Therapy',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.map((r) => r.hormoneTherapie).map((val, i) => ({ id: i.toString(), val: val.toString() })),
+      values: () => dataPromise.map((r) => r.hormoneTherapie).map((val, i) => ({ id: i.toString(), val: val?.toString() })),
     },
     {
       info: {
@@ -174,7 +174,7 @@ export function fetchBreastCancerData(): VisColumn[] {
         name: 'Survival',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.map((r) => r.survival).map((val, i) => ({ id: i.toString(), val: val.toString() })),
+      values: () => dataPromise.map((r) => r.survival).map((val, i) => ({ id: i.toString(), val: val?.toString() })),
     },
     {
       info: {
@@ -192,7 +192,7 @@ export function fetchBreastCancerData(): VisColumn[] {
         name: 'Radio Therapy',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.map((r) => r.radioTherapy).map((val, i) => ({ id: i.toString(), val: val.toString() })),
+      values: () => dataPromise.map((r) => r.radioTherapy).map((val, i) => ({ id: i.toString(), val: val?.toString() })),
     },
     {
       info: {

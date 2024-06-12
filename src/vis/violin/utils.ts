@@ -95,7 +95,6 @@ export async function createViolinTraces(
   const facetColValues = (await facetCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const uniqueFacetValues = [...new Set(facetColValues.map((v) => v.val))];
   const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
-  const uniqueSubCatValues = [...new Set(subCatColValues.map((v) => v.val))];
   const subCatMap: { [key: string]: { color: string; idx: number } } = {};
 
   // We do the grouping here to avoid having to do it in the plotly trace creation
@@ -130,6 +129,13 @@ export async function createViolinTraces(
               plotId: currentPlotId,
             },
           });
+
+          if (!subCatMap[subCatVal]) {
+            subCatMap[subCatVal] = {
+              color: subCatVal === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[Object.keys(subCatMap).length % categoricalColors.length],
+              idx: Object.keys(subCatMap).length,
+            };
+          }
         }
       });
       currentPlotId += 1;
@@ -151,6 +157,13 @@ export async function createViolinTraces(
               plotId: currentPlotId,
             },
           });
+
+          if (!subCatMap[subCatVal]) {
+            subCatMap[subCatVal] = {
+              color: subCatVal === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[Object.keys(subCatMap).length % categoricalColors.length],
+              idx: Object.keys(subCatMap).length,
+            };
+          }
         }
       });
       currentPlotId += 1;
@@ -165,7 +178,7 @@ export async function createViolinTraces(
 
   // Apply domain sorting
   const catOrder = new Set([...(catCol?.domain ?? []), ...uniqueCatColValues]);
-  const subCatOrder = new Set([...(subCatCol?.domain ?? []), ...uniqueSubCatValues]);
+  const subCatOrder = new Set([...(subCatCol?.domain ?? []), ...Object.keys(subCatMap)]);
   const facetOrder = new Set([...(facetCol?.domain ?? []), ...uniqueFacetValues]);
   const groupKeysSorted = Object.keys(groupedData).sort((a, b) => {
     const groupA = groupedData[a][0].groups;
