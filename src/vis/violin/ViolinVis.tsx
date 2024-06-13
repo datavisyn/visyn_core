@@ -117,7 +117,7 @@ export function ViolinVis({
       clickmode: 'event+select',
       dragmode: config.violinOverlay === EViolinOverlay.STRIP ? 'lasso' : false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.15, ygap: 0.15, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: traces.rows > 2 ? 0.2 : 0.15, ygap: traces.rows > 2 ? 0.25 : 0.15, pattern: 'independent' },
       shapes: [],
       // @ts-ignore
       violinmode: traces.violinMode,
