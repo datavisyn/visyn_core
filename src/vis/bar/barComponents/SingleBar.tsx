@@ -1,6 +1,8 @@
 import { Tooltip } from '@mantine/core';
 import React from 'react';
 import { animated, useSpring, easings } from 'react-spring';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../../general/constants';
+import { selectionColorDark } from '../../../utils';
 
 export function SingleBar({
   selectedPercent,
@@ -9,9 +11,10 @@ export function SingleBar({
   y,
   height,
   tooltip,
-  color = '#878E95',
+  color = VIS_NEUTRAL_COLOR,
   isVertical = true,
   onClick,
+  isGroupedOrStacked = false,
 }: {
   selectedPercent: number | null;
   x: number;
@@ -22,6 +25,7 @@ export function SingleBar({
   color?: string;
   isVertical?: boolean;
   onClick?: (e: React.MouseEvent<SVGGElement, MouseEvent>) => void;
+  isGroupedOrStacked?: boolean;
 }) {
   const style = useSpring({
     config: {
@@ -58,8 +62,8 @@ export function SingleBar({
           <animated.rect {...style} fill={color} />
         ) : (
           <g>
-            <animated.rect {...style} fill={color} opacity={0.3} />
-            <animated.rect {...selectedRectStyle} fill={color} />
+            <animated.rect {...style} fill={color} opacity={VIS_UNSELECTED_OPACITY} />
+            <animated.rect {...selectedRectStyle} fill={isGroupedOrStacked ? color : selectionColorDark} />
           </g>
         )}
       </g>

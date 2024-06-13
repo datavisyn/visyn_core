@@ -1,15 +1,15 @@
-import { Stack, Center } from '@mantine/core';
-import * as d3v7 from 'd3v7';
+import { Center, Stack } from '@mantine/core';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { ESortStates, createPlotlySortIcon } from '../general/SortIcon';
 import { beautifyLayout } from '../general/layoutUtils';
 import { ICommonVisProps } from '../interfaces';
-import { IViolinConfig } from './interfaces';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
 
 export function ViolinVis({
@@ -23,11 +23,22 @@ export function ViolinVis({
   uniquePlotId,
   showDownloadScreenshot,
 }: ICommonVisProps<IViolinConfig>) {
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
-
   const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
+  const [sortState, setSortState] = useState<{ col: string; state: ESortStates }>(null);
+
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, sortState, selectedList, selectedMap]);
+
+  const toggleSortState = (col: string) => {
+    if (sortState?.col === col && sortState?.state === ESortStates.DESC) {
+      setSortState(null);
+    } else if (sortState?.col === col) {
+      setSortState({ col, state: ESortStates.DESC });
+    } else {
+      setSortState({ col, state: ESortStates.ASC });
+    }
+  };
 
   const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
     if (!e || !e.points || !e.points[0]) {
@@ -36,7 +47,15 @@ export function ViolinVis({
     }
 
     const shiftPressed = e.event.shiftKey;
-    const eventIds = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[] } })?.fullData.ids;
+
+    const catSelected = e.points[0].x;
+    const data = (e.points[0] as Readonly<PlotlyTypes.PlotSelectionEvent>['points'][number] & { fullData: { ids: string[]; x: string[] } })?.fullData;
+    const eventIds = data.x?.reduce((acc: string[], x: string, i: number) => {
+      if (x === catSelected && data.ids[i]) {
+        acc.push(data.ids[i]);
+      }
+      return acc;
+    }, []);
 
     // Multiselect enabled
     if (shiftPressed) {
@@ -44,14 +63,14 @@ export function ViolinVis({
       const newSelected = selectedList.filter((s) => !eventIds.includes(s));
 
       // If incoming ids were not in selected already, add them
-      if (newSelected.length === selectedList.length) {
+      if (newSelected?.length === selectedList.length) {
         newSelected.push(...eventIds);
       }
 
       selectionCallback(newSelected);
     }
     // Multiselect disabled
-    else if (selectedList.length === eventIds.length && eventIds.every((tempId) => selectedMap[tempId])) {
+    else if (selectedList.length === eventIds?.length && eventIds?.every((tempId) => selectedMap[tempId])) {
       selectionCallback([]);
     } else {
       selectionCallback(eventIds);
@@ -96,14 +115,18 @@ export function ViolinVis({
         family: 'Roboto, sans-serif',
       },
       clickmode: 'event+select',
-      dragmode: false, // Disables zoom (makes no sense in violin plots)
+      dragmode: config.violinOverlay === EViolinOverlay.STRIP ? 'lasso' : false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: traces.rows > 2 ? 0.2 : 0.15, ygap: traces.rows > 2 ? 0.25 : 0.15, pattern: 'independent' },
       shapes: [],
+      // @ts-ignore
+      violinmode: traces.violinMode,
+      violingap: config.subCategorySelected && !traces.hasSplit ? 0.25 : 0.1,
+      violingroupgap: 0.1,
     };
 
-    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
-  }, [traces]);
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, traces.categoryOrder, true, config.syncYAxis === EYAxisMode.UNSYNC) }));
+  }, [config.subCategorySelected, config.syncYAxis, config.violinOverlay, traces]);
 
   return (
     <Stack
@@ -134,12 +157,25 @@ export function ViolinVis({
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
             onClick={onClick}
-            // plotly redraws everything on updates, so you need to reappend title and
+            onSelected={(sel) => {
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+            }}
+            onDoubleClick={() => {
+              selectionCallback([]);
+            }}
+            onLegendClick={() => false}
             onUpdate={() => {
-              for (const p of traces.plots) {
-                d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
-
-                d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+              const sharedAxisTraces = traces.plots.filter((value, index, self) => {
+                return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
+              });
+              for (const p of sharedAxisTraces) {
+                // Add sorting icon for both x and y axis
+                if (p.yLabel) {
+                  createPlotlySortIcon({ sortState, axis: p.data.yaxis, axisLabel: p.yLabel, onToggleSort: toggleSortState });
+                }
+                if (p.xLabel) {
+                  createPlotlySortIcon({ sortState, axis: p.data.xaxis, axisLabel: p.xLabel, onToggleSort: toggleSortState });
+                }
               }
             }}
           />

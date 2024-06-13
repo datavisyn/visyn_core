@@ -1,7 +1,8 @@
-import { Box, Center, Chip, Group, ScrollArea, Stack, Tooltip, rem } from '@mantine/core';
+import { Box, Center, Group, ScrollArea, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
+import { css } from '@emotion/css';
 import { useAsync } from '../../hooks/useAsync';
 import { i18n } from '../../i18n';
 import { InvalidCols } from '../general';
@@ -10,50 +11,35 @@ import { BrushOptionButtons } from '../sidebar';
 import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
+import { LegendItem } from '../general/LegendItem';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { assignColorToNullValues } from '../general/utils';
 
 function Legend({
   categories,
   filteredCategories,
   colorScale,
   onClick,
-  height,
 }: {
   categories: string[];
   filteredCategories: string[];
   colorScale: d3v7.ScaleOrdinal<string, string>;
   onClick: (string) => void;
-  height: number;
 }) {
   return (
-    <ScrollArea style={{ height }}>
-      <Stack style={{ width: '80px' }} gap={10}>
+    <ScrollArea
+      style={{ height: '100%' }}
+      scrollbars="y"
+      className={css`
+        .mantine-ScrollArea-viewport > div {
+          display: flex !important;
+          flex-direction: column !important;
+        }
+      `}
+    >
+      <Stack gap={0}>
         {categories.map((c) => {
-          return (
-            <Tooltip key={c} label={c} withArrow arrowSize={6}>
-              <Box>
-                <Chip
-                  variant="filled"
-                  onClick={() => onClick(c)}
-                  checked={false}
-                  styles={{
-                    label: {
-                      width: '100%',
-                      backgroundColor: filteredCategories.includes(c) ? 'lightgrey' : `${colorScale(c)} !important`,
-                      textAlign: 'center',
-                      paddingLeft: '10px',
-                      paddingRight: '10px',
-                      overflow: 'hidden',
-                      color: filteredCategories.includes(c) ? 'black' : 'white',
-                      textOverflow: 'ellipsis',
-                    },
-                  }}
-                >
-                  {c}
-                </Chip>
-              </Box>
-            </Tooltip>
-          );
+          return <LegendItem key={c} color={colorScale(c)} label={c} onClick={() => onClick(c)} filtered={filteredCategories.includes(c)} />;
         })}
       </Stack>
     </ScrollArea>
@@ -81,7 +67,7 @@ export function HexbinVis({
     if (config.color && allColumns?.colorColVals) {
       return {
         allValues: allColumns.colorColVals.resolvedValues,
-        filteredValues: allColumns.colorColVals.resolvedValues.filter((val) => !filteredCategories.includes(val.val as string)),
+        filteredValues: allColumns.colorColVals.resolvedValues.filter((val) => !filteredCategories.includes(`${val.val}` as string)), // need to have a string, even if it's 'undefined' or 'null'
       };
     }
 
@@ -93,15 +79,32 @@ export function HexbinVis({
       return null;
     }
 
-    const colorOptions = currentColorColumn.allValues.map((val) => val.val as string);
+    const colorOptions = currentColorColumn.allValues.map((val) => {
+      return String(val.val); // need to have a string, even if it's 'undefined' or 'null'
+    });
 
     return d3v7
-      .scaleOrdinal<string, string>(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : d3v7.schemeCategory10)
-      .domain(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
+      .scaleOrdinal<
+        string,
+        string
+      >(allColumns.colorColVals.color ? Object.values(allColumns.colorColVals.color) : assignColorToNullValues(Array.from(new Set<string>(colorOptions)), [...d3v7.schemeCategory10]))
+      .domain(allColumns.colorColVals.color ? Object.keys(allColumns.colorColVals.color) : Array.from(new Set<string>(colorOptions)));
   }, [currentColorColumn, allColumns]);
 
   return (
-    <Stack gap={0} style={{ width, height }}>
+    <div
+      className={css`
+        display: grid;
+        grid-template-areas:
+          'toolbar corner'
+          'plot legend';
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 1fr fit-content(200px);
+        grid-row-gap: 0.5rem;
+      `}
+      style={{ width, height }}
+      id={id}
+    >
       {showDragModeOptions || showDownloadScreenshot ? (
         <Center>
           <Group mt="lg">
@@ -116,7 +119,24 @@ export function HexbinVis({
           </Group>
         </Center>
       ) : null}
-      <Group style={{ flexGrow: 1, height: 0 }} wrap="nowrap" id={id}>
+
+      {currentColorColumn ? (
+        <div style={{ gridArea: 'legend', overflow: 'hidden' }}>
+          <Legend
+            categories={colorScale ? colorScale.domain() : []}
+            filteredCategories={colorScale ? filteredCategories : []}
+            colorScale={colorScale || null}
+            onClick={() => {
+              return null; // TODO: activate legend interactions later on by removing this line
+              // filteredCategories.includes(s)
+              //   ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
+              //   : setFilteredCategories([...filteredCategories, s]);
+            }}
+          />
+        </div>
+      ) : null}
+
+      <Group style={{ gridArea: 'plot' }}>
         <Box
           style={{
             flexGrow: 1,
@@ -139,6 +159,7 @@ export function HexbinVis({
               config={config}
               allColumns={allColumns}
               filteredCategories={filteredCategories}
+              colorScale={colorScale}
             />
           ) : null}
           {config.numColumnsSelected.length > 2 && allColumns?.numColVals.length === config.numColumnsSelected.length && colsStatus === 'success'
@@ -147,6 +168,7 @@ export function HexbinVis({
                   if (xCol.id !== yCol.id) {
                     return (
                       <Hexplot
+                        multiples
                         key={yCol.id + xCol.id}
                         selectionCallback={selectionCallback}
                         selected={selectedMap}
@@ -159,6 +181,7 @@ export function HexbinVis({
                           ],
                           colorColVals: allColumns.colorColVals,
                         }}
+                        colorScale={colorScale}
                       />
                     );
                   }
@@ -168,22 +191,7 @@ export function HexbinVis({
               })
             : null}
         </Box>
-        {currentColorColumn ? (
-          <div style={{ width: rem(100) }}>
-            <Legend
-              categories={colorScale ? colorScale.domain() : []}
-              filteredCategories={colorScale ? filteredCategories : []}
-              colorScale={colorScale || null}
-              onClick={(s) =>
-                filteredCategories.includes(s)
-                  ? setFilteredCategories(filteredCategories.filter((f) => f !== s))
-                  : setFilteredCategories([...filteredCategories, s])
-              }
-              height={height - 100}
-            />
-          </div>
-        ) : null}
       </Group>
-    </Stack>
+    </div>
   );
 }

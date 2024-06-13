@@ -12,6 +12,7 @@ export interface IScatterConfig extends BaseVisConfig {
   showLabels: ELabelingOptions;
   facets: ColumnInfo | null;
   regressionLineOptions?: IRegressionLineOptions;
+  showLegend?: boolean;
 }
 
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {

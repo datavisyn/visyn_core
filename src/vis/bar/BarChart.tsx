@@ -2,6 +2,7 @@ import { Box, Loader, SimpleGrid, Stack, Center } from '@mantine/core';
 import { op } from 'arquero';
 import React, { useCallback, useMemo } from 'react';
 import { uniqueId } from 'lodash';
+import { useResizeObserver } from '@mantine/hooks';
 import { useAsync } from '../../hooks/useAsync';
 import { EColumnTypes, ICommonVisProps } from '../interfaces';
 import { SingleBarChart } from './SingleBarChart';
@@ -21,6 +22,9 @@ export function BarChart({
   showDownloadScreenshot,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
+  const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
+  const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
+
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
     config.catColumnSelected,
@@ -28,8 +32,6 @@ export function BarChart({
     config.facets,
     config.aggregateColumn,
   ]);
-
-  const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
   const uniqueFacetVals = useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
@@ -48,16 +50,7 @@ export function BarChart({
     config.aggregateType,
   );
 
-  const groupedIds = useMemo(() => {
-    if (!groupedTable) {
-      return [];
-    }
-    return groupedTable
-      .groupby('group')
-      .rollup({ ids: op.array_agg('ids') })
-      .objects()
-      .map((val: { group: string; ids: string[][] }) => ({ group: val.group, ids: val.ids.flat() }));
-  }, [groupedTable]);
+  const [legendBoxRef] = useResizeObserver();
 
   const customSelectionCallback = useCallback(
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
@@ -84,22 +77,19 @@ export function BarChart({
         </Center>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        {groupColorScale ? (
-          <Box style={{ height: '30px' }}>
+        <Box ref={legendBoxRef}>
+          {groupColorScale ? (
             <Legend
-              groupedIds={groupedIds}
-              selectedList={selectedList}
-              selectionCallback={customSelectionCallback}
               left={60}
               categories={groupColorScale.domain()}
+              filteredOut={filteredOut}
               isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
               colorScale={groupColorScale}
-              height={30}
-              onClick={() => null}
               stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
+              onFilteredOut={() => {}} // disable legend click for now
             />
-          </Box>
-        ) : null}
+          ) : null}
+        </Box>
 
         <SimpleGrid
           cols={Math.min(Math.ceil(Math.sqrt(uniqueFacetVals.length)), 5)}
@@ -119,6 +109,7 @@ export function BarChart({
               selectedList={selectedList}
               sortType={sortType}
               setSortType={setSortType}
+              legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
             />
           ) : (
             uniqueFacetVals.map((multiplesVal) => (
@@ -134,6 +125,7 @@ export function BarChart({
                 selectionCallback={customSelectionCallback}
                 sortType={sortType}
                 setSortType={setSortType}
+                legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
               />
             ))
           )}

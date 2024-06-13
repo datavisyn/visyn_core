@@ -1,17 +1,43 @@
-import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
 import { PlotlyTypes } from '../../plotly';
+import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
+import {
+  VIS_AXIS_LABEL_SIZE,
+  VIS_AXIS_LABEL_SIZE_SMALL,
+  VIS_GRID_COLOR,
+  VIS_LABEL_COLOR,
+  VIS_TICK_LABEL_SIZE,
+  VIS_TICK_LABEL_SIZE_SMALL,
+  VIS_TRACES_COLOR,
+} from './constants';
+
+/**
+ *
+ * @param alpha Alpha value from 0-1 to convert to hex representation
+ * @returns Hex representation of the given alpha value
+ */
+export const alphaToHex = (alpha: number) => {
+  const alphaInt = Math.round(alpha * 255);
+  const alphaHex = alphaInt.toString(16).toUpperCase();
+  return alphaHex.padStart(2, '0');
+};
 
 /**
  * Truncate long texts (e.g., to use as axes title)
  * @param text Input text to be truncated
+ * @param middle If true, truncate from the middle (default: false)
  * @param maxLength Maximum text length (default: 50)
  */
-export function truncateText(text: string, maxLength = 50) {
-  return text?.length > maxLength ? `${text.substring(0, maxLength)}\u2026` : text;
+export function truncateText(text: string, middle: boolean = false, maxLength = 50) {
+  const half = maxLength / 2;
+  return text?.length > maxLength
+    ? middle
+      ? `${text.substring(0, half)}\u2026${text.substring(text.length - half)}`
+      : `${text.substring(0, maxLength)}\u2026`
+    : text;
 }
 
 export function columnNameWithDescription(col: ColumnInfo) {
-  return col.description ? `${col.name}: ${col.description}` : col.name;
+  return col?.description ? `${col.name}: ${col.description}` : col.name;
 }
 
 /**
@@ -20,9 +46,22 @@ export function columnNameWithDescription(col: ColumnInfo) {
  * @param layout the current layout to be changed. Typed to any because the plotly types complain.p
  * @returns the changed layout
  */
-export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.Layout>, oldLayout: Partial<PlotlyTypes.Layout>, automargin = true) {
+export function beautifyLayout(
+  traces: PlotlyInfo,
+  layout: Partial<PlotlyTypes.Layout>,
+  oldLayout: Partial<PlotlyTypes.Layout>,
+  categoryOrder: Map<number, string[]> = null,
+  automargin = true,
+  autorange = true,
+) {
   layout.annotations = [];
-  const titlePlots = traces.plots.filter((value, index, self) => {
+
+  // Sometimes we have multiple traces that share the same axis. For layout changes we only need to consider one per axis.
+  const sharedAxisTraces = traces.plots.filter((value, index, self) => {
+    return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
+  });
+
+  const titleTraces = sharedAxisTraces.filter((value, index, self) => {
     return value.title && self.findIndex((v) => v.title === value.title) === index;
   });
 
@@ -33,143 +72,85 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
 
   // We should stop using plotly for a component like this one which wants a lot of unique functionality, and does not require complex rendering logic (like a canvas)
 
-  titlePlots.forEach((t) => {
+  titleTraces.forEach((t) => {
     if (t.title) {
       layout.annotations.push({
-        text: t.title,
+        text: truncateText(t.title, true, 30),
         showarrow: false,
         x: 0.5,
-        y: 1.1,
-        // @ts-ignore
-        xref: `${t.data.xaxis} domain`,
-        // @ts-ignore
-        yref: `${t.data.yaxis} domain`,
+        y: 1.0,
+        yshift: 5,
+        xref: `${t.data.xaxis} domain` as Plotly.XAxisName,
+        yref: `${t.data.yaxis} domain` as Plotly.YAxisName,
+        font: {
+          size: 13.4,
+          color: VIS_TRACES_COLOR,
+        },
       });
     }
   });
 
-  traces.plots.forEach((t, i) => {
-    layout[`xaxis${i > 0 ? i + 1 : ''}`] = {
-      range: t.xDomain ? t.xDomain : null,
+  sharedAxisTraces.forEach((t, i) => {
+    const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
+    layout[axisX] = {
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
+      range: t.xDomain ? t.xDomain : null,
+      color: VIS_LABEL_COLOR,
+      gridcolor: VIS_GRID_COLOR,
+      zerolinecolor: VIS_GRID_COLOR,
       automargin,
-      // rangemode: 'tozero',
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
+      tickfont: {
+        size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+      },
+      ticks: 'none',
       text: t.xTicks,
-      showline: false,
       showspikes: false,
       spikedash: 'dash',
-      ticks: 'outside',
+      categoryarray: categoryOrder?.get(i + 1) || null,
+      categoryorder: categoryOrder?.get(i + 1) ? 'array' : null,
+
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.xLabel, 25) : truncateText(t.xLabel, 50),
+        text: sharedAxisTraces.length > 1 ? truncateText(t.xLabel, false, 20) : truncateText(t.xLabel, true, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? 12 : 13.4,
-          color: '#7f7f7f',
+          size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          color: VIS_LABEL_COLOR,
         },
       },
     };
 
-    layout[`yaxis${i > 0 ? i + 1 : ''}`] = {
-      range: t.yDomain ? t.yDomain : null,
+    const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
+    layout[axisY] = {
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
+      range: t.yDomain ? t.yDomain : null,
       automargin,
-      // rangemode: 'tozero',
+      autorange,
+      color: VIS_LABEL_COLOR,
+      gridcolor: VIS_GRID_COLOR,
+      zerolinecolor: VIS_GRID_COLOR,
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
+      tickfont: {
+        size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+      },
+      ticks: 'none',
       text: t.yTicks,
-      showline: false,
       showspikes: false,
       spikedash: 'dash',
-      ticks: 'outside',
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.yLabel, 30) : truncateText(t.yLabel, 50),
+        text: sharedAxisTraces.length > 1 ? truncateText(t.yLabel, false, 20) : truncateText(t.yLabel, true, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? 12 : 13.4,
-          color: '#7f7f7f',
+          size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          color: VIS_LABEL_COLOR,
+          weight: 'bold',
         },
       },
     };
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 0,
-      y0: 1,
-      x1: 1,
-      y1: 1,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 0,
-      y0: 0,
-      x1: 1,
-      y1: 0,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 0,
-      y0: 0,
-      x1: 0,
-      y1: 1,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
-
-    layout.shapes.push({
-      type: 'line',
-      // @ts-ignore
-      xref: `${t.data.xaxis} domain`,
-      // @ts-ignore
-      yref: `${t.data.yaxis} domain`,
-      x0: 1,
-      y0: 0,
-      x1: 1,
-      y1: 1,
-      line: {
-        color: 'rgb(238, 238, 238)',
-        width: 2,
-      },
-      opacity: 1,
-      row: 2,
-      col: 2,
-    });
   });
 
   return layout;

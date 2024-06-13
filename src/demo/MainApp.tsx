@@ -13,31 +13,16 @@ import {
   IScatterConfig,
   Vis,
 } from '../vis';
-import { fetchIrisData } from '../vis/stories/fetchIrisData';
-import { iris } from '../vis/stories/irisData';
+import { breastCancerData } from '../vis/stories/breastCancerData';
+import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'sepalLength',
-        name: 'Sepal Length',
-      },
-      {
-        description: '',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
-      },
-    ],
-    color: {
-      description: '',
-      id: 'species',
-      name: 'Species',
-    },
+    numColumnsSelected: [],
+    color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
@@ -49,10 +34,10 @@ export function MainApp() {
       showStats: true,
     },
   } as IScatterConfig);
-  const columns = React.useMemo(() => (user ? fetchIrisData() : []), [user]);
-  const [selection, setSelection] = React.useState<typeof iris>([]);
+  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
+  const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
 
-  const visSelection = React.useMemo(() => selection.map((s) => `${iris.indexOf(s)}`), [selection]);
+  const visSelection = React.useMemo(() => selection.map((s) => `${breastCancerData.indexOf(s)}`), [selection]);
   const [loading, setLoading] = React.useState(false);
   const lineupRef = React.useRef<DatavisynTaggle>();
 
@@ -111,7 +96,7 @@ export function MainApp() {
             />
 
             <VisynRanking
-              data={iris}
+              data={breastCancerData}
               selection={selection}
               setSelection={setSelection}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
@@ -130,7 +115,7 @@ export function MainApp() {
             selected={visSelection}
             selectionCallback={(s) => {
               if (s) {
-                setSelection(s.map((i) => iris[+i]));
+                setSelection(s.map((i) => breastCancerData[+i]));
               }
             }}
             filterCallback={(f) => {

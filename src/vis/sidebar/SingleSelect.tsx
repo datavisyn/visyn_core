@@ -1,4 +1,4 @@
-import { CheckIcon, CloseButton, Combobox, Group, Input, InputBase, ScrollArea, Text, useCombobox } from '@mantine/core';
+import { CheckIcon, CloseButton, Combobox, Group, Input, InputBase, ScrollArea, Text, Tooltip, useCombobox } from '@mantine/core';
 import * as React from 'react';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
@@ -8,7 +8,9 @@ export function SingleSelect({
   currentSelected,
   columnType,
   label,
+  disabledTooltip,
   isClearable = true,
+  disabled = false,
 }: {
   callback: (value: ColumnInfo) => void;
   columns: VisColumn[];
@@ -17,6 +19,8 @@ export function SingleSelect({
   columnType: EColumnTypes | null;
   label: string;
   isClearable?: boolean;
+  disabled?: boolean;
+  disabledTooltip?: string;
 }) {
   const filteredColumns = React.useMemo(() => {
     return columnType ? columns.filter((c) => c.type === columnType) : columns;
@@ -29,14 +33,18 @@ export function SingleSelect({
 
   const options = filteredColumns.map((item) => (
     <Combobox.Option value={item.info.name} key={item.info.id} active={item.info.id === currentSelected?.id}>
-      <Group gap="xs">
-        {item.info.id === currentSelected?.id && (
-          <Text c="gray.6">
-            <CheckIcon size={12} />
+      <Tooltip label={item.info.name} position="left" withArrow>
+        <Group gap="xs" wrap="nowrap">
+          {item.info.id === currentSelected?.id && (
+            <Text c="gray.6">
+              <CheckIcon size={12} />
+            </Text>
+          )}
+          <Text size="sm" truncate maw={120}>
+            {item.info.name}
           </Text>
-        )}
-        <span>{item.info.name}</span>
-      </Group>
+        </Group>
+      </Tooltip>
     </Combobox.Option>
   ));
 
@@ -50,23 +58,36 @@ export function SingleSelect({
       }}
     >
       <Combobox.Target>
-        <InputBase
-          component="button"
-          label={label}
-          type="button"
-          pointer
-          onClick={() => combobox.toggleDropdown()}
-          rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
-          rightSection={
-            currentSelected !== null && isClearable ? (
-              <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+        <Tooltip label={disabledTooltip} disabled={!disabled} withArrow>
+          <InputBase
+            component="button"
+            label={
+              <Text size="sm" fw={500} c={disabled ? 'dimmed' : 'black'}>
+                {label}
+              </Text>
+            }
+            disabled={disabled}
+            type="button"
+            pointer
+            onClick={() => combobox.toggleDropdown()}
+            rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
+            rightSection={
+              disabled ? null : currentSelected !== null && isClearable ? (
+                <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+              ) : (
+                <Combobox.Chevron />
+              )
+            }
+          >
+            {currentSelected?.name ? (
+              <Text size="sm" truncate maw={120}>
+                {currentSelected?.name}
+              </Text>
             ) : (
-              <Combobox.Chevron />
-            )
-          }
-        >
-          {currentSelected?.name || <Input.Placeholder>Select a column</Input.Placeholder>}
-        </InputBase>
+              <Input.Placeholder>Select a column</Input.Placeholder>
+            )}
+          </InputBase>
+        </Tooltip>
       </Combobox.Target>
 
       <Combobox.Dropdown>

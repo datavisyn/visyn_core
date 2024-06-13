@@ -80,3 +80,8 @@ export const divergingBluePink = [
   '#7e2f50',
   '#5b0e31',
 ];
+
+export const selectionColorLight = '#FFCF76';
+export const selectionColorDark = '#E29609';
+export const selectionColorLightHovered = '#FFE8BE';
+export const selectionColorDarkHovered = '#FFCF76';

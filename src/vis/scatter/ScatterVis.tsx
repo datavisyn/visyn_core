@@ -1,4 +1,5 @@
-import { Center, Group, Stack } from '@mantine/core';
+import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
+import { useUncontrolled } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import { XAxisName, YAxisName } from 'plotly.js-dist-min';
@@ -15,6 +16,7 @@ import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
 import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
+import { VIS_TRACES_COLOR } from '../general/constants';
 
 const formatPValue = (pValue: number) => {
   if (pValue === null) {
@@ -78,7 +80,10 @@ export function ScatterVis({
   showDownloadScreenshot,
 }: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
-
+  const [showLegend, setShowLegend] = useUncontrolled({
+    defaultValue: true,
+    value: config.showLegend,
+  });
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
 
   // TODO: This is a little bit hacky, Also notification should be shown to the user
@@ -130,7 +135,7 @@ export function ScatterVis({
   const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
     if (traces?.plots) {
       statsCallback(null);
-      if (config.regressionLineOptions.type !== ERegressionLineType.NONE) {
+      if (config.regressionLineOptions?.type && config.regressionLineOptions.type !== ERegressionLineType.NONE) {
         const regressionShapes: Partial<Plotly.Shape>[] = [];
         const regressionResults: IRegressionResult[] = [];
         for (const plot of traces.plots) {
@@ -177,13 +182,13 @@ export function ScatterVis({
             showarrow: false,
             font: {
               size: 16,
-              color: '#7f7f7f',
+              color: VIS_TRACES_COLOR,
             },
           }),
         );
       }
 
-      if (config.regressionLineOptions.showStats) {
+      if (config.regressionLineOptions?.showStats) {
         combinedAnnotations.push(...annotationsForRegressionStats(regression.results, config.regressionLineOptions.fitOptions?.precision || 3));
       }
     }
@@ -198,11 +203,8 @@ export function ScatterVis({
 
     const innerLayout: Partial<Plotly.Layout> = {
       hovermode: 'closest',
-      showlegend: true,
+      showlegend: showLegend,
       legend: {
-        // @ts-ignore
-        itemclick: false,
-        itemdoubleclick: false,
         font: {
           // same as default label font size in the sidebar
           size: 13.4,
@@ -213,20 +215,20 @@ export function ScatterVis({
         size: 13.4,
       },
       margin: {
-        t: showDragModeOptions ? (config.facets ? 30 : 25) : 50,
+        t: showDragModeOptions ? (config.facets ? 40 : 25) : config.facets ? 65 : 50,
         r: 25,
         l: 50,
         b: 50,
       },
       shapes: [],
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.15, ygap: config.facets ? 0.2 : 0.15, pattern: 'independent' },
       dragmode: config.dragMode,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
+    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, null, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces, config.dragMode]);
+  }, [traces, config.dragMode, showLegend]);
 
   const plotsWithSelectedPoints = useMemo(() => {
     if (traces) {
@@ -282,7 +284,7 @@ export function ScatterVis({
     return [];
   }, [plotsWithSelectedPoints, traces]);
   return (
-    <Stack gap={0} style={{ height: '100%', width: '100%' }}>
+    <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
       {showDragModeOptions || showDownloadScreenshot ? (
         <Center>
           <Group>
@@ -293,57 +295,76 @@ export function ScatterVis({
           </Group>
         </Center>
       ) : null}
-
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
-        <PlotlyComponent
-          key={id}
-          divId={id}
-          data={plotlyData}
-          layout={{
-            ...layout,
-            shapes: [...(layout?.shapes || []), ...regression.shapes],
-            annotations,
-          }}
-          onHover={(event) => {
-            // If we have subplots we set the stats for the current subplot on hover
-            // It is up to the application to decide how to display the stats
-            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
-              let result: IRegressionResult = null;
-              if (regression.results.length > 0) {
-                const xAxis = event.points[0].yaxis.anchor;
-                const yAxis = event.points[0].xaxis.anchor;
-                result = regression.results.find((r) => r.xref === xAxis && r.yref === yAxis) || null;
+        <>
+          {config.showLegend === undefined ? (
+            <Tooltip label="Toggle legend" refProp="rootRef">
+              <Switch
+                styles={{ label: { paddingLeft: '5px' } }}
+                size="xs"
+                disabled={traces.legendPlots.length === 0}
+                style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
+                defaultChecked
+                label="Legend"
+                onChange={() => setShowLegend(!showLegend)}
+                checked={showLegend}
+              />
+            </Tooltip>
+          ) : null}
+          <PlotlyComponent
+            key={id}
+            divId={id}
+            data={plotlyData}
+            layout={{
+              ...layout,
+              shapes: [...(layout?.shapes || []), ...regression.shapes],
+              annotations,
+            }}
+            onHover={(event) => {
+              // If we have subplots we set the stats for the current subplot on hover
+              // It is up to the application to decide how to display the stats
+              if (config.regressionLineOptions?.type && config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
+                let result: IRegressionResult = null;
+                if (regression.results.length > 0) {
+                  const xAxis = event.points[0].yaxis.anchor;
+                  const yAxis = event.points[0].xaxis.anchor;
+                  result = regression.results.find((r) => r.xref === xAxis && r.yref === yAxis) || null;
+                }
+                statsCallback(result.stats);
               }
-              statsCallback(result.stats);
-            }
-          }}
-          onUnhover={() => {
-            // If we have subplots we clear the current stats when the mouse leaves the plot
-            if (config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
-              statsCallback(null);
-            }
-          }}
-          config={{ responsive: true, displayModeBar: false, scrollZoom }}
-          useResizeHandler
-          style={{ width: '100%', height: '100%' }}
-          onClick={(event) => {
-            const clickedId = (event.points[0] as any).id;
-            if (selectedMap[clickedId]) {
-              selectionCallback(selectedList.filter((s) => s !== clickedId));
-            } else {
-              selectionCallback([...selectedList, clickedId]);
-            }
-          }}
-          onInitialized={() => {
-            d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onUpdate={() => {
-            d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
-          }}
-          onSelected={(sel) => {
-            selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
-          }}
-        />
+            }}
+            onUnhover={() => {
+              // If we have subplots we clear the current stats when the mouse leaves the plot
+              if (config.regressionLineOptions?.type && config.regressionLineOptions.type !== ERegressionLineType.NONE && regression.results.length > 1) {
+                statsCallback(null);
+              }
+            }}
+            config={{ responsive: true, displayModeBar: false, scrollZoom }}
+            useResizeHandler
+            style={{ width: '100%', height: '100%' }}
+            onClick={(event) => {
+              const clickedId = (event.points[0] as any).id;
+              if (selectedMap[clickedId]) {
+                selectionCallback(selectedList.filter((s) => s !== clickedId));
+              } else {
+                selectionCallback([...selectedList, clickedId]);
+              }
+            }}
+            onLegendClick={() => false}
+            onDoubleClick={() => {
+              selectionCallback([]);
+            }}
+            onInitialized={() => {
+              d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onUpdate={() => {
+              d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+            }}
+            onSelected={(sel) => {
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+            }}
+          />
+        </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' ? (
         <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
       ) : null}

@@ -19,9 +19,9 @@ psycopg2==2.9.9
 pydantic==1.10.14
 pyjwt[crypto]==2.8.0
 pytest-postgresql==6.0.0
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
 python-multipart==0.0.9
-requests==2.31.0
+requests==2.32.0
 SQLAlchemy>=1.4.40,<=1.4.49
 starlette-context==0.3.6
 uvicorn[standard]==0.29.0
