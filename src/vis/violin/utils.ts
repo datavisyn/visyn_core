@@ -53,7 +53,7 @@ export async function createViolinTraces(
   sortBy: { col: string; state: ESortStates },
   selectedList: string[],
   selectedMap: { [key: string]: boolean },
-): Promise<PlotlyInfo & { violinMode: string; hasSplit: boolean; categoryOrder: string[] }> {
+): Promise<PlotlyInfo & { violinMode: string; hasSplit: boolean; categoryOrder: Map<number, string[]> }> {
   let plotCounter = 1;
 
   // Setting the opacity of the violins and point overlays here globally
@@ -250,6 +250,8 @@ export async function createViolinTraces(
     showlegend: false,
   };
 
+  const categoriesPerPlot = new Map<number, string[]>();
+
   // Add new trace for each violin
   groupKeysSorted.forEach((key) => {
     const group = groupedData[key];
@@ -261,6 +263,12 @@ export async function createViolinTraces(
       plotCounter = patchedPlotId;
     }
     const ids = group.map((g) => g.ids);
+
+    if (!categoriesPerPlot.has(patchedPlotId)) {
+      categoriesPerPlot.set(patchedPlotId, []);
+    }
+    categoriesPerPlot.get(patchedPlotId).push(cat?.val || num.val);
+
     plots.push({
       data: {
         y: group.map((g) => g.y),
@@ -375,12 +383,24 @@ export async function createViolinTraces(
   const cols = Math.min(Math.ceil(Math.sqrt(plotCounter)), 5);
   const rows = Math.ceil(plotCounter / cols);
 
+  // Sort the categories per plot by categoryOrder
+  categoriesPerPlot.forEach((categories, plotId) => {
+    categoriesPerPlot.set(
+      plotId,
+      categories.sort((a, b) => {
+        const indexA = categoryOrder?.indexOf(a) ?? Infinity;
+        const indexB = categoryOrder?.indexOf(b) ?? Infinity;
+        return indexA - indexB;
+      }),
+    );
+  });
+
   return {
     plots,
     legendPlots,
     rows,
     cols,
-    categoryOrder,
+    categoryOrder: categoriesPerPlot,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
     violinMode: Object.keys(subCatMap).length > 2 ? 'group' : 'overlay',
