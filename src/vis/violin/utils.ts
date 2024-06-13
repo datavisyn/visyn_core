@@ -313,6 +313,37 @@ export async function createViolinTraces(
     });
   });
 
+  // ensure that every positive or negative violin side has a corresponding negative or positive dummy side
+  if (hasSplit) {
+    plots.forEach((p) => {
+      // @ts-ignore
+      if (p.data.side === 'negative' && p.data.x.length > 0) {
+        // @ts-ignore
+        const positiveSide = plots.find((p2) => p2.data.side === 'positive' && p2.data.xaxis === p.data.xaxis && p2.data.yaxis === p.data.yaxis);
+        if (!positiveSide) {
+          const newPlot = _.cloneDeep(p);
+          // @ts-ignore
+          newPlot.data.side = 'positive';
+          newPlot.data.y = [0];
+          newPlot.data.opacity = 0;
+          plots.push(newPlot);
+        }
+        // @ts-ignore
+      } else if (p.data.side === 'positive' && p.data.x.length > 0) {
+        // @ts-ignore
+        const negativeSide = plots.find((p2) => p2.data.side === 'negative' && p2.data.xaxis === p.data.xaxis && p2.data.yaxis === p.data.yaxis);
+        if (!negativeSide) {
+          const newPlot = _.cloneDeep(p);
+          // @ts-ignore
+          newPlot.data.side = 'negative';
+          newPlot.data.y = [0];
+          newPlot.data.opacity = 0;
+          plots.push(newPlot);
+        }
+      }
+    });
+  }
+
   // Add separate legend
   if (subCatCol) {
     legendPlots.push({
