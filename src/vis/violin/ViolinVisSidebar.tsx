@@ -6,7 +6,7 @@ import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
 import { SingleSelect } from '../sidebar/SingleSelect';
 import { ViolinOverlaySegmentedControl, ViolinSyncYAxisSegmentedControl } from './ViolinSegmentedControl';
-import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
+import { EViolinOverlay, EYAxisMode, IViolinConfig, isViolinConfig } from './interfaces';
 
 const defaultConfig = {
   subCategory: {
@@ -96,8 +96,9 @@ export function ViolinVisSidebar({
       {mergedOptionsConfig.overlay.enable
         ? mergedOptionsConfig.overlay.customComponent || (
             <ViolinOverlaySegmentedControl
-              callback={(violinOverlay: EViolinOverlay) => setConfig({ ...config, violinOverlay })}
-              currentSelected={config.violinOverlay}
+              callback={(overlay: EViolinOverlay) => setConfig({ ...config, overlay })}
+              currentSelected={config.overlay}
+              isViolin={isViolinConfig(config)}
             />
           )
         : null}
