@@ -1,0 +1,82 @@
+[
+  {
+    "info": {
+      "name": "Gene symbol",
+      "id": "55de2d67-cb3c-4416-bcc9-67a6e6683cba"
+    },
+    "isLabel": true,
+    "type": "Categorical"
+  },
+  {
+    "info": {
+      "name": "Ensembl",
+      "id": "0c6604a0-3d16-4757-a7cb-73f1c09f8ee3"
+    },
+    "isLabel": false,
+    "type": "Categorical"
+  },
+  {
+    "info": {
+      "name": "Name",
+      "id": "e75b23dd-34cc-422f-b05c-59eb1a628cf9"
+    },
+    "isLabel": false,
+    "type": "Categorical"
+  },
+  {
+    "info": {
+      "name": "Chromosome",
+      "id": "ea70fb76-e451-4ec9-9976-6a43f3e11cb4"
+    },
+    "color": {
+      "1": "#2ca02c",
+      "2": "#d62728",
+      "3": "#c7c7c7",
+      "4": "#e377c2",
+      "5": "#9467bd",
+      "6": "#8c564b",
+      "7": "#7f7f7f",
+      "8": "#98df8a",
+      "9": "#ff7f0e",
+      "10": "#1f77b4",
+      "11": "#c5b0d5",
+      "12": "#aec7e8",
+      "13": "#ff7f0e",
+      "14": "#bcbd22",
+      "15": "#9edae5",
+      "16": "#dbdb8d",
+      "17": "#c49c94",
+      "18": "#1f77b4",
+      "19": "#17becf",
+      "20": "#f7b6d2",
+      "21": "#2ca02c",
+      "22": "#ff9896",
+      "X": "#ffbb78"
+    },
+    "isLabel": false,
+    "type": "Categorical"
+  },
+  {
+    "info": {
+      "name": "Biotype",
+      "id": "45dd1536-0b50-4a11-b105-7091c38ef9c3"
+    },
+    "color": {
+      "Protein coding": "#1f77b4",
+      "Unprocessed pseudogene": "#ff7f0e",
+      "Transcribed processed pseudogene": "#2ca02c",
+      "LincRNA": "#d62728"
+    },
+    "isLabel": false,
+    "type": "Categorical"
+  },
+  {
+    "info": {
+      "name": "22Rv1",
+      "description": "Normalized gene expression (TPM values)",
+      "id": "2eb61e66-a510-4135-b455-811fbb9f006f"
+    },
+    "isLabel": false,
+    "type": "Numerical"
+  }
+]
