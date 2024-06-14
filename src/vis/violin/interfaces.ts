@@ -3,19 +3,22 @@ import { BaseVisConfig, ColumnInfo, ESupportedPlotlyVis } from '../interfaces';
 export enum EViolinOverlay {
   NONE = 'None',
   BOX = 'Box',
+  STRIP = 'Strip',
 }
 
-export enum EViolinSeparationMode {
-  GROUP = 'Group',
-  FACETS = 'Facets',
+export enum EYAxisMode {
+  UNSYNC = 'unsynced',
+  SYNC = 'synced',
 }
 
 export interface IViolinConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.VIOLIN;
   numColumnsSelected: ColumnInfo[];
-  catColumnsSelected: ColumnInfo[];
+  catColumnSelected: ColumnInfo | null;
+  subCategorySelected: ColumnInfo | null;
+  facetBy: ColumnInfo | null;
   violinOverlay: EViolinOverlay;
-  separation: EViolinSeparationMode;
+  syncYAxis?: EYAxisMode;
 }
 
 export function isViolinConfig(s: BaseVisConfig): s is IViolinConfig {

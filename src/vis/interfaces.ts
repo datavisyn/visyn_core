@@ -86,6 +86,7 @@ export interface VisNumericalColumn extends VisCommonColumn {
 export interface VisCategoricalColumn extends VisCommonColumn {
   type: EColumnTypes.CATEGORICAL;
   color?: Record<string, string>;
+  domain?: string[];
 }
 
 export type VisColumn = VisNumericalColumn | VisCategoricalColumn;

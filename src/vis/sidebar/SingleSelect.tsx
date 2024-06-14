@@ -8,7 +8,9 @@ export function SingleSelect({
   currentSelected,
   columnType,
   label,
+  disabledTooltip,
   isClearable = true,
+  disabled = false,
 }: {
   callback: (value: ColumnInfo) => void;
   columns: VisColumn[];
@@ -17,6 +19,8 @@ export function SingleSelect({
   columnType: EColumnTypes | null;
   label: string;
   isClearable?: boolean;
+  disabled?: boolean;
+  disabledTooltip?: string;
 }) {
   const filteredColumns = React.useMemo(() => {
     return columnType ? columns.filter((c) => c.type === columnType) : columns;
@@ -54,29 +58,36 @@ export function SingleSelect({
       }}
     >
       <Combobox.Target>
-        <InputBase
-          component="button"
-          label={label}
-          type="button"
-          pointer
-          onClick={() => combobox.toggleDropdown()}
-          rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
-          rightSection={
-            currentSelected !== null && isClearable ? (
-              <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+        <Tooltip label={disabledTooltip} disabled={!disabled} withArrow>
+          <InputBase
+            component="button"
+            label={
+              <Text size="sm" fw={500} c={disabled ? 'dimmed' : 'black'}>
+                {label}
+              </Text>
+            }
+            disabled={disabled}
+            type="button"
+            pointer
+            onClick={() => combobox.toggleDropdown()}
+            rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
+            rightSection={
+              disabled ? null : currentSelected !== null && isClearable ? (
+                <CloseButton size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+              ) : (
+                <Combobox.Chevron />
+              )
+            }
+          >
+            {currentSelected?.name ? (
+              <Text size="sm" truncate maw={120}>
+                {currentSelected?.name}
+              </Text>
             ) : (
-              <Combobox.Chevron />
-            )
-          }
-        >
-          {currentSelected?.name ? (
-            <Text size="sm" truncate maw={120}>
-              {currentSelected?.name}
-            </Text>
-          ) : (
-            <Input.Placeholder>Select a column</Input.Placeholder>
-          )}
-        </InputBase>
+              <Input.Placeholder>Select a column</Input.Placeholder>
+            )}
+          </InputBase>
+        </Tooltip>
       </Combobox.Target>
 
       <Combobox.Dropdown>
