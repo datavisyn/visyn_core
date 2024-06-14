@@ -91,7 +91,14 @@ export function VisynAppProvider({
           Sentry.init({
             dsn: clientConfig.sentry_dsn,
             tunnel: clientConfig.sentry_proxy_to,
-            integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+            integrations: [
+              // Capture all console.error calls
+              Sentry.captureConsoleIntegration({ levels: ['error'] }),
+              // Instrument browser pageload/navigation performance
+              Sentry.browserTracingIntegration(),
+              // Enable replay integration
+              Sentry.replayIntegration(),
+            ],
 
             // Set tracesSampleRate to 1.0 to capture 100%
             // of transactions for performance monitoring.
