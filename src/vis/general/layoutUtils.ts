@@ -96,7 +96,7 @@ export function beautifyLayout(
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
       range: t.xDomain ? t.xDomain : null,
       color: VIS_LABEL_COLOR,
-      gridcolor: VIS_GRID_COLOR,
+      gridcolor: 'red',
       zerolinecolor: VIS_GRID_COLOR,
       automargin,
       tickvals: t.xTicks,
