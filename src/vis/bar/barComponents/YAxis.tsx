@@ -1,12 +1,17 @@
-import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Center, Group, Text, rem } from '@mantine/core';
+import { Center, Group, Space, Text, Tooltip, rem } from '@mantine/core';
 import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useMemo } from 'react';
-import { SortTypes } from '../interfaces';
-
-type IsEqual<Type1, Type2> = Type1 | Type2 extends Type1 & Type2 ? true : never;
+import {
+  VIS_AXIS_LABEL_SIZE,
+  VIS_AXIS_LABEL_SIZE_SMALL,
+  VIS_GRID_COLOR,
+  VIS_LABEL_COLOR,
+  VIS_TICK_LABEL_SIZE,
+  VIS_TICK_LABEL_SIZE_SMALL,
+} from '../../general/constants';
+import { ESortStates, SortIcon } from '../../general/SortIcon';
+import { getLabelOrUnknown } from '../../general/utils';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
 export function YAxis({
@@ -17,9 +22,8 @@ export function YAxis({
   ticks,
   showLines,
   compact = false,
-  arrowAsc = false,
-  arrowDesc = false,
-  sortType,
+  sortedAsc = false,
+  sortedDesc = false,
   setSortType,
 }: {
   yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
@@ -29,10 +33,9 @@ export function YAxis({
   ticks: { value: string | number; offset: number }[];
   showLines?: boolean;
   compact?: boolean;
-  arrowAsc?: boolean;
-  arrowDesc?: boolean;
-  sortType: SortTypes;
-  setSortType: (label: string) => void;
+  sortedAsc?: boolean;
+  sortedDesc?: boolean;
+  setSortType: (label: string, nextSortState: ESortStates) => void;
 }) {
   const labelSpacing = useMemo(() => {
     const maxLabelLength = ticks.reduce((max, { value }) => {
@@ -48,39 +51,43 @@ export function YAxis({
       <g transform={`translate(${horizontalPosition - labelSpacing - 30}, ${yScale.range()[0]}) rotate(-90)`}>
         <foreignObject width={Math.abs(yScale.range()[0] - yScale.range()[1])} height={20}>
           <Center>
-            <Group gap={3} style={{ cursor: 'pointer' }}>
-              {arrowDesc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretLeft} /> : null}
-
-              <Text size={compact ? rem('10px') : 'sm'} style={{ color: '#878E95' }} onClick={() => setSortType(label)}>
-                {label}
-              </Text>
-              {arrowAsc ? <FontAwesomeIcon style={{ color: '#878E95' }} icon={faCaretRight} /> : null}
+            <Group gap={3}>
+              <Tooltip withArrow label={getLabelOrUnknown(label)} withinPortal>
+                <Text size={compact ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none' }} c={VIS_LABEL_COLOR}>
+                  {getLabelOrUnknown(label)}
+                </Text>
+              </Tooltip>
+              <Space ml="xs" />
+              <SortIcon
+                sortState={sortedDesc ? ESortStates.DESC : sortedAsc ? ESortStates.ASC : ESortStates.NONE}
+                setSortState={(nextSort: ESortStates) => setSortType(label, nextSort)}
+              />
             </Group>
           </Center>
         </foreignObject>
       </g>
-      <path
-        transform={`translate(${horizontalPosition}, 0)`}
-        d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')}
-        fill="none"
-        stroke="lightgray"
-      />
-      <path transform={`translate(${xRange[1]}, 0)`} d={['M', 0, yScale.range()[0], 'V', yScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
       {ticks.map(({ value, offset }) => (
         <g key={value} transform={`translate(${horizontalPosition}, ${offset})`}>
-          <line x2="-6" stroke="currentColor" />
-          {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke="lightgray" /> : null}
+          {showLines ? <line x2={`${xRange[1] - xRange[0]}`} stroke={VIS_GRID_COLOR} /> : null}
           <g
             key={value}
             style={{
               transform: `translate(-${labelSpacing + 10}px, -9px)`,
             }}
           >
-            <foreignObject width={labelSpacing} height={20}>
+            <foreignObject width={labelSpacing + 5} height={20}>
               <Group style={{ width: '100%', height: '100%' }} justify="right">
-                <Text truncate size={rem('10px')}>
-                  {value}
-                </Text>
+                <Tooltip withArrow label={getLabelOrUnknown(value)} withinPortal>
+                  <Text
+                    c={VIS_LABEL_COLOR}
+                    pb={2} // to make sure the text is not cut off on the bottom, e.g. "g"s
+                    truncate
+                    style={{ userSelect: 'none' }}
+                    size={compact ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
+                  >
+                    {getLabelOrUnknown(value)}
+                  </Text>
+                </Tooltip>
               </Group>
             </foreignObject>
           </g>

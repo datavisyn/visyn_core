@@ -1,11 +1,9 @@
-import { faArrowDownShortWide, faArrowDownWideShort, faArrowDownAZ, faArrowDownZA } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, Container, Group, Stack, Text } from '@mantine/core';
+import { Box, Center, Container, Group, Space, Stack, Text, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
 import * as React from 'react';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { rollupByAggregateType } from '../bar/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
@@ -13,6 +11,8 @@ import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
 import { ESortTypes, IHeatmapConfig } from './interfaces';
 import { sequentialBlueColors } from '../../utils/colors';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../general/constants';
+import { ESortStates, SortIcon } from '../general/SortIcon';
 
 const interRectDistance = 1;
 
@@ -203,7 +203,7 @@ export function Heatmap({
   }, [height, margin, rectHeight, rectWidth, width, xScale, yScale, config.isAnimationEnabled]);
 
   return (
-    <Stack style={{ width: '100%', height: '100%' }} gap={0} align="center" justify="center" id={plotId}>
+    <Stack style={{ width: '100%', height: '100%', display: 'flex' }} gap={0} align="center" justify="center" id={plotId}>
       <Box pl={20}>
         <ColorLegendVert
           width={width - margin.left - margin.right}
@@ -213,40 +213,27 @@ export function Heatmap({
           title={`${config.aggregateType} ${config.aggregateType === EAggregateTypes.COUNT ? '' : config.aggregateColumn.name}`}
         />
       </Box>
-      <Group wrap="nowrap" style={{ width: '100%', height: '100%' }} gap={0} pr="40px">
-        <Text
-          color="dimmed"
-          style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', width: '40px', cursor: 'pointer' }}
-          onClick={() =>
-            setExternalConfig({
-              ...config,
-              ySortedBy:
-                config.ySortedBy === ESortTypes.CAT_ASC
-                  ? ESortTypes.CAT_DESC
-                  : config.ySortedBy === ESortTypes.CAT_DESC
-                    ? ESortTypes.VAL_ASC
-                    : config.ySortedBy === ESortTypes.VAL_ASC
-                      ? ESortTypes.VAL_DESC
-                      : ESortTypes.CAT_ASC,
-            })
-          }
-        >
-          <FontAwesomeIcon
-            fontWeight={100}
-            color="#C0C0C0"
-            style={{ marginRight: '10px', fontWeight: 200 }}
-            icon={
-              config.ySortedBy === ESortTypes.VAL_ASC
-                ? faArrowDownShortWide
-                : config.ySortedBy === ESortTypes.VAL_DESC
-                  ? faArrowDownWideShort
-                  : config.ySortedBy === ESortTypes.CAT_ASC
-                    ? faArrowDownAZ
-                    : faArrowDownZA
-            }
-          />
-          {column2.info.name}
-        </Text>
+      <Group wrap="nowrap" style={{ width: '100%', height: '100%', display: 'flex' }} gap={0} pr="40px">
+        <Center>
+          <Group style={{ transform: 'rotate(-90deg)' }} gap="0" wrap="nowrap" maw={20}>
+            <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none', textWrap: 'nowrap' }}>
+              {column2.info.name}
+            </Text>
+            <Space ml="xs" />
+            <SortIcon
+              sortState={
+                config.ySortedBy === ESortTypes.CAT_ASC ? ESortStates.ASC : config.ySortedBy === ESortTypes.CAT_DESC ? ESortStates.DESC : ESortStates.NONE
+              }
+              setSortState={(nextSort: ESortStates) => {
+                const next = nextSort === ESortStates.ASC ? ESortTypes.CAT_ASC : nextSort === ESortStates.DESC ? ESortTypes.CAT_DESC : ESortTypes.NONE;
+                setExternalConfig({
+                  ...config,
+                  ySortedBy: next,
+                });
+              }}
+            />
+          </Group>
+        </Center>
         <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
           <Container
             fluid
@@ -258,45 +245,35 @@ export function Heatmap({
             }}
           >
             <svg height={height} width={width}>
-              <rect x={margin.left} y={margin.top} height={height - margin.top - margin.bottom} width={width - margin.left - margin.right} fill="#F1F3F5" />
-              {rects}
+              <rect
+                x={margin.left}
+                y={margin.top}
+                height={height - margin.top - margin.bottom - interRectDistance}
+                width={width - margin.left - margin.right - interRectDistance}
+                fill="#fff" // I'm not using the grid color here on purpose, as you would see a lot of grid lines for a very sparse heatmap which would be too much and not really necessary. (coordinated with Bob)
+              />
               {text}
+              {rects}
             </svg>
           </Container>
         </Box>
       </Group>
-      <Text
-        color="dimmed"
-        style={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
-        onClick={() =>
-          setExternalConfig({
-            ...config,
-            xSortedBy:
-              config.xSortedBy === ESortTypes.CAT_ASC
-                ? ESortTypes.CAT_DESC
-                : config.xSortedBy === ESortTypes.CAT_DESC
-                  ? ESortTypes.VAL_ASC
-                  : config.xSortedBy === ESortTypes.VAL_ASC
-                    ? ESortTypes.VAL_DESC
-                    : ESortTypes.CAT_ASC,
-          })
-        }
-      >
-        <FontAwesomeIcon
-          color="#C0C0C0"
-          style={{ marginRight: '10px' }}
-          icon={
-            config.xSortedBy === ESortTypes.VAL_ASC
-              ? faArrowDownShortWide
-              : config.xSortedBy === ESortTypes.VAL_DESC
-                ? faArrowDownWideShort
-                : config.xSortedBy === ESortTypes.CAT_ASC
-                  ? faArrowDownAZ
-                  : faArrowDownZA
-          }
+      <Group gap="0" wrap="nowrap" justify="center" align="center">
+        <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ whiteSpace: 'nowrap', userSelect: 'none' }}>
+          {column1.info.name}
+        </Text>
+        <Space ml="xs" />
+        <SortIcon
+          sortState={config.xSortedBy === ESortTypes.CAT_ASC ? ESortStates.ASC : config.xSortedBy === ESortTypes.CAT_DESC ? ESortStates.DESC : ESortStates.NONE}
+          setSortState={(nextSort: ESortStates) => {
+            const next = nextSort === ESortStates.ASC ? ESortTypes.CAT_ASC : nextSort === ESortStates.DESC ? ESortTypes.CAT_DESC : ESortTypes.NONE;
+            setExternalConfig({
+              ...config,
+              xSortedBy: next,
+            });
+          }}
         />
-        {column1.info.name}
-      </Text>
+      </Group>
     </Stack>
   );
 }

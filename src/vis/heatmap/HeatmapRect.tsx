@@ -3,6 +3,9 @@ import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSpring, animated, easings } from 'react-spring';
+import { css } from '@emotion/css';
+import { selectionColorDark, selectionColorDarkHovered } from '../../utils/colors';
+import { NAN_REPLACEMENT } from '../general/constants';
 
 const DELAY = 2000;
 export function HeatmapRect({
@@ -56,11 +59,16 @@ export function HeatmapRect({
   const rect = useMemo(() => {
     return (
       <animated.rect
+        className={css`
+          &:hover {
+            stroke: ${selectionColorDarkHovered};
+          }
+        `}
         {...colorSpring}
         {...xSpring}
         {...ySpring}
         width={width}
-        stroke={isSelected ? 'orange' : 'none'}
+        stroke={isSelected ? selectionColorDark : 'none'}
         strokeWidth={3}
         height={height}
         onMouseEnter={() => {
@@ -69,7 +77,6 @@ export function HeatmapRect({
         }}
         onMouseLeave={() => {
           if (xSpring.x.isAnimating || ySpring.y.isAnimating) return;
-
           setIsHovered(false);
         }}
         onMouseDown={(e) => {
@@ -92,7 +99,7 @@ export function HeatmapRect({
   }, []);
 
   return isHovered ? (
-    <Tooltip withArrow arrowSize={6} label={label === null ? 'null' : formatter(label)}>
+    <Tooltip withArrow arrowSize={6} label={label === null ? NAN_REPLACEMENT : formatter(label)}>
       {rect}
     </Tooltip>
   ) : (

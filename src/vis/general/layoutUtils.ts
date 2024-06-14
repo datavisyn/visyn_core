@@ -1,5 +1,6 @@
 import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
 import { PlotlyTypes } from '../../plotly';
+import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from './constants';
 
 /**
  * Truncate long texts (e.g., to use as axes title)
@@ -48,37 +49,33 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
     }
   });
 
-  const plotFrame = {
-    showline: true,
-    linecolor: 'rgb(238, 238, 238)',
-    linewidth: 2,
-    mirror: true,
-  };
-
   traces.plots.forEach((t, i) => {
     const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
     layout[axisX] = {
       range: t.xDomain ? t.xDomain : null,
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
+      color: VIS_LABEL_COLOR,
+      gridcolor: VIS_GRID_COLOR,
+      zerolinecolor: VIS_GRID_COLOR,
       automargin,
-      // rangemode: 'tozero',
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
+      tickfont: {
+        size: traces.plots.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+      },
+      ticks: 'none',
       text: t.xTicks,
       showspikes: false,
       spikedash: 'dash',
-      ticks: 'outside',
-      zerolinecolor: 'rgb(238, 238, 238)',
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.xLabel, 25) : truncateText(t.xLabel, 50),
+        text: traces.plots.length > 1 ? truncateText(t.xLabel, 20) : truncateText(t.xLabel, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? 12 : 13.4,
-          color: '#7f7f7f',
+          size: traces.plots.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          color: VIS_LABEL_COLOR,
         },
       },
-      ...plotFrame,
     };
 
     const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
@@ -86,24 +83,28 @@ export function beautifyLayout(traces: PlotlyInfo, layout: Partial<PlotlyTypes.L
       range: t.yDomain ? t.yDomain : null,
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       automargin,
-      // rangemode: 'tozero',
+      color: VIS_LABEL_COLOR,
+      gridcolor: VIS_GRID_COLOR,
+      zerolinecolor: VIS_GRID_COLOR,
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
+      tickfont: {
+        size: traces.plots.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+      },
+      ticks: 'none',
       text: t.yTicks,
       showspikes: false,
       spikedash: 'dash',
-      ticks: 'outside',
-      zerolinecolor: 'rgb(238, 238, 238)',
       title: {
         standoff: 5,
-        text: traces.plots.length > 1 ? truncateText(t.yLabel, 30) : truncateText(t.yLabel, 50),
+        text: traces.plots.length > 1 ? truncateText(t.yLabel, 20) : truncateText(t.yLabel, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: traces.plots.length > 1 ? 12 : 13.4,
-          color: '#7f7f7f',
+          size: traces.plots.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          color: VIS_LABEL_COLOR,
+          weight: 'bold',
         },
       },
-      ...plotFrame,
     };
   });
 

@@ -1,8 +1,10 @@
+import { Tooltip, rem, Text, Center } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
+import { VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../general/constants';
 
 // code taken from https://wattenberger.com/blog/react-and-d3
-export function XAxis({ xScale, yRange, vertPosition }) {
+export function XAxis({ xScale, yRange, vertPosition, multiples = false }) {
   const ticks = useMemo(() => {
     return xScale.ticks(5).map((value) => ({
       value,
@@ -10,29 +12,32 @@ export function XAxis({ xScale, yRange, vertPosition }) {
     }));
   }, [xScale]);
 
+  const tickWidth = useMemo(() => {
+    if (ticks.length > 1) {
+      return Math.abs(ticks[1].xOffset - ticks[0].xOffset);
+    }
+    return xScale.range()[0] - xScale.range()[1];
+  }, [ticks, xScale]);
+
   return (
     <>
-      {yRange ? (
-        <path transform={`translate(0, ${vertPosition})`} d={['M', xScale.range()[0], 0, 'H', xScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
-      ) : null}
-      {yRange ? (
-        <path transform={`translate(0, ${yRange[0]})`} d={['M', xScale.range()[0], 0, 'H', xScale.range()[1]].join(' ')} fill="none" stroke="lightgray" />
-      ) : null}
-
       {ticks.map(({ value, xOffset }) => (
         <g key={value} transform={`translate(${xOffset}, ${vertPosition})`}>
-          <line y2="6" stroke="currentColor" />
-          {yRange ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke={`${value === 0 ? 'black' : 'lightgray'}`} /> : null}
-          <text
-            key={value}
-            fontSize="10px"
-            textAnchor="middle"
-            style={{
-              transform: 'translateY(20px)',
-            }}
-          >
-            {value}
-          </text>
+          {yRange ? <line y2={`${-(yRange[1] - yRange[0])}`} stroke={VIS_GRID_COLOR} /> : null}
+
+          <foreignObject y={8} x={-tickWidth / 2} width={tickWidth} height={20}>
+            <Center>
+              <Tooltip label={value}>
+                <Text
+                  c={VIS_LABEL_COLOR}
+                  size={multiples ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
+                  style={{ textAlign: 'left', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                >
+                  {value}
+                </Text>
+              </Tooltip>
+            </Center>
+          </foreignObject>
         </g>
       ))}
     </>
