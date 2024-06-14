@@ -104,7 +104,7 @@ export function beautifyLayout(
       tickfont: {
         size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
       },
-      type: typeof t.data.x[0] === 'string' ? 'category' : null,
+      type: typeof t.data.x?.[0] === 'string' ? 'category' : null,
       ticks: 'none',
       text: t.xTicks,
       showspikes: false,
@@ -137,7 +137,7 @@ export function beautifyLayout(
       tickfont: {
         size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
       },
-      type: typeof t.data.y[0] === 'string' ? 'category' : null,
+      type: typeof t.data.y?.[0] === 'string' ? 'category' : null,
       ticks: 'none',
       text: t.yTicks,
       showspikes: false,
