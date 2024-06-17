@@ -5,7 +5,7 @@ export function fetchBreastCancerData(): VisColumn[] {
   return [
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'breastSurgeryType',
         name: 'Breast Surgery Type',
       },
@@ -25,7 +25,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'chemotherapie',
         name: 'Chemotherapy',
       },
@@ -34,7 +34,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'pam50Subtype',
         name: 'PAM50 Subtype',
       },
@@ -43,7 +43,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'cohort',
         name: 'Cohort',
       },
@@ -52,7 +52,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'statusER',
         name: 'Status ER',
       },
@@ -61,7 +61,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'neoplasmHistologicGrade',
         name: 'Neoplasm Histologic Grade',
       },
@@ -70,7 +70,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'her2Status',
         name: 'HER2 Status',
       },
@@ -79,7 +79,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'tumorOtherHistologicSubtype',
         name: 'Tumor Other Histologic Subtype',
       },
@@ -88,7 +88,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'hormoneTherapie',
         name: 'Hormone Therapy',
       },
@@ -97,7 +97,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'inferredMenopausalState',
         name: 'Inferred Menopausal State',
       },
@@ -106,7 +106,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'integrativeCluster',
         name: 'Integrative Cluster',
       },
@@ -115,7 +115,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'primaryTumorLaterality',
         name: 'Primary Tumor Laterality',
       },
@@ -124,7 +124,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'lymphNodesExaminedPositive',
         name: 'Lymph Nodes Examined Positive',
       },
@@ -133,7 +133,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'mutationCount',
         name: 'Mutation Count',
       },
@@ -142,7 +142,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'nottinghamPrognosticIndex',
         name: 'Nottingham Prognostic Index',
       },
@@ -151,7 +151,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'oncotreeCode',
         name: 'Oncotree Code',
       },
@@ -160,7 +160,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'survivalMonths',
         name: 'Survival Months',
       },
@@ -169,7 +169,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'survival',
         name: 'Survival',
       },
@@ -178,7 +178,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'statusPR',
         name: 'Status PR',
       },
@@ -187,7 +187,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'radioTherapy',
         name: 'Radio Therapy',
       },
@@ -196,7 +196,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'tumorSize',
         name: 'Tumor Size',
       },
@@ -205,7 +205,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'tumorStage',
         name: 'Tumor Stage',
       },
@@ -214,7 +214,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: null,
+        description: 'some very long description',
         id: 'deathFromCancer',
         name: 'Death From Cancer',
       },
