@@ -35,6 +35,9 @@ export function violinBoxMergeDefaultConfig<T extends IViolinConfig | IBoxplotCo
     merged = merge({}, defaultViolinConfig, config) as T;
   } else {
     merged = merge({}, defaultBoxplotConfig, config) as T;
+    if (merged.overlay === EViolinOverlay.BOX) {
+      merged.overlay = EViolinOverlay.NONE;
+    }
   }
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
