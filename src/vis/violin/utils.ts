@@ -6,10 +6,10 @@ import { ESortStates } from '../general/SortIcon';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
 import { alphaToHex, columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
-import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
+import { EViolinOverlay, EYAxisMode, IViolinConfig, isViolinConfig } from './interfaces';
 import { IBoxplotConfig } from '../boxplot';
 
-const defaultConfig: IViolinConfig = {
+const defaultViolinConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
   numColumnsSelected: [],
   catColumnSelected: null,
@@ -19,8 +19,23 @@ const defaultConfig: IViolinConfig = {
   syncYAxis: EYAxisMode.UNSYNC,
 };
 
-export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IViolinConfig {
-  const merged = merge({}, defaultConfig, config);
+const defaultBoxplotConfig: IBoxplotConfig = {
+  type: ESupportedPlotlyVis.BOXPLOT,
+  numColumnsSelected: [],
+  catColumnSelected: null,
+  subCategorySelected: null,
+  facetBy: null,
+  overlay: EViolinOverlay.NONE,
+  syncYAxis: EYAxisMode.UNSYNC,
+};
+
+export function violinBoxMergeDefaultConfig<T extends IViolinConfig | IBoxplotConfig>(columns: VisColumn[], config: T): T {
+  let merged = {} as T;
+  if (isViolinConfig(config)) {
+    merged = merge({}, defaultViolinConfig, config) as T;
+  } else {
+    merged = merge({}, defaultBoxplotConfig, config) as T;
+  }
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
 

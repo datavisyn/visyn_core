@@ -48,7 +48,7 @@ import { scatterMergeDefaultConfig } from './scatter';
 import { ScatterVis } from './scatter/ScatterVis';
 import { ScatterVisSidebar } from './scatter/ScatterVisSidebar';
 import { IScatterConfig } from './scatter/interfaces';
-import { ViolinVis, violinMergeDefaultConfig } from './violin';
+import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
 
@@ -95,14 +95,14 @@ function registerAllVis(visTypes?: string[]) {
       type: ESupportedPlotlyVis.VIOLIN,
       renderer: ViolinVis,
       sidebarRenderer: ViolinVisSidebar,
-      mergeConfig: violinMergeDefaultConfig,
+      mergeConfig: violinBoxMergeDefaultConfig,
       description: 'Visualizes numerical data distribution by combining a box plot and a kernel density plot',
     }),
     createVis({
       type: ESupportedPlotlyVis.BOXPLOT,
       renderer: ViolinVis,
       sidebarRenderer: ViolinVisSidebar,
-      mergeConfig: violinMergeDefaultConfig,
+      mergeConfig: violinBoxMergeDefaultConfig,
       description: 'Visualizes numerical data distribution by box plot',
     }),
     createVis({
