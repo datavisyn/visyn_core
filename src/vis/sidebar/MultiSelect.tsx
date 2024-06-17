@@ -58,7 +58,7 @@ export function MultiSelect({
               {currentSelected.map((c) => c.id).includes(item.info.id)}
               <Stack gap={0}>
                 <Text size="sm">{item.info.name}</Text>
-                <Text size="xs" opacity={0.5}>
+                <Text size="xs" c="dimmed">
                   {item.info.description}
                 </Text>
               </Stack>
