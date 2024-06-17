@@ -1,5 +1,6 @@
 import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group, ScrollArea } from '@mantine/core';
 import * as React from 'react';
+import { css } from '@emotion/css';
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
 export function MultiSelect({
@@ -87,8 +88,19 @@ export function MultiSelect({
         onRemove={() => {
           handleValueRemove(item.id);
         }}
+        h={item.description ? 35 : 20}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
-        {item.name}
+        <Stack gap={0}>
+          <Text lh={1.2} size="xs" truncate pt={item.description ? 4 : 3}>
+            {item.name}
+          </Text>
+          {item.description ? (
+            <Text lh={1.2} size="xs" c="dimmed" truncate>
+              {item.description}
+            </Text>
+          ) : null}
+        </Stack>
       </Pill>
     </Tooltip>
   ));
@@ -97,6 +109,14 @@ export function MultiSelect({
     <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal>
       <Combobox.DropdownTarget>
         <PillsInput
+          className={css`
+            .mantine-Input-section.mantine-PillsInput-section[data-position='right'] {
+              /* This is necessary for the "x" (delete) to not be 100% height and centered so that users can click below to open the dropdown */
+              height: 22px;
+              margin-top: auto;
+              margin-bottom: auto;
+            }
+          `}
           rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />}
           label={`${columnType} columns`}
           pointer

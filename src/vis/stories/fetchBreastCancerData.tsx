@@ -133,7 +133,7 @@ export function fetchBreastCancerData(): VisColumn[] {
     },
     {
       info: {
-        description: 'some very long description',
+        description: null,
         id: 'mutationCount',
         name: 'Mutation Count',
       },
