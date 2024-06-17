@@ -8,7 +8,23 @@ interface SegmentedControlProps<T> {
   disabled?: boolean;
 }
 
-export function ViolinOverlaySegmentedControl({ callback, currentSelected, disabled }: SegmentedControlProps<EViolinOverlay>) {
+const violinOverlayOptions = [
+  { label: EViolinOverlay.NONE, value: EViolinOverlay.NONE },
+  { label: EViolinOverlay.BOX, value: EViolinOverlay.BOX },
+  { label: EViolinOverlay.STRIP, value: EViolinOverlay.STRIP },
+];
+
+const boxplotOverlayOptions = [
+  { label: EViolinOverlay.NONE, value: EViolinOverlay.NONE },
+  { label: EViolinOverlay.STRIP, value: EViolinOverlay.STRIP },
+];
+
+export function ViolinOverlaySegmentedControl({
+  callback,
+  currentSelected,
+  disabled,
+  isViolin,
+}: SegmentedControlProps<EViolinOverlay> & { isViolin: boolean }) {
   return (
     <Input.Wrapper
       label={
@@ -23,11 +39,7 @@ export function ViolinOverlaySegmentedControl({ callback, currentSelected, disab
         size="xs"
         value={currentSelected}
         onChange={callback}
-        data={[
-          { label: EViolinOverlay.NONE, value: EViolinOverlay.NONE },
-          { label: EViolinOverlay.BOX, value: EViolinOverlay.BOX },
-          { label: EViolinOverlay.STRIP, value: EViolinOverlay.STRIP },
-        ]}
+        data={isViolin ? violinOverlayOptions : boxplotOverlayOptions}
       />
     </Input.Wrapper>
   );

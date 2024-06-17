@@ -6,20 +6,39 @@ import { ESortStates } from '../general/SortIcon';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
 import { alphaToHex, columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
-import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
+import { EViolinOverlay, EYAxisMode, IViolinConfig, isViolinConfig } from './interfaces';
+import { IBoxplotConfig } from '../boxplot';
 
-const defaultConfig: IViolinConfig = {
+const defaultViolinConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
   numColumnsSelected: [],
   catColumnSelected: null,
   subCategorySelected: null,
   facetBy: null,
-  violinOverlay: EViolinOverlay.NONE,
+  overlay: EViolinOverlay.NONE,
   syncYAxis: EYAxisMode.UNSYNC,
 };
 
-export function violinMergeDefaultConfig(columns: VisColumn[], config: IViolinConfig): IViolinConfig {
-  const merged = merge({}, defaultConfig, config);
+const defaultBoxplotConfig: IBoxplotConfig = {
+  type: ESupportedPlotlyVis.BOXPLOT,
+  numColumnsSelected: [],
+  catColumnSelected: null,
+  subCategorySelected: null,
+  facetBy: null,
+  overlay: EViolinOverlay.NONE,
+  syncYAxis: EYAxisMode.UNSYNC,
+};
+
+export function violinBoxMergeDefaultConfig<T extends IViolinConfig | IBoxplotConfig>(columns: VisColumn[], config: T): T {
+  let merged = {} as T;
+  if (isViolinConfig(config)) {
+    merged = merge({}, defaultViolinConfig, config) as T;
+  } else {
+    merged = merge({}, defaultBoxplotConfig, config) as T;
+    if (merged.overlay === EViolinOverlay.BOX) {
+      merged.overlay = EViolinOverlay.NONE;
+    }
+  }
 
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
 
@@ -49,7 +68,7 @@ const concatGroup = (group: IGroupDefinition) => `${group.num.val}${group.cat?.v
 
 export async function createViolinTraces(
   columns: VisColumn[],
-  config: IViolinConfig,
+  config: IViolinConfig | IBoxplotConfig,
   sortBy: { col: string; state: ESortStates },
   selectedList: string[],
   selectedMap: { [key: string]: boolean },
@@ -58,7 +77,7 @@ export async function createViolinTraces(
 
   // Setting the opacity of the violins and point overlays here globally
   const baseOpacities =
-    config.violinOverlay === EViolinOverlay.STRIP
+    config.overlay === EViolinOverlay.STRIP
       ? { selected: { line: 0.6, fill: 0.2, point: 1.0 }, unselected: { line: 0.2, fill: 0.2, point: 0.6 } }
       : { selected: { line: 0.8, fill: 0.6, point: 1.0 }, unselected: { line: VIS_UNSELECTED_OPACITY * 1.3, fill: VIS_UNSELECTED_OPACITY, point: 1.0 } };
 
@@ -200,7 +219,8 @@ export async function createViolinTraces(
     subCatMap[v] = { color: v === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[i % categoricalColors.length], idx: i };
   });
 
-  const hasSplit = Object.keys(subCatMap).length === 2;
+  // Only allow split mode if there are exactly two subcategories and the plot type is violin
+  const hasSplit = config.type === ESupportedPlotlyVis.VIOLIN && Object.keys(subCatMap).length === 2;
 
   // Sort by mean if order is set
   let categoryOrder = null;
@@ -227,16 +247,33 @@ export async function createViolinTraces(
     }
   }
 
+  const boxplotData =
+    config.type === ESupportedPlotlyVis.BOXPLOT
+      ? {
+          type: 'box',
+          boxmean: true,
+          boxpoints: config.overlay === EViolinOverlay.STRIP ? 'all' : false,
+        }
+      : {};
+
+  const violinData =
+    config.type === ESupportedPlotlyVis.VIOLIN
+      ? {
+          type: 'violin',
+          bandwidth: 0,
+          box: {
+            width: hasSplit ? 0.5 : 0.3,
+            visible: config.overlay === EViolinOverlay.BOX,
+          },
+          points: config.overlay === EViolinOverlay.STRIP ? 'all' : false,
+        }
+      : {};
+
   // Common data for all violin traces
   const sharedData = {
-    type: 'violin' as Plotly.PlotType,
+    ...violinData,
+    ...boxplotData,
     jitter: hasSplit ? 0.2 : 0.6,
-    bandwidth: 0,
-    points: config.violinOverlay === EViolinOverlay.STRIP ? 'all' : false,
-    box: {
-      width: hasSplit ? 0.5 : 0.3,
-      visible: config.violinOverlay === EViolinOverlay.BOX,
-    },
     hoverlabel: {
       font: {
         color: 'rgba(0,0,0,0.75)',
@@ -403,7 +440,7 @@ export async function createViolinTraces(
     categoryOrder: categoriesPerPlot,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
-    violinMode: Object.keys(subCatMap).length > 2 ? 'group' : 'overlay',
+    violinMode: subCatCol && !hasSplit ? 'group' : 'overlay',
     hasSplit,
   };
 }

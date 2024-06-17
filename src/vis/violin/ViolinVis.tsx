@@ -8,9 +8,10 @@ import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { ESortStates, createPlotlySortIcon } from '../general/SortIcon';
 import { beautifyLayout } from '../general/layoutUtils';
-import { ICommonVisProps } from '../interfaces';
+import { ESupportedPlotlyVis, ICommonVisProps } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
+import { IBoxplotConfig } from '../boxplot';
 
 export function ViolinVis({
   config,
@@ -22,7 +23,7 @@ export function ViolinVis({
   selectionCallback,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IViolinConfig>) {
+}: ICommonVisProps<IViolinConfig | IBoxplotConfig>) {
   const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
@@ -99,6 +100,23 @@ export function ViolinVis({
       return;
     }
 
+    const boxplotLayout =
+      config.type === ESupportedPlotlyVis.BOXPLOT
+        ? {
+            boxmode: traces.violinMode as 'group' | 'overlay',
+            boxgap: 0.1,
+          }
+        : {};
+
+    const violinLayout =
+      config.type === ESupportedPlotlyVis.VIOLIN
+        ? {
+            violinmode: traces.violinMode as 'group' | 'overlay',
+            violingap: config.subCategorySelected && !traces.hasSplit ? 0.25 : 0.1,
+            violingroupgap: 0.1,
+          }
+        : {};
+
     const innerLayout: Partial<Plotly.Layout> = {
       showlegend: true,
       legend: {
@@ -115,18 +133,16 @@ export function ViolinVis({
         family: 'Roboto, sans-serif',
       },
       clickmode: 'event+select',
-      dragmode: config.violinOverlay === EViolinOverlay.STRIP ? 'lasso' : false, // Disables zoom (makes no sense in violin plots)
+      dragmode: config.overlay === EViolinOverlay.STRIP ? 'lasso' : false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
       grid: { rows: traces.rows, columns: traces.cols, xgap: traces.rows > 2 ? 0.2 : 0.15, ygap: traces.rows > 2 ? 0.25 : 0.15, pattern: 'independent' },
       shapes: [],
-      // @ts-ignore
-      violinmode: traces.violinMode,
-      violingap: config.subCategorySelected && !traces.hasSplit ? 0.25 : 0.1,
-      violingroupgap: 0.1,
+      ...boxplotLayout,
+      ...violinLayout,
     };
 
     setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, traces.categoryOrder, true, config.syncYAxis === EYAxisMode.UNSYNC) }));
-  }, [config.subCategorySelected, config.syncYAxis, config.violinOverlay, traces]);
+  }, [config.subCategorySelected, config.syncYAxis, config.overlay, traces, config.type]);
 
   return (
     <Stack
