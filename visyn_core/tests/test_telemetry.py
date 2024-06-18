@@ -29,12 +29,12 @@ def test_fastapi_metrics(client: TestClient):
     parsed = {m.name: m for m in text_string_to_metric_families(metrics_text)}
 
     # Check for app info
-    fastapi_app_info_metric = parsed["fastapi_app_info_1"]  # TODO: Why _1?
+    fastapi_app_info_metric = parsed["fastapi_app_info"]  # TODO: Why _1?
     assert len(fastapi_app_info_metric.samples) == 1
     assert fastapi_app_info_metric.samples[0].labels["app_name"] == "visyn.app.datavisyn.io"
 
     # Check for request counts
-    fastapi_requests_metric = parsed["fastapi_requests_1"]  # TODO: Why _1?
+    fastapi_requests_metric = parsed["fastapi_requests"]  # TODO: Why _1?
     assert len(fastapi_requests_metric.samples) == 2
     assert fastapi_requests_metric.samples[0].labels["path"] == "/api/health"
     assert fastapi_requests_metric.samples[0].value == 1
@@ -47,7 +47,7 @@ def test_fastapi_metrics(client: TestClient):
     parsed = {m.name: m for m in text_string_to_metric_families(metrics_text)}
 
     # And check for increased counts
-    fastapi_requests_metric = parsed["fastapi_requests_1"]  # TODO: Why _1?
+    fastapi_requests_metric = parsed["fastapi_requests"]  # TODO: Why _1?
     assert len(fastapi_requests_metric.samples) == 2
     assert fastapi_requests_metric.samples[0].labels["path"] == "/api/health"
     assert fastapi_requests_metric.samples[0].value == 2

@@ -1,5 +1,5 @@
 // In case of failing tests due to i18next, check if the `esModuleInterop` flag is set to true in the jest config (in "tsConfig" object under "ts-jest" in globals property).
-import i18next from 'i18next';
+import i18next, { i18n as i18nType } from 'i18next';
 import { pluginRegistry } from '../plugin/PluginRegistry';
 import { EP_PHOVEA_CORE_LOCALE, ILocaleEPDesc } from '../plugin/extensions';
 
@@ -13,7 +13,7 @@ export class I18nextManager {
    * Thus allowing the existence of multiple i18next instances with different configurations
    * without one overwriting the other
    */
-  public i18n = i18next.createInstance();
+  public i18n: i18nType = i18next.createInstance();
 
   /**
    *  Awaits the translation files registered at the EP_PHOVEA_CORE_LOCALE extension point
