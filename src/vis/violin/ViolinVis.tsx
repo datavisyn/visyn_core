@@ -1,5 +1,4 @@
 import { Center, Stack } from '@mantine/core';
-import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAsync } from '../../hooks';
@@ -7,11 +6,12 @@ import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { ESortStates, createPlotlySortIcon } from '../general/SortIcon';
 import { beautifyLayout } from '../general/layoutUtils';
-import { ICommonVisProps } from '../interfaces';
-import { EViolinSeparationMode, IViolinConfig } from './interfaces';
+import { ESupportedPlotlyVis, ICommonVisProps } from '../interfaces';
+import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
-import { SELECT_COLOR } from '../general/constants';
+import { IBoxplotConfig } from '../boxplot';
 
 export function ViolinVis({
   config,
@@ -23,12 +23,23 @@ export function ViolinVis({
   selectionCallback,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IViolinConfig>) {
-  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, scales, selectedList, selectedMap]);
-
+}: ICommonVisProps<IViolinConfig | IBoxplotConfig>) {
   const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
 
   const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
+  const [sortState, setSortState] = useState<{ col: string; state: ESortStates }>(null);
+
+  const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, sortState, selectedList, selectedMap]);
+
+  const toggleSortState = (col: string) => {
+    if (sortState?.col === col && sortState?.state === ESortStates.DESC) {
+      setSortState(null);
+    } else if (sortState?.col === col) {
+      setSortState({ col, state: ESortStates.DESC });
+    } else {
+      setSortState({ col, state: ESortStates.ASC });
+    }
+  };
 
   const onClick = (e: (Readonly<PlotlyTypes.PlotSelectionEvent> & { event: MouseEvent }) | null) => {
     if (!e || !e.points || !e.points[0]) {
@@ -89,6 +100,23 @@ export function ViolinVis({
       return;
     }
 
+    const boxplotLayout =
+      config.type === ESupportedPlotlyVis.BOXPLOT
+        ? {
+            boxmode: traces.violinMode as 'group' | 'overlay',
+            boxgap: 0.1,
+          }
+        : {};
+
+    const violinLayout =
+      config.type === ESupportedPlotlyVis.VIOLIN
+        ? {
+            violinmode: traces.violinMode as 'group' | 'overlay',
+            violingap: config.subCategorySelected && !traces.hasSplit ? 0.25 : 0.1,
+            violingroupgap: 0.1,
+          }
+        : {};
+
     const innerLayout: Partial<Plotly.Layout> = {
       showlegend: true,
       legend: {
@@ -105,50 +133,16 @@ export function ViolinVis({
         family: 'Roboto, sans-serif',
       },
       clickmode: 'event+select',
-      dragmode: false, // Disables zoom (makes no sense in violin plots)
+      dragmode: config.overlay === EViolinOverlay.STRIP ? 'lasso' : false, // Disables zoom (makes no sense in violin plots)
       autosize: true,
-      grid: config.separation === EViolinSeparationMode.FACETS && { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: traces.rows > 2 ? 0.2 : 0.15, ygap: traces.rows > 2 ? 0.25 : 0.15, pattern: 'independent' },
       shapes: [],
-      // @ts-ignore
-      violinmode: traces && traces.hasFacets ? 'overlay' : 'group',
-      violingap: 0.25,
-      violingroupgap: 0.1,
+      ...boxplotLayout,
+      ...violinLayout,
     };
 
-    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, true) }));
-  }, [config.catColumnsSelected, config.separation, config.numColumnsSelected.length, traces]);
-
-  const highlightSelectionShapes: Partial<Plotly.Shape>[] = useMemo(() => {
-    if (!traces?.plots || !traces?.selectedXMap) {
-      return [];
-    }
-
-    const offset = 0.01;
-    const lineLength = 1 / Object.keys(traces.selectedXMap).length;
-    let start = 0;
-    const shapes = [];
-
-    Object.keys(traces.selectedXMap).forEach((key) => {
-      if (traces.selectedXMap[key]) {
-        shapes.push({
-          type: 'line',
-          xref: 'paper',
-          yref: 'paper',
-          x0: start + offset,
-          x1: start + lineLength - offset,
-          y0: offset,
-          y1: offset,
-          layer: 'below',
-          line: {
-            width: 4,
-            color: SELECT_COLOR,
-          },
-        });
-      }
-      start += lineLength;
-    });
-    return shapes;
-  }, [traces]);
+    setLayout((prev) => ({ ...prev, ...beautifyLayout(traces, innerLayout, prev, traces.categoryOrder, true, config.syncYAxis === EYAxisMode.UNSYNC) }));
+  }, [config.subCategorySelected, config.syncYAxis, config.overlay, traces, config.type]);
 
   return (
     <Stack
@@ -174,20 +168,30 @@ export function ViolinVis({
           <PlotlyComponent
             divId={id}
             data={[...traces.plots.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)]}
-            layout={{
-              ...layout,
-              shapes: [...(layout?.shapes || []), ...highlightSelectionShapes],
-            }}
+            layout={layout}
             config={{ responsive: true, displayModeBar: false }}
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
             onClick={onClick}
-            // plotly redraws everything on updates, so you need to reappend title and
+            onSelected={(sel) => {
+              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+            }}
+            onDoubleClick={() => {
+              selectionCallback([]);
+            }}
+            onLegendClick={() => false}
             onUpdate={() => {
-              for (const p of traces.plots) {
-                d3v7.select(`g .${p.data.xaxis}title`).style('pointer-events', 'all').append('title').text(p.xLabel);
-
-                d3v7.select(`g .${p.data.yaxis}title`).style('pointer-events', 'all').append('title').text(p.yLabel);
+              const sharedAxisTraces = traces.plots.filter((value, index, self) => {
+                return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
+              });
+              for (const p of sharedAxisTraces) {
+                // Add sorting icon for both x and y axis
+                if (p.yLabel) {
+                  createPlotlySortIcon({ sortState, axis: p.data.yaxis, axisLabel: p.yLabel, onToggleSort: toggleSortState });
+                }
+                if (p.xLabel) {
+                  createPlotlySortIcon({ sortState, axis: p.data.xaxis, axisLabel: p.xLabel, onToggleSort: toggleSortState });
+                }
               }
             }}
           />

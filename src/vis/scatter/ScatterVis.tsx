@@ -16,6 +16,7 @@ import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
 import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
+import { VIS_TRACES_COLOR } from '../general/constants';
 
 const formatPValue = (pValue: number) => {
   if (pValue === null) {
@@ -181,7 +182,7 @@ export function ScatterVis({
             showarrow: false,
             font: {
               size: 16,
-              color: '#7f7f7f',
+              color: VIS_TRACES_COLOR,
             },
           }),
         );
@@ -220,11 +221,11 @@ export function ScatterVis({
         b: 50,
       },
       shapes: [],
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.15, ygap: config.facets ? 0.2 : 0.15, pattern: 'independent' },
       dragmode: config.dragMode,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
+    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, null, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [traces, config.dragMode, showLegend]);
@@ -348,6 +349,10 @@ export function ScatterVis({
               } else {
                 selectionCallback([...selectedList, clickedId]);
               }
+            }}
+            onLegendClick={() => false}
+            onDoubleClick={() => {
+              selectionCallback([]);
             }}
             onInitialized={() => {
               d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);

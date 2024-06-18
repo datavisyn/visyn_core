@@ -3,7 +3,7 @@ import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue, selectionColorDark } from '../../utils';
-import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
+import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn, truncateText } from '../general/layoutUtils';
 import {
   ColumnInfo,
   EColumnTypes,
@@ -22,10 +22,6 @@ import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
 import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { getLabelOrUnknown } from '../general/utils';
-
-function truncateString(text: string, maxLength = 20): string {
-  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
-}
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -401,13 +397,12 @@ export async function createScatterTraces(
         y: [null],
         type: 'scattergl',
         mode: 'markers',
-        visible: 'legendonly',
         legendgroup: 'color',
         hoverinfo: 'skip',
 
         // @ts-ignore
         legendgrouptitle: {
-          text: truncateString(colorCol.info.name),
+          text: truncateText(colorCol.info.name, true, 20),
         },
         marker: {
           line: {
@@ -443,7 +438,6 @@ export async function createScatterTraces(
         y: [null],
         type: 'scattergl',
         mode: 'markers',
-        visible: 'legendonly',
         showlegend: true,
         legendgroup: 'shape',
         hoverinfo: 'all',
@@ -456,7 +450,7 @@ export async function createScatterTraces(
         },
         // @ts-ignore
         legendgrouptitle: {
-          text: truncateString(shapeCol.info.name),
+          text: truncateText(shapeCol.info.name, true, 20),
         },
         marker: {
           line: {

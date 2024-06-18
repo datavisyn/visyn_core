@@ -3,6 +3,7 @@ import { PlotlyTypes } from '../plotly';
 export enum ESupportedPlotlyVis {
   SCATTER = 'Scatter plot',
   VIOLIN = 'Violin plot',
+  BOXPLOT = 'Box plot',
   BAR = 'Bar chart',
   HEXBIN = 'Hexbin plot',
   HEATMAP = 'Heatmap plot',
@@ -86,6 +87,7 @@ export interface VisNumericalColumn extends VisCommonColumn {
 export interface VisCategoricalColumn extends VisCommonColumn {
   type: EColumnTypes.CATEGORICAL;
   color?: Record<string, string>;
+  domain?: string[];
 }
 
 export type VisColumn = VisNumericalColumn | VisCategoricalColumn;
