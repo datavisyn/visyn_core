@@ -1,6 +1,11 @@
 import { Box, LoadingOverlay, Loader, Stack } from '@mantine/core';
 import * as React from 'react';
 
+/**
+ * A blurred overlay that can be used to show a loading spinner and/or a loading text.
+ * The overlay is blurred and covers the whole screen or the parent element.
+ * Use the `visible` prop to show the overlay without the loading spinner and its children.
+ */
 export function BlurredOverlay({
   // eslint-disable-next-line react/jsx-no-useless-fragment
   children = <></>,
