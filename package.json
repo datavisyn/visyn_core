@@ -108,7 +108,7 @@
     "html-to-image": "^1.11.11",
     "i18next": "^23.11.5",
     "jstat": "^1.9.6",
-    "lineupjs": "4.10.0",
+    "lineupjs": "4.11.0",
     "lodash": "~4.17.21",
     "plotly.js-dist-min": "~2.33.0",
     "react": "~18.3.1",
@@ -135,5 +135,5 @@
       }
     }
   },
-  "packageManager": "yarn@4.1.0"
+  "packageManager": "yarn@4.3.0"
 }
