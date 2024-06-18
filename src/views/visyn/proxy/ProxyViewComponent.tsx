@@ -14,7 +14,6 @@ export interface IProxyViewProps {
  * This simple proxy view is intended to be used inside of a visyn view component which does the required mapping between
  * types. Shows a loading icon while the website is loading.
  */
-
 export function ProxyViewComponent({ site }: IProxyViewProps) {
   const loadingFrame = useRef<HTMLIFrameElement>(null);
   const [websiteLoading, setWebsiteLoading] = useState<boolean>(true);

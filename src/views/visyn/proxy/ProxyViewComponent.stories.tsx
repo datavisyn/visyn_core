@@ -1,6 +1,6 @@
 import { ProxyViewComponent } from './ProxyViewComponent';
 
-export default { component: ProxyViewComponent };
+export default { title: 'components/ProxyViewComponent', component: ProxyViewComponent };
 
 export const Default = {
   args: {
