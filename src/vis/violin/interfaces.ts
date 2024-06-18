@@ -17,7 +17,7 @@ export interface IViolinConfig extends BaseVisConfig {
   catColumnSelected: ColumnInfo | null;
   subCategorySelected: ColumnInfo | null;
   facetBy: ColumnInfo | null;
-  violinOverlay: EViolinOverlay;
+  overlay: EViolinOverlay;
   syncYAxis?: EYAxisMode;
 }
 

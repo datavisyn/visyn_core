@@ -1,34 +1,44 @@
 # a2wsgi==1.6.0 # This WSIGMiddleware is not compatible with starlette_context
 alembic==1.13.1
 cachetools==5.3.3
-fastapi==0.110.1
+fastapi==0.111.0
 json-cfg==0.4.2
-openpyxl==3.1.2
-opentelemetry-api==1.24.0
-opentelemetry-exporter-otlp==1.24.0
-opentelemetry-exporter-prometheus==0.45b0
-opentelemetry-instrumentation-fastapi==0.45b0
-opentelemetry-instrumentation-httpx==0.45b0
-opentelemetry-instrumentation-logging==0.45b0
-opentelemetry-instrumentation-requests==0.45b0
-opentelemetry-instrumentation-sqlalchemy==0.45b0
-opentelemetry-instrumentation-system-metrics==0.45b0
-opentelemetry-sdk==1.24.0
-psycopg==3.1.18
+openpyxl==3.1.3
+opentelemetry-api==1.25.0
+opentelemetry-exporter-otlp==1.25.0
+opentelemetry-exporter-prometheus==0.46b0
+opentelemetry-instrumentation-fastapi==0.46b0
+opentelemetry-instrumentation-httpx==0.46b0
+opentelemetry-instrumentation-logging==0.46b0
+opentelemetry-instrumentation-requests==0.46b0
+opentelemetry-instrumentation-sqlalchemy==0.46b0
+opentelemetry-instrumentation-system-metrics==0.46b0
+opentelemetry-sdk==1.25.0
+psycopg==3.1.19
 psycopg2==2.9.9
-pydantic==1.10.14
+pydantic==1.10.15
 pyjwt[crypto]==2.8.0
 pytest-postgresql==6.0.0
 python-dateutil==2.9.0.post0
-python-multipart==0.0.9
-requests==2.32.0
+requests==2.32.3
 SQLAlchemy>=1.4.40,<=1.4.49
 starlette-context==0.3.6
-uvicorn[standard]==0.29.0
-# Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/f7e3559bd5997f831fb9b02bef9c767a50facbc3/pyproject.toml#L57-L67
-httpx>=0.23.0
-jinja2>=2.11.2
-itsdangerous>=1.1.0
-pyyaml>=5.3.1
-ujson>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0
-orjson>=3.2.1
+uvicorn[standard]==0.30.1
+# Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/master/pyproject.toml#L79-L103
+fastapi-cli >=0.0.4
+# # For the test client
+httpx >=0.27.0
+# For templates
+jinja2 >=2.11.2
+# For forms and file uploads
+python-multipart >=0.0.7
+# For Starlette's SessionMiddleware, not commonly used with FastAPI
+itsdangerous >=1.1.0
+# For Starlette's schema generation, would not be used with FastAPI
+pyyaml >=5.3.1
+# For UJSONResponse
+ujson >=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0
+# For ORJSONResponse
+orjson >=3.2.1
+# To validate email fields
+email_validator >=2.0.0
