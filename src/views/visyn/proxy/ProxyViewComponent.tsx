@@ -1,6 +1,7 @@
 // Gets into the phovea.ts
 import * as React from 'react';
 import { useRef, useState } from 'react';
+import { BlurredOverlay } from '../../../components/BlurredOverlay';
 
 export interface IProxyViewProps {
   /**
@@ -35,8 +36,11 @@ export function ProxyViewComponent({ site }: IProxyViewProps) {
   }, [loadingFrame, site]);
 
   return (
-    <div className={`w-100 h-100 ${websiteLoading ? 'tdp-busy' : ''}`}>
-      <iframe ref={loadingFrame} className="w-100 h-100" src={site} data-testid="proxy-view-iframe" />
-    </div>
+    <>
+      {websiteLoading && <BlurredOverlay loading />}
+      <div className="w-100 h-100">
+        <iframe ref={loadingFrame} className="w-100 h-100" src={site} data-testid="proxy-view-iframe" />
+      </div>
+    </>
   );
 }
