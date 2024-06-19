@@ -26,3 +26,4 @@ jobs:
       chromatic_enable: ${{ inputs.chromatic == true || github.event.review.state == 'approved' }}
       cypress_enable: true
       cypress_run_because_flag: ${{ inputs.cypress == true || github.event.review.state == 'approved' }}
+
