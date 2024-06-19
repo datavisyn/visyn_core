@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
+    uses: datavisyn/github-workflows/.github/workflows/build-node.yml@main
     secrets: inherit
     with:
       chromatic_enable: true
