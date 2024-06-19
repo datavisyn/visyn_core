@@ -149,7 +149,6 @@ export function beautifyLayout(
           family: 'Roboto, sans-serif',
           size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
           color: VIS_LABEL_COLOR,
-          weight: 'bold',
         },
       },
     };
