@@ -1,6 +1,7 @@
 name: Chromatic UI test
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'src/vis/**/*' # trigger whenever something changed in the VIS (?)
