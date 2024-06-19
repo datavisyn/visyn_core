@@ -3,7 +3,6 @@ import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
-import { Plotly } from '../../plotly/full';
 import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { ESortStates, createPlotlySortIcon } from '../general/SortIcon';
@@ -26,7 +25,7 @@ export function ViolinVis({
 }: ICommonVisProps<IViolinConfig | IBoxplotConfig>) {
   const id = useMemo(() => uniquePlotId || uniqueId('ViolinVis'), [uniquePlotId]);
 
-  const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
+  const [layout, setLayout] = useState<Partial<PlotlyTypes.Layout>>(null);
   const [sortState, setSortState] = useState<{ col: string; state: ESortStates }>(null);
 
   const { value: traces, status: traceStatus, error: traceError } = useAsync(createViolinTraces, [columns, config, sortState, selectedList, selectedMap]);
@@ -78,20 +77,12 @@ export function ViolinVis({
     }
   };
 
-  // NOTE: @dv-usama-ansari: This is an alternative way to delay the resize of plotly plots, but the dependencies of the `useCallback` are unknown if the function is wrapped in lodash `debounce`.
-  // const resizePlotly = useCallback(
-  //   debounce((plotDiv) => {
-  //     Plotly.Plots.resize(plotDiv);
-  //   }),
-  //   [],
-  // );
-
   useEffect(() => {
     const plotDiv = document.getElementById(id);
     if (plotDiv) {
       // NOTE: @dv-usama-ansari: This is a hack to update the plotly plots on resize.
       //  The `setTimeout` is used to pass the resize function to the next event loop, so that the plotly plots are rendered first.
-      setTimeout(() => Plotly.Plots.resize(plotDiv));
+      setTimeout(() => import('plotly.js-dist-min').then((Plotly) => Plotly.Plots.resize(plotDiv)));
     }
   }, [id, dimensions, traces]);
 
@@ -117,7 +108,7 @@ export function ViolinVis({
           }
         : {};
 
-    const innerLayout: Partial<Plotly.Layout> = {
+    const innerLayout: Partial<PlotlyTypes.Layout> = {
       showlegend: true,
       legend: {
         itemclick: false,

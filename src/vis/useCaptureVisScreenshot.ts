@@ -1,6 +1,5 @@
 import * as htmlToImage from 'html-to-image';
 import * as React from 'react';
-import { Plotly } from '../plotly/full';
 import { BaseVisConfig, ESupportedPlotlyVis } from './interfaces';
 
 export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVisConfig) {
@@ -15,6 +14,7 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
     }
     try {
       if ([ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY].includes(visConfig.type as ESupportedPlotlyVis)) {
+        const Plotly = await import('plotly.js-dist-min');
         await Plotly.downloadImage(plotElement, {
           format: 'png',
           filename: `${visConfig.type}`,
