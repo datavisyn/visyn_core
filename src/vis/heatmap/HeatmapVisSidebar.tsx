@@ -17,7 +17,11 @@ export function HeatmapVisSidebar({
   return (
     <>
       <MultiSelect
-        callback={(catColumnsSelected: ColumnInfo[]) => setConfig({ ...config, catColumnsSelected })}
+        callback={(catColumnsSelected: ColumnInfo[]) => {
+          // For the heatmap, only 2 columns can be selected at once
+          const catColumns = catColumnsSelected.length > 2 ? catColumnsSelected.slice(catColumnsSelected.length - 2) : catColumnsSelected;
+          setConfig({ ...config, catColumnsSelected: catColumns });
+        }}
         columns={columns}
         currentSelected={config.catColumnsSelected || []}
         columnType={EColumnTypes.CATEGORICAL}

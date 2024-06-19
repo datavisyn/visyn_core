@@ -9,6 +9,8 @@ import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
+import { selectionColorDark } from '../../utils';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -125,6 +127,9 @@ export async function fetchData(columns: VisColumn[], config: ISankeyConfig) {
 }
 
 function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
+  if (selection.size <= 0) {
+    return false;
+  }
   for (const value of inverseLookup) {
     if (selection.has(value)) {
       return true;
@@ -134,10 +139,9 @@ function isNodeSelected(selection: Set<string>, inverseLookup: Array<string>) {
   return false;
 }
 
-function generatePlotly(data, optimisedSelection: Set<string>, theme: MantineTheme) {
-  // @TODO @MORITZ
-  const selected = lighten(theme.colors[theme.primaryColor][5], 0.2);
-  const def = optimisedSelection.size > 0 ? rgba(theme.colors.gray[4], 0.5) : selected;
+function generatePlotly(data, optimisedSelection: Set<string>) {
+  const selected = selectionColorDark;
+  const def = optimisedSelection.size > 0 ? VIS_UNSELECTED_COLOR : VIS_NEUTRAL_COLOR;
 
   return [
     {
@@ -189,8 +193,6 @@ export function SankeyVis({
 
   const [plotly, setPlotly] = React.useState<unknown[]>();
 
-  const theme = useMantineTheme();
-
   // When we have new data -> recreate plotly
   React.useEffect(() => {
     const optimisedSelection = new Set(selection);
@@ -198,9 +200,9 @@ export function SankeyVis({
     if (!data) {
       setPlotly(null);
     } else {
-      setPlotly(generatePlotly(data, optimisedSelection, theme));
+      setPlotly(generatePlotly(data, optimisedSelection));
     }
-  }, [selection, data, theme]);
+  }, [selection, data]);
 
   React.useEffect(() => {
     setSelection(selectedList);

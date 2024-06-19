@@ -2,12 +2,10 @@ import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
-import { XAxisName, YAxisName } from 'plotly.js-dist-min';
 import * as React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useAsync } from '../../hooks';
-import { PlotlyComponent } from '../../plotly';
-import { Plotly } from '../../plotly/full';
+import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { InvalidCols } from '../general/InvalidCols';
 import { beautifyLayout } from '../general/layoutUtils';
@@ -16,6 +14,7 @@ import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
 import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
+import { VIS_TRACES_COLOR } from '../general/constants';
 
 const formatPValue = (pValue: number) => {
   if (pValue === null) {
@@ -28,7 +27,7 @@ const formatPValue = (pValue: number) => {
 };
 
 const annotationsForRegressionStats = (results: IRegressionResult[], precision: number) => {
-  const annotations: Partial<Plotly.Annotations>[] = [];
+  const annotations: Partial<PlotlyTypes.Annotations>[] = [];
 
   for (const r of results) {
     const statsFormatted = [
@@ -41,8 +40,8 @@ const annotationsForRegressionStats = (results: IRegressionResult[], precision: 
     annotations.push({
       x: 0.0,
       y: 1.0,
-      xref: `${r.xref} domain` as XAxisName,
-      yref: `${r.yref} domain` as YAxisName,
+      xref: `${r.xref} domain` as PlotlyTypes.XAxisName,
+      yref: `${r.yref} domain` as PlotlyTypes.YAxisName,
       text: statsFormatted.map((row) => `${row}`).join('<br>'),
       showarrow: false,
       font: {
@@ -83,7 +82,7 @@ export function ScatterVis({
     defaultValue: true,
     value: config.showLegend,
   });
-  const [layout, setLayout] = useState<Partial<Plotly.Layout>>(null);
+  const [layout, setLayout] = useState<Partial<PlotlyTypes.Layout>>(null);
 
   // TODO: This is a little bit hacky, Also notification should be shown to the user
   // Limit numerical columns to 2 if facets are enabled
@@ -96,7 +95,9 @@ export function ScatterVis({
   useEffect(() => {
     const plotDiv = document.getElementById(`${id}`);
     if (plotDiv) {
-      Plotly.Plots.resize(plotDiv);
+      import('plotly.js-dist-min').then((Plotly) => {
+        Plotly.Plots.resize(plotDiv);
+      });
     }
   }, [id, dimensions]);
 
@@ -122,7 +123,7 @@ export function ScatterVis({
     config.showLabels,
   ]);
 
-  const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected: number; width: number; dash: Plotly.Dash }) => {
+  const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected: number; width: number; dash: PlotlyTypes.Dash }) => {
     return {
       color: lineStyle.colors[lineStyle.colorSelected],
       width: lineStyle.width,
@@ -131,11 +132,11 @@ export function ScatterVis({
   };
 
   // Regression lines for all subplots
-  const regression: { shapes: Partial<Plotly.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
+  const regression: { shapes: Partial<PlotlyTypes.Shape>[]; results: IRegressionResult[] } = useMemo(() => {
     if (traces?.plots) {
       statsCallback(null);
       if (config.regressionLineOptions?.type && config.regressionLineOptions.type !== ERegressionLineType.NONE) {
-        const regressionShapes: Partial<Plotly.Shape>[] = [];
+        const regressionShapes: Partial<PlotlyTypes.Shape>[] = [];
         const regressionResults: IRegressionResult[] = [];
         for (const plot of traces.plots) {
           if (plot.data.type === 'scattergl') {
@@ -145,8 +146,8 @@ export function ScatterVis({
                 type: 'path',
                 path: curveFit.svgPath,
                 line: lineStyleToPlotlyShapeLine({ ...defaultRegressionLineStyle, ...config.regressionLineOptions.lineStyle }),
-                xref: curveFit.xref as Plotly.XAxisName,
-                yref: curveFit.yref as Plotly.YAxisName,
+                xref: curveFit.xref as PlotlyTypes.XAxisName,
+                yref: curveFit.yref as PlotlyTypes.YAxisName,
               });
             }
             regressionResults.push(curveFit);
@@ -164,7 +165,7 @@ export function ScatterVis({
   }, [traces?.plots, config, statsCallback]);
 
   // Plot annotations
-  const annotations: Partial<Plotly.Annotations>[] = useMemo(() => {
+  const annotations: Partial<PlotlyTypes.Annotations>[] = useMemo(() => {
     const combinedAnnotations = [];
     if (traces && traces.plots) {
       if (config.facets) {
@@ -173,15 +174,15 @@ export function ScatterVis({
             x: 0.5,
             y: 1,
             yshift: 5,
-            xref: `${p.data.xaxis} domain` as Plotly.XAxisName,
-            yref: `${p.data.yaxis} domain` as Plotly.YAxisName,
+            xref: `${p.data.xaxis} domain` as PlotlyTypes.XAxisName,
+            yref: `${p.data.yaxis} domain` as PlotlyTypes.YAxisName,
             xanchor: 'center',
             yanchor: 'bottom',
             text: p.title,
             showarrow: false,
             font: {
               size: 16,
-              color: '#7f7f7f',
+              color: VIS_TRACES_COLOR,
             },
           }),
         );
@@ -200,7 +201,7 @@ export function ScatterVis({
       return;
     }
 
-    const innerLayout: Partial<Plotly.Layout> = {
+    const innerLayout: Partial<PlotlyTypes.Layout> = {
       hovermode: 'closest',
       showlegend: showLegend,
       legend: {
@@ -224,11 +225,11 @@ export function ScatterVis({
         b: 50,
       },
       shapes: [],
-      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.3, pattern: 'independent' },
+      grid: { rows: traces.rows, columns: traces.cols, xgap: 0.15, ygap: config.facets ? 0.2 : 0.15, pattern: 'independent' },
       dragmode: config.dragMode,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, false) });
+    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, null, false) });
     // WARNING: Do not update when layout changes, that would be an infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [traces, config.dragMode, showLegend]);
@@ -352,6 +353,10 @@ export function ScatterVis({
               } else {
                 selectionCallback([...selectedList, clickedId]);
               }
+            }}
+            onLegendClick={() => false}
+            onDoubleClick={() => {
+              selectionCallback([]);
             }}
             onInitialized={() => {
               d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);

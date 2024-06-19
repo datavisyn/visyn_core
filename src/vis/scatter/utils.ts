@@ -2,9 +2,8 @@ import * as d3v7 from 'd3v7';
 import _ from 'lodash';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
-import { getCssValue } from '../../utils';
-import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR } from '../general/constants';
-import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
+import { getCssValue, selectionColorDark } from '../../utils';
+import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn, truncateText } from '../general/layoutUtils';
 import {
   ColumnInfo,
   EColumnTypes,
@@ -21,10 +20,8 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
-
-function truncateString(text: string, maxLength = 20): string {
-  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
-}
+import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
+import { getLabelOrUnknown } from '../general/utils';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -40,7 +37,7 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
 }
 
 export const defaultRegressionLineStyle = {
-  colors: ['#99A1A9', '#C91A25', '#3561fd'],
+  colors: [VIS_NEUTRAL_COLOR, '#C91A25', '#3561fd'],
   colorSelected: 0,
   width: 2,
   dash: 'solid' as Plotly.Dash,
@@ -188,7 +185,7 @@ export async function createScatterTraces(
         size: sizeSliderVal,
       },
       textfont: {
-        color: showLabels === ELabelingOptions.NEVER ? `rgba(102, 102, 102, 0)` : `rgba(102, 102, 102, 1)`,
+        color: showLabels === ELabelingOptions.NEVER ? 'transparent' : VIS_LABEL_COLOR,
       },
     },
     unselected: {
@@ -196,7 +193,7 @@ export async function createScatterTraces(
         line: {
           width: 0,
         },
-        color: DEFAULT_COLOR,
+        color: VIS_NEUTRAL_COLOR,
         opacity: alphaSliderVal,
         size: sizeSliderVal,
       },
@@ -242,8 +239,8 @@ export async function createScatterTraces(
           hovertext: group.map(
             (d) =>
               `${idToLabelMapper(d.ids)}<br>${xLabel}: ${d.x}<br>${yLabel}: ${d.y}
-              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${d.color || NAN_REPLACEMENT}` : ''}
-              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${d.shape || NAN_REPLACEMENT}` : ''}`,
+              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
+              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`,
           ),
           text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
@@ -258,7 +255,7 @@ export async function createScatterTraces(
                       ? colorCol.color[d.color]
                       : scales.color(d.color),
                 )
-              : SELECT_COLOR,
+              : selectionColorDark,
           },
           ...sharedData,
         },
@@ -266,7 +263,7 @@ export async function createScatterTraces(
         yLabel,
         xDomain: calcXDomain,
         yDomain: calcYDomain,
-        title: !group[0].facet || group[0].facet === '' ? NAN_REPLACEMENT : group[0].facet,
+        title: getLabelOrUnknown(group[0].facet),
       });
       plotCounter += 1;
     });
@@ -292,8 +289,8 @@ export async function createScatterTraces(
         hovertext: validCols[0].resolvedValues.map(
           (v, i) =>
             `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
-            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}
-            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}`,
+            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
         ),
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
@@ -305,7 +302,7 @@ export async function createScatterTraces(
             ? colorCol.resolvedValues.map((v) =>
                 colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : colorCol.color ? colorCol.color[v.val] : scales.color(v.val),
               )
-            : SELECT_COLOR,
+            : selectionColorDark,
         },
         ...sharedData,
       },
@@ -333,7 +330,7 @@ export async function createScatterTraces(
               },
               showlegend: false,
               marker: {
-                color: DEFAULT_COLOR,
+                color: VIS_NEUTRAL_COLOR,
               },
               opacity: alphaSliderVal,
             },
@@ -361,8 +358,8 @@ export async function createScatterTraces(
               hovertext: xCurr.resolvedValues.map(
                 (v, i) =>
                   `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}
-                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${colorCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}
-                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${shapeCol.resolvedValues[i].val || NAN_REPLACEMENT}` : ''}`,
+                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
               ),
               text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore
@@ -376,7 +373,7 @@ export async function createScatterTraces(
                           ? colorCol.color[v.val]
                           : scales.color(v.val),
                     )
-                  : SELECT_COLOR,
+                  : selectionColorDark,
               },
               ...sharedData,
             },
@@ -400,13 +397,12 @@ export async function createScatterTraces(
         y: [null],
         type: 'scattergl',
         mode: 'markers',
-        visible: 'legendonly',
         legendgroup: 'color',
         hoverinfo: 'skip',
 
         // @ts-ignore
         legendgrouptitle: {
-          text: truncateString(colorCol.info.name),
+          text: truncateText(colorCol.info.name, true, 20),
         },
         marker: {
           line: {
@@ -414,16 +410,16 @@ export async function createScatterTraces(
           },
           symbol: 'circle',
           size: sizeSliderVal,
-          color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : DEFAULT_COLOR,
+          color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : VIS_NEUTRAL_COLOR,
           opacity: 1,
         },
         transforms: [
           {
             type: 'groupby',
-            groups: colorCol.resolvedValues.map((v) => (v.val || NAN_REPLACEMENT) as string),
+            groups: colorCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
             styles: [
-              ...[...new Set<string>(colorCol.resolvedValues.map((v) => v.val || NAN_REPLACEMENT) as string[])].map((c) => {
-                return { target: c, value: { name: truncateString(c), text: c } };
+              ...[...new Set<string>(colorCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
+                return { target: c, value: { name: c } };
               }),
             ],
           },
@@ -442,7 +438,6 @@ export async function createScatterTraces(
         y: [null],
         type: 'scattergl',
         mode: 'markers',
-        visible: 'legendonly',
         showlegend: true,
         legendgroup: 'shape',
         hoverinfo: 'all',
@@ -455,7 +450,7 @@ export async function createScatterTraces(
         },
         // @ts-ignore
         legendgrouptitle: {
-          text: truncateString(shapeCol.info.name),
+          text: truncateText(shapeCol.info.name, true, 20),
         },
         marker: {
           line: {
@@ -464,15 +459,15 @@ export async function createScatterTraces(
           opacity: alphaSliderVal,
           size: sizeSliderVal,
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-          color: DEFAULT_COLOR,
+          color: VIS_NEUTRAL_COLOR,
         },
         transforms: [
           {
             type: 'groupby',
-            groups: shapeCol.resolvedValues.map((v) => (v.val || NAN_REPLACEMENT) as string),
+            groups: shapeCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
             styles: [
-              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => v.val || NAN_REPLACEMENT) as string[])].map((c) => {
-                return { target: c, value: { name: truncateString(c), text: c } };
+              ...[...new Set<string>(shapeCol.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
+                return { target: c, value: { name: c } };
               }),
             ],
           },

@@ -33,7 +33,7 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
         },
       }}
       // components={{Option: optionLayout}}
-      onChange={(e) => callback(e as ESupportedPlotlyVis)}
+      onChange={(e: ESupportedPlotlyVis | null) => e && callback(e)}
       name="visTypes"
       // TODO: @MORITZ
       // itemComponent={SelectItem}
