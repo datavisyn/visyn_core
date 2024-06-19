@@ -19,7 +19,7 @@ export function SortIcon({
   compact = false,
 }: {
   sortState: ESortStates;
-  setSortState: (sortState: ESortStates) => void;
+  setSortState: (sortState: ESortStates, isShiftKeyPressed: boolean) => void;
   priority?: number;
   compact?: boolean;
 }) {
@@ -36,7 +36,7 @@ export function SortIcon({
   };
 
   return (
-    <Group onClick={() => setSortState(getNextSortState(sortState))}>
+    <Group onClick={(e) => setSortState(getNextSortState(sortState), e.shiftKey)}>
       <Tooltip
         withArrow
         withinPortal
