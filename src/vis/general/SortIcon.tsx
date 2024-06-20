@@ -19,7 +19,7 @@ export function SortIcon({
   compact = false,
 }: {
   sortState: ESortStates;
-  setSortState: (sortState: ESortStates, isCtrlKeyPressed: boolean) => void;
+  setSortState: (sortState: ESortStates, isCtrlKeyPressed: boolean, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   priority?: number;
   compact?: boolean;
 }) {
@@ -36,7 +36,7 @@ export function SortIcon({
   };
 
   return (
-    <Group onClick={(e) => setSortState(getNextSortState(sortState), e.ctrlKey)}>
+    <Group onClick={(e) => setSortState(getNextSortState(sortState), e.ctrlKey, e)}>
       <Tooltip
         withArrow
         withinPortal
