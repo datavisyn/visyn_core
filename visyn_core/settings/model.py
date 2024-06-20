@@ -163,6 +163,10 @@ class SentrySettings(BaseModel):
     """
     Proxy Sentry envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
     """
+    server_init_options: dict[str, Any] = {}
+    """
+    Options to be passed to the Sentry SDK during initialization.
+    """
 
 
 class VisynCoreSettings(BaseModel):
