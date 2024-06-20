@@ -19,7 +19,7 @@ export function SortIcon({
   compact = false,
 }: {
   sortState: ESortStates;
-  setSortState: (sortState: ESortStates, isShiftKeyPressed: boolean) => void;
+  setSortState: (sortState: ESortStates, isCtrlKeyPressed: boolean) => void;
   priority?: number;
   compact?: boolean;
 }) {
