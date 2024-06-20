@@ -16,11 +16,12 @@ opentelemetry-instrumentation-system-metrics==0.46b0
 opentelemetry-sdk==1.25.0
 psycopg==3.1.19
 psycopg2==2.9.9
-pydantic==1.10.15
+pydantic==1.10.16
 pyjwt[crypto]==2.8.0
 pytest-postgresql==6.0.0
 python-dateutil==2.9.0.post0
 requests==2.32.3
+sentry-sdk~=2.6.0
 SQLAlchemy>=1.4.40,<=1.4.49
 starlette-context==0.3.6
 uvicorn[standard]==0.30.1
