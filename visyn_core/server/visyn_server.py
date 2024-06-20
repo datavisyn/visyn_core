@@ -97,6 +97,21 @@ def create_visyn_server(
 
         init_telemetry(app, settings=manager.settings.visyn_core.telemetry)
 
+    if manager.settings.visyn_core.sentry.dsn:
+        import sentry_sdk
+
+        sentry_sdk.init(
+            dsn=manager.settings.visyn_core.sentry.dsn,
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for tracing.
+            traces_sample_rate=1.0,
+            # Set profiles_sample_rate to 1.0 to profile 100%
+            # of sampled transactions.
+            # We recommend adjusting this value in production.
+            profiles_sample_rate=1.0,
+            **manager.settings.visyn_core.sentry.server_init_options,
+        )
+
     # Initialize global managers.
     from ..plugin.registry import Registry
 
