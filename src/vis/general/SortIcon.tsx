@@ -36,7 +36,7 @@ export function SortIcon({
   };
 
   return (
-    <Group onClick={(e) => setSortState(getNextSortState(sortState), e.shiftKey)}>
+    <Group onClick={(e) => setSortState(getNextSortState(sortState), e.ctrlKey)}>
       <Tooltip
         withArrow
         withinPortal
