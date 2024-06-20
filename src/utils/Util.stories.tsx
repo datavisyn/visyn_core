@@ -5,7 +5,7 @@ import { DateTimePicker } from '@mantine/dates';
 import { fromNow, getMostRelevantTimeUnitFromNow } from './fromNow';
 
 function PickerExample() {
-  const [value, setValue] = React.useState(new Date());
+  const [value, setValue] = React.useState(new Date('June 1, 2024, 12:00:00'));
 
   return (
     <Stack gap="xs">
@@ -15,7 +15,7 @@ function PickerExample() {
       <DateTimePicker value={value} onChange={setValue} label="Reference date" maw={200} />
       <Text>
         Generated label from reference date to the current date:{' '}
-        <Text display="inline-block" fw={700} color="red">
+        <Text display="inline-block" fw={700} c="red">
           {fromNow(value)}
         </Text>
       </Text>

@@ -14,12 +14,15 @@ on:
         type: boolean
         default: false
   push:
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   build:
+    if: ${{ github.event_name != 'pull_request_review' || github.event.review.state == 'approved' }}
     uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
     secrets: inherit
     with:
-      chromatic_enable: ${{ inputs.chromatic == true }}
+      chromatic_enable: ${{ inputs.chromatic == true || github.event.review.state == 'approved' }}
       cypress_enable: true
-      cypress_run_because_flag: ${{ inputs.cypress == true }}
+      cypress_run_because_flag: ${{ inputs.cypress == true || github.event.review.state == 'approved' }}
