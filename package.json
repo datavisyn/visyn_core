@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "11.1.0",
+  "version": "11.1.1",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -100,7 +100,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/react-plotly.js": "^2.6.3",
-    "arquero": "^5.4.0",
+    "arquero": "5.4.0",
     "d3-force-boundary": "^0.0.3",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.9.0",
