@@ -33,7 +33,7 @@ export function SingleSelect({
   });
 
   const options = filteredColumns.map((item) => (
-    <Combobox.Option value={item.info.name} key={item.info.id} active={item.info.id === currentSelected?.id}>
+    <Combobox.Option value={item.info.id} key={item.info.id} active={item.info.id === currentSelected?.id}>
       <Tooltip
         label={
           <Stack gap={0}>
@@ -71,8 +71,8 @@ export function SingleSelect({
     <Combobox
       store={combobox}
       withinPortal
-      onOptionSubmit={(val) => {
-        callback(filteredColumns.find((c) => c.info.name === val)?.info);
+      onOptionSubmit={(id) => {
+        callback(filteredColumns.find((c) => c.info.id === id)?.info);
         combobox.closeDropdown();
       }}
     >
