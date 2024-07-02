@@ -105,6 +105,7 @@ export async function createScatterTraces(
   scales: Scales,
   shapes: string[] | null,
   showLabels: ELabelingOptions,
+  selectedMap: { [key: string]: boolean },
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -319,9 +320,11 @@ export async function createScatterTraces(
       validCols.forEach((xCurr) => {
         // if on the diagonal, make a histogram.
         if (xCurr.info.id === yCurr.info.id) {
+          const ids = xCurr.resolvedValues.map((v) => v.id?.toString());
           plots.push({
             data: {
               x: xCurr.resolvedValues.map((v) => v.val),
+              customdata: ids, // had to use customdata instead of ids because otherwise binning would not work
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               type: 'histogram',
@@ -332,7 +335,19 @@ export async function createScatterTraces(
               marker: {
                 color: VIS_NEUTRAL_COLOR,
               },
-              opacity: alphaSliderVal,
+              // @ts-ignore
+              selected: {
+                marker: {
+                  opacity: 1,
+                  color: selectionColorDark,
+                },
+              },
+              unselected: {
+                marker: {
+                  opacity: alphaSliderVal,
+                },
+              },
+              selectedpoints: ids.reduce((acc, id, i) => (selectedMap[id] ? acc.concat(i) : acc), [] as number[]),
             },
             xLabel: plotCounter > validCols.length * (validCols.length - 1) ? columnNameWithDescription(xCurr.info) : null,
             yLabel: plotCounter === 1 + validCols.length * yIdx ? columnNameWithDescription(yCurr.info) : null,
