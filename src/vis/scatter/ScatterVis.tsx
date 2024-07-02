@@ -121,6 +121,7 @@ export function ScatterVis({
     scales,
     shapes,
     config.showLabels,
+    selectedMap,
   ]);
 
   const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected: number; width: number; dash: PlotlyTypes.Dash }) => {
@@ -334,7 +335,7 @@ export function ScatterVis({
                   const yAxis = event.points[0].xaxis.anchor;
                   result = regression.results.find((r) => r.xref === xAxis && r.yref === yAxis) || null;
                 }
-                statsCallback(result.stats);
+                statsCallback(result?.stats);
               }
             }}
             onUnhover={() => {
@@ -347,11 +348,19 @@ export function ScatterVis({
             useResizeHandler
             style={{ width: '100%', height: '100%' }}
             onClick={(event) => {
-              const clickedId = (event.points[0] as any).id;
-              if (selectedMap[clickedId]) {
-                selectionCallback(selectedList.filter((s) => s !== clickedId));
+              // @ts-ignore
+              if (event.points[0]?.binNumber !== undefined) {
+                // @ts-ignore
+                const selInidices = event.points?.map((d) => d?.pointIndices).flat(1);
+                const indices = event.points[0]?.data?.customdata?.filter((_, i) => selInidices.includes(i)) as string[];
+                selectionCallback(indices);
               } else {
-                selectionCallback([...selectedList, clickedId]);
+                const clickedId = (event.points[0] as any).id;
+                if (selectedMap[clickedId]) {
+                  selectionCallback(selectedList.filter((s) => s !== clickedId));
+                } else {
+                  selectionCallback([...selectedList, clickedId]);
+                }
               }
             }}
             onLegendClick={() => false}
@@ -365,7 +374,17 @@ export function ScatterVis({
               d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
             }}
             onSelected={(sel) => {
-              selectionCallback(sel ? sel.points.map((d) => (d as any).id) : []);
+              if (sel) {
+                // @ts-ignore
+                if (sel.points[0]?.binNumber !== undefined) {
+                  // @ts-ignore
+                  const selInidices = sel.points?.map((d) => d?.pointIndices).flat(1);
+                  const indices = sel.points[0]?.data?.customdata?.filter((_, i) => selInidices.includes(i)) as string[];
+                  selectionCallback(indices);
+                } else {
+                  selectionCallback(sel ? sel.points?.map((d) => (d as any).id) : []);
+                }
+              }
             }}
           />
         </>
