@@ -76,23 +76,23 @@ export function BrushRect({ parent, brush, direction = 'xy', onChange, onChangeE
           newBrush.y1 = clamp(relativePosition.y, internalExtent.y1, brush.y2 - MIN_BRUSH_SIZE);
           break;
         case `${id}-south`:
-          newBrush.y2 = clamp(relativePosition.y, brush.y1 + MIN_BRUSH_SIZE, extent.y2);
+          newBrush.y2 = clamp(relativePosition.y, brush.y1 + MIN_BRUSH_SIZE, internalExtent.y2);
           break;
         case `${id}-northwest`:
           newBrush.x1 = clamp(relativePosition.x, internalExtent.x1, brush.x2 - MIN_BRUSH_SIZE);
           newBrush.y1 = clamp(relativePosition.y, internalExtent.y1, brush.y2 - MIN_BRUSH_SIZE);
           break;
         case `${id}-northeast`:
-          newBrush.x2 = clamp(relativePosition.x, brush.x1 + MIN_BRUSH_SIZE, extent.x2);
+          newBrush.x2 = clamp(relativePosition.x, brush.x1 + MIN_BRUSH_SIZE, internalExtent.x2);
           newBrush.y1 = clamp(relativePosition.y, internalExtent.y1, brush.y2 - MIN_BRUSH_SIZE);
           break;
         case `${id}-southwest`:
           newBrush.x1 = clamp(relativePosition.x, internalExtent.x1, brush.x2 - MIN_BRUSH_SIZE);
-          newBrush.y2 = clamp(relativePosition.y, brush.y1 + MIN_BRUSH_SIZE, extent.y2);
+          newBrush.y2 = clamp(relativePosition.y, brush.y1 + MIN_BRUSH_SIZE, internalExtent.y2);
           break;
         case `${id}-southeast`:
-          newBrush.x2 = clamp(relativePosition.x, brush.x1 + MIN_BRUSH_SIZE, extent.x2);
-          newBrush.y2 = clamp(relativePosition.y, brush.y1 + MIN_BRUSH_SIZE, extent.y2);
+          newBrush.x2 = clamp(relativePosition.x, brush.x1 + MIN_BRUSH_SIZE, internalExtent.x2);
+          newBrush.y2 = clamp(relativePosition.y, brush.y1 + MIN_BRUSH_SIZE, internalExtent.y2);
           break;
         default:
           break;
