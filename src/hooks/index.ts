@@ -3,3 +3,4 @@ export * from './useEvent';
 export * from './useInitVisynApp';
 export * from './useSyncedRef';
 export * from './useVisynUser';
+export * from './useSetRef';
