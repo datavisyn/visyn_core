@@ -4,7 +4,7 @@ import { Center, Stack, Paper } from '@mantine/core';
 import { lassoToSvgPath, useLasso } from './useLasso';
 import { SVGLasso } from '../components/SVGLasso';
 import { useBrush } from './useBrush';
-import { BrushRect } from '../components';
+import { SVGBrush } from '../components';
 
 function UseLassoComponent() {
   const { setRef, value } = useLasso();
@@ -30,7 +30,7 @@ function UseBrushComponent() {
       <Stack>
         <Paper w={300} h={300} shadow="xl" withBorder>
           <svg ref={setRef} width="100%" height="100%">
-            {value ? <BrushRect parent={ref} value={value} onChange={setValue} /> : null}
+            {value ? <SVGBrush parent={ref} value={value} onChange={setValue} /> : null}
           </svg>
         </Paper>
       </Stack>

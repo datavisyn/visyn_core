@@ -22,7 +22,7 @@ interface BrushProps {
 /**
  * Brush with draggable borders
  */
-export function BrushRect({ parent, value, direction = 'xy', onChange, onChangeEnd, extent, clearOnMouse = true }: BrushProps) {
+export function SVGBrush({ parent, value, direction = 'xy', onChange, onChangeEnd, extent, clearOnMouse = true }: BrushProps) {
   const id = useId();
 
   const callbacksRef = useRef({ onChange, onChangeEnd });
