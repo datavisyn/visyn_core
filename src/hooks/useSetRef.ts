@@ -7,13 +7,13 @@ import { useSyncedRef } from './useSyncedRef';
  * https://legacy.reactjs.org/docs/hooks-faq.html?source=post_page-----eb7c15198780--------------------------------#how-can-i-measure-a-dom-node
  * https://medium.com/@teh_builder/ref-objects-inside-useeffect-hooks-eb7c15198780
  */
-export function useSetRef(props?: { cleanup: (lastElement: Element) => void; register: (element: Element) => void }) {
-  const ref = React.useRef<Element>();
+export function useSetRef<T extends Element>(props?: { cleanup: (lastElement: T) => void; register: (element: T) => void }) {
+  const ref = React.useRef<T>();
 
   const callbackRef = useSyncedRef(props);
 
   const setRef = React.useCallback(
-    (newElement: Element | null) => {
+    (newElement: T | null) => {
       if (ref.current) {
         callbackRef.current?.cleanup(ref.current);
       }
