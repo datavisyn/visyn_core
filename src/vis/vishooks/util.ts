@@ -17,7 +17,7 @@ export function outsideExtent(value: Position, extent: Extent) {
 /**
  * Get the relative position of the mouse within an element.
  */
-export function relativeMousePosition(element: HTMLElement, position: Position) {
+export function relativeMousePosition(element: Element, position: Position) {
   const bounds = element.getBoundingClientRect();
 
   return {

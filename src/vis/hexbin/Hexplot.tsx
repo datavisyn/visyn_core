@@ -1,5 +1,5 @@
 import { Box, Container, Text, Center, rem } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
+import { useElementSize, useMergedRef } from '@mantine/hooks';
 import * as hex from 'd3-hexbin';
 import { HexbinBin } from 'd3-hexbin';
 import * as d3v7 from 'd3v7';
@@ -202,9 +202,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     config.color,
   ]);
 
-  const contentRef = React.useRef();
-
-  const { value } = useLasso(contentRef, {
+  const { setRef: lassoSetRef, value } = useLasso({
     skip: config.dragMode !== EScatterSelectSettings.RECTANGLE,
     onChangeEnd: (lasso) => {
       if (lasso) {
@@ -231,17 +229,19 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
     },
   });
 
-  useZoom(contentRef, {
+  const { setRef: zoomSetRef } = useZoom({
     value: transform,
     onChange: setTransform,
     zoomExtent: [1, 10],
   });
 
-  usePan(contentRef, {
+  const { setRef: panSetRef } = usePan({
     value: transform,
     onChange: setTransform,
     skip: config.dragMode !== EScatterSelectSettings.PAN,
   });
+
+  const mergedRef = useMergedRef(zoomSetRef, lassoSetRef, panSetRef);
 
   return (
     <Box ref={hexRef}>
@@ -257,7 +257,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           },
         }}
       >
-        <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom} ref={contentRef}>
+        <svg id={id} width={width + margin.left + margin.right} height={height + margin.top + margin.bottom} ref={mergedRef}>
           {xScale ? <XAxis multiples={multiples} vertPosition={height + margin.top} yRange={[margin.top, height + margin.top]} xScale={xScale} /> : null}
           {yScale ? <YAxis multiples={multiples} horizontalPosition={margin.left} xRange={[margin.left, width + margin.left]} yScale={yScale} /> : null}
 

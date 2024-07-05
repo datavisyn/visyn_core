@@ -43,14 +43,14 @@ interface UseZoomProps {
  * In uncontrolled mode you can provide a defaultValue and the hook
  * will return the current value and a setter.
  */
-export function useZoom(ref: RefObject<HTMLElement>, options: UseZoomProps = {}) {
+export function useZoom(options: UseZoomProps = {}) {
   const [internalValue, setInternalValue] = useControlledUncontrolled({
     value: options.value,
     defaultValue: options.defaultValue || m4.identityMatrix4x4(),
     onChange: options.onChange,
   });
 
-  useWheel(ref, {
+  const { ref, setRef } = useWheel({
     extent: options.extent,
     onWheel: (event) => {
       let newZoom = calculateTransform(
@@ -74,5 +74,5 @@ export function useZoom(ref: RefObject<HTMLElement>, options: UseZoomProps = {})
     },
   });
 
-  return { transform: internalValue, setTransform: setInternalValue };
+  return { ref, setRef, transform: internalValue, setTransform: setInternalValue };
 }

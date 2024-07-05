@@ -23,14 +23,14 @@ interface UsePanProps {
   skip?: boolean;
 }
 
-export function usePan(ref: RefObject<HTMLElement>, options: UsePanProps = {}) {
+export function usePan(options: UsePanProps = {}) {
   const [zoom, setZoom] = useControlledUncontrolled({
     value: options.value,
     defaultValue: options.defaultValue || m4.identityMatrix4x4(),
     onChange: options.onChange,
   });
 
-  useInteractions(ref, {
+  const { ref, setRef } = useInteractions({
     skip: options.skip,
     onDrag: (event) => {
       let newMatrix = m4.clone(zoom);
@@ -46,7 +46,7 @@ export function usePan(ref: RefObject<HTMLElement>, options: UsePanProps = {}) {
       if (options.constraint) {
         newMatrix = options.constraint(newMatrix);
       } else {
-        const bounds = ref.current.getBoundingClientRect();
+        const bounds = event.parent.getBoundingClientRect();
 
         newMatrix = defaultConstraint(newMatrix, bounds.width, bounds.height);
       }
@@ -55,5 +55,5 @@ export function usePan(ref: RefObject<HTMLElement>, options: UsePanProps = {}) {
     },
   });
 
-  return { value: zoom, setValue: setZoom };
+  return { ref, setRef, value: zoom, setValue: setZoom };
 }
