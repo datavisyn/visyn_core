@@ -1,6 +1,6 @@
 import { useRef } from 'react';
-import { useSetRef } from 'visyn_core/hooks';
 import { Extent } from '../interfaces';
+import { useSetRef } from '../../../hooks/useSetRef';
 
 interface Vector {
   x: number;
