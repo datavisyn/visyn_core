@@ -1,4 +1,4 @@
-import { RefObject, useRef } from 'react';
+import { useRef } from 'react';
 import { useInteractions } from './useInteractions';
 import { Brush, Direction, Extent, PersistMode } from '../interfaces';
 import { clamp } from '../util';
@@ -15,8 +15,8 @@ interface UseBrushProps {
   persistMode?: PersistMode;
 }
 
-export function useBrush(ref: RefObject<HTMLElement>, options: UseBrushProps = {}) {
-  const [brush, setBrush] = useControlledUncontrolled({
+export function useBrush(options: UseBrushProps = {}) {
+  const [internalValue, setInternalValue] = useControlledUncontrolled({
     value: options.value,
     onChange: options.onChange,
     defaultValue: options.defaultValue,
@@ -25,12 +25,12 @@ export function useBrush(ref: RefObject<HTMLElement>, options: UseBrushProps = {
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
-  useInteractions(ref, {
+  const { ref, setRef } = useInteractions({
     moveTarget: 'overlay',
     extent: options.extent,
     onClick: optionsRef.current.onClick,
     onDrag: (event) => {
-      const bounds = ref.current.getBoundingClientRect();
+      const bounds = event.target.getBoundingClientRect();
 
       const extent = optionsRef.current.extent || {
         x1: 0,
@@ -59,18 +59,18 @@ export function useBrush(ref: RefObject<HTMLElement>, options: UseBrushProps = {
       newBrush.x2 = clamp(newBrush.x2, extent.x1, extent.x2);
       newBrush.y2 = clamp(newBrush.y2, extent.y1, extent.y2);
 
-      setBrush(newBrush);
+      setInternalValue(newBrush);
 
       optionsRef.current.onChange?.(newBrush);
     },
     onMouseUp: () => {
-      optionsRef.current.onChangeEnd?.(brush);
+      optionsRef.current.onChangeEnd?.(internalValue);
 
       if (optionsRef.current.persistMode === 'clear_on_mouse_up') {
-        setBrush(undefined);
+        setInternalValue(undefined);
       }
     },
   });
 
-  return { brush, setBrush };
+  return { ref, setRef, value: internalValue, setValue: setInternalValue };
 }

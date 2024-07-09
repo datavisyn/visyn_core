@@ -1,4 +1,4 @@
-import { Dispatch, RefObject } from 'react';
+import { Dispatch } from 'react';
 import { Direction, ZoomTransform } from '../interfaces';
 import { useInteractions } from './useInteractions';
 import { useControlledUncontrolled } from './useControlledUncontrolled';
@@ -23,37 +23,39 @@ interface UsePanProps {
   skip?: boolean;
 }
 
-export function usePan(ref: RefObject<HTMLElement>, options: UsePanProps = {}) {
+export function usePan(options: UsePanProps = {}) {
   const [zoom, setZoom] = useControlledUncontrolled({
     value: options.value,
     defaultValue: options.defaultValue || m4.identityMatrix4x4(),
     onChange: options.onChange,
   });
 
-  useInteractions(ref, {
+  const { ref, setRef } = useInteractions({
     skip: options.skip,
     onDrag: (event) => {
-      let newMatrix = m4.clone(zoom);
+      setZoom((oldMatrix) => {
+        let newMatrix = m4.clone(oldMatrix);
 
-      if (options.direction !== 'y') {
-        newMatrix[12] += event.movementX;
-      }
+        if (options.direction !== 'y') {
+          newMatrix[12] += event.movementX;
+        }
 
-      if (options.direction !== 'x') {
-        newMatrix[13] += event.movementY;
-      }
+        if (options.direction !== 'x') {
+          newMatrix[13] += event.movementY;
+        }
 
-      if (options.constraint) {
-        newMatrix = options.constraint(newMatrix);
-      } else {
-        const bounds = ref.current.getBoundingClientRect();
+        if (options.constraint) {
+          newMatrix = options.constraint(newMatrix);
+        } else {
+          const bounds = event.parent.getBoundingClientRect();
 
-        newMatrix = defaultConstraint(newMatrix, bounds.width, bounds.height);
-      }
+          newMatrix = defaultConstraint(newMatrix, bounds.width, bounds.height);
+        }
 
-      setZoom(newMatrix);
+        return newMatrix;
+      });
     },
   });
 
-  return { value: zoom, setValue: setZoom };
+  return { ref, setRef, value: zoom, setValue: setZoom };
 }

@@ -4,7 +4,7 @@ import { Button, Center, Stack } from '@mantine/core';
 import { useSetRef } from './useSetRef';
 
 function SetRefTest() {
-  const [element, setElement] = React.useState<HTMLElement>();
+  const [element, setElement] = React.useState<Element>();
   const { setRef } = useSetRef({
     register: (el) => {
       setElement(el);
