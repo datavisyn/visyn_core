@@ -14,13 +14,15 @@ export interface LassoEvent {
 
 export function lassoToSvgPath(lasso: { x: number; y: number }[]) {
   return lasso
-    .map((point, index) => {
-      if (index === 0) {
-        return `M ${point.x} ${point.y}`;
-      }
-      return `L ${point.x} ${point.y}`;
-    })
-    .join(' ');
+    ? lasso
+        .map((point, index) => {
+          if (index === 0) {
+            return `M ${point.x} ${point.y}`;
+          }
+          return `L ${point.x} ${point.y}`;
+        })
+        .join(' ')
+    : '';
 }
 
 export interface LassoProps {
@@ -46,7 +48,7 @@ export function checkForInclusion(lasso: LassoValue, point: { x: number; y: numb
   return numberOfIntersections % 2 !== 0;
 }
 
-export function useLasso(ref: RefObject<HTMLElement>, options: LassoProps = {}) {
+export function useLasso(options: LassoProps = {}) {
   const lastXY = useRef<{ x: number; y: number }>();
 
   const { value, onChange } = options;
@@ -59,10 +61,10 @@ export function useLasso(ref: RefObject<HTMLElement>, options: LassoProps = {}) 
   const callbacksRef = useRef(options);
   callbacksRef.current = options;
 
-  useInteractions(ref, {
+  const { ref, setRef } = useInteractions({
     skip: options.skip,
     onDrag: (event) => {
-      const bounds = ref.current.getBoundingClientRect();
+      const bounds = event.parent.getBoundingClientRect();
 
       if (event.isFirstDrag) {
         const newLasso = [event.start, event.end];
@@ -97,5 +99,5 @@ export function useLasso(ref: RefObject<HTMLElement>, options: LassoProps = {}) 
     },
   });
 
-  return { value: internalValue, setValue: setInternalValue };
+  return { value: internalValue, setValue: setInternalValue, ref, setRef };
 }

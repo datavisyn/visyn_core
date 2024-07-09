@@ -23,3 +23,6 @@ export * from './sankey/interfaces';
 
 // export utility functions
 export * from './general/utils';
+
+// export vis hooks
+export * from './vishooks';
