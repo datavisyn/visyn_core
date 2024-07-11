@@ -97,8 +97,6 @@ export function useInteractions(options: UseInteractionsProps = {}) {
 
   const { ref, setRef } = useSetRef({
     register: (element) => {
-      console.log('register');
-
       const relativeMousePosition = (event: MouseEvent) => {
         const bounds = element.getBoundingClientRect();
         return {
