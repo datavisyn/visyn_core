@@ -6,6 +6,10 @@ import type { IBarConfig } from '../interfaces';
 import type { ICommonVisProps } from '../../interfaces';
 
 export function FocusFacetSelector({ config, setConfig, facets }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig'> & { facets: string[] }) {
+  if (!config.facets && facets.length === 0) {
+    return null;
+  }
+
   return (
     <Group gap={4}>
       <Select

@@ -1,4 +1,4 @@
-import { Box, Center, Loader, Stack } from '@mantine/core';
+import { Box, Center, Group, Loader, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { uniqueId } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
@@ -81,11 +81,11 @@ export function BarChart({
 
   return (
     <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
-      {showDownloadScreenshot ? (
-        <Center h="20px">
-          {config.facets && allUniqueFacetVals.length > 0 ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
-          <DownloadPlotButton uniquePlotId={id} config={config} />
-        </Center>
+      {showDownloadScreenshot || config.showFocusFacetSelector ? (
+        <Group justify="center">
+          {config.showFocusFacetSelector ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
+          {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
+        </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
         <Box ref={legendBoxRef}>
