@@ -44,7 +44,9 @@ export function BarChart({
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = useMemo(() => {
-    return typeof config.focusFacetIndex === 'number' ? [allUniqueFacetVals[config.focusFacetIndex]] : allUniqueFacetVals;
+    return typeof config.focusFacetIndex === 'number' && config.focusFacetIndex < allUniqueFacetVals.length
+      ? [allUniqueFacetVals[config.focusFacetIndex]]
+      : allUniqueFacetVals;
   }, [allUniqueFacetVals, config.focusFacetIndex]);
 
   const { groupColorScale, groupedTable } = useGetGroupedBarScales(
