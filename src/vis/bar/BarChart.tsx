@@ -1,6 +1,4 @@
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ActionIcon, Box, Center, Group, Loader, Select, Stack, Tooltip } from '@mantine/core';
+import { Box, Center, Loader, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { uniqueId } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
@@ -10,6 +8,7 @@ import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { EColumnTypes, ICommonVisProps } from '../interfaces';
 import { SingleBarChart } from './SingleBarChart';
+import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { Legend } from './barComponents/Legend';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { IBarConfig, SortTypes } from './interfaces';
@@ -84,44 +83,7 @@ export function BarChart({
     <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
       {showDownloadScreenshot ? (
         <Center h="20px">
-          {config.facets && allUniqueFacetVals.length > 0 ? (
-            <Group gap={4}>
-              <Select
-                key={`focusFacetSelect_${config.focusFacetIndex}`}
-                placeholder="Select a focus facet"
-                data={allUniqueFacetVals}
-                value={allUniqueFacetVals[config.focusFacetIndex] || ''}
-                onChange={(value) => {
-                  setConfig({ ...config, focusFacetIndex: typeof value === 'string' ? allUniqueFacetVals.indexOf(value) : value });
-                }}
-                clearable
-              />
-              <Tooltip label="Focus on previous facet" position="top" withArrow>
-                <ActionIcon
-                  color="dvGray"
-                  variant="subtle"
-                  disabled={config.focusFacetIndex === null}
-                  onClick={() => {
-                    setConfig({ ...config, focusFacetIndex: (config.focusFacetIndex - 1 + allUniqueFacetVals.length) % allUniqueFacetVals.length });
-                  }}
-                >
-                  <FontAwesomeIcon icon={faChevronLeft} />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label="Focus on next facet" position="top" withArrow>
-                <ActionIcon
-                  color="dvGray"
-                  variant="subtle"
-                  disabled={config.focusFacetIndex === null}
-                  onClick={() => {
-                    setConfig({ ...config, focusFacetIndex: (config.focusFacetIndex + 1) % allUniqueFacetVals.length });
-                  }}
-                >
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </ActionIcon>
-              </Tooltip>
-            </Group>
-          ) : null}
+          {config.facets && allUniqueFacetVals.length > 0 ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
           <DownloadPlotButton uniquePlotId={id} config={config} />
         </Center>
       ) : null}
