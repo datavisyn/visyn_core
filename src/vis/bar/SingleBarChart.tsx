@@ -141,7 +141,7 @@ export function SingleBarChart({
             {countScale && categoryScale && title !== undefined ? (
               <text
                 dominantBaseline="middle"
-                style={{ fontWeight: 500, fill: '#505459' }}
+                style={{ fontWeight: 500, fill: '#505459', cursor: 'pointer' }}
                 textAnchor="middle"
                 transform={`translate(${
                   config.direction === EBarDirection.VERTICAL

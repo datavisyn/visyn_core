@@ -1,4 +1,4 @@
-import { Box, Loader, SimpleGrid, Stack, Center } from '@mantine/core';
+import { Box, Loader, SimpleGrid, Stack, Center, Select } from '@mantine/core';
 import { op } from 'arquero';
 import React, { useCallback, useMemo } from 'react';
 import { uniqueId } from 'lodash';
@@ -11,6 +11,8 @@ import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { getBarData } from './utils';
 import { IBarConfig, SortTypes } from './interfaces';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { getLabelOrUnknown } from '../general/utils';
+import { NAN_REPLACEMENT } from '../general';
 
 export function BarChart({
   config,
@@ -38,7 +40,7 @@ export function BarChart({
   ]);
 
   const allUniqueFacetVals = useMemo(() => {
-    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
+    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val || getLabelOrUnknown(v.val)))] as string[];
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = useMemo(() => {
@@ -81,6 +83,16 @@ export function BarChart({
     <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
       {showDownloadScreenshot ? (
         <Center h="20px">
+          {config.facets && allUniqueFacetVals.length > 0 ? (
+            <Select
+              placeholder="Select a focus facet"
+              data={allUniqueFacetVals}
+              onChange={(value) => {
+                setConfig({ ...config, focusFacetIndex: typeof value === 'string' ? allUniqueFacetVals.indexOf(value) : value });
+              }}
+              clearable
+            />
+          ) : null}
           <DownloadPlotButton uniquePlotId={id} config={config} />
         </Center>
       ) : null}
@@ -136,7 +148,7 @@ export function BarChart({
                   config={config}
                   setConfig={setConfig}
                   allColumns={allColumns}
-                  categoryFilter={multiplesVal}
+                  categoryFilter={multiplesVal === NAN_REPLACEMENT ? null : multiplesVal}
                   title={multiplesVal}
                   selectionCallback={customSelectionCallback}
                   sortType={sortType}
