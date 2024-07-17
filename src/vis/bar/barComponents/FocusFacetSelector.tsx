@@ -22,7 +22,7 @@ export function FocusFacetSelector({ config, setConfig, facets }: Pick<ICommonVi
         }}
         clearable
       />
-      <Tooltip label="Focus on previous facet" position="top" withArrow>
+      <Tooltip label="Previous facet" position="top" withArrow>
         <ActionIcon
           color="dvGray"
           variant="subtle"
@@ -34,7 +34,7 @@ export function FocusFacetSelector({ config, setConfig, facets }: Pick<ICommonVi
           <FontAwesomeIcon icon={faChevronLeft} />
         </ActionIcon>
       </Tooltip>
-      <Tooltip label="Focus on next facet" position="top" withArrow>
+      <Tooltip label="Next facet" position="top" withArrow>
         <ActionIcon
           color="dvGray"
           variant="subtle"
