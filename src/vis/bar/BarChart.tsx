@@ -14,13 +14,17 @@ import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 export function BarChart({
   config,
+  setConfig,
   columns,
   selectedMap,
   selectedList,
   selectionCallback,
   uniquePlotId,
   showDownloadScreenshot,
-}: Pick<ICommonVisProps<IBarConfig>, 'config' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'>) {
+}: Pick<
+  ICommonVisProps<IBarConfig>,
+  'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
+>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
@@ -33,9 +37,13 @@ export function BarChart({
     config.aggregateColumn,
   ]);
 
-  const uniqueFacetVals = useMemo(() => {
+  const allUniqueFacetVals = useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val))] as string[];
-  }, [allColumns]);
+  }, [allColumns?.facetsColVals?.resolvedValues]);
+
+  const filteredUniqueFacetVals = useMemo(() => {
+    return typeof config.focusFacetIndex === 'number' ? [allUniqueFacetVals[config.focusFacetIndex]] : allUniqueFacetVals;
+  }, [allUniqueFacetVals, config.focusFacetIndex]);
 
   const { groupColorScale, groupedTable } = useGetGroupedBarScales(
     allColumns,
@@ -91,11 +99,7 @@ export function BarChart({
           ) : null}
         </Box>
 
-        <SimpleGrid
-          cols={Math.min(Math.ceil(Math.sqrt(uniqueFacetVals.length)), 5)}
-          spacing={0}
-          style={{ flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}
-        >
+        <Box style={{ display: 'flex', flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}>
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />
@@ -103,6 +107,7 @@ export function BarChart({
           ) : !config.facets || !allColumns.facetsColVals ? (
             <SingleBarChart
               config={config}
+              setConfig={setConfig}
               allColumns={allColumns}
               selectedMap={selectedMap}
               selectionCallback={customSelectionCallback}
@@ -112,24 +117,36 @@ export function BarChart({
               legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
             />
           ) : (
-            uniqueFacetVals.map((multiplesVal) => (
-              <SingleBarChart
-                isSmall
-                selectedList={selectedList}
-                selectedMap={selectedMap}
-                key={multiplesVal as string}
-                config={config}
-                allColumns={allColumns}
-                categoryFilter={multiplesVal}
-                title={multiplesVal}
-                selectionCallback={customSelectionCallback}
-                sortType={sortType}
-                setSortType={setSortType}
-                legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
-              />
-            ))
+            <Box
+              style={{
+                flex: 1,
+                display: 'grid',
+                gridTemplateColumns: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
+                gridTemplateRows: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
+                maxHeight: '100%',
+              }}
+            >
+              {filteredUniqueFacetVals.map((multiplesVal) => (
+                <SingleBarChart
+                  isSmall
+                  index={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
+                  selectedList={selectedList}
+                  selectedMap={selectedMap}
+                  key={multiplesVal as string}
+                  config={config}
+                  setConfig={setConfig}
+                  allColumns={allColumns}
+                  categoryFilter={multiplesVal}
+                  title={multiplesVal}
+                  selectionCallback={customSelectionCallback}
+                  sortType={sortType}
+                  setSortType={setSortType}
+                  legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+                />
+              ))}
+            </Box>
           )}
-        </SimpleGrid>
+        </Box>
       </Stack>
     </Stack>
   );

@@ -25,6 +25,7 @@ export enum EBarDirection {
 export interface IBarConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.BAR;
   facets: ColumnInfo | null;
+  focusFacetIndex: number | null;
   group: ColumnInfo | null;
   direction: EBarDirection;
   display: EBarDisplayType;
@@ -42,6 +43,7 @@ export const defaultConfig: IBarConfig = {
   group: null,
   groupType: EBarGroupingType.STACK,
   facets: null,
+  focusFacetIndex: null,
   display: EBarDisplayType.ABSOLUTE,
   direction: EBarDirection.HORIZONTAL,
   aggregateColumn: null,

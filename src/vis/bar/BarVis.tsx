@@ -8,6 +8,7 @@ import { IBarConfig } from './interfaces';
 
 export function BarVis({
   config,
+  setConfig,
   columns,
   selectionCallback = () => null,
   selectedMap = {},
@@ -20,6 +21,7 @@ export function BarVis({
       {config.catColumnSelected ? (
         <BarChart
           config={config}
+          setConfig={setConfig}
           columns={columns}
           selectedMap={selectedMap}
           selectionCallback={selectionCallback}
