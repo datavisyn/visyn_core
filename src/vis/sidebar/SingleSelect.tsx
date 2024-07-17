@@ -79,6 +79,7 @@ export function SingleSelect({
       <Combobox.Target>
         <Tooltip label={disabledTooltip} disabled={!disabled} withArrow>
           <InputBase
+            data-testid={`SingleSelect${label}`}
             className={css`
               button.mantine-Input-input.mantine-InputBase-input {
                 height: 44px; // increase the height of the input to make some space for the description
@@ -97,7 +98,14 @@ export function SingleSelect({
             rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}
             rightSection={
               disabled ? null : currentSelected !== null && isClearable ? (
-                <CloseButton my={20} size="sm" onMouseDown={(event) => event.preventDefault()} onClick={() => callback(null)} aria-label="Clear value" />
+                <CloseButton
+                  data-testid="SingleSelectCloseButton"
+                  my={20}
+                  size="sm"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => callback(null)}
+                  aria-label="Clear value"
+                />
               ) : (
                 <Combobox.Chevron />
               )

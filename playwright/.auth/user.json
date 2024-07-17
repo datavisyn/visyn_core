@@ -1,0 +1,15 @@
+{
+  "cookies": [
+    {
+      "name": "dv_access_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbImFkbWluIl0sImV4cCI6MTcyMTMwNTc0OS4zMzcyMDV9.tX61Y6fQW2qauBHTKdqsRT5z2NF1JuoVBbApHYh0W6g",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": 1721312949.34,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    }
+  ],
+  "origins": []
+}
