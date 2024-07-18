@@ -40,7 +40,7 @@ export function BarChart({
   ]);
 
   const allUniqueFacetVals = useMemo(() => {
-    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => v.val || getLabelOrUnknown(v.val)))] as string[];
+    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = useMemo(() => {
