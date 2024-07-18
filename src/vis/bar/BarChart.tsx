@@ -13,6 +13,7 @@ import { Legend } from './barComponents/Legend';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { IBarConfig, SortTypes } from './interfaces';
 import { getBarData } from './utils';
+import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 
 export function BarChart({
   config,
@@ -110,16 +111,27 @@ export function BarChart({
               <Loader />
             </Center>
           ) : !config.facets || !allColumns.facetsColVals ? (
-            <SingleBarChart
+            // <SingleBarChart
+            //   config={config}
+            //   setConfig={setConfig}
+            //   allColumns={allColumns}
+            //   selectedMap={selectedMap}
+            //   selectionCallback={customSelectionCallback}
+            //   selectedList={selectedList}
+            //   sortType={sortType}
+            //   setSortType={setSortType}
+            //   legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+            // />
+            <SingleEChartsBarChart
               config={config}
-              setConfig={setConfig}
               allColumns={allColumns}
-              selectedMap={selectedMap}
-              selectionCallback={customSelectionCallback}
-              selectedList={selectedList}
-              sortType={sortType}
-              setSortType={setSortType}
-              legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+              // setConfig={setConfig}
+              // allColumns={allColumns}
+              // selectedMap={selectedMap}
+              // selectionCallback={customSelectionCallback}
+              // selectedList={selectedList}
+              // sortType={sortType}
+              // setSortType={setSortType}
             />
           ) : (
             <Box
@@ -132,21 +144,33 @@ export function BarChart({
               }}
             >
               {filteredUniqueFacetVals.map((multiplesVal) => (
-                <SingleBarChart
-                  isSmall
-                  index={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
-                  selectedList={selectedList}
-                  selectedMap={selectedMap}
+                // <SingleBarChart
+                //   isSmall
+                //   index={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
+                //   selectedList={selectedList}
+                //   selectedMap={selectedMap}
+                //   key={multiplesVal as string}
+                //   config={config}
+                //   setConfig={setConfig}
+                //   allColumns={allColumns}
+                //   categoryFilter={multiplesVal === NAN_REPLACEMENT ? null : multiplesVal}
+                //   title={multiplesVal}
+                //   selectionCallback={customSelectionCallback}
+                //   sortType={sortType}
+                //   setSortType={setSortType}
+                //   legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+                // />
+                <SingleEChartsBarChart
                   key={multiplesVal as string}
                   config={config}
-                  setConfig={setConfig}
                   allColumns={allColumns}
-                  categoryFilter={multiplesVal === NAN_REPLACEMENT ? null : multiplesVal}
-                  title={multiplesVal}
-                  selectionCallback={customSelectionCallback}
-                  sortType={sortType}
-                  setSortType={setSortType}
-                  legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+                  // setConfig={setConfig}
+                  // allColumns={allColumns}
+                  // selectedMap={selectedMap}
+                  // selectionCallback={customSelectionCallback}
+                  // selectedList={selectedList}
+                  // sortType={sortType}
+                  // setSortType={setSortType}
                 />
               ))}
             </Box>
