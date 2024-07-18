@@ -11,7 +11,7 @@ export function FocusFacetSelector({ config, setConfig, facets }: Pick<ICommonVi
   }
 
   return (
-    <Group gap={4}>
+    <Group gap={4} wrap="nowrap">
       <Select
         key={`focusFacetSelect_${config.focusFacetIndex}`}
         placeholder="Select a focus facet"
