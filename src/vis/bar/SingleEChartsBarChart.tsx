@@ -1,8 +1,8 @@
 import type { BarSeriesOption } from 'echarts/charts';
-import { groupBy, maxBy, meanBy, minBy, zipObject, zipWith } from 'lodash';
+import { groupBy, maxBy, meanBy, minBy, round, uniq, zipObject, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { EBarDirection, IBarConfig } from './interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
 import { getBarData } from './utils';
 import { getLabelOrUnknown } from '../general/utils';
@@ -17,107 +17,126 @@ export function SingleEChartsBarChart({
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList' | 'selectionCallback'> & {
   allColumns: Awaited<ReturnType<typeof getBarData>>;
 }) {
-  console.log(config, allColumns);
+  // console.log(config, allColumns);
 
   const dataTable = useMemo(() => {
     return zipWith(
       allColumns.catColVals?.resolvedValues,
       allColumns.aggregateColVals?.resolvedValues,
-      allColumns.facetsColVals?.resolvedValues,
       allColumns.groupColVals?.resolvedValues,
-      (cat, agg, facet, group) => {
+      (cat, agg, group) => {
         return {
           id: cat.id,
           category: getLabelOrUnknown(cat?.val),
-          agg: agg?.val,
-          facet: facet?.val,
-          group: group?.val,
+          agg: agg?.val as number,
+          group: typeof group?.val === 'number' ? String(group?.val) : getLabelOrUnknown(group?.val),
         };
       },
     );
-  }, [
-    allColumns.aggregateColVals?.resolvedValues,
-    allColumns.catColVals?.resolvedValues,
-    allColumns.facetsColVals?.resolvedValues,
-    allColumns.groupColVals?.resolvedValues,
-  ]);
+  }, [allColumns.aggregateColVals?.resolvedValues, allColumns.catColVals?.resolvedValues, allColumns.groupColVals?.resolvedValues]);
 
-  console.log(dataTable);
+  // console.log('dataTable', dataTable);
 
-  const aggData: { categories: string[]; values: number[] } = useMemo(() => {
-    // Helper function for median
-    const median = (arr) => {
-      const mid = Math.floor(arr.length / 2);
-      const nums = [...arr].sort((a, b) => a - b);
-      return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
-    };
+  const { aggregatedData, categories, groupings } = useMemo(() => {
+    const values = {};
+    dataTable.forEach((item) => {
+      const { category, agg, group: grouping } = item;
+      if (!values[category]) {
+        values[category] = { total: 0 };
+      }
+      if (!values[category][grouping]) {
+        values[category][grouping] = { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [] };
+      }
 
-    // Using lodash to aggregate data
-    const groupedData = groupBy(dataTable, 'category');
+      values[category].total++;
 
-    const categories = Object.keys(groupedData);
-    let values: number[] = [];
+      const group = values[category][grouping];
+      group.count++;
+      group.sum += agg;
+      group.min = Math.min(group.min, agg);
+      group.max = Math.max(group.max, agg);
+      group.nums.push(agg);
+    });
+    return { aggregatedData: values, categories: Object.keys(values), groupings: uniq(dataTable.map((item) => item.group)) };
+  }, [dataTable]);
 
-    switch (config.aggregateType) {
-      case EAggregateTypes.COUNT:
-        values = categories.map((cat) => groupedData[cat].length);
-        break;
-
-      case EAggregateTypes.AVG:
-        values = categories.map((cat) => meanBy(groupedData[cat], 'agg'));
-        break;
-
-      case EAggregateTypes.MIN:
-        values = categories.map((cat) => minBy(groupedData[cat], 'agg').agg) as number[];
-        break;
-
-      case EAggregateTypes.MED:
-        values = categories.map((cat) => median(groupedData[cat].map((item) => item.agg)));
-        break;
-
-      case EAggregateTypes.MAX:
-        values = categories.map((cat) => maxBy(groupedData[cat], 'agg').agg) as number[];
-        break;
-
-      default:
-        console.warn(`Aggregation type ${config.aggregateType} not implemented for bar chart!`);
-        break;
-    }
-
-    return { categories, values };
-  }, [config.aggregateType, dataTable]);
+  // console.log('aggregatedData', aggregatedData, categories, groupings);
 
   // prepare data
   const series: BarSeriesOption[] = useMemo(() => {
-    return [
-      {
+    const median = (arr) => {
+      const mid = Math.floor(arr.length / 2);
+      const nums = [...arr].sort((a, b) => a - b);
+      const medianVal = arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+      return medianVal;
+    };
+
+    /**
+     * Calculates and returns the rounded absolute or normalized value, dependending on the config value.
+     * Enabled grouping always returns the absolute value. The normalized value is only calculated for stacked bars.
+     * @param value Absolute value
+     * @param total Number of values in the category
+     * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
+     */
+    const normalizedValue = (value, total) => {
+      return config.groupType === EBarGroupingType.GROUP || config.display === EBarDisplayType.ABSOLUTE ? round(value, 4) : round((value / total) * 100, 2);
+    };
+
+    return groupings.map((group) => {
+      let data = [];
+
+      switch (config.aggregateType) {
+        case EAggregateTypes.COUNT:
+          data = categories.map((cat) => (aggregatedData[cat][group] ? normalizedValue(aggregatedData[cat][group].count, aggregatedData[cat].total) : 0));
+          break;
+
+        case EAggregateTypes.AVG:
+          data = categories.map((cat) =>
+            aggregatedData[cat][group] ? normalizedValue(aggregatedData[cat][group].sum / aggregatedData[cat][group].count, aggregatedData[cat].total) : 0,
+          );
+          break;
+
+        case EAggregateTypes.MIN:
+          data = categories.map((cat) => (aggregatedData[cat][group] ? normalizedValue(aggregatedData[cat][group].min, aggregatedData[cat].total) : 0));
+          break;
+
+        case EAggregateTypes.MAX:
+          data = categories.map((cat) => (aggregatedData[cat][group] ? normalizedValue(aggregatedData[cat][group].max, aggregatedData[cat].total) : 0));
+          break;
+
+        case EAggregateTypes.MED:
+          data = categories.map((cat) =>
+            aggregatedData[cat][group] ? normalizedValue(median(aggregatedData[cat][group].nums), aggregatedData[cat].total) : 0,
+          );
+          break;
+
+        default:
+          console.warn(`Aggregation type ${config.aggregateType} is not supported by bar chart.`);
+          break;
+      }
+
+      return {
         type: 'bar',
-        name: null,
+        name: groupings.length > 1 ? group : null,
+        stack: config.groupType === EBarGroupingType.GROUP ? group : 'total', // group = individual group names, stack = any fixed name
         label: {
           show: true,
+          formatter: (params) =>
+            // grouping always uses the absolute value
+            config.groupType === EBarGroupingType.GROUP || config.display === EBarDisplayType.ABSOLUTE ? String(params.value) : `${params.value}%`,
         },
         emphasis: {
           focus: 'series',
         },
-        data: aggData.values,
-      },
-      // {
-      //   type: 'bar',
-      //   name: 'Group 2',
-      //   label: {
-      //     show: true,
-      //   },
-      //   emphasis: {
-      //     focus: 'series',
-      //   },
-      //   data: aggData.values,
-      // },
-    ];
-  }, [aggData]);
+        data,
+      };
+    });
+  }, [aggregatedData, categories, config.aggregateType, config.display, config.groupType, groupings]);
 
   const chartInstance = useCallback((chart) => {
     // register EChart listerners to chartInstance
     chart.on('click', (args) => {
+      // TODO handle click events
       console.log('clicked', args);
     });
   }, []);
@@ -130,6 +149,7 @@ export function SingleEChartsBarChart({
       containLabel: true,
     },
     legend: {},
+    series,
   };
 
   if (config.direction === EBarDirection.VERTICAL) {
@@ -137,12 +157,11 @@ export function SingleEChartsBarChart({
       ...option,
       xAxis: {
         type: 'category',
-        data: aggData.categories,
+        data: categories,
       },
       yAxis: {
         type: 'value',
       },
-      series,
     };
   } else {
     option = {
@@ -152,72 +171,13 @@ export function SingleEChartsBarChart({
       },
       yAxis: {
         type: 'category',
-        data: aggData.categories,
+        data: categories,
       },
-      series,
-      // series: [
-      //   {
-      //     name: 'Direct',
-      //     type: 'bar',
-      //     stack: 'total',
-      //     label: {
-      //       show: true,
-      //     },
-      //     emphasis: {
-      //       focus: 'series',
-      //     },
-      //     data: [320, 302, 301, 334, 390, 330, 320],
-      //   },
-      //   {
-      //     name: 'Mail Ad',
-      //     type: 'bar',
-      //     stack: 'total',
-      //     label: {
-      //       show: true,
-      //     },
-      //     emphasis: {
-      //       focus: 'series',
-      //     },
-      //     data: [120, 132, 101, 134, 90, 230, 210],
-      //   },
-      //   {
-      //     name: 'Affiliate Ad',
-      //     type: 'bar',
-      //     stack: 'total',
-      //     label: {
-      //       show: true,
-      //     },
-      //     emphasis: {
-      //       focus: 'series',
-      //     },
-      //     data: [220, 182, 191, 234, 290, 330, 310],
-      //   },
-      //   {
-      //     name: 'Video Ad',
-      //     type: 'bar',
-      //     stack: 'total',
-      //     label: {
-      //       show: true,
-      //     },
-      //     emphasis: {
-      //       focus: 'series',
-      //     },
-      //     data: [150, 212, 201, 154, 190, 330, 410],
-      //   },
-      //   {
-      //     name: 'Search Engine',
-      //     type: 'bar',
-      //     stack: 'total',
-      //     label: {
-      //       show: true,
-      //     },
-      //     emphasis: {
-      //       focus: 'series',
-      //     },
-      //     data: [820, 832, 901, 934, 1290, 1330, 1320],
-      //   },
-      // ],
     };
   }
-  return <ReactECharts option={option} chartInstance={chartInstance} />;
+
+  const settings = {
+    notMerge: true, // disable merging to avoid stale series data when deselecting the group column
+  };
+  return <ReactECharts option={option} chartInstance={chartInstance} settings={settings} />;
 }
