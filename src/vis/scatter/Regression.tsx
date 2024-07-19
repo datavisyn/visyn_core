@@ -24,6 +24,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
     <Stack>
       <Input.Wrapper>
         <Select
+          data-testid="RegressionLineSelect"
           searchable
           label={
             <HelpHoverCard

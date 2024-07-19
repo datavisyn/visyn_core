@@ -15,7 +15,10 @@ test('no and one numerical column selected', async ({ page }) => {
 test('initial state: two numerical columns selected', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('MultiSelect').locator('span[class*="Pill-root"]')).toHaveCount(2);
+  await page.pause();
+  // await expect(
+  //   page.locator('div[class="plot-container plotly"] div[class="user-select-one svg-container"] svg[class="main-svg"] g[class="g-xtitle"]'),
+  // ).toHaveText('STAT2: Gene expression');
   await expect(page.getByText('MYC: Gene expression')).toBeVisible();
   await expect(page.getByText('STAT2: Gene expression')).toBeVisible();
-  await page.pause();
 });
