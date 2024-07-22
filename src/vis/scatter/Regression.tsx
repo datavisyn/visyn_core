@@ -56,6 +56,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
       {currentSelected?.type === ERegressionLineType.POLYNOMIAL && (
         <Input.Wrapper label="Order">
           <SegmentedControl
+            data-testid="PolynomialRegressionOption"
             fullWidth
             size="xs"
             value={`${currentSelected.fitOptions.order}`}
@@ -69,9 +70,10 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
       )}
       {showColorPicker && currentSelected?.type !== ERegressionLineType.NONE && (
         <Input.Wrapper label="Line color">
-          <Group>
+          <Group data-testid="RegressionLineColor">
             {currentSelected?.lineStyle?.colors?.map((color, idx) => (
               <ColorSwatch
+                data-testid="ColorSwatch"
                 key={color}
                 component="button"
                 color={color}

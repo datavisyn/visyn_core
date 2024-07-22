@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('full opacity', async ({ page }) => {
+test('initial state: full opacity', async ({ page }) => {
   await page.goto('/');
   const opacitySlider = await page.getByTestId('OpacitySlider').locator('div[class$="Slider-track"]');
   const opacitySliderWidth = await opacitySlider.evaluate((el) => {
