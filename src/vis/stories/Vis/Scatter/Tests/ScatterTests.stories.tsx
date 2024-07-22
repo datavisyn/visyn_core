@@ -169,3 +169,11 @@ Test4.args = {
     },
   } as IScatterConfig,
 };
+
+export const Test5: typeof Template = Template.bind({}) as typeof Template;
+Test5.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.SCATTER,
+    numColumnsSelected: [],
+  },
+};
