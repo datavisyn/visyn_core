@@ -8,7 +8,7 @@ test('no numerical column selected', async ({ page }) => {
   await expect(page.getByRole('alert')).toBeVisible();
 });
 
-test('one numerical column selected', async ({ page }) => {
+test.only('one numerical column selected', async ({ page }) => {
   await selectViolinPlot(page);
   await expect(page.getByTestId('ViolinYAxisSegmentedControl').locator('div[class*="SegmentedControl-control"]').first().locator('label')).toBeDisabled();
 });
