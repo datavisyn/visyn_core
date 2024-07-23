@@ -17,6 +17,10 @@ const Template: ComponentStory<typeof Vis> = (args) => {
 
   const [selection, setSelection] = useState<string[]>([]);
   const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
+
+  console.log(args);
+  console.log(args.externalConfig);
+
   return (
     <VisProvider>
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
@@ -175,5 +179,37 @@ Test5.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [],
-  },
+  } as IScatterConfig,
+};
+
+export const Test6: typeof Template = Template.bind({}) as typeof Template;
+Test5.args = {
+  externalConfig: {
+    showLegend: false,
+    type: ESupportedPlotlyVis.SCATTER,
+    numColumnsSelected: [
+      {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+    ],
+    color: {
+      description: 'Gene expression',
+      id: 'mycGeneExpression',
+      name: 'MYC',
+    },
+    shape: null,
+    dragMode: EScatterSelectSettings.PAN,
+    alphaSliderVal: 1,
+    showLabels: ELabelingOptions.NEVER,
+    regressionLineOptions: {
+      type: ERegressionLineType.LINEAR,
+    },
+  } as IScatterConfig,
 };
