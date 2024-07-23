@@ -57,7 +57,7 @@ type Story = StoryObj<typeof VisWrapper>;
 //   );
 // };
 
-// export const TestBasic: typeof Template = Template.bind({}) as typeof Template;
+export const Test0: Story = { args: {} };
 
 export const Test1: Story = {
   args: {
@@ -96,146 +96,151 @@ export const Test1: Story = {
   },
 };
 
-// export const Test2: typeof Template = Template.bind({}) as typeof Template;
-// Test2.args = {
-//   externalConfig: {
-//     type: ESupportedPlotlyVis.SCATTER,
-//     numColumnsSelected: [
-//       {
-//         description: 'Gene expression',
-//         id: 'stat2GeneExpression',
-//         name: 'STAT2',
-//       },
-//       {
-//         description: 'Gene expression',
-//         id: 'mycGeneExpression',
-//         name: 'MYC',
-//       },
-//     ],
-//     color: {
-//       description: 'Gene expression',
-//       id: 'stat2GeneExpression',
-//       name: 'STAT2',
-//     },
-//     shape: {
-//       description: 'Gene expression',
-//       id: 'stat2GeneExpression',
-//       name: 'STAT2',
-//     },
-//     dragMode: EScatterSelectSettings.LASSO,
-//     alphaSliderVal: 0.8,
-//     showLabels: ELabelingOptions.SELECTED,
-//     regressionLineOptions: {
-//       type: ERegressionLineType.LINEAR,
-//       showStats: false,
-//     },
-//   } as IScatterConfig,
-// };
+export const Test2: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: 'Gene expression',
+          id: 'stat2GeneExpression',
+          name: 'STAT2',
+        },
+        {
+          description: 'Gene expression',
+          id: 'mycGeneExpression',
+          name: 'MYC',
+        },
+      ],
+      color: {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      shape: {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      dragMode: EScatterSelectSettings.LASSO,
+      alphaSliderVal: 0.8,
+      showLabels: ELabelingOptions.SELECTED,
+      regressionLineOptions: {
+        type: ERegressionLineType.LINEAR,
+        showStats: false,
+      },
+    },
+  },
+};
 
-// export const Test3: typeof Template = Template.bind({}) as typeof Template;
-// Test3.args = {
-//   externalConfig: {
-//     showLegend: false,
-//     type: ESupportedPlotlyVis.SCATTER,
-//     numColumnsSelected: [
-//       {
-//         description: 'Gene expression',
-//         id: 'stat2GeneExpression',
-//         name: 'STAT2',
-//       },
-//       {
-//         description: 'Gene expression',
-//         id: 'mycGeneExpression',
-//         name: 'MYC',
-//       },
-//     ],
-//     color: {
-//       description: 'Gene expression',
-//       id: 'stat2GeneExpression',
-//       name: 'STAT2',
-//     },
-//     shape: {
-//       description: 'Gene expression',
-//       id: 'stat2GeneExpression',
-//       name: 'STAT2',
-//     },
-//     dragMode: EScatterSelectSettings.LASSO,
-//     alphaSliderVal: 0.8,
-//     showLabels: ELabelingOptions.SELECTED,
-//     regressionLineOptions: {
-//       type: ERegressionLineType.NONE,
-//     },
-//   } as IScatterConfig,
-// };
+export const Test3: Story = {
+  args: {
+    externalConfig: {
+      showLegend: false,
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: 'Gene expression',
+          id: 'stat2GeneExpression',
+          name: 'STAT2',
+        },
+        {
+          description: 'Gene expression',
+          id: 'mycGeneExpression',
+          name: 'MYC',
+        },
+      ],
+      color: {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      shape: {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      dragMode: EScatterSelectSettings.LASSO,
+      alphaSliderVal: 0.8,
+      showLabels: ELabelingOptions.SELECTED,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
+      },
+    },
+  },
+};
 
-// export const Test4: typeof Template = Template.bind({}) as typeof Template;
-// Test4.args = {
-//   externalConfig: {
-//     showLegend: false,
-//     type: ESupportedPlotlyVis.SCATTER,
-//     numColumnsSelected: [
-//       {
-//         description: 'Gene expression',
-//         id: 'stat2GeneExpression',
-//         name: 'STAT2',
-//       },
-//       {
-//         description: 'Gene expression',
-//         id: 'stat2GeneExpression',
-//         name: 'STAT2',
-//       },
-//     ],
-//     color: {
-//       description: 'Gene expression',
-//       id: 'stat2GeneExpression',
-//       name: 'STAT2',
-//     },
-//     shape: null,
-//     dragMode: EScatterSelectSettings.LASSO,
-//     alphaSliderVal: 0.8,
-//     showLabels: ELabelingOptions.SELECTED,
-//     regressionLineOptions: {
-//       type: ERegressionLineType.NONE,
-//     },
-//   } as IScatterConfig,
-// };
+export const Test4: Story = {
+  args: {
+    externalConfig: {
+      showLegend: false,
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: 'Gene expression',
+          id: 'stat2GeneExpression',
+          name: 'STAT2',
+        },
+        {
+          description: 'Gene expression',
+          id: 'stat2GeneExpression',
+          name: 'STAT2',
+        },
+      ],
+      color: {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      shape: null,
+      dragMode: EScatterSelectSettings.LASSO,
+      alphaSliderVal: 0.8,
+      showLabels: ELabelingOptions.SELECTED,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
+      },
+    },
+  },
+};
 
-// export const Test5: typeof Template = Template.bind({}) as typeof Template;
-// Test5.args = {
-//   externalConfig: {
-//     type: ESupportedPlotlyVis.SCATTER,
-//     numColumnsSelected: [],
-//   } as IScatterConfig,
-// };
+export const Test5: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [],
+    } as IScatterConfig,
+  },
+};
 
-// export const Test6: typeof Template = Template.bind({}) as typeof Template;
-// Test5.args = {
-//   externalConfig: {
-//     showLegend: false,
-//     type: ESupportedPlotlyVis.SCATTER,
-//     numColumnsSelected: [
-//       {
-//         description: 'Gene expression',
-//         id: 'stat2GeneExpression',
-//         name: 'STAT2',
-//       },
-//       {
-//         description: 'Gene expression',
-//         id: 'stat2GeneExpression',
-//         name: 'STAT2',
-//       },
-//     ],
-//     color: {
-//       description: 'Gene expression',
-//       id: 'mycGeneExpression',
-//       name: 'MYC',
-//     },
-//     shape: null,
-//     dragMode: EScatterSelectSettings.PAN,
-//     alphaSliderVal: 1,
-//     showLabels: ELabelingOptions.NEVER,
-//     regressionLineOptions: {
-//       type: ERegressionLineType.LINEAR,
-//     },
-//   } as IScatterConfig,
-// };
+export const Test6: Story = {
+  args: {
+    externalConfig: {
+      showLegend: false,
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: 'Gene expression',
+          id: 'stat2GeneExpression',
+          name: 'STAT2',
+        },
+        {
+          description: 'Gene expression',
+          id: 'stat2GeneExpression',
+          name: 'STAT2',
+        },
+      ],
+      color: {
+        description: 'Gene expression',
+        id: 'mycGeneExpression',
+        name: 'MYC',
+      },
+      shape: null,
+      dragMode: EScatterSelectSettings.PAN,
+      alphaSliderVal: 1,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.LINEAR,
+      },
+    },
+  },
+};
