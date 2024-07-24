@@ -30,9 +30,9 @@ const meta: Meta<typeof VisWrapper> = {
 export default meta;
 type Story = StoryObj<typeof VisWrapper>;
 
-export const Test0: Story = { args: {} };
+export const NoArgs: Story = { args: {} };
 
-export const Test1: Story = {
+export const ColorShapePolynomial: Story = {
   args: {
     externalConfig: {
       type: ESupportedPlotlyVis.SCATTER,
@@ -69,7 +69,7 @@ export const Test1: Story = {
   },
 };
 
-export const Test2: Story = {
+export const ColorShapeLinearSelected: Story = {
   args: {
     externalConfig: {
       type: ESupportedPlotlyVis.SCATTER,
@@ -98,7 +98,7 @@ export const Test2: Story = {
   },
 };
 
-export const Test3: Story = {
+export const ThreeNumCols: Story = {
   args: {
     externalConfig: {
       showLegend: false,
@@ -114,17 +114,14 @@ export const Test3: Story = {
           id: 'mycGeneExpression',
           name: 'MYC',
         },
+        {
+          description: 'Gene expression',
+          id: 'brca2GeneExpression',
+          name: 'BRCA2',
+        },
       ],
-      color: {
-        description: 'Gene expression',
-        id: 'stat2GeneExpression',
-        name: 'STAT2',
-      },
-      shape: {
-        description: 'Gene expression',
-        id: 'stat2GeneExpression',
-        name: 'STAT2',
-      },
+      color: null,
+      shape: null,
       dragMode: EScatterSelectSettings.LASSO,
       alphaSliderVal: 0.8,
       showLabels: ELabelingOptions.SELECTED,
@@ -135,7 +132,7 @@ export const Test3: Story = {
   },
 };
 
-export const Test4: Story = {
+export const ColorSelected: Story = {
   args: {
     externalConfig: {
       showLegend: false,
@@ -168,7 +165,7 @@ export const Test4: Story = {
   },
 };
 
-export const Test5: Story = {
+export const NoNumColsSelected: Story = {
   args: {
     externalConfig: {
       type: ESupportedPlotlyVis.SCATTER,
@@ -177,7 +174,7 @@ export const Test5: Story = {
   },
 };
 
-export const Test6: Story = {
+export const LinearRegression: Story = {
   args: {
     externalConfig: {
       showLegend: false,
@@ -206,7 +203,7 @@ export const Test6: Story = {
   },
 };
 
-export const Test7: Story = {
+export const Facets: Story = {
   args: {
     externalConfig: {
       type: ESupportedPlotlyVis.SCATTER,
@@ -227,7 +224,7 @@ export const Test7: Story = {
   },
 };
 
-export const Test8: Story = {
+export const RegressionsPolynomialCubic: Story = {
   args: {
     externalConfig: {
       type: ESupportedPlotlyVis.SCATTER,
