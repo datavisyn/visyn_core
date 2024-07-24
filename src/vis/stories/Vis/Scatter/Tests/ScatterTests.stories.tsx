@@ -76,8 +76,8 @@ export const Test2: Story = {
       numColumnsSelected: [
         {
           description: 'Gene expression',
-          id: 'stat2GeneExpression',
-          name: 'STAT2',
+          id: 'brca2GeneExpression',
+          name: 'BRCA2',
         },
         {
           description: 'Gene expression',
@@ -85,16 +85,8 @@ export const Test2: Story = {
           name: 'MYC',
         },
       ],
-      color: {
-        description: 'Gene expression',
-        id: 'stat2GeneExpression',
-        name: 'STAT2',
-      },
-      shape: {
-        description: 'Gene expression',
-        id: 'stat2GeneExpression',
-        name: 'STAT2',
-      },
+      color: { description: 'some very long description', id: 'breastSurgeryType', name: 'Breast Surgery Type' },
+      shape: { description: 'some very long description', id: 'breastSurgeryType', name: 'Breast Surgery Type' },
       dragMode: EScatterSelectSettings.LASSO,
       alphaSliderVal: 0.8,
       showLabels: ELabelingOptions.SELECTED,
@@ -202,15 +194,11 @@ export const Test6: Story = {
           name: 'STAT2',
         },
       ],
-      color: {
-        description: 'Gene expression',
-        id: 'mycGeneExpression',
-        name: 'MYC',
-      },
+      color: null,
       shape: null,
       dragMode: EScatterSelectSettings.PAN,
       alphaSliderVal: 1,
-      showLabels: ELabelingOptions.NEVER,
+      showLabels: ELabelingOptions.ALWAYS,
       regressionLineOptions: {
         type: ERegressionLineType.LINEAR,
       },
