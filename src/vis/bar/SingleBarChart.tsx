@@ -11,6 +11,7 @@ import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { getBarData } from './utils';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, SortTypes } from './interfaces';
 import { ESortStates } from '../general/SortIcon';
+import { getLabelOrUnknown } from '../general/utils';
 
 /**
  * Return the margin object and adjust the bottom offset which also defines the lenght of the rotated labels
@@ -25,8 +26,10 @@ const getMargin = (rotatAxisLabel: boolean) => ({
 });
 
 export function SingleBarChart({
+  index,
   allColumns,
   config,
+  setConfig,
   categoryFilter,
   title,
   selectedMap,
@@ -37,8 +40,10 @@ export function SingleBarChart({
   setSortType,
   legendHeight,
 }: {
+  index?: number;
   allColumns: Awaited<ReturnType<typeof getBarData>>;
   config: IBarConfig;
+  setConfig: (config: IBarConfig) => void;
   selectedMap: Record<string, boolean>;
   selectedList: string[];
   categoryFilter?: string;
@@ -118,7 +123,7 @@ export function SingleBarChart({
   );
 
   return (
-    <Box ref={ref} style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}>
+    <Box ref={ref} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
       <Container
         fluid
         pl={0}
@@ -133,18 +138,21 @@ export function SingleBarChart({
       >
         <svg width={width} height={height}>
           <g>
-            {countScale && categoryScale ? (
+            {countScale && categoryScale && title !== undefined ? (
               <text
                 dominantBaseline="middle"
-                style={{ fontWeight: 500, fill: '#505459' }}
+                style={{ fontWeight: 500, fill: '#505459', cursor: 'pointer' }}
                 textAnchor="middle"
                 transform={`translate(${
                   config.direction === EBarDirection.VERTICAL
                     ? (categoryScale.range()[0] + categoryScale.range()[1]) / 2
                     : (countScale.range()[0] + countScale.range()[1]) / 2
                 }, ${getMargin(rotateXAxisTicks).top - 20})`}
+                onClick={() => {
+                  setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === index ? null : index });
+                }}
               >
-                {title}
+                {getLabelOrUnknown(title)}
               </text>
             ) : null}
             <rect
