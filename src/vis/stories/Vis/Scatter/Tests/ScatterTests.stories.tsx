@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { ScatterVis } from '../../../../scatter';
 import { Vis } from '../../../../LazyVis';
 import { VisProvider } from '../../../../Provider';
 import { BaseVisConfig, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../../interfaces';
 import { fetchBreastCancerData } from '../../../fetchBreastCancerData';
-import { ELabelingOptions, ERegressionLineType, IScatterConfig } from '../../../../scatter/interfaces';
+import { ELabelingOptions, ERegressionLineType } from '../../../../scatter/interfaces';
 
 function VisWrapper(args) {
   const columns = React.useMemo(() => fetchBreastCancerData(), []);
@@ -30,32 +29,6 @@ const meta: Meta<typeof VisWrapper> = {
 
 export default meta;
 type Story = StoryObj<typeof VisWrapper>;
-
-// export default {
-//   title: 'ScatterTest',
-//   component: Vis,
-// };
-
-// eslint-disable-next-line react/function-component-definition
-// const Template: ComponentStory<typeof Vis> = (args) => {
-//   const columns = React.useMemo(() => fetchBreastCancerData(), []);
-
-//   const [selection, setSelection] = useState<string[]>([]);
-//   const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
-
-//   console.log(args);
-//   console.log(args.externalConfig);
-
-//   return (
-//     <VisProvider>
-//       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-//         <div style={{ width: '70%', height: '80%' }}>
-//           <Vis {...args} externalConfig={config} setExternalConfig={setConfig} selected={selection} selectionCallback={setSelection} columns={columns} />
-//         </div>
-//       </div>
-//     </VisProvider>
-//   );
-// };
 
 export const Test0: Story = { args: {} };
 
@@ -208,7 +181,7 @@ export const Test5: Story = {
     externalConfig: {
       type: ESupportedPlotlyVis.SCATTER,
       numColumnsSelected: [],
-    } as IScatterConfig,
+    },
   },
 };
 
@@ -240,6 +213,40 @@ export const Test6: Story = {
       showLabels: ELabelingOptions.NEVER,
       regressionLineOptions: {
         type: ERegressionLineType.LINEAR,
+      },
+    },
+  },
+};
+
+export const Test7: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: 'Gene expression',
+          id: 'brca1GeneExpression',
+          name: 'BRCA1',
+        },
+        {
+          description: 'Gene expression',
+          id: 'brca2GeneExpression',
+          name: 'BRCA2',
+        },
+      ],
+      facets: { description: 'some very long description', id: 'breastSurgeryType', name: 'Breast Surgery Type' },
+    },
+  },
+};
+
+export const Test8: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [],
+      regressionLineOptions: {
+        type: ERegressionLineType.POLYNOMIAL,
+        fitOptions: { order: 3, precision: 3 },
       },
     },
   },
