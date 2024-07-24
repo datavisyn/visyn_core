@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 import { selectViolinPlot } from '../extensions/selectPlots';
 
 test('no categorical column selected', async ({ page }) => {
+  /*
+    TODO: test will fail due to line 15
+  */
   await selectViolinPlot(page);
   await page.getByTestId('SingleSelectCloseButton').click();
   await expect(page.locator('g[class="violinlayer mlayer"]').locator('g[class="trace violins"]')).toHaveCount(1);
