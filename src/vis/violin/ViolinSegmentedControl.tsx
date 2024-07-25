@@ -34,6 +34,7 @@ export function ViolinOverlaySegmentedControl({
       }
     >
       <SegmentedControl
+        data-testid="ViolinOverlaySegmentedControl"
         disabled={disabled}
         fullWidth
         size="xs"
