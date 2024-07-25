@@ -27,6 +27,9 @@ test('initial state: linear regression line', async ({ page }) => {
 });
 
 test('should not be searchable', async ({ page }) => {
+  /*
+    TODO: test will fail due to line 39
+  */
   await page.goto('/');
   await page.getByTestId('RegressionLineSelect').click();
   await expect(page.getByTestId('RegressionLineSelect')).toHaveValue('Linear');

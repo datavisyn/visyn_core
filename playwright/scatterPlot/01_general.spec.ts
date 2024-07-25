@@ -37,7 +37,7 @@ test('lasso brush', async ({ page }) => {
   await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotLassoBrush.png');
 });
 
-test.only('download plot', async ({ page }) => {
+test('download plot', async ({ page }) => {
   await page.goto('/');
   const downloadPromise = page.waitForEvent('download');
   await page.getByTestId('DownloadPlotButton').click();
