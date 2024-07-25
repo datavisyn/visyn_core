@@ -37,12 +37,12 @@ test('lasso brush', async ({ page }) => {
   await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotLassoBrush.png');
 });
 
-test('download plot', async ({ page }) => {
+test.only('download plot', async ({ page }) => {
   await page.goto('/');
   const downloadPromise = page.waitForEvent('download');
   await page.getByTestId('DownloadPlotButton').click();
   const download = await downloadPromise;
-  await download.failure();
+  await download.saveAs(`./download-test-results/01-general/${new Date().toISOString}/${download.suggestedFilename()}`);
 });
 
 test('selection in ranking should be visible in plot', async ({ page }) => {

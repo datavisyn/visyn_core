@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { selectViolinPlot } from '../extensions/selectPlots';
 
-test.only('no overlay', async ({ page }) => {
+test('no overlay', async ({ page }) => {
   await selectViolinPlot(page);
   await page.getByTestId('ViolinOverlaySegmentedControl').locator('div[class*="SegmentedControl-control"]').first().click();
 
