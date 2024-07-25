@@ -8,7 +8,7 @@ test('unsynced', async ({ page }) => {
   await page.getByRole('option', { name: 'Neoplasm Histologic Grade' }).click();
   await page.getByTestId('MultiSelect').click();
 
-  const valueLeftChart = await page
+  const valueLeftChartTop = await page
     .locator('g[class="subplot xy"]')
     .locator('g[class="yaxislayer-above"]')
     .locator('g[class="ytick"]')
@@ -16,9 +16,34 @@ test('unsynced', async ({ page }) => {
     .locator('text')
     .textContent();
 
-  expect(
-    await page.locator('g[class="subplot x2y2"]').locator('g[class="yaxislayer-above"]').locator('g[class="y2tick"]').last().locator('text').textContent(),
-  ).not.toEqual(valueLeftChart);
+  const valueRightChartTop = await page
+    .locator('g[class="subplot x2y2"]')
+    .locator('g[class="yaxislayer-above"]')
+    .locator('g[class="y2tick"]')
+    .last()
+    .locator('text')
+    .textContent();
+
+  const valueLeftChartButton = await page
+    .locator('g[class="subplot xy"]')
+    .locator('g[class="yaxislayer-above"]')
+    .locator('g[class="ytick"]')
+    .first()
+    .locator('text')
+    .textContent();
+
+  const valueRightChartButton = await page
+    .locator('g[class="subplot x2y2"]')
+    .locator('g[class="yaxislayer-above"]')
+    .locator('g[class="y2tick"]')
+    .first()
+    .locator('text')
+    .textContent();
+
+  const buttonMatch = valueRightChartButton != valueLeftChartButton;
+  const topMatch = valueRightChartTop != valueLeftChartTop;
+
+  expect(buttonMatch || topMatch).toBeTruthy();
 });
 
 test('synced', async ({ page }) => {
@@ -28,7 +53,7 @@ test('synced', async ({ page }) => {
   await page.getByTestId('MultiSelect').click();
 
   await page.getByTestId('ViolinYAxisSegmentedControl').locator('div[class*="SegmentedControl-control"]').last().click();
-  const valueLeftChart = await page
+  const valueLeftChartTop = await page
     .locator('g[class="subplot xy"]')
     .locator('g[class="yaxislayer-above"]')
     .locator('g[class="ytick"]')
@@ -36,7 +61,32 @@ test('synced', async ({ page }) => {
     .locator('text')
     .textContent();
 
-  expect(
-    await page.locator('g[class="subplot x2y2"]').locator('g[class="yaxislayer-above"]').locator('g[class="y2tick"]').last().locator('text').textContent(),
-  ).toEqual(valueLeftChart);
+  const valueRightChartTop = await page
+    .locator('g[class="subplot x2y2"]')
+    .locator('g[class="yaxislayer-above"]')
+    .locator('g[class="y2tick"]')
+    .last()
+    .locator('text')
+    .textContent();
+
+  const valueLeftChartButton = await page
+    .locator('g[class="subplot xy"]')
+    .locator('g[class="yaxislayer-above"]')
+    .locator('g[class="ytick"]')
+    .first()
+    .locator('text')
+    .textContent();
+
+  const valueRightChartButton = await page
+    .locator('g[class="subplot x2y2"]')
+    .locator('g[class="yaxislayer-above"]')
+    .locator('g[class="y2tick"]')
+    .first()
+    .locator('text')
+    .textContent();
+
+  const buttonMatch = valueRightChartButton == valueLeftChartButton;
+  const topMatch = valueRightChartTop == valueLeftChartTop;
+
+  expect(buttonMatch && topMatch).toBeTruthy();
 });

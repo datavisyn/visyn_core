@@ -132,7 +132,7 @@ export const ThreeNumCols: Story = {
   },
 };
 
-export const ColorSelected: Story = {
+export const SameNumcolsColorSelected: Story = {
   args: {
     externalConfig: {
       showLegend: false,
@@ -174,7 +174,7 @@ export const NoNumColsSelected: Story = {
   },
 };
 
-export const LinearRegression: Story = {
+export const SameNumcolsAlwaysLinear: Story = {
   args: {
     externalConfig: {
       showLegend: false,
