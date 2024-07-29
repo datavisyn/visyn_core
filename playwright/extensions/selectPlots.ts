@@ -23,3 +23,13 @@ export async function selectBoxPlot(page: Page) {
   await page.getByTestId('SingleSelectCategorical column').click();
   await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
 }
+
+export async function selectHeatmap(page: Page) {
+  await page.goto('/');
+  await page.getByTestId('SelectVisualizationType').click();
+  await page.getByRole('option', { name: 'Heatmap plot' }).click();
+
+  await page.getByTestId('MultiSelect').click();
+  await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
+  await page.getByRole('option', { name: 'Cellularity' }).click();
+}
