@@ -8,7 +8,6 @@ import { EViolinOverlay, EYAxisMode } from '../../../../violin/interfaces';
 
 function VisWrapper(args) {
   const columns = React.useMemo(() => fetchBreastCancerData(), []);
-  const [selection, setSelection] = useState<string[]>([]);
   const [config, setConfig] = useState<BaseVisConfig>(args.externalConfig);
 
   return (
