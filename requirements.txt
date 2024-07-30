@@ -21,7 +21,7 @@ pyjwt[crypto]==2.8.0
 pytest-postgresql==6.0.0
 python-dateutil==2.9.0.post0
 requests==2.32.3
-sentry-sdk~=2.6.0
+sentry-sdk~=2.11.0
 SQLAlchemy>=1.4.40,<=1.4.52
 starlette-context==0.3.6
 uvicorn[standard]==0.30.1
