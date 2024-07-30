@@ -18,7 +18,7 @@ export function HexbinVisSidebar({ config, columns, setConfig }: ICommonVisSideB
         columnType={EColumnTypes.NUMERICAL}
       />
       <SingleSelect
-        columnType={EColumnTypes.CATEGORICAL}
+        columnType={[EColumnTypes.CATEGORICAL]}
         label="Color by category"
         callback={(color: ColumnInfo) => setConfig({ ...config, color })}
         columns={columns}
