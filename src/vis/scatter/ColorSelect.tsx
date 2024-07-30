@@ -18,7 +18,7 @@ export function ColorSelect({ callback, numTypeCallback = () => null, currentNum
     <Stack gap="sm">
       <SingleSelect
         callback={(e) => callback(e ? columns.find((c) => c.info.id === e.id)?.info : null)}
-        columnType={EColumnTypes.CATEGORICAL}
+        columnType={null}
         columns={columns}
         currentSelected={currentSelected}
         label="Color"
