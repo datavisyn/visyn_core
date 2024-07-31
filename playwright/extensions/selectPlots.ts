@@ -32,4 +32,5 @@ export async function selectHeatmap(page: Page) {
   await page.getByTestId('MultiSelect').click();
   await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
   await page.getByRole('option', { name: 'Cellularity' }).click();
+  await page.getByTestId('MultiSelect').click();
 }

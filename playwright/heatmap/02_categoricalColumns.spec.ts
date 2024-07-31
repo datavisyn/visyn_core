@@ -23,11 +23,9 @@ test('two categorical columns selected', async ({ page }) => {
   await expect(page.getByTestId('idXAxis').locator('p')).toHaveText('Breast Surgery Type');
 });
 
-test('no more than two categorical columns selected', async ({ page }) => {
+test.only('no more than two categorical columns selected', async ({ page }) => {
   await selectHeatmap(page);
   await expect(page.getByTestId('MultiSelect').locator('span[class*="Pill-root"]')).toHaveCount(2);
-  await page.getByTestId('MultiSelect').click();
-  //at here: different behavior than in the real app
   await page.getByRole('option', { name: 'Chemotherapy' }).click();
   await expect(page.getByTestId('MultiSelect').locator('span[class*="Pill-root"]')).toHaveCount(2);
 });

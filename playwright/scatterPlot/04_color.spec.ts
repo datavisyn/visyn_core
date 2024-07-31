@@ -16,3 +16,16 @@ test('color selected', async ({ page }) => {
   await expect(page.locator('g[class="legend"]')).toBeVisible();
   await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('scatterPlotWithColor.png');
 });
+
+test('show color scale', async ({ page }) => {
+  /*
+      TODO: test will fail due to line 27
+  */
+
+  await page.goto('/');
+  await page.getByTestId('SingleSelectColor').click();
+  await page.getByRole('option', { name: 'Neoplasm Histologic Grade' }).click();
+  await expect(page.getByTestId('NumericalColorButtons')).toBeVisible();
+
+  //TODO: check both color scales
+});
