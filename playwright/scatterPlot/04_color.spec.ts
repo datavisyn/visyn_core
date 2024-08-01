@@ -1,6 +1,7 @@
-import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
+import { test, expect, takeSnapshot, ChromaticConfig } from '@chromatic-com/playwright';
 
 test('no color selected', async ({ page }, testInfo) => {
+  test.use({ delay: 1000 });
   await page.goto('/');
   await expect(page.getByTestId('SingleSelectColor').locator('span[class*="InputPlaceholder-placeholder"]')).toBeVisible();
   await expect(page.getByLabel('Legend')).toBeDisabled();

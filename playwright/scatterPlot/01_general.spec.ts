@@ -1,4 +1,4 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { test, expect, ChromaticConfig } from '@chromatic-com/playwright';
 
 test('rectangle brush', async ({ page }) => {
   await page.goto('/');
