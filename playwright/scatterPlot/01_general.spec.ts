@@ -45,12 +45,11 @@ test('download plot', async ({ page }) => {
   await download.saveAs(`./download-test-results/01-general/${new Date().toISOString}/${download.suggestedFilename()}`);
 });
 
-test.only('selection in ranking should be visible in plot', async ({ page }) => {
+test('selection in ranking should be visible in plot', async ({ page }) => {
   await page.goto('/');
   for (let index = 1; index <= 50; index++) {
     await page.locator('div[class*="lu-renderer-selection"]').nth(index).click();
   }
   // add some time to wait for plot to render
-  await page.waitForTimeout(500);
   await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotSelection.png');
 });
