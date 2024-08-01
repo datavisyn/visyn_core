@@ -1,6 +1,7 @@
 import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
 
 test.only('rectangle brush', async ({ page }, testInfo) => {
+  test.use({ delay: 1000 });
   await page.goto('/');
   await page.getByTestId('BrushOptions').locator('div[class*="SegmentedControl-control"]').first().click();
   const scatterPlot = await page.locator('div[class="js-plotly-plot"]');
@@ -15,6 +16,7 @@ test.only('rectangle brush', async ({ page }, testInfo) => {
   await page.mouse.down();
   await scatterPlot.hover({ force: true, position: { x: scatterPlotWidth / 4 + 150, y: scatterPlotHeight / 4 + 150 } });
   await page.mouse.up();
+  test.use({ delay: 1000 });
   await takeSnapshot(page, 'Scatter Plot: rectangle brush', testInfo);
   // await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotRectangeBrush.png');
 });
