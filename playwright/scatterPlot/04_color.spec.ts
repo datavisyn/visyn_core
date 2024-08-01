@@ -6,7 +6,7 @@ test.only('no color selected', async ({ page }, testInfo) => {
   await expect(page.getByTestId('SingleSelectColor').locator('span[class*="InputPlaceholder-placeholder"]')).toBeVisible();
   await expect(page.getByLabel('Legend')).toBeDisabled();
   await expect(page.locator('g[class="legend"]')).not.toBeVisible();
-  await page.waitForTimeout(1000);
+  // await page.waitForTimeout(1000);
   await takeSnapshot(page, 'Scatter Plot: no color selected', testInfo);
   //await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('scatterPlotInitialState.png');
 });
