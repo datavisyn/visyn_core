@@ -1,7 +1,7 @@
 import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
+//import { test, expect } from '@playwright/test';
 
 test.only('rectangle brush', async ({ page }, testInfo) => {
-  // test.use({ delay: 3000 });
   await page.goto('/');
   await page.getByTestId('BrushOptions').locator('div[class*="SegmentedControl-control"]').first().click();
   const scatterPlot = await page.locator('div[class="js-plotly-plot"]');

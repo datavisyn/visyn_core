@@ -140,7 +140,7 @@ export function ScatterVis({
         const regressionShapes: Partial<PlotlyTypes.Shape>[] = [];
         const regressionResults: IRegressionResult[] = [];
         for (const plot of traces.plots) {
-          if (plot.data.type === 'scattergl') {
+          if (plot.data.type === 'scatter') {
             const curveFit = fitRegressionLine(plot.data, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
             if (!curveFit.svgPath.includes('NaN')) {
               regressionShapes.push({
@@ -239,7 +239,7 @@ export function ScatterVis({
     if (traces) {
       const allPlots = traces.plots;
       allPlots
-        .filter((trace) => trace.data.type === 'scattergl')
+        .filter((trace) => trace.data.type === 'scatter')
         .forEach((p) => {
           const temp = [];
 
