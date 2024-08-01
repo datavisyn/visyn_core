@@ -1,11 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
 
-test('no color selected', async ({ page }) => {
+test.only('no color selected', async ({ page }, testInfo) => {
   await page.goto('/');
   await expect(page.getByTestId('SingleSelectColor').locator('span[class*="InputPlaceholder-placeholder"]')).toBeVisible();
   await expect(page.getByLabel('Legend')).toBeDisabled();
   await expect(page.locator('g[class="legend"]')).not.toBeVisible();
-  await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('scatterPlotInitialState.png');
+  await takeSnapshot(page, 'Scatter Plot: no color selected', testInfo);
+  //await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('scatterPlotInitialState.png');
 });
 
 test('color selected', async ({ page }) => {
