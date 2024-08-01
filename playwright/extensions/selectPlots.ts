@@ -34,3 +34,9 @@ export async function selectHeatmap(page: Page) {
   await page.getByRole('option', { name: 'Cellularity' }).click();
   await page.getByTestId('MultiSelect').click();
 }
+
+export async function selectHexbin(page: Page) {
+  await page.goto('/');
+  await page.getByTestId('SelectVisualizationType').click();
+  await page.getByRole('option', { name: 'Hexbin plot' }).click();
+}
