@@ -16,7 +16,7 @@ test.only('rectangle brush', async ({ page }, testInfo) => {
   await page.mouse.down();
   await scatterPlot.hover({ force: true, position: { x: scatterPlotWidth / 4 + 150, y: scatterPlotHeight / 4 + 150 } });
   await page.mouse.up();
-  await takeSnapshot(page, 'Scatter Plot: rectangle brush', testInfo);
+  await takeSnapshot(page, 'rectangle brush', testInfo);
   // await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotRectangeBrush.png');
 });
 
