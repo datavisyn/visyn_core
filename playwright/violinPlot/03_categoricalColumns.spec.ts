@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@chromatic-com/playwright';
 import { selectViolinPlot } from '../extensions/selectPlots';
 
 test('no categorical column selected', async ({ page }) => {
