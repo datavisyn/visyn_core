@@ -1,6 +1,6 @@
 import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
 
-test.only('select facet', async ({ page }, testInfo) => {
+test('select facet', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByTestId('SingleSelectFacets').click();
   await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
