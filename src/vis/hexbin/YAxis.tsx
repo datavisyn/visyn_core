@@ -28,6 +28,7 @@ export function YAxis({ yScale, xRange, horizontalPosition, multiples = false })
             <Center>
               <Tooltip withinPortal label={value}>
                 <Text
+                  data-testid={`HexplotXAxis${value}`}
                   c={VIS_LABEL_COLOR}
                   pr="7px"
                   size={multiples ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
