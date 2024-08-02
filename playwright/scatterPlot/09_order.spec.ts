@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@chromatic-com/playwright';
 
 test('polynomial regression line: quadratic', async ({ page }) => {
   await page.goto('/');
@@ -11,7 +11,6 @@ test('polynomial regression line: quadratic', async ({ page }) => {
     .first()
     .locator('label[class*="SegmentedControl-label"]')
     .click();
-  await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotQuadraticOrder.png');
 });
 
 test('polynomial regression line: cubic', async ({ page }) => {
@@ -25,5 +24,4 @@ test('polynomial regression line: cubic', async ({ page }) => {
     .nth(1)
     .locator('label[class*="SegmentedControl-label"]')
     .click();
-  await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotCubicOrder.png');
 });

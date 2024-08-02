@@ -1,6 +1,6 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
 
-test('select facet', async ({ page }) => {
+test.only('select facet', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByTestId('SingleSelectFacets').click();
   await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
@@ -10,4 +10,5 @@ test('select facet', async ({ page }) => {
   await page.getByTestId('SingleSelectCloseButton').click();
   await expect(page.locator('g[class="x2y2"]')).not.toBeVisible();
   await expect(page.locator('g[class="x3y3"]')).not.toBeVisible();
+  await takeSnapshot(page, 'scatterPlot/03_facets', testInfo);
 });

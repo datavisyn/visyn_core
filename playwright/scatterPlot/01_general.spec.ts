@@ -1,7 +1,7 @@
 import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
 //import { test, expect } from '@playwright/test';
 
-test.only('rectangle brush', async ({ page }, testInfo) => {
+test('rectangle brush', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByTestId('BrushOptions').locator('div[class*="SegmentedControl-control"]').first().click();
   const scatterPlot = await page.locator('div[class="js-plotly-plot"]');
@@ -16,8 +16,6 @@ test.only('rectangle brush', async ({ page }, testInfo) => {
   await page.mouse.down();
   await scatterPlot.hover({ force: true, position: { x: scatterPlotWidth / 4 + 150, y: scatterPlotHeight / 4 + 150 } });
   await page.mouse.up();
-  await takeSnapshot(page, 'rectangle brush', testInfo);
-  // await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotRectangeBrush.png');
 });
 
 test('lasso brush', async ({ page }) => {
@@ -36,7 +34,6 @@ test('lasso brush', async ({ page }) => {
   await scatterPlot.hover({ force: true, position: { x: scatterPlotWidth / 4 + 150, y: scatterPlotHeight / 4 } });
   await scatterPlot.hover({ force: true, position: { x: scatterPlotWidth / 4 + 350, y: scatterPlotHeight / 4 + 350 } });
   await page.mouse.up();
-  await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotLassoBrush.png');
 });
 
 test('download plot', async ({ page }) => {
@@ -52,6 +49,4 @@ test('selection in ranking should be visible in plot', async ({ page }) => {
   for (let index = 1; index <= 50; index++) {
     await page.locator('div[class*="lu-renderer-selection"]').nth(index).click();
   }
-  // add some time to wait for plot to render
-  await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('ScatterPlotSelection.png');
 });

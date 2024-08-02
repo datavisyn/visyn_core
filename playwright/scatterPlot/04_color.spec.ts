@@ -1,14 +1,10 @@
-import { test, expect, takeSnapshot, ChromaticConfig } from '@chromatic-com/playwright';
+import { test, expect } from '@chromatic-com/playwright';
 
-test.only('no color selected', async ({ page }, testInfo) => {
-  // test.use({ delay: 1000 });
+test('no color selected', async ({ page }, testInfo) => {
   await page.goto('/');
   await expect(page.getByTestId('SingleSelectColor').locator('span[class*="InputPlaceholder-placeholder"]')).toBeVisible();
   await expect(page.getByLabel('Legend')).toBeDisabled();
   await expect(page.locator('g[class="legend"]')).not.toBeVisible();
-  // await page.waitForTimeout(1000);
-  await takeSnapshot(page, 'Scatter Plot: no color selected', testInfo);
-  //await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('scatterPlotInitialState.png');
 });
 
 test('color selected', async ({ page }) => {
