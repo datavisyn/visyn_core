@@ -34,6 +34,7 @@ export function ViolinOverlaySegmentedControl({
       }
     >
       <SegmentedControl
+        data-testid="ViolinOverlaySegmentedControl"
         disabled={disabled}
         fullWidth
         size="xs"
@@ -56,6 +57,7 @@ export function ViolinSyncYAxisSegmentedControl({ callback, currentSelected, dis
     >
       <Tooltip label={disabled ? 'Sync only available when having multiple plots' : 'Sync the y-axis range of all plots'} withArrow>
         <SegmentedControl
+          data-testid="ViolinYAxisSegmentedControl"
           fullWidth
           disabled={disabled}
           size="xs"

@@ -20,6 +20,7 @@ export function OpacitySlider({ callback, currentValue }: OpacitySliderProps) {
   return (
     <Input.Wrapper label="Opacity" mb="md">
       <Slider
+        data-testid="OpacitySlider"
         step={0.05}
         value={+currentValue.toFixed(2)}
         max={1}

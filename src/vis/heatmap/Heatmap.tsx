@@ -215,7 +215,7 @@ export function Heatmap({
       </Box>
       <Group wrap="nowrap" style={{ width: '100%', height: '100%', display: 'flex' }} gap={0} pr="40px">
         <Center>
-          <Group style={{ transform: 'rotate(-90deg)' }} gap="0" wrap="nowrap" maw={20}>
+          <Group data-testid="idYAxis" style={{ transform: 'rotate(-90deg)' }} gap="0" wrap="nowrap" maw={20}>
             <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none', textWrap: 'nowrap' }}>
               {column2.info.name}
             </Text>
@@ -258,7 +258,7 @@ export function Heatmap({
           </Container>
         </Box>
       </Group>
-      <Group gap="0" wrap="nowrap" justify="center" align="center">
+      <Group data-testid="idXAxis" gap="0" wrap="nowrap" justify="center" align="center">
         <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ whiteSpace: 'nowrap', userSelect: 'none' }}>
           {column1.info.name}
         </Text>

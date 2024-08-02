@@ -20,6 +20,7 @@ export function BrushOptionButtons({
 }: BrushOptionProps) {
   return (
     <SegmentedControl
+      data-testid="BrushOptions"
       value={dragMode}
       onChange={callback}
       data={[

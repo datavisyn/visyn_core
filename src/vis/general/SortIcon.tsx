@@ -42,7 +42,12 @@ export function SortIcon({
         withinPortal
         label={sortState === ESortStates.ASC ? 'Sorted ascending' : sortState === ESortStates.DESC ? 'Sorted descending' : 'Click to sort'}
       >
-        <ActionIcon size={compact ? 'xs ' : 'sm'} color={sortState !== ESortStates.NONE ? selectionColorDark : VIS_LABEL_COLOR} variant="subtle">
+        <ActionIcon
+          data-testid="SortingButton"
+          size={compact ? 'xs ' : 'sm'}
+          color={sortState !== ESortStates.NONE ? selectionColorDark : VIS_LABEL_COLOR}
+          variant="subtle"
+        >
           {priority !== null && priority > 0 && (
             <Text size="0.6rem" mr="2px" fw={500}>
               {priority}.

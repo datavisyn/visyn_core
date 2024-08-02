@@ -63,6 +63,7 @@ export function HeatmapText({
             <Center>
               <Tooltip withinPortal withArrow arrowSize={6} label={xVal ?? NAN_REPLACEMENT}>
                 <Text
+                  data-testid={`XAxisLabel${i}`}
                   pb={2} // to make sure the text is not cut off, e.g. "g"s
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
@@ -104,6 +105,7 @@ export function HeatmapText({
             <Stack justify="center" h="100%">
               <Tooltip withinPortal withArrow arrowSize={6} label={yVal ?? NAN_REPLACEMENT}>
                 <Text
+                  data-testid={`YAxisLabel${i}`}
                   size={`${VIS_TICK_LABEL_SIZE}px`}
                   c={VIS_LABEL_COLOR}
                   lh="xs"

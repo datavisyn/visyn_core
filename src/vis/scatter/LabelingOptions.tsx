@@ -11,6 +11,7 @@ export function LabelingOptions({ callback, currentSelected }: LabelingOptionsPr
   return (
     <Input.Wrapper label="Show labels">
       <SegmentedControl
+        data-testid="LabelingOptions"
         fullWidth
         size="xs"
         value={currentSelected}

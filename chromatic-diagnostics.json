@@ -1,0 +1,271 @@
+{
+  "activity": {},
+  "announcedBuild": {
+    "id": "66ab52f9df0714a93beda67a",
+    "number": 130,
+    "status": "ANNOUNCED",
+    "autoAcceptChanges": false,
+    "app": {
+      "id": "640e9afaf15e817c63e10f42",
+      "turboSnapAvailability": "UNUSED"
+    }
+  },
+  "buildCommand": "node /home/lili/workspace/visyn_core/node_modules/@chromatic-com/playwright/dist/bin/build-archive-storybook.js --output-dir /tmp/chromatic--125532-ddLf6dSKQv6l",
+  "buildLogFile": "/home/lili/workspace/visyn_core/build-storybook.log",
+  "configuration": {
+    "configFile": "chromatic.config.json",
+    "projectId": "Project:640e9afaf15e817c63e10f42",
+    "zip": true,
+    "buildScriptName": "storybook:build"
+  },
+  "environment": {},
+  "exitCode": 51,
+  "exitCodeKey": "E2E_BUILD_FAILED",
+  "flags": {
+    "playwright": true,
+    "debug": true,
+    "outputDir": [],
+    "storybookBuildDir": [],
+    "externals": [],
+    "onlyStoryFiles": [],
+    "onlyStoryNames": [],
+    "untraced": [],
+    "fileHashing": true,
+    "interactive": true,
+    "appCode": []
+  },
+  "git": {
+    "version": "2.40.1",
+    "gitUserEmail": "lili.albrecht@datavisyn.io",
+    "uncommittedHash": "",
+    "commit": "d29873b76f32ee924bac5979afeb411ece2aa4de",
+    "committedAt": 1722499939000,
+    "committerEmail": "lili.albrecht@datavisyn.io",
+    "committerName": "dvlilialbrecht",
+    "branch": "lalbrecht/409_introducing-playwright-tests",
+    "slug": "datavisyn/visyn_core",
+    "fromCI": false,
+    "parentCommits": [
+      "d29873b76f32ee924bac5979afeb411ece2aa4de"
+    ]
+  },
+  "input": [],
+  "isOnboarding": false,
+  "options": {
+    "fromCI": false,
+    "inAction": false,
+    "dryRun": false,
+    "debug": true,
+    "autoAcceptChanges": false,
+    "exitZeroOnChanges": false,
+    "exitOnceUploaded": false,
+    "diagnosticsFile": "chromatic-diagnostics.json",
+    "fileHashing": true,
+    "interactive": false,
+    "isLocalBuild": false,
+    "originalArgv": [
+      "--playwright",
+      "-t=99ef83e5432c",
+      "--debug"
+    ],
+    "logFile": "chromatic.log",
+    "zip": true,
+    "buildScriptName": "storybook:build",
+    "playwright": true,
+    "storybookLogFile": "build-storybook.log",
+    "branchName": "",
+    "configFile": "chromatic.config.json",
+    "projectId": "Project:640e9afaf15e817c63e10f42"
+  },
+  "packageJson": {
+    "name": "visyn_core",
+    "description": "Core repository for datavisyn applications.",
+    "version": "11.3.1-SNAPSHOT",
+    "author": {
+      "name": "datavisyn GmbH",
+      "email": "contact@datavisyn.io",
+      "url": "https://www.datavisyn.io"
+    },
+    "license": "BSD-3-Clause",
+    "homepage": "https://www.datavisyn.io",
+    "bugs": {
+      "url": "https://github.com/datavisyn/visyn_core/issues"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+ssh://git@github.com/datavisyn/visyn_core.git"
+    },
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "exports": {
+      ".": "./src/index.ts",
+      "./app": "./src/app/index.ts",
+      "./base": "./src/base/index.ts",
+      "./components": "./src/components/index.ts",
+      "./hooks": "./src/hooks/index.ts",
+      "./i18n": "./src/i18n/index.ts",
+      "./idtype": "./src/idtype/index.ts",
+      "./plotly/full": "./src/plotly/full/index.ts",
+      "./plotly": "./src/plotly/index.tsx",
+      "./plugin": "./src/plugin/index.ts",
+      "./ranking": "./src/ranking/index.ts",
+      "./security": "./src/security/index.ts",
+      "./utils": "./src/utils/index.ts",
+      "./views": "./src/views/index.ts",
+      "./vis": "./src/vis/index.ts",
+      "./icons": "./src/icons/index.ts",
+      "./types": "./src/types.ts",
+      "./assets/*": "./src/assets/*",
+      "./phovea_registry": "./src/phovea_registry.ts",
+      "./scss/*": "./src/scss/*",
+      "./package.json": "./package.json"
+    },
+    "files": [
+      "src",
+      "dist",
+      "cypress"
+    ],
+    "engines": {
+      "npm": ">=8",
+      "node": ">=16"
+    },
+    "scripts": {
+      "all": "yarn run lint:fix && yarn run test && yarn run build && yarn run dist",
+      "build": "yarn run clean && yarn run compile && yarn run copy",
+      "clean": "visyn_scripts clean build dist lib",
+      "compile:watch": "visyn_scripts compile --watch",
+      "compile": "visyn_scripts compile",
+      "copy": "visyn_scripts copy",
+      "cy:open": "cypress open",
+      "cy:run": "cypress run --e2e",
+      "delete-dependencies": "visyn_scripts clean node_modules",
+      "dist": "mkdir lib && cd dist && tar cvzf ../lib/bundle.tar.gz *",
+      "docs": "visyn_scripts docs",
+      "lint:fix": "visyn_scripts lint --fix",
+      "lint": "visyn_scripts lint",
+      "predist": "yarn run lint && yarn run test && yarn run build",
+      "start:full": "visyn_scripts start --env workspace_mode=single fast=false",
+      "start": "visyn_scripts start --env workspace_mode=single",
+      "storybook:build": "visyn_scripts storybook build",
+      "storybook": "visyn_scripts storybook dev -p 6006",
+      "test": "visyn_scripts test",
+      "bundle:dev": "visyn_scripts bundle --mode development --env workspace_mode=single",
+      "bundle:prod": "visyn_scripts bundle --mode production --env workspace_mode=single",
+      "chromatic": "yarn run chromatic"
+    },
+    "dependencies": {
+      "@emotion/css": "^11.11.2",
+      "@emotion/react": "^11.11.4",
+      "@fortawesome/fontawesome-free": "^6.5.2",
+      "@fortawesome/fontawesome-svg-core": "^6.5.2",
+      "@fortawesome/free-regular-svg-icons": "^6.5.2",
+      "@fortawesome/free-solid-svg-icons": "^6.5.2",
+      "@fortawesome/react-fontawesome": "^0.2.2",
+      "@mantine/code-highlight": "~7.10.1",
+      "@mantine/core": "~7.10.1",
+      "@mantine/dates": "~7.10.1",
+      "@mantine/dropzone": "~7.10.1",
+      "@mantine/form": "~7.10.1",
+      "@mantine/hooks": "~7.10.1",
+      "@mantine/modals": "~7.10.1",
+      "@mantine/notifications": "~7.10.1",
+      "@mantine/styles": "~6.0.21",
+      "@mantine/tiptap": "~7.10.1",
+      "@mantine6/core": "npm:@mantine/core@~6.0.21",
+      "@sentry/react": "^8.8.0",
+      "@types/d3-hexbin": "^0.2.5",
+      "@types/d3v7": "npm:@types/d3@^7.4.3",
+      "@types/plotly.js-dist-min": "^2.3.4",
+      "@types/react": "^18.3.3",
+      "@types/react-dom": "^18.3.0",
+      "@types/react-plotly.js": "^2.6.3",
+      "arquero": "5.4.0",
+      "d3-force-boundary": "^0.0.3",
+      "d3-hexbin": "^0.2.2",
+      "d3v7": "npm:d3@^7.9.0",
+      "fit-curve": "^0.2.0",
+      "html-to-image": "^1.11.11",
+      "i18next": "^23.11.5",
+      "jstat": "^1.9.6",
+      "lineupjs": "4.11.0",
+      "lodash": "~4.17.21",
+      "plotly.js-dist-min": "~2.12.0",
+      "react": "~18.3.1",
+      "react-dom": "~18.3.1",
+      "react-highlight-words": "^0.20.0",
+      "react-plotly.js": "^2.6.0",
+      "react-spring": "^9.7.3",
+      "use-deep-compare-effect": "^1.8.1",
+      "visyn_scripts": "^9.0.0"
+    },
+    "devDependencies": {
+      "@chromatic-com/playwright": "^0.6.18",
+      "@chromatic-com/storybook": "^1.6.1",
+      "@playwright/test": "^1.45.2",
+      "@types/node": "^20.14.10",
+      "chromatic": "^11.6.0",
+      "cypress": "^13.11.0"
+    },
+    "resolutions": {
+      "storybook": "7.6.20",
+      "@storybook/addon-actions": "7.6.20",
+      "@storybook/addon-backgrounds": "7.6.20",
+      "@storybook/addon-controls": "7.6.20",
+      "@storybook/addon-docs": "7.6.20",
+      "@storybook/addon-essentials": "7.6.20",
+      "@storybook/addon-highlight": "7.6.20",
+      "@storybook/addon-measure": "7.6.20",
+      "@storybook/addon-outline": "7.6.20",
+      "@storybook/addon-toolbars": "7.6.20",
+      "@storybook/addon-viewport": "7.6.20",
+      "@storybook/blocks": "7.6.20",
+      "@storybook/builder-webpack5": "7.6.20",
+      "@storybook/codemod": "7.6.20",
+      "@storybook/core-webpack": "7.6.20",
+      "@storybook/csf-plugin": "7.6.20",
+      "@storybook/preview-api": "7.6.20",
+      "@storybook/react-dom-shim": "7.6.20"
+    },
+    "visyn": {
+      "entries": {
+        "app": {
+          "js": "src/demo/index.initialize.tsx",
+          "html": "index.html",
+          "template": "src/demo/index.template.ejs",
+          "chunkName": "app",
+          "excludeChunks": []
+        }
+      }
+    },
+    "packageManager": "yarn@4.3.0",
+    "readme": "ERROR: No README data found!",
+    "_id": "visyn_core@11.3.1-SNAPSHOT"
+  },
+  "packagePath": "/home/lili/workspace/visyn_core/package.json",
+  "runtimeMetadata": {
+    "nodePlatform": "linux",
+    "nodeVersion": "20.9.0",
+    "packageManager": "yarn",
+    "packageManagerVersion": "4.3.0"
+  },
+  "sessionId": "71840280-909f-4382-83a5-b93698b45245",
+  "sourceDir": "/tmp/chromatic--125532-ddLf6dSKQv6l",
+  "startedAt": 1722503929810,
+  "storybook": {
+    "addons": [
+      {
+        "name": "unknown",
+        "packageName": "unknown",
+        "packageVersion": "0"
+      }
+    ],
+    "viewLayer": "react",
+    "version": "7.6.20",
+    "builder": {
+      "name": "unknown",
+      "packageVersion": "0"
+    }
+  },
+  "task": "build",
+  "userError": true
+}
