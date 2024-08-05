@@ -99,9 +99,9 @@ export class PluginRegistry implements IRegistry {
    * @param id
    * @returns {IPluginDesc}
    */
-  public getPlugin(type: 'visynView', id: string): VisynViewPluginDesc;
-  public getPlugin(type: string, id: string): IPluginDesc;
-  public getPlugin(type: string, id: string): IPluginDesc {
+  public getPlugin(type: 'visynView', id: string): VisynViewPluginDesc | undefined;
+  public getPlugin(type: string, id: string): IPluginDesc | undefined;
+  public getPlugin(type: string, id: string): IPluginDesc | undefined {
     return this.registry.find((d) => d.type === type && d.id === id);
   }
 

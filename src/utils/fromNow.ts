@@ -22,7 +22,7 @@ export function getMostRelevantTimeUnitFromNow(date: Date) {
   let time = (date.getTime() - new Date().getTime()) / SECOND_IN_MILLISECONDS;
 
   for (let i = 0; i < INTERNAL_DIVISIONS.length; i++) {
-    const division = INTERNAL_DIVISIONS[i];
+    const division = INTERNAL_DIVISIONS[i]!;
 
     if (Math.abs(time) < division.amount) {
       return { amount: time, name: division.name };
@@ -34,7 +34,10 @@ export function getMostRelevantTimeUnitFromNow(date: Date) {
   return null;
 }
 
-export function fromNow(date: Date) {
+export function fromNow(date: Date | null) {
+  if (!date) {
+    return null;
+  }
   const timeUnit = getMostRelevantTimeUnitFromNow(date);
 
   return timeUnit ? formatter.format(Math.round(timeUnit.amount), timeUnit.name) : '';

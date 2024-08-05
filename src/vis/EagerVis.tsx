@@ -126,16 +126,16 @@ export function useRegisterDefaultVis(visTypes?: string[]) {
 export function EagerVis({
   columns,
   selected = [],
-  stats = null,
+  stats = undefined,
   statsCallback = () => null,
-  colors = null,
+  colors = undefined,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
   filterCallback,
-  setExternalConfig = null,
+  setExternalConfig = undefined,
   closeCallback = () => null,
   showCloseButton = false,
-  externalConfig = null,
+  externalConfig = undefined,
   enableSidebar = true,
   showSidebar: internalShowSidebar,
   showDragModeOptions = true,
@@ -173,7 +173,7 @@ export function EagerVis({
   /**
    * Optional Prop which is called whenever the statistics for the plot change.
    */
-  statsCallback?: (s: IPlotStats) => void;
+  statsCallback?: (s: IPlotStats | null) => void;
   /**
    * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
    */
@@ -256,7 +256,7 @@ export function EagerVis({
   useEffect(() => {
     // this will run only once
     if (isSelectedVisTypeRegistered && _visConfig) {
-      _setVisConfig?.(wrapWithDefaults(_visConfig));
+      _setVisConfig?.(wrapWithDefaults(_visConfig)!);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSelectedVisTypeRegistered]);
@@ -266,7 +266,7 @@ export function EagerVis({
       // if the vis type changed we need to wrap the new config with defaults, i.e. selectedColumns
       // also we need to reset the stats on vis type change
       if (v.type !== _visConfig?.type) {
-        _setVisConfig?.(wrapWithDefaults(v));
+        _setVisConfig?.(wrapWithDefaults(v)!);
         statsCallback(null);
       } else {
         _setVisConfig?.(v);
@@ -348,7 +348,7 @@ export function EagerVis({
           <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
             The visualization type &quot;{_visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
           </Alert>
-        ) : visHasError ? (
+        ) : visHasError || !Renderer ? (
           <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
             An error occured in the visualization. Please try to select something different in the sidebar.
           </Alert>
@@ -374,7 +374,6 @@ export function EagerVis({
             selectedList={selected}
             columns={columns}
             scales={scales}
-            showSidebar={showSidebar}
             showCloseButton={showCloseButton}
             closeButtonCallback={closeCallback}
             scrollZoom={scrollZoom}
