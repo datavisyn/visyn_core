@@ -24,7 +24,9 @@ import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { getLabelOrUnknown } from '../general/utils';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
-  if (!domain) return null;
+  if (!domain) {
+    return null;
+  }
   if (domain[0] !== undefined && domain[1] !== undefined) {
     return [domain[0], domain[1]];
   }

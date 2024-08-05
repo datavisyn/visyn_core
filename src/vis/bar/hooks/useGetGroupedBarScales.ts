@@ -42,7 +42,9 @@ export function useGetGroupedBarScales(
   );
 
   const groupedTable = useMemo(() => {
-    if (!allColumns) return null;
+    if (!allColumns) {
+      return null;
+    }
 
     if (allColumns.groupColVals) {
       let filteredTable = baseTable;
@@ -59,7 +61,9 @@ export function useGetGroupedBarScales(
   }, [aggregateType, allColumns, baseTable, categoryFilter]);
 
   const groupColorScale = useMemo(() => {
-    if (!groupedTable) return null;
+    if (!groupedTable) {
+      return null;
+    }
 
     let i = -1;
     const newGroup = groupedTable.ungroup().groupby('group').count();
@@ -91,14 +95,18 @@ export function useGetGroupedBarScales(
   }, [groupedTable, allColumns]);
 
   const groupScale = useMemo(() => {
-    if (!groupedTable) return null;
+    if (!groupedTable) {
+      return null;
+    }
     const newGroup = groupedTable.ungroup().groupby('category', 'group').count();
 
     return d3.scaleBand().range([0, categoryScale.bandwidth()]).domain(newGroup.array('group').sort()).padding(0.1);
   }, [categoryScale, groupedTable]);
 
   const newCountScale = useMemo(() => {
-    if (!allColumns) return null;
+    if (!allColumns) {
+      return null;
+    }
 
     // No facets, only group
     if (!allColumns.facetsColVals) {

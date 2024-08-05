@@ -17,13 +17,13 @@ import { VisynLoginMenu } from './login/VisynLoginMenu';
  * @returns
  */
 export function VisynApp({
-  header = null,
+  header = undefined,
   headerConfig = {},
-  navbar = null,
-  navbarConfig = null,
-  footer = null,
-  footerConfig = null,
-  appShellProps = null,
+  navbar = undefined,
+  navbarConfig = undefined,
+  footer = undefined,
+  footerConfig = undefined,
+  appShellProps = undefined,
   children,
   loginMenu = <VisynLoginMenu watch />,
 }: {
