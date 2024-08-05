@@ -14,28 +14,40 @@ export function SingleEChartsBarChart({
   selectedMap,
   selectionCallback,
   allColumns,
+  selectedFacetValue,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList' | 'selectionCallback'> & {
   allColumns: Awaited<ReturnType<typeof getBarData>>;
+  selectedFacetValue?: string;
 }) {
   // console.log(config, allColumns);
 
   const dataTable = useMemo(() => {
-    return zipWith(
+    const table = zipWith(
       allColumns.catColVals?.resolvedValues,
       allColumns.aggregateColVals?.resolvedValues,
-      allColumns.groupColVals?.resolvedValues,
-      (cat, agg, group) => {
+      allColumns.groupColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.facetsColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      (cat, agg, group, facet) => {
         return {
           id: cat.id,
           category: getLabelOrUnknown(cat?.val),
           agg: agg?.val as number,
           group: typeof group?.val === 'number' ? String(group?.val) : getLabelOrUnknown(group?.val),
+          facet: getLabelOrUnknown(facet?.val),
         };
       },
     );
-  }, [allColumns.aggregateColVals?.resolvedValues, allColumns.catColVals?.resolvedValues, allColumns.groupColVals?.resolvedValues]);
 
-  // console.log('dataTable', dataTable);
+    return selectedFacetValue ? table.filter((item) => item.facet === selectedFacetValue) : table;
+  }, [
+    allColumns.aggregateColVals?.resolvedValues,
+    allColumns.catColVals?.resolvedValues,
+    allColumns.facetsColVals?.resolvedValues,
+    allColumns.groupColVals?.resolvedValues,
+    selectedFacetValue,
+  ]);
+
+  // console.log('dataTable', dataTable, selectedFacetValue);
 
   const { aggregatedData, categories, groupings } = useMemo(() => {
     const values = {};

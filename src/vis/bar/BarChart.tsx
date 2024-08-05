@@ -164,6 +164,7 @@ export function BarChart({
                   key={multiplesVal as string}
                   config={config}
                   allColumns={allColumns}
+                  selectedFacetValue={multiplesVal}
                   // setConfig={setConfig}
                   // allColumns={allColumns}
                   // selectedMap={selectedMap}
