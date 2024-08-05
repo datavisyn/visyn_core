@@ -55,7 +55,7 @@ export function ViolinVisSidebar({
 
       <SingleSelect
         label="Categorical column"
-        columnType={EColumnTypes.CATEGORICAL}
+        columnType={[EColumnTypes.CATEGORICAL]}
         callback={(catColumnSelected: ColumnInfo) => setConfig({ ...config, catColumnSelected })}
         columns={columns.filter((c) => c.info.id !== config.facetBy?.id && c.info.id !== config.subCategorySelected?.id)}
         currentSelected={config.catColumnSelected}
@@ -64,7 +64,7 @@ export function ViolinVisSidebar({
         ? mergedOptionsConfig.subCategory.customComponent || (
             <SingleSelect
               label="Subcategory"
-              columnType={EColumnTypes.CATEGORICAL}
+              columnType={[EColumnTypes.CATEGORICAL]}
               callback={(subCategorySelected: ColumnInfo) => setConfig({ ...config, subCategorySelected })}
               columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.facetBy?.id)}
               currentSelected={config.subCategorySelected}
@@ -75,7 +75,7 @@ export function ViolinVisSidebar({
         ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
               label="Facets"
-              columnType={EColumnTypes.CATEGORICAL}
+              columnType={[EColumnTypes.CATEGORICAL]}
               callback={(facetBy: ColumnInfo) => setConfig({ ...config, facetBy })}
               columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.subCategorySelected?.id)}
               currentSelected={config.facetBy}

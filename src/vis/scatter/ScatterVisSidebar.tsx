@@ -58,7 +58,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
               label="Facets"
-              columnType={EColumnTypes.CATEGORICAL}
+              columnType={[EColumnTypes.CATEGORICAL, EColumnTypes.NUMERICAL]}
               callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
               columns={columns.filter((c) => c.type === EColumnTypes.CATEGORICAL)}
               currentSelected={config.facets}
@@ -81,7 +81,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         ? mergedOptionsConfig.shape.customComponent || (
             <SingleSelect
               label="Shape"
-              columnType={EColumnTypes.CATEGORICAL}
+              columnType={[EColumnTypes.CATEGORICAL]}
               callback={(shape: ColumnInfo) => setConfig({ ...config, shape })}
               columns={columns}
               currentSelected={config.shape}
