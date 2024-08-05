@@ -34,10 +34,7 @@ export function getMostRelevantTimeUnitFromNow(date: Date) {
   return null;
 }
 
-export function fromNow(date: Date | null) {
-  if (!date) {
-    return null;
-  }
+export function fromNow(date: Date) {
   const timeUnit = getMostRelevantTimeUnitFromNow(date);
 
   return timeUnit ? formatter.format(Math.round(timeUnit.amount), timeUnit.name) : '';
