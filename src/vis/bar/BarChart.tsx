@@ -1,19 +1,17 @@
 import { Box, Center, Group, Loader, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { uniqueId } from 'lodash';
+import { uniqueId, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
-import { NAN_REPLACEMENT } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { EColumnTypes, ICommonVisProps } from '../interfaces';
-import { SingleBarChart } from './SingleBarChart';
+import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { Legend } from './barComponents/Legend';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { IBarConfig, SortTypes } from './interfaces';
 import { getBarData } from './utils';
-import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 
 export function BarChart({
   config,
@@ -39,6 +37,28 @@ export function BarChart({
     config.facets,
     config.aggregateColumn,
   ]);
+
+  const dataTable = useMemo(() => {
+    if (!allColumns) {
+      return [];
+    }
+
+    return zipWith(
+      allColumns.catColVals?.resolvedValues,
+      allColumns.aggregateColVals?.resolvedValues,
+      allColumns.groupColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.facetsColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      (cat, agg, group, facet) => {
+        return {
+          id: cat.id,
+          category: getLabelOrUnknown(cat?.val),
+          agg: agg?.val as number,
+          group: typeof group?.val === 'number' ? String(group?.val) : getLabelOrUnknown(group?.val),
+          facet: getLabelOrUnknown(facet?.val),
+        };
+      },
+    );
+  }, [allColumns]);
 
   const allUniqueFacetVals = useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
@@ -105,44 +125,11 @@ export function BarChart({
           ) : null}
         </Box>
 
-        <Box style={{ display: 'flex', flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}>
-          {colsStatus !== 'success' ? (
-            <Center>
-              <Loader />
-            </Center>
-          ) : !config.facets || !allColumns.facetsColVals ? (
-            // <SingleBarChart
-            //   config={config}
-            //   setConfig={setConfig}
-            //   allColumns={allColumns}
-            //   selectedMap={selectedMap}
-            //   selectionCallback={customSelectionCallback}
-            //   selectedList={selectedList}
-            //   sortType={sortType}
-            //   setSortType={setSortType}
-            //   legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
-            // />
-            <SingleEChartsBarChart
-              config={config}
-              allColumns={allColumns}
-              // setConfig={setConfig}
-              // allColumns={allColumns}
-              // selectedMap={selectedMap}
-              // selectionCallback={customSelectionCallback}
-              // selectedList={selectedList}
-              // sortType={sortType}
-              // setSortType={setSortType}
-            />
-          ) : (
-            <Box
-              style={{
-                flex: 1,
-                display: 'grid',
-                gridTemplateColumns: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
-                gridTemplateRows: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
-                maxHeight: '100%',
-              }}
-            >
+          // />
+          <SingleEChartsBarChart
+            config={config}
+            dataTable={dataTable}
+            // setConfig={setConfig}
               {filteredUniqueFacetVals.map((multiplesVal) => (
                 // <SingleBarChart
                 //   isSmall
@@ -163,7 +150,7 @@ export function BarChart({
                 <SingleEChartsBarChart
                   key={multiplesVal as string}
                   config={config}
-                  allColumns={allColumns}
+                  dataTable={dataTable}
                   selectedFacetValue={multiplesVal}
                   // setConfig={setConfig}
                   // allColumns={allColumns}

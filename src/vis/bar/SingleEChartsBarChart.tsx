@@ -2,10 +2,8 @@ import type { BarSeriesOption } from 'echarts/charts';
 import { groupBy, maxBy, meanBy, minBy, round, uniq, zipObject, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
-import { getBarData } from './utils';
-import { getLabelOrUnknown } from '../general/utils';
 
 export function SingleEChartsBarChart({
   config,
@@ -13,45 +11,23 @@ export function SingleEChartsBarChart({
   selectedList,
   selectedMap,
   selectionCallback,
-  allColumns,
+  dataTable,
   selectedFacetValue,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList' | 'selectionCallback'> & {
-  allColumns: Awaited<ReturnType<typeof getBarData>>;
+  dataTable: IBarDataTableRow[];
   selectedFacetValue?: string;
 }) {
-  // console.log(config, allColumns);
+  // console.log(config, dataTable, selectedFacetValue);
 
-  const dataTable = useMemo(() => {
-    const table = zipWith(
-      allColumns.catColVals?.resolvedValues,
-      allColumns.aggregateColVals?.resolvedValues,
-      allColumns.groupColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
-      allColumns.facetsColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
-      (cat, agg, group, facet) => {
-        return {
-          id: cat.id,
-          category: getLabelOrUnknown(cat?.val),
-          agg: agg?.val as number,
-          group: typeof group?.val === 'number' ? String(group?.val) : getLabelOrUnknown(group?.val),
-          facet: getLabelOrUnknown(facet?.val),
-        };
-      },
-    );
+  const filteredDataTable = useMemo(() => {
+    return selectedFacetValue ? dataTable.filter((item) => item.facet === selectedFacetValue) : dataTable;
+  }, [dataTable, selectedFacetValue]);
 
-    return selectedFacetValue ? table.filter((item) => item.facet === selectedFacetValue) : table;
-  }, [
-    allColumns.aggregateColVals?.resolvedValues,
-    allColumns.catColVals?.resolvedValues,
-    allColumns.facetsColVals?.resolvedValues,
-    allColumns.groupColVals?.resolvedValues,
-    selectedFacetValue,
-  ]);
-
-  // console.log('dataTable', dataTable, selectedFacetValue);
+  // console.log('filteredDataTable', filteredDataTable);
 
   const { aggregatedData, categories, groupings } = useMemo(() => {
     const values = {};
-    dataTable.forEach((item) => {
+    filteredDataTable.forEach((item) => {
       const { category, agg, group: grouping } = item;
       if (!values[category]) {
         values[category] = { total: 0 };
@@ -69,8 +45,8 @@ export function SingleEChartsBarChart({
       group.max = Math.max(group.max, agg);
       group.nums.push(agg);
     });
-    return { aggregatedData: values, categories: Object.keys(values), groupings: uniq(dataTable.map((item) => item.group)) };
-  }, [dataTable]);
+    return { aggregatedData: values, categories: Object.keys(values), groupings: uniq(filteredDataTable.map((item) => item.group)) };
+  }, [filteredDataTable]);
 
   // console.log('aggregatedData', aggregatedData, categories, groupings);
 

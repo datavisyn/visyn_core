@@ -55,3 +55,15 @@ export const defaultConfig: IBarConfig = {
 export function isBarConfig(s: BaseVisConfig): s is IBarConfig {
   return s.type === ESupportedPlotlyVis.BAR;
 }
+
+/**
+ * Interface for the data table used in the bar chart.
+ * @internal
+ */
+export interface IBarDataTableRow {
+  id: string;
+  category: string;
+  agg: number;
+  group: string;
+  facet: string;
+}
