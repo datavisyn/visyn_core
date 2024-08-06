@@ -65,6 +65,11 @@ export function ReactECharts({ option, style, settings, loading, theme, chartIns
     if (chartRef.current !== null) {
       const chart = getInstanceByDom(chartRef.current);
       chart?.setOption(option, settings);
+
+      // Resize chart if height is provided because the canvas doesn't resize automatically
+      if (option.height) {
+        chart?.resize();
+      }
     }
   }, [option, settings, theme]); // Whenever theme changes we need to add option and setting due to it being deleted in cleanup function
 

@@ -1,9 +1,29 @@
 import type { BarSeriesOption } from 'echarts/charts';
-import { groupBy, maxBy, meanBy, minBy, round, uniq, zipObject, zipWith } from 'lodash';
+import { round, uniq } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
+
+/**
+ * Width of a single bar when stacked or a regular bar
+ */
+const BAR_WIDTH_STACKED = 40;
+
+/**
+ * Width of a single bar when grouped
+ */
+const BAR_WIDTH_GROUPED = 15;
+
+/**
+ * Spacing between bars in a category
+ */
+const BAR_SPACING = 10;
+
+/**
+ * Height margin for the chart to avoid cutting off bars, legend, title, axis labels, etc.
+ */
+const CHART_HEIGHT_MARGIN = 100;
 
 export function SingleEChartsBarChart({
   config,
@@ -19,6 +39,7 @@ export function SingleEChartsBarChart({
   selectedFacetValue?: string;
   selectedFacetIndex?: number;
 }) {
+  const BAR_WIDTH = config.groupType === EBarGroupingType.GROUP ? BAR_WIDTH_GROUPED : BAR_WIDTH_STACKED;
   // console.log(config, dataTable, selectedFacetValue);
 
   const filteredDataTable = useMemo(() => {
@@ -118,10 +139,11 @@ export function SingleEChartsBarChart({
         emphasis: {
           focus: 'series',
         },
+        barWidth: BAR_WIDTH,
         data,
       };
     });
-  }, [aggregatedData, categories, config.aggregateType, config.display, config.groupType, groupings]);
+  }, [BAR_WIDTH, aggregatedData, categories, config.aggregateType, config.display, config.groupType, groupings]);
 
   const chartInstance = useCallback(
     (chart) => {
@@ -142,7 +164,21 @@ export function SingleEChartsBarChart({
     [config, selectedFacetIndex, setConfig],
   );
 
+  const calculateChartHeight = useMemo(() => {
+    // use fixed height for vertical bars
+    if (config.direction === EBarDirection.VERTICAL) {
+      return 250;
+    }
+
+    // calculate height for horizontal bars
+    const categoryWidth = config.groupType === EBarGroupingType.GROUP ? (BAR_WIDTH_GROUPED + BAR_SPACING) * groupings.length : BAR_WIDTH_STACKED + BAR_SPACING;
+    const chartHeight = categories.length * categoryWidth;
+    // console.log('barWidth', { barWidth: categoryWidth, chartHeight, groupingsLength: groupings.length, categoriesLength: categories.length });
+    return chartHeight;
+  }, [categories.length, config.direction, config.groupType, groupings.length]);
+
   let option: ReactEChartsProps['option'] = {
+    height: `${calculateChartHeight}px`,
     animation: false,
     title: {
       text: selectedFacetValue || null,
@@ -185,5 +221,13 @@ export function SingleEChartsBarChart({
   const settings = {
     notMerge: true, // disable merging to avoid stale series data when deselecting the group column
   };
-  return <ReactECharts option={option} chartInstance={chartInstance} settings={settings} />;
+
+  return (
+    <ReactECharts
+      option={option}
+      chartInstance={chartInstance}
+      settings={settings}
+      style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }}
+    />
+  );
 }
