@@ -91,7 +91,7 @@
     "@mantine/modals": "~7.10.1",
     "@mantine/notifications": "~7.10.1",
     "@mantine/styles": "~6.0.21",
-    "@mantine/tiptap": "~7.10.1",
+    "@mantine/tiptap": "~7.12.0",
     "@mantine6/core": "npm:@mantine/core@~6.0.21",
     "@sentry/react": "^8.8.0",
     "@types/d3-hexbin": "^0.2.5",
