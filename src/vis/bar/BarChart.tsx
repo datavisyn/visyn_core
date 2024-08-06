@@ -1,7 +1,9 @@
 import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
+import { scaleOrdinal, schemeBlues } from 'd3v7';
 import { uniqueId, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
+import { categoricalColors as colorScale } from '../../utils/colors';
 import { useAsync } from '../../hooks/useAsync';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
@@ -9,7 +11,6 @@ import { EColumnTypes, ICommonVisProps } from '../interfaces';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { Legend } from './barComponents/Legend';
-import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { IBarConfig, SortTypes } from './interfaces';
 import { getBarData } from './utils';
 
@@ -61,6 +62,22 @@ export function BarChart({
     );
   }, [allColumns]);
 
+  const groupColorScale = useMemo(() => {
+    if (!allColumns?.groupColVals) {
+      return null;
+    }
+
+    const groups = Array.from(new Set(dataTable.map((row) => row.group))).sort();
+    const range =
+      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+        ? schemeBlues[Math.max(groups.length, 3)] // use at least 3 colors for numerical values
+        : groups.map(
+            (group, i) => allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length], // use the custom color from the column if available, otherwise use the default color scale
+          );
+
+    return scaleOrdinal<string>().domain(groups).range(range);
+  }, [allColumns?.groupColVals, dataTable]);
+
   const allUniqueFacetVals = useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
   }, [allColumns?.facetsColVals?.resolvedValues]);
@@ -71,20 +88,7 @@ export function BarChart({
       : allUniqueFacetVals;
   }, [allUniqueFacetVals, config.focusFacetIndex]);
 
-  const { groupColorScale, groupedTable } = useGetGroupedBarScales(
-    allColumns,
-    0,
-    0,
-    { left: 0, top: 0, right: 0, bottom: 0 },
-    null,
-    true,
-    selectedMap,
-    config.groupType,
-    sortType,
-    config.aggregateType,
-  );
-
-  const [legendBoxRef] = useResizeObserver();
+  // const [legendBoxRef] = useResizeObserver();
 
   const customSelectionCallback = useCallback(
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
@@ -112,7 +116,7 @@ export function BarChart({
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        <Box ref={legendBoxRef}>
+        {/* <Box ref={legendBoxRef}>
           {groupColorScale ? (
             <Legend
               left={60}
@@ -124,7 +128,7 @@ export function BarChart({
               onFilteredOut={() => {}} // disable legend click for now
             />
           ) : null}
-        </Box>
+        </Box> */}
 
         {colsStatus !== 'success' ? (
           <Center>
@@ -147,6 +151,7 @@ export function BarChart({
             dataTable={dataTable}
             setConfig={setConfig}
             selectionCallback={customSelectionCallback}
+            groupColorScale={groupColorScale}
             // allColumns={allColumns}
             // selectedMap={selectedMap}
             // selectedList={selectedList}
@@ -181,6 +186,7 @@ export function BarChart({
                   selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
                   setConfig={setConfig}
                   selectionCallback={customSelectionCallback}
+                  groupColorScale={groupColorScale}
                   // selectedMap={selectedMap}
                   // selectedList={selectedList}
                   // sortType={sortType}

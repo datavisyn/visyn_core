@@ -1,6 +1,8 @@
+import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import { round, uniq } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
+import { VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
@@ -34,11 +36,13 @@ export function SingleEChartsBarChart({
   dataTable,
   selectedFacetValue,
   selectedFacetIndex,
+  groupColorScale,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   dataTable: IBarDataTableRow[];
   selectedFacetValue?: string;
   selectedFacetIndex?: number;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
+  groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
   const BAR_WIDTH = config.groupType === EBarGroupingType.GROUP ? BAR_WIDTH_GROUPED : BAR_WIDTH_STACKED;
   // console.log(config, dataTable, selectedFacetValue);
@@ -143,10 +147,11 @@ export function SingleEChartsBarChart({
           focus: 'series',
         },
         barWidth: BAR_WIDTH,
+        itemStyle: { color: config.group && groupColorScale ? groupColorScale(group) || VIS_NEUTRAL_COLOR : VIS_NEUTRAL_COLOR },
         data,
       };
     });
-  }, [BAR_WIDTH, aggregatedData, categories, config.aggregateType, config.display, config.groupType, groupings]);
+  }, [BAR_WIDTH, aggregatedData, categories, config.aggregateType, config.display, config.group, config.groupType, groupColorScale, groupings]);
 
   const chartInstance = useCallback(
     (chart) => {
