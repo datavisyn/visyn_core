@@ -1,4 +1,4 @@
-import { Box, Center, Group, Loader, Stack } from '@mantine/core';
+import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { uniqueId, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
@@ -26,6 +26,7 @@ export function BarChart({
   ICommonVisProps<IBarConfig>,
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
+  const [resizeObserverRef, { height }] = useResizeObserver();
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
@@ -103,7 +104,7 @@ export function BarChart({
   );
 
   return (
-    <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
+    <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
       {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
         <Group justify="center">
           {config.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
@@ -125,11 +126,36 @@ export function BarChart({
           ) : null}
         </Box>
 
+        {colsStatus !== 'success' ? (
+          <Center>
+            <Loader />
+          </Center>
+        ) : !config.facets || !allColumns.facetsColVals ? (
+          // <SingleBarChart
+          //   config={config}
+          //   setConfig={setConfig}
+          //   allColumns={allColumns}
+          //   selectedMap={selectedMap}
+          //   selectionCallback={customSelectionCallback}
+          //   selectedList={selectedList}
+          //   sortType={sortType}
+          //   setSortType={setSortType}
+          //   legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
           // />
           <SingleEChartsBarChart
             config={config}
             dataTable={dataTable}
             setConfig={setConfig}
+            // allColumns={allColumns}
+            // selectedMap={selectedMap}
+            // selectionCallback={customSelectionCallback}
+            // selectedList={selectedList}
+            // sortType={sortType}
+            // setSortType={setSortType}
+          />
+        ) : (
+          <ScrollArea.Autosize mah={height}>
+            <Stack gap="md" style={{ width: '100%' }}>
               {filteredUniqueFacetVals.map((multiplesVal) => (
                 // <SingleBarChart
                 //   isSmall
@@ -161,9 +187,9 @@ export function BarChart({
                   // setSortType={setSortType}
                 />
               ))}
-            </Box>
-          )}
-        </Box>
+            </Stack>
+          </ScrollArea.Autosize>
+        )}
       </Stack>
     </Stack>
   );
