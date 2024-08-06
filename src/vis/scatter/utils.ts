@@ -129,7 +129,7 @@ export async function createScatterTraces(
   const legendPlots: PlotlyData[] = [];
 
   const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
-  const resolvedLabelColumns = await Promise.all(labelColumns.map((l) => resolveSingleColumn(getCol(columns, l))));
+  const resolvedLabelColumns = await Promise.all((labelColumns ?? []).map((l) => resolveSingleColumn(getCol(columns, l))));
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
