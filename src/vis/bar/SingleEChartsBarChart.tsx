@@ -189,6 +189,18 @@ export function SingleEChartsBarChart({
   let option: ReactEChartsProps['option'] = {
     height: `${calculateChartHeight}px`,
     animation: false,
+    tooltip: {
+      trigger: 'item',
+      axisPointer: {
+        type: 'shadow',
+      },
+      backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9, #000))',
+      borderWidth: 0,
+      borderColor: 'transparent',
+      textStyle: {
+        color: 'var(--tooltip-color,var(--mantine-color-white, #FFF))',
+      },
+    },
     title: {
       text: selectedFacetValue || null,
       triggerEvent: true,
