@@ -129,7 +129,7 @@ export function BarChart({
           <SingleEChartsBarChart
             config={config}
             dataTable={dataTable}
-            // setConfig={setConfig}
+            setConfig={setConfig}
               {filteredUniqueFacetVals.map((multiplesVal) => (
                 // <SingleBarChart
                 //   isSmall
@@ -152,8 +152,8 @@ export function BarChart({
                   config={config}
                   dataTable={dataTable}
                   selectedFacetValue={multiplesVal}
-                  // setConfig={setConfig}
-                  // allColumns={allColumns}
+                  selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
+                  setConfig={setConfig}
                   // selectedMap={selectedMap}
                   // selectionCallback={customSelectionCallback}
                   // selectedList={selectedList}

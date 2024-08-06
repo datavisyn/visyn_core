@@ -13,9 +13,11 @@ export function SingleEChartsBarChart({
   selectionCallback,
   dataTable,
   selectedFacetValue,
+  selectedFacetIndex,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList' | 'selectionCallback'> & {
   dataTable: IBarDataTableRow[];
   selectedFacetValue?: string;
+  selectedFacetIndex?: number;
 }) {
   // console.log(config, dataTable, selectedFacetValue);
 
@@ -121,15 +123,31 @@ export function SingleEChartsBarChart({
     });
   }, [aggregatedData, categories, config.aggregateType, config.display, config.groupType, groupings]);
 
-  const chartInstance = useCallback((chart) => {
-    // register EChart listerners to chartInstance
-    chart.on('click', (args) => {
-      // TODO handle click events
-      console.log('clicked', args);
-    });
-  }, []);
+  const chartInstance = useCallback(
+    (chart) => {
+      // remove all listeners to avoid memory leaks and multiple listeners
+      chart.on('click', null);
+      // register EChart listerners to chartInstance
+      chart.on('click', ({ componentType, componentIndex, event, type }) => {
+        console.log('clicked', { componentType, componentIndex, event, type });
+        switch (componentType) {
+          case 'title':
+            setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
+            break;
+          default:
+            break;
+        }
+      });
+    },
+    [config, selectedFacetIndex, setConfig],
+  );
 
   let option: ReactEChartsProps['option'] = {
+    animation: false,
+    title: {
+      text: selectedFacetValue || null,
+      triggerEvent: true,
+    },
     grid: {
       left: '3%',
       right: '4%',
