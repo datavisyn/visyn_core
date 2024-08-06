@@ -129,6 +129,7 @@ export async function createScatterTraces(
   const legendPlots: PlotlyData[] = [];
 
   const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
+  const resolvedLabelColumns = await Promise.all(labelColumns.map((l) => resolveSingleColumn(getCol(columns, l))));
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
@@ -238,9 +239,9 @@ export async function createScatterTraces(
           ids: group.map((d) => d.ids),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          hovertext: group.map((d) =>
+          hovertext: group.map((d, i) =>
             `${idToLabelMapper(d.ids)}<br />${xLabel}: ${d.x}<br />${yLabel}: ${d.y}
-${(labelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l)}: ${getLabelOrUnknown(d.facet)}`)}
+${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
           ),
@@ -290,7 +291,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         hovertext: validCols[0].resolvedValues.map((v, i) =>
           `${idToLabelMapper(v.id)}<br />${xLabel}: ${v.val}<br />${yLabel}: ${yDataVals[i]}
-${(labelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l)}: ${getLabelOrUnknown(v.val)}`)}
+${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
         ),
@@ -373,7 +374,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               hovertext: xCurr.resolvedValues.map((v, i) =>
                 `${v.id}<br />${xLabel}: ${v.val}<br />${yLabel}: ${yCurr.resolvedValues[i].val}
-${(labelColumns ?? []).map((l) => `${columnNameWithDescription(l)}: ${getLabelOrUnknown(v.val)}`)}
+${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
               ),
