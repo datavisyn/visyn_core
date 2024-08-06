@@ -240,7 +240,9 @@ export async function createScatterTraces(
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           hovertext: group.map((d, i) =>
-            `${idToLabelMapper(d.ids)}<br />${xLabel}: ${d.x}<br />${yLabel}: ${d.y}
+            `${idToLabelMapper(d.ids)}
+<br />${xLabel}: ${d.x}
+<br />${yLabel}: ${d.y}
 ${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
@@ -290,7 +292,9 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
         hovertext: validCols[0].resolvedValues.map((v, i) =>
-          `${idToLabelMapper(v.id)}<br />${xLabel}: ${v.val}<br />${yLabel}: ${yDataVals[i]}
+          `${idToLabelMapper(v.id)}
+<br />${xLabel}: ${v.val}
+<br />${yLabel}: ${yDataVals[i]}
 ${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
@@ -373,7 +377,9 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
               hovertext: xCurr.resolvedValues.map((v, i) =>
-                `${v.id}<br />${xLabel}: ${v.val}<br />${yLabel}: ${yCurr.resolvedValues[i].val}
+                `${v.id}
+<br />${xLabel}: ${v.val}
+<br />${yLabel}: ${yCurr.resolvedValues[i].val}
 ${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
