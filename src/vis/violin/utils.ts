@@ -295,7 +295,7 @@ export async function createViolinTraces(
     const { plotId, facet, subCat, cat, num } = group[0].groups;
     const isSelected = selectedList.length > 0 && group.some((g) => selectedMap[g.ids]);
     const opacities = selectedList.length > 0 ? (isSelected ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
-    const patchedPlotId = facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
+    const patchedPlotId = config.syncYAxis === EYAxisMode.MERGED ? 1 : facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
     if (patchedPlotId > plotCounter) {
       plotCounter = patchedPlotId;
     }
@@ -351,10 +351,10 @@ export async function createViolinTraces(
         offsetgroup: subCat?.val,
         ...sharedData,
       },
-      yLabel: group[0].groups.num.id,
+      yLabel: config.syncYAxis === EYAxisMode.MERGED ? 'Merged axis' : group[0].groups.num.id,
       xLabel: catCol ? group[0].groups.cat.id : null,
       title: facetCol ? `${columnNameWithDescription(facetCol.info)} - ${group[0].groups.facet.val}` : null,
-      yDomain: config.syncYAxis === EYAxisMode.SYNC ? [dataRange.min, dataRange.max] : null,
+      yDomain: [EYAxisMode.SYNC, EYAxisMode.MERGED].includes(config.syncYAxis) ? [dataRange.min, dataRange.max] : null,
     });
   });
 

@@ -90,6 +90,8 @@ export function ViolinVisSidebar({
               callback={(syncYAxis: EYAxisMode) => setConfig({ ...config, syncYAxis })}
               currentSelected={config.syncYAxis}
               disabled={config.numColumnsSelected.length < 2 && !config.facetBy}
+              // TODO: Enable merged when two or more numerical columns have the same score type (to be implemented in the future)
+              disableMerged={config.catColumnSelected !== null || config.numColumnsSelected.length < 2}
             />
           )
         : null}
