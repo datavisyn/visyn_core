@@ -96,6 +96,7 @@ export function moveSelectedToFront(
 export async function createScatterTraces(
   columns: VisColumn[],
   numColumnsSelected: ColumnInfo[],
+  labelColumns: ColumnInfo[],
   facet: ColumnInfo,
   shape: ColumnInfo,
   color: ColumnInfo,
@@ -237,11 +238,11 @@ export async function createScatterTraces(
           ids: group.map((d) => d.ids),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          hovertext: group.map(
-            (d) =>
-              `${idToLabelMapper(d.ids)}<br>${xLabel}: ${d.x}<br>${yLabel}: ${d.y}
-              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
-              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`,
+          hovertext: group.map((d) =>
+            `${idToLabelMapper(d.ids)}<br />${xLabel}: ${d.x}<br />${yLabel}: ${d.y}
+${(labelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l)}: ${getLabelOrUnknown(d.facet)}`)}
+${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
+${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
           ),
           text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
@@ -287,11 +288,11 @@ export async function createScatterTraces(
         ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-        hovertext: validCols[0].resolvedValues.map(
-          (v, i) =>
-            `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
-            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
-            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
+        hovertext: validCols[0].resolvedValues.map((v, i) =>
+          `${idToLabelMapper(v.id)}<br />${xLabel}: ${v.val}<br />${yLabel}: ${yDataVals[i]}
+${(labelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l)}: ${getLabelOrUnknown(v.val)}`)}
+${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
         ),
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
@@ -370,11 +371,11 @@ export async function createScatterTraces(
               ids: xCurr.resolvedValues.map((v) => v.id?.toString()),
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-              hovertext: xCurr.resolvedValues.map(
-                (v, i) =>
-                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}
-                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
-                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
+              hovertext: xCurr.resolvedValues.map((v, i) =>
+                `${v.id}<br />${xLabel}: ${v.val}<br />${yLabel}: ${yCurr.resolvedValues[i].val}
+${(labelColumns ?? []).map((l) => `${columnNameWithDescription(l)}: ${getLabelOrUnknown(v.val)}`)}
+${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
               ),
               text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore
