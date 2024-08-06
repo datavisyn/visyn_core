@@ -1,18 +1,17 @@
-import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
+import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
 import { uniqueId, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
-import { categoricalColors as colorScale } from '../../utils/colors';
 import { useAsync } from '../../hooks/useAsync';
+import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { EColumnTypes, ICommonVisProps } from '../interfaces';
+import { EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { Legend } from './barComponents/Legend';
 import { IBarConfig, SortTypes } from './interfaces';
-import { getBarData } from './utils';
+import { createBinLookup, getBarData } from './utils';
 
 export function BarChart({
   config,
@@ -45,6 +44,10 @@ export function BarChart({
       return [];
     }
 
+    // bin the `group` column values if a numerical column is selected
+    const binLookup: Map<VisNumericalValue, string> =
+      allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? createBinLookup(allColumns.groupColVals?.resolvedValues as VisNumericalValue[]) : null;
+
     return zipWith(
       allColumns.catColVals?.resolvedValues,
       allColumns.aggregateColVals?.resolvedValues,
@@ -55,7 +58,8 @@ export function BarChart({
           id: cat.id,
           category: getLabelOrUnknown(cat?.val),
           agg: agg?.val as number,
-          group: typeof group?.val === 'number' ? String(group?.val) : getLabelOrUnknown(group?.val),
+          // if the group column is numerical, use the bin lookup to get the bin name, otherwise use the label or 'unknown'
+          group: typeof group?.val === 'number' ? binLookup.get(group as VisNumericalValue) : getLabelOrUnknown(group?.val),
           facet: getLabelOrUnknown(facet?.val),
         };
       },
@@ -67,7 +71,7 @@ export function BarChart({
       return null;
     }
 
-    const groups = Array.from(new Set(dataTable.map((row) => row.group))).sort();
+    const groups = Array.from(new Set(dataTable.map((row) => row.group)));
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? schemeBlues[Math.max(groups.length, 3)] // use at least 3 colors for numerical values
