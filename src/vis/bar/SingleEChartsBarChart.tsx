@@ -13,7 +13,7 @@ const BAR_WIDTH_STACKED = 40;
 /**
  * Width of a single bar when grouped
  */
-const BAR_WIDTH_GROUPED = 15;
+const BAR_WIDTH_GROUPED = 20;
 
 /**
  * Spacing between bars in a category
@@ -34,10 +34,11 @@ export function SingleEChartsBarChart({
   dataTable,
   selectedFacetValue,
   selectedFacetIndex,
-}: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList' | 'selectionCallback'> & {
+}: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   dataTable: IBarDataTableRow[];
   selectedFacetValue?: string;
   selectedFacetIndex?: number;
+  selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
 }) {
   const BAR_WIDTH = config.groupType === EBarGroupingType.GROUP ? BAR_WIDTH_GROUPED : BAR_WIDTH_STACKED;
   // console.log(config, dataTable, selectedFacetValue);
@@ -56,7 +57,7 @@ export function SingleEChartsBarChart({
         values[category] = { total: 0 };
       }
       if (!values[category][grouping]) {
-        values[category][grouping] = { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [] };
+        values[category][grouping] = { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] };
       }
 
       values[category].total++;
@@ -67,6 +68,7 @@ export function SingleEChartsBarChart({
       group.min = Math.min(group.min, agg);
       group.max = Math.max(group.max, agg);
       group.nums.push(agg);
+      group.ids.push(item.id);
     });
     return { aggregatedData: values, categories: Object.keys(values), groupings: uniq(filteredDataTable.map((item) => item.group)) };
   }, [filteredDataTable]);
@@ -128,6 +130,7 @@ export function SingleEChartsBarChart({
 
       return {
         type: 'bar',
+        triggerEvent: true, // enable click events on bars -> handled by chartInstance callback
         name: groupings.length > 1 ? group : null,
         stack: config.groupType === EBarGroupingType.GROUP ? group : 'total', // group = individual group names, stack = any fixed name
         label: {
@@ -150,18 +153,24 @@ export function SingleEChartsBarChart({
       // remove all listeners to avoid memory leaks and multiple listeners
       chart.on('click', null);
       // register EChart listerners to chartInstance
-      chart.on('click', ({ componentType, componentIndex, event, type }) => {
-        console.log('clicked', { componentType, componentIndex, event, type });
+      chart.on('click', ({ componentType, event, seriesName, name, ...rest }) => {
+        console.log('clicked', { componentType, event, seriesName, name, rest });
         switch (componentType) {
           case 'title':
             setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
+            break;
+          case 'series': // bar click
+            selectionCallback(
+              event,
+              filteredDataTable.filter((item) => item.group === seriesName && item.category === name).map((item) => item.id),
+            );
             break;
           default:
             break;
         }
       });
     },
-    [config, selectedFacetIndex, setConfig],
+    [config, filteredDataTable, selectedFacetIndex, selectionCallback, setConfig],
   );
 
   const calculateChartHeight = useMemo(() => {

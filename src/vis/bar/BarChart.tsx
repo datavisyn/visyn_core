@@ -146,16 +146,16 @@ export function BarChart({
             config={config}
             dataTable={dataTable}
             setConfig={setConfig}
+            selectionCallback={customSelectionCallback}
             // allColumns={allColumns}
             // selectedMap={selectedMap}
-            // selectionCallback={customSelectionCallback}
             // selectedList={selectedList}
             // sortType={sortType}
             // setSortType={setSortType}
           />
         ) : (
           <ScrollArea.Autosize mah={height}>
-            <Stack gap="md" style={{ width: '100%' }}>
+            <Stack gap="xl" style={{ width: '100%' }}>
               {filteredUniqueFacetVals.map((multiplesVal) => (
                 // <SingleBarChart
                 //   isSmall
@@ -180,8 +180,8 @@ export function BarChart({
                   selectedFacetValue={multiplesVal}
                   selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
                   setConfig={setConfig}
+                  selectionCallback={customSelectionCallback}
                   // selectedMap={selectedMap}
-                  // selectionCallback={customSelectionCallback}
                   // selectedList={selectedList}
                   // sortType={sortType}
                   // setSortType={setSortType}
