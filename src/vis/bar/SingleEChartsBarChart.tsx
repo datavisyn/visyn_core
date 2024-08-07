@@ -27,6 +27,11 @@ const BAR_SPACING = 10;
  */
 const CHART_HEIGHT_MARGIN = 100;
 
+/**
+ * Maximum character length of axis labels before truncation
+ */
+const AXIS_LABEL_MAX_LENGTH = 50;
+
 export function SingleEChartsBarChart({
   config,
   setConfig,
@@ -44,7 +49,7 @@ export function SingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const BAR_WIDTH = config.groupType === EBarGroupingType.GROUP ? BAR_WIDTH_GROUPED : BAR_WIDTH_STACKED;
+  const BAR_WIDTH = config.group && config.groupType === EBarGroupingType.GROUP ? BAR_WIDTH_GROUPED : BAR_WIDTH_STACKED;
   // console.log(config, dataTable, selectedFacetValue);
 
   const filteredDataTable = useMemo(() => {
@@ -229,11 +234,12 @@ export function SingleEChartsBarChart({
     }
 
     // calculate height for horizontal bars
-    const categoryWidth = config.groupType === EBarGroupingType.GROUP ? (BAR_WIDTH_GROUPED + BAR_SPACING) * groupings.length : BAR_WIDTH_STACKED + BAR_SPACING;
+    const categoryWidth =
+      config.group && config.groupType === EBarGroupingType.GROUP ? (BAR_WIDTH_GROUPED + BAR_SPACING) * groupings.length : BAR_WIDTH_STACKED + BAR_SPACING;
     const chartHeight = categories.length * categoryWidth;
     // console.log('barWidth', { barWidth: categoryWidth, chartHeight, groupingsLength: groupings.length, categoriesLength: categories.length });
     return chartHeight;
-  }, [categories.length, config.direction, config.groupType, groupings.length]);
+  }, [categories.length, config.direction, config.group, config.groupType, groupings.length]);
 
   let option: ReactEChartsProps['option'] = {
     height: `${calculateChartHeight}px`,
