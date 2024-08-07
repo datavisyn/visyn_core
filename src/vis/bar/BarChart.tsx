@@ -156,8 +156,8 @@ export function BarChart({
             setConfig={setConfig}
             selectionCallback={customSelectionCallback}
             groupColorScale={groupColorScale}
+            selectedMap={selectedMap}
             // allColumns={allColumns}
-            // selectedMap={selectedMap}
             // selectedList={selectedList}
             // sortType={sortType}
             // setSortType={setSortType}
@@ -191,7 +191,7 @@ export function BarChart({
                   setConfig={setConfig}
                   selectionCallback={customSelectionCallback}
                   groupColorScale={groupColorScale}
-                  // selectedMap={selectedMap}
+                  selectedMap={selectedMap}
                   // selectedList={selectedList}
                   // sortType={sortType}
                   // setSortType={setSortType}
