@@ -167,7 +167,9 @@ export function SingleEChartsBarChart({
           case 'series': // bar click
             selectionCallback(
               event,
-              filteredDataTable.filter((item) => item.group === seriesName && item.category === name).map((item) => item.id),
+              filteredDataTable
+                .filter((item) => item.category === name && (!config.group || (config.group && item.group === seriesName)))
+                .map((item) => item.id),
             );
             break;
           default:
