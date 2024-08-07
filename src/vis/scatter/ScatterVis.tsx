@@ -112,6 +112,7 @@ export function ScatterVis({
   } = useAsync(createScatterTraces, [
     columns,
     config.numColumnsSelected,
+    config.labelColumns,
     config.facets,
     config.shape,
     config.color,
@@ -230,10 +231,8 @@ export function ScatterVis({
       dragmode: config.dragMode,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, null, false) });
-    // WARNING: Do not update when layout changes, that would be an infinite loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces, config.dragMode, showLegend]);
+    setLayout((previous) => ({ ...previous, ...beautifyLayout(traces, innerLayout, previous, null, false) }));
+  }, [traces, config.dragMode, showLegend, showDragModeOptions, config.facets]);
 
   const plotsWithSelectedPoints = useMemo(() => {
     if (traces) {
@@ -288,6 +287,7 @@ export function ScatterVis({
 
     return [];
   }, [plotsWithSelectedPoints, traces]);
+
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
       {showDragModeOptions || showDownloadScreenshot ? (

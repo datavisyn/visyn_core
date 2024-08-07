@@ -88,6 +88,12 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
             />
           )
         : null}
+      <MultiSelect
+        callback={(labelColumns: ColumnInfo[]) => setConfig({ ...config, labelColumns })}
+        columns={columns}
+        currentSelected={config.labelColumns || []}
+        label="Tooltip labels"
+      />
       <OpacitySlider
         callback={(e) => {
           if (config.alphaSliderVal !== e) {
