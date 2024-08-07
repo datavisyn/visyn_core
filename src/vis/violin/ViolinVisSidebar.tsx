@@ -68,6 +68,8 @@ export function ViolinVisSidebar({
               callback={(subCategorySelected: ColumnInfo) => setConfig({ ...config, subCategorySelected })}
               columns={columns.filter((c) => c.info.id !== config.catColumnSelected?.id && c.info.id !== config.facetBy?.id)}
               currentSelected={config.subCategorySelected}
+              disabled={config.syncYAxis === EYAxisMode.MERGED}
+              disabledTooltip='Subcategory is disabled with Y-Axis set to "merged"'
             />
           )
         : null}
@@ -91,7 +93,7 @@ export function ViolinVisSidebar({
               currentSelected={config.syncYAxis}
               disabled={config.numColumnsSelected.length < 2 && !config.facetBy}
               // TODO: Enable merged when two or more numerical columns have the same score type (to be implemented in the future)
-              disableMerged={config.catColumnSelected !== null || config.numColumnsSelected.length < 2}
+              disableMerged={config.subCategorySelected !== null || config.numColumnsSelected.length < 2}
             />
           )
         : null}
