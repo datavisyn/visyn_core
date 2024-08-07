@@ -134,54 +134,27 @@ export function BarChart({
           ) : null}
         </Box> */}
 
-        {colsStatus !== 'success' ? (
-          <Center>
-            <Loader />
-          </Center>
-        ) : !config.facets || !allColumns.facetsColVals ? (
-          // <SingleBarChart
-          //   config={config}
-          //   setConfig={setConfig}
-          //   allColumns={allColumns}
-          //   selectedMap={selectedMap}
-          //   selectionCallback={customSelectionCallback}
-          //   selectedList={selectedList}
-          //   sortType={sortType}
-          //   setSortType={setSortType}
-          //   legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
-          // />
-          <SingleEChartsBarChart
-            config={config}
-            dataTable={dataTable}
-            setConfig={setConfig}
-            selectionCallback={customSelectionCallback}
-            groupColorScale={groupColorScale}
-            selectedMap={selectedMap}
-            // allColumns={allColumns}
-            // selectedList={selectedList}
-            // sortType={sortType}
-            // setSortType={setSortType}
-          />
-        ) : (
-          <ScrollArea.Autosize mah={height}>
+        <ScrollArea.Autosize mah={height}>
+          {colsStatus !== 'success' ? (
+            <Center>
+              <Loader />
+            </Center>
+          ) : !config.facets || !allColumns.facetsColVals ? (
+            <SingleEChartsBarChart
+              config={config}
+              dataTable={dataTable}
+              setConfig={setConfig}
+              selectionCallback={customSelectionCallback}
+              groupColorScale={groupColorScale}
+              selectedMap={selectedMap}
+              // allColumns={allColumns}
+              // selectedList={selectedList}
+              // sortType={sortType}
+              // setSortType={setSortType}
+            />
+          ) : (
             <Stack gap="xl" style={{ width: '100%' }}>
               {filteredUniqueFacetVals.map((multiplesVal) => (
-                // <SingleBarChart
-                //   isSmall
-                //   index={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
-                //   selectedList={selectedList}
-                //   selectedMap={selectedMap}
-                //   key={multiplesVal as string}
-                //   config={config}
-                //   setConfig={setConfig}
-                //   allColumns={allColumns}
-                //   categoryFilter={multiplesVal === NAN_REPLACEMENT ? null : multiplesVal}
-                //   title={multiplesVal}
-                //   selectionCallback={customSelectionCallback}
-                //   sortType={sortType}
-                //   setSortType={setSortType}
-                //   legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
-                // />
                 <SingleEChartsBarChart
                   key={multiplesVal as string}
                   config={config}
@@ -198,8 +171,8 @@ export function BarChart({
                 />
               ))}
             </Stack>
-          </ScrollArea.Autosize>
-        )}
+          )}
+        </ScrollArea.Autosize>
       </Stack>
     </Stack>
   );
