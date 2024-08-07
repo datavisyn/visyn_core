@@ -239,11 +239,11 @@ export async function createScatterTraces(
           ids: group.map((d) => d.ids),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          hovertext: group.map((d, i) =>
+          hovertext: group.map((d) =>
             `${idToLabelMapper(d.ids)}
 <br />${xLabel}: ${d.x}
 <br />${yLabel}: ${d.y}
-${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
+${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues.find((v) => String(v.id) === String(d.ids)).val)}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
           ),
