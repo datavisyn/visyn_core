@@ -276,6 +276,13 @@ export function SingleEChartsBarChart({
       xAxis: {
         type: 'category',
         data: categories,
+        axisLabel: {
+          show: true,
+          formatter: (value) => {
+            return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+          },
+          // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+        },
       },
       yAxis: {
         type: 'value',
@@ -290,6 +297,13 @@ export function SingleEChartsBarChart({
       yAxis: {
         type: 'category',
         data: categories,
+        axisLabel: {
+          show: true,
+          formatter: (value) => {
+            return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+          },
+          // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+        },
       },
     };
   }
