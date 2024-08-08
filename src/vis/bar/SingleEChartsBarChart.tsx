@@ -8,14 +8,9 @@ import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataT
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
 
 /**
- * Width of a single bar when stacked or a regular bar
+ * Width of a single bar
  */
-const BAR_WIDTH_STACKED = 40;
-
-/**
- * Width of a single bar when grouped
- */
-const BAR_WIDTH_GROUPED = 20;
+const BAR_WIDTH = 25;
 
 /**
  * Spacing between bars in a category
@@ -49,7 +44,6 @@ export function SingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const BAR_WIDTH = config.group && config.groupType === EBarGroupingType.GROUP ? BAR_WIDTH_GROUPED : BAR_WIDTH_STACKED;
   // console.log(config, dataTable, selectedFacetValue);
 
   const filteredDataTable = useMemo(() => {
@@ -103,7 +97,7 @@ export function SingleEChartsBarChart({
     };
   }, [filteredDataTable, selectedMap]);
 
-  // console.log('aggregatedData', aggregatedData, categories, groupings, hasSelected);
+  console.log('aggregatedData', aggregatedData, categories, groupings, hasSelected);
 
   // prepare data
   const series: BarSeriesOption[] = useMemo(() => {
@@ -122,7 +116,9 @@ export function SingleEChartsBarChart({
      * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
      */
     const normalizedValue = (value, total) => {
-      return config.groupType === EBarGroupingType.GROUP || config.display === EBarDisplayType.ABSOLUTE ? round(value, 4) : round((value / total) * 100, 2);
+      return config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
+        ? round((value / total) * 100, 2)
+        : round(value, 4);
     };
 
     return groupings
@@ -169,7 +165,7 @@ export function SingleEChartsBarChart({
           }
 
           // avoid rendering empty series (bars for a group with all 0 values)
-          if (data.every((d) => d === 0)) {
+          if (data.every((d) => d === 0 || Number.isNaN(d))) {
             return null;
           }
 
@@ -177,12 +173,14 @@ export function SingleEChartsBarChart({
             type: 'bar',
             triggerEvent: true, // enable click events on bars -> handled by chartInstance callback
             name: groupings.length > 1 ? group : null,
-            stack: config.groupType === EBarGroupingType.GROUP ? group : 'total', // group = individual group names, stack = any fixed name
+            stack: config.groupType === EBarGroupingType.STACK ? 'total' : group, // group = individual group names, stack = any fixed name
             label: {
               show: true,
               formatter: (params) =>
                 // grouping always uses the absolute value
-                config.groupType === EBarGroupingType.GROUP || config.display === EBarDisplayType.ABSOLUTE ? String(params.value) : `${params.value}%`,
+                config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
+                  ? `${params.value}%`
+                  : String(params.value),
             },
             emphasis: {
               focus: 'series',
@@ -192,13 +190,13 @@ export function SingleEChartsBarChart({
               color: config.group && groupColorScale ? groupColorScale(group) || VIS_NEUTRAL_COLOR : VIS_NEUTRAL_COLOR,
               opacity: hasSelected ? (selected === 'selected' ? 1 : 0.5) : 1, // reduce opacity for unselected bars if there are selected items
             },
-            data,
+            data: data.map((d) => (d === 0 ? null : d)) as number[],
           };
         });
       })
-      .filter((item) => item !== null) // remove the empty series here
+      .filter((item) => item != null) // remove the empty series here
       .flat() as BarSeriesOption[]; // flatten the array to a get a list of series
-  }, [BAR_WIDTH, aggregatedData, categories, config.aggregateType, config.display, config.group, config.groupType, groupColorScale, groupings, hasSelected]);
+  }, [aggregatedData, categories, config.aggregateType, config.display, config.group, config.groupType, groupColorScale, groupings, hasSelected]);
 
   const chartInstance = useCallback(
     (chart) => {
@@ -234,8 +232,7 @@ export function SingleEChartsBarChart({
     }
 
     // calculate height for horizontal bars
-    const categoryWidth =
-      config.group && config.groupType === EBarGroupingType.GROUP ? (BAR_WIDTH_GROUPED + BAR_SPACING) * groupings.length : BAR_WIDTH_STACKED + BAR_SPACING;
+    const categoryWidth = config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.length; // TODO: Make dynamic group length based on series data filtered for null
     const chartHeight = categories.length * categoryWidth;
     // console.log('barWidth', { barWidth: categoryWidth, chartHeight, groupingsLength: groupings.length, categoriesLength: categories.length });
     return chartHeight;
