@@ -22,7 +22,7 @@ export class IDType extends EventHandler implements IEventHandler {
    */
   private readonly sel = new Map<string, string[]>();
 
-  canBeMappedTo: Promise<IDType[]> = null;
+  canBeMappedTo: Promise<IDType[]> | null = null;
 
   /**
    * @param id the system identifier of this IDType
@@ -56,7 +56,7 @@ export class IDType extends EventHandler implements IEventHandler {
     this.name = persisted.name;
     // @ts-ignore
     this.names = persisted.names;
-    Object.keys(persisted.sel).forEach((type) => this.sel.set(type, persisted.sel[type]));
+    Object.keys(persisted.sel).forEach((type) => this.sel.set(type, persisted.sel[type]!));
     return this;
   }
 
@@ -75,9 +75,9 @@ export class IDType extends EventHandler implements IEventHandler {
    */
   selections(type = SelectionUtils.defaultSelectionType): string[] {
     if (this.sel.has(type)) {
-      return this.sel.get(type);
+      return this.sel.get(type)!;
     }
-    const v = [];
+    const v: string[] = [];
     this.sel.set(type, v);
     return v;
   }

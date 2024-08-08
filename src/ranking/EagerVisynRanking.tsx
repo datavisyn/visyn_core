@@ -81,12 +81,12 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     const b = getBuilderRef.current({ data });
 
     // Build the ranking
-    lineupRef.current = b.buildDatavisynTaggle(divRef.current);
+    lineupRef.current = b.buildDatavisynTaggle(divRef.current!);
 
     // Listen to selections
     lineupRef.current.on(LineUp.EVENT_SELECTION_CHANGED, async () => {
       if (!disableLineUpSelectionListener.current) {
-        const selected = await lineupRef.current.data.view(lineupRef.current.getSelection());
+        const selected = await lineupRef.current!.data.view(lineupRef.current!.getSelection());
         setSelectionRef.current?.(selected);
       }
     });
@@ -110,7 +110,7 @@ export function EagerVisynRanking<T extends Record<string, unknown>>({
     // Sync the selection back to lineup
     if (lineupRef.current && lineupRef.current?.ranking && indexMapRef.current) {
       disableLineUpSelectionListener.current = true;
-      const selectedIndices = selection?.map((s) => indexMapRef.current.get(s)).filter((i) => i != null);
+      const selectedIndices = selection?.map((s) => indexMapRef.current!.get(s)).filter((i) => i != null);
       if (!selectedIndices) {
         lineupRef.current.setSelection([]);
       } else if (!isEqual(selectedIndices, lineupRef.current.getSelection())) {

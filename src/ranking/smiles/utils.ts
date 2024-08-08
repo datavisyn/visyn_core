@@ -12,9 +12,11 @@ export function registerSMILESColumn(builder: DataBuilder, { setDynamicHeight = 
     // TODO remove default string filter; use `filterString` as key would override the default string filter, but also for string columns
     {
       title: 'Filter …', // the toolbar icon is derived from this string! (= transformed to `lu-action-filter`)
-      onClick: (col: SMILESColumn, evt: MouseEvent, ctx: IRankingHeaderContext, level: number, viaShortcut: boolean) => {
-        const dialog = new SMILESFilterDialog(col, dialogContext(ctx, level, evt), ctx);
-        dialog.open();
+      onClick: (col: Column, evt: MouseEvent, ctx: IRankingHeaderContext, level: number, viaShortcut: boolean) => {
+        if (col instanceof SMILESColumn) {
+          const dialog = new SMILESFilterDialog(col, dialogContext(ctx, level, evt), ctx);
+          dialog.open();
+        }
       },
       options: {
         mode: 'menu+shortcut',

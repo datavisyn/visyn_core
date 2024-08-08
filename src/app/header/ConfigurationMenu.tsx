@@ -5,7 +5,7 @@ import React from 'react';
 import { useVisynAppContext } from '../VisynAppContext';
 import { AboutAppModal, IAboutAppModalConfig } from './AboutAppModal';
 
-export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu: JSX.Element; dvLogo: JSX.Element; aboutAppModal?: IAboutAppModalConfig }) {
+export function ConfigurationMenu({ menu, dvLogo, aboutAppModal }: { menu?: JSX.Element; dvLogo: JSX.Element; aboutAppModal?: IAboutAppModalConfig }) {
   const { appName } = useVisynAppContext();
 
   const [showAboutModal, setShowAboutModal] = React.useState(false);

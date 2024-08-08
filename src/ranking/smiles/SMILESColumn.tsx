@@ -16,7 +16,7 @@ export interface ISMILESFilter {
   /**
    * Search string which is used to filter the column data
    */
-  filter: string;
+  filter: string | null;
 
   /**
    * Filter out rows with missing values
@@ -26,7 +26,7 @@ export interface ISMILESFilter {
   /**
    * The set contains matching results that should be visible
    */
-  matching: Set<string>;
+  matching: Set<string> | null;
 }
 
 @toolbar('filterSMILES', 'rename')
@@ -49,7 +49,7 @@ export class SMILESColumn extends ValueColumn<string> {
   }
 
   filter(row: IDataRow): boolean {
-    if (!this.isFiltered()) {
+    if (!this.isFiltered() || !this.structureFilter) {
       return true;
     }
 

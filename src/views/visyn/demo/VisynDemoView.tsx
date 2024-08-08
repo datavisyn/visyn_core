@@ -83,7 +83,7 @@ export function VisynDemoView({ desc, parameters, onParametersChanged }: DemoVis
       {parameters.columns ? (
         <Vis
           columns={parameters.columns}
-          externalConfig={parameters.config}
+          externalConfig={parameters.config ?? undefined}
           setExternalConfig={(config) => {
             onParametersChanged((p) => ({
               ...p,

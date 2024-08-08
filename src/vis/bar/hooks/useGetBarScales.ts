@@ -75,7 +75,9 @@ export function useGetBarScales(
   }, [aggregateFunc, allColumns?.catColVals, allColumns?.facetsColVals, baseTable, categoryFilter]);
 
   const countScale = useMemo(() => {
-    if (!aggregatedTable) return null;
+    if (!aggregatedTable) {
+      return null;
+    }
     return d3
       .scaleLinear()
       .range(isVertical ? [height - margin.bottom, margin.top] : [width - margin.right, margin.left])
@@ -83,7 +85,9 @@ export function useGetBarScales(
   }, [aggregatedTable, height, isVertical, margin, width]);
 
   const categoryScale = useMemo(() => {
-    if (!aggregatedTable) return null;
+    if (!aggregatedTable) {
+      return null;
+    }
     return d3
       .scaleBand()
       .range(isVertical ? [width - margin.right, margin.left] : [height - margin.bottom, margin.top])

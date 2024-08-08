@@ -9,7 +9,7 @@ import { WebpackEnv } from '../../base';
  */
 export interface IAboutAppModalConfig {
   // Middle section of the modal
-  content: JSX.Element;
+  content?: JSX.Element;
   // Bottom section of the modal
   bottom?: JSX.Element;
   customerLogo?: JSX.Element;
@@ -36,9 +36,9 @@ export function AboutAppModal({
   content,
   opened,
   onClose,
-  dvLogo = null,
+  dvLogo = undefined,
   bottom,
-  customerLogo = null,
+  customerLogo = undefined,
 }: {
   opened: boolean;
   onClose: () => void;

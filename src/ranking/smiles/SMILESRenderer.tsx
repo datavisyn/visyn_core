@@ -48,13 +48,13 @@ async function getReducedImages(structures: string[]): Promise<string | null> {
 
   // similarity
   if (structures.length === 2) {
-    const reference = structures[0];
-    const probe = structures.length > 1 ? structures[1] : structures[0];
+    const reference = structures[0]!;
+    const probe = structures.length > 1 ? structures[1]! : structures[0]!;
     return fetchImage({ url: `/api/rdkit/similarity/?structure=${encodeURIComponent(probe)}&reference=${encodeURIComponent(reference)}`, method: 'GET' });
   }
 
   // single = first structure
-  return fetchImage({ url: `/api/rdkit/?structure=${encodeURIComponent(structures[0])}`, method: 'GET' });
+  return fetchImage({ url: `/api/rdkit/?structure=${encodeURIComponent(structures[0]!)}`, method: 'GET' });
 }
 
 function svgToImageSrc(svg: string): string {
@@ -88,7 +88,7 @@ export class SMILESRenderer implements ICellRendererFactory {
               window.setTimeout(() => resolve(value), 500);
             }),
           ).then((image) => {
-            if (typeof image === 'symbol') {
+            if (!value || typeof image === 'symbol') {
               return;
             }
             n.style.backgroundImage = `url('${getImageURL(value, col.getFilter()?.filter, col.getAlign())}')`;

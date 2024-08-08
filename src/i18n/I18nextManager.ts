@@ -37,6 +37,7 @@ export class I18nextManager {
       .use({
         type: 'postProcessor',
         name: 'showKeyDebugger',
+        // @ts-ignore
         process: (value, key, option, translator) => (translator.options.debug ? key : value),
       })
       .init({

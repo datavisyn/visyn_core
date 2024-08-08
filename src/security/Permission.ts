@@ -64,7 +64,7 @@ export class Permission {
 
   hasPermission(entity: EEntity, permission: EPermission) {
     const permissions = this.getPermissions(entity);
-    return permissions.has(permission);
+    return permissions?.has(permission);
   }
 
   static toNumber(p: Set<EPermission>) {
