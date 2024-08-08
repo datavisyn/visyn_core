@@ -49,8 +49,8 @@ export function BarChart({
       allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? createBinLookup(allColumns.groupColVals?.resolvedValues as VisNumericalValue[]) : null;
 
     return zipWith(
-      allColumns.catColVals?.resolvedValues,
-      allColumns.aggregateColVals?.resolvedValues,
+      allColumns.catColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.aggregateColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
       allColumns.groupColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
       allColumns.facetsColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
       (cat, agg, group, facet) => {
