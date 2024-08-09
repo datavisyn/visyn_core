@@ -266,5 +266,42 @@ export function fetchBreastCancerData(): VisColumn[] {
       type: EColumnTypes.NUMERICAL,
       values: () => dataPromise.map((r) => r.stat2GeneExpression).map((val, i) => ({ id: i.toString(), val })),
     },
+    {
+      info: {
+        description: 'Gene expression',
+        id: 'nvlGeneExpression',
+        name: 'NVL',
+      },
+      type: EColumnTypes.NUMERICAL,
+      values: () => dataPromise.map((r) => r.nvlGeneExpression).map((val, i) => ({ id: i.toString(), val })),
+    },
+    {
+      info: {
+        description: 'some very long description',
+        id: 'nvlCategorical',
+        name: 'NVL Categorical',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.map((r) => r.nvlCategorical).map((val, i) => ({ id: i.toString(), val })),
+    },
+    {
+      info: {
+        description: 'some very long description',
+        id: 'breastSurgeryTypeSparse',
+        name: 'Breast Surgery Type Sparse',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.map((r) => r.breastSurgeryTypeSparse).map((val, i) => ({ id: i.toString(), val })),
+      domain: ['MASTECTOMY', 'BREAST CONSERVING'],
+    },
+    {
+      info: {
+        description: 'some very long description',
+        id: 'chemotherapieSparse',
+        name: 'Chemotherapy Sparse',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => dataPromise.map((r) => r.chemoTherapieSparse).map((val, i) => ({ id: i.toString(), val: val?.toString() })),
+    },
   ];
 }
