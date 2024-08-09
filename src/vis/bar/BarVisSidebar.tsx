@@ -75,7 +75,7 @@ export function BarVisSidebar({
               groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
               displayType={config.display}
               groupType={config.groupType}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+              columns={columns}
               currentSelected={config.group}
             />
           )
@@ -84,7 +84,7 @@ export function BarVisSidebar({
         ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
               callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+              columns={columns}
               currentSelected={config.facets}
               label="Facets"
               columnType={[EColumnTypes.CATEGORICAL]}

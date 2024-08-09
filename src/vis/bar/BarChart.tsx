@@ -1,18 +1,17 @@
-import { Box, Center, Group, Loader, Stack } from '@mantine/core';
+import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
-import { uniqueId } from 'lodash';
+import { scaleOrdinal, schemeBlues } from 'd3v7';
+import { uniqueId, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
-import { NAN_REPLACEMENT } from '../general';
+import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { EColumnTypes, ICommonVisProps } from '../interfaces';
-import { SingleBarChart } from './SingleBarChart';
+import { EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
+import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { Legend } from './barComponents/Legend';
-import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
 import { IBarConfig, SortTypes } from './interfaces';
-import { getBarData } from './utils';
+import { createBinLookup, getBarData } from './utils';
 
 export function BarChart({
   config,
@@ -27,6 +26,7 @@ export function BarChart({
   ICommonVisProps<IBarConfig>,
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
+  const [resizeObserverRef, { height }] = useResizeObserver();
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
@@ -39,6 +39,49 @@ export function BarChart({
     config.aggregateColumn,
   ]);
 
+  const dataTable = useMemo(() => {
+    if (!allColumns) {
+      return [];
+    }
+
+    // bin the `group` column values if a numerical column is selected
+    const binLookup: Map<VisNumericalValue, string> =
+      allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? createBinLookup(allColumns.groupColVals?.resolvedValues as VisNumericalValue[]) : null;
+
+    return zipWith(
+      allColumns.catColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.aggregateColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.groupColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.facetsColVals?.resolvedValues || [], // add array as fallback value to prevent zipWith from dropping the column
+      (cat, agg, group, facet) => {
+        return {
+          id: cat.id,
+          category: getLabelOrUnknown(cat?.val),
+          agg: agg?.val as number,
+          // if the group column is numerical, use the bin lookup to get the bin name, otherwise use the label or 'unknown'
+          group: typeof group?.val === 'number' ? binLookup.get(group as VisNumericalValue) : getLabelOrUnknown(group?.val),
+          facet: getLabelOrUnknown(facet?.val),
+        };
+      },
+    );
+  }, [allColumns]);
+
+  const groupColorScale = useMemo(() => {
+    if (!allColumns?.groupColVals) {
+      return null;
+    }
+
+    const groups = Array.from(new Set(dataTable.map((row) => row.group)));
+    const range =
+      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+        ? schemeBlues[Math.max(groups.length, 3)] // use at least 3 colors for numerical values
+        : groups.map(
+            (group, i) => allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length], // use the custom color from the column if available, otherwise use the default color scale
+          );
+
+    return scaleOrdinal<string>().domain(groups).range(range);
+  }, [allColumns?.groupColVals, dataTable]);
+
   const allUniqueFacetVals = useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
   }, [allColumns?.facetsColVals?.resolvedValues]);
@@ -49,20 +92,7 @@ export function BarChart({
       : allUniqueFacetVals;
   }, [allUniqueFacetVals, config.focusFacetIndex]);
 
-  const { groupColorScale, groupedTable } = useGetGroupedBarScales(
-    allColumns,
-    0,
-    0,
-    { left: 0, top: 0, right: 0, bottom: 0 },
-    null,
-    true,
-    selectedMap,
-    config.groupType,
-    sortType,
-    config.aggregateType,
-  );
-
-  const [legendBoxRef] = useResizeObserver();
+  // const [legendBoxRef] = useResizeObserver();
 
   const customSelectionCallback = useCallback(
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
@@ -82,7 +112,7 @@ export function BarChart({
   );
 
   return (
-    <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
+    <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
       {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
         <Group justify="center">
           {config.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
@@ -90,7 +120,7 @@ export function BarChart({
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        <Box ref={legendBoxRef}>
+        {/* <Box ref={legendBoxRef}>
           {groupColorScale ? (
             <Legend
               left={60}
@@ -102,56 +132,47 @@ export function BarChart({
               onFilteredOut={() => {}} // disable legend click for now
             />
           ) : null}
-        </Box>
+        </Box> */}
 
-        <Box style={{ display: 'flex', flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}>
+        <ScrollArea.Autosize mah={height}>
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />
             </Center>
           ) : !config.facets || !allColumns.facetsColVals ? (
-            <SingleBarChart
+            <SingleEChartsBarChart
               config={config}
+              dataTable={dataTable}
               setConfig={setConfig}
-              allColumns={allColumns}
-              selectedMap={selectedMap}
               selectionCallback={customSelectionCallback}
-              selectedList={selectedList}
-              sortType={sortType}
-              setSortType={setSortType}
-              legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+              groupColorScale={groupColorScale}
+              selectedMap={selectedMap}
+              // allColumns={allColumns}
+              // selectedList={selectedList}
+              // sortType={sortType}
+              // setSortType={setSortType}
             />
           ) : (
-            <Box
-              style={{
-                flex: 1,
-                display: 'grid',
-                gridTemplateColumns: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
-                gridTemplateRows: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
-                maxHeight: '100%',
-              }}
-            >
+            <Stack gap="xl" style={{ width: '100%' }}>
               {filteredUniqueFacetVals.map((multiplesVal) => (
-                <SingleBarChart
-                  isSmall
-                  index={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
-                  selectedList={selectedList}
-                  selectedMap={selectedMap}
+                <SingleEChartsBarChart
                   key={multiplesVal as string}
                   config={config}
+                  dataTable={dataTable}
+                  selectedFacetValue={multiplesVal}
+                  selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
                   setConfig={setConfig}
-                  allColumns={allColumns}
-                  categoryFilter={multiplesVal === NAN_REPLACEMENT ? null : multiplesVal}
-                  title={multiplesVal}
                   selectionCallback={customSelectionCallback}
-                  sortType={sortType}
-                  setSortType={setSortType}
-                  legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+                  groupColorScale={groupColorScale}
+                  selectedMap={selectedMap}
+                  // selectedList={selectedList}
+                  // sortType={sortType}
+                  // setSortType={setSortType}
                 />
               ))}
-            </Box>
+            </Stack>
           )}
-        </Box>
+        </ScrollArea.Autosize>
       </Stack>
     </Stack>
   );

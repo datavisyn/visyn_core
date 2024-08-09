@@ -1,9 +1,11 @@
-import { bin, desc, op } from 'arquero';
+import { bin as aqBin, desc, op } from 'arquero';
+import { bin as d3Bin, extent, max, min } from 'd3v7';
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import merge from 'lodash/merge';
 import { resolveSingleColumn } from '../general/layoutUtils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { IBarConfig, defaultConfig, SortTypes } from './interfaces';
+import { NAN_REPLACEMENT } from '../general';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
@@ -38,19 +40,63 @@ export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes)
   }
 }
 
+/**
+ * Creates a bin lookup map based on the provided data and maximum number of bins.
+ *
+ * @param data - The array of VisNumericalValue objects.
+ * @param maxBins - The maximum number of bins (default: 8).
+ * @returns A Map object with VisNumericalValue keys and string values representing the bin names.
+ */
+export const createBinLookup = (data: VisNumericalValue[], maxBins: number = 8): Map<VisNumericalValue, string> => {
+  // Separate null values from the data
+  const nonNullData = data.filter((row) => row.val !== null);
+  const nullData = data.filter((row) => row.val === null);
+
+  // Extract the numerical values from non-null data
+  const values = nonNullData.map((row) => row.val as number);
+
+  // Create the bins using d3.bin
+  const bins = d3Bin<number, number>()
+    .domain(extent(values) as [number, number])
+    .thresholds(maxBins)(values);
+
+  // Create a map to hold the bin names
+  const binMap = new Map<VisNumericalValue, string>();
+
+  // Map bins to our desired structure with names and filter out empty bins
+  bins
+    .filter((bin) => bin.length > 0) // Filter out empty bins
+    .forEach((bin) => {
+      const binName = `${min(bin)} to ${max(bin)}`;
+      const binRows = nonNullData.filter((row) => bin.includes(row.val as number));
+      binRows.forEach((row) => {
+        binMap.set(row, binName);
+      });
+    });
+
+  // Add a separate bin for null values
+  if (nullData.length > 0) {
+    nullData.forEach((row) => {
+      binMap.set(row, NAN_REPLACEMENT);
+    });
+  }
+
+  return binMap;
+};
+
 // Helper function for the bar chart which bins the data depending on the aggregate type. Used for numerical column grouping
 export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
   switch (aggregateType) {
     case EAggregateTypes.COUNT:
       return tempTable
-        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
         .rollup({ aggregateVal: () => op.count(), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('group')
         .groupby('category')
         .derive({ categoryCount: (d) => op.sum(d.count) });
     case EAggregateTypes.AVG:
       return tempTable
-        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
         .rollup({
           aggregateVal: (d) => op.average(d.aggregateVal),
           count: op.count(),
@@ -62,14 +108,14 @@ export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggre
         .derive({ categoryCount: (d) => op.sum(d.count) });
     case EAggregateTypes.MIN:
       return tempTable
-        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
         .rollup({ aggregateVal: (d) => op.min(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('group')
         .groupby('category')
         .derive({ categoryCount: (d) => op.sum(d.count) });
     case EAggregateTypes.MED:
       return tempTable
-        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
         .rollup({
           aggregateVal: (d) => op.median(d.aggregateVal),
           count: op.count(),
@@ -82,7 +128,7 @@ export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggre
 
     case EAggregateTypes.MAX:
       return tempTable
-        .groupby('category', { group: bin('group', { maxbins: 9 }), group_max: bin('group', { maxbins: 9, offset: 1 }) })
+        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
         .rollup({ aggregateVal: (d) => op.max(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
         .orderby('group')
         .groupby('category')
