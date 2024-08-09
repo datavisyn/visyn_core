@@ -267,7 +267,6 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
                       : scales.color(d.color),
                 )
               : selectionColorDark,
-            maxdisplayed: showLabelLimit,
           },
           ...sharedData,
         },
@@ -317,7 +316,6 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
                 colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : colorCol.color ? colorCol.color[v.val] : scales.color(v.val),
               )
             : selectionColorDark,
-          maxdisplayed: showLabelLimit,
         },
         ...sharedData,
       },
@@ -348,7 +346,6 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
               showlegend: false,
               marker: {
                 color: VIS_NEUTRAL_COLOR,
-                maxdisplayed: showLabelLimit,
               },
               // @ts-ignore
               selected: {
@@ -408,7 +405,6 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
                           : scales.color(v.val),
                     )
                   : selectionColorDark,
-                maxdisplayed: showLabelLimit,
               },
               ...sharedData,
             },
@@ -447,7 +443,6 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
           size: sizeSliderVal,
           color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : VIS_NEUTRAL_COLOR,
           opacity: 1,
-          maxdisplayed: showLabelLimit,
         },
         transforms: [
           {
@@ -496,7 +491,6 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
           size: sizeSliderVal,
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
           color: VIS_NEUTRAL_COLOR,
-          maxdisplayed: showLabelLimit,
         },
         transforms: [
           {
