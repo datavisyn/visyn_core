@@ -29,6 +29,7 @@ export function MainApp() {
     alphaSliderVal: 1,
     sizeSliderVal: 5,
     showLabels: ELabelingOptions.SELECTED,
+    showLabelLimit: 2,
     regressionLineOptions: {
       type: ERegressionLineType.LINEAR,
       showStats: true,

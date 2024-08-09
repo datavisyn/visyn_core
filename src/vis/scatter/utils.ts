@@ -54,6 +54,7 @@ export const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
   showLabels: ELabelingOptions.NEVER,
+  showLabelLimit: 100,
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
@@ -106,7 +107,8 @@ export async function createScatterTraces(
   scales: Scales,
   shapes: string[] | null,
   showLabels: ELabelingOptions,
-  selectedMap: { [key: string]: boolean },
+  selectedMap: { [key: string]: boolean } = {},
+  showLabelLimit: number = 0,
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -134,6 +136,8 @@ export async function createScatterTraces(
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
   const facetCol = await resolveSingleColumn(getCol(columns, facet));
+
+  // const shouldShowText = Object.keys(selectedMap).length > showLabelLimit;
 
   // cant currently do 1d scatterplots
   if (validCols.length === 1) {
@@ -171,7 +175,7 @@ export async function createScatterTraces(
     : null;
 
   // These are shared data properties between the traces
-  const sharedData = {
+  const sharedData: Partial<PlotlyData> & { [key: string]: unknown } = {
     showlegend: false,
     type: 'scattergl',
     mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
@@ -186,6 +190,7 @@ export async function createScatterTraces(
         },
         opacity: 1,
         size: sizeSliderVal,
+        maxdisplayed: showLabelLimit,
       },
       textfont: {
         color: showLabels === ELabelingOptions.NEVER ? 'transparent' : VIS_LABEL_COLOR,
@@ -199,6 +204,7 @@ export async function createScatterTraces(
         color: VIS_NEUTRAL_COLOR,
         opacity: alphaSliderVal,
         size: sizeSliderVal,
+        maxdisplayed: showLabelLimit,
       },
       textfont: {
         color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
@@ -261,6 +267,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
                       : scales.color(d.color),
                 )
               : selectionColorDark,
+            maxdisplayed: showLabelLimit,
           },
           ...sharedData,
         },
@@ -310,6 +317,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
                 colorCol.type === EColumnTypes.NUMERICAL ? numericalColorScale(v.val as number) : colorCol.color ? colorCol.color[v.val] : scales.color(v.val),
               )
             : selectionColorDark,
+          maxdisplayed: showLabelLimit,
         },
         ...sharedData,
       },
@@ -340,17 +348,20 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
               showlegend: false,
               marker: {
                 color: VIS_NEUTRAL_COLOR,
+                maxdisplayed: showLabelLimit,
               },
               // @ts-ignore
               selected: {
                 marker: {
                   opacity: 1,
                   color: selectionColorDark,
+                  maxdisplayed: showLabelLimit,
                 },
               },
               unselected: {
                 marker: {
                   opacity: alphaSliderVal,
+                  maxdisplayed: showLabelLimit,
                 },
               },
               selectedpoints: ids.reduce((acc, id, i) => (selectedMap[id] ? acc.concat(i) : acc), [] as number[]),
@@ -397,6 +408,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
                           : scales.color(v.val),
                     )
                   : selectionColorDark,
+                maxdisplayed: showLabelLimit,
               },
               ...sharedData,
             },
@@ -435,6 +447,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
           size: sizeSliderVal,
           color: colorCol ? colorCol.resolvedValues.map((v) => (colorCol.color ? colorCol.color[v.val] : scales.color(v.val))) : VIS_NEUTRAL_COLOR,
           opacity: 1,
+          maxdisplayed: showLabelLimit,
         },
         transforms: [
           {
@@ -483,6 +496,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
           size: sizeSliderVal,
           symbol: shapeCol ? shapeCol.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
           color: VIS_NEUTRAL_COLOR,
+          maxdisplayed: showLabelLimit,
         },
         transforms: [
           {
