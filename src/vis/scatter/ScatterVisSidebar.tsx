@@ -40,7 +40,14 @@ const defaultConfig = {
   },
 };
 
-export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig }: ICommonVisSideBarProps<IScatterConfig>) {
+export function ScatterVisSidebar({
+  config,
+  optionsConfig,
+  columns,
+  selectedPointsCount = 0,
+  filterCallback,
+  setConfig,
+}: ICommonVisSideBarProps<IScatterConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
@@ -111,6 +118,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
                 }
               }}
               currentSelected={config.showLabels}
+              labelLimit={selectedPointsCount > config.showLabelLimit ? config.showLabelLimit : null}
             />
           )
         : null}

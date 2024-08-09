@@ -123,6 +123,7 @@ export function ScatterVis({
     shapes,
     config.showLabels,
     selectedMap,
+    config.showLabelLimit,
   ]);
 
   const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected: number; width: number; dash: PlotlyTypes.Dash }) => {

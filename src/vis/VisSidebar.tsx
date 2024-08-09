@@ -10,6 +10,7 @@ export function VisSidebar({
   setConfig = null,
   className,
   style,
+  selectedPointsCount = 0,
 }: ICommonVisSideBarProps<typeof config>) {
   const { getVisByType } = useVisProvider();
 
@@ -28,6 +29,7 @@ export function VisSidebar({
       columns={columns}
       className={className}
       style={style}
+      selectedPointsCount={selectedPointsCount}
     />
   ) : null;
 }

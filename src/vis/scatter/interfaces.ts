@@ -10,6 +10,7 @@ export interface IScatterConfig extends BaseVisConfig {
   alphaSliderVal: number;
   sizeSliderVal: number;
   showLabels: ELabelingOptions;
+  showLabelLimit?: number;
   facets: ColumnInfo | null;
   regressionLineOptions?: IRegressionLineOptions;
   showLegend?: boolean;
