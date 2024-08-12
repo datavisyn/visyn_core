@@ -11,10 +11,7 @@ interface LabelingOptionsProps {
 }
 
 export function LabelingOptions({ callback, currentSelected, labelLimit }: LabelingOptionsProps) {
-  const displayLabelLimitCheck = React.useMemo(
-    () => labelLimit > 0 && [ELabelingOptions.SELECTED, ELabelingOptions.ALWAYS].includes(currentSelected),
-    [currentSelected, labelLimit],
-  );
+  const displayLabelLimitCheck = React.useMemo(() => labelLimit > 0 && [ELabelingOptions.SELECTED].includes(currentSelected), [currentSelected, labelLimit]);
 
   return (
     <Stack>
@@ -37,7 +34,8 @@ export function LabelingOptions({ callback, currentSelected, labelLimit }: Label
             <FontAwesomeIcon icon={faCircleExclamation} />
           </ThemeIcon>
           <Text size="xs" c="orange">
-            Showing only the first {labelLimit} labels
+            {/* Showing only the first {labelLimit} labels */}
+            Labels would be visible only when less than {labelLimit} points are selected
           </Text>
         </Group>
       )}
