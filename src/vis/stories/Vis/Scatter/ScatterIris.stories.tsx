@@ -55,7 +55,6 @@ Basic.args = {
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
     showLabels: ELabelingOptions.NEVER,
-    showLabelLimit: 2,
     regressionLineOptions: {
       type: ERegressionLineType.NONE,
     },
