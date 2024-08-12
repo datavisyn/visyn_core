@@ -30,7 +30,7 @@ test('size scale', async ({ page }) => {
   await page.locator('div[class$="Switch-track"]').first().click();
 });
 
-test('no opacity scale', async ({ page }) => {
+test('no opacity', async ({ page }) => {
   await selectHexbin(page);
   await page.locator('div[class$="Switch-track"]').last().click();
 });
