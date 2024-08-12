@@ -17,14 +17,14 @@ export function SingleSelect({
   columns: VisColumn[];
   currentSelected: ColumnInfo;
   /** If null, all columns are selectable */
-  columnType: EColumnTypes | null;
+  columnType: EColumnTypes[] | null;
   label: string;
   isClearable?: boolean;
   disabled?: boolean;
   disabledTooltip?: string;
 }) {
   const filteredColumns = React.useMemo(() => {
-    return columnType ? columns.filter((c) => c.type === columnType) : columns;
+    return columnType ? columns.filter((c) => columnType.includes(c.type)) : columns;
   }, [columnType, columns]);
 
   const combobox = useCombobox({

@@ -83,9 +83,9 @@ export function BarChart({
 
   return (
     <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
-      {showDownloadScreenshot || config.showFocusFacetSelector ? (
+      {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
         <Group justify="center">
-          {config.showFocusFacetSelector ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
+          {config.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
         </Group>
       ) : null}

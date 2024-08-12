@@ -44,7 +44,7 @@ export function BarVisSidebar({
         }
         columns={columns}
         currentSelected={config.catColumnSelected}
-        columnType={EColumnTypes.CATEGORICAL}
+        columnType={[EColumnTypes.CATEGORICAL]}
         label="Categorical column"
       />
       <AggregateTypeSelect
@@ -87,7 +87,7 @@ export function BarVisSidebar({
               columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
               currentSelected={config.facets}
               label="Facets"
-              columnType={EColumnTypes.CATEGORICAL}
+              columnType={[EColumnTypes.CATEGORICAL]}
             />
           )
         : null}

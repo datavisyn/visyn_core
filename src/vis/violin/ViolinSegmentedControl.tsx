@@ -46,7 +46,17 @@ export function ViolinOverlaySegmentedControl({
   );
 }
 
-export function ViolinSyncYAxisSegmentedControl({ callback, currentSelected, disabled }: SegmentedControlProps<EYAxisMode>) {
+export function ViolinSyncYAxisSegmentedControl({
+  callback,
+  currentSelected,
+  disabled,
+  disableMerged,
+}: SegmentedControlProps<EYAxisMode> & { disableMerged?: boolean }) {
+  // If the merged option is disabled and the current selected is merged, change it to unsynced
+  if (disableMerged && currentSelected === EYAxisMode.MERGED) {
+    callback(EYAxisMode.UNSYNC);
+  }
+
   return (
     <Input.Wrapper
       label={
@@ -66,6 +76,7 @@ export function ViolinSyncYAxisSegmentedControl({ callback, currentSelected, dis
           data={[
             { label: EYAxisMode.UNSYNC, value: EYAxisMode.UNSYNC },
             { label: EYAxisMode.SYNC, value: EYAxisMode.SYNC },
+            { label: EYAxisMode.MERGED, value: EYAxisMode.MERGED, disabled: disableMerged },
           ]}
         />
       </Tooltip>

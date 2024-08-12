@@ -116,6 +116,10 @@ export async function createViolinTraces(
   const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const subCatMap: { [key: string]: { color: string; idx: number } } = {};
 
+  // NOTE: Special use-case
+  // When using the y-ais option merged and with categorical column set we treat the numerical columns as subCategory
+  const numColsAsSubcat = config.syncYAxis === EYAxisMode.MERGED && catCol !== null;
+
   // We do the grouping here to avoid having to do it in the plotly trace creation
   // This simplifies selection and highlighting of violins
   let data: IViolinDataRow[] = [];
@@ -162,7 +166,7 @@ export async function createViolinTraces(
       numCurr.resolvedValues.forEach((v, i) => {
         if (v.val) {
           const catVal = catColValues[i].val as string;
-          const subCatVal = (subCatColValues[i]?.val as string) || null;
+          const subCatVal = numColsAsSubcat ? columnNameWithDescription(numCurr.info) : (subCatColValues[i]?.val as string) || null;
           updateDataRange(v.val as number);
           data.push({
             ids: v.id?.toString(),
@@ -171,7 +175,11 @@ export async function createViolinTraces(
             groups: {
               num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
               cat: { id: columnNameWithDescription(catCol.info), val: catVal },
-              subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
+              subCat: numColsAsSubcat
+                ? { id: columnNameWithDescription(numCurr.info), val: subCatVal }
+                : subCatCol
+                  ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal }
+                  : null,
               facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
               plotId: currentPlotId,
             },
@@ -295,7 +303,7 @@ export async function createViolinTraces(
     const { plotId, facet, subCat, cat, num } = group[0].groups;
     const isSelected = selectedList.length > 0 && group.some((g) => selectedMap[g.ids]);
     const opacities = selectedList.length > 0 ? (isSelected ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
-    const patchedPlotId = facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
+    const patchedPlotId = config.syncYAxis === EYAxisMode.MERGED ? 1 : facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
     if (patchedPlotId > plotCounter) {
       plotCounter = patchedPlotId;
     }
@@ -351,10 +359,10 @@ export async function createViolinTraces(
         offsetgroup: subCat?.val,
         ...sharedData,
       },
-      yLabel: group[0].groups.num.id,
+      yLabel: config.syncYAxis === EYAxisMode.MERGED ? 'Merged axis' : group[0].groups.num.id,
       xLabel: catCol ? group[0].groups.cat.id : null,
       title: facetCol ? `${columnNameWithDescription(facetCol.info)} - ${group[0].groups.facet.val}` : null,
-      yDomain: config.syncYAxis === EYAxisMode.SYNC ? [dataRange.min, dataRange.max] : null,
+      yDomain: [EYAxisMode.SYNC, EYAxisMode.MERGED].includes(config.syncYAxis) ? [dataRange.min, dataRange.max] : null,
     });
   });
 
@@ -390,7 +398,7 @@ export async function createViolinTraces(
   }
 
   // Add separate legend
-  if (subCatCol) {
+  if (numColsAsSubcat || subCatCol) {
     legendPlots.push({
       data: {
         x: [null] as Plotly.Datum[],
@@ -400,7 +408,7 @@ export async function createViolinTraces(
         showlegend: true,
         type: 'violin',
         hoverinfo: 'skip',
-        legendgrouptitle: {
+        legendgrouptitle: subCatCol && {
           text: truncateText(columnNameWithDescription(subCatCol.info), true, 20),
         },
         transforms: [
@@ -440,7 +448,7 @@ export async function createViolinTraces(
     categoryOrder: categoriesPerPlot,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
-    violinMode: subCatCol && !hasSplit ? 'group' : 'overlay',
+    violinMode: (numColsAsSubcat || subCatCol) && !hasSplit ? 'group' : 'overlay',
     hasSplit,
   };
 }
