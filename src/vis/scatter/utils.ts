@@ -28,8 +28,8 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
   if (domain[0] !== undefined && domain[1] !== undefined) {
     return [domain[0], domain[1]];
   }
-  const min = Math.min(...(vals as number[]));
-  const max = Math.max(...(vals as number[]));
+
+  const [min, max] = d3v7.extent(vals as number[]);
 
   const calcDomain: [number, number] = [domain[0] ? domain[0] : min, domain[1] ? domain[1] : max + max / 20];
 
@@ -54,7 +54,7 @@ export const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
   showLabels: ELabelingOptions.NEVER,
-  showLabelLimit: 100,
+  showLabelLimit: 50,
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
@@ -107,8 +107,8 @@ export async function createScatterTraces(
   scales: Scales,
   shapes: string[] | null,
   showLabels: ELabelingOptions,
+  showLabelLimit?: number,
   selectedMap: { [key: string]: boolean } = {},
-  showLabelLimit: number = 0,
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -136,8 +136,6 @@ export async function createScatterTraces(
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
   const facetCol = await resolveSingleColumn(getCol(columns, facet));
-
-  // const shouldShowText = Object.keys(selectedMap).length > showLabelLimit;
 
   // cant currently do 1d scatterplots
   if (validCols.length === 1) {
@@ -190,7 +188,6 @@ export async function createScatterTraces(
         },
         opacity: 1,
         size: sizeSliderVal,
-        maxdisplayed: showLabelLimit,
       },
       textfont: {
         color: showLabels === ELabelingOptions.NEVER ? 'transparent' : VIS_LABEL_COLOR,
@@ -204,7 +201,6 @@ export async function createScatterTraces(
         color: VIS_NEUTRAL_COLOR,
         opacity: alphaSliderVal,
         size: sizeSliderVal,
-        maxdisplayed: showLabelLimit,
       },
       textfont: {
         color: showLabels === ELabelingOptions.ALWAYS ? `rgba(179, 179, 179, ${alphaSliderVal})` : `rgba(179, 179, 179, 0)`,
