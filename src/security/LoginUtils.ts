@@ -42,12 +42,7 @@ export class LoginUtils {
   }
 
   static loggedInAs(): Promise<IUser> {
-    return Ajax.send('/api/loggedinas', {}, 'POST').then((user: string | IUser) => {
-      if (typeof user !== 'string' && user.name) {
-        return user;
-      }
-      return Promise.reject('invalid');
-    });
+    return Ajax.send('/api/loggedinas', {}, 'POST');
   }
 
   static getStores(): Promise<IUserStore[]> {
