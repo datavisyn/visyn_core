@@ -19,6 +19,7 @@ export function HexSizeSlider({ callback, currentValue }: OpacitySliderProps) {
   return (
     <Input.Wrapper label="Size" mb="md">
       <Slider
+        data-testid="HexSizeSlider"
         step={1}
         value={currentValue}
         max={25}

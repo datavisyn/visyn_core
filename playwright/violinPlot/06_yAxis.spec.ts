@@ -52,7 +52,7 @@ test('synced', async ({ page }) => {
   await page.getByRole('option', { name: 'Neoplasm Histologic Grade' }).click();
   await page.getByTestId('MultiSelect').click();
 
-  await page.getByTestId('ViolinYAxisSegmentedControl').locator('div[class*="SegmentedControl-control"]').last().click();
+  await page.getByTestId('ViolinYAxisSegmentedControl').locator('div[class*="SegmentedControl-control"]').nth(1).click();
   const valueLeftChartTop = await page
     .locator('g[class="subplot xy"]')
     .locator('g[class="yaxislayer-above"]')
@@ -89,4 +89,17 @@ test('synced', async ({ page }) => {
   const topMatch = valueRightChartTop == valueLeftChartTop;
 
   expect(buttonMatch && topMatch).toBeTruthy();
+});
+
+test('merged', async ({ page }) => {
+  await selectViolinPlot(page);
+  await page.getByTestId('MultiSelect').click();
+  await page.getByRole('option', { name: 'Neoplasm Histologic Grade' }).click();
+  await page.getByTestId('MultiSelect').click();
+
+  await page.getByTestId('ViolinYAxisSegmentedControl').locator('div[class*="SegmentedControl-control"]').last().click();
+
+  await expect(page.getByTestId('SingleSelectSubcategory')).toBeDisabled();
+  await expect(page.getByTestId('SingleSelectFacets')).toBeDisabled();
+  await expect(page.locator('g[class="g-ytitle"]').locator('text')).toHaveText('Merged axis');
 });

@@ -11,7 +11,7 @@ export async function selectViolinPlot(page: Page) {
   await page.getByRole('option', { name: 'Cohort' }).click();
   await page.getByTestId('MultiSelect').click();
   await page.getByTestId('SingleSelectCategorical column').click();
-  await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
+  await page.getByRole('option', { name: 'Breast Surgery Type' }).first().click();
 }
 
 export async function selectBoxPlot(page: Page) {

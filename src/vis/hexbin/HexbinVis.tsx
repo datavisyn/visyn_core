@@ -28,6 +28,7 @@ function Legend({
 }) {
   return (
     <ScrollArea
+      data-testid="PlotLegend"
       style={{ height: '100%' }}
       scrollbars="y"
       className={css`
@@ -138,6 +139,7 @@ export function HexbinVis({
 
       <Group style={{ gridArea: 'plot' }}>
         <Box
+          data-testid="hexbinPlotGrid"
           style={{
             flexGrow: 1,
             position: 'relative',

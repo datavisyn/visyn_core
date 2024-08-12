@@ -269,7 +269,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           <g clipPath="url(#clip)">
             <g id={`${id}brush`}>
               <g style={{ transform: `translate(${transform[txi]}px, ${transform[tyi]}px) scale(${transform[sxi]})` }}>
-                <g>{hexObjects}</g>
+                <g data-testid="hexObjects">{hexObjects}</g>
               </g>
             </g>
           </g>
@@ -277,7 +277,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           <g transform={`translate(${margin.left}, ${height + margin.top + 25})`}>
             <foreignObject width={Math.abs(xScale.range()[0] - xScale.range()[1])} height={20}>
               <Center>
-                <Text size={multiples ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
+                <Text data-testid="XAxisDescription" size={multiples ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
                   {allColumns?.numColVals[0]?.info.name}
                 </Text>
               </Center>
@@ -287,7 +287,7 @@ export function Hexplot({ config, allColumns, selectionCallback = () => null, se
           <g transform={`translate(${margin.left - 45}, ${yScale.range()[0]}) rotate(-90)`}>
             <foreignObject height="20px" width={Math.abs(yScale.range()[0] - yScale.range()[1])}>
               <Center>
-                <Text size={multiples ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
+                <Text data-testid="YAxisDescription" size={multiples ? rem(VIS_AXIS_LABEL_SIZE_SMALL) : rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
                   {allColumns?.numColVals[1]?.info.name}
                 </Text>
               </Center>

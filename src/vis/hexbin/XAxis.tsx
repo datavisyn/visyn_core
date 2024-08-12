@@ -29,7 +29,6 @@ export function XAxis({ xScale, yRange, vertPosition, multiples = false }) {
             <Center>
               <Tooltip label={value}>
                 <Text
-                  data-testid="HexplotXAxis"
                   c={VIS_LABEL_COLOR}
                   size={multiples ? rem(VIS_TICK_LABEL_SIZE_SMALL) : rem(VIS_TICK_LABEL_SIZE)}
                   style={{ textAlign: 'left', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
