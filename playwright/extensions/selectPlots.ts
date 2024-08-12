@@ -40,3 +40,9 @@ export async function selectHexbin(page: Page) {
   await page.getByTestId('SelectVisualizationType').click();
   await page.getByRole('option', { name: 'Hexbin plot' }).click();
 }
+
+export async function selectCorrelationPlot(page: Page) {
+  await page.goto('/');
+  await page.getByTestId('SelectVisualizationType').click();
+  await page.getByRole('option', { name: 'Correlation plot' }).click();
+}
