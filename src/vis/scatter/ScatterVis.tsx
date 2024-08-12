@@ -293,10 +293,8 @@ export function ScatterVis({
     }
 
     return data.map((d) => {
-      // const textIndices = d.selectedpoints.slice(0, config.showLabelLimit).map((s) => d.ids.findIndex((datum) => String(s) === String(datum)));
-      const textIndices = d.selectedpoints.map((s) => d.ids.findIndex((datum) => String(s) === String(datum)));
-      // const text = config.showLabels === ELabelingOptions.ALWAYS ? d.text : isSelecting ? '' : d.text.map((t, i) => (textIndices.includes(i) ? t : ''));
-      const text = config.showLabels === ELabelingOptions.ALWAYS ? d.text : isSelecting ? '' : textIndices.length > config.showLabelLimit ? '' : d.text;
+      const textIndices = d.selectedpoints.slice(0, config.showLabelLimit).map((s) => d.ids.findIndex((datum) => String(s) === String(datum)));
+      const text = config.showLabels === ELabelingOptions.ALWAYS ? d.text : isSelecting ? '' : d.text.map((t, i) => (textIndices.includes(i) ? t : ''));
 
       return { ...d, text };
     });

@@ -34,8 +34,7 @@ export function LabelingOptions({ callback, currentSelected, labelLimit }: Label
             <FontAwesomeIcon icon={faCircleExclamation} />
           </ThemeIcon>
           <Text size="xs" c="orange">
-            {/* Showing only the first {labelLimit} labels */}
-            Labels would be visible only when less than {labelLimit} points are selected
+            Showing only the first {labelLimit} labels
           </Text>
         </Group>
       )}
