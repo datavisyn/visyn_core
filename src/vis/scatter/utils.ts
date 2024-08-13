@@ -28,8 +28,8 @@ function calculateDomain(domain: [number | undefined, number | undefined], vals:
   if (domain[0] !== undefined && domain[1] !== undefined) {
     return [domain[0], domain[1]];
   }
-  const min = Math.min(...(vals as number[]));
-  const max = Math.max(...(vals as number[]));
+
+  const [min, max] = d3v7.extent(vals as number[]);
 
   const calcDomain: [number, number] = [domain[0] ? domain[0] : min, domain[1] ? domain[1] : max + max / 20];
 
@@ -54,6 +54,7 @@ export const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
   showLabels: ELabelingOptions.NEVER,
+  showLabelLimit: 50,
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
@@ -106,7 +107,8 @@ export async function createScatterTraces(
   scales: Scales,
   shapes: string[] | null,
   showLabels: ELabelingOptions,
-  selectedMap: { [key: string]: boolean },
+  showLabelLimit?: number,
+  selectedMap: { [key: string]: boolean } = {},
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -171,7 +173,7 @@ export async function createScatterTraces(
     : null;
 
   // These are shared data properties between the traces
-  const sharedData = {
+  const sharedData: Partial<PlotlyData> & { [key: string]: unknown } = {
     showlegend: false,
     type: 'scattergl',
     mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',

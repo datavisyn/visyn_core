@@ -1,4 +1,4 @@
-import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
+import { Center, Group, Stack, Switch, Tooltip } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
@@ -8,13 +8,13 @@ import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { InvalidCols } from '../general/InvalidCols';
+import { VIS_TRACES_COLOR } from '../general/constants';
 import { beautifyLayout } from '../general/layoutUtils';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
-import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
+import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
-import { VIS_TRACES_COLOR } from '../general/constants';
 
 const formatPValue = (pValue: number) => {
   if (pValue === null) {
@@ -76,13 +76,15 @@ export function ScatterVis({
   scrollZoom,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IScatterConfig>) {
+}: ICommonVisProps<IInternalScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
   const [showLegend, setShowLegend] = useUncontrolled({
     defaultValue: true,
     value: config.showLegend,
   });
   const [layout, setLayout] = useState<Partial<PlotlyTypes.Layout>>(null);
+
+  const [isSelecting, setIsSelecting] = useState(false);
 
   // TODO: This is a little bit hacky, Also notification should be shown to the user
   // Limit numerical columns to 2 if facets are enabled
@@ -122,6 +124,7 @@ export function ScatterVis({
     scales,
     shapes,
     config.showLabels,
+    config.showLabelLimit,
     selectedMap,
   ]);
 
@@ -281,12 +284,26 @@ export function ScatterVis({
   }, [traces, selectedList, config.color, config.showLabels, config.alphaSliderVal]);
 
   const plotlyData = useMemo(() => {
+    let data = [];
+    if (plotsWithSelectedPoints) {
+      data = [...plotsWithSelectedPoints.map((p) => p.data)];
+    }
     if (traces) {
-      return [...plotsWithSelectedPoints.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)];
+      data = [...data, ...traces.legendPlots.map((p) => p.data)];
     }
 
-    return [];
-  }, [plotsWithSelectedPoints, traces]);
+    return data.map((d) => {
+      const textIndices = !config.showLabelLimit ? (d.selectedpoints ?? []) : (d.selectedpoints ?? []).slice(0, config.showLabelLimit);
+      const text = config.showLabels === ELabelingOptions.ALWAYS ? d.text : isSelecting ? '' : (d.text ?? []).map((t, i) => (textIndices.includes(i) ? t : ''));
+
+      return { ...d, text };
+    });
+  }, [config.showLabelLimit, config.showLabels, isSelecting, plotsWithSelectedPoints, traces]);
+
+  useEffect(() => {
+    setConfig({ ...config, selectedPointsCount: selectedList.length });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedList, setConfig]);
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
@@ -373,6 +390,9 @@ export function ScatterVis({
             onUpdate={() => {
               d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
             }}
+            onSelecting={() => {
+              setIsSelecting(true);
+            }}
             onSelected={(sel) => {
               if (sel) {
                 // @ts-ignore
@@ -384,6 +404,8 @@ export function ScatterVis({
                 } else {
                   selectionCallback(sel ? sel.points?.map((d) => (d as any).id) : []);
                 }
+                setIsSelecting(false);
+                setConfig({ ...config, selectedPointsCount: sel.points.length });
               }
             }}
           />
