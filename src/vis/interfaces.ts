@@ -140,7 +140,6 @@ export interface ICommonVisSideBarProps<T> {
   className?: string | undefined;
   columns: VisColumn[];
   optionsConfig?: any;
-  selectedPointsCount?: number;
   filterCallback?: (s: EFilterOptions) => void;
   config: T;
   setConfig: (c: T) => void;

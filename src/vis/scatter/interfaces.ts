@@ -15,6 +15,8 @@ export interface IScatterConfig extends BaseVisConfig {
   regressionLineOptions?: IRegressionLineOptions;
   showLegend?: boolean;
   labelColumns?: ColumnInfo[];
+
+  selectedPointsCount?: number;
 }
 
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {

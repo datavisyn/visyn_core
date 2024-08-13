@@ -348,13 +348,11 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
                 marker: {
                   opacity: 1,
                   color: selectionColorDark,
-                  maxdisplayed: showLabelLimit,
                 },
               },
               unselected: {
                 marker: {
                   opacity: alphaSliderVal,
-                  maxdisplayed: showLabelLimit,
                 },
               },
               selectedpoints: ids.reduce((acc, id, i) => (selectedMap[id] ? acc.concat(i) : acc), [] as number[]),
