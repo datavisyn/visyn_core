@@ -81,9 +81,11 @@ def logout():
 
 @jwt_router.get("/loggedinas")
 @jwt_router.post("/loggedinas")
-def loggedinas(request: Request):
+def loggedinas():
     user = manager.security.current_user
-    return user_to_dict(user, access_token=user.access_token) if user else '"not_yet_logged_in"'
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not logged in")
+    return user_to_dict(user, access_token=user.access_token)
 
 
 @jwt_router.get("/security/stores")

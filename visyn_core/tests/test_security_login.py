@@ -9,12 +9,12 @@ from visyn_core.security.store.oauth2_security_store import create as create_oau
 
 
 def test_api_key(client: TestClient):
-    assert client.get("/api/loggedinas", headers={"apiKey": "invalid_user:password"}).json() == '"not_yet_logged_in"'
+    assert client.get("/api/loggedinas", headers={"apiKey": "invalid_user:password"}).status_code == 401
     assert client.get("/api/loggedinas", headers={"apiKey": "admin:admin"}).json()["name"] == "admin"
 
 
 def test_basic_authorization(client: TestClient):
-    assert client.get("/api/loggedinas", auth=("invalid_user", "password")).json() == '"not_yet_logged_in"'
+    assert client.get("/api/loggedinas", auth=("invalid_user", "password")).status_code == 401
     assert client.get("/api/loggedinas", auth=("admin", "admin")).json()["name"] == "admin"
 
 
@@ -33,8 +33,7 @@ def test_jwt_login(client: TestClient):
 
     # Check if we are actually not logged in
     response = client.get("/api/loggedinas")
-    assert response.status_code == 200
-    assert response.json() == '"not_yet_logged_in"'
+    assert response.status_code == 401
 
     # Login with the dummy user
     response = client.post("/api/login", data={"username": "admin", "password": "admin"})
@@ -81,8 +80,7 @@ def test_jwt_login(client: TestClient):
 
     # Check if we are actually not logged in anymore
     response = client.get("/api/loggedinas")
-    assert response.status_code == 200
-    assert response.json() == '"not_yet_logged_in"'
+    assert response.status_code == 401
 
 
 def test_jwt_token_location(client: TestClient):
@@ -96,18 +94,18 @@ def test_jwt_token_location(client: TestClient):
 
     # Does not work even though both header and cookies are passed
     response = client.get("/api/loggedinas", headers={"Authorization": f"Bearer {access_token}"})
-    assert response.json() == '"not_yet_logged_in"'
+    assert response.status_code == 401
 
     # Allow headers
     manager.settings.jwt_token_location = ["headers"]
 
     # Does not work as only headers are accepted
     response = client.get("/api/loggedinas")
-    assert response.json() == '"not_yet_logged_in"'
+    assert response.status_code == 401
 
     # Does work as header is passed
     response = client.get("/api/loggedinas", headers={"Authorization": f"Bearer {access_token}"})
-    assert response.json() == '"not_yet_logged_in"'
+    assert response.status_code == 401
 
     # Allow cookies
     manager.settings.jwt_token_location = ["cookies"]
@@ -153,7 +151,7 @@ def test_alb_security_store(client: TestClient):
 
     # Test if we are not logged in if we use invalid fields
     store.email_token_fields = ["field1", "field2"]
-    assert client.get("/api/loggedinas", headers=headers).json() == '"not_yet_logged_in"'
+    assert client.get("/api/loggedinas", headers=headers).status_code == 401
 
 
 def test_oauth2_security_store(client: TestClient):
