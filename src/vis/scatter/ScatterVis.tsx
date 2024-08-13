@@ -319,7 +319,6 @@ export function ScatterVis({
       ) : null}
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
         <>
-          ``
           {config.showLegend === undefined ? (
             <Tooltip label="Toggle legend" refProp="rootRef">
               <Switch
