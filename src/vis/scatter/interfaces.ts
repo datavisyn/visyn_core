@@ -15,7 +15,15 @@ export interface IScatterConfig extends BaseVisConfig {
   regressionLineOptions?: IRegressionLineOptions;
   showLegend?: boolean;
   labelColumns?: ColumnInfo[];
+}
 
+/**
+ * @internal
+ */
+export interface IInternalScatterConfig extends IScatterConfig {
+  /**
+   * Internal property used to show a message if show labels mode is `Selected`
+   */
   selectedPointsCount?: number;
 }
 

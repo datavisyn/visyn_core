@@ -13,7 +13,7 @@ import { beautifyLayout } from '../general/layoutUtils';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
-import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
+import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
 
 const formatPValue = (pValue: number) => {
@@ -76,7 +76,7 @@ export function ScatterVis({
   scrollZoom,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IScatterConfig>) {
+}: ICommonVisProps<IInternalScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
   const [showLegend, setShowLegend] = useUncontrolled({
     defaultValue: true,
@@ -300,6 +300,11 @@ export function ScatterVis({
     });
   }, [config.showLabelLimit, config.showLabels, isSelecting, plotsWithSelectedPoints, traces]);
 
+  useEffect(() => {
+    setConfig({ ...config, selectedPointsCount: selectedList.length });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedList, setConfig]);
+
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
       {showDragModeOptions || showDownloadScreenshot ? (
@@ -314,6 +319,7 @@ export function ScatterVis({
       ) : null}
       {traceStatus === 'success' && plotsWithSelectedPoints.length > 0 ? (
         <>
+          ``
           {config.showLegend === undefined ? (
             <Tooltip label="Toggle legend" refProp="rootRef">
               <Switch
