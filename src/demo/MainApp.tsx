@@ -21,8 +21,23 @@ export function MainApp() {
   const { user } = useVisynAppContext();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [],
-    color: null,
+    numColumnsSelected: [
+      {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      {
+        description: 'Gene expression',
+        id: 'brca1GeneExpression',
+        name: 'BRCA1',
+      },
+    ],
+    color: {
+      description: null,
+      id: 'cellularity',
+      name: 'Cellularity',
+    },
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
