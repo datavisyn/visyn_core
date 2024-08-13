@@ -19,7 +19,7 @@ test('selection in ranking should be visible in plot', async ({ page }) => {
 
   await expect(page.locator('path[class="violin"]').first()).toHaveCSS('fill', 'rgb(226, 150, 9)');
   await expect(page.locator('path[class="violin"]').nth(1)).not.toHaveCSS('fill', 'rgb(226, 150, 9)');
-  await expect(page.locator('path[class="violin"]').last()).not.toHaveCSS('fill', 'rgb(226, 150, 9)');
+  await expect(page.locator('path[class="violin"]').last()).toHaveCSS('fill', 'rgb(226, 150, 9)');
 });
 
 test('sort x-axis', async ({ page }) => {
@@ -49,15 +49,15 @@ test('sort y-axis', async ({ page }) => {
 
   // first click
   await page.locator('g[class="g-ytitle"]').locator('foreignObject').click();
-  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').first().locator('text')).toHaveText('Unknown');
-  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').nth(1).locator('text')).toHaveText('BREAST CONSERVING');
+  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').first().locator('text')).toHaveText('BREAST CONSERVING');
+  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').nth(1).locator('text')).toHaveText('Unknown');
   await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').last().locator('text')).toHaveText('MASTECTOMY');
 
   // second click
   await page.locator('g[class="g-ytitle"]').locator('foreignObject').click();
   await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').first().locator('text')).toHaveText('MASTECTOMY');
-  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').nth(1).locator('text')).toHaveText('BREAST CONSERVING');
-  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').last().locator('text')).toHaveText('Unknown');
+  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').nth(1).locator('text')).toHaveText('Unknown');
+  await expect(page.locator('g[class="xaxislayer-above"]').locator('g[class="xtick"]').last().locator('text')).toHaveText('BREAST CONSERVING');
 
   // third click
   await page.locator('g[class="g-ytitle"]').locator('foreignObject').click();

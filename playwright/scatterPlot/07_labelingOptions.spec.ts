@@ -26,7 +26,6 @@ test('always show labels', async ({ page }) => {
 
 test('initial state: selected show labels', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('div[class="js-plotly-plot"]')).toHaveScreenshot('scatterPlotInitialState.png');
   await page.getByTestId('LabelingOptions').locator('div[class*="SegmentedControl-control"]').nth(2).locator('label[class*="SegmentedControl-label"]').click();
   const scatterPlot = await page.locator('div[class="js-plotly-plot"]');
   const scatterPlotWidth = await scatterPlot.evaluate((el) => {

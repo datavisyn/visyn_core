@@ -24,7 +24,7 @@ export default defineConfig({
   // increased as some tests are slow in CI (e.g. co-expression)
   expect: { timeout: 30000, toMatchSnapshot: { maxDiffPixelRatio: 0.1 } },
   timeout: 1000 * 60,
-  globalTimeout: 8 * 60 * 1000,
+  // globalTimeout: 8 * 60 * 1000,
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {

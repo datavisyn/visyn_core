@@ -11,7 +11,7 @@ export async function selectViolinPlot(page: Page) {
   await page.getByRole('option', { name: 'Cohort' }).click();
   await page.getByTestId('MultiSelect').click();
   await page.getByTestId('SingleSelectCategorical column').click();
-  await page.getByRole('option', { name: 'Breast Surgery Type' }).first().click();
+  await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).first().click();
 }
 
 export async function selectBoxPlot(page: Page) {
@@ -21,7 +21,7 @@ export async function selectBoxPlot(page: Page) {
 
   // select columns for plot to make sense
   await page.getByTestId('SingleSelectCategorical column').click();
-  await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
+  await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).click();
 }
 
 export async function selectHeatmap(page: Page) {
@@ -30,7 +30,7 @@ export async function selectHeatmap(page: Page) {
   await page.getByRole('option', { name: 'Heatmap plot' }).click();
 
   await page.getByTestId('MultiSelect').click();
-  await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
+  await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).click();
   await page.getByRole('option', { name: 'Cellularity' }).click();
   await page.getByTestId('MultiSelect').click();
 }

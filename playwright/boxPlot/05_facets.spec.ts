@@ -7,7 +7,7 @@ test('facet selected', async ({ page }) => {
   await page.getByTestId('SingleSelectCloseButton').click();
 
   await page.getByTestId('SingleSelectFacets').click();
-  await page.getByRole('option', { name: 'Breast Surgery Type' }).click();
+  await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).click();
   await expect(page.locator('g[class="xy"]')).toBeVisible();
   await expect(page.locator('g[class="x2y2"]')).toBeVisible();
   await expect(page.locator('g[class="x3y3"]')).toBeVisible();

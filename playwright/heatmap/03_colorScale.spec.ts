@@ -6,8 +6,8 @@ test('blue color scale', async ({ page }, testInfo) => {
   await takeSnapshot(page, 'heatmap/03_colorScale/blue', testInfo);
 
   await expect(page.getByTestId('ColorLegendScale0')).toHaveText('0.00');
-  await expect(page.getByTestId('ColorLegendScale4')).toHaveText('544');
-  await expect(page.locator('rect[class="css-rvf4eq"]').first()).toHaveCSS('fill', 'rgb(207, 246, 255)');
+  await expect(page.getByTestId('ColorLegendScale4')).toHaveText('694');
+  await expect(page.locator('rect[class="css-rvf4eq"]').first()).toHaveCSS('fill', 'rgb(195, 233, 255)');
 });
 
 test('orange color scale', async ({ page }, testInfo) => {
@@ -16,7 +16,7 @@ test('orange color scale', async ({ page }, testInfo) => {
   await page.getByTestId('NumericalColorButtons').locator('div[class*="SegmentedControl-control"]').locator('label').first().click();
   await takeSnapshot(page, 'heatmap/03_colorScale/orange', testInfo);
 
-  await expect(page.getByTestId('ColorLegendScale0')).toHaveText('1.00');
-  await expect(page.getByTestId('ColorLegendScale4')).toHaveText('544');
-  await expect(page.locator('rect[class="css-rvf4eq"]').first()).toHaveCSS('fill', 'rgb(111, 0, 0)');
+  await expect(page.getByTestId('ColorLegendScale0')).toHaveText('8.00');
+  await expect(page.getByTestId('ColorLegendScale4')).toHaveText('694');
+  await expect(page.locator('rect[class="css-rvf4eq"]').first()).toHaveCSS('fill', 'rgb(134, 26, 10)');
 });
