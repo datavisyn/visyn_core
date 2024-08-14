@@ -1,5 +1,5 @@
 import { Center, Group, Stack, Switch, Tooltip } from '@mantine/core';
-import { useUncontrolled } from '@mantine/hooks';
+import { useShallowEffect, useUncontrolled } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
@@ -300,9 +300,8 @@ export function ScatterVis({
     });
   }, [config.showLabelLimit, config.showLabels, isSelecting, plotsWithSelectedPoints, traces]);
 
-  useEffect(() => {
+  useShallowEffect(() => {
     setConfig({ ...config, selectedPointsCount: selectedList.length });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedList, setConfig]);
 
   return (
