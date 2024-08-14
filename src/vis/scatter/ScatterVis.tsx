@@ -1,5 +1,5 @@
 import { Center, Group, Stack, Switch, Tooltip } from '@mantine/core';
-import { useUncontrolled } from '@mantine/hooks';
+import { useShallowEffect, useUncontrolled } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
@@ -83,7 +83,7 @@ export function ScatterVis({
     value: config.showLegend,
   });
   const [layout, setLayout] = useState<Partial<PlotlyTypes.Layout>>(null);
-
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
 
   // TODO: This is a little bit hacky, Also notification should be shown to the user
@@ -293,14 +293,14 @@ export function ScatterVis({
     }
 
     return data.map((d) => {
-      const textIndices = !config.showLabelLimit ? (d.selectedpoints ?? []) : (d.selectedpoints ?? []).slice(0, config.showLabelLimit);
+      const textIndices = !config.showLabelLimit ? d.selectedpoints ?? [] : (d.selectedpoints ?? []).slice(0, config.showLabelLimit);
       const text = config.showLabels === ELabelingOptions.ALWAYS ? d.text : isSelecting ? '' : (d.text ?? []).map((t, i) => (textIndices.includes(i) ? t : ''));
 
       return { ...d, text };
     });
   }, [config.showLabelLimit, config.showLabels, isSelecting, plotsWithSelectedPoints, traces]);
 
-  useEffect(() => {
+  useShallowEffect(() => {
     setConfig({ ...config, selectedPointsCount: selectedList.length });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedList, setConfig]);
@@ -389,23 +389,35 @@ export function ScatterVis({
             }}
             onUpdate={() => {
               d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+              window.addEventListener('keydown', (event) => {
+                if (event.key === 'Shift') {
+                  setIsShiftPressed(true);
+                }
+              });
+              window.addEventListener('keyup', (event) => {
+                if (event.key === 'Shift') {
+                  setIsShiftPressed(false);
+                }
+              });
             }}
             onSelecting={() => {
               setIsSelecting(true);
             }}
             onSelected={(sel) => {
               if (sel) {
+                let indices = [];
                 // @ts-ignore
                 if (sel.points[0]?.binNumber !== undefined) {
                   // @ts-ignore
                   const selInidices = sel.points?.map((d) => d?.pointIndices).flat(1);
-                  const indices = sel.points[0]?.data?.customdata?.filter((_, i) => selInidices.includes(i)) as string[];
-                  selectionCallback(indices);
+                  indices = sel.points[0]?.data?.customdata?.filter((_, i) => selInidices.includes(i)) as string[];
                 } else {
-                  selectionCallback(sel ? sel.points?.map((d) => (d as any).id) : []);
+                  indices = sel.points?.map((d) => (d as any).id);
                 }
+                const selected = Array.from(new Set(isShiftPressed ? [...selectedList, ...indices] : indices));
+                selectionCallback(selected);
                 setIsSelecting(false);
-                setConfig({ ...config, selectedPointsCount: sel.points.length });
+                setConfig({ ...config, selectedPointsCount: selected.length });
               }
             }}
           />
