@@ -302,7 +302,6 @@ export function ScatterVis({
 
   useShallowEffect(() => {
     setConfig({ ...config, selectedPointsCount: selectedList.length });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedList, setConfig]);
 
   return (
