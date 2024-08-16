@@ -1,5 +1,6 @@
 import * as d3v7 from 'd3v7';
-import _ from 'lodash';
+import flatMap from 'lodash/flatMap';
+import groupBy from 'lodash/groupBy';
 import merge from 'lodash/merge';
 import { i18n } from '../../i18n';
 import { getCssValue, selectionColorDark } from '../../utils';
@@ -132,6 +133,13 @@ export async function createScatterTraces(
 
   const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
   const resolvedLabelColumns = await Promise.all((labelColumns ?? []).map((l) => resolveSingleColumn(getCol(columns, l))));
+  const resolvedLabelColumnsWithMappedValues = resolvedLabelColumns.map((c) => {
+    const mappedValues = new Map();
+    c.resolvedValues.forEach((v) => {
+      mappedValues.set(v.id, v.val);
+    });
+    return { ...c, mappedValues };
+  });
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
@@ -222,9 +230,9 @@ export async function createScatterTraces(
       shape: shapeCol ? shapeCol.resolvedValues[i].val : undefined,
     }));
 
-    const groupedData = _.groupBy(data, 'facet');
+    const groupedData = groupBy(data, 'facet');
 
-    _.flatMap(groupedData, (group, key) => {
+    flatMap(groupedData, (group, key) => {
       const calcXDomain = calculateDomain(
         (validCols[0] as VisNumericalColumn).domain,
         group.map((d) => d.x as number),
@@ -245,7 +253,7 @@ export async function createScatterTraces(
             `${idToLabelMapper(d.ids)}
 <br />${xLabel}: ${d.x}
 <br />${yLabel}: ${d.y}
-${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues.find((v) => String(v.id) === String(d.ids)).val)}`)}
+${(resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(d.ids))}`)}
 ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
 ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
           ),

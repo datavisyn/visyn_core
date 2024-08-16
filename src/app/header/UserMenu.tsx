@@ -20,6 +20,11 @@ export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: strin
           size={28}
           variant="white"
         >
+          {/*
+            // NOTE: @dv-usama-ansari: We would not need this fix when we upgrade to Mantine v7.11
+            //  Extracting initials is a built-in feature in Mantine v7.11: https://mantine.dev/changelog/7-11-0/#avatar-initials
+            */}
+
           {user
             .split(' ')
             .map((name) => name[0])
