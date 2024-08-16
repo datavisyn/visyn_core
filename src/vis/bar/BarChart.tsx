@@ -1,5 +1,5 @@
 import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
-import { useResizeObserver } from '@mantine/hooks';
+import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
 import { uniqueId, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
@@ -26,7 +26,7 @@ export function BarChart({
   ICommonVisProps<IBarConfig>,
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
-  const [resizeObserverRef, { height }] = useResizeObserver();
+  const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
@@ -134,7 +134,7 @@ export function BarChart({
           ) : null}
         </Box> */}
 
-        <ScrollArea.Autosize mah={height}>
+        <ScrollArea.Autosize mah={containerHeight} maw={containerWidth}>
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />
