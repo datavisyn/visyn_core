@@ -95,7 +95,7 @@ export function VisynHeader({
         {components?.logo === undefined ? <DatavisynLogo color={backgroundColor === 'white' ? 'black' : 'white'} /> : components?.logo}
         <Group gap={5}>
           {components?.userAvatar === undefined ? (
-            user ? (
+            user && user.name ? (
               <UserMenu menu={components?.userMenu} user={user.name} color={backgroundColor} />
             ) : null
           ) : (
