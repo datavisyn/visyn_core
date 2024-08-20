@@ -2,12 +2,12 @@ import { test, expect } from '@chromatic-com/playwright';
 
 test('no and one numerical column selected', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('MultiSelect').click();
+  await page.getByTestId('MultiSelect').first().click();
   await page.getByTestId('MultiSelectCloseButton').click();
   await expect(page.getByRole('alert')).toBeVisible();
 
   // select one column
-  await page.getByTestId('MultiSelect').click();
+  await page.getByTestId('MultiSelect').first().click();
   await page.getByRole('option', { name: 'Cohort' });
   await expect(page.getByRole('alert')).toBeVisible();
 });
