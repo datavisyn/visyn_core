@@ -10,6 +10,5 @@ test.only('shape selected', async ({ page }) => {
   await page.getByTestId('SingleSelectShape').click();
   await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).click();
   await expect(page.getByLabel('Legend')).not.toBeDisabled();
-  await expect(page.locator('g[class="legend"]')).toBeVisible();
-  await page.waitForTimeout(10000);
+  expect(await page.locator('g[class="legend"]')).toBeVisible({ timeout: 10000 });
 });
