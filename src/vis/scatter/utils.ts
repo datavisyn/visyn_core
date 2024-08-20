@@ -171,7 +171,7 @@ export async function createScatterTraces(
   // These are shared data properties between the traces
   const sharedData = {
     showlegend: false,
-    type: 'scatter',
+    type: 'scattergl',
     mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
     hoverinfo: 'text',
     hoverlabel: {
@@ -410,7 +410,7 @@ export async function createScatterTraces(
       data: {
         x: [null],
         y: [null],
-        type: 'scatter',
+        type: 'scattergl',
         mode: 'markers',
         legendgroup: 'color',
         hoverinfo: 'skip',
@@ -451,7 +451,7 @@ export async function createScatterTraces(
       data: {
         x: [null],
         y: [null],
-        type: 'scatter',
+        type: 'scattergl',
         mode: 'markers',
         showlegend: true,
         legendgroup: 'shape',
