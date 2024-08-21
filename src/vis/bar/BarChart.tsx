@@ -154,7 +154,7 @@ export function BarChart({
               // setSortType={setSortType}
             />
           ) : (
-            <Stack gap="xl" style={{ overflow: 'hidden' }} w={containerWidth}>
+            <Stack gap="xl" w={containerWidth}>
               {filteredUniqueFacetVals.map((multiplesVal) => (
                 <SingleEChartsBarChart
                   key={multiplesVal as string}
