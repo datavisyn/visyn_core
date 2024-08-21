@@ -1,4 +1,4 @@
-import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
+import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
 import { uniqueId, zipWith } from 'lodash';
@@ -27,6 +27,7 @@ export function BarChart({
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
+
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
@@ -134,44 +135,46 @@ export function BarChart({
           ) : null}
         </Box> */}
 
-        <ScrollArea.Autosize mah={containerHeight} maw={containerWidth}>
-          {colsStatus !== 'success' ? (
-            <Center>
-              <Loader />
-            </Center>
-          ) : !config.facets || !allColumns.facetsColVals ? (
-            <SingleEChartsBarChart
-              config={config}
-              dataTable={dataTable}
-              setConfig={setConfig}
-              selectionCallback={customSelectionCallback}
-              groupColorScale={groupColorScale}
-              selectedMap={selectedMap}
-              // allColumns={allColumns}
-              // selectedList={selectedList}
-              // sortType={sortType}
-              // setSortType={setSortType}
-            />
-          ) : (
-            <Stack gap="xl" style={{ width: '100%' }}>
-              {filteredUniqueFacetVals.map((multiplesVal) => (
-                <SingleEChartsBarChart
-                  key={multiplesVal as string}
-                  config={config}
-                  dataTable={dataTable}
-                  selectedFacetValue={multiplesVal}
-                  selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
-                  setConfig={setConfig}
-                  selectionCallback={customSelectionCallback}
-                  groupColorScale={groupColorScale}
-                  selectedMap={selectedMap}
-                  // selectedList={selectedList}
-                  // sortType={sortType}
-                  // setSortType={setSortType}
-                />
-              ))}
-            </Stack>
-          )}
+        <ScrollArea.Autosize h={containerHeight}>
+          <Box w={containerWidth}>
+            {colsStatus !== 'success' ? (
+              <Center>
+                <Loader />
+              </Center>
+            ) : !config.facets || !allColumns.facetsColVals ? (
+              <SingleEChartsBarChart
+                config={config}
+                dataTable={dataTable}
+                setConfig={setConfig}
+                selectionCallback={customSelectionCallback}
+                groupColorScale={groupColorScale}
+                selectedMap={selectedMap}
+                // allColumns={allColumns}
+                // selectedList={selectedList}
+                // sortType={sortType}
+                // setSortType={setSortType}
+              />
+            ) : (
+              <Stack gap="xl" style={{ width: '100%' }}>
+                {filteredUniqueFacetVals.map((multiplesVal) => (
+                  <SingleEChartsBarChart
+                    key={multiplesVal as string}
+                    config={config}
+                    dataTable={dataTable}
+                    selectedFacetValue={multiplesVal}
+                    selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
+                    setConfig={setConfig}
+                    selectionCallback={customSelectionCallback}
+                    groupColorScale={groupColorScale}
+                    selectedMap={selectedMap}
+                    // selectedList={selectedList}
+                    // sortType={sortType}
+                    // setSortType={setSortType}
+                  />
+                ))}
+              </Stack>
+            )}
+          </Box>
         </ScrollArea.Autosize>
       </Stack>
     </Stack>
