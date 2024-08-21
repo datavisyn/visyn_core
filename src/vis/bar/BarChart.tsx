@@ -1,5 +1,5 @@
-import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
+import { Box, Center, Group, Loader, LoadingOverlay, ScrollArea, Stack, Text } from '@mantine/core';
+import { useElementSize, usePrevious } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
 import { uniqueId, zipWith } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
@@ -112,6 +112,10 @@ export function BarChart({
     [selectedList, selectionCallback],
   );
 
+  // NOTE: @dv-usama-ansari: To show the loading overlay when resizing the chart area
+  // const previousWidth = usePrevious(containerWidth);
+  // const isResizing = useMemo(() => previousWidth === containerWidth, [containerWidth, previousWidth]);
+
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
       {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
@@ -120,7 +124,20 @@ export function BarChart({
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
         </Group>
       ) : null}
-      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
+      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }} pos="relative">
+        {/* // NOTE: @dv-usama-ansari: To show the loading overlay when resizing the chart area */}
+        {/* <LoadingOverlay
+          visible={isResizing}
+          loaderProps={{
+            children: (
+              <Stack>
+                <Loader />
+                <Text>Resizing</Text>
+              </Stack>
+            ),
+          }}
+        /> */}
+
         {/* <Box ref={legendBoxRef}>
           {groupColorScale ? (
             <Legend
