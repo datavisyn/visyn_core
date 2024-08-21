@@ -120,7 +120,7 @@ export function BarChart({
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
         </Group>
       ) : null}
-      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }} pos="relative">
+      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
         {/* <Box ref={legendBoxRef}>
           {groupColorScale ? (
             <Legend
