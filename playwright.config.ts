@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -7,8 +8,8 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 0 : 0,
-  workers: process.env.CI ? 2 : 2,
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? '100%' : '50%',
   reporter: process.env.CI ? [['github'], ['list'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'http://127.0.0.1:8080',
@@ -19,12 +20,12 @@ export default defineConfig({
     /* Capture screenshot after each test failure: https://playwright.dev/docs/test-use-options#recording-options */
     screenshot: 'only-on-failure',
     /* Capture video */
-    // video: 'retain-on-failure',
+    video: 'on-first-retry',
   },
   // increased as some tests are slow in CI (e.g. co-expression)
-  expect: { timeout: 30000, toMatchSnapshot: { maxDiffPixelRatio: 0.1 } },
-  timeout: 1000 * 60,
-  // globalTimeout: 8 * 60 * 1000,
+  expect: { timeout: 30000 },
+  timeout: 3 * 1000 * 60,
+  globalTimeout: 10 * 60 * 1000,
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
@@ -42,7 +43,6 @@ export default defineConfig({
     },
     {
       command: 'make start',
-
       url: 'http://127.0.0.1:9000/health',
       reuseExistingServer: !process.env.CI,
     },

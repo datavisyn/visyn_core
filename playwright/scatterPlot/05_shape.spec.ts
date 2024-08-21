@@ -5,10 +5,11 @@ test('no shape selected', async ({ page }) => {
   await expect(page.getByTestId('SingleSelectShape').locator('span[class*="InputPlaceholder-placeholder"]').last()).toBeVisible();
 });
 
-test.only('shape selected', async ({ page }) => {
+test('shape selected', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('SingleSelectShape').click();
   await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).click();
   await expect(page.getByLabel('Legend')).not.toBeDisabled();
-  expect(await page.locator('g[class="legend"]')).toBeVisible({ timeout: 10000 });
+  expect(await page.locator('g[class="legend"]')).toBeVisible();
+  //await page.screenshot({ path: 'scatterPlot/05_shape.png' });
 });

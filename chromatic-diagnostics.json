@@ -1,16 +1,77 @@
 {
   "activity": {},
   "announcedBuild": {
-    "id": "66ab52f9df0714a93beda67a",
-    "number": 130,
-    "status": "ANNOUNCED",
+    "id": "66c5828437d1c8af98eac19e",
+    "number": 192,
+    "status": "PUBLISHED",
     "autoAcceptChanges": false,
     "app": {
       "id": "640e9afaf15e817c63e10f42",
       "turboSnapAvailability": "UNUSED"
-    }
+    },
+    "storybookUrl": "https://640e9afaf15e817c63e10f42-qaqpexprfa.chromatic.com/"
   },
-  "buildCommand": "node /home/lili/workspace/visyn_core/node_modules/@chromatic-com/playwright/dist/bin/build-archive-storybook.js --output-dir /tmp/chromatic--125532-ddLf6dSKQv6l",
+  "build": {
+    "id": "66c5828437d1c8af98eac19e",
+    "number": 192,
+    "status": "PENDING",
+    "autoAcceptChanges": false,
+    "app": {
+      "manageUrl": "https://www.chromatic.com/manage?appId=640e9afaf15e817c63e10f42",
+      "setupUrl": "https://www.chromatic.com/setup?appId=640e9afaf15e817c63e10f42",
+      "account": {
+        "exceededThreshold": false,
+        "paymentRequired": false,
+        "billingUrl": "https://www.chromatic.com/billing?accountId=63e25300c99a6fc503c12724"
+      },
+      "repository": {
+        "provider": "github"
+      }
+    },
+    "storybookUrl": "https://640e9afaf15e817c63e10f42-qaqpexprfa.chromatic.com/",
+    "specCount": 1,
+    "componentCount": 1,
+    "testCount": 1,
+    "changeCount": 1,
+    "errorCount": 0,
+    "actualTestCount": 1,
+    "actualCaptureCount": 1,
+    "inheritedCaptureCount": 0,
+    "interactionTestFailuresCount": 0,
+    "webUrl": "https://www.chromatic.com/build?appId=640e9afaf15e817c63e10f42&number=192",
+    "browsers": [
+      {
+        "browser": "chrome"
+      }
+    ],
+    "features": {
+      "uiTests": true,
+      "uiReview": true
+    },
+    "turboSnapEnabled": null,
+    "wasLimited": false,
+    "tests": [
+      {
+        "spec": {
+          "name": "Snapshot #1",
+          "component": {
+            "name": "scatterPlot/05_shape/shape selected",
+            "displayName": "shape selected"
+          }
+        },
+        "parameters": {
+          "viewport": 1920,
+          "viewportIsDefault": false
+        },
+        "mode": {
+          "name": "w1920h1080"
+        }
+      }
+    ],
+    "inProgressCount": 0,
+    "completedAt": 1724220067172
+  },
+  "buildCommand": "node /home/lili/workspace/visyn_core/node_modules/@chromatic-com/playwright/dist/bin/build-archive-storybook.js --output-dir /tmp/chromatic--10961-BaoAE5eZkRFv",
   "buildLogFile": "/home/lili/workspace/visyn_core/build-storybook.log",
   "configuration": {
     "configFile": "chromatic.config.json",
@@ -19,8 +80,528 @@
     "buildScriptName": "storybook:build"
   },
   "environment": {},
-  "exitCode": 51,
-  "exitCodeKey": "E2E_BUILD_FAILED",
+  "exitCode": 1,
+  "exitCodeKey": "BUILD_HAS_CHANGES",
+  "fileInfo": {
+    "lengths": [
+      {
+        "pathname": "227.3ea191cb.iframe.bundle.js",
+        "contentLength": 1210,
+        "knownAs": "227.3ea191cb.iframe.bundle.js"
+      },
+      {
+        "pathname": "364.7d253dcb.iframe.bundle.js",
+        "contentLength": 489,
+        "knownAs": "364.7d253dcb.iframe.bundle.js"
+      },
+      {
+        "pathname": "461.b6b3ad24.iframe.bundle.js",
+        "contentLength": 39306,
+        "knownAs": "461.b6b3ad24.iframe.bundle.js"
+      },
+      {
+        "pathname": "648.2749f807.iframe.bundle.js",
+        "contentLength": 1098,
+        "knownAs": "648.2749f807.iframe.bundle.js"
+      },
+      {
+        "pathname": "823.8031a47d.iframe.bundle.js",
+        "contentLength": 61276,
+        "knownAs": "823.8031a47d.iframe.bundle.js"
+      },
+      {
+        "pathname": "823.8031a47d.iframe.bundle.js.map",
+        "contentLength": 17786,
+        "knownAs": "823.8031a47d.iframe.bundle.js.map"
+      },
+      {
+        "pathname": "92.11b6ce5c.iframe.bundle.js",
+        "contentLength": 1264204,
+        "knownAs": "92.11b6ce5c.iframe.bundle.js"
+      },
+      {
+        "pathname": "92.11b6ce5c.iframe.bundle.js.LICENSE.txt",
+        "contentLength": 1269,
+        "knownAs": "92.11b6ce5c.iframe.bundle.js.LICENSE.txt"
+      },
+      {
+        "pathname": "92.11b6ce5c.iframe.bundle.js.map",
+        "contentLength": 1206698,
+        "knownAs": "92.11b6ce5c.iframe.bundle.js.map"
+      },
+      {
+        "pathname": "api/security/stores.json",
+        "contentLength": 64,
+        "knownAs": "api/security/stores.json"
+      },
+      {
+        "pathname": "api/v1/visyn/clientConfig.json",
+        "contentLength": 61,
+        "knownAs": "api/v1/visyn/clientConfig.json"
+      },
+      {
+        "pathname": "app.1f6e15f9.css",
+        "contentLength": 481782,
+        "knownAs": "app.1f6e15f9.css"
+      },
+      {
+        "pathname": "app.6caac3dd.js",
+        "contentLength": 29286522,
+        "knownAs": "app.6caac3dd.js"
+      },
+      {
+        "pathname": "assets/datavisyn_white.9d51fc65f812cd1c362c.svg",
+        "contentLength": 3624,
+        "knownAs": "assets/datavisyn_white.9d51fc65f812cd1c362c.svg"
+      },
+      {
+        "pathname": "assets/fa-regular-400.5c670d3d1f54b75a959b.woff2",
+        "contentLength": 25464,
+        "knownAs": "assets/fa-regular-400.5c670d3d1f54b75a959b.woff2"
+      },
+      {
+        "pathname": "assets/fa-solid-900.f8ab6cce670084c70c21.woff2",
+        "contentLength": 157192,
+        "knownAs": "assets/fa-solid-900.f8ab6cce670084c70c21.woff2"
+      },
+      {
+        "pathname": "assets/icon_categorical.baf87fc19468c137d183.svg",
+        "contentLength": 680,
+        "knownAs": "assets/icon_categorical.baf87fc19468c137d183.svg"
+      },
+      {
+        "pathname": "assets/icon_numerical.6ee08258bcf2fd0972d8.svg",
+        "contentLength": 987,
+        "knownAs": "assets/icon_numerical.6ee08258bcf2fd0972d8.svg"
+      },
+      {
+        "pathname": "assets/icon_string.f782ecf8da62135e1515.svg",
+        "contentLength": 396,
+        "knownAs": "assets/icon_string.f782ecf8da62135e1515.svg"
+      },
+      {
+        "pathname": "assets/loading_s.c636d8bf75b4e123e642.svg",
+        "contentLength": 349,
+        "knownAs": "assets/loading_s.c636d8bf75b4e123e642.svg"
+      },
+      {
+        "pathname": "assets/roboto-v29-latin-500.6d45be4a450038cd81c3.woff2",
+        "contentLength": 15920,
+        "knownAs": "assets/roboto-v29-latin-500.6d45be4a450038cd81c3.woff2"
+      },
+      {
+        "pathname": "assets/roboto-v29-latin-700.07f4948bf69a80aac60c.woff2",
+        "contentLength": 15828,
+        "knownAs": "assets/roboto-v29-latin-700.07f4948bf69a80aac60c.woff2"
+      },
+      {
+        "pathname": "assets/roboto-v29-latin-regular.e40a5b457f0e9d742543.woff2",
+        "contentLength": 15688,
+        "knownAs": "assets/roboto-v29-latin-regular.e40a5b457f0e9d742543.woff2"
+      },
+      {
+        "pathname": "favicon.svg",
+        "contentLength": 1251,
+        "knownAs": "favicon.svg"
+      },
+      {
+        "pathname": "iframe.html",
+        "contentLength": 15453,
+        "knownAs": "iframe.html"
+      },
+      {
+        "pathname": "index.html",
+        "contentLength": 4692,
+        "knownAs": "index.html"
+      },
+      {
+        "pathname": "index.json",
+        "contentLength": 329,
+        "knownAs": "index.json"
+      },
+      {
+        "pathname": "main.103cddf4.iframe.bundle.js",
+        "contentLength": 4400,
+        "knownAs": "main.103cddf4.iframe.bundle.js"
+      },
+      {
+        "pathname": "nunito-sans-bold-italic.woff2",
+        "contentLength": 49460,
+        "knownAs": "nunito-sans-bold-italic.woff2"
+      },
+      {
+        "pathname": "nunito-sans-bold.woff2",
+        "contentLength": 47144,
+        "knownAs": "nunito-sans-bold.woff2"
+      },
+      {
+        "pathname": "nunito-sans-italic.woff2",
+        "contentLength": 49620,
+        "knownAs": "nunito-sans-italic.woff2"
+      },
+      {
+        "pathname": "nunito-sans-regular.woff2",
+        "contentLength": 47072,
+        "knownAs": "nunito-sans-regular.woff2"
+      },
+      {
+        "pathname": "project.json",
+        "contentLength": 711,
+        "knownAs": "project.json"
+      },
+      {
+        "pathname": "runtime~main.480cda14.iframe.bundle.js",
+        "contentLength": 5704,
+        "knownAs": "runtime~main.480cda14.iframe.bundle.js"
+      },
+      {
+        "pathname": "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js",
+        "contentLength": 2058,
+        "knownAs": "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js",
+        "contentLength": 2058,
+        "knownAs": "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/essentials-actions-2/manager-bundle.js",
+        "contentLength": 41051,
+        "knownAs": "sb-addons/essentials-actions-2/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/essentials-actions-2/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/essentials-actions-2/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/essentials-backgrounds-3/manager-bundle.js",
+        "contentLength": 13471,
+        "knownAs": "sb-addons/essentials-backgrounds-3/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/essentials-backgrounds-3/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/essentials-backgrounds-3/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/essentials-controls-1/manager-bundle.js",
+        "contentLength": 508621,
+        "knownAs": "sb-addons/essentials-controls-1/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/essentials-controls-1/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/essentials-controls-1/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/essentials-measure-6/manager-bundle.js",
+        "contentLength": 6203,
+        "knownAs": "sb-addons/essentials-measure-6/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/essentials-measure-6/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/essentials-measure-6/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/essentials-outline-7/manager-bundle.js",
+        "contentLength": 6245,
+        "knownAs": "sb-addons/essentials-outline-7/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/essentials-outline-7/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/essentials-outline-7/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/essentials-toolbars-5/manager-bundle.js",
+        "contentLength": 5157,
+        "knownAs": "sb-addons/essentials-toolbars-5/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/essentials-toolbars-5/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/essentials-toolbars-5/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/essentials-viewport-4/manager-bundle.js",
+        "contentLength": 13747,
+        "knownAs": "sb-addons/essentials-viewport-4/manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/essentials-viewport-4/manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/essentials-viewport-4/manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js",
+        "contentLength": 1116,
+        "knownAs": "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js"
+      },
+      {
+        "pathname": "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js.LEGAL.txt",
+        "contentLength": 0,
+        "knownAs": "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js.LEGAL.txt"
+      },
+      {
+        "pathname": "sb-common-assets/favicon.svg",
+        "contentLength": 1251,
+        "knownAs": "sb-common-assets/favicon.svg"
+      },
+      {
+        "pathname": "sb-common-assets/nunito-sans-bold-italic.woff2",
+        "contentLength": 49460,
+        "knownAs": "sb-common-assets/nunito-sans-bold-italic.woff2"
+      },
+      {
+        "pathname": "sb-common-assets/nunito-sans-bold.woff2",
+        "contentLength": 47144,
+        "knownAs": "sb-common-assets/nunito-sans-bold.woff2"
+      },
+      {
+        "pathname": "sb-common-assets/nunito-sans-italic.woff2",
+        "contentLength": 49620,
+        "knownAs": "sb-common-assets/nunito-sans-italic.woff2"
+      },
+      {
+        "pathname": "sb-common-assets/nunito-sans-regular.woff2",
+        "contentLength": 47072,
+        "knownAs": "sb-common-assets/nunito-sans-regular.woff2"
+      },
+      {
+        "pathname": "sb-manager/globals-module-info.js",
+        "contentLength": 21695,
+        "knownAs": "sb-manager/globals-module-info.js"
+      },
+      {
+        "pathname": "sb-manager/globals-runtime.js",
+        "contentLength": 1854003,
+        "knownAs": "sb-manager/globals-runtime.js"
+      },
+      {
+        "pathname": "sb-manager/globals.js",
+        "contentLength": 2428,
+        "knownAs": "sb-manager/globals.js"
+      },
+      {
+        "pathname": "sb-manager/runtime.js",
+        "contentLength": 421367,
+        "knownAs": "sb-manager/runtime.js"
+      },
+      {
+        "pathname": "sb-preview/globals.js",
+        "contentLength": 1793,
+        "knownAs": "sb-preview/globals.js"
+      },
+      {
+        "pathname": "sb-preview/runtime.js",
+        "contentLength": 348855,
+        "knownAs": "sb-preview/runtime.js"
+      },
+      {
+        "pathname": "scatterplot-05-shape-shape-selected-snapshot-1.w1920h1080.snapshot.json",
+        "contentLength": 1442956,
+        "knownAs": "scatterplot-05-shape-shape-selected-snapshot-1.w1920h1080.snapshot.json"
+      },
+      {
+        "pathname": "scatterplot-05-shape-shape-selected-stories.60395e90.iframe.bundle.js",
+        "contentLength": 761,
+        "knownAs": "scatterplot-05-shape-shape-selected-stories.60395e90.iframe.bundle.js"
+      },
+      {
+        "pathname": "src_locales_en_visyn_json.81d15ab8.chunk.js",
+        "contentLength": 1854,
+        "knownAs": "src_locales_en_visyn_json.81d15ab8.chunk.js"
+      },
+      {
+        "pathname": "src_vis_EagerVis_tsx.32f477d7.chunk.js",
+        "contentLength": 1146176,
+        "knownAs": "src_vis_EagerVis_tsx.32f477d7.chunk.js"
+      },
+      {
+        "pathname": "vendors-node_modules_emotion_react_dist_emotion-react_browser_development_esm_js.b8285791.chunk.js",
+        "contentLength": 109187,
+        "knownAs": "vendors-node_modules_emotion_react_dist_emotion-react_browser_development_esm_js.b8285791.chunk.js"
+      },
+      {
+        "pathname": "vendors-node_modules_fortawesome_free-solid-svg-icons_faGear_js-node_modules_arquero_src_inde-cdb4dd.7de9471b.chunk.js",
+        "contentLength": 4428827,
+        "knownAs": "vendors-node_modules_fortawesome_free-solid-svg-icons_faGear_js-node_modules_arquero_src_inde-cdb4dd.7de9471b.chunk.js"
+      },
+      {
+        "pathname": "vendors-node_modules_plotly_js-dist-min_plotly_min_js.eaab313a.chunk.js",
+        "contentLength": 15378345,
+        "knownAs": "vendors-node_modules_plotly_js-dist-min_plotly_min_js.eaab313a.chunk.js"
+      },
+      {
+        "pathname": "vendors-node_modules_react-plotly_js_factory_js.95f15587.chunk.js",
+        "contentLength": 40579,
+        "knownAs": "vendors-node_modules_react-plotly_js_factory_js.95f15587.chunk.js"
+      }
+    ],
+    "paths": [
+      "227.3ea191cb.iframe.bundle.js",
+      "364.7d253dcb.iframe.bundle.js",
+      "461.b6b3ad24.iframe.bundle.js",
+      "648.2749f807.iframe.bundle.js",
+      "823.8031a47d.iframe.bundle.js",
+      "823.8031a47d.iframe.bundle.js.map",
+      "92.11b6ce5c.iframe.bundle.js",
+      "92.11b6ce5c.iframe.bundle.js.LICENSE.txt",
+      "92.11b6ce5c.iframe.bundle.js.map",
+      "api/security/stores.json",
+      "api/v1/visyn/clientConfig.json",
+      "app.1f6e15f9.css",
+      "app.6caac3dd.js",
+      "assets/datavisyn_white.9d51fc65f812cd1c362c.svg",
+      "assets/fa-regular-400.5c670d3d1f54b75a959b.woff2",
+      "assets/fa-solid-900.f8ab6cce670084c70c21.woff2",
+      "assets/icon_categorical.baf87fc19468c137d183.svg",
+      "assets/icon_numerical.6ee08258bcf2fd0972d8.svg",
+      "assets/icon_string.f782ecf8da62135e1515.svg",
+      "assets/loading_s.c636d8bf75b4e123e642.svg",
+      "assets/roboto-v29-latin-500.6d45be4a450038cd81c3.woff2",
+      "assets/roboto-v29-latin-700.07f4948bf69a80aac60c.woff2",
+      "assets/roboto-v29-latin-regular.e40a5b457f0e9d742543.woff2",
+      "favicon.svg",
+      "iframe.html",
+      "index.html",
+      "index.json",
+      "main.103cddf4.iframe.bundle.js",
+      "nunito-sans-bold-italic.woff2",
+      "nunito-sans-bold.woff2",
+      "nunito-sans-italic.woff2",
+      "nunito-sans-regular.woff2",
+      "project.json",
+      "runtime~main.480cda14.iframe.bundle.js",
+      "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js",
+      "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js.LEGAL.txt",
+      "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js",
+      "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js.LEGAL.txt",
+      "sb-addons/essentials-actions-2/manager-bundle.js",
+      "sb-addons/essentials-actions-2/manager-bundle.js.LEGAL.txt",
+      "sb-addons/essentials-backgrounds-3/manager-bundle.js",
+      "sb-addons/essentials-backgrounds-3/manager-bundle.js.LEGAL.txt",
+      "sb-addons/essentials-controls-1/manager-bundle.js",
+      "sb-addons/essentials-controls-1/manager-bundle.js.LEGAL.txt",
+      "sb-addons/essentials-measure-6/manager-bundle.js",
+      "sb-addons/essentials-measure-6/manager-bundle.js.LEGAL.txt",
+      "sb-addons/essentials-outline-7/manager-bundle.js",
+      "sb-addons/essentials-outline-7/manager-bundle.js.LEGAL.txt",
+      "sb-addons/essentials-toolbars-5/manager-bundle.js",
+      "sb-addons/essentials-toolbars-5/manager-bundle.js.LEGAL.txt",
+      "sb-addons/essentials-viewport-4/manager-bundle.js",
+      "sb-addons/essentials-viewport-4/manager-bundle.js.LEGAL.txt",
+      "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js",
+      "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js.LEGAL.txt",
+      "sb-common-assets/favicon.svg",
+      "sb-common-assets/nunito-sans-bold-italic.woff2",
+      "sb-common-assets/nunito-sans-bold.woff2",
+      "sb-common-assets/nunito-sans-italic.woff2",
+      "sb-common-assets/nunito-sans-regular.woff2",
+      "sb-manager/globals-module-info.js",
+      "sb-manager/globals-runtime.js",
+      "sb-manager/globals.js",
+      "sb-manager/runtime.js",
+      "sb-preview/globals.js",
+      "sb-preview/runtime.js",
+      "scatterplot-05-shape-shape-selected-snapshot-1.w1920h1080.snapshot.json",
+      "scatterplot-05-shape-shape-selected-stories.60395e90.iframe.bundle.js",
+      "src_locales_en_visyn_json.81d15ab8.chunk.js",
+      "src_vis_EagerVis_tsx.32f477d7.chunk.js",
+      "vendors-node_modules_emotion_react_dist_emotion-react_browser_development_esm_js.b8285791.chunk.js",
+      "vendors-node_modules_fortawesome_free-solid-svg-icons_faGear_js-node_modules_arquero_src_inde-cdb4dd.7de9471b.chunk.js",
+      "vendors-node_modules_plotly_js-dist-min_plotly_min_js.eaab313a.chunk.js",
+      "vendors-node_modules_react-plotly_js_factory_js.95f15587.chunk.js"
+    ],
+    "total": 58816829,
+    "hashes": {
+      "227.3ea191cb.iframe.bundle.js": "d0500b54be06cfd6",
+      "364.7d253dcb.iframe.bundle.js": "20ce0b1d89b05ed7",
+      "461.b6b3ad24.iframe.bundle.js": "9d48fd7124c8d1c5",
+      "648.2749f807.iframe.bundle.js": "d7742ba0b54eaed7",
+      "823.8031a47d.iframe.bundle.js": "bf2eb9a45f6c6ecb",
+      "823.8031a47d.iframe.bundle.js.map": "5e6cb8e654ae897b",
+      "92.11b6ce5c.iframe.bundle.js": "4f62f97cd70539a4",
+      "92.11b6ce5c.iframe.bundle.js.LICENSE.txt": "83d88087dbb700f7",
+      "92.11b6ce5c.iframe.bundle.js.map": "a02e06d69a6c7c9e",
+      "api/security/stores.json": "4fa6fca6e28fabd8",
+      "api/v1/visyn/clientConfig.json": "680aeef4d4a31819",
+      "app.1f6e15f9.css": "79aa01c9ed5e9b67",
+      "app.6caac3dd.js": "a5d68d55e38d4a9e",
+      "assets/datavisyn_white.9d51fc65f812cd1c362c.svg": "c29ae9a12b79d014",
+      "assets/fa-regular-400.5c670d3d1f54b75a959b.woff2": "6f7d0aec71887524",
+      "assets/fa-solid-900.f8ab6cce670084c70c21.woff2": "cece584ee568dd5d",
+      "assets/icon_categorical.baf87fc19468c137d183.svg": "75385b5547323152",
+      "assets/icon_numerical.6ee08258bcf2fd0972d8.svg": "da387537c219e313",
+      "assets/icon_string.f782ecf8da62135e1515.svg": "fa411be6582b64c6",
+      "assets/loading_s.c636d8bf75b4e123e642.svg": "2955e42c48bf1dde",
+      "assets/roboto-v29-latin-500.6d45be4a450038cd81c3.woff2": "f7e6f1dc1466c7e1",
+      "assets/roboto-v29-latin-700.07f4948bf69a80aac60c.woff2": "1827c79ef80186ce",
+      "assets/roboto-v29-latin-regular.e40a5b457f0e9d742543.woff2": "7b8d7718ba08bc7d",
+      "favicon.svg": "293aff65db45e6c4",
+      "iframe.html": "43a6c1eed138df03",
+      "index.html": "beb0992c2d861dd3",
+      "index.json": "31ca963938cba04a",
+      "main.103cddf4.iframe.bundle.js": "b63f24fc7c7fa0bb",
+      "nunito-sans-bold-italic.woff2": "d64464b3594b3fb9",
+      "nunito-sans-bold.woff2": "0bd5b61b7fb7f7d5",
+      "nunito-sans-italic.woff2": "b7807d9de055e9a0",
+      "nunito-sans-regular.woff2": "6687b7be04c2debe",
+      "project.json": "0fb49da2e765abd4",
+      "runtime~main.480cda14.iframe.bundle.js": "8bf5f776e0c85f21",
+      "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js": "aab53ac9bab6d9a7",
+      "sb-addons/chromatic-com-playwright-storybook-config-8/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js": "aab53ac9bab6d9a7",
+      "sb-addons/chromatic-com-playwright-storybook-config-9/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/essentials-actions-2/manager-bundle.js": "896b1132000ae7b6",
+      "sb-addons/essentials-actions-2/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/essentials-backgrounds-3/manager-bundle.js": "4050a1382869b478",
+      "sb-addons/essentials-backgrounds-3/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/essentials-controls-1/manager-bundle.js": "cef31c7e3f112865",
+      "sb-addons/essentials-controls-1/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/essentials-measure-6/manager-bundle.js": "3a5fcb106cfd62a9",
+      "sb-addons/essentials-measure-6/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/essentials-outline-7/manager-bundle.js": "98f79ecf72eb2b77",
+      "sb-addons/essentials-outline-7/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/essentials-toolbars-5/manager-bundle.js": "5d0ad3873e9b8158",
+      "sb-addons/essentials-toolbars-5/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/essentials-viewport-4/manager-bundle.js": "584a34cc05e30254",
+      "sb-addons/essentials-viewport-4/manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js": "6ec3dc61df8cc600",
+      "sb-addons/storybook-core-core-server-presets-0/common-manager-bundle.js.LEGAL.txt": "ef46db3751d8e999",
+      "sb-common-assets/favicon.svg": "293aff65db45e6c4",
+      "sb-common-assets/nunito-sans-bold-italic.woff2": "d64464b3594b3fb9",
+      "sb-common-assets/nunito-sans-bold.woff2": "0bd5b61b7fb7f7d5",
+      "sb-common-assets/nunito-sans-italic.woff2": "b7807d9de055e9a0",
+      "sb-common-assets/nunito-sans-regular.woff2": "6687b7be04c2debe",
+      "sb-manager/globals-module-info.js": "d0e56fb62b273dbd",
+      "sb-manager/globals-runtime.js": "f49182d19f449eb2",
+      "sb-manager/globals.js": "dbb1adbc9aebc9d2",
+      "sb-manager/runtime.js": "8bfd5d64a8ed5978",
+      "sb-preview/globals.js": "34694a6ced7d7b19",
+      "sb-preview/runtime.js": "9aa90395d056018b",
+      "scatterplot-05-shape-shape-selected-snapshot-1.w1920h1080.snapshot.json": "2502e097046636cd",
+      "scatterplot-05-shape-shape-selected-stories.60395e90.iframe.bundle.js": "5af1ac05206c0ba8",
+      "src_locales_en_visyn_json.81d15ab8.chunk.js": "a5adfe0266e211e4",
+      "src_vis_EagerVis_tsx.32f477d7.chunk.js": "2622856becb90724",
+      "vendors-node_modules_emotion_react_dist_emotion-react_browser_development_esm_js.b8285791.chunk.js": "d3300d08fdc0bb65",
+      "vendors-node_modules_fortawesome_free-solid-svg-icons_faGear_js-node_modules_arquero_src_inde-cdb4dd.7de9471b.chunk.js": "51d273fe6789b1de",
+      "vendors-node_modules_plotly_js-dist-min_plotly_min_js.eaab313a.chunk.js": "2c107da63b9b4ba7",
+      "vendors-node_modules_react-plotly_js_factory_js.95f15587.chunk.js": "670a52b49fd34b35"
+    }
+  },
   "flags": {
     "playwright": true,
     "debug": true,
@@ -38,19 +619,20 @@
     "version": "2.40.1",
     "gitUserEmail": "lili.albrecht@datavisyn.io",
     "uncommittedHash": "",
-    "commit": "d29873b76f32ee924bac5979afeb411ece2aa4de",
-    "committedAt": 1722499939000,
+    "commit": "c9676322283e54a680cb159b61db9b3e7efd7c33",
+    "committedAt": 1724153533000,
     "committerEmail": "lili.albrecht@datavisyn.io",
     "committerName": "dvlilialbrecht",
     "branch": "lalbrecht/409_introducing-playwright-tests",
     "slug": "datavisyn/visyn_core",
     "fromCI": false,
     "parentCommits": [
-      "d29873b76f32ee924bac5979afeb411ece2aa4de"
+      "c9676322283e54a680cb159b61db9b3e7efd7c33"
     ]
   },
   "input": [],
   "isOnboarding": false,
+  "isPublishOnly": false,
   "options": {
     "fromCI": false,
     "inAction": false,
@@ -65,8 +647,8 @@
     "isLocalBuild": false,
     "originalArgv": [
       "--playwright",
-      "-t=99ef83e5432c",
-      "--debug"
+      "--debug",
+      "--project-token=99ef83e5432c"
     ],
     "logFile": "chromatic.log",
     "zip": true,
@@ -80,7 +662,7 @@
   "packageJson": {
     "name": "visyn_core",
     "description": "Core repository for datavisyn applications.",
-    "version": "11.3.1-SNAPSHOT",
+    "version": "11.4.3-SNAPSHOT",
     "author": {
       "name": "datavisyn GmbH",
       "email": "contact@datavisyn.io",
@@ -207,24 +789,24 @@
       "cypress": "^13.11.0"
     },
     "resolutions": {
-      "storybook": "7.6.20",
-      "@storybook/addon-actions": "7.6.20",
-      "@storybook/addon-backgrounds": "7.6.20",
-      "@storybook/addon-controls": "7.6.20",
-      "@storybook/addon-docs": "7.6.20",
-      "@storybook/addon-essentials": "7.6.20",
-      "@storybook/addon-highlight": "7.6.20",
-      "@storybook/addon-measure": "7.6.20",
-      "@storybook/addon-outline": "7.6.20",
-      "@storybook/addon-toolbars": "7.6.20",
-      "@storybook/addon-viewport": "7.6.20",
-      "@storybook/blocks": "7.6.20",
-      "@storybook/builder-webpack5": "7.6.20",
-      "@storybook/codemod": "7.6.20",
-      "@storybook/core-webpack": "7.6.20",
-      "@storybook/csf-plugin": "7.6.20",
-      "@storybook/preview-api": "7.6.20",
-      "@storybook/react-dom-shim": "7.6.20"
+      "storybook": "8.2.6",
+      "@storybook/addon-actions": "8.2.6",
+      "@storybook/addon-backgrounds": "8.2.6",
+      "@storybook/addon-controls": "8.2.6",
+      "@storybook/addon-docs": "8.2.6",
+      "@storybook/addon-essentials": "8.2.6",
+      "@storybook/addon-highlight": "8.2.6",
+      "@storybook/addon-measure": "8.2.6",
+      "@storybook/addon-outline": "8.2.6",
+      "@storybook/addon-toolbars": "8.2.6",
+      "@storybook/addon-viewport": "8.2.6",
+      "@storybook/blocks": "8.2.6",
+      "@storybook/builder-webpack5": "8.2.6",
+      "@storybook/codemod": "8.2.6",
+      "@storybook/core-webpack": "8.2.6",
+      "@storybook/csf-plugin": "8.2.6",
+      "@storybook/preview-api": "8.2.6",
+      "@storybook/react-dom-shim": "8.2.6"
     },
     "visyn": {
       "entries": {
@@ -239,18 +821,23 @@
     },
     "packageManager": "yarn@4.3.0",
     "readme": "ERROR: No README data found!",
-    "_id": "visyn_core@11.3.1-SNAPSHOT"
+    "_id": "visyn_core@11.4.3-SNAPSHOT"
   },
   "packagePath": "/home/lili/workspace/visyn_core/package.json",
+  "rebuildForBuildId": "66c581bef970c19cc5ba4e25",
   "runtimeMetadata": {
     "nodePlatform": "linux",
     "nodeVersion": "20.9.0",
     "packageManager": "yarn",
     "packageManagerVersion": "4.3.0"
   },
-  "sessionId": "71840280-909f-4382-83a5-b93698b45245",
-  "sourceDir": "/tmp/chromatic--125532-ddLf6dSKQv6l",
-  "startedAt": 1722503929810,
+  "sentinelUrls": [
+    "https://chromatic-builds.s3.us-west-2.amazonaws.com/640e9afaf15e817c63e10f42-qaqpexprfa/.chromatic/files-copied.275310854.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAJVVEQEOBEEPXSNNQ%2F20240821%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240821T060054Z&X-Amz-Expires=1800&X-Amz-Signature=a96f1100a9a2229a9481d1dfce2c0bdc658d072f729c7381b039e0224a80ccc8&X-Amz-SignedHeaders=host&x-id=GetObject",
+    "https://chromatic-builds.s3.us-west-2.amazonaws.com/640e9afaf15e817c63e10f42-qaqpexprfa/.chromatic/zip-unpacked.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAJVVEQEOBEEPXSNNQ%2F20240821%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240821T060054Z&X-Amz-Expires=1980&X-Amz-Signature=9ac871ec0a9653061bdb88323435fcf7a5c6c1875e0f0f77f074991fac68ed4d&X-Amz-SignedHeaders=host&x-id=GetObject"
+  ],
+  "sessionId": "b4538d75-11ab-475a-ba59-410a1c7fa4ce",
+  "sourceDir": "/tmp/chromatic--10961-BaoAE5eZkRFv",
+  "startedAt": 1724220062131,
   "storybook": {
     "addons": [
       {
@@ -266,6 +853,9 @@
       "packageVersion": "0"
     }
   },
-  "task": "build",
+  "storybookUrl": "https://640e9afaf15e817c63e10f42-qaqpexprfa.chromatic.com/",
+  "task": "snapshot",
+  "uploadedBytes": 514,
+  "uploadedFiles": 1,
   "userError": true
 }
