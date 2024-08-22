@@ -14,6 +14,7 @@ interface UseBrushProps {
   extent?: Extent;
   persistMode?: PersistMode;
   skip?: boolean;
+  moveTarget?: 'overlay' | 'window';
 }
 
 export function useBrush(options: UseBrushProps = {}) {
@@ -27,7 +28,7 @@ export function useBrush(options: UseBrushProps = {}) {
   optionsRef.current = options;
 
   const { ref, setRef } = useInteractions({
-    moveTarget: 'overlay',
+    moveTarget: options.moveTarget,
     skip: options.skip,
     extent: options.extent,
     onClick: optionsRef.current.onClick,
