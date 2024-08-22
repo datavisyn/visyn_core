@@ -221,7 +221,7 @@ export function EagerVis({
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [_visConfig, _setVisConfig] = useUncontrolled({
-    ...(isControlled ? { value: externalConfig, onChange: setExternalConfig } : {}),
+    ...(isControlled ? { value: wrapWithDefaults(externalConfig), onChange: setExternalConfig } : {}),
     ...(!isControlled
       ? {
           finalValue:
