@@ -2,9 +2,12 @@ import * as d3v7 from 'd3v7';
 import flatMap from 'lodash/flatMap';
 import groupBy from 'lodash/groupBy';
 import merge from 'lodash/merge';
+import sortBy from 'lodash/sortBy';
 import { i18n } from '../../i18n';
 import { getCssValue, selectionColorDark } from '../../utils';
+import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn, truncateText } from '../general/layoutUtils';
+import { getLabelOrUnknown } from '../general/utils';
 import {
   ColumnInfo,
   EColumnTypes,
@@ -21,8 +24,6 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
-import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
-import { getLabelOrUnknown } from '../general/utils';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
@@ -230,7 +231,15 @@ export async function createScatterTraces(
       shape: shapeCol ? shapeCol.resolvedValues[i].val : undefined,
     }));
 
-    const groupedData = groupBy(data, 'facet');
+    // Sort facets by the order of the domain of the facet column or alphabetically if no domain is set
+    const sortOrder =
+      (facetCol.domain as string[]) ||
+      [...new Set(facetCol.resolvedValues.map((v) => v.val as string))].sort((a, b) => a?.localeCompare(b, undefined, { sensitivity: 'base' }));
+    const groupedData = sortBy(groupBy(data, 'facet'), (group) => {
+      const facetValue = group[0].facet;
+      const index = sortOrder.indexOf(facetValue);
+      return index !== -1 ? index : Infinity;
+    });
 
     flatMap(groupedData, (group, key) => {
       const calcXDomain = calculateDomain(
@@ -251,11 +260,11 @@ export async function createScatterTraces(
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
           hovertext: group.map((d) =>
             `${idToLabelMapper(d.ids)}
-<br />${xLabel}: ${d.x}
-<br />${yLabel}: ${d.y}
-${(resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(d.ids))}`)}
-${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
-${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
+            <br />${xLabel}: ${d.x}
+            <br />${yLabel}: ${d.y}
+            ${(resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(d.ids))}`)}
+            ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
           ),
           text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
