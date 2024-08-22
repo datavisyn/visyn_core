@@ -57,7 +57,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
           <SegmentedControl
             fullWidth
             size="xs"
-            value={`${currentSelected.fitOptions.order}`}
+            value={`${currentSelected.fitOptions?.order}`}
             onChange={(s) => callback({ ...currentSelected, fitOptions: { ...currentSelected.fitOptions, order: Number.parseInt(s, 10) } })}
             data={[
               { label: 'Quadratic', value: '2' },
