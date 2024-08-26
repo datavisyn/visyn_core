@@ -66,7 +66,12 @@ export function BarChartSortButton({ config, setConfig }: { config: IBarConfig; 
       tooltipLabel: `Sort ${config.aggregateType} in ascending order`,
       icon: dvSort,
       color: 'dark',
-      nextSortState: { ...(config.sortState ?? fallbackSortState), y: EBarSortState.ASCENDING },
+      nextSortState:
+        config.direction === EBarDirection.HORIZONTAL
+          ? { ...fallbackSortState, x: EBarSortState.ASCENDING }
+          : config.direction === EBarDirection.VERTICAL
+            ? { ...fallbackSortState, y: EBarSortState.ASCENDING }
+            : { ...fallbackSortState },
     };
   }, [config.aggregateType, config.direction, config.sortState]);
 
