@@ -67,7 +67,7 @@ export function SingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const [sortState, setSortState] = useState<SortState>({ x: config.sortState?.x ?? EBarSortState.NONE, y: config.sortState?.y ?? EBarSortState.NONE });
+  const [sortState, setSortState] = useState<SortState>({ x: EBarSortState.NONE, y: EBarSortState.NONE });
 
   const [series, setSeries] = useState<BarSeriesOption[]>([]);
   const [option, setOption] = useState<ReactEChartsProps['option']>(null);
@@ -241,28 +241,6 @@ export function SingleEChartsBarChart({
             triggerEvent: true,
             name: 'facetTitle',
           },
-
-          {
-            text: config.display !== EBarDisplayType.NORMALIZED && config.direction === EBarDirection.HORIZONTAL ? 'Sort along X-axis' : '',
-            left: '50%',
-            top: '90%',
-            textStyle: {
-              fontSize: 14,
-              color: '#000',
-            },
-            triggerEvent: true,
-          },
-
-          {
-            text: config.display !== EBarDisplayType.NORMALIZED && config.direction === EBarDirection.VERTICAL ? 'Sort along Y-axis' : '',
-            left: '0%',
-            top: '50%',
-            textStyle: {
-              fontSize: 14,
-              color: '#000',
-            },
-            triggerEvent: true,
-          },
         ],
 
         grid: {
@@ -274,34 +252,7 @@ export function SingleEChartsBarChart({
 
         legend: {},
       }) as ReactEChartsProps['option'],
-    [calculateChartHeight, config.direction, config.display, selectedFacetValue],
-  );
-
-  const handleSort = useCallback(
-    (axis: 'x' | 'y') => {
-      setSortState((prevSortState) => {
-        const newSortState = { ...prevSortState };
-        if (config.direction === EBarDirection.HORIZONTAL && axis === 'x') {
-          newSortState.x =
-            prevSortState.x === EBarSortState.NONE
-              ? EBarSortState.ASCENDING
-              : prevSortState.x === EBarSortState.ASCENDING
-                ? EBarSortState.DESCENDING
-                : EBarSortState.NONE;
-          newSortState.y = EBarSortState.NONE;
-        } else if (config.direction === EBarDirection.VERTICAL && axis === 'y') {
-          newSortState.x = EBarSortState.NONE;
-          newSortState.y =
-            prevSortState.y === EBarSortState.NONE
-              ? EBarSortState.ASCENDING
-              : prevSortState.y === EBarSortState.ASCENDING
-                ? EBarSortState.DESCENDING
-                : EBarSortState.NONE;
-        }
-        return newSortState;
-      });
-    },
-    [config.direction],
+    [calculateChartHeight, selectedFacetValue],
   );
 
   const updateSortSideEffect = useCallback(
@@ -393,18 +344,7 @@ export function SingleEChartsBarChart({
       chart.on('click', { titleIndex: 0 }, () => {
         setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
       });
-      chart.on('click', { titleIndex: 1 }, () => {
-        // NOTE: @dv-usama-ansari: Do not sort for normalized stack bar charts
-        if (config.display !== EBarDisplayType.NORMALIZED) {
-          handleSort('x');
-        }
-      });
-      chart.on('click', { titleIndex: 2 }, () => {
-        // NOTE: @dv-usama-ansari: Do not sort for normalized stack bar charts
-        if (config.display !== EBarDisplayType.NORMALIZED) {
-          handleSort('y');
-        }
-      });
+
       chart.on('click', { seriesType: 'bar' }, ({ event, seriesName, name }) => {
         selectionCallback(
           event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>,
@@ -412,7 +352,7 @@ export function SingleEChartsBarChart({
         );
       });
     },
-    [config, filteredDataTable, handleSort, selectedFacetIndex, selectionCallback, setConfig],
+    [config, filteredDataTable, selectedFacetIndex, selectionCallback, setConfig],
   );
 
   const updateDirectionSideEffect = useCallback(() => {
@@ -496,6 +436,10 @@ export function SingleEChartsBarChart({
   useEffect(() => {
     updateCategoriesSideEffect();
   }, [updateCategoriesSideEffect]);
+
+  useEffect(() => {
+    setSortState({ x: config.sortState?.x ?? EBarSortState.NONE, y: config.sortState?.y ?? EBarSortState.NONE });
+  }, [config.sortState?.x, config.sortState?.y]);
 
   const settings = {
     notMerge: true, // disable merging to avoid stale series data when deselecting the group column

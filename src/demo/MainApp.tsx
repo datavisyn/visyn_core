@@ -5,6 +5,7 @@ import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../rank
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import {
   BaseVisConfig,
+  EAggregateTypes,
   EBarDirection,
   EBarDisplayType,
   EBarGroupingType,
@@ -43,7 +44,7 @@ export function MainApp() {
       id: 'nvlGeneExpression',
       name: 'NVL',
     },
-    aggregateType: 'Count',
+    aggregateType: EAggregateTypes.COUNT,
     showFocusFacetSelector: false,
     sortState: {
       x: EBarSortState.DESCENDING,

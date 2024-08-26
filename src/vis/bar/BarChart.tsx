@@ -10,8 +10,9 @@ import { getLabelOrUnknown } from '../general/utils';
 import { EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { IBarConfig, SortTypes } from './interfaces';
+import { EBarDisplayType, IBarConfig } from './interfaces';
 import { createBinLookup, getBarData } from './utils';
+import { BarChartSortButton } from './BarChartSortButton';
 
 export function BarChart({
   config,
@@ -28,8 +29,6 @@ export function BarChart({
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
-  const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
-  const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
@@ -117,23 +116,10 @@ export function BarChart({
         <Group justify="center">
           {config.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
+          {config.display !== EBarDisplayType.NORMALIZED ? <BarChartSortButton config={config} setConfig={setConfig} /> : null}
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        {/* <Box ref={legendBoxRef}>
-          {groupColorScale ? (
-            <Legend
-              left={60}
-              categories={groupColorScale.domain()}
-              filteredOut={filteredOut}
-              isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
-              colorScale={groupColorScale}
-              stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
-              onFilteredOut={() => {}} // disable legend click for now
-            />
-          ) : null}
-        </Box> */}
-
         <ScrollArea.Autosize mah={containerHeight} maw={containerWidth}>
           {colsStatus !== 'success' ? (
             <Center>
@@ -147,10 +133,6 @@ export function BarChart({
               selectionCallback={customSelectionCallback}
               groupColorScale={groupColorScale}
               selectedMap={selectedMap}
-              // allColumns={allColumns}
-              // selectedList={selectedList}
-              // sortType={sortType}
-              // setSortType={setSortType}
             />
           ) : (
             <Stack gap="xl" style={{ width: '100%' }}>
@@ -165,9 +147,6 @@ export function BarChart({
                   selectionCallback={customSelectionCallback}
                   groupColorScale={groupColorScale}
                   selectedMap={selectedMap}
-                  // selectedList={selectedList}
-                  // sortType={sortType}
-                  // setSortType={setSortType}
                 />
               ))}
             </Stack>
