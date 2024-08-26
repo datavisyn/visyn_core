@@ -443,7 +443,7 @@ export function SingleEChartsBarChart({
     } else if (config.sortState) {
       setSortState({ x: config.sortState.x, y: config.sortState.y });
     }
-  }, [config.display, config.sortState, config.sortState.x, config.sortState.y]);
+  }, [config.display, config.sortState, config.sortState?.x, config.sortState?.y]);
 
   const settings = {
     notMerge: true, // disable merging to avoid stale series data when deselecting the group column
