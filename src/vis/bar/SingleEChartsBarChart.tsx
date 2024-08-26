@@ -438,8 +438,12 @@ export function SingleEChartsBarChart({
   }, [updateCategoriesSideEffect]);
 
   useEffect(() => {
-    setSortState({ x: config.sortState?.x ?? EBarSortState.NONE, y: config.sortState?.y ?? EBarSortState.NONE });
-  }, [config.sortState?.x, config.sortState?.y]);
+    if (config.display === EBarDisplayType.NORMALIZED) {
+      setSortState({ x: EBarSortState.NONE, y: EBarSortState.NONE });
+    } else if (config.sortState) {
+      setSortState({ x: config.sortState.x, y: config.sortState.y });
+    }
+  }, [config.display, config.sortState, config.sortState.x, config.sortState.y]);
 
   const settings = {
     notMerge: true, // disable merging to avoid stale series data when deselecting the group column
