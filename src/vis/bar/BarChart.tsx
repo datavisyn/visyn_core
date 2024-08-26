@@ -136,19 +136,21 @@ export function BarChart({
             />
           ) : (
             <Stack gap="xl" style={{ width: '100%' }}>
-              {filteredUniqueFacetVals.map((multiplesVal) => (
-                <SingleEChartsBarChart
-                  key={multiplesVal as string}
-                  config={config}
-                  dataTable={dataTable}
-                  selectedFacetValue={multiplesVal}
-                  selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
-                  setConfig={setConfig}
-                  selectionCallback={customSelectionCallback}
-                  groupColorScale={groupColorScale}
-                  selectedMap={selectedMap}
-                />
-              ))}
+              {[...filteredUniqueFacetVals]
+                .sort((a, b) => a.localeCompare(b))
+                .map((multiplesVal) => (
+                  <SingleEChartsBarChart
+                    key={multiplesVal as string}
+                    config={config}
+                    dataTable={dataTable}
+                    selectedFacetValue={multiplesVal}
+                    selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
+                    setConfig={setConfig}
+                    selectionCallback={customSelectionCallback}
+                    groupColorScale={groupColorScale}
+                    selectedMap={selectedMap}
+                  />
+                ))}
             </Stack>
           )}
         </ScrollArea.Autosize>
