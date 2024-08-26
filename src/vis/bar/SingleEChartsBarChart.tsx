@@ -1,4 +1,3 @@
-import { Text } from '@mantine/core';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import { ECharts } from 'echarts/core';
@@ -38,6 +37,19 @@ const median = (arr) => {
   return medianVal;
 };
 
+/**
+ * Calculates and returns the rounded absolute or normalized value, dependending on the config value.
+ * Enabled grouping always returns the absolute value. The normalized value is only calculated for stacked bars.
+ * @param config Bar chart configuration
+ * @param value Absolute value
+ * @param total Number of values in the category
+ * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
+ */
+const normalizedValue = ({ config, value, total }: { config: IBarConfig; value: number; total: number }) =>
+  config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
+    ? round((value / total) * 100, 2)
+    : round(value, 4);
+
 export function SingleEChartsBarChart({
   config,
   setConfig,
@@ -56,8 +68,12 @@ export function SingleEChartsBarChart({
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
   const [sortState, setSortState] = useState<SortState>({ x: EBarSortState.NONE, y: EBarSortState.NONE });
+
   const [series, setSeries] = useState<BarSeriesOption[]>([]);
   const [option, setOption] = useState<ReactEChartsProps['option']>(null);
+  const [xAxis, setXAxis] = useState<ReactEChartsProps['option']['xAxis']>(null);
+  const [yAxis, setYAxis] = useState<ReactEChartsProps['option']['yAxis']>(null);
+
   const filteredDataTable = useMemo(
     () => (selectedFacetValue ? dataTable.filter((item) => item.facet === selectedFacetValue) : dataTable),
     [dataTable, selectedFacetValue],
@@ -108,22 +124,6 @@ export function SingleEChartsBarChart({
     };
   }, [filteredDataTable, selectedMap]);
 
-  /**
-   * Calculates and returns the rounded absolute or normalized value, dependending on the config value.
-   * Enabled grouping always returns the absolute value. The normalized value is only calculated for stacked bars.
-   * @param value Absolute value
-   * @param total Number of values in the category
-   * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
-   */
-  const normalizedValue = useCallback(
-    (value: number, total: number) => {
-      return config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
-        ? round((value / total) * 100, 2)
-        : round(value, 4);
-    },
-    [config.display, config.group, config.groupType],
-  );
-
   const calculateChartHeight = useMemo(() => {
     // use fixed height for vertical bars
     if (config.direction === EBarDirection.VERTICAL) {
@@ -133,7 +133,6 @@ export function SingleEChartsBarChart({
     // calculate height for horizontal bars
     const categoryWidth = config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.length; // TODO: Make dynamic group length based on series data filtered for null
     const chartHeight = categories.length * categoryWidth;
-    // console.log('barWidth', { barWidth: categoryWidth, chartHeight, groupingsLength: groupings.length, categoriesLength: categories.length });
     return chartHeight;
   }, [categories.length, config.direction, config.group, config.groupType, groupings.length]);
 
@@ -144,33 +143,45 @@ export function SingleEChartsBarChart({
       switch (config.aggregateType) {
         case EAggregateTypes.COUNT:
           return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected] ? normalizedValue(aggregatedData[cat][group][selected].count, aggregatedData[cat].total) : 0,
+            value: aggregatedData[cat]?.[group]?.[selected]
+              ? normalizedValue({ config, value: aggregatedData[cat][group][selected].count, total: aggregatedData[cat].total })
+              : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.AVG:
           return categories.map((cat, index) => ({
             value: aggregatedData[cat]?.[group]?.[selected]
-              ? normalizedValue(aggregatedData[cat][group][selected].sum / aggregatedData[cat][group][selected].count, aggregatedData[cat].total)
+              ? normalizedValue({
+                  config,
+                  value: aggregatedData[cat][group][selected].sum / aggregatedData[cat][group][selected].count,
+                  total: aggregatedData[cat].total,
+                })
               : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.MIN:
           return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected] ? normalizedValue(aggregatedData[cat][group][selected].min, aggregatedData[cat].total) : 0,
+            value: aggregatedData[cat]?.[group]?.[selected]
+              ? normalizedValue({ config, value: aggregatedData[cat][group][selected].min, total: aggregatedData[cat].total })
+              : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.MAX:
           return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected] ? normalizedValue(aggregatedData[cat][group][selected].max, aggregatedData[cat].total) : 0,
+            value: aggregatedData[cat]?.[group]?.[selected]
+              ? normalizedValue({ config, value: aggregatedData[cat][group][selected].max, total: aggregatedData[cat].total })
+              : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.MED:
           return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected] ? normalizedValue(median(aggregatedData[cat][group][selected].nums), aggregatedData[cat].total) : 0,
+            value: aggregatedData[cat]?.[group]?.[selected]
+              ? normalizedValue({ config, value: median(aggregatedData[cat][group][selected].nums), total: aggregatedData[cat].total })
+              : 0,
             category: categories[index],
           }));
 
@@ -179,136 +190,92 @@ export function SingleEChartsBarChart({
           return null;
       }
     },
-    [aggregatedData, categories, config.aggregateType, normalizedValue],
+    [aggregatedData, categories, config],
   );
 
   // prepare data
-  const [seriesData, setSeriesData] = useState(
-    groupings
-      .map((group) => {
-        return (['selected', 'unselected'] as const).map((selected) => {
-          const data = getDataForAggregationType({ group, selected });
+  const barSeriesBase = useMemo(
+    () =>
+      ({
+        type: 'bar',
+        emphasis: { focus: 'series' },
+        barWidth: BAR_WIDTH,
 
-          // avoid rendering empty series (bars for a group with all 0 values)
-          if (data.every((d) => d.value === 0 || Number.isNaN(d.value))) {
-            return null;
-          }
-          return { data, group, selected };
-        });
-      })
-      .flat()
-      .filter(Boolean),
+        label: {
+          show: true,
+          formatter: (params) =>
+            // grouping always uses the absolute value
+            config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
+              ? `${params.value}%`
+              : String(params.value),
+        },
+
+        // enable click events on bars -> handled by chartInstance callback
+        triggerEvent: true,
+      }) as BarSeriesOption,
+    [config.display, config.group, config.groupType],
   );
 
-  const baseSeries = useMemo(() => {
-    return seriesData.map(
-      (data) =>
-        ({
-          type: 'bar',
+  const optionBase: ReactEChartsProps['option'] = useMemo(
+    () =>
+      ({
+        height: `${calculateChartHeight}px`,
+        animation: false,
 
-          // enable click events on bars -> handled by chartInstance callback
-          triggerEvent: true,
-
-          name: groupings.length > 1 ? data.group : null,
-
-          // group = individual group names, stack = any fixed name
-          stack: config.groupType === EBarGroupingType.STACK ? 'total' : data.group,
-
-          label: {
-            show: true,
-            formatter: (params) =>
-              // grouping always uses the absolute value
-              config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
-                ? `${params.value}%`
-                : String(params.value),
+        tooltip: {
+          trigger: 'item',
+          axisPointer: {
+            type: 'shadow',
           },
-
-          emphasis: {
-            focus: 'series',
-          },
-
-          barWidth: BAR_WIDTH,
-
-          itemStyle: {
-            color: config.group && groupColorScale ? groupColorScale(data.group) || VIS_NEUTRAL_COLOR : VIS_NEUTRAL_COLOR,
-            opacity: hasSelected ? (data.selected === 'selected' ? 1 : 0.5) : 1, // reduce opacity for unselected bars if there are selected items
-          },
-
-          data: data.data.map((d) => (d.value === 0 ? null : d.value)) as number[],
-          categories: data.data.map((d) => d.category),
-        }) as BarSeriesOption,
-    );
-  }, [config.display, config.group, config.groupType, groupColorScale, groupings.length, hasSelected, seriesData]);
-
-  const [xAxis, setXAxis] = useState<ReactEChartsProps['option']['xAxis']>(null);
-  const [yAxis, setYAxis] = useState<ReactEChartsProps['option']['yAxis']>(null);
-
-  const baseOption: ReactEChartsProps['option'] = useMemo(() => {
-    let options = {
-      height: `${calculateChartHeight}px`,
-      animation: false,
-
-      tooltip: {
-        trigger: 'item',
-        axisPointer: {
-          type: 'shadow',
-        },
-        backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9, #000))',
-        borderWidth: 0,
-        borderColor: 'transparent',
-        textStyle: {
-          color: 'var(--tooltip-color,var(--mantine-color-white, #FFF))',
-        },
-      },
-
-      title: [
-        {
-          text: selectedFacetValue || null,
-          triggerEvent: true,
-          name: 'facetTitle',
-        },
-
-        {
-          text: config.direction === EBarDirection.HORIZONTAL ? 'Sort along X-axis' : '',
-          left: '50%',
-          top: '90%',
+          backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9, #000))',
+          borderWidth: 0,
+          borderColor: 'transparent',
           textStyle: {
-            fontSize: 14,
-            color: '#000',
+            color: 'var(--tooltip-color,var(--mantine-color-white, #FFF))',
           },
-          triggerEvent: true,
         },
 
-        {
-          text: config.direction === EBarDirection.VERTICAL ? 'Sort along Y-axis' : '',
-          left: '0%',
-          top: '50%',
-          textStyle: {
-            fontSize: 14,
-            color: '#000',
+        title: [
+          {
+            text: selectedFacetValue || null,
+            triggerEvent: true,
+            name: 'facetTitle',
           },
-          triggerEvent: true,
+
+          {
+            text: config.display !== EBarDisplayType.NORMALIZED && config.direction === EBarDirection.HORIZONTAL ? 'Sort along X-axis' : '',
+            left: '50%',
+            top: '90%',
+            textStyle: {
+              fontSize: 14,
+              color: '#000',
+            },
+            triggerEvent: true,
+          },
+
+          {
+            text: config.display !== EBarDisplayType.NORMALIZED && config.direction === EBarDirection.VERTICAL ? 'Sort along Y-axis' : '',
+            left: '0%',
+            top: '50%',
+            textStyle: {
+              fontSize: 14,
+              color: '#000',
+            },
+            triggerEvent: true,
+          },
+        ],
+
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true,
         },
-      ],
 
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true,
-      },
-
-      legend: {},
-      series,
-    } as ReactEChartsProps['option'];
-    if (xAxis) {
-      options = { ...options, xAxis };
-    }
-    if (yAxis) {
-      options = { ...options, yAxis };
-    }
-    return options;
-  }, [calculateChartHeight, config.direction, selectedFacetValue, series, xAxis, yAxis]);
+        legend: {},
+      }) as ReactEChartsProps['option'],
+    [calculateChartHeight, config.direction, config.display, selectedFacetValue],
+  );
 
   const handleSort = useCallback(
     (axis: 'x' | 'y') => {
@@ -337,58 +304,85 @@ export function SingleEChartsBarChart({
     [config.direction],
   );
 
-  const updateSortSideEffect = useCallback(() => {
-    switch (sortState.x) {
-      case EBarSortState.ASCENDING:
-        setSeriesData((s) =>
-          s.map((item) => {
-            const sortedDataWithCategories = item.data.sort((a, b) => a.value - b.value);
-            setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
-            return { ...item, data: sortedDataWithCategories };
-          }),
-        );
-        break;
-      case EBarSortState.DESCENDING:
-        setSeriesData((s) =>
-          s.map((item) => {
-            const sortedDataWithCategories = item.data.sort((a, b) => b.value - a.value);
-            setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
-            return { ...item, data: sortedDataWithCategories };
-          }),
-        );
-        break;
-      case EBarSortState.NONE:
-        // TODO: @dv-usama-ansari: Implement default sorting
-        break;
-      default:
-        break;
-    }
-    switch (sortState.y) {
-      case EBarSortState.ASCENDING:
-        setSeriesData((s) =>
-          s.map((item) => {
-            const sortedDataWithCategories = item.data.sort((a, b) => a.value - b.value);
-            setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
-            return { ...item, data: sortedDataWithCategories };
-          }),
-        );
-        break;
-      case EBarSortState.DESCENDING:
-        setSeriesData((s) =>
-          s.map((item) => {
-            const sortedDataWithCategories = item.data.sort((a, b) => b.value - a.value);
-            setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
-            return { ...item, data: sortedDataWithCategories };
-          }),
-        );
-        break;
-      case EBarSortState.NONE:
-        // TODO: @dv-usama-ansari: Implement default sorting
-        break;
-      default:
-        break;
-    }
-  }, [sortState.x, sortState.y]);
+  const updateSortSideEffect = useCallback(
+    ({ barSeries = [] }: { barSeries: BarSeriesOption[] }) => {
+      if (config.direction === EBarDirection.HORIZONTAL) {
+        switch (sortState.x) {
+          case EBarSortState.ASCENDING:
+            setSeries(() =>
+              barSeries.map((item) => {
+                const itemClone = { ...item } as typeof item & { categories: string[] };
+                const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
+                setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
+                return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
+              }),
+            );
+            break;
+          case EBarSortState.DESCENDING:
+            setSeries(() =>
+              barSeries.map((item) => {
+                const itemClone = { ...item } as typeof item & { categories: string[] };
+                const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
+                setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
+                return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
+              }),
+            );
+            break;
+          case EBarSortState.NONE:
+            setSeries(() =>
+              barSeries.map((item) => {
+                const itemClone = { ...item } as typeof item & { categories: string[] };
+                setYAxis((y) => ({ ...y, data: itemClone.categories }));
+                return itemClone;
+              }),
+            );
+            break;
+          default:
+            break;
+        }
+      }
+      if (config.direction === EBarDirection.VERTICAL) {
+        switch (sortState.y) {
+          case EBarSortState.ASCENDING:
+            setSeries(() =>
+              barSeries.map((item) => {
+                const itemClone = { ...item } as typeof item & { categories: string[] };
+                const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
+                setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
+                return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
+              }),
+            );
+            break;
+          case EBarSortState.DESCENDING:
+            setSeries(() =>
+              barSeries.map((item) => {
+                const itemClone = { ...item } as typeof item & { categories: string[] };
+                const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
+                setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
+                return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
+              }),
+            );
+            break;
+          case EBarSortState.NONE:
+            setSeries(() =>
+              barSeries.map((item) => {
+                const itemClone = { ...item } as typeof item & { categories: string[] };
+                setXAxis((x) => ({ ...x, data: itemClone.categories }));
+                return itemClone;
+              }),
+            );
+            break;
+          default:
+            break;
+        }
+      }
+    },
+    [config.direction, sortState.x, sortState.y],
+  );
 
   const chartInstance = useCallback(
     (chart: ECharts) => {
@@ -396,25 +390,29 @@ export function SingleEChartsBarChart({
       chart.off('click');
       // register EChart listerners to chartInstance
       // NOTE: @dv-usama-ansari: Using queries to attach event listeners: https://echarts.apache.org/en/api.html#events
-      chart.on('click', { titleIndex: 0 }, ({ componentType, event, seriesName, name, ...rest }) => {
+      chart.on('click', { titleIndex: 0 }, () => {
         setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
       });
       chart.on('click', { titleIndex: 1 }, () => {
-        handleSort('x');
-        updateSortSideEffect();
+        // NOTE: @dv-usama-ansari: Do not sort for normalized stack bar charts
+        if (config.display !== EBarDisplayType.NORMALIZED) {
+          handleSort('x');
+        }
       });
       chart.on('click', { titleIndex: 2 }, () => {
-        handleSort('y');
-        updateSortSideEffect();
+        // NOTE: @dv-usama-ansari: Do not sort for normalized stack bar charts
+        if (config.display !== EBarDisplayType.NORMALIZED) {
+          handleSort('y');
+        }
       });
-      chart.on('click', { seriesType: 'bar' }, ({ componentType, event, seriesName, name, ...rest }) => {
+      chart.on('click', { seriesType: 'bar' }, ({ event, seriesName, name }) => {
         selectionCallback(
           event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>,
           filteredDataTable.filter((item) => item.category === name && (!config.group || (config.group && item.group === seriesName))).map((item) => item.id),
         );
       });
     },
-    [config, filteredDataTable, handleSort, selectedFacetIndex, selectionCallback, setConfig, updateSortSideEffect],
+    [config, filteredDataTable, handleSort, selectedFacetIndex, selectionCallback, setConfig],
   );
 
   const updateDirectionSideEffect = useCallback(() => {
@@ -428,36 +426,89 @@ export function SingleEChartsBarChart({
     }
   }, [categories, config.direction]);
 
-  useEffect(() => {
-    setSeries(baseSeries);
-  }, [baseSeries]);
+  const updateCategoriesSideEffect = useCallback(() => {
+    const barSeries = groupings
+      .map((group) => {
+        return (['selected', 'unselected'] as const).map((selected) => {
+          const data = getDataForAggregationType({ group, selected });
 
-  useEffect(() => {
-    setOption(baseOption);
-  }, [baseOption]);
+          // avoid rendering empty series (bars for a group with all 0 values)
+          if (data.every((d) => d.value === 0 || Number.isNaN(d.value))) {
+            return null;
+          }
 
+          return {
+            ...barSeriesBase,
+            name: groupings.length > 1 ? group : null,
+            itemStyle: {
+              color: config.group && groupColorScale ? groupColorScale(group) || VIS_NEUTRAL_COLOR : VIS_NEUTRAL_COLOR,
+              // reduce opacity for unselected bars if there are selected items
+              opacity: hasSelected ? (selected === 'selected' ? 1 : 0.5) : 1,
+            },
+            data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
+            categories: data.map((d) => d.category),
+
+            // group = individual group names, stack = any fixed name
+            stack: config.groupType === EBarGroupingType.STACK ? 'total' : group,
+          } as BarSeriesOption;
+        });
+      })
+      .flat()
+      .filter(Boolean);
+
+    updateSortSideEffect({ barSeries });
+    updateDirectionSideEffect();
+  }, [
+    barSeriesBase,
+    config.group,
+    config.groupType,
+    getDataForAggregationType,
+    groupColorScale,
+    groupings,
+    hasSelected,
+    updateDirectionSideEffect,
+    updateSortSideEffect,
+  ]);
+
+  // NOTE: @dv-usama-ansari: This effect is used to update the series data when the data changes.
+  useEffect(() => {
+    setOption((o) => {
+      let options = { ...o, ...optionBase };
+      if (series) {
+        options = { ...options, series };
+      }
+      if (xAxis) {
+        options = { ...options, xAxis };
+      }
+      if (yAxis) {
+        options = { ...options, yAxis };
+      }
+      return options;
+    });
+  }, [optionBase, series, xAxis, yAxis]);
+
+  // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   useEffect(() => {
     updateDirectionSideEffect();
   }, [config.direction, updateDirectionSideEffect]);
+
+  // NOTE: @dv-usama-ansari: This effect is used to update the series data when the selected categorical column changes.
+  useEffect(() => {
+    updateCategoriesSideEffect();
+  }, [updateCategoriesSideEffect]);
 
   const settings = {
     notMerge: true, // disable merging to avoid stale series data when deselecting the group column
   };
 
   return (
-    option &&
-    series &&
-    xAxis &&
-    yAxis && (
-      <>
-        <Text>Sorting {config.direction === EBarDirection.HORIZONTAL ? `x axis ${sortState.x}` : `y axis ${sortState.y}`} </Text>
-        <ReactECharts
-          option={option}
-          chartInstance={chartInstance}
-          settings={settings}
-          style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }}
-        />
-      </>
+    option && (
+      <ReactECharts
+        option={option}
+        chartInstance={chartInstance}
+        settings={settings}
+        style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }}
+      />
     )
   );
 }
