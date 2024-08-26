@@ -67,7 +67,7 @@ export function SingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const [sortState, setSortState] = useState<SortState>({ x: EBarSortState.NONE, y: EBarSortState.NONE });
+  const [sortState, setSortState] = useState<SortState>({ x: config.sortState?.x ?? EBarSortState.NONE, y: config.sortState?.y ?? EBarSortState.NONE });
 
   const [series, setSeries] = useState<BarSeriesOption[]>([]);
   const [option, setOption] = useState<ReactEChartsProps['option']>(null);
@@ -313,7 +313,7 @@ export function SingleEChartsBarChart({
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
-                const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
                 setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),
@@ -324,7 +324,7 @@ export function SingleEChartsBarChart({
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
-                const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
                 setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),
@@ -350,7 +350,7 @@ export function SingleEChartsBarChart({
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
-                const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
                 setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),
@@ -361,7 +361,7 @@ export function SingleEChartsBarChart({
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
-                const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
+                const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
                 setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),

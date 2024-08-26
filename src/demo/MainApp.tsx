@@ -5,12 +5,13 @@ import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../rank
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import {
   BaseVisConfig,
-  ELabelingOptions,
+  EBarDirection,
+  EBarDisplayType,
+  EBarGroupingType,
+  EBarSortState,
   ENumericalColorScaleType,
-  ERegressionLineType,
-  EScatterSelectSettings,
   ESupportedPlotlyVis,
-  IScatterConfig,
+  IBarConfig,
   Vis,
 } from '../vis';
 import { breastCancerData } from '../vis/stories/breastCancerData';
@@ -20,36 +21,36 @@ import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyString
 export function MainApp() {
   const { user } = useVisynAppContext();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: 'Gene expression',
-        id: 'stat2GeneExpression',
-        name: 'STAT2',
-      },
-      {
-        description: 'Gene expression',
-        id: 'brca1GeneExpression',
-        name: 'BRCA1',
-      },
-    ],
-    color: {
-      description: null,
-      id: 'cellularity',
-      name: 'Cellularity',
+    type: ESupportedPlotlyVis.BAR,
+    numColumnsSelected: [],
+    catColumnSelected: {
+      description: 'some very long description',
+      id: 'pam50Subtype',
+      name: 'PAM50 Subtype',
+    },
+    group: {
+      description: 'some very long description',
+      id: 'breastSurgeryType',
+      name: 'Breast Surgery Type',
+    },
+    groupType: EBarGroupingType.STACK,
+    facets: null,
+    focusFacetIndex: null,
+    display: EBarDisplayType.ABSOLUTE,
+    direction: EBarDirection.HORIZONTAL,
+    aggregateColumn: {
+      description: 'Gene expression',
+      id: 'nvlGeneExpression',
+      name: 'NVL',
+    },
+    aggregateType: 'Count',
+    showFocusFacetSelector: false,
+    sortState: {
+      x: EBarSortState.DESCENDING,
+      y: EBarSortState.NONE,
     },
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
-    sizeSliderVal: 5,
-    showLabels: ELabelingOptions.SELECTED,
-    showLabelLimit: 20,
-    regressionLineOptions: {
-      type: ERegressionLineType.LINEAR,
-      showStats: true,
-    },
-  } as IScatterConfig);
+  } as IBarConfig);
   const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
 
