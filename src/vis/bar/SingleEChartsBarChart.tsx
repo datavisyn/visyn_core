@@ -486,7 +486,8 @@ export function SingleEChartsBarChart({
             ...barSeriesBase,
             name: groupings.length > 1 ? group : null,
             itemStyle: {
-              color: config.group && groupColorScale ? groupColorScale(group) || VIS_NEUTRAL_COLOR : VIS_NEUTRAL_COLOR,
+              color:
+                group === 'Unknown' ? VIS_NEUTRAL_COLOR : config.group && groupColorScale ? groupColorScale(group) || VIS_NEUTRAL_COLOR : VIS_NEUTRAL_COLOR,
               // reduce opacity for unselected bars if there are selected items
               opacity: hasSelected ? (selected === 'selected' ? 1 : 0.5) : 1,
             },
