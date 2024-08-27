@@ -135,7 +135,7 @@ export function BarChart({
           ) : null}
         </Box> */}
 
-        <ScrollArea.Autosize h={containerHeight} style={{ overflowX: 'hidden' }}>
+        <ScrollArea.Autosize h={containerHeight} w={containerWidth} scrollbars="y">
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />
