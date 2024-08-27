@@ -140,7 +140,7 @@ export function BarChart({
                 .sort((a, b) => a.localeCompare(b))
                 .map((multiplesVal) => (
                   <SingleEChartsBarChart
-                    key={multiplesVal as string}
+                    key={multiplesVal}
                     config={config}
                     dataTable={dataTable}
                     selectedFacetValue={multiplesVal}

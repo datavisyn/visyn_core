@@ -2,7 +2,7 @@ import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import { ECharts } from 'echarts/core';
 import { round, uniq } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import * as React from 'react';
 import { VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, IBarDataTableRow } from './interfaces';
@@ -30,12 +30,12 @@ const AXIS_LABEL_MAX_LENGTH = 50;
 
 type SortState = { x: EBarSortState; y: EBarSortState };
 
-const median = (arr) => {
+function median(arr: number[]) {
   const mid = Math.floor(arr.length / 2);
   const nums = [...arr].sort((a, b) => a - b);
   const medianVal = arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
   return medianVal;
-};
+}
 
 /**
  * Calculates and returns the rounded absolute or normalized value, dependending on the config value.
@@ -45,10 +45,11 @@ const median = (arr) => {
  * @param total Number of values in the category
  * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
  */
-const normalizedValue = ({ config, value, total }: { config: IBarConfig; value: number; total: number }) =>
-  config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
+function normalizedValue({ config, value, total }: { config: IBarConfig; value: number; total: number }) {
+  return config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
     ? round((value / total) * 100, 2)
     : round(value, 4);
+}
 
 export function SingleEChartsBarChart({
   config,
@@ -67,19 +68,21 @@ export function SingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const [sortState, setSortState] = useState<SortState>({ x: EBarSortState.NONE, y: EBarSortState.NONE });
+  const [sortState, setSortState] = React.useState<SortState>({ x: EBarSortState.NONE, y: EBarSortState.NONE });
 
-  const [series, setSeries] = useState<BarSeriesOption[]>([]);
-  const [option, setOption] = useState<ReactEChartsProps['option']>(null);
-  const [xAxis, setXAxis] = useState<ReactEChartsProps['option']['xAxis']>(null);
-  const [yAxis, setYAxis] = useState<ReactEChartsProps['option']['yAxis']>(null);
+  const [series, setSeries] = React.useState<BarSeriesOption[]>([]);
+  const [option, setOption] = React.useState<ReactEChartsProps['option']>(null);
+  const [axes, setAxes] = React.useState<{ xAxis: ReactEChartsProps['option']['xAxis']; yAxis: ReactEChartsProps['option']['yAxis'] }>({
+    xAxis: null,
+    yAxis: null,
+  });
 
-  const filteredDataTable = useMemo(
+  const filteredDataTable = React.useMemo(
     () => (selectedFacetValue ? dataTable.filter((item) => item.facet === selectedFacetValue) : dataTable),
     [dataTable, selectedFacetValue],
   );
 
-  const { aggregatedData, categories, groupings, hasSelected } = useMemo(() => {
+  const { aggregatedData, categories, groupings, hasSelected } = React.useMemo(() => {
     const values = {};
     filteredDataTable.forEach((item) => {
       const { category, agg, group: grouping } = item;
@@ -124,7 +127,7 @@ export function SingleEChartsBarChart({
     };
   }, [filteredDataTable, selectedMap]);
 
-  const calculateChartHeight = useMemo(() => {
+  const calculateChartHeight = React.useMemo(() => {
     // use fixed height for vertical bars
     if (config.direction === EBarDirection.VERTICAL) {
       return 250;
@@ -136,10 +139,8 @@ export function SingleEChartsBarChart({
     return chartHeight;
   }, [categories.length, config.direction, config.group, config.groupType, groupings.length]);
 
-  const getDataForAggregationType = useCallback(
-    // NOTE: @dv-usama-ansari: Weird eslint error, but the props are used in the function.
-    // eslint-disable-next-line react/no-unused-prop-types
-    ({ group, selected }: { group: string; selected: 'selected' | 'unselected' }) => {
+  const getDataForAggregationType = React.useCallback(
+    (group: string, selected: 'selected' | 'unselected') => {
       switch (config.aggregateType) {
         case EAggregateTypes.COUNT:
           return categories.map((cat, index) => ({
@@ -194,7 +195,7 @@ export function SingleEChartsBarChart({
   );
 
   // prepare data
-  const barSeriesBase = useMemo(
+  const barSeriesBase = React.useMemo(
     () =>
       ({
         type: 'bar',
@@ -216,7 +217,7 @@ export function SingleEChartsBarChart({
     [config.display, config.group, config.groupType],
   );
 
-  const optionBase: ReactEChartsProps['option'] = useMemo(
+  const optionBase: ReactEChartsProps['option'] = React.useMemo(
     () =>
       ({
         height: `${calculateChartHeight}px`,
@@ -227,11 +228,11 @@ export function SingleEChartsBarChart({
           axisPointer: {
             type: 'shadow',
           },
-          backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9, #000))',
+          backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
           borderWidth: 0,
           borderColor: 'transparent',
           textStyle: {
-            color: 'var(--tooltip-color,var(--mantine-color-white, #FFF))',
+            color: 'var(--tooltip-color,var(--mantine-color-white))',
           },
         },
 
@@ -255,7 +256,7 @@ export function SingleEChartsBarChart({
     [calculateChartHeight, selectedFacetValue],
   );
 
-  const updateSortSideEffect = useCallback(
+  const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: BarSeriesOption[] }) => {
       if (config.direction === EBarDirection.HORIZONTAL) {
         switch (sortState.x) {
@@ -265,7 +266,20 @@ export function SingleEChartsBarChart({
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
                 const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
-                setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
+                setAxes((a) => ({
+                  ...a,
+                  yAxis: {
+                    type: 'category' as const,
+                    data: sortedDataWithCategories.map((d) => d.category),
+                    axisLabel: {
+                      show: true,
+                      formatter: (value) => {
+                        return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+                      },
+                      // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+                    },
+                  },
+                }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),
             );
@@ -276,7 +290,20 @@ export function SingleEChartsBarChart({
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
                 const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
-                setYAxis((y) => ({ ...y, data: sortedDataWithCategories.map((d) => d.category) }));
+                setAxes((a) => ({
+                  ...a,
+                  yAxis: {
+                    type: 'category' as const,
+                    data: sortedDataWithCategories.map((d) => d.category),
+                    axisLabel: {
+                      show: true,
+                      formatter: (value) => {
+                        return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+                      },
+                      // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+                    },
+                  },
+                }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),
             );
@@ -285,7 +312,20 @@ export function SingleEChartsBarChart({
             setSeries(() =>
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { categories: string[] };
-                setYAxis((y) => ({ ...y, data: itemClone.categories }));
+                setAxes((a) => ({
+                  ...a,
+                  yAxis: {
+                    type: 'category' as const,
+                    data: itemClone.categories,
+                    axisLabel: {
+                      show: true,
+                      formatter: (value) => {
+                        return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+                      },
+                      // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+                    },
+                  },
+                }));
                 return itemClone;
               }),
             );
@@ -302,7 +342,20 @@ export function SingleEChartsBarChart({
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
                 const sortedDataWithCategories = dataWithCategories.sort((a, b) => b.value - a.value);
-                setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
+                setAxes((a) => ({
+                  ...a,
+                  xAxis: {
+                    type: 'category' as const,
+                    data: sortedDataWithCategories.map((d) => d.category),
+                    axisLabel: {
+                      show: true,
+                      formatter: (value) => {
+                        return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+                      },
+                      // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+                    },
+                  },
+                }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),
             );
@@ -313,7 +366,20 @@ export function SingleEChartsBarChart({
                 const itemClone = { ...item } as typeof item & { categories: string[] };
                 const dataWithCategories = itemClone.data.map((value, index) => ({ value: value as number, category: itemClone.categories[index] }));
                 const sortedDataWithCategories = dataWithCategories.sort((a, b) => a.value - b.value);
-                setXAxis((x) => ({ ...x, data: sortedDataWithCategories.map((d) => d.category) }));
+                setAxes((a) => ({
+                  ...a,
+                  xAxis: {
+                    type: 'category' as const,
+                    data: sortedDataWithCategories.map((d) => d.category),
+                    axisLabel: {
+                      show: true,
+                      formatter: (value) => {
+                        return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+                      },
+                      // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+                    },
+                  },
+                }));
                 return { ...itemClone, data: sortedDataWithCategories.map((d) => d.value) };
               }),
             );
@@ -322,7 +388,20 @@ export function SingleEChartsBarChart({
             setSeries(() =>
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { categories: string[] };
-                setXAxis((x) => ({ ...x, data: itemClone.categories }));
+                setAxes((a) => ({
+                  ...a,
+                  xAxis: {
+                    type: 'category' as const,
+                    data: itemClone.categories,
+                    axisLabel: {
+                      show: true,
+                      formatter: (value) => {
+                        return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+                      },
+                      // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+                    },
+                  },
+                }));
                 return itemClone;
               }),
             );
@@ -335,7 +414,7 @@ export function SingleEChartsBarChart({
     [config.direction, sortState.x, sortState.y],
   );
 
-  const chartInstance = useCallback(
+  const chartInstance = React.useCallback(
     (chart: ECharts) => {
       // remove all listeners to avoid memory leaks and multiple listeners
       chart.off('click');
@@ -355,22 +434,48 @@ export function SingleEChartsBarChart({
     [config, filteredDataTable, selectedFacetIndex, selectionCallback, setConfig],
   );
 
-  const updateDirectionSideEffect = useCallback(() => {
+  const updateDirectionSideEffect = React.useCallback(() => {
     if (config.direction === EBarDirection.HORIZONTAL) {
-      setXAxis({ type: 'value' });
-      setYAxis((y) => ({ type: 'category', data: ((y as typeof y & { data: string[] })?.data as string[]) ?? categories }));
+      setAxes((a) => ({
+        ...a,
+        xAxis: { type: 'value' },
+        yAxis: {
+          type: 'category',
+          data: categories,
+          axisLabel: {
+            show: true,
+            formatter: (value) => {
+              return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+            },
+            // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+          },
+        },
+      }));
     }
     if (config.direction === EBarDirection.VERTICAL) {
-      setXAxis((x) => ({ type: 'category', data: ((x as typeof x & { data: string[] })?.data as string[]) ?? categories }));
-      setYAxis({ type: 'value' });
+      setAxes((a) => ({
+        ...a,
+        xAxis: {
+          type: 'category',
+          data: categories,
+          axisLabel: {
+            show: true,
+            formatter: (value) => {
+              return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+            },
+            // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+          },
+        },
+        yAxis: { type: 'value' },
+      }));
     }
   }, [categories, config.direction]);
 
-  const updateCategoriesSideEffect = useCallback(() => {
+  const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = groupings
       .map((group) => {
         return (['selected', 'unselected'] as const).map((selected) => {
-          const data = getDataForAggregationType({ group, selected });
+          const data = getDataForAggregationType(group, selected);
 
           // avoid rendering empty series (bars for a group with all 0 values)
           if (data.every((d) => d.value === 0 || Number.isNaN(d.value))) {
@@ -411,33 +516,33 @@ export function SingleEChartsBarChart({
   ]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the data changes.
-  useEffect(() => {
+  React.useEffect(() => {
     setOption((o) => {
       let options = { ...o, ...optionBase };
       if (series) {
         options = { ...options, series };
       }
-      if (xAxis) {
-        options = { ...options, xAxis };
+      if (axes.xAxis) {
+        options = { ...options, xAxis: axes.xAxis };
       }
-      if (yAxis) {
-        options = { ...options, yAxis };
+      if (axes.yAxis) {
+        options = { ...options, yAxis: axes.yAxis };
       }
       return options;
     });
-  }, [optionBase, series, xAxis, yAxis]);
+  }, [axes.xAxis, axes.yAxis, optionBase, series]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
-  useEffect(() => {
+  React.useEffect(() => {
     updateDirectionSideEffect();
   }, [config.direction, updateDirectionSideEffect]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the selected categorical column changes.
-  useEffect(() => {
+  React.useEffect(() => {
     updateCategoriesSideEffect();
   }, [updateCategoriesSideEffect]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (config.display === EBarDisplayType.NORMALIZED) {
       setSortState({ x: EBarSortState.NONE, y: EBarSortState.NONE });
     } else if (config.sortState) {

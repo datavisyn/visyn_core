@@ -1,12 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Tooltip } from '@mantine/core';
-import React, { useMemo } from 'react';
+import * as React from 'react';
 import { dvSortAsc, dvSortDesc, dvSort } from '../../icons';
 import { selectionColorDark } from '../../utils';
 import { IBarConfig, EBarSortState, EBarDirection } from './interfaces';
 
 export function BarChartSortButton({ config, setConfig }: { config: IBarConfig; setConfig: (c: IBarConfig) => void }) {
-  const { tooltipLabel, icon, color, nextSortState } = useMemo(() => {
+  const { tooltipLabel, icon, color, nextSortState } = React.useMemo(() => {
     const fallbackSortState = { x: EBarSortState.NONE, y: EBarSortState.NONE };
     if (config.sortState) {
       if (config.direction === EBarDirection.HORIZONTAL) {
