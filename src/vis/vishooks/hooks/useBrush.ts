@@ -8,7 +8,7 @@ interface UseBrushProps {
   value?: Brush;
   onChange?: (brush: Brush) => void;
   onChangeEnd?: (brush: Brush) => void;
-  onClick?: () => void;
+  onClick?: Parameters<typeof useInteractions>[0]['onClick'];
   defaultValue?: Brush;
   direction?: Direction;
   extent?: Extent;
