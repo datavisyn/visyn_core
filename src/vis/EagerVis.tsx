@@ -355,36 +355,38 @@ export function EagerVis({
             An error occured in the visualization. Please try to select something different in the sidebar.
           </Alert>
         ) : (
-          <Renderer
-            config={_visConfig}
-            dimensions={dimensions}
-            optionsConfig={{
-              color: {
-                enable: true,
-              },
-            }}
-            uniquePlotId={uniquePlotId}
-            showDownloadScreenshot={showDownloadScreenshot}
-            showDragModeOptions={showDragModeOptions}
-            shapes={shapes}
-            setConfig={setVisConfig}
-            stats={stats}
-            statsCallback={statsCallback}
-            filterCallback={filterCallback}
-            selectionCallback={selectionCallback}
-            selectedMap={selectedMap}
-            selectedList={selected}
-            columns={columns}
-            scales={scales}
-            showSidebar={showSidebar}
-            showCloseButton={showCloseButton}
-            closeButtonCallback={closeCallback}
-            scrollZoom={scrollZoom}
-            {...commonProps}
-          />
+          _visConfig?.merged && (
+            <Renderer
+              config={_visConfig}
+              dimensions={dimensions}
+              optionsConfig={{
+                color: {
+                  enable: true,
+                },
+              }}
+              uniquePlotId={uniquePlotId}
+              showDownloadScreenshot={showDownloadScreenshot}
+              showDragModeOptions={showDragModeOptions}
+              shapes={shapes}
+              setConfig={setVisConfig}
+              stats={stats}
+              statsCallback={statsCallback}
+              filterCallback={filterCallback}
+              selectionCallback={selectionCallback}
+              selectedMap={selectedMap}
+              selectedList={selected}
+              columns={columns}
+              scales={scales}
+              showSidebar={showSidebar}
+              showCloseButton={showCloseButton}
+              closeButtonCallback={closeCallback}
+              scrollZoom={scrollZoom}
+              {...commonProps}
+            />
+          )
         )}
       </Stack>
-      {showSidebar ? (
+      {showSidebar && _visConfig?.merged ? (
         <VisSidebarWrapper config={_visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
           <VisSidebar config={_visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
