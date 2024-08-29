@@ -221,7 +221,7 @@ export function SingleEChartsBarChart({
     () =>
       ({
         height: `${calculateChartHeight}px`,
-        // animation: false,
+        animation: false,
 
         tooltip: {
           trigger: 'item',
