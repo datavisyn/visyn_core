@@ -27,6 +27,7 @@ export function BarChart({
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
+
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
   const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
@@ -74,7 +75,7 @@ export function BarChart({
     const groups = Array.from(new Set(dataTable.map((row) => row.group)));
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? schemeBlues[Math.max(groups.length, 3)] // use at least 3 colors for numerical values
+        ? schemeBlues[Math.max(groups.length - 1, 3)] // use at least 3 colors for numerical values
         : groups.map(
             (group, i) => allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length], // use the custom color from the column if available, otherwise use the default color scale
           );
@@ -134,7 +135,7 @@ export function BarChart({
           ) : null}
         </Box> */}
 
-        <ScrollArea.Autosize mah={containerHeight} maw={containerWidth}>
+        <ScrollArea.Autosize h={containerHeight} w={containerWidth} scrollbars="y">
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />
@@ -153,7 +154,7 @@ export function BarChart({
               // setSortType={setSortType}
             />
           ) : (
-            <Stack gap="xl" style={{ width: '100%' }}>
+            <Stack gap="xl" w={containerWidth}>
               {filteredUniqueFacetVals.map((multiplesVal) => (
                 <SingleEChartsBarChart
                   key={multiplesVal as string}
