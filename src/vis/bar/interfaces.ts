@@ -22,6 +22,12 @@ export enum EBarDirection {
   HORIZONTAL = 'Horizontal',
 }
 
+export enum EBarSortState {
+  NONE = 'None',
+  ASCENDING = 'Ascending',
+  DESCENDING = 'Descending',
+}
+
 export interface IBarConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.BAR;
   facets: ColumnInfo | null;
@@ -35,6 +41,7 @@ export interface IBarConfig extends BaseVisConfig {
   aggregateType: EAggregateTypes;
   aggregateColumn: ColumnInfo | null;
   showFocusFacetSelector?: boolean;
+  sortState?: { x: EBarSortState; y: EBarSortState };
 }
 
 export const defaultConfig: IBarConfig = {
@@ -50,6 +57,7 @@ export const defaultConfig: IBarConfig = {
   aggregateColumn: null,
   aggregateType: EAggregateTypes.COUNT,
   showFocusFacetSelector: false,
+  sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
 };
 
 export function isBarConfig(s: BaseVisConfig): s is IBarConfig {
