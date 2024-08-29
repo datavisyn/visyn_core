@@ -120,7 +120,7 @@ export function BarChart({
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        <ScrollArea.Autosize mah={containerHeight} maw={containerWidth}>
+        <ScrollArea.Autosize h={containerHeight} w={containerWidth} scrollbars="y">
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />
@@ -135,7 +135,7 @@ export function BarChart({
               selectedMap={selectedMap}
             />
           ) : (
-            <Stack gap="xl" style={{ width: '100%' }}>
+            <Stack gap="xl" w={containerWidth}>
               {[...filteredUniqueFacetVals]
                 .sort((a, b) => a.localeCompare(b))
                 .map((multiplesVal) => (
