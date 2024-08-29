@@ -17,6 +17,7 @@ export function isESupportedPlotlyVis(value: string): value is ESupportedPlotlyV
 
 export interface BaseVisConfig {
   type: string;
+  merged?: boolean;
 }
 
 export enum EAggregateTypes {

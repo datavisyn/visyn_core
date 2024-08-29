@@ -57,7 +57,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
           <SegmentedControl
             fullWidth
             size="xs"
-            value={`${currentSelected.fitOptions.order}`}
+            value={`${currentSelected.fitOptions?.order}`}
             onChange={(s) => callback({ ...currentSelected, fitOptions: { ...currentSelected.fitOptions, order: Number.parseInt(s, 10) } })}
             data={[
               { label: 'Quadratic', value: '2' },
@@ -336,8 +336,11 @@ export const fitRegressionLine = (
   method: ERegressionLineType,
   options: IRegressionFitOptions = DEFAULT_CURVE_FIT_OPTIONS,
 ): IRegressionResult => {
-  const x = data.x as number[];
-  const y = data.y as number[];
+  // Filter out null or undefined values (equivalent to pd.dropna())
+  const filteredPairs = (data.x as number[]).map((value, index) => ({ x: value, y: data.y[index] })).filter((pair) => pair.x != null && pair.y != null);
+  const x = filteredPairs.map((pair) => pair.x);
+  const y = filteredPairs.map((pair) => pair.y);
+
   const pearsonRho = round(corrcoeff(x, y), options.precision);
   const spearmanRho = round(spearmancoeff(x, y), options.precision);
   const regressionResult = regressionMethodsMapping[method]
