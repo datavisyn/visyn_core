@@ -73,7 +73,7 @@ export function BarChart({
     const groups = Array.from(new Set(dataTable.map((row) => row.group)));
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? schemeBlues[Math.max(groups.length, 3)] // use at least 3 colors for numerical values
+        ? schemeBlues[Math.max(groups.length - 1, 3)] // use at least 3 colors for numerical values
         : groups.map(
             (group, i) => allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length], // use the custom color from the column if available, otherwise use the default color scale
           );
