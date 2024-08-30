@@ -31,11 +31,15 @@ export function MainApp() {
     },
     group: {
       description: 'some very long description',
+      id: 'tumorOtherHistologicSubtype',
+      name: 'Tumor Other Histologic Subtype',
+    },
+    groupType: EBarGroupingType.STACK,
+    facets: {
+      description: 'some very long description',
       id: 'breastSurgeryType',
       name: 'Breast Surgery Type',
     },
-    groupType: EBarGroupingType.STACK,
-    facets: null,
     focusFacetIndex: null,
     display: EBarDisplayType.ABSOLUTE,
     direction: EBarDirection.HORIZONTAL,

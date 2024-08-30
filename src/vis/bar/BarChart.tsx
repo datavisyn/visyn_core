@@ -120,7 +120,7 @@ export function BarChart({
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        <ScrollArea.Autosize h={containerHeight} w={containerWidth} scrollbars="y">
+        <ScrollArea.Autosize h={containerHeight} w={containerWidth} scrollbars="y" offsetScrollbars>
           {colsStatus !== 'success' ? (
             <Center>
               <Loader />

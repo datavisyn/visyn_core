@@ -245,13 +245,15 @@ export function SingleEChartsBarChart({
         ],
 
         grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
           containLabel: true,
         },
 
-        legend: {},
+        legend: {
+          orient: 'horizontal',
+          top: 30,
+          type: 'scroll',
+          icon: 'circle',
+        },
       }) as ReactEChartsProps['option'],
     [calculateChartHeight, selectedFacetValue],
   );
