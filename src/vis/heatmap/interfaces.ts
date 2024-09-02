@@ -1,6 +1,6 @@
 import { BaseVisConfig, ColumnInfo, EAggregateTypes, ENumericalColorScaleType, ESupportedPlotlyVis } from '../interfaces';
 
-export interface IHeatmapConfig {
+export interface IHeatmapConfig extends BaseVisConfig {
   type: ESupportedPlotlyVis.HEATMAP;
   color: ColumnInfo | null;
   catColumnsSelected: ColumnInfo[];

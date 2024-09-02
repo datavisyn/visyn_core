@@ -2,12 +2,16 @@ import { useRef } from 'react';
 import { Extent } from '../interfaces';
 import { useSetRef } from '../../../hooks/useSetRef';
 
+interface BaseEvent {
+  nativeEvent: MouseEvent;
+}
+
 interface Vector {
   x: number;
   y: number;
 }
 
-interface DragEvent {
+interface DragEvent extends BaseEvent {
   anchor: Vector;
 
   start: Vector;
@@ -26,7 +30,7 @@ interface DragEvent {
   target: Element;
 }
 
-interface ClickEvent {
+interface ClickEvent extends BaseEvent {
   x: number;
   y: number;
   target: Element;
@@ -163,6 +167,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
                 x: event.end.x,
                 y: event.end.y,
                 target: event.target,
+                nativeEvent: event.nativeEvent,
               });
             }
 
@@ -204,6 +209,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
               clientY: event.clientY,
               parent: stateRef.current.parent,
               target: stateRef.current.target,
+              nativeEvent: event,
             });
           }
         };
@@ -227,6 +233,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
               clientY: event.clientY,
               parent: stateRef.current.parent,
               target: stateRef.current.target,
+              nativeEvent: event,
             });
           } else if (stateRef.current.state === 'mouse_down') {
             // Click
@@ -236,6 +243,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
               x,
               y,
               target: stateRef.current.target,
+              nativeEvent: event,
             });
           }
 
