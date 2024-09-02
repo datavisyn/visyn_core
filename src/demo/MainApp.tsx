@@ -55,6 +55,7 @@ export function MainApp() {
       y: EBarSortState.NONE,
     },
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    merged: true,
   } as IBarConfig);
   const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
