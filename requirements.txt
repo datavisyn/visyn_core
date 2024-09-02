@@ -12,7 +12,7 @@ opentelemetry-instrumentation-httpx==0.46b0
 opentelemetry-instrumentation-logging==0.46b0
 opentelemetry-instrumentation-requests==0.46b0
 opentelemetry-instrumentation-sqlalchemy==0.46b0
-opentelemetry-instrumentation-system-metrics==0.46b0
+opentelemetry-instrumentation-system-metrics==0.48b0
 opentelemetry-sdk==1.25.0
 psycopg==3.1.19
 psycopg2==2.9.9
