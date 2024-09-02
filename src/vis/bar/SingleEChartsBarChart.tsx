@@ -111,13 +111,21 @@ export function SingleEChartsBarChart({
       values[category].ids.push(item.id);
 
       // update group values
-      const targetGroup = selected ? values[category][grouping].selected : values[category][grouping].unselected;
-      targetGroup.count++;
-      targetGroup.sum += agg;
-      targetGroup.min = Math.min(targetGroup.min, agg);
-      targetGroup.max = Math.max(targetGroup.max, agg);
-      targetGroup.nums.push(agg);
-      targetGroup.ids.push(item.id);
+      if (selected) {
+        values[category][grouping].selected.count++;
+        values[category][grouping].selected.sum += agg;
+        values[category][grouping].selected.min = Math.min(values[category][grouping].selected.min, agg);
+        values[category][grouping].selected.max = Math.max(values[category][grouping].selected.max, agg);
+        values[category][grouping].selected.nums.push(agg);
+        values[category][grouping].selected.ids.push(item.id);
+      } else {
+        values[category][grouping].unselected.count++;
+        values[category][grouping].unselected.sum += agg;
+        values[category][grouping].unselected.min = Math.min(values[category][grouping].unselected.min, agg);
+        values[category][grouping].unselected.max = Math.max(values[category][grouping].unselected.max, agg);
+        values[category][grouping].unselected.nums.push(agg);
+        values[category][grouping].unselected.ids.push(item.id);
+      }
     });
     return {
       aggregatedData: values,

@@ -44,9 +44,9 @@ export function MainApp() {
     display: EBarDisplayType.ABSOLUTE,
     direction: EBarDirection.HORIZONTAL,
     aggregateColumn: {
-      description: 'Gene expression',
-      id: 'nvlGeneExpression',
-      name: 'NVL',
+      description: 'some very long description',
+      id: 'tumorStage',
+      name: 'Tumor Stage',
     },
     aggregateType: EAggregateTypes.COUNT,
     showFocusFacetSelector: false,
