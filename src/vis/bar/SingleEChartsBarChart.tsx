@@ -386,15 +386,18 @@ export function SingleEChartsBarChart({
       });
 
       chart.on('click', { seriesType: 'bar' }, (params) => {
-        selectionCallback(
-          params.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>,
-          filteredDataTable
-            .filter((item) => item.category === params.name && (!config.group || (config.group && item.group === params.seriesName)))
-            .map((item) => item.id),
-        );
+        const event = params.event.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+        const ids = filteredDataTable
+          .filter((item) => item.category === params.name && (!config.group || (config.group && item.group === params.seriesName)))
+          .map((item) => item.id);
+        if (event.shiftKey) {
+          selectionCallback(event, [...new Set([...selectedList, ...ids])]);
+        } else {
+          selectionCallback(event, ids);
+        }
       });
     },
-    [config, filteredDataTable, selectedFacetIndex, selectionCallback, setConfig],
+    [config, filteredDataTable, selectedFacetIndex, selectedList, selectionCallback, setConfig],
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {

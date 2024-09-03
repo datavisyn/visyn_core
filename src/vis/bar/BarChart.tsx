@@ -129,6 +129,7 @@ export function BarChart({
             <SingleEChartsBarChart
               config={config}
               dataTable={dataTable}
+              selectedList={selectedList}
               setConfig={setConfig}
               selectionCallback={customSelectionCallback}
               groupColorScale={groupColorScale}
@@ -143,6 +144,7 @@ export function BarChart({
                     key={multiplesVal}
                     config={config}
                     dataTable={dataTable}
+                    selectedList={selectedList}
                     selectedFacetValue={multiplesVal}
                     selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
                     setConfig={setConfig}
