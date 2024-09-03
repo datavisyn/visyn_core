@@ -54,17 +54,22 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
 function groupSeriesMap(barSeries: BarSeriesOption[] = [], sort: EBarSortState = EBarSortState.NONE) {
   return groupBy(
     barSeries
-      .map((s) => {
+      .reduce((acc, s) => {
         const item = { ...s } as typeof s & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
-        return s.data.map((d, i) => ({
-          value: d,
-          category: item.categories[i],
-          selected: item.selected,
-          group: item.group,
-        }));
-      })
-      .flat()
-      .filter((s) => !(s.value === null || Number.isNaN(s.value)))
+        // NOTE: @dv-usama-ansari: For loop is simply fast!
+        for (let i = 0; i < s.data.length; i++) {
+          const d = s.data[i];
+          if (d !== null && !Number.isNaN(d)) {
+            acc.push({
+              value: d,
+              category: item.categories[i],
+              selected: item.selected,
+              group: item.group,
+            });
+          }
+        }
+        return acc;
+      }, [])
       .sort((a, b) => {
         if (sort === EBarSortState.ASCENDING) {
           return (b.value as number) - (a.value as number);
@@ -108,6 +113,8 @@ export function SingleEChartsBarChart({
     () => (selectedFacetValue ? dataTable.filter((item) => item.facet === selectedFacetValue) : dataTable),
     [dataTable, selectedFacetValue],
   );
+
+  const allCategories = React.useMemo(() => uniq(filteredDataTable.map((item) => item.category)), [filteredDataTable]);
 
   const { aggregatedData, categories, groupings, hasSelected } = React.useMemo(() => {
     const values = {};
@@ -461,6 +468,7 @@ export function SingleEChartsBarChart({
             categories: data.map((d) => d.category),
             selected,
             group,
+            facet: selectedFacetValue,
 
             // group = individual group names, stack = any fixed name
             stack: config.groupType === EBarGroupingType.STACK ? 'total' : group,
@@ -480,6 +488,7 @@ export function SingleEChartsBarChart({
     groupColorScale,
     groupings,
     hasSelected,
+    selectedFacetValue,
     updateDirectionSideEffect,
     updateSortSideEffect,
   ]);
