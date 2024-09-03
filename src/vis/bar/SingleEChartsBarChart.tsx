@@ -187,45 +187,45 @@ export function SingleEChartsBarChart({
     (group: string, selected: 'selected' | 'unselected') => {
       switch (config.aggregateType) {
         case EAggregateTypes.COUNT:
-          return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected]
-              ? normalizedValue({ config, value: aggregatedData[cat][group][selected].count, total: aggregatedData[cat].total })
+          return categories.map((category, index) => ({
+            value: aggregatedData[category]?.[group]?.[selected]
+              ? normalizedValue({ config, value: aggregatedData[category][group][selected].count, total: aggregatedData[category].total })
               : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.AVG:
-          return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected]
+          return categories.map((category, index) => ({
+            value: aggregatedData[category]?.[group]?.[selected]
               ? normalizedValue({
                   config,
-                  value: aggregatedData[cat][group][selected].sum / aggregatedData[cat][group][selected].count,
-                  total: aggregatedData[cat].total,
+                  value: aggregatedData[category][group][selected].sum / aggregatedData[category][group][selected].count,
+                  total: aggregatedData[category].total,
                 })
               : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.MIN:
-          return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected]
-              ? normalizedValue({ config, value: aggregatedData[cat][group][selected].min, total: aggregatedData[cat].total })
+          return categories.map((category, index) => ({
+            value: aggregatedData[category]?.[group]?.[selected]
+              ? normalizedValue({ config, value: aggregatedData[category][group][selected].min, total: aggregatedData[category].total })
               : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.MAX:
-          return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected]
-              ? normalizedValue({ config, value: aggregatedData[cat][group][selected].max, total: aggregatedData[cat].total })
+          return categories.map((category, index) => ({
+            value: aggregatedData[category]?.[group]?.[selected]
+              ? normalizedValue({ config, value: aggregatedData[category][group][selected].max, total: aggregatedData[category].total })
               : 0,
             category: categories[index],
           }));
 
         case EAggregateTypes.MED:
-          return categories.map((cat, index) => ({
-            value: aggregatedData[cat]?.[group]?.[selected]
-              ? normalizedValue({ config, value: median(aggregatedData[cat][group][selected].nums), total: aggregatedData[cat].total })
+          return categories.map((category, index) => ({
+            value: aggregatedData[category]?.[group]?.[selected]
+              ? normalizedValue({ config, value: median(aggregatedData[category][group][selected].nums), total: aggregatedData[category].total })
               : 0,
             category: categories[index],
           }));
