@@ -435,13 +435,14 @@ export function SingleEChartsBarChart({
       });
 
       chart.on('click', { seriesType: 'bar' }, ({ event, seriesName, name }) => {
-        selectionCallback(
-          event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>,
-          filteredDataTable.filter((item) => item.category === name && (!config.group || (config.group && item.group === seriesName))).map((item) => item.id),
-        );
+        // TODO: fix bar chart selection in upcoming PR
+        // selectionCallback(
+        //   event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>,
+        //   filteredDataTable.filter((item) => item.category === name && (!config.group || (config.group && item.group === seriesName))).map((item) => item.id),
+        // );
       });
     },
-    [config, filteredDataTable, selectedFacetIndex, selectionCallback, setConfig],
+    [config, selectedFacetIndex, setConfig],
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
