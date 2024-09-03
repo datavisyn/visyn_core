@@ -83,6 +83,8 @@ function groupSeriesMap(barSeries: BarSeriesOption[] = [], sort: EBarSortState =
   );
 }
 
+const VERTICAL_BAR_CHART_HEIGHT = 250;
+
 export function SingleEChartsBarChart({
   config,
   setConfig,
@@ -113,8 +115,6 @@ export function SingleEChartsBarChart({
     () => (selectedFacetValue ? dataTable.filter((item) => item.facet === selectedFacetValue) : dataTable),
     [dataTable, selectedFacetValue],
   );
-
-  const allCategories = React.useMemo(() => uniq(filteredDataTable.map((item) => item.category)), [filteredDataTable]);
 
   const { aggregatedData, categories, groupings, hasSelected } = React.useMemo(() => {
     const values = {};
@@ -170,15 +170,17 @@ export function SingleEChartsBarChart({
   }, [filteredDataTable, selectedMap]);
 
   const calculateChartHeight = React.useMemo(() => {
-    // use fixed height for vertical bars
     if (config.direction === EBarDirection.VERTICAL) {
-      return 250;
+      // use fixed height for vertical bars
+      return VERTICAL_BAR_CHART_HEIGHT;
     }
-
-    // calculate height for horizontal bars
-    const categoryWidth = config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.length; // TODO: Make dynamic group length based on series data filtered for null
-    const chartHeight = categories.length * categoryWidth;
-    return chartHeight;
+    if (config.direction === EBarDirection.HORIZONTAL) {
+      // calculate height for horizontal bars
+      const categoryWidth =
+        config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.length; // TODO: Make dynamic group length based on series data filtered for null
+      return categories.length * categoryWidth + 2 * BAR_SPACING; // NOTE: @dv-usama-ansari: 20 = 10 padding top + 10 padding bottom
+    }
+    return 0;
   }, [categories.length, config.direction, config.group, config.groupType, groupings.length]);
 
   const getDataForAggregationType = React.useCallback(
