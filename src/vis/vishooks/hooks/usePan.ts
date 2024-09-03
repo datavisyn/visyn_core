@@ -7,7 +7,7 @@ import { m4 } from '../math';
 
 interface UsePanProps {
   value?: ZoomTransform;
-  onChange?: Dispatch<ZoomTransform>;
+  onChange?: (value: ZoomTransform) => void;
   defaultValue?: ZoomTransform;
 
   /**
@@ -33,27 +33,25 @@ export function usePan(options: UsePanProps = {}) {
   const { ref, setRef } = useInteractions({
     skip: options.skip,
     onDrag: (event) => {
-      setZoom((oldMatrix) => {
-        let newMatrix = m4.clone(oldMatrix);
+      let newMatrix = m4.clone(zoom);
 
-        if (options.direction !== 'y') {
-          newMatrix[12] += event.movementX;
-        }
+      if (options.direction !== 'y') {
+        newMatrix[12] += event.movementX;
+      }
 
-        if (options.direction !== 'x') {
-          newMatrix[13] += event.movementY;
-        }
+      if (options.direction !== 'x') {
+        newMatrix[13] += event.movementY;
+      }
 
-        if (options.constraint) {
-          newMatrix = options.constraint(newMatrix);
-        } else {
-          const bounds = event.parent.getBoundingClientRect();
+      if (options.constraint) {
+        newMatrix = options.constraint(newMatrix);
+      } else {
+        const bounds = event.parent.getBoundingClientRect();
 
-          newMatrix = defaultConstraint(newMatrix, bounds.width, bounds.height);
-        }
+        newMatrix = defaultConstraint(newMatrix, bounds.width, bounds.height);
+      }
 
-        return newMatrix;
-      });
+      setZoom(newMatrix);
     },
   });
 
