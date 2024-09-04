@@ -183,6 +183,7 @@ def create_visyn_server(
             _log.exception(
                 f"Could not set the total number of anyio tokens to {manager.settings.visyn_core.total_anyio_tokens}. Error: {e}"
             )
+
     # As a last step, call init_app callback for every plugin. This is last to ensure everything we need is already initialized.
     for p in plugins:
         p.plugin.init_app(app)
