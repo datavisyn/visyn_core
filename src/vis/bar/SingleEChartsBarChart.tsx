@@ -183,6 +183,8 @@ export function SingleEChartsBarChart({
   const groupings = React.useMemo(() => uniq(filteredDataTable.map((item) => item.group)), [filteredDataTable]);
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
+  const isGroupedBySameColumn = React.useMemo(() => config.catColumnSelected?.id === config.group?.id, [config.catColumnSelected, config.group]);
+
   const calculateChartHeight = React.useMemo(() => {
     if (config.direction === EBarDirection.VERTICAL) {
       // use fixed height for vertical bars
@@ -324,35 +326,40 @@ export function SingleEChartsBarChart({
       if (config.direction === EBarDirection.HORIZONTAL) {
         switch (sortState.x) {
           case EBarSortState.ASCENDING: {
-            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.ASCENDING);
+            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.ASCENDING, isGroupedBySameColumn);
             setSeries(() =>
-              barSeries.map((item) => {
+              barSeries.map((item, itemIndex) => {
                 const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
-                const axisData = [...(groupedSeries[itemClone.group].selected ?? []), ...(groupedSeries[itemClone.group].unselected ?? [])]
+                const group = isGroupedBySameColumn ? itemClone.catColumnSelected.id : itemClone.group;
+                const axisData = [...(groupedSeries[group].selected ?? []), ...(groupedSeries[group].unselected ?? [])]
                   .filter((d) => d.value !== null || !Number.isNaN(d.value))
                   .map((d) => d.category);
                 setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: axisData } }));
-                const seriesData = groupedSeries[itemClone.group][itemClone.selected]
-                  .filter((d) => d.value !== null || !Number.isNaN(d.value))
-                  .map((d) => (!d.value ? null : d.value));
+                const seriesData = isGroupedBySameColumn
+                  ? axisData.map((c) => {
+                      const categoryIndex = groupedSeries[group][itemClone.selected].findIndex((d) => d.category === c);
+                      return categoryIndex === itemIndex ? groupedSeries[group][itemClone.selected][categoryIndex].value : null;
+                    })
+                  : groupedSeries[group][itemClone.selected].filter((d) => d.value !== null || !Number.isNaN(d.value)).map((d) => (!d.value ? null : d.value));
                 return { ...itemClone, data: seriesData, categories: axisData };
               }),
             );
             break;
           }
           case EBarSortState.DESCENDING: {
-            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.DESCENDING);
+            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.DESCENDING, isGroupedBySameColumn);
             setSeries(() =>
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
+                const group = isGroupedBySameColumn ? itemClone.catColumnSelected.id : itemClone.group;
                 setAxes((a) => ({
                   ...a,
                   yAxis: {
                     ...a.yAxis,
-                    data: [...(groupedSeries[itemClone.group].selected ?? []), ...(groupedSeries[itemClone.group].unselected ?? [])].map((d) => d.category),
+                    data: [...(groupedSeries[group].selected ?? []), ...(groupedSeries[group].unselected ?? [])].map((d) => d.category),
                   },
                 }));
-                return { ...itemClone, data: groupedSeries[itemClone.group][itemClone.selected]?.map((d) => (!d.value ? null : d.value)) };
+                return { ...itemClone, data: groupedSeries[group][itemClone.selected]?.map((d) => (!d.value ? null : d.value)) };
                 // return item;
               }),
             );
@@ -413,7 +420,7 @@ export function SingleEChartsBarChart({
         }
       }
     },
-    [config.direction, sortState.x, sortState.y],
+    [config.direction, isGroupedBySameColumn, sortState.x, sortState.y],
   );
 
   const chartInstance = React.useCallback(
@@ -492,6 +499,7 @@ export function SingleEChartsBarChart({
             return null;
           }
 
+          const firstNonZeroNaNValue = data.filter((d) => d.value !== 0 && !Number.isNaN(d.value))[0];
           return {
             ...barSeriesBase,
             name: groupings.length > 1 ? group : null,
@@ -500,7 +508,9 @@ export function SingleEChartsBarChart({
                 group === NAN_REPLACEMENT
                   ? VIS_NEUTRAL_COLOR
                   : config.group && groupColorScale
-                    ? groupColorScale(group) || VIS_NEUTRAL_COLOR
+                    ? isGroupedBySameColumn
+                      ? groupColorScale(firstNonZeroNaNValue.category) || VIS_NEUTRAL_COLOR
+                      : groupColorScale(group) || VIS_NEUTRAL_COLOR
                     : VIS_NEUTRAL_COLOR,
               // reduce opacity for unselected bars if there are selected items
               opacity: hasSelected ? (selected === 'selected' ? 1 : 0.5) : 1,
@@ -529,6 +539,7 @@ export function SingleEChartsBarChart({
     groupColorScale,
     groupings,
     hasSelected,
+    isGroupedBySameColumn,
     selectedFacetValue,
     updateDirectionSideEffect,
     updateSortSideEffect,
