@@ -44,7 +44,11 @@ node_modules/
 
 # env
 /.venv*/
+/blob-report/
+
+# playwright
 /test-results/
 /playwright-report/
-/blob-report/
 /playwright/.cache/
+/playwright/download-test-results/
+/playwright/.auth/user.json
