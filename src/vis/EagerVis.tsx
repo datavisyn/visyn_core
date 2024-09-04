@@ -4,7 +4,7 @@ import { Alert, Group, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 import * as d3v7 from 'd3v7';
 import * as React from 'react';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { getCssValue } from '../utils';
 import { createVis, useVisProvider } from './Provider';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
@@ -217,7 +217,6 @@ export function EagerVis({
   const { getVisByType } = useVisProvider();
 
   const isControlled = externalConfig != null && setExternalConfig != null;
-  const wrapWithDefaults = React.useCallback((v: BaseVisConfig) => getVisByType(v.type)?.mergeConfig(columns, v), [columns, getVisByType]);
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [_visConfig, _setVisConfig] = useUncontrolled({
@@ -253,26 +252,29 @@ export function EagerVis({
 
   const isSelectedVisTypeRegistered = useMemo(() => getVisByType(_visConfig?.type), [_visConfig?.type, getVisByType]);
 
-  useEffect(() => {
-    // this will run only once
-    if (isSelectedVisTypeRegistered && _visConfig) {
+  const wrapWithDefaults = React.useCallback(
+    (v: BaseVisConfig) => getVisByType(v.type)?.mergeConfig(columns, { ...v, merged: true }),
+
+    [columns, getVisByType],
+  );
+
+  React.useEffect(() => {
+    // Merge the config with the default values once
+    if (isSelectedVisTypeRegistered && !_visConfig?.merged) {
       _setVisConfig?.(wrapWithDefaults(_visConfig));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSelectedVisTypeRegistered]);
+  }, [_visConfig, isSelectedVisTypeRegistered, _setVisConfig, wrapWithDefaults]);
 
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
-      // if the vis type changed we need to wrap the new config with defaults, i.e. selectedColumns
-      // also we need to reset the stats on vis type change
       if (v.type !== _visConfig?.type) {
-        _setVisConfig?.(wrapWithDefaults(v));
+        _setVisConfig?.({ ...v, merged: false });
         statsCallback(null);
       } else {
         _setVisConfig?.(v);
       }
     },
-    [_setVisConfig, _visConfig?.type, statsCallback, wrapWithDefaults],
+    [_setVisConfig, _visConfig?.type, statsCallback],
   );
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
@@ -353,36 +355,38 @@ export function EagerVis({
             An error occured in the visualization. Please try to select something different in the sidebar.
           </Alert>
         ) : (
-          <Renderer
-            config={_visConfig}
-            dimensions={dimensions}
-            optionsConfig={{
-              color: {
-                enable: true,
-              },
-            }}
-            uniquePlotId={uniquePlotId}
-            showDownloadScreenshot={showDownloadScreenshot}
-            showDragModeOptions={showDragModeOptions}
-            shapes={shapes}
-            setConfig={setVisConfig}
-            stats={stats}
-            statsCallback={statsCallback}
-            filterCallback={filterCallback}
-            selectionCallback={selectionCallback}
-            selectedMap={selectedMap}
-            selectedList={selected}
-            columns={columns}
-            scales={scales}
-            showSidebar={showSidebar}
-            showCloseButton={showCloseButton}
-            closeButtonCallback={closeCallback}
-            scrollZoom={scrollZoom}
-            {...commonProps}
-          />
+          _visConfig?.merged && (
+            <Renderer
+              config={_visConfig}
+              dimensions={dimensions}
+              optionsConfig={{
+                color: {
+                  enable: true,
+                },
+              }}
+              uniquePlotId={uniquePlotId}
+              showDownloadScreenshot={showDownloadScreenshot}
+              showDragModeOptions={showDragModeOptions}
+              shapes={shapes}
+              setConfig={setVisConfig}
+              stats={stats}
+              statsCallback={statsCallback}
+              filterCallback={filterCallback}
+              selectionCallback={selectionCallback}
+              selectedMap={selectedMap}
+              selectedList={selected}
+              columns={columns}
+              scales={scales}
+              showSidebar={showSidebar}
+              showCloseButton={showCloseButton}
+              closeButtonCallback={closeCallback}
+              scrollZoom={scrollZoom}
+              {...commonProps}
+            />
+          )
         )}
       </Stack>
-      {showSidebar ? (
+      {showSidebar && _visConfig?.merged ? (
         <VisSidebarWrapper config={_visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
           <VisSidebar config={_visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
