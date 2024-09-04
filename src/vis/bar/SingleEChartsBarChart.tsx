@@ -91,9 +91,17 @@ function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption 
 
   // Sort the flattened array based on the order parameter
   if (order === EBarSortState.ASCENDING) {
-    flattenedData.sort((a, b) => b - a);
-  } else if (order === EBarSortState.DESCENDING) {
     flattenedData.sort((a, b) => a - b);
+  } else if (order === EBarSortState.DESCENDING) {
+    flattenedData.sort((a, b) => b - a);
+  }
+
+  // Ensure "Unknown" category is placed last
+  const unknownIndex = categories.indexOf('Unknown');
+  if (unknownIndex !== -1) {
+    const unknownValue = squareMatrix[unknownIndex][unknownIndex];
+    flattenedData.splice(flattenedData.indexOf(unknownValue), 1);
+    flattenedData.push(unknownValue);
   }
 
   // Create a new sorted matrix initialized with null values
@@ -101,11 +109,11 @@ function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption 
 
   // Populate the diagonal of the new matrix with the sorted values
   for (let i = 0; i < flattenedData.length; i++) {
-    sortedMatrix[i % numCategories][i % numCategories] = flattenedData[i];
+    sortedMatrix[i][i] = flattenedData[i];
   }
 
   // Create a new categories array that corresponds to the sorted data values
-  const sortedCategories = [] as string[];
+  const sortedCategories = [];
   for (let i = 0; i < numCategories; i++) {
     for (let j = 0; j < numCategories; j++) {
       if (squareMatrix[j][j] === sortedMatrix[i][i]) {
