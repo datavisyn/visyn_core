@@ -7,15 +7,17 @@ export function MultiSelect({
   callback,
   columns,
   currentSelected,
-  columnType,
+  columnType = null,
+  label = '',
 }: {
   callback: (value: ColumnInfo[]) => void;
   columns: VisColumn[];
   currentSelected: ColumnInfo[];
-  columnType: EColumnTypes;
+  columnType?: EColumnTypes;
+  label?: string;
 }) {
   const filteredColumns = React.useMemo(() => {
-    return columns.filter((c) => c.type === columnType);
+    return columns.filter((c) => (columnType ? c.type === columnType : true));
   }, [columnType, columns]);
 
   const combobox = useCombobox({
@@ -118,7 +120,7 @@ export function MultiSelect({
             }
           `}
           rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />}
-          label={`${columnType} columns`}
+          label={!label ? `${columnType} columns` : label}
           pointer
           onClick={() => combobox.toggleDropdown()}
         >

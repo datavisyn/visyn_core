@@ -1,5 +1,5 @@
-import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
-import { useUncontrolled } from '@mantine/hooks';
+import { Center, Group, Stack, Switch, Tooltip } from '@mantine/core';
+import { useShallowEffect, useUncontrolled } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
@@ -8,13 +8,13 @@ import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { InvalidCols } from '../general/InvalidCols';
+import { VIS_TRACES_COLOR } from '../general/constants';
 import { beautifyLayout } from '../general/layoutUtils';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
-import { ELabelingOptions, ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
+import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
 import { createScatterTraces, defaultRegressionLineStyle } from './utils';
-import { VIS_TRACES_COLOR } from '../general/constants';
 
 const formatPValue = (pValue: number) => {
   if (pValue === null) {
@@ -76,13 +76,15 @@ export function ScatterVis({
   scrollZoom,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IScatterConfig>) {
+}: ICommonVisProps<IInternalScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
   const [showLegend, setShowLegend] = useUncontrolled({
     defaultValue: true,
     value: config.showLegend,
   });
   const [layout, setLayout] = useState<Partial<PlotlyTypes.Layout>>(null);
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
 
   // TODO: This is a little bit hacky, Also notification should be shown to the user
   // Limit numerical columns to 2 if facets are enabled
@@ -112,6 +114,7 @@ export function ScatterVis({
   } = useAsync(createScatterTraces, [
     columns,
     config.numColumnsSelected,
+    config.labelColumns,
     config.facets,
     config.shape,
     config.color,
@@ -121,6 +124,7 @@ export function ScatterVis({
     scales,
     shapes,
     config.showLabels,
+    config.showLabelLimit,
     selectedMap,
   ]);
 
@@ -230,10 +234,8 @@ export function ScatterVis({
       dragmode: config.dragMode,
     };
 
-    setLayout({ ...layout, ...beautifyLayout(traces, innerLayout, layout, null, false) });
-    // WARNING: Do not update when layout changes, that would be an infinite loop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [traces, config.dragMode, showLegend]);
+    setLayout((previous) => ({ ...previous, ...beautifyLayout(traces, innerLayout, previous, null, false) }));
+  }, [traces, config.dragMode, showLegend, showDragModeOptions, config.facets]);
 
   const plotsWithSelectedPoints = useMemo(() => {
     if (traces) {
@@ -282,12 +284,26 @@ export function ScatterVis({
   }, [traces, selectedList, config.color, config.showLabels, config.alphaSliderVal]);
 
   const plotlyData = useMemo(() => {
+    let data = [];
+    if (plotsWithSelectedPoints) {
+      data = [...plotsWithSelectedPoints.map((p) => p.data)];
+    }
     if (traces) {
-      return [...plotsWithSelectedPoints.map((p) => p.data), ...traces.legendPlots.map((p) => p.data)];
+      data = [...data, ...traces.legendPlots.map((p) => p.data)];
     }
 
-    return [];
-  }, [plotsWithSelectedPoints, traces]);
+    return data.map((d) => {
+      const textIndices = !config.showLabelLimit ? d.selectedpoints ?? [] : (d.selectedpoints ?? []).slice(0, config.showLabelLimit);
+      const text = config.showLabels === ELabelingOptions.ALWAYS ? d.text : isSelecting ? '' : (d.text ?? []).map((t, i) => (textIndices.includes(i) ? t : ''));
+
+      return { ...d, text };
+    });
+  }, [config.showLabelLimit, config.showLabels, isSelecting, plotsWithSelectedPoints, traces]);
+
+  useShallowEffect(() => {
+    setConfig({ ...config, selectedPointsCount: selectedList.length });
+  }, [selectedList, setConfig]);
+
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
       {showDragModeOptions || showDownloadScreenshot ? (
@@ -372,18 +388,35 @@ export function ScatterVis({
             }}
             onUpdate={() => {
               d3.select(id).selectAll('.legend').selectAll('.traces').style('opacity', 1);
+              window.addEventListener('keydown', (event) => {
+                if (event.key === 'Shift') {
+                  setIsShiftPressed(true);
+                }
+              });
+              window.addEventListener('keyup', (event) => {
+                if (event.key === 'Shift') {
+                  setIsShiftPressed(false);
+                }
+              });
+            }}
+            onSelecting={() => {
+              setIsSelecting(true);
             }}
             onSelected={(sel) => {
               if (sel) {
+                let indices = [];
                 // @ts-ignore
                 if (sel.points[0]?.binNumber !== undefined) {
                   // @ts-ignore
                   const selInidices = sel.points?.map((d) => d?.pointIndices).flat(1);
-                  const indices = sel.points[0]?.data?.customdata?.filter((_, i) => selInidices.includes(i)) as string[];
-                  selectionCallback(indices);
+                  indices = sel.points[0]?.data?.customdata?.filter((_, i) => selInidices.includes(i)) as string[];
                 } else {
-                  selectionCallback(sel ? sel.points?.map((d) => (d as any).id) : []);
+                  indices = sel.points?.map((d) => (d as any).id);
                 }
+                const selected = Array.from(new Set(isShiftPressed ? [...selectedList, ...indices] : indices));
+                selectionCallback(selected);
+                setIsSelecting(false);
+                setConfig({ ...config, selectedPointsCount: selected.length });
               }
             }}
           />

@@ -9,6 +9,7 @@ export enum EViolinOverlay {
 export enum EYAxisMode {
   UNSYNC = 'unsynced',
   SYNC = 'synced',
+  MERGED = 'merged',
 }
 
 export interface IViolinConfig extends BaseVisConfig {
