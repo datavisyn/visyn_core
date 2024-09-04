@@ -113,7 +113,7 @@ function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption 
   }
 
   // Create a new categories array that corresponds to the sorted data values
-  const sortedCategories = [];
+  const sortedCategories = [] as string[];
   for (let i = 0; i < numCategories; i++) {
     for (let j = 0; j < numCategories; j++) {
       if (squareMatrix[j][j] === sortedMatrix[i][i]) {
@@ -378,19 +378,19 @@ export function SingleEChartsBarChart({
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
       if (config.direction === EBarDirection.HORIZONTAL) {
-        const sortedSeries = sortAndRestoreMatrix(barSeries, sortState.x);
+        const sortedSeries = sortAndRestoreMatrix(
+          barSeries,
+          sortState.x === EBarSortState.ASCENDING
+            ? EBarSortState.DESCENDING
+            : sortState.x === EBarSortState.DESCENDING
+              ? EBarSortState.ASCENDING
+              : EBarSortState.NONE,
+        );
         setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
         setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: sortedSeries[0].categories } }));
       }
       if (config.direction === EBarDirection.VERTICAL) {
-        const sortedSeries = sortAndRestoreMatrix(
-          barSeries,
-          sortState.y === EBarSortState.ASCENDING
-            ? EBarSortState.DESCENDING
-            : sortState.y === EBarSortState.DESCENDING
-              ? EBarSortState.ASCENDING
-              : EBarSortState.NONE,
-        );
+        const sortedSeries = sortAndRestoreMatrix(barSeries, sortState.y);
         setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
         setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: sortedSeries[0].categories } }));
       }
