@@ -1,9 +1,12 @@
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import { ECharts } from 'echarts/core';
-import { groupBy, round, uniq } from 'lodash';
+import groupBy from 'lodash/groupBy';
+import orderBy from 'lodash/orderBy';
+import round from 'lodash/round';
+import uniq from 'lodash/uniq';
 import * as React from 'react';
-import { VIS_NEUTRAL_COLOR } from '../general';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, IBarDataTableRow } from './interfaces';
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
@@ -51,36 +54,48 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
     : round(value, 4);
 }
 
-function groupSeriesMap(barSeries: BarSeriesOption[] = [], sort: EBarSortState = EBarSortState.NONE) {
-  return groupBy(
-    barSeries
-      .reduce((acc, s) => {
-        const item = { ...s } as typeof s & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
-        // NOTE: @dv-usama-ansari: For loop is simply fast!
-        for (let i = 0; i < s.data.length; i++) {
-          const d = s.data[i];
-          if (d !== null && !Number.isNaN(d)) {
-            acc.push({
-              value: d,
-              category: item.categories[i],
-              selected: item.selected,
-              group: item.group,
-            });
-          }
-        }
-        return acc;
-      }, [])
-      .sort((a, b) => {
-        if (sort === EBarSortState.ASCENDING) {
-          return (b.value as number) - (a.value as number);
-        }
-        if (sort === EBarSortState.DESCENDING) {
-          return (a.value as number) - (b.value as number);
-        }
-        return 0;
-      }),
-    (s) => (s as typeof s & { categories: string[]; selected: 'selected' | 'unselected'; group: string }).group,
-  );
+function groupSeriesMap(barSeries: BarSeriesOption[] = [], sort: EBarSortState = EBarSortState.NONE, isGroupedBySameColumn: boolean = false) {
+  const order = sort === EBarSortState.ASCENDING ? 'desc' : sort === EBarSortState.DESCENDING ? 'asc' : null;
+  const orderedMap = barSeries.map((s) => {
+    const mapped = s.data.map((d, i) => {
+      return {
+        value: d,
+        category: (s as typeof s & { categories: string[] }).categories[i],
+        selected: (s as typeof s & { selected: 'selected' | 'unselected' }).selected,
+        group: (s as typeof s & { group: string }).group,
+      };
+    });
+    return isGroupedBySameColumn ? mapped : orderBy(mapped, ['value'], [order]);
+  });
+
+  if (isGroupedBySameColumn) {
+    const groupedData = groupBy(
+      orderBy(
+        orderedMap.flat().filter((m) => m.value !== null && !Number.isNaN(m.value)),
+        ['value'],
+        [order],
+      ),
+      (s) => s.selected,
+    );
+    return { [(barSeries[0] as Pick<IBarConfig, 'catColumnSelected'>).catColumnSelected.id]: groupedData };
+  }
+
+  const grouped = orderedMap.map((m) => groupBy(m, (s) => s.group));
+
+  const groupedSelected = grouped.map((item) => {
+    const key = Object.keys(item)[0];
+    const g = groupBy(item[key], (s) => s.selected);
+    return {
+      [key]: {
+        selected: g.selected || [],
+        unselected: g.unselected || [],
+      },
+    };
+  });
+  const reducedGroupedSelected = groupedSelected.reduce((acc, group) => {
+    return { ...acc, ...group };
+  }, {});
+  return reducedGroupedSelected;
 }
 
 const VERTICAL_BAR_CHART_HEIGHT = 250;
@@ -116,7 +131,7 @@ export function SingleEChartsBarChart({
     [dataTable, selectedFacetValue],
   );
 
-  const { aggregatedData, categories, groupings, hasSelected } = React.useMemo(() => {
+  const aggregatedData = React.useMemo(() => {
     const values = {};
     filteredDataTable.forEach((item) => {
       const { category, agg, group: grouping } = item;
@@ -161,13 +176,12 @@ export function SingleEChartsBarChart({
         values[category][grouping].unselected.ids.push(item.id);
       }
     });
-    return {
-      aggregatedData: values,
-      categories: uniq(filteredDataTable.map((item) => item.category)),
-      groupings: uniq(filteredDataTable.map((item) => item.group)),
-      hasSelected: selectedMap ? Object.values(selectedMap).some((selected) => selected) : false,
-    };
+    return values;
   }, [filteredDataTable, selectedMap]);
+
+  const categories = React.useMemo(() => uniq(filteredDataTable.map((item) => item.category)), [filteredDataTable]);
+  const groupings = React.useMemo(() => uniq(filteredDataTable.map((item) => item.group)), [filteredDataTable]);
+  const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
   const calculateChartHeight = React.useMemo(() => {
     if (config.direction === EBarDirection.VERTICAL) {
@@ -232,7 +246,7 @@ export function SingleEChartsBarChart({
 
         default:
           console.warn(`Aggregation type ${config.aggregateType} is not supported by bar chart.`);
-          return null;
+          return [];
       }
     },
     [aggregatedData, categories, config],
@@ -257,8 +271,11 @@ export function SingleEChartsBarChart({
 
         // enable click events on bars -> handled by chartInstance callback
         triggerEvent: true,
+
+        catColumnSelected: config.catColumnSelected,
+        group: config.group,
       }) as BarSeriesOption,
-    [config.display, config.group, config.groupType],
+    [config.catColumnSelected, config.display, config.group, config.groupType],
   );
 
   const optionBase: ReactEChartsProps['option'] = React.useMemo(
@@ -304,16 +321,21 @@ export function SingleEChartsBarChart({
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: BarSeriesOption[] }) => {
-      // NOTE: @dv-usama-ansari: This contains a lot of repeated code, we can optimize them in a follow-up PR.
       if (config.direction === EBarDirection.HORIZONTAL) {
         switch (sortState.x) {
           case EBarSortState.ASCENDING: {
             const groupedSeries = groupSeriesMap(barSeries, EBarSortState.ASCENDING);
             setSeries(() =>
               barSeries.map((item) => {
-                const itemClone = { ...item } as typeof item & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
-                setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: groupedSeries[itemClone.group].map((d) => d.category) } }));
-                return { ...itemClone, data: groupedSeries[itemClone.group].map((d) => (d.selected === itemClone.selected ? d.value : null)) };
+                const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
+                const axisData = [...(groupedSeries[itemClone.group].selected ?? []), ...(groupedSeries[itemClone.group].unselected ?? [])]
+                  .filter((d) => d.value !== null || !Number.isNaN(d.value))
+                  .map((d) => d.category);
+                setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: axisData } }));
+                const seriesData = groupedSeries[itemClone.group][itemClone.selected]
+                  .filter((d) => d.value !== null || !Number.isNaN(d.value))
+                  .map((d) => (!d.value ? null : d.value));
+                return { ...itemClone, data: seriesData, categories: axisData };
               }),
             );
             break;
@@ -322,9 +344,16 @@ export function SingleEChartsBarChart({
             const groupedSeries = groupSeriesMap(barSeries, EBarSortState.DESCENDING);
             setSeries(() =>
               barSeries.map((item) => {
-                const itemClone = { ...item } as typeof item & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
-                setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: groupedSeries[itemClone.group].map((d) => d.category) } }));
-                return { ...itemClone, data: groupedSeries[itemClone.group].map((d) => (d.selected === itemClone.selected ? d.value : null)) };
+                const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
+                setAxes((a) => ({
+                  ...a,
+                  yAxis: {
+                    ...a.yAxis,
+                    data: [...(groupedSeries[itemClone.group].selected ?? []), ...(groupedSeries[itemClone.group].unselected ?? [])].map((d) => d.category),
+                  },
+                }));
+                return { ...itemClone, data: groupedSeries[itemClone.group][itemClone.selected]?.map((d) => (!d.value ? null : d.value)) };
+                // return item;
               }),
             );
             break;
@@ -333,8 +362,9 @@ export function SingleEChartsBarChart({
             setSeries(() =>
               barSeries.map((item) => {
                 const itemClone = { ...item } as typeof item & { categories: string[] };
+                const seriesData = itemClone.data.map((d) => (!d ? null : d));
                 setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: itemClone.categories } }));
-                return itemClone;
+                return { ...itemClone, data: seriesData };
               }),
             );
             break;
@@ -345,37 +375,39 @@ export function SingleEChartsBarChart({
       }
       if (config.direction === EBarDirection.VERTICAL) {
         switch (sortState.y) {
-          case EBarSortState.ASCENDING: {
-            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.ASCENDING);
-            setSeries(() =>
-              barSeries.map((item) => {
-                const itemClone = { ...item } as typeof item & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
-                setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: groupedSeries[itemClone.group].map((d) => d.category) } }));
-                return { ...itemClone, data: groupedSeries[itemClone.group].map((d) => (d.selected === itemClone.selected ? d.value : null)) };
-              }),
-            );
-            break;
-          }
-          case EBarSortState.DESCENDING: {
-            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.DESCENDING);
-            setSeries(() =>
-              barSeries.map((item) => {
-                const itemClone = { ...item } as typeof item & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
-                setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: groupedSeries[itemClone.group].map((d) => d.category) } }));
-                return { ...itemClone, data: groupedSeries[itemClone.group].map((d) => (d.selected === itemClone.selected ? d.value : null)) };
-              }),
-            );
-            break;
-          }
-          case EBarSortState.NONE:
-            setSeries(() =>
-              barSeries.map((item) => {
-                const itemClone = { ...item } as typeof item & { categories: string[] };
-                setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: itemClone.categories } }));
-                return itemClone;
-              }),
-            );
-            break;
+          // case EBarSortState.ASCENDING: {
+          //   const groupedSeries = groupSeriesMap(barSeries, EBarSortState.ASCENDING, isGroupedBySameColumn);
+          //   setSeries(() =>
+          //     barSeries.map((item) => {
+          //       const itemClone = { ...item } as typeof item & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
+          //       setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: groupedSeries[itemClone.group].map((d) => d.category) } }));
+          //       return { ...itemClone, data: groupedSeries[itemClone.group].map((d) => (!d.value ? null : d.value)) };
+          //     }),
+          //   );
+          //   break;
+          // }
+          // case EBarSortState.DESCENDING: {
+          //   const groupedSeries = groupSeriesMap(barSeries, EBarSortState.DESCENDING, isGroupedBySameColumn);
+          //   setSeries(() =>
+          //     barSeries.map((item) => {
+          //       const itemClone = { ...item } as typeof item & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
+          //       setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: groupedSeries[itemClone.group].map((d) => d.category) } }));
+          //       return { ...itemClone, data: groupedSeries[itemClone.group].map((d) => (!d.value ? null : d.value)) };
+          //     }),
+          //   );
+          //   break;
+          // }
+          // case EBarSortState.NONE: {
+          //   const groupedSeries = groupSeriesMap(barSeries, EBarSortState.NONE, isGroupedBySameColumn);
+          //   setSeries(() =>
+          //     barSeries.map((item) => {
+          //       const itemClone = { ...item } as typeof item & { categories: string[]; selected: 'selected' | 'unselected'; group: string };
+          //       setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: groupedSeries[itemClone.group].map((d) => d.category) } }));
+          //       return { ...itemClone, data: groupedSeries[itemClone.group].map((d) => (d.selected === itemClone.selected ? d.value : null)) };
+          //     }),
+          //   );
+          //   break;
+          // }
           default:
             break;
         }
@@ -415,8 +447,10 @@ export function SingleEChartsBarChart({
         ...a,
         xAxis: { type: 'value' as const },
         yAxis: {
+          ...a.yAxis,
           type: 'category' as const,
-          data: categories,
+          // data: categories,
+          // data: barSeries.map((item) => item.name),
           axisLabel: {
             show: true,
             formatter: (value) => {
@@ -431,8 +465,9 @@ export function SingleEChartsBarChart({
       setAxes((a) => ({
         ...a,
         xAxis: {
+          ...a.xAxis,
           type: 'category' as const,
-          data: categories,
+          // data: categories,
           axisLabel: {
             show: true,
             formatter: (value) => {
@@ -444,7 +479,7 @@ export function SingleEChartsBarChart({
         yAxis: { type: 'value' as const },
       }));
     }
-  }, [categories, config.direction]);
+  }, [config.direction]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = groupings
@@ -462,7 +497,11 @@ export function SingleEChartsBarChart({
             name: groupings.length > 1 ? group : null,
             itemStyle: {
               color:
-                group === 'Unknown' ? VIS_NEUTRAL_COLOR : config.group && groupColorScale ? groupColorScale(group) || VIS_NEUTRAL_COLOR : VIS_NEUTRAL_COLOR,
+                group === NAN_REPLACEMENT
+                  ? VIS_NEUTRAL_COLOR
+                  : config.group && groupColorScale
+                    ? groupColorScale(group) || VIS_NEUTRAL_COLOR
+                    : VIS_NEUTRAL_COLOR,
               // reduce opacity for unselected bars if there are selected items
               opacity: hasSelected ? (selected === 'selected' ? 1 : 0.5) : 1,
             },
