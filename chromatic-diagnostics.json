@@ -626,9 +626,7 @@
     "branch": "lalbrecht/409_introducing-playwright-tests",
     "slug": "datavisyn/visyn_core",
     "fromCI": false,
-    "parentCommits": [
-      "c9676322283e54a680cb159b61db9b3e7efd7c33"
-    ]
+    "parentCommits": ["c9676322283e54a680cb159b61db9b3e7efd7c33"]
   },
   "input": [],
   "isOnboarding": false,
@@ -645,11 +643,7 @@
     "fileHashing": true,
     "interactive": false,
     "isLocalBuild": false,
-    "originalArgv": [
-      "--playwright",
-      "--debug",
-      "--project-token=99ef83e5432c"
-    ],
+    "originalArgv": ["--playwright", "--debug", "--project-token=99ef83e5432c"],
     "logFile": "chromatic.log",
     "zip": true,
     "buildScriptName": "storybook:build",
@@ -702,11 +696,7 @@
       "./scss/*": "./src/scss/*",
       "./package.json": "./package.json"
     },
-    "files": [
-      "src",
-      "dist",
-      "cypress"
-    ],
+    "files": ["src", "dist"],
     "engines": {
       "npm": ">=8",
       "node": ">=16"
@@ -718,8 +708,6 @@
       "compile:watch": "visyn_scripts compile --watch",
       "compile": "visyn_scripts compile",
       "copy": "visyn_scripts copy",
-      "cy:open": "cypress open",
-      "cy:run": "cypress run --e2e",
       "delete-dependencies": "visyn_scripts clean node_modules",
       "dist": "mkdir lib && cd dist && tar cvzf ../lib/bundle.tar.gz *",
       "docs": "visyn_scripts docs",
@@ -785,8 +773,7 @@
       "@chromatic-com/storybook": "^1.6.1",
       "@playwright/test": "^1.45.2",
       "@types/node": "^20.14.10",
-      "chromatic": "^11.6.0",
-      "cypress": "^13.11.0"
+      "chromatic": "^11.6.0"
     },
     "resolutions": {
       "storybook": "8.2.6",

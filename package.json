@@ -43,8 +43,7 @@
   },
   "files": [
     "src",
-    "dist",
-    "cypress"
+    "dist"
   ],
   "engines": {
     "npm": ">=8",
@@ -57,8 +56,6 @@
     "compile:watch": "visyn_scripts compile --watch",
     "compile": "visyn_scripts compile",
     "copy": "visyn_scripts copy",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run --e2e",
     "delete-dependencies": "visyn_scripts clean node_modules",
     "dist": "mkdir lib && cd dist && tar cvzf ../lib/bundle.tar.gz *",
     "docs": "visyn_scripts docs",
@@ -126,8 +123,7 @@
     "@chromatic-com/storybook": "^1.6.1",
     "@playwright/test": "^1.45.2",
     "@types/node": "^20.14.10",
-    "chromatic": "^11.6.0",
-    "cypress": "^13.11.0"
+    "chromatic": "^11.6.0"
   },
   "resolutions": {
     "storybook": "8.2.6",
