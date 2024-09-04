@@ -45,9 +45,10 @@ make test
 ### Playwright and Chromatic
 
 To run all tests and create snapshots, execute Playwright first. With this command all snapshots are already taken and captured in an archive. Make sure to commit all your changes before taking any snapshots.
+Before executing this command, make sure backend and frontend are running smoothly.
 
 ```bash
-yarn playwright test
+yarn pw:run
 ```
 
 To upload these snapshots to Chromatic’s cloud and review them, execute:
