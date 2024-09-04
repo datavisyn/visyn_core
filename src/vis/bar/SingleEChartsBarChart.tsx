@@ -1,4 +1,4 @@
-import type { ScaleOrdinal } from 'd3v7';
+import { sort, type ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import { ECharts } from 'echarts/core';
 import groupBy from 'lodash/groupBy';
@@ -54,48 +54,77 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
     : round(value, 4);
 }
 
-function groupSeriesMap(barSeries: BarSeriesOption[] = [], sort: EBarSortState = EBarSortState.NONE, isGroupedBySameColumn: boolean = false) {
-  const order = sort === EBarSortState.ASCENDING ? 'desc' : sort === EBarSortState.DESCENDING ? 'asc' : null;
-  const orderedMap = barSeries.map((s) => {
-    const mapped = s.data.map((d, i) => {
-      return {
-        value: d,
-        category: (s as typeof s & { categories: string[] }).categories[i],
-        selected: (s as typeof s & { selected: 'selected' | 'unselected' }).selected,
-        group: (s as typeof s & { group: string }).group,
-      };
-    });
-    return isGroupedBySameColumn ? mapped : orderBy(mapped, ['value'], [order]);
-  });
+function createMatrix(series: (BarSeriesOption & { categories: string[] })[]) {
+  // Create a rectangular matrix from the series data
+  const matrix = series.map((item) => item.data);
+  return matrix;
+}
 
-  if (isGroupedBySameColumn) {
-    const groupedData = groupBy(
-      orderBy(
-        orderedMap.flat().filter((m) => m.value !== null && !Number.isNaN(m.value)),
-        ['value'],
-        [order],
-      ),
-      (s) => s.selected,
-    );
-    return { [(barSeries[0] as Pick<IBarConfig, 'catColumnSelected'>).catColumnSelected.id]: groupedData };
+function sortMatrix(matrix: BarSeriesOption['data'][], series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
+  const { categories } = series[0];
+  const numCategories = categories.length;
+
+  // Create a square matrix with dimensions equal to the number of categories
+  const squareMatrix = Array.from({ length: numCategories }, () => Array(numCategories).fill(0)) as number[][];
+
+  // Sum the values for each category across all series
+  for (let i = 0; i < numCategories; i++) {
+    for (let j = 0; j < series.length; j++) {
+      squareMatrix[i][i] += series[j].data[i] as number;
+    }
   }
 
-  const grouped = orderedMap.map((m) => groupBy(m, (s) => s.group));
+  // Flatten the square matrix and remove 0 values
+  const flattenedData = squareMatrix.reduce((acc, val) => acc.concat(val), []).filter((val) => val !== 0);
 
-  const groupedSelected = grouped.map((item) => {
-    const key = Object.keys(item)[0];
-    const g = groupBy(item[key], (s) => s.selected);
+  // Sort the flattened array based on the order parameter
+  if (order === EBarSortState.ASCENDING) {
+    flattenedData.sort((a, b) => b - a);
+  } else if (order === EBarSortState.DESCENDING) {
+    flattenedData.sort((a, b) => a - b);
+  }
+
+  // Create a new sorted matrix initialized with null values
+  const sortedMatrix = Array.from({ length: numCategories }, () => Array(numCategories).fill(0)) as number[][];
+
+  // Populate the diagonal of the new matrix with the sorted values
+  for (let i = 0; i < flattenedData.length; i++) {
+    sortedMatrix[i % numCategories][i % numCategories] = flattenedData[i];
+  }
+
+  // Create a new categories array that corresponds to the sorted data values
+  const sortedCategories = [] as string[];
+  for (let i = 0; i < numCategories; i++) {
+    for (let j = 0; j < numCategories; j++) {
+      if (squareMatrix[j][j] === sortedMatrix[i][i]) {
+        sortedCategories.push(categories[j]);
+        break;
+      }
+    }
+  }
+
+  return { sortedMatrix, sortedCategories };
+}
+
+function sortAndRestoreMatrix(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
+  // Create the initial matrix
+  const matrix = createMatrix(series);
+
+  // Sort the matrix and update categories
+  const { sortedCategories } = sortMatrix(matrix, series, order);
+
+  const sortedSeries = series.map((item) => {
+    const transformedData = sortedCategories.map((category) => {
+      const index = item.categories.indexOf(category);
+      return item.data[index];
+    });
     return {
-      [key]: {
-        selected: g.selected || [],
-        unselected: g.unselected || [],
-      },
+      categories: sortedCategories,
+      data: transformedData,
     };
   });
-  const reducedGroupedSelected = groupedSelected.reduce((acc, group) => {
-    return { ...acc, ...group };
-  }, {});
-  return reducedGroupedSelected;
+
+  return sortedSeries;
 }
 
 const VERTICAL_BAR_CHART_HEIGHT = 250;
@@ -322,58 +351,94 @@ export function SingleEChartsBarChart({
   );
 
   const updateSortSideEffect = React.useCallback(
-    ({ barSeries = [] }: { barSeries: BarSeriesOption[] }) => {
+    ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
       if (config.direction === EBarDirection.HORIZONTAL) {
         switch (sortState.x) {
           case EBarSortState.ASCENDING: {
-            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.ASCENDING, isGroupedBySameColumn);
-            setSeries(() =>
-              barSeries.map((item, itemIndex) => {
-                const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
-                const group = isGroupedBySameColumn ? itemClone.catColumnSelected.id : itemClone.group;
-                const axisData = [...(groupedSeries[group].selected ?? []), ...(groupedSeries[group].unselected ?? [])]
-                  .filter((d) => d.value !== null || !Number.isNaN(d.value))
-                  .map((d) => d.category);
-                setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: axisData } }));
-                const seriesData = isGroupedBySameColumn
-                  ? axisData.map((c) => {
-                      const categoryIndex = groupedSeries[group][itemClone.selected].findIndex((d) => d.category === c);
-                      return categoryIndex === itemIndex ? groupedSeries[group][itemClone.selected][categoryIndex].value : null;
-                    })
-                  : groupedSeries[group][itemClone.selected].filter((d) => d.value !== null || !Number.isNaN(d.value)).map((d) => (!d.value ? null : d.value));
-                return { ...itemClone, data: seriesData, categories: axisData };
-              }),
+            const sortedSeries = sortAndRestoreMatrix(barSeries, sortState.x);
+            setSeries(
+              // barSeries.map((item, itemIndex) => {
+              //   const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
+
+              //   const group = isGroupedBySameColumn ? itemClone.catColumnSelected.id : itemClone.group;
+
+              //   const axisData = [...(groupedSeries[group].selected ?? []), ...(groupedSeries[group].unselected ?? [])]
+              //     .filter((d) => d.value !== null || !Number.isNaN(d.value))
+              //     .map((d) => d.category);
+              //   setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: axisData } }));
+
+              //   const seriesData = isGroupedBySameColumn
+              //     ? axisData.map((c) => {
+              //         const categoryIndex = groupedSeries[group][itemClone.selected].findIndex((d) => d.category === c);
+              //         return categoryIndex === itemIndex ? groupedSeries[group][itemClone.selected][categoryIndex].value : null;
+              //       })
+              //     : groupedSeries[group][itemClone.selected].filter((d) => d.value !== null || !Number.isNaN(d.value)).map((d) => (!d.value ? null : d.value));
+
+              //   return {
+              //     ...itemClone,
+              //     data: seriesData,
+              //     categories: axisData,
+              //   };
+              // }),
+              // barSeries.map((item) => {
+              //   const sortedData = item.data.sort((a, b) => (b as number) - (a as number));
+              //   return {
+              //     ...item,
+              //     data: sortedData,
+              //   };
+              // }),
+              barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
             );
+            setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: sortedSeries[0].categories } }));
             break;
           }
           case EBarSortState.DESCENDING: {
-            const groupedSeries = groupSeriesMap(barSeries, EBarSortState.DESCENDING, isGroupedBySameColumn);
-            setSeries(() =>
-              barSeries.map((item) => {
-                const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
-                const group = isGroupedBySameColumn ? itemClone.catColumnSelected.id : itemClone.group;
-                setAxes((a) => ({
-                  ...a,
-                  yAxis: {
-                    ...a.yAxis,
-                    data: [...(groupedSeries[group].selected ?? []), ...(groupedSeries[group].unselected ?? [])].map((d) => d.category),
-                  },
-                }));
-                return { ...itemClone, data: groupedSeries[group][itemClone.selected]?.map((d) => (!d.value ? null : d.value)) };
-                // return item;
-              }),
+            // const groupedSeries = groupSeriesMap(barSeries, EBarSortState.DESCENDING, isGroupedBySameColumn);
+            const sortedSeries = sortAndRestoreMatrix(barSeries, sortState.x);
+            setSeries(
+              // barSeries.map((item, itemIndex) => {
+              // const itemClone = { ...item } as typeof item & { selected: 'selected' | 'unselected'; group: string } & Pick<IBarConfig, 'catColumnSelected'>;
+              // const group = isGroupedBySameColumn ? itemClone.catColumnSelected.id : itemClone.group;
+              // const axisData = [...(groupedSeries[group].selected ?? []), ...(groupedSeries[group].unselected ?? [])]
+              //   .filter((d) => d.value !== null || !Number.isNaN(d.value))
+              //   .map((d) => d.category);
+              // setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: axisData } }));
+              // const seriesData = isGroupedBySameColumn
+              //   ? axisData.map((c) => {
+              //       const categoryIndex = groupedSeries[group][itemClone.selected].findIndex((d) => d.category === c);
+              //       return categoryIndex === itemIndex ? groupedSeries[group][itemClone.selected][categoryIndex].value : null;
+              //     })
+              //   : groupedSeries[group][itemClone.selected].filter((d) => d.value !== null || !Number.isNaN(d.value)).map((d) => (!d.value ? null : d.value));
+              // return { ...itemClone, data: seriesData, categories: axisData };
+              // return item;
+              // }),
+              barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
             );
+            setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: sortedSeries[0].categories } }));
             break;
           }
           case EBarSortState.NONE: {
+            const sortedSeries = sortAndRestoreMatrix(barSeries, sortState.x);
             setSeries(() =>
-              barSeries.map((item) => {
-                const itemClone = { ...item } as typeof item & { categories: string[] };
-                const seriesData = itemClone.data.map((d) => (!d ? null : d));
-                setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: itemClone.categories } }));
-                return { ...itemClone, data: seriesData };
-              }),
+              // barSeries.map((item) => {
+              //   const itemClone = { ...item } as typeof item & { categories: string[]; group: string };
+              //   const seriesData = itemClone.data.map((d) => (!d ? null : d));
+              //   // const color =
+              //   //   itemClone.group === NAN_REPLACEMENT
+              //   //     ? VIS_NEUTRAL_COLOR
+              //   //     : config.group && groupColorScale
+              //   //       ? groupColorScale(itemClone.group) || VIS_NEUTRAL_COLOR
+              //   //       : VIS_NEUTRAL_COLOR;
+              //   setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: itemClone.categories } }));
+              //   return {
+              //     ...itemClone,
+              //     data: seriesData,
+              //     // itemStyle: { color }
+              //   };
+              // }),
+              barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
             );
+            setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: sortedSeries[0].categories } }));
             break;
           }
           default:
@@ -420,7 +485,7 @@ export function SingleEChartsBarChart({
         }
       }
     },
-    [config.direction, isGroupedBySameColumn, sortState.x, sortState.y],
+    [config.direction, sortState.x, sortState.y],
   );
 
   const chartInstance = React.useCallback(
@@ -499,7 +564,7 @@ export function SingleEChartsBarChart({
             return null;
           }
 
-          const firstNonZeroNaNValue = data.filter((d) => d.value !== 0 && !Number.isNaN(d.value))[0];
+          const firstNonZeroNaNValue = data.find((d) => d.category === group);
           return {
             ...barSeriesBase,
             name: groupings.length > 1 ? group : null,
@@ -508,22 +573,17 @@ export function SingleEChartsBarChart({
                 group === NAN_REPLACEMENT
                   ? VIS_NEUTRAL_COLOR
                   : config.group && groupColorScale
-                    ? isGroupedBySameColumn
-                      ? groupColorScale(firstNonZeroNaNValue.category) || VIS_NEUTRAL_COLOR
-                      : groupColorScale(group) || VIS_NEUTRAL_COLOR
+                    ? groupColorScale(group) || VIS_NEUTRAL_COLOR
                     : VIS_NEUTRAL_COLOR,
               // reduce opacity for unselected bars if there are selected items
               opacity: hasSelected ? (selected === 'selected' ? 1 : 0.5) : 1,
             },
             data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
             categories: data.map((d) => d.category),
-            selected,
-            group,
-            facet: selectedFacetValue,
 
             // group = individual group names, stack = any fixed name
             stack: config.groupType === EBarGroupingType.STACK ? 'total' : group,
-          } as BarSeriesOption;
+          } as BarSeriesOption & { categories: string[] };
         });
       })
       .flat()
@@ -539,8 +599,6 @@ export function SingleEChartsBarChart({
     groupColorScale,
     groupings,
     hasSelected,
-    isGroupedBySameColumn,
-    selectedFacetValue,
     updateDirectionSideEffect,
     updateSortSideEffect,
   ]);
