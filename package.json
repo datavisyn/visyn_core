@@ -116,34 +116,13 @@
     "react-plotly.js": "^2.6.0",
     "react-spring": "^9.7.3",
     "use-deep-compare-effect": "^1.8.1",
-    "visyn_scripts": "^9.0.0"
+    "visyn_scripts": "^11.1.0"
   },
   "devDependencies": {
     "@chromatic-com/playwright": "^0.6.18",
     "@chromatic-com/storybook": "^1.6.1",
     "@playwright/test": "^1.45.2",
-    "@types/node": "^20.14.10",
     "chromatic": "^11.6.0"
-  },
-  "resolutions": {
-    "storybook": "8.2.6",
-    "@storybook/addon-actions": "8.2.6",
-    "@storybook/addon-backgrounds": "8.2.6",
-    "@storybook/addon-controls": "8.2.6",
-    "@storybook/addon-docs": "8.2.6",
-    "@storybook/addon-essentials": "8.2.6",
-    "@storybook/addon-highlight": "8.2.6",
-    "@storybook/addon-measure": "8.2.6",
-    "@storybook/addon-outline": "8.2.6",
-    "@storybook/addon-toolbars": "8.2.6",
-    "@storybook/addon-viewport": "8.2.6",
-    "@storybook/blocks": "8.2.6",
-    "@storybook/builder-webpack5": "8.2.6",
-    "@storybook/codemod": "8.2.6",
-    "@storybook/core-webpack": "8.2.6",
-    "@storybook/csf-plugin": "8.2.6",
-    "@storybook/preview-api": "8.2.6",
-    "@storybook/react-dom-shim": "8.2.6"
   },
   "visyn": {
     "entries": {
