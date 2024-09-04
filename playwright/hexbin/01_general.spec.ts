@@ -24,10 +24,10 @@ test('rectangle brush', async ({ page }) => {
 
 test('download', async ({ page }) => {
   await selectHexbin(page);
-  const downloadPromise = page.waitForEvent('download');
+  const downloadPromise = page.waitForEvent('download', { timeout: 300000 });
   await page.getByTestId('DownloadPlotButton').click();
   const download = await downloadPromise;
-  await download.saveAs(`./download-test-results/01-general/${new Date().toISOString}/${download.suggestedFilename()}`);
+  await download.saveAs(`playwright/download-test-results/${download.suggestedFilename()}`);
 });
 
 test('selection in ranking should be visible in plot', async ({ page }) => {

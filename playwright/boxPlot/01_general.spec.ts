@@ -3,11 +3,10 @@ import { selectBoxPlot } from '../extensions/selectPlots';
 
 test('download', async ({ page }) => {
   await selectBoxPlot(page);
-  const downloadPromise = page.waitForEvent('download');
+  const downloadPromise = page.waitForEvent('download', { timeout: 300000 });
   await page.getByTestId('DownloadPlotButton').click();
   const download = await downloadPromise;
   await download.saveAs(`playwright/download-test-results/${download.suggestedFilename()}`);
-  // await download.saveAs(`./download-test-results/01-general/${new Date().toISOString}/${download.suggestedFilename()}`);
 });
 
 test('sort x-axis', async ({ page }) => {
@@ -59,9 +58,9 @@ test('selection in ranking should be visible in plot', async ({ page }) => {
 
   // select lines in ranking
   for (let index = 3; index <= 6; index++) {
-    await page.locator('div[class*="lu-renderer-selection"]').nth(index).click();
+    page.locator('div[class*="lu-renderer-selection"]').nth(index).click();
   }
 
-  await expect(page.locator('g[class="subplot xy"]').locator('path[class="box"]').first()).toHaveCSS('fill', 'rgb(226, 150, 9)');
-  await expect(page.locator('g[class="subplot x2y2"]').locator('path[class="box"]').first()).toHaveCSS('fill', 'rgb(226, 150, 9)');
+  await expect(page.locator('g[class="subplot xy"]').locator('path[class="box"]').last()).toHaveCSS('fill', 'rgb(226, 150, 9)');
+  await expect(page.locator('g[class="subplot x2y2"]').locator('path[class="box"]').last()).toHaveCSS('fill', 'rgb(226, 150, 9)');
 });

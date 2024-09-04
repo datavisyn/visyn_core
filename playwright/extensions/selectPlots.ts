@@ -4,8 +4,6 @@ export async function selectViolinPlot(page: Page) {
   await page.goto('/');
   await page.getByTestId('SelectVisualizationType').click();
   await page.getByRole('option', { name: 'Violin plot' }).click();
-
-  await page.getByTestId('MultiSelect').locator('button').first().click();
 }
 
 export async function selectBoxPlot(page: Page) {
