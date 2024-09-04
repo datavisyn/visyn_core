@@ -250,13 +250,15 @@ export function EagerVis({
   const isSelectedVisTypeRegistered = React.useMemo(() => getVisByType(visConfig?.type), [visConfig?.type, getVisByType]);
   const visTypeNotSupported = React.useMemo(() => !isESupportedPlotlyVis(visConfig?.type), [visConfig]);
 
-  // Keep track of the previous vis config to check if the vis type has changed: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
   const [prevVisConfig, setPrevVisConfig] = React.useState(visConfig);
-  // Merge the config with the default values once or if the vis type changes.
-  if (isSelectedVisTypeRegistered && (!visConfig?.merged || prevVisConfig?.type !== visConfig?.type)) {
-    setPrevVisConfig(visConfig);
-    _setVisConfig?.(getVisByType(visConfig.type)?.mergeConfig(columns, { ...visConfig, merged: true }));
-  }
+  React.useEffect(() => {
+    // Merge the config with the default values once or if the vis type changes.
+    if (isSelectedVisTypeRegistered && (!visConfig?.merged || prevVisConfig?.type !== visConfig?.type)) {
+      // TODO: I would prefer this to be not in a useEffect, as then we wouldn't have the render-flicker: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+      setPrevVisConfig(visConfig);
+      _setVisConfig?.(getVisByType(visConfig.type)?.mergeConfig(columns, { ...visConfig, merged: true }));
+    }
+  }, [_setVisConfig, columns, getVisByType, isSelectedVisTypeRegistered, prevVisConfig?.type, visConfig]);
 
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
