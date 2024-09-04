@@ -6,7 +6,7 @@ interface UseControlledUncontrolledProps<T> {
   onChange?: Dispatch<SetStateAction<T>>;
 }
 
-export function useControlledUncontrolled<T>({ value, defaultValue, onChange }: UseControlledUncontrolledProps<T>): [T, Dispatch<SetStateAction<T>>] {
+export function useControlledUncontrolled<T>({ value, defaultValue, onChange }: UseControlledUncontrolledProps<T>): [T, Dispatch<SetStateAction<T>>, boolean] {
   const [internalValue, setInternalValue] = useState(defaultValue);
 
   const handleChange: Dispatch<SetStateAction<T>> = useCallback(
@@ -19,9 +19,9 @@ export function useControlledUncontrolled<T>({ value, defaultValue, onChange }: 
 
   // Controlled mode
   if (value !== undefined) {
-    return [value as T, onChange];
+    return [value as T, onChange, true];
   }
 
   // Uncontrolled mode
-  return [internalValue as T, handleChange];
+  return [internalValue as T, handleChange, false];
 }

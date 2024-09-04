@@ -216,54 +216,44 @@ export function EagerVis({
 
   const { getVisByType } = useVisProvider();
 
-  const isControlled = externalConfig != null && setExternalConfig != null;
-
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [_visConfig, _setVisConfig] = useUncontrolled({
-    ...(isControlled ? { value: externalConfig, onChange: setExternalConfig } : {}),
-    ...(!isControlled
-      ? {
-          finalValue:
-            columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-              ? ({
-                  type: ESupportedPlotlyVis.SCATTER,
-                  numColumnsSelected: [],
-                  color: null,
-                  numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-                  shape: null,
-                  dragMode: EScatterSelectSettings.RECTANGLE,
-                  alphaSliderVal: 0.5,
-                } as BaseVisConfig)
-              : ({
-                  type: ESupportedPlotlyVis.BAR,
-                  facets: null,
-                  group: null,
-                  direction: EBarDirection.HORIZONTAL,
-                  display: EBarDisplayType.ABSOLUTE,
-                  groupType: EBarGroupingType.STACK,
-                  numColumnsSelected: [],
-                  catColumnSelected: null,
-                  aggregateColumn: null,
-                  aggregateType: EAggregateTypes.COUNT,
-                } as BaseVisConfig),
-        }
-      : {}),
+    // Make it controlled if we have an external config
+    value: setExternalConfig && externalConfig ? externalConfig : undefined,
+    defaultValue:
+      externalConfig ||
+      (columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
+        ? ({
+            type: ESupportedPlotlyVis.SCATTER,
+            numColumnsSelected: [],
+            color: null,
+            numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+            shape: null,
+            dragMode: EScatterSelectSettings.RECTANGLE,
+            alphaSliderVal: 0.5,
+          } as BaseVisConfig)
+        : ({
+            type: ESupportedPlotlyVis.BAR,
+            facets: null,
+            group: null,
+            direction: EBarDirection.HORIZONTAL,
+            display: EBarDisplayType.ABSOLUTE,
+            groupType: EBarGroupingType.STACK,
+            numColumnsSelected: [],
+            catColumnSelected: null,
+            aggregateColumn: null,
+            aggregateType: EAggregateTypes.COUNT,
+          } as BaseVisConfig)),
+    onChange: setExternalConfig,
   });
 
   const isSelectedVisTypeRegistered = useMemo(() => getVisByType(_visConfig?.type), [_visConfig?.type, getVisByType]);
 
-  const wrapWithDefaults = React.useCallback(
-    (v: BaseVisConfig) => getVisByType(v.type)?.mergeConfig(columns, { ...v, merged: true }),
-
-    [columns, getVisByType],
-  );
-
-  React.useEffect(() => {
-    // Merge the config with the default values once
-    if (isSelectedVisTypeRegistered && !_visConfig?.merged) {
-      _setVisConfig?.(wrapWithDefaults(_visConfig));
-    }
-  }, [_visConfig, isSelectedVisTypeRegistered, _setVisConfig, wrapWithDefaults]);
+  const wrapWithDefaults = React.useCallback((v: BaseVisConfig) => getVisByType(v.type)?.mergeConfig(columns, { ...v, merged: true }), [columns, getVisByType]);
+  // Merge the config with the default values once
+  if (isSelectedVisTypeRegistered && !_visConfig?.merged) {
+    _setVisConfig?.(wrapWithDefaults(_visConfig));
+  }
 
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
