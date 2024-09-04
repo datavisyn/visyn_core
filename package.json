@@ -124,7 +124,7 @@
     "@chromatic-com/playwright": "^0.6.18",
     "@chromatic-com/storybook": "^1.6.1",
     "@playwright/test": "^1.45.2",
-    "@storybook/react": "^8.2.9",
+    "@storybook/react": "^7.6.20",
     "chromatic": "^11.6.0"
   },
   "visyn": {
