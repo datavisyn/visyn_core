@@ -73,7 +73,7 @@
     "test": "visyn_scripts test",
     "bundle:dev": "visyn_scripts bundle --mode development --env workspace_mode=single",
     "bundle:prod": "visyn_scripts bundle --mode production --env workspace_mode=single",
-    "chromatic": "yarn run chromatic --playwright"
+    "chromatic": "yarn run chromatic"
   },
   "dependencies": {
     "@emotion/css": "^11.13.0",

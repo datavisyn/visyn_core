@@ -22,7 +22,7 @@ test('maximum size', async ({ page }) => {
   await page
     .getByTestId('HexSizeSlider')
     .locator('div[class$="Slider-track"]')
-    .click({ position: { x: hexSizeSliderWidth, y: hexSizeSliderHeight }, force: true });
+    .click({ position: { x: hexSizeSliderWidth - 1, y: hexSizeSliderHeight - 1 }, force: true });
 });
 
 test('size scale', async ({ page }) => {
@@ -32,5 +32,5 @@ test('size scale', async ({ page }) => {
 
 test('no opacity', async ({ page }) => {
   await selectHexbin(page);
-  await page.locator('div[class$="Switch-track"]').last().click();
+  await page.locator('label').filter({ hasText: 'Opacity scale' }).locator('span').first().click();
 });
