@@ -1,9 +1,13 @@
 import * as d3v7 from 'd3v7';
-import _ from 'lodash';
+import flatMap from 'lodash/flatMap';
+import groupBy from 'lodash/groupBy';
 import merge from 'lodash/merge';
+import sortBy from 'lodash/sortBy';
 import { i18n } from '../../i18n';
 import { getCssValue, selectionColorDark } from '../../utils';
+import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { columnNameWithDescription, createIdToLabelMapper, resolveColumnValues, resolveSingleColumn, truncateText } from '../general/layoutUtils';
+import { getLabelOrUnknown } from '../general/utils';
 import {
   ColumnInfo,
   EColumnTypes,
@@ -20,16 +24,14 @@ import {
 } from '../interfaces';
 import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
-import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
-import { getLabelOrUnknown } from '../general/utils';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
   if (!domain) return null;
   if (domain[0] !== undefined && domain[1] !== undefined) {
     return [domain[0], domain[1]];
   }
-  const min = Math.min(...(vals as number[]));
-  const max = Math.max(...(vals as number[]));
+
+  const [min, max] = d3v7.extent(vals as number[]);
 
   const calcDomain: [number, number] = [domain[0] ? domain[0] : min, domain[1] ? domain[1] : max + max / 20];
 
@@ -54,6 +56,7 @@ export const defaultConfig: IScatterConfig = {
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
   showLabels: ELabelingOptions.NEVER,
+  showLabelLimit: 50,
   regressionLineOptions: {
     type: ERegressionLineType.NONE,
     fitOptions: { order: 2, precision: 3 },
@@ -96,6 +99,7 @@ export function moveSelectedToFront(
 export async function createScatterTraces(
   columns: VisColumn[],
   numColumnsSelected: ColumnInfo[],
+  labelColumns: ColumnInfo[],
   facet: ColumnInfo,
   shape: ColumnInfo,
   color: ColumnInfo,
@@ -105,7 +109,8 @@ export async function createScatterTraces(
   scales: Scales,
   shapes: string[] | null,
   showLabels: ELabelingOptions,
-  selectedMap: { [key: string]: boolean },
+  showLabelLimit?: number,
+  selectedMap: { [key: string]: boolean } = {},
 ): Promise<PlotlyInfo> {
   let plotCounter = 1;
 
@@ -128,6 +133,14 @@ export async function createScatterTraces(
   const legendPlots: PlotlyData[] = [];
 
   const numCols: VisNumericalColumn[] = numColumnsSelected.map((c) => columns.find((col) => col.info.id === c.id) as VisNumericalColumn);
+  const resolvedLabelColumns = await Promise.all((labelColumns ?? []).map((l) => resolveSingleColumn(getCol(columns, l))));
+  const resolvedLabelColumnsWithMappedValues = resolvedLabelColumns.map((c) => {
+    const mappedValues = new Map();
+    c.resolvedValues.forEach((v) => {
+      mappedValues.set(v.id, v.val);
+    });
+    return { ...c, mappedValues };
+  });
   const validCols = await resolveColumnValues(numCols);
   const shapeCol = await resolveSingleColumn(getCol(columns, shape));
   const colorCol = await resolveSingleColumn(getCol(columns, color));
@@ -169,7 +182,7 @@ export async function createScatterTraces(
     : null;
 
   // These are shared data properties between the traces
-  const sharedData = {
+  const sharedData: Partial<PlotlyData> & { [key: string]: unknown } = {
     showlegend: false,
     type: 'scattergl',
     mode: showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
@@ -218,9 +231,17 @@ export async function createScatterTraces(
       shape: shapeCol ? shapeCol.resolvedValues[i].val : undefined,
     }));
 
-    const groupedData = _.groupBy(data, 'facet');
+    // Sort facets by the order of the domain of the facet column or alphabetically if no domain is set
+    const sortOrder =
+      (facetCol.domain as string[]) ||
+      [...new Set(facetCol.resolvedValues.map((v) => v.val as string))].sort((a, b) => a?.localeCompare(b, undefined, { sensitivity: 'base' }));
+    const groupedData = sortBy(groupBy(data, 'facet'), (group) => {
+      const facetValue = group[0].facet;
+      const index = sortOrder.indexOf(facetValue);
+      return index !== -1 ? index : Infinity;
+    });
 
-    _.flatMap(groupedData, (group, key) => {
+    flatMap(groupedData, (group, key) => {
       const calcXDomain = calculateDomain(
         (validCols[0] as VisNumericalColumn).domain,
         group.map((d) => d.x as number),
@@ -237,11 +258,13 @@ export async function createScatterTraces(
           ids: group.map((d) => d.ids),
           xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
           yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-          hovertext: group.map(
-            (d) =>
-              `${idToLabelMapper(d.ids)}<br>${xLabel}: ${d.x}<br>${yLabel}: ${d.y}
-              ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
-              ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`,
+          hovertext: group.map((d) =>
+            `${idToLabelMapper(d.ids)}
+            <br />${xLabel}: ${d.x}
+            <br />${yLabel}: ${d.y}
+            ${(resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(d.ids))}`)}
+            ${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(d.color)}` : ''}
+            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
           ),
           text: group.map((d) => idToLabelMapper(d.ids)),
           // @ts-ignore
@@ -287,11 +310,13 @@ export async function createScatterTraces(
         ids: validCols[0].resolvedValues.map((v) => v.id?.toString()),
         xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
         yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-        hovertext: validCols[0].resolvedValues.map(
-          (v, i) =>
-            `${idToLabelMapper(v.id)}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yDataVals[i]}
-            ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
-            ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
+        hovertext: validCols[0].resolvedValues.map((v, i) =>
+          `${idToLabelMapper(v.id)}
+<br />${xLabel}: ${v.val}
+<br />${yLabel}: ${yDataVals[i]}
+${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
+${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
         ),
         text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
         // @ts-ignore
@@ -370,11 +395,13 @@ export async function createScatterTraces(
               ids: xCurr.resolvedValues.map((v) => v.id?.toString()),
               xaxis: plotCounter === 1 ? 'x' : `x${plotCounter}`,
               yaxis: plotCounter === 1 ? 'y' : `y${plotCounter}`,
-              hovertext: xCurr.resolvedValues.map(
-                (v, i) =>
-                  `${v.id}<br>${xLabel}: ${v.val}<br>${yLabel}: ${yCurr.resolvedValues[i].val}
-                ${colorCol ? `<br>${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
-                ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br>${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`,
+              hovertext: xCurr.resolvedValues.map((v, i) =>
+                `${v.id}
+<br />${xLabel}: ${v.val}
+<br />${yLabel}: ${yCurr.resolvedValues[i].val}
+${(resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
+${colorCol ? `<br />${columnNameWithDescription(colorCol.info)}: ${getLabelOrUnknown(colorCol.resolvedValues[i].val)}` : ''}
+${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDescription(shapeCol.info)}: ${getLabelOrUnknown(shapeCol.resolvedValues[i].val)}` : ''}`.trim(),
               ),
               text: validCols[0].resolvedValues.map((v) => idToLabelMapper(v.id)),
               // @ts-ignore

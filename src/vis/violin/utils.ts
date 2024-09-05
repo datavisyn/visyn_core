@@ -1,13 +1,12 @@
-import _ from 'lodash';
-import merge from 'lodash/merge';
+import { cloneDeep, groupBy, mean, merge, orderBy, sumBy } from 'lodash';
 import { i18n } from '../../i18n';
 import { categoricalColors } from '../../utils';
+import { IBoxplotConfig } from '../boxplot';
 import { ESortStates } from '../general/SortIcon';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
 import { alphaToHex, columnNameWithDescription, resolveColumnValues, truncateText } from '../general/layoutUtils';
 import { EColumnTypes, ESupportedPlotlyVis, PlotlyData, PlotlyInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig, isViolinConfig } from './interfaces';
-import { IBoxplotConfig } from '../boxplot';
 
 const defaultViolinConfig: IViolinConfig = {
   type: ESupportedPlotlyVis.VIOLIN,
@@ -116,6 +115,10 @@ export async function createViolinTraces(
   const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const subCatMap: { [key: string]: { color: string; idx: number } } = {};
 
+  // NOTE: Special use-case
+  // When using the y-ais option merged and with categorical column set we treat the numerical columns as subCategory
+  const numColsAsSubcat = config.syncYAxis === EYAxisMode.MERGED && catCol !== null;
+
   // We do the grouping here to avoid having to do it in the plotly trace creation
   // This simplifies selection and highlighting of violins
   let data: IViolinDataRow[] = [];
@@ -162,7 +165,7 @@ export async function createViolinTraces(
       numCurr.resolvedValues.forEach((v, i) => {
         if (v.val) {
           const catVal = catColValues[i].val as string;
-          const subCatVal = (subCatColValues[i]?.val as string) || null;
+          const subCatVal = numColsAsSubcat ? columnNameWithDescription(numCurr.info) : (subCatColValues[i]?.val as string) || null;
           updateDataRange(v.val as number);
           data.push({
             ids: v.id?.toString(),
@@ -171,7 +174,11 @@ export async function createViolinTraces(
             groups: {
               num: { id: columnNameWithDescription(numCurr.info), val: columnNameWithDescription(numCurr.info) },
               cat: { id: columnNameWithDescription(catCol.info), val: catVal },
-              subCat: subCatCol ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal } : null,
+              subCat: numColsAsSubcat
+                ? { id: columnNameWithDescription(numCurr.info), val: subCatVal }
+                : subCatCol
+                  ? { id: columnNameWithDescription(subCatCol?.info), val: subCatVal }
+                  : null,
               facet: facetCol ? { id: columnNameWithDescription(facetCol.info), val: facetColValues[i].val as string } : null,
               plotId: currentPlotId,
             },
@@ -189,16 +196,22 @@ export async function createViolinTraces(
     }
   });
 
-  // Ensore NAN_REPLACEMENT is always at the end of the x-axis
+  // Ensure NAN_REPLACEMENT is always at the end of the x-axis
   // This also ensures that plotly does not draw the violins if there are no y values for this group
   data = data.sort((a) => (a.x === NAN_REPLACEMENT ? 1 : -1));
   // Continue with the rest of the code...
-  const groupedData = _.groupBy(data, (d) => concatGroup(d.groups));
+  const groupedData = groupBy(data, (d) => concatGroup(d.groups));
 
   // Apply domain sorting
   const catOrder = new Set([...(catCol?.domain ?? []), ...uniqueCatColValues]);
   const subCatOrder = new Set([...(subCatCol?.domain ?? []), ...Object.keys(subCatMap)]);
-  const facetOrder = new Set([...(facetCol?.domain ?? []), ...uniqueFacetValues]);
+  const facetOrder = new Set(
+    facetCol?.domain
+      ? [...facetCol.domain, NAN_REPLACEMENT]
+      : (uniqueFacetValues as string[]).sort((a, b) =>
+          a?.toLowerCase() === NAN_REPLACEMENT ? 1 : b?.toLowerCase() === NAN_REPLACEMENT ? -1 : a?.localeCompare(b, undefined, { sensitivity: 'base' }),
+        ),
+  );
   const groupKeysSorted = Object.keys(groupedData).sort((a, b) => {
     const groupA = groupedData[a][0].groups;
     const groupB = groupedData[b][0].groups;
@@ -232,11 +245,11 @@ export async function createViolinTraces(
       const meanValues = filteredGroupKeys.map((g) => {
         const group = groupedData[g];
         const values = group.map((d) => d.y);
-        return { key: g, mean: _.mean(values), cat: group[0].groups.cat?.val || group[0].groups.num.val };
+        return { key: g, mean: mean(values), cat: group[0].groups.cat?.val || group[0].groups.num.val };
       });
 
-      const summedMeanValues = Object.values(_.groupBy(meanValues, (m) => m.cat)).map((group) => ({ key: group[0].cat, mean: _.sumBy(group, 'mean') }));
-      const sortedGroups = _.orderBy(summedMeanValues, ['mean'], [sortBy.state === ESortStates.ASC ? 'asc' : 'desc']);
+      const summedMeanValues = Object.values(groupBy(meanValues, (m) => m.cat)).map((group) => ({ key: group[0].cat, mean: sumBy(group, 'mean') }));
+      const sortedGroups = orderBy(summedMeanValues, ['mean'], [sortBy.state === ESortStates.ASC ? 'asc' : 'desc']);
       const sortedCategories = sortedGroups.map((g) => g.key);
       categoryOrder = [...new Set(sortedCategories)];
     }
@@ -295,7 +308,7 @@ export async function createViolinTraces(
     const { plotId, facet, subCat, cat, num } = group[0].groups;
     const isSelected = selectedList.length > 0 && group.some((g) => selectedMap[g.ids]);
     const opacities = selectedList.length > 0 ? (isSelected ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
-    const patchedPlotId = facet ? numCols.length * uniqueFacetValues.indexOf(facet.val) + plotId : plotId;
+    const patchedPlotId = config.syncYAxis === EYAxisMode.MERGED ? 1 : facet ? numCols.length * [...facetOrder].indexOf(facet.val) + plotId : plotId;
     if (patchedPlotId > plotCounter) {
       plotCounter = patchedPlotId;
     }
@@ -351,10 +364,10 @@ export async function createViolinTraces(
         offsetgroup: subCat?.val,
         ...sharedData,
       },
-      yLabel: group[0].groups.num.id,
+      yLabel: config.syncYAxis === EYAxisMode.MERGED ? 'Merged axis' : group[0].groups.num.id,
       xLabel: catCol ? group[0].groups.cat.id : null,
       title: facetCol ? `${columnNameWithDescription(facetCol.info)} - ${group[0].groups.facet.val}` : null,
-      yDomain: config.syncYAxis === EYAxisMode.SYNC ? [dataRange.min, dataRange.max] : null,
+      yDomain: [EYAxisMode.SYNC, EYAxisMode.MERGED].includes(config.syncYAxis) ? [dataRange.min, dataRange.max] : null,
     });
   });
 
@@ -366,7 +379,7 @@ export async function createViolinTraces(
         // @ts-ignore
         const positiveSide = plots.find((p2) => p2.data.side === 'positive' && p2.data.xaxis === p.data.xaxis && p2.data.yaxis === p.data.yaxis);
         if (!positiveSide) {
-          const newPlot = _.cloneDeep(p);
+          const newPlot = cloneDeep(p);
           // @ts-ignore
           newPlot.data.side = 'positive';
           newPlot.data.y = [0];
@@ -378,7 +391,7 @@ export async function createViolinTraces(
         // @ts-ignore
         const negativeSide = plots.find((p2) => p2.data.side === 'negative' && p2.data.xaxis === p.data.xaxis && p2.data.yaxis === p.data.yaxis);
         if (!negativeSide) {
-          const newPlot = _.cloneDeep(p);
+          const newPlot = cloneDeep(p);
           // @ts-ignore
           newPlot.data.side = 'negative';
           newPlot.data.y = [0];
@@ -390,7 +403,7 @@ export async function createViolinTraces(
   }
 
   // Add separate legend
-  if (subCatCol) {
+  if (numColsAsSubcat || subCatCol) {
     legendPlots.push({
       data: {
         x: [null] as Plotly.Datum[],
@@ -400,7 +413,7 @@ export async function createViolinTraces(
         showlegend: true,
         type: 'violin',
         hoverinfo: 'skip',
-        legendgrouptitle: {
+        legendgrouptitle: subCatCol && {
           text: truncateText(columnNameWithDescription(subCatCol.info), true, 20),
         },
         transforms: [
@@ -440,7 +453,7 @@ export async function createViolinTraces(
     categoryOrder: categoriesPerPlot,
     errorMessage: i18n.t('visyn:vis.violinError'),
     errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
-    violinMode: subCatCol && !hasSplit ? 'group' : 'overlay',
+    violinMode: (numColsAsSubcat || subCatCol) && !hasSplit ? 'group' : 'overlay',
     hasSplit,
   };
 }

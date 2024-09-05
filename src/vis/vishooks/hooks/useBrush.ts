@@ -7,8 +7,8 @@ import { useControlledUncontrolled } from './useControlledUncontrolled';
 interface UseBrushProps {
   value?: Brush;
   onChange?: (brush: Brush) => void;
-  onChangeEnd?: (brush: Brush) => void;
-  onClick?: () => void;
+  onChangeEnd?: (brush: Brush, nativeEvent: Parameters<Parameters<typeof useInteractions>[0]['onClick']>[0]) => void;
+  onClick?: Parameters<typeof useInteractions>[0]['onClick'];
   defaultValue?: Brush;
   direction?: Direction;
   extent?: Extent;
@@ -65,8 +65,8 @@ export function useBrush(options: UseBrushProps = {}) {
 
       optionsRef.current.onChange?.(newBrush);
     },
-    onMouseUp: () => {
-      optionsRef.current.onChangeEnd?.(internalValue);
+    onMouseUp: (event) => {
+      optionsRef.current.onChangeEnd?.(internalValue, event);
 
       if (optionsRef.current.persistMode === 'clear_on_mouse_up') {
         setInternalValue(undefined);
