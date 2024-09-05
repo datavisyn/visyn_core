@@ -42,6 +42,27 @@ yarn run test
 make test
 ```
 
+### Playwright and Chromatic
+
+To run all tests and create snapshots, execute Playwright first. With this command all snapshots are already taken and captured in an archive. Make sure to commit all your changes before taking any snapshots.
+Before executing this command, make sure backend and frontend are running smoothly.
+
+```bash
+yarn pw:run
+```
+
+To upload these snapshots to Chromatic’s cloud and review them, execute:
+
+```bash
+yarn chromatic --playwright -t=<TOKEN>
+```
+
+Chromatic creates for every test a story in storybook, although these are not responsive. When clicking on the link in the terminal, all changes can be reviewed and storybook can be opened.
+
+Playwright documentation: [https://playwright.dev/docs/intro](https://playwright.dev/docs/intro)
+
+Chromatic with Playwright: [https://www.chromatic.com/docs/playwright/](https://www.chromatic.com/docs/playwright/)
+
 ## Building
 
 ```

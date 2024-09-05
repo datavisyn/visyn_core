@@ -108,7 +108,7 @@ export function MultiSelect({
   ));
 
   return (
-    <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal>
+    <Combobox data-testid="MultiSelect" store={combobox} onOptionSubmit={handleValueSelect} withinPortal>
       <Combobox.DropdownTarget>
         <PillsInput
           className={css`
@@ -119,7 +119,17 @@ export function MultiSelect({
               margin-bottom: auto;
             }
           `}
-          rightSection={<CloseButton onMouseDown={handleValueRemoveAll} color="gray" variant="transparent" size={22} iconSize={12} tabIndex={-1} />}
+          rightSection={
+            <CloseButton
+              data-testid="MultiSelectCloseButton"
+              onMouseDown={handleValueRemoveAll}
+              color="gray"
+              variant="transparent"
+              size={22}
+              iconSize={12}
+              tabIndex={-1}
+            />
+          }
           label={!label ? `${columnType} columns` : label}
           pointer
           onClick={() => combobox.toggleDropdown()}

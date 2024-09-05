@@ -43,8 +43,7 @@
   },
   "files": [
     "src",
-    "dist",
-    "cypress"
+    "dist"
   ],
   "engines": {
     "npm": ">=8",
@@ -59,14 +58,14 @@
     "compile:strict:watch": "visyn_scripts compile --watch",
     "compile:strict": "visyn_scripts compile",
     "copy": "visyn_scripts copy",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run --e2e",
     "delete-dependencies": "visyn_scripts clean node_modules",
     "dist": "mkdir lib && cd dist && tar cvzf ../lib/bundle.tar.gz *",
     "docs": "visyn_scripts docs",
     "lint:fix": "visyn_scripts lint --fix",
     "lint": "visyn_scripts lint",
     "predist": "yarn run lint && yarn run test && yarn run build",
+    "pw:open": "playwright test --ui",
+    "pw:run": "playwright test",
     "start:full": "visyn_scripts start --env workspace_mode=single fast=false",
     "start": "visyn_scripts start --env workspace_mode=single",
     "storybook:build": "visyn_scripts storybook build",
@@ -122,6 +121,7 @@
     "visyn_scripts": "^11.1.0"
   },
   "devDependencies": {
+    "@chromatic-com/playwright": "^0.6.18",
     "@chromatic-com/storybook": "^1.8.0",
     "@playwright/test": "^1.45.2",
     "@storybook/addon-actions": "^7.6.20",
@@ -135,7 +135,6 @@
     "@storybook/react-webpack5": "^7.6.20",
     "@storybook/testing-library": "0.2.2",
     "chromatic": "^11.7.1",
-    "cypress": "^13.14.2",
     "storybook": "^7.6.20",
     "storybook-addon-swc": "^1.2.0"
   },
