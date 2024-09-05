@@ -1,45 +1,50 @@
 # a2wsgi==1.6.0 # This WSIGMiddleware is not compatible with starlette_context
 alembic==1.13.2
 cachetools==5.3.3
-fastapi==0.111.0
+fastapi==0.112.2
 json-cfg==0.4.2
 openpyxl==3.1.5
-opentelemetry-api==1.25.0
-opentelemetry-exporter-otlp==1.25.0
-opentelemetry-exporter-prometheus==0.46b0
-opentelemetry-instrumentation-fastapi==0.46b0
-opentelemetry-instrumentation-httpx==0.46b0
-opentelemetry-instrumentation-logging==0.46b0
-opentelemetry-instrumentation-requests==0.46b0
-opentelemetry-instrumentation-sqlalchemy==0.46b0
-opentelemetry-instrumentation-system-metrics==0.46b0
-opentelemetry-sdk==1.25.0
-psycopg==3.1.19
+opentelemetry-api==1.27.0
+opentelemetry-exporter-otlp==1.27.0
+opentelemetry-exporter-prometheus==0.48b0
+opentelemetry-instrumentation-fastapi==0.48b0
+opentelemetry-instrumentation-httpx==0.48b0
+opentelemetry-instrumentation-logging==0.48b0
+opentelemetry-instrumentation-requests==0.48b0
+opentelemetry-instrumentation-sqlalchemy==0.48b0
+opentelemetry-instrumentation-system-metrics==0.48b0
+opentelemetry-sdk==1.27.0
+psycopg==3.2.1
 psycopg2==2.9.9
 pydantic==1.10.17
-pyjwt[crypto]==2.8.0
-pytest-postgresql==6.0.0
+pyjwt[crypto]==2.9.0
+pytest-postgresql==6.0.1
 python-dateutil==2.9.0.post0
 requests==2.32.3
-sentry-sdk~=2.11.0
-SQLAlchemy>=1.4.40,<=1.4.52
+sentry-sdk~=2.13.0
+SQLAlchemy>=1.4.40,<=1.4.53
 starlette-context==0.3.6
-uvicorn[standard]==0.30.1
 # Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/master/pyproject.toml#L79-L103
-fastapi-cli >=0.0.4
-# # For the test client
-httpx >=0.27.0
+fastapi-cli[standard]>=0.0.5
+# For the test client
+httpx>=0.23.0
 # For templates
-jinja2 >=2.11.2
+jinja2>=2.11.2
 # For forms and file uploads
-python-multipart >=0.0.7
+python-multipart>=0.0.7
 # For Starlette's SessionMiddleware, not commonly used with FastAPI
-itsdangerous >=1.1.0
+itsdangerous>=1.1.0
 # For Starlette's schema generation, would not be used with FastAPI
-pyyaml >=5.3.1
+pyyaml>=5.3.1
 # For UJSONResponse
-ujson >=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0
+ujson>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0
 # For ORJSONResponse
-orjson >=3.2.1
+orjson>=3.2.1
 # To validate email fields
-email_validator >=2.0.0
+email-validator>=2.0.0
+# Uvicorn with uvloop
+uvicorn[standard]>=0.30.6
+# Disabled as we are still on Pydantic 1: Settings management
+# pydantic-settings>=2.0.0
+# Disabled as we are still on Pydantic 1: Extra Pydantic data types
+# pydantic-extra-types>=2.0.0

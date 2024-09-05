@@ -26,7 +26,9 @@ import { getCol } from '../sidebar';
 import { ELabelingOptions, ERegressionLineType, IScatterConfig } from './interfaces';
 
 function calculateDomain(domain: [number | undefined, number | undefined], vals: number[]): [number, number] {
-  if (!domain) return null;
+  if (!domain) {
+    return null;
+  }
   if (domain[0] !== undefined && domain[1] !== undefined) {
     return [domain[0], domain[1]];
   }

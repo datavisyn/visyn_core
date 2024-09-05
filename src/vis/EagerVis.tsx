@@ -125,16 +125,16 @@ export function useRegisterDefaultVis(visTypes?: string[]) {
 export function EagerVis({
   columns,
   selected = [],
-  stats = null,
+  stats = undefined,
   statsCallback = () => null,
-  colors = null,
+  colors = undefined,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
   filterCallback,
-  setExternalConfig = null,
+  setExternalConfig = undefined,
   closeCallback = () => null,
   showCloseButton = false,
-  externalConfig = null,
+  externalConfig = undefined,
   enableSidebar = true,
   showSidebar: internalShowSidebar,
   showDragModeOptions = true,
@@ -172,7 +172,7 @@ export function EagerVis({
   /**
    * Optional Prop which is called whenever the statistics for the plot change.
    */
-  statsCallback?: (s: IPlotStats) => void;
+  statsCallback?: (s: IPlotStats | null) => void;
   /**
    * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
    */
@@ -340,7 +340,7 @@ export function EagerVis({
           <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
             The visualization type &quot;{visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
           </Alert>
-        ) : visHasError ? (
+        ) : visHasError || !Renderer ? (
           <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
             An error occured in the visualization. Please try to select something different in the sidebar.
           </Alert>

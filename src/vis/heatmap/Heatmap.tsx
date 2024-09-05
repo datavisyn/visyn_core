@@ -45,7 +45,9 @@ export function Heatmap({
 }) {
   const [ref, { width, height }] = useResizeObserver();
   const baseTable = useMemo(() => {
-    if (!column1 || !column2) return null;
+    if (!column1 || !column2) {
+      return null;
+    }
 
     return table({
       xVal: column1.resolvedValues.map(({ val }) => val),
@@ -55,7 +57,9 @@ export function Heatmap({
     });
   }, [aggregateColumn?.resolvedValues, column1, column2]);
   const aggregatedTable = useMemo(() => {
-    if (!baseTable) return null;
+    if (!baseTable) {
+      return null;
+    }
 
     let valueTable = rollupByAggregateType(baseTable.groupby('xVal', 'yVal'), config.aggregateType);
 
@@ -158,7 +162,9 @@ export function Heatmap({
   }, [aggregatedTable, width, margin.left, margin.right, margin.top, margin.bottom, height, config?.numColorScaleType, config.aggregateType]);
 
   const rects = useMemo(() => {
-    if (width === 0 || height === 0) return null;
+    if (width === 0 || height === 0) {
+      return null;
+    }
     return groupedValues.map((d, i) => {
       const { aggregateVal, x, y, xVal, yVal, color } = d;
       const ids: string[] = Array.from(
@@ -187,7 +193,9 @@ export function Heatmap({
   }, [baseTable, groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale, config.isAnimationEnabled]);
 
   const text = useMemo(() => {
-    if (width === 0 || height === 0) return null;
+    if (width === 0 || height === 0) {
+      return null;
+    }
     return (
       <HeatmapText
         height={height}
