@@ -86,7 +86,7 @@ export function AutoLoginForm({ setError, store }: IUserStoreRenderProps) {
       // Only allow a single concurrent login access
       setLoginInProgress(true);
 
-      let popup: Window = null;
+      let popup: Window | null = null;
       try {
         // Add timestamp to avoid no proper reloading due to cache hits.
         const authUrl = `${window.location.origin}?timestamp=${new Date().getTime()}`;

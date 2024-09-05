@@ -140,6 +140,7 @@ export class Ajax {
           }
       }
       if (mimetype) {
+        // @ts-ignore
         mergedOptions.headers['Content-Type'] = mimetype;
       }
     }
