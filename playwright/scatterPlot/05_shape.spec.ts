@@ -11,5 +11,4 @@ test('shape selected', async ({ page }) => {
   await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).click();
   await expect(page.getByLabel('Legend')).not.toBeDisabled();
   expect(await page.locator('g[class="legend"]')).toBeVisible();
-  //await page.screenshot({ path: 'scatterPlot/05_shape.png' });
 });
