@@ -13,8 +13,8 @@ export function isScoreColumnDesc<T = unknown>(desc: IValueColumnDesc<T> | IColu
  * @param defaultToDescRef the default behavior that gets called for each column that is NOT a score column
  * @returns a function that can be directly passed to the dump function of the ranking
  */
-export function createToDescRefWithScoreColumns(defaultToDescRef: (value) => any) {
-  return (desc) => {
+export function createToDescRefWithScoreColumns(defaultToDescRef: (value: any) => any) {
+  return (desc: any) => {
     if (isScoreColumnDesc(desc)) {
       // Score column
       delete desc.accessor;
@@ -33,8 +33,8 @@ export function createToDescRefWithScoreColumns(defaultToDescRef: (value) => any
  * @param defaultFromDescRef the default behavior that gets called for each column that is NOT a score column
  * @returns a function that can be directly passed to the restore function of the ranking
  */
-export function createFromDescRefWithScoreColumns(defaultFromDescRef: (value) => any) {
-  return (descRef) => {
+export function createFromDescRefWithScoreColumns(defaultFromDescRef: (value: any) => any) {
+  return (descRef: any) => {
     const newDesc = defaultFromDescRef(descRef);
 
     if (isScoreColumnDesc(newDesc)) {

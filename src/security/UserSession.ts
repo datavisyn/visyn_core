@@ -50,8 +50,8 @@ export class UserSession {
    * @param defaultValue
    * @returns {T}
    */
-  public retrieve = <T>(key: string, defaultValue: T = null): T => {
-    return this.context.getItem(key) !== null ? JSON.parse(this.context.getItem(key)) : defaultValue;
+  public retrieve = <T>(key: string, defaultValue: T | null = null): T => {
+    return typeof this.context.getItem(key) === 'string' ? JSON.parse(this.context.getItem(key)!) : defaultValue;
   };
 
   /**

@@ -27,15 +27,15 @@ export function VisynApp({
   children,
   loginMenu = <VisynLoginMenu watch />,
 }: {
-  header?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
-  headerConfig?: Partial<AppShellProps['header']>;
-  navbar?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
-  navbarConfig?: AppShellProps['navbar'];
-  aside?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
-  footer?: ReactElement<unknown, string | JSXElementConstructor<unknown>>;
-  footerConfig?: AppShellProps['footer'];
-  appShellProps?: Partial<AppShellProps & React.RefAttributes<HTMLDivElement>>;
-  loginMenu?: JSX.Element;
+  header?: ReactElement<unknown, string | JSXElementConstructor<unknown>> | null;
+  headerConfig?: Partial<AppShellProps['header']> | null;
+  navbar?: ReactElement<unknown, string | JSXElementConstructor<unknown>> | null;
+  navbarConfig?: AppShellProps['navbar'] | null;
+  aside?: ReactElement<unknown, string | JSXElementConstructor<unknown>> | null;
+  footer?: ReactElement<unknown, string | JSXElementConstructor<unknown>> | null;
+  footerConfig?: AppShellProps['footer'] | null;
+  appShellProps?: Partial<AppShellProps & React.RefAttributes<HTMLDivElement>> | null;
+  loginMenu?: JSX.Element | null;
   children?: React.ReactNode;
 }) {
   useVisynAppContext();
@@ -52,8 +52,8 @@ export function VisynApp({
         },
       }}
       {...appShellProps}
-      navbar={navbarConfig}
-      footer={footerConfig}
+      navbar={navbarConfig ?? undefined}
+      footer={footerConfig ?? undefined}
       header={{ height: 50, ...headerConfig }}
     >
       <AppShell.Navbar>{navbar}</AppShell.Navbar>

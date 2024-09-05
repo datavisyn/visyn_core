@@ -94,12 +94,14 @@ class SingleEventHandler {
     }
     const largs = [event].concat(event.args);
     if (this.listeners.length === 1) {
+      // @ts-ignore
       this.listeners[0].apply(event, largs);
     } else {
       // work on a copy in case the number changes
       const l = this.listeners.slice();
       const ll = l.length;
       for (let i = 0; i < ll && !event.isImmediatePropagationStopped(); ++i) {
+        // @ts-ignore
         l[i].apply(event, largs);
       }
     }
@@ -143,7 +145,8 @@ export class EventHandler implements IEventHandler {
         if (!this.handlers.has(event)) {
           this.handlers.set(event, new SingleEventHandler(event));
         }
-        this.handlers.get(event).push(handler);
+        // @ts-ignore
+        this.handlers.get(event)?.push(handler);
       });
     } else {
       Object.keys(events).forEach((event) => {
@@ -163,9 +166,10 @@ export class EventHandler implements IEventHandler {
     if (typeof events === 'string') {
       events.split(EventHandler.MULTI_EVENT_SEPARATOR).forEach((event) => {
         if (this.handlers.has(event)) {
-          const h: SingleEventHandler = this.handlers.get(event);
-          h.remove(handler);
-          if (h.length === 0) {
+          const h: SingleEventHandler | undefined = this.handlers.get(event);
+          // @ts-ignore
+          h?.remove(handler);
+          if (h?.length === 0) {
             this.handlers.delete(event);
           }
         }
@@ -204,8 +208,8 @@ export class EventHandler implements IEventHandler {
 
   private fireEvent = (event: Event) => {
     if (this.handlers.has(event.type)) {
-      const h: SingleEventHandler = this.handlers.get(event.type);
-      return h.fire(event);
+      const h: SingleEventHandler | undefined = this.handlers.get(event.type);
+      return h?.fire(event);
     }
     return false;
   };
