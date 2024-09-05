@@ -1,26 +1,26 @@
 import { test, expect } from '@chromatic-com/playwright';
 import { selectHexbin } from '../extensions/selectPlots';
 
-test('rectangle brush', async ({ page }) => {
-  /*
-    TODO: Although test won't fail, it does not work as expected => lasso brush is used instead of rectangle brush
-  */
-  await selectHexbin(page);
-  await page.getByTestId('BrushOptions').locator('div[class*="SegmentedControl-control"]').first().click();
-  const hexbinPlot = await page.locator('svg[id="HexPlot4"]');
-  const hexbinPlotWidth = await hexbinPlot.evaluate((el) => {
-    return el.getBoundingClientRect().width;
-  });
-  const hexbinPlotHeight = await hexbinPlot.evaluate((el) => {
-    return el.getBoundingClientRect().height;
-  });
+/*
+//     TODO: Although test won't fail, it does not work as expected => lasso brush is used instead of rectangle brush
+*/
+// test('rectangle brush', async ({ page }) => {
+//   await selectHexbin(page);
+//   await page.getByTestId('BrushOptions').locator('div[class*="SegmentedControl-control"]').first().click();
+//   const hexbinPlot = await page.locator('svg[id="HexPlot4"]');
+//   const hexbinPlotWidth = await hexbinPlot.evaluate((el) => {
+//     return el.getBoundingClientRect().width;
+//   });
+//   const hexbinPlotHeight = await hexbinPlot.evaluate((el) => {
+//     return el.getBoundingClientRect().height;
+//   });
 
-  await hexbinPlot.hover({ force: true, position: { x: hexbinPlotWidth / 4, y: hexbinPlotHeight / 4 } });
-  await page.mouse.down();
-  await hexbinPlot.hover({ force: true, position: { x: hexbinPlotWidth / 4 + 150, y: hexbinPlotHeight / 4 } });
-  await hexbinPlot.hover({ force: true, position: { x: hexbinPlotWidth / 4 + 350, y: hexbinPlotHeight / 4 + 350 } });
-  await page.mouse.up();
-});
+//   await hexbinPlot.hover({ force: true, position: { x: hexbinPlotWidth / 4, y: hexbinPlotHeight / 4 } });
+//   await page.mouse.down();
+//   await hexbinPlot.hover({ force: true, position: { x: hexbinPlotWidth / 4 + 150, y: hexbinPlotHeight / 4 } });
+//   await hexbinPlot.hover({ force: true, position: { x: hexbinPlotWidth / 4 + 350, y: hexbinPlotHeight / 4 + 350 } });
+//   await page.mouse.up();
+// });
 
 test('download', async ({ page }) => {
   await selectHexbin(page);
