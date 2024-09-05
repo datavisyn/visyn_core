@@ -33,6 +33,5 @@ test('size scale', async ({ page }) => {
 
 test('no opacity', async ({ page }) => {
   await selectHexbin(page);
-  await page.locator('label').filter({ hasText: 'Opacity scale' }).locator('span').first().click();
-  await page.waitForTimeout(2000);
+  await page.locator('label').filter({ hasText: 'Opacity scale' }).locator('span').first().click({ timeout: 10000 });
 });
