@@ -20,4 +20,5 @@ test('one categorical column selected', async ({ page }) => {
   await page.getByTestId('SingleSelectCategorical column').click();
   await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).locator('div').first().click();
   await expect(page.locator('g[class="violinlayer mlayer"]').locator('g[class="trace violins"]')).not.toHaveCount(1);
+  await page.waitForTimeout(1000);
 });
