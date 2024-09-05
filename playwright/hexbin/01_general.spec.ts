@@ -1,7 +1,7 @@
 import { test, expect } from '@chromatic-com/playwright';
 import { selectHexbin } from '../extensions/selectPlots';
 
-test.only('rectangle brush', async ({ page }) => {
+test('rectangle brush', async ({ page }) => {
   /*
     TODO: Although test won't fail, it does not work as expected => lasso brush is used instead of rectangle brush
   */
