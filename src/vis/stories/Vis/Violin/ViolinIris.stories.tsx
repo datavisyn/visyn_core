@@ -80,6 +80,6 @@ BoxplotOverlay.args = {
         name: 'Species',
       },
     ],
-    violinOverlay: EViolinOverlay.BOX,
+    overlay: EViolinOverlay.BOX,
   } as BaseVisConfig,
 };
