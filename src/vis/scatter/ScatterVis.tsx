@@ -293,7 +293,7 @@ export function ScatterVis({
     }
 
     return data.map((d) => {
-      const textIndices = !config.showLabelLimit ? d.selectedpoints ?? [] : (d.selectedpoints ?? []).slice(0, config.showLabelLimit);
+      const textIndices = !config.showLabelLimit ? (d.selectedpoints ?? []) : (d.selectedpoints ?? []).slice(0, config.showLabelLimit);
       const text = config.showLabels === ELabelingOptions.ALWAYS ? d.text : isSelecting ? '' : (d.text ?? []).map((t, i) => (textIndices.includes(i) ? t : ''));
 
       return { ...d, text };
@@ -333,6 +333,7 @@ export function ScatterVis({
             </Tooltip>
           ) : null}
           <PlotlyComponent
+            data-testid="ScatterPlotTestId"
             key={id}
             divId={id}
             data={plotlyData}

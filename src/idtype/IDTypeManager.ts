@@ -75,7 +75,7 @@ export class IDTypeManager {
 
   public registerIdType = (id: string, idtype: IDType): IDType => {
     if (this.cache.has(id)) {
-      return this.cache.get(id);
+      return this.cache.get(id)!;
     }
     this.cache.set(id, idtype);
     globalEventHandler.fire(IDTypeManager.EVENT_REGISTER_IDTYPE, idtype);
@@ -88,7 +88,7 @@ export class IDTypeManager {
 
   public restoreIdType = (persisted: { [key: string]: IPersistedIDType }) => {
     Object.keys(persisted).forEach((id) => {
-      this.resolveIdType(id).restore(persisted[id]);
+      this.resolveIdType(id).restore(persisted[id]!);
     });
   };
 
@@ -128,11 +128,11 @@ export class IDTypeManager {
   };
 
   public mapOneNameToFirstName = async (idType: IDType, name: string, toIDtype: IDTypeLike): Promise<string> => {
-    return this.mapNameToFirstName(idType, [name], toIDtype).then((names) => names[0]);
+    return this.mapNameToFirstName(idType, [name], toIDtype).then((names) => names[0]!);
   };
 
   public mapOneNameToName = async (idType: IDType, name: string, toIDtype: IDTypeLike): Promise<string[]> => {
-    return this.mapNameToName(idType, [name], toIDtype).then((names) => names[0]);
+    return this.mapNameToName(idType, [name], toIDtype).then((names) => names[0]!);
   };
 
   public mapNameToFirstName = async (idType: IDType, names: string[], toIDtype: IDTypeLike): Promise<string[]> => {
@@ -163,6 +163,7 @@ export class IDTypeManager {
         return true;
       }
       // lookup the targets and check if our target is part of it
+      // @ts-ignore
       return this.getCanBeMappedTo(this.resolveIdType(idtype)).then((mappables: IDType[]) => mappables.some((d) => d.id === target.id));
     }
     // check which idTypes can be mapped to the target one

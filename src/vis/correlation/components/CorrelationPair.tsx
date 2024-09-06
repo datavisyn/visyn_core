@@ -56,7 +56,7 @@ export function CorrelationPair({
           y={value.cyUT - boundingRect.height / 2 + marginRect.top}
           fill={isHover ? hoverColor : 'transparent'}
         />
-        <circle cx={value.cxUT} cy={value.cyUT} r={value.radius} fill={fill} />
+        <circle data-testid="CorrelationPairCircle" cx={value.cxUT} cy={value.cyUT} r={value.radius} fill={fill} />
       </g>
     );
   }, [boundingRect.height, boundingRect.width, fill, hoverColor, isHover, value]);
@@ -82,7 +82,11 @@ export function CorrelationPair({
         >
           <Center style={{ height: '100%' }}>
             <Stack style={{ height: '100%', width: '100%', overflow: 'hidden' }} align="center" justify="center" gap={2} p={5}>
-              <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
+              <Text
+                data-testid="CorrelationPairR"
+                size="xs"
+                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}
+              >
                 {`r: ${correlationFormat(value.correlation)}`}
               </Text>
               <Text size="xs" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>

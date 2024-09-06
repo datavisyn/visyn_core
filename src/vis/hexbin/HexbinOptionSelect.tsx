@@ -16,6 +16,7 @@ export function HexbinOptionSelect({ callback, currentSelected }: HexbinOptionSe
   ];
   return (
     <Select
+      data-testid="HexbinOptionSelect"
       label={i18n.t('visyn:vis.hexbinOptions')}
       onChange={(e) => callback(e as EHexbinOptions)}
       data={options}

@@ -18,7 +18,7 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
     if (watch) {
       const watcher = SessionWatcher.startWatching(LoginUtils.logout);
       return () => {
-        watcher.stop();
+        watcher?.stop();
       };
     }
     return undefined;
@@ -86,13 +86,13 @@ export function VisynLoginMenu({ watch = false }: { watch?: boolean }) {
           </Alert>
         ) : null}
         {userStoreStatus === 'pending' ? <LoadingOverlay visible /> : null}
-        {!userStores || isOffline ? null : userStoresWithUI.length === 0 ? (
+        {!userStores || !userStoresWithUI || isOffline ? null : userStoresWithUI.length === 0 ? (
           // Use the dummy store as default if no store is found
           <DefaultLoginForm setError={setError} store={{ id: 'DummyStore', ui: 'DefaultLoginForm', configuration: {} }} />
         ) : (
           // Render all stores next to eachother
           userStoresWithUI.map((store, i, all) => {
-            const ToRender = UserStoreUIMap.get(store.ui);
+            const ToRender = UserStoreUIMap.get(store.ui!);
 
             return (
               <React.Fragment key={store.id}>

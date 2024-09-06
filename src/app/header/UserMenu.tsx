@@ -3,7 +3,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 import { LoginUtils } from '../../security';
 
-export function UserMenu({ menu, user, color }: { menu: JSX.Element; user: string; color: string }) {
+export function UserMenu({ menu, user, color }: { menu?: JSX.Element; user: string; color?: string }) {
   return (
     <Menu shadow="md" data-testid="visyn-user-avatar">
       <Menu.Target>

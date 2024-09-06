@@ -105,7 +105,7 @@ export function MainApp() {
                   throw new Error('Unknown score type');
                 })();
 
-                lineupRef.current.createScoreColumn(data);
+                lineupRef.current?.createScoreColumn(data);
                 setLoading(false);
               }}
               rightSection={loading ? <Loader /> : null}
@@ -138,7 +138,7 @@ export function MainApp() {
             selected={visSelection}
             selectionCallback={(s) => {
               if (s) {
-                setSelection(s.map((i) => breastCancerData[+i]));
+                setSelection(s.map((i) => breastCancerData[+i]!));
               }
             }}
             filterCallback={(f) => {

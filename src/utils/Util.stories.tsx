@@ -1,11 +1,11 @@
 import React from 'react';
 import { ComponentStory } from '@storybook/react';
 import { Slider, Stack, Text } from '@mantine/core';
-import { DateTimePicker } from '@mantine/dates';
+import { DateTimePicker, DateValue } from '@mantine/dates';
 import { fromNow, getMostRelevantTimeUnitFromNow } from './fromNow';
 
 function PickerExample() {
-  const [value, setValue] = React.useState(new Date('June 1, 2024, 12:00:00'));
+  const [value, setValue] = React.useState<DateValue>(new Date('June 1, 2024, 12:00:00'));
 
   return (
     <Stack gap="xs">
@@ -45,7 +45,7 @@ function SliderExample() {
         min={-30}
         max={30}
         maw={400}
-        label={() => `${Math.round(getMostRelevantTimeUnitFromNow(d).amount)} ${getMostRelevantTimeUnitFromNow(d).name}`}
+        label={() => `${Math.round(getMostRelevantTimeUnitFromNow(d)!.amount)} ${getMostRelevantTimeUnitFromNow(d)!.name}`}
       />
       <Text>
         Generated label from current date -/+ the slider value:{' '}

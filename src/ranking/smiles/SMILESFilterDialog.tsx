@@ -44,15 +44,17 @@ export class SMILESFilterDialog extends ADialog {
   }
 
   private findLoadingNode(node: HTMLElement) {
-    return node.querySelector(`#${this.dialog.idPrefix}_loading`);
+    return node.querySelector(`#${this.dialog.idPrefix}_loading`)!;
   }
 
   private findErrorNode(node: HTMLElement) {
-    return node.querySelector(`#${this.dialog.idPrefix}_error`);
+    return node.querySelector(`#${this.dialog.idPrefix}_error`)!;
   }
 
   private updateFilter(filter: string | null, filterMissing: boolean) {
+    // @ts-ignore
     this.findLoadingNode(this.node).setAttribute('hidden', null);
+    // @ts-ignore
     this.findErrorNode(this.node).setAttribute('hidden', null);
 
     // empty input field + missing values checkbox is unchecked
@@ -62,7 +64,7 @@ export class SMILESFilterDialog extends ADialog {
     }
 
     const provider = this.ctx.provider as LocalDataProvider;
-    const structures = provider.viewRawRows(provider.data.map((_, i) => i)).map((d) => this.column.getValue(d));
+    const structures = provider.viewRawRows(provider.data.map((_, i) => i)).map((d) => this.column.getValue(d)!);
 
     // empty input field, but missing values checkbox is checked
     if (filter == null && filterMissing) {
@@ -71,10 +73,11 @@ export class SMILESFilterDialog extends ADialog {
     }
 
     this.findLoadingNode(this.node).removeAttribute('hidden');
+    // @ts-ignore
     this.findErrorNode(this.node).setAttribute('hidden', null);
 
     // input field is not empty -> search matching structures on server
-    fetchSubstructure(structures, filter)
+    fetchSubstructure(structures, filter!)
       .then(({ count }) => {
         const matching = new Set(
           Object.entries(count)
@@ -83,9 +86,11 @@ export class SMILESFilterDialog extends ADialog {
         );
 
         this.column.setFilter({ filter, filterMissing, matching });
+        // @ts-ignore
         this.findLoadingNode(this.node).setAttribute('hidden', null);
       })
       .catch((error: Error) => {
+        // @ts-ignore
         this.findLoadingNode(this.node).setAttribute('hidden', null);
 
         const errorNode = this.findErrorNode(this.node);
@@ -137,7 +142,7 @@ export class SMILESFilterDialog extends ADialog {
     );
 
     const filterMissing = findFilterMissing(node);
-    const input = node.querySelector<HTMLInputElement>('input[type="text"]');
+    const input = node.querySelector<HTMLInputElement>('input[type="text"]')!;
 
     this.enableLivePreviews([filterMissing, input]);
 
