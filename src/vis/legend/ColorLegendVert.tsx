@@ -58,7 +58,7 @@ export function ColorLegendVert({
     <Stack gap={3} style={{ width: `100%` }}>
       {title ? (
         <Center>
-          <Text size={rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
+          <Text data-testid="ColorLegendTitle" size={rem(VIS_AXIS_LABEL_SIZE)} c={VIS_LABEL_COLOR}>
             {title}
           </Text>
         </Center>
@@ -69,7 +69,7 @@ export function ColorLegendVert({
         {colors.reverse().map((color, i) => (
           // idk why this doesnt work when i use the score as the key, tbh. The scores definitely are unique, but something to do with the 0 changing on render, idk
           // eslint-disable-next-line react/no-array-index-key
-          <Text c={VIS_LABEL_COLOR} size="xs" key={i}>
+          <Text data-testid={`ColorLegendScale${i}`} c={VIS_LABEL_COLOR} size="xs" key={i}>
             {formatFunc(color.score)}
           </Text>
         ))}

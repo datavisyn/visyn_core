@@ -36,6 +36,7 @@ export function AggregateTypeSelect({
   return (
     <>
       <Select
+        data-testid="AggregateTypeSelect"
         label="Aggregate type"
         allowDeselect={false}
         onChange={(option) => aggregateTypeSelectCallback(option as EAggregateTypes)}

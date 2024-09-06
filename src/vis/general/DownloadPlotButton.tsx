@@ -9,7 +9,7 @@ export function DownloadPlotButton({ uniquePlotId, config }: { config: BaseVisCo
   const [{ isLoading }, captureScreenshot] = useCaptureVisScreenshot(uniquePlotId, config);
   return (
     <Tooltip label="Download visualization as image" position="top" withArrow>
-      <ActionIcon color="dvGray" loading={isLoading} variant="subtle" onClick={captureScreenshot}>
+      <ActionIcon data-testid="DownloadPlotButton" color="dvGray" loading={isLoading} variant="subtle" onClick={captureScreenshot}>
         <FontAwesomeIcon icon={dvDownloadVisualization} />
       </ActionIcon>
     </Tooltip>

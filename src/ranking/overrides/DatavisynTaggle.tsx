@@ -56,7 +56,7 @@ export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends
       colDesc.scoreData = score.data;
       colDesc.accessor = (row, descRef) => descRef.scoreData[row.i];
 
-      const col = this.data.create(colDesc);
+      const col = this.data.create(colDesc)!;
 
       if (options?.insertAfter) {
         return ranking.insertAfter(col, options.insertAfter);

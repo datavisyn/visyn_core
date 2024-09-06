@@ -4,7 +4,6 @@ import { Alert, Group, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 import * as d3v7 from 'd3v7';
 import * as React from 'react';
-import { useMemo } from 'react';
 import { getCssValue } from '../utils';
 import { createVis, useVisProvider } from './Provider';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
@@ -126,16 +125,16 @@ export function useRegisterDefaultVis(visTypes?: string[]) {
 export function EagerVis({
   columns,
   selected = [],
-  stats = null,
+  stats = undefined,
   statsCallback = () => null,
-  colors = null,
+  colors = undefined,
   shapes = DEFAULT_SHAPES,
   selectionCallback = () => null,
   filterCallback,
-  setExternalConfig = null,
+  setExternalConfig = undefined,
   closeCallback = () => null,
   showCloseButton = false,
-  externalConfig = null,
+  externalConfig = undefined,
   enableSidebar = true,
   showSidebar: internalShowSidebar,
   showDragModeOptions = true,
@@ -173,7 +172,7 @@ export function EagerVis({
   /**
    * Optional Prop which is called whenever the statistics for the plot change.
    */
-  statsCallback?: (s: IPlotStats) => void;
+  statsCallback?: (s: IPlotStats | null) => void;
   /**
    * Optional Prop which is called when a filter is applied. Returns a string identifying what type of filter is desired. This logic will be simplified in the future.
    */
@@ -216,69 +215,65 @@ export function EagerVis({
 
   const { getVisByType } = useVisProvider();
 
-  const isControlled = externalConfig != null && setExternalConfig != null;
-
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const [_visConfig, _setVisConfig] = useUncontrolled({
-    ...(isControlled ? { value: externalConfig, onChange: setExternalConfig } : {}),
-    ...(!isControlled
-      ? {
-          finalValue:
-            columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-              ? ({
-                  type: ESupportedPlotlyVis.SCATTER,
-                  numColumnsSelected: [],
-                  color: null,
-                  numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-                  shape: null,
-                  dragMode: EScatterSelectSettings.RECTANGLE,
-                  alphaSliderVal: 0.5,
-                } as BaseVisConfig)
-              : ({
-                  type: ESupportedPlotlyVis.BAR,
-                  facets: null,
-                  group: null,
-                  direction: EBarDirection.HORIZONTAL,
-                  display: EBarDisplayType.ABSOLUTE,
-                  groupType: EBarGroupingType.STACK,
-                  numColumnsSelected: [],
-                  catColumnSelected: null,
-                  aggregateColumn: null,
-                  aggregateType: EAggregateTypes.COUNT,
-                } as BaseVisConfig),
-        }
-      : {}),
+  const [visConfig, _setVisConfig] = useUncontrolled({
+    // Make it controlled if we have an external config
+    value: setExternalConfig && externalConfig ? externalConfig : undefined,
+    defaultValue:
+      // If we have an external value, use that as the default. Otherwise use some inferred config.
+      externalConfig ||
+      (columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
+        ? ({
+            type: ESupportedPlotlyVis.SCATTER,
+            numColumnsSelected: [],
+            color: null,
+            numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+            shape: null,
+            dragMode: EScatterSelectSettings.RECTANGLE,
+            alphaSliderVal: 0.5,
+          } as BaseVisConfig)
+        : ({
+            type: ESupportedPlotlyVis.BAR,
+            facets: null,
+            group: null,
+            direction: EBarDirection.HORIZONTAL,
+            display: EBarDisplayType.ABSOLUTE,
+            groupType: EBarGroupingType.STACK,
+            numColumnsSelected: [],
+            catColumnSelected: null,
+            aggregateColumn: null,
+            aggregateType: EAggregateTypes.COUNT,
+          } as BaseVisConfig)),
+    onChange: setExternalConfig,
   });
 
-  const isSelectedVisTypeRegistered = useMemo(() => getVisByType(_visConfig?.type), [_visConfig?.type, getVisByType]);
+  const isSelectedVisTypeRegistered = React.useMemo(() => getVisByType(visConfig?.type), [visConfig?.type, getVisByType]);
+  const visTypeNotSupported = React.useMemo(() => !isESupportedPlotlyVis(visConfig?.type), [visConfig]);
 
-  const wrapWithDefaults = React.useCallback(
-    (v: BaseVisConfig) => getVisByType(v.type)?.mergeConfig(columns, { ...v, merged: true }),
-
-    [columns, getVisByType],
-  );
-
+  const [prevVisConfig, setPrevVisConfig] = React.useState(visConfig);
   React.useEffect(() => {
-    // Merge the config with the default values once
-    if (isSelectedVisTypeRegistered && !_visConfig?.merged) {
-      _setVisConfig?.(wrapWithDefaults(_visConfig));
+    // Merge the config with the default values once or if the vis type changes.
+    if (isSelectedVisTypeRegistered && (!visConfig?.merged || prevVisConfig?.type !== visConfig?.type)) {
+      // TODO: I would prefer this to be not in a useEffect, as then we wouldn't have the render-flicker: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+      setPrevVisConfig(visConfig);
+      _setVisConfig?.(getVisByType(visConfig.type)?.mergeConfig(columns, { ...visConfig, merged: true }));
     }
-  }, [_visConfig, isSelectedVisTypeRegistered, _setVisConfig, wrapWithDefaults]);
+  }, [_setVisConfig, columns, getVisByType, isSelectedVisTypeRegistered, prevVisConfig?.type, visConfig]);
 
   const setVisConfig = React.useCallback(
     (v: BaseVisConfig) => {
-      if (v.type !== _visConfig?.type) {
+      if (v.type !== visConfig?.type) {
         _setVisConfig?.({ ...v, merged: false });
         statsCallback(null);
       } else {
         _setVisConfig?.(v);
       }
     },
-    [_setVisConfig, _visConfig?.type, statsCallback],
+    [_setVisConfig, visConfig?.type, statsCallback],
   );
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
-  const selectedMap: { [key: string]: boolean } = useMemo(() => {
+  const selectedMap: { [key: string]: boolean } = React.useMemo(() => {
     const currMap: { [key: string]: boolean } = {};
 
     selected.forEach((s) => {
@@ -288,43 +283,38 @@ export function EagerVis({
     return currMap;
   }, [selected]);
 
-  const scales: Scales = useMemo(() => {
-    const colorScale = d3v7
-      .scaleOrdinal()
-      .range(
-        colors || [
-          getCssValue('visyn-c1'),
-          getCssValue('visyn-c2'),
-          getCssValue('visyn-c3'),
-          getCssValue('visyn-c4'),
-          getCssValue('visyn-c5'),
-          getCssValue('visyn-c6'),
-          getCssValue('visyn-c7'),
-          getCssValue('visyn-c8'),
-          getCssValue('visyn-c9'),
-          getCssValue('visyn-c10'),
-        ],
-      );
-
-    return {
-      color: colorScale,
-    };
-  }, [colors]);
+  const scales: Scales = React.useMemo(
+    () => ({
+      color: d3v7
+        .scaleOrdinal()
+        .range(
+          colors || [
+            getCssValue('visyn-c1'),
+            getCssValue('visyn-c2'),
+            getCssValue('visyn-c3'),
+            getCssValue('visyn-c4'),
+            getCssValue('visyn-c5'),
+            getCssValue('visyn-c6'),
+            getCssValue('visyn-c7'),
+            getCssValue('visyn-c8'),
+            getCssValue('visyn-c9'),
+            getCssValue('visyn-c10'),
+          ],
+        ),
+    }),
+    [colors],
+  );
 
   const commonProps = {
     showSidebar,
     setShowSidebar,
     enableSidebar,
   };
-  const Renderer = getVisByType(_visConfig?.type)?.renderer;
-
-  const visTypeNotSupported = React.useMemo(() => {
-    return !isESupportedPlotlyVis(_visConfig?.type);
-  }, [_visConfig]);
+  const Renderer = getVisByType(visConfig?.type)?.renderer;
 
   const visHasError = React.useMemo(
-    () => !_visConfig || !Renderer || !isSelectedVisTypeRegistered || !isESupportedPlotlyVis(_visConfig?.type),
-    [Renderer, _visConfig, isSelectedVisTypeRegistered],
+    () => !visConfig || !Renderer || !isSelectedVisTypeRegistered || !isESupportedPlotlyVis(visConfig?.type),
+    [Renderer, visConfig, isSelectedVisTypeRegistered],
   );
 
   return (
@@ -348,16 +338,16 @@ export function EagerVis({
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {visTypeNotSupported ? (
           <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-            The visualization type &quot;{_visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
+            The visualization type &quot;{visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
           </Alert>
-        ) : visHasError ? (
+        ) : visHasError || !Renderer ? (
           <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
             An error occured in the visualization. Please try to select something different in the sidebar.
           </Alert>
         ) : (
-          _visConfig?.merged && (
+          visConfig?.merged && (
             <Renderer
-              config={_visConfig}
+              config={visConfig}
               dimensions={dimensions}
               optionsConfig={{
                 color: {
@@ -386,9 +376,9 @@ export function EagerVis({
           )
         )}
       </Stack>
-      {showSidebar && _visConfig?.merged ? (
-        <VisSidebarWrapper config={_visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
-          <VisSidebar config={_visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
+      {showSidebar && visConfig?.merged ? (
+        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
+          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
         </VisSidebarWrapper>
       ) : null}
     </Group>

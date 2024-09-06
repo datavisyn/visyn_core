@@ -28,6 +28,7 @@ export function CorrelationVisSidebar({
 
       <Input.Wrapper label="Correlation type">
         <SegmentedControl
+          data-testid="CorrelationTypeSelect"
           fullWidth
           size="xs"
           data={Object.values(ECorrelationType)}
@@ -38,6 +39,7 @@ export function CorrelationVisSidebar({
 
       <Input.Wrapper label="P-value scale type">
         <SegmentedControl
+          data-testid="PValueScaleTypeSelect"
           fullWidth
           size="xs"
           data={Object.values(EScaleType)}
@@ -46,6 +48,7 @@ export function CorrelationVisSidebar({
         />
       </Input.Wrapper>
       <NumberInput
+        data-testid="MaxPValueInput"
         styles={{ input: { width: '100%' }, label: { width: '100%' } }}
         decimalScale={20}
         min={0}
@@ -70,6 +73,7 @@ export function CorrelationVisSidebar({
         value={config.pDomain[0]}
       />
       <NumberInput
+        data-testid="MinPValueInput"
         styles={{ input: { width: '100%' }, label: { width: '100%' } }}
         decimalScale={20}
         min={0}

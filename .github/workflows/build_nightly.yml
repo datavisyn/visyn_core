@@ -10,13 +10,17 @@ jobs:
     uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
     secrets: inherit
     with:
-      cypress_enable: true
-      cypress_run_because_flag: true
+      playwright_enable: true
+      playwright_run_because_flag: true
+      playwright_runs_on: self-hosted
+      deduplication_id: main
       branch: main
   build-develop:
     uses: datavisyn/github-workflows/.github/workflows/build-node-python.yml@main
     secrets: inherit
     with:
-      cypress_enable: true
-      cypress_run_because_flag: true
+      playwright_enable: true
+      playwright_run_because_flag: true
+      playwright_runs_on: self-hosted
+      deduplication_id: develop
       branch: develop

@@ -7,7 +7,7 @@ export function useVisynUser(): IUser | null {
   const [user, setUser] = React.useState<IUser | null>(userSession.currentUser());
 
   React.useEffect(() => {
-    const loginListener = (_, u) => {
+    const loginListener = (_: any, u: IUser | null) => {
       setUser(u);
     };
 
