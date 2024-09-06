@@ -16,6 +16,7 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
 
   return (
     <Select
+      data-testid="SelectVisualizationType"
       searchable
       label={
         <HelpHoverCard

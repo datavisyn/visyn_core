@@ -333,6 +333,7 @@ export function ScatterVis({
             </Tooltip>
           ) : null}
           <PlotlyComponent
+            data-testid="ScatterPlotTestId"
             key={id}
             divId={id}
             data={plotlyData}

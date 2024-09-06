@@ -14,6 +14,7 @@ export function NumericalColorButtons({ callback, currentSelected }: NumericalCo
   return (
     <Input.Wrapper label="Color scale">
       <SegmentedControl
+        data-testid="NumericalColorButtons"
         fullWidth
         value={currentSelected}
         onChange={callback}
