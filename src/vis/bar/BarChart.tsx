@@ -1,14 +1,15 @@
 import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
+import { VariableSizeList as List } from 'react-window';
 import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
-import { uniqueId, zipWith } from 'lodash';
+import { uniqueId, zipWith, sortBy } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
-import { SingleEChartsBarChart } from './SingleEChartsBarChart';
+import { calculateChartHeight, SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { EBarDisplayType, IBarConfig } from './interfaces';
 import { createBinLookup, getBarData } from './utils';
@@ -86,9 +87,11 @@ export function BarChart({
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = useMemo(() => {
-    return typeof config.focusFacetIndex === 'number' && config.focusFacetIndex < allUniqueFacetVals.length
-      ? [allUniqueFacetVals[config.focusFacetIndex]]
-      : allUniqueFacetVals;
+    return sortBy(
+      typeof config.focusFacetIndex === 'number' && config.focusFacetIndex < allUniqueFacetVals.length
+        ? [allUniqueFacetVals[config.focusFacetIndex]]
+        : allUniqueFacetVals,
+    );
   }, [allUniqueFacetVals, config.focusFacetIndex]);
 
   // const [legendBoxRef] = useResizeObserver();
@@ -110,6 +113,9 @@ export function BarChart({
     [selectedList, selectionCallback],
   );
 
+  const isToolbarVisible = config?.showFocusFacetSelector || showDownloadScreenshot || config?.display !== EBarDisplayType.NORMALIZED;
+  const innerHeight = containerHeight - (isToolbarVisible ? 40 : 0);
+
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
       {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
@@ -119,13 +125,13 @@ export function BarChart({
           {config.display !== EBarDisplayType.NORMALIZED ? <BarChartSortButton config={config} setConfig={setConfig} /> : null}
         </Group>
       ) : null}
-      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        <ScrollArea.Autosize h={containerHeight} w={containerWidth} scrollbars="y" offsetScrollbars>
-          {colsStatus !== 'success' ? (
-            <Center>
-              <Loader />
-            </Center>
-          ) : !config.facets || !allColumns.facetsColVals ? (
+      <Stack gap={0} id={id} style={{ width: '100%', height: innerHeight }}>
+        {colsStatus !== 'success' ? (
+          <Center>
+            <Loader />
+          </Center>
+        ) : !config.facets || !allColumns.facetsColVals ? (
+          <ScrollArea.Autosize h={innerHeight} w={containerWidth} scrollbars="y" offsetScrollbars>
             <SingleEChartsBarChart
               config={config}
               dataTable={dataTable}
@@ -135,11 +141,22 @@ export function BarChart({
               groupColorScale={groupColorScale}
               selectedMap={selectedMap}
             />
-          ) : (
-            <Stack gap="xl" w={containerWidth}>
-              {[...filteredUniqueFacetVals]
-                .sort((a, b) => a.localeCompare(b))
-                .map((multiplesVal) => (
+          </ScrollArea.Autosize>
+        ) : null}
+
+        {colsStatus === 'success' && config?.facets && allColumns?.facetsColVals && (
+          <List
+            height={innerHeight}
+            itemCount={filteredUniqueFacetVals.length}
+            itemSize={(index) => {
+              return calculateChartHeight(config, dataTable, filteredUniqueFacetVals[index]);
+            }}
+            width="100%"
+          >
+            {({ index, style }) => {
+              const multiplesVal = filteredUniqueFacetVals[index];
+              return (
+                <div key={index} style={style}>
                   <SingleEChartsBarChart
                     key={multiplesVal}
                     config={config}
@@ -152,10 +169,11 @@ export function BarChart({
                     groupColorScale={groupColorScale}
                     selectedMap={selectedMap}
                   />
-                ))}
-            </Stack>
-          )}
-        </ScrollArea.Autosize>
+                </div>
+              );
+            }}
+          </List>
+        )}
       </Stack>
     </Stack>
   );

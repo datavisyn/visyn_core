@@ -156,7 +156,29 @@ function sortAndRestoreMatrix(series: (BarSeriesOption & { categories: string[] 
 
 const VERTICAL_BAR_CHART_HEIGHT = 250;
 
-export function SingleEChartsBarChart({
+export const calculateChartHeight = (config: IBarConfig, dataTable: IBarDataTableRow[], facetValue: string) => {
+  const categories = new Set();
+  const groupings = new Set();
+  dataTable
+    .filter((i) => i.facet === facetValue)
+    .forEach((item) => {
+      categories.add(item.category);
+      groupings.add(item.group);
+    });
+
+  if (config.direction === EBarDirection.VERTICAL) {
+    // use fixed height for vertical bars
+    return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
+  }
+  if (config.direction === EBarDirection.HORIZONTAL) {
+    // calculate height for horizontal bars
+    const categoryWidth = config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.size; // TODO: Make dynamic group length based on series data filtered for null
+    return categories.size * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
+  }
+  return 0;
+};
+
+function EagerSingleEChartsBarChart({
   config,
   setConfig,
   selectedList,
@@ -252,6 +274,8 @@ export function SingleEChartsBarChart({
     }
     return 0;
   }, [categories.length, config.direction, config.group, config.groupType, groupings.length]);
+
+  console.log('calculateChartHeight', calculateChartHeight);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -559,3 +583,5 @@ export function SingleEChartsBarChart({
     )
   );
 }
+
+export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);
