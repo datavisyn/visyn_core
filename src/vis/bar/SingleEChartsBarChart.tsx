@@ -123,7 +123,7 @@ function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption 
   // Sum the values for each category across all series
   for (let i = 0; i < numCategories; i++) {
     for (let j = 0; j < series.length; j++) {
-      squareMatrix[i][i] += series[j].data[i] as number;
+      squareMatrix[i][i] += (series[j].data[i] as number) || 0;
     }
   }
 
