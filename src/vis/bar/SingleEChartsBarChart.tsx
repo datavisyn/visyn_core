@@ -455,7 +455,20 @@ export function SingleEChartsBarChart({
           .filter((item) => item.category === params.name && (!config.group || (config.group && item.group === params.seriesName)))
           .map((item) => item.id);
         if (event.shiftKey) {
-          selectionCallback(event, [...new Set([...selectedList, ...ids])]);
+          // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
+          //  Using `Set` to reduce time complexity to O(1).
+          const newSelectedSet = new Set(selectedList);
+          ids.forEach((id) => {
+            if (newSelectedSet.has(id)) {
+              newSelectedSet.delete(id);
+            } else {
+              newSelectedSet.add(id);
+            }
+          });
+          const newSelectedList = [...newSelectedSet];
+          selectionCallback(event, [...new Set([...newSelectedList])]);
+        } else if (event.ctrlKey) {
+          selectionCallback(event, [...new Set([])]);
         } else {
           selectionCallback(event, ids);
         }
