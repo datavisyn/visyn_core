@@ -67,6 +67,47 @@ function createMatrix(series: (BarSeriesOption & { categories: string[] })[]) {
 /**
  * Sorts a matrix of bar series data based on a specified order.
  *
+ * For input data like below:
+ * ```ts
+ * const series = [{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [26, 484, 389, 111],
+ * },{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [22, 344, 239, 69],
+ * },{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [6, 111, 83, 20],
+ * }];
+ * ```
+ * The function will create a matrix like below:
+ * ```jsonc
+ * [
+ *   [54, 0, 0, 0],  // Sum of "Unknown" category: 26 + 22 + 6 = 54
+ *   [0, 939, 0, 0], // Sum of "High" category: 484 + 344 + 111 = 939
+ *   [0, 0, 711, 0], // Sum of "Moderate" category: 389 + 239 + 83 = 711
+ *   [0, 0, 0, 200]  // Sum of "Low" category: 111 + 69 + 20 = 200
+ * ]
+ * ```
+ *
+ * We then sort this matrix based on the order parameter and return the sorted matrix and the corresponding categories.
+ *
+ * Therefore the matrix sorted in descending order would be:
+ *
+ * ```jsonc
+ * [
+ *   [939, 0, 0, 0],
+ *   [0, 711, 0, 0],
+ *   [0, 0, 200, 0],
+ *   [0, 0, 0, 54]
+ * ]
+ * ```
+ *
+ * And the corresponding categories would be:
+ * ```jsonc
+ * ["High", "Moderate", "Low", "Unknown"]
+ * ```
+ *
  * @param matrix - The matrix of bar series data.
  * @param series - The array of bar series options.
  * @param order - The order in which to sort the data.
