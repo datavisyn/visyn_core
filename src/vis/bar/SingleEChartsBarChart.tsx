@@ -467,8 +467,6 @@ export function SingleEChartsBarChart({
           });
           const newSelectedList = [...newSelectedSet];
           selectionCallback(event, [...new Set([...newSelectedList])]);
-        } else if (event.ctrlKey) {
-          selectionCallback(event, [...new Set([])]);
         } else {
           selectionCallback(event, ids);
         }
