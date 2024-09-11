@@ -51,18 +51,6 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
 }
 
 /**
- * Creates a rectangular matrix from the series data.
- *
- * @param series - An array of objects representing bar series options, each with a `data` property.
- * @returns The rectangular matrix created from the series data.
- */
-function createMatrix(series: (BarSeriesOption & { categories: string[] })[]) {
-  // Create a rectangular matrix from the series data
-  const matrix = series.map((item) => item.data);
-  return matrix;
-}
-
-/**
  * Sorts a matrix of bar series data based on a specified order.
  *
  * For input data like below:
@@ -106,12 +94,11 @@ function createMatrix(series: (BarSeriesOption & { categories: string[] })[]) {
  * ["High", "Moderate", "Low", "Unknown"]
  * ```
  *
- * @param matrix - The matrix of bar series data.
  * @param series - The array of bar series options.
  * @param order - The order in which to sort the data.
  * @returns An object containing the sorted matrix and the corresponding categories.
  */
-function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
+function matrixSort(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
   const { categories } = series[0];
   const numCategories = categories.length;
 
@@ -173,11 +160,8 @@ function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption 
  * @returns The sorted and restored series.
  */
 function sortAndRestoreMatrix(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
-  // Create the initial matrix
-  const matrix = createMatrix(series);
-
   // Sort the matrix and update categories
-  const { sortedCategories } = matrixSort(matrix, series, order);
+  const { sortedCategories } = matrixSort(series, order);
 
   const sortedSeries = series.map((item) => {
     const transformedData = sortedCategories.map((category) => {
