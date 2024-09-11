@@ -29,8 +29,6 @@ const CHART_HEIGHT_MARGIN = 100;
  */
 const AXIS_LABEL_MAX_LENGTH = 50;
 
-type SortState = { x: EBarSortState; y: EBarSortState };
-
 function median(arr: number[]) {
   const mid = Math.floor(arr.length / 2);
   const nums = [...arr].sort((a, b) => a - b);
@@ -53,26 +51,54 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
 }
 
 /**
- * Creates a rectangular matrix from the series data.
- *
- * @param series - An array of objects representing bar series options, each with a `data` property.
- * @returns The rectangular matrix created from the series data.
- */
-function createMatrix(series: (BarSeriesOption & { categories: string[] })[]) {
-  // Create a rectangular matrix from the series data
-  const matrix = series.map((item) => item.data);
-  return matrix;
-}
-
-/**
  * Sorts a matrix of bar series data based on a specified order.
  *
- * @param matrix - The matrix of bar series data.
+ * For input data like below:
+ * ```ts
+ * const series = [{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [26, 484, 389, 111],
+ * },{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [22, 344, 239, 69],
+ * },{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [6, 111, 83, 20],
+ * }];
+ * ```
+ * The function will create a matrix like below:
+ * ```jsonc
+ * [
+ *   [54, 0, 0, 0],  // Sum of "Unknown" category: 26 + 22 + 6 = 54
+ *   [0, 939, 0, 0], // Sum of "High" category: 484 + 344 + 111 = 939
+ *   [0, 0, 711, 0], // Sum of "Moderate" category: 389 + 239 + 83 = 711
+ *   [0, 0, 0, 200]  // Sum of "Low" category: 111 + 69 + 20 = 200
+ * ]
+ * ```
+ *
+ * We then sort this matrix based on the order parameter and return the sorted matrix and the corresponding categories.
+ *
+ * Therefore the matrix sorted in descending order would be:
+ *
+ * ```jsonc
+ * [
+ *   [939, 0, 0, 0],
+ *   [0, 711, 0, 0],
+ *   [0, 0, 200, 0],
+ *   [0, 0, 0, 54]
+ * ]
+ * ```
+ *
+ * And the corresponding categories would be:
+ * ```jsonc
+ * ["High", "Moderate", "Low", "Unknown"]
+ * ```
+ *
  * @param series - The array of bar series options.
  * @param order - The order in which to sort the data.
  * @returns An object containing the sorted matrix and the corresponding categories.
  */
-function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
+function matrixSort(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
   const { categories } = series[0];
   const numCategories = categories.length;
 
@@ -82,7 +108,7 @@ function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption 
   // Sum the values for each category across all series
   for (let i = 0; i < numCategories; i++) {
     for (let j = 0; j < series.length; j++) {
-      squareMatrix[i][i] += series[j].data[i] as number;
+      squareMatrix[i][i] += (series[j].data[i] as number) || 0;
     }
   }
 
@@ -134,11 +160,8 @@ function matrixSort(matrix: BarSeriesOption['data'][], series: (BarSeriesOption 
  * @returns The sorted and restored series.
  */
 function sortAndRestoreMatrix(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
-  // Create the initial matrix
-  const matrix = createMatrix(series);
-
   // Sort the matrix and update categories
-  const { sortedCategories } = matrixSort(matrix, series, order);
+  const { sortedCategories } = matrixSort(series, order);
 
   const sortedSeries = series.map((item) => {
     const transformedData = sortedCategories.map((category) => {
@@ -195,8 +218,6 @@ function EagerSingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const [sortState, setSortState] = React.useState<SortState>({ x: EBarSortState.NONE, y: EBarSortState.NONE });
-
   const [series, setSeries] = React.useState<BarSeriesOption[]>([]);
   const [option, setOption] = React.useState<ReactEChartsProps['option']>(null);
   const [axes, setAxes] = React.useState<{ xAxis: ReactEChartsProps['option']['xAxis']; yAxis: ReactEChartsProps['option']['yAxis'] }>({
@@ -404,9 +425,9 @@ function EagerSingleEChartsBarChart({
       if (config.direction === EBarDirection.HORIZONTAL) {
         const sortedSeries = sortAndRestoreMatrix(
           barSeries,
-          sortState.x === EBarSortState.ASCENDING
+          config.sortState.x === EBarSortState.ASCENDING
             ? EBarSortState.DESCENDING
-            : sortState.x === EBarSortState.DESCENDING
+            : config.sortState.x === EBarSortState.DESCENDING
               ? EBarSortState.ASCENDING
               : EBarSortState.NONE,
         );
@@ -414,12 +435,12 @@ function EagerSingleEChartsBarChart({
         setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: sortedSeries[0].categories } }));
       }
       if (config.direction === EBarDirection.VERTICAL) {
-        const sortedSeries = sortAndRestoreMatrix(barSeries, sortState.y);
+        const sortedSeries = sortAndRestoreMatrix(barSeries, config.sortState.y);
         setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
         setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: sortedSeries[0].categories } }));
       }
     },
-    [config.direction, sortState.x, sortState.y],
+    [config.direction, config.sortState.x, config.sortState.y],
   );
 
   const chartInstance = React.useCallback(
@@ -438,7 +459,18 @@ function EagerSingleEChartsBarChart({
           .filter((item) => item.category === params.name && (!config.group || (config.group && item.group === params.seriesName)))
           .map((item) => item.id);
         if (event.shiftKey) {
-          selectionCallback(event, [...new Set([...selectedList, ...ids])]);
+          // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
+          //  Using `Set` to reduce time complexity to O(1).
+          const newSelectedSet = new Set(selectedList);
+          ids.forEach((id) => {
+            if (newSelectedSet.has(id)) {
+              newSelectedSet.delete(id);
+            } else {
+              newSelectedSet.add(id);
+            }
+          });
+          const newSelectedList = [...newSelectedSet];
+          selectionCallback(event, [...new Set([...newSelectedList])]);
         } else {
           selectionCallback(event, ids);
         }
@@ -559,14 +591,6 @@ function EagerSingleEChartsBarChart({
   React.useEffect(() => {
     updateCategoriesSideEffect();
   }, [updateCategoriesSideEffect]);
-
-  React.useEffect(() => {
-    if (config.display === EBarDisplayType.NORMALIZED) {
-      setSortState({ x: EBarSortState.NONE, y: EBarSortState.NONE });
-    } else if (config.sortState) {
-      setSortState({ x: config.sortState.x, y: config.sortState.y });
-    }
-  }, [config.display, config.sortState, config.sortState?.x, config.sortState?.y]);
 
   const settings = {
     notMerge: true, // disable merging to avoid stale series data when deselecting the group column
