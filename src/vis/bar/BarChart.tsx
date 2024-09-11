@@ -1,5 +1,5 @@
 import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
-import { VariableSizeList as List } from 'react-window';
+import { VariableSizeList as List, ListChildComponentProps } from 'react-window';
 import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
 import { uniqueId, zipWith, sortBy } from 'lodash';
@@ -116,6 +116,41 @@ export function BarChart({
   const isToolbarVisible = config?.showFocusFacetSelector || showDownloadScreenshot || config?.display !== EBarDisplayType.NORMALIZED;
   const innerHeight = containerHeight - (isToolbarVisible ? 40 : 0);
 
+  const itemData = React.useMemo(
+    () => ({
+      dataTable,
+      selectedList,
+      selectedMap,
+      groupColorScale,
+      filteredUniqueFacetVals,
+      config,
+      setConfig,
+      allUniqueFacetVals,
+      customSelectionCallback,
+    }),
+    [dataTable, selectedList, selectedMap, customSelectionCallback, setConfig, groupColorScale, filteredUniqueFacetVals, config, allUniqueFacetVals],
+  );
+
+  const renderer = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
+    const multiplesVal = props.data.filteredUniqueFacetVals[props.index];
+
+    return (
+      <div style={props.style}>
+        <SingleEChartsBarChart
+          config={props.data.config}
+          dataTable={props.data.dataTable}
+          selectedList={props.data.selectedList}
+          selectedFacetValue={multiplesVal}
+          selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
+          setConfig={props.data.setConfig}
+          selectionCallback={props.data.customSelectionCallback}
+          groupColorScale={props.data.groupColorScale}
+          selectedMap={props.data.selectedMap}
+        />
+      </div>
+    );
+  }, []);
+
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
       {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
@@ -144,36 +179,19 @@ export function BarChart({
           </ScrollArea.Autosize>
         ) : null}
 
-        {colsStatus === 'success' && config?.facets && allColumns?.facetsColVals && (
+        {colsStatus === 'success' && config?.facets && allColumns?.facetsColVals ? (
           <List
             height={innerHeight}
             itemCount={filteredUniqueFacetVals.length}
             itemSize={(index) => {
               return calculateChartHeight(config, dataTable, filteredUniqueFacetVals[index]);
             }}
+            itemData={itemData}
             width="100%"
           >
-            {({ index, style }) => {
-              const multiplesVal = filteredUniqueFacetVals[index];
-              return (
-                <div key={index} style={style}>
-                  <SingleEChartsBarChart
-                    key={multiplesVal}
-                    config={config}
-                    dataTable={dataTable}
-                    selectedList={selectedList}
-                    selectedFacetValue={multiplesVal}
-                    selectedFacetIndex={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
-                    setConfig={setConfig}
-                    selectionCallback={customSelectionCallback}
-                    groupColorScale={groupColorScale}
-                    selectedMap={selectedMap}
-                  />
-                </div>
-              );
-            }}
+            {renderer}
           </List>
-        )}
+        ) : null}
       </Stack>
     </Stack>
   );

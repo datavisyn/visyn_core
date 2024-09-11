@@ -1,0 +1,111 @@
+import { EColumnTypes, VisColumn } from '../interfaces';
+
+export interface ExplodedItem {
+  name: string;
+  age: number;
+  numerical1: number;
+  numerical2: number;
+  categorical1: string;
+  categorical2: string;
+  statusFlag: 'active' | 'inactive';
+  type1: 'TYPE_A' | 'TYPE_B' | 'TYPE_C' | 'TYPE_D' | 'TYPE_E';
+  type2: 'TYPE_A' | 'TYPE_B' | 'TYPE_C' | 'TYPE_D' | 'TYPE_E';
+}
+
+const POSSIBLE_NAMES = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Hannah', 'Ivan', 'Jack'];
+
+/**
+ * Artificially exploded test dataset to check for performance issues.
+ */
+function generate(amount: number) {
+  return Array.from({ length: amount }).map(() => {
+    return {
+      name: POSSIBLE_NAMES[Math.floor(Math.random() * POSSIBLE_NAMES.length)],
+      age: Math.floor(Math.random() * 100),
+      numerical1: Math.random() * 100,
+      numerical2: Math.random() * 100,
+      categorical1: `Category ${Math.floor(Math.random() * 10)}`,
+      categorical2: `Category ${Math.floor(Math.random() * 10)}`,
+      statusFlag: Math.random() > 0.5 ? 'active' : 'inactive',
+      type1: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,
+      type2: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,
+    };
+  });
+}
+
+export const explodedData = generate(100000);
+
+export function fetchExplodedData(): VisColumn[] {
+  return [
+    {
+      info: {
+        description: 'The name of the patient',
+        id: 'name',
+        name: 'Name',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.name).map((val, i) => ({ id: i.toString(), val })),
+      domain: POSSIBLE_NAMES,
+    },
+    {
+      info: {
+        description: 'The age of the patient',
+        id: 'age',
+        name: 'Age',
+      },
+      type: EColumnTypes.NUMERICAL,
+      values: () => explodedData.map((r) => r.age).map((val, i) => ({ id: i.toString(), val })),
+      domain: [0, 100],
+    },
+    {
+      info: {
+        description: 'The first numerical value',
+        id: 'numerical1',
+        name: 'Numerical 1',
+      },
+      type: EColumnTypes.NUMERICAL,
+      values: () => explodedData.map((r) => r.numerical1).map((val, i) => ({ id: i.toString(), val })),
+      domain: [0, 100],
+    },
+    {
+      info: {
+        description: 'The second numerical value',
+        id: 'numerical2',
+        name: 'Numerical 2',
+      },
+      type: EColumnTypes.NUMERICAL,
+      values: () => explodedData.map((r) => r.numerical2).map((val, i) => ({ id: i.toString(), val })),
+      domain: [0, 100],
+    },
+    {
+      info: {
+        description: 'The first categorical value',
+        id: 'categorical1',
+        name: 'Categorical 1',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.categorical1).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(explodedData.map((r) => r.categorical1))),
+    },
+    {
+      info: {
+        description: 'The second categorical value',
+        id: 'categorical2',
+        name: 'Categorical 2',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.categorical2).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(explodedData.map((r) => r.categorical2))),
+    },
+    {
+      info: {
+        description: 'The status flag',
+        id: 'statusFlag',
+        name: 'Status Flag',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.statusFlag).map((val, i) => ({ id: i.toString(), val })),
+      domain: ['active', 'inactive'],
+    },
+  ];
+}
