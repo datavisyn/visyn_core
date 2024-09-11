@@ -29,8 +29,6 @@ const CHART_HEIGHT_MARGIN = 100;
  */
 const AXIS_LABEL_MAX_LENGTH = 50;
 
-type SortState = { x: EBarSortState; y: EBarSortState };
-
 function median(arr: number[]) {
   const mid = Math.floor(arr.length / 2);
   const nums = [...arr].sort((a, b) => a - b);
@@ -214,8 +212,6 @@ export function SingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const [sortState, setSortState] = React.useState<SortState>({ x: EBarSortState.NONE, y: EBarSortState.NONE });
-
   const [series, setSeries] = React.useState<BarSeriesOption[]>([]);
   const [option, setOption] = React.useState<ReactEChartsProps['option']>(null);
   const [axes, setAxes] = React.useState<{ xAxis: ReactEChartsProps['option']['xAxis']; yAxis: ReactEChartsProps['option']['yAxis'] }>({
@@ -421,9 +417,9 @@ export function SingleEChartsBarChart({
       if (config.direction === EBarDirection.HORIZONTAL) {
         const sortedSeries = sortAndRestoreMatrix(
           barSeries,
-          sortState.x === EBarSortState.ASCENDING
+          config.sortState.x === EBarSortState.ASCENDING
             ? EBarSortState.DESCENDING
-            : sortState.x === EBarSortState.DESCENDING
+            : config.sortState.x === EBarSortState.DESCENDING
               ? EBarSortState.ASCENDING
               : EBarSortState.NONE,
         );
@@ -431,12 +427,12 @@ export function SingleEChartsBarChart({
         setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: sortedSeries[0].categories } }));
       }
       if (config.direction === EBarDirection.VERTICAL) {
-        const sortedSeries = sortAndRestoreMatrix(barSeries, sortState.y);
+        const sortedSeries = sortAndRestoreMatrix(barSeries, config.sortState.y);
         setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
         setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: sortedSeries[0].categories } }));
       }
     },
-    [config.direction, sortState.x, sortState.y],
+    [config.direction, config.sortState.x, config.sortState.y],
   );
 
   const chartInstance = React.useCallback(
@@ -587,14 +583,6 @@ export function SingleEChartsBarChart({
   React.useEffect(() => {
     updateCategoriesSideEffect();
   }, [updateCategoriesSideEffect]);
-
-  React.useEffect(() => {
-    if (config.display === EBarDisplayType.NORMALIZED) {
-      setSortState({ x: EBarSortState.NONE, y: EBarSortState.NONE });
-    } else if (config.sortState) {
-      setSortState({ x: config.sortState.x, y: config.sortState.y });
-    }
-  }, [config.display, config.sortState, config.sortState?.x, config.sortState?.y]);
 
   const settings = {
     notMerge: true, // disable merging to avoid stale series data when deselecting the group column
