@@ -30,7 +30,7 @@ function generate(amount: number) {
       categorical2: `Category ${Math.floor(Math.random() * 10)}`,
       // 1000 unique categories
       manyCategories1: `APC_${Math.floor(Math.random() * 100)}`,
-      manyCategories2: `EXPR_${Math.floor(Math.random() * 1000)}`,
+      manyCategories2: `EXPR_${Math.floor(Math.random() * 3000)}`,
       statusFlag: Math.random() > 0.5 ? 'active' : 'inactive',
       type1: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,
       type2: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,

@@ -53,137 +53,6 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
 }
 
 /**
- * Sorts a matrix of bar series data based on a specified order.
- *
- * For input data like below:
- * ```ts
- * const series = [{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [26, 484, 389, 111],
- * },{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [22, 344, 239, 69],
- * },{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [6, 111, 83, 20],
- * }];
- * ```
- * The function will create a matrix like below:
- * ```jsonc
- * [
- *   [54, 0, 0, 0],  // Sum of "Unknown" category: 26 + 22 + 6 = 54
- *   [0, 939, 0, 0], // Sum of "High" category: 484 + 344 + 111 = 939
- *   [0, 0, 711, 0], // Sum of "Moderate" category: 389 + 239 + 83 = 711
- *   [0, 0, 0, 200]  // Sum of "Low" category: 111 + 69 + 20 = 200
- * ]
- * ```
- *
- * We then sort this matrix based on the order parameter and return the sorted matrix and the corresponding categories.
- *
- * Therefore the matrix sorted in descending order would be:
- *
- * ```jsonc
- * [
- *   [939, 0, 0, 0],
- *   [0, 711, 0, 0],
- *   [0, 0, 200, 0],
- *   [0, 0, 0, 54]
- * ]
- * ```
- *
- * And the corresponding categories would be:
- * ```jsonc
- * ["High", "Moderate", "Low", "Unknown"]
- * ```
- *
- * @param series - The array of bar series options.
- * @param order - The order in which to sort the data.
- * @returns An object containing the sorted matrix and the corresponding categories.
- *
- * @deprecated In favor of `sortSeries` function.
- */
-function matrixSort(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
-  const { categories } = series[0];
-  const numCategories = categories.length;
-
-  // Create a square matrix with dimensions equal to the number of categories
-  const squareMatrix = Array.from({ length: numCategories }, () => Array(numCategories).fill(0)) as number[][];
-
-  // Sum the values for each category across all series
-  for (let i = 0; i < numCategories; i++) {
-    for (let j = 0; j < series.length; j++) {
-      squareMatrix[i][i] += (series[j].data[i] as number) || 0;
-    }
-  }
-
-  // Flatten the square matrix and remove 0 values
-  const flattenedData = squareMatrix.reduce((acc, val) => acc.concat(val), []).filter((val) => val !== 0);
-
-  // Sort the flattened array based on the order parameter
-  if (order === EBarSortState.ASCENDING) {
-    flattenedData.sort((a, b) => a - b);
-  } else if (order === EBarSortState.DESCENDING) {
-    flattenedData.sort((a, b) => b - a);
-  }
-
-  // Ensure "Unknown" category is placed last
-  const unknownIndex = categories.indexOf('Unknown');
-  if (unknownIndex !== -1) {
-    const unknownValue = squareMatrix[unknownIndex][unknownIndex];
-    flattenedData.splice(flattenedData.indexOf(unknownValue), 1);
-    flattenedData.push(unknownValue);
-  }
-
-  // Create a new sorted matrix initialized with null values
-  const sortedMatrix = Array.from({ length: numCategories }, () => Array(numCategories).fill(0)) as number[][];
-
-  // Populate the diagonal of the new matrix with the sorted values
-  for (let i = 0; i < flattenedData.length; i++) {
-    sortedMatrix[i][i] = flattenedData[i];
-  }
-
-  // Create a new categories array that corresponds to the sorted data values
-  const sortedCategories = [] as string[];
-  for (let i = 0; i < numCategories; i++) {
-    for (let j = 0; j < numCategories; j++) {
-      if (squareMatrix[j][j] === sortedMatrix[i][i]) {
-        sortedCategories.push(categories[j]);
-        break;
-      }
-    }
-  }
-
-  return { sortedMatrix, sortedCategories };
-}
-
-/**
- * Sorts and restores the matrix of a bar chart series based on the specified order.
- *
- * @param series - The bar chart series to sort and restore.
- * @param order - The order in which to sort the matrix. Defaults to EBarSortState.NONE.
- * @returns The sorted and restored series.
- *
- * @deprecated In favor of `sortSeries` function.
- */
-function sortAndRestoreMatrix(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
-  // Sort the matrix and update categories
-  const { sortedCategories } = matrixSort(series, order);
-
-  const sortedSeries = series.map((item) => {
-    const transformedData = sortedCategories.map((category) => {
-      const index = item.categories.indexOf(category);
-      return item.data[index];
-    });
-    return {
-      categories: sortedCategories,
-      data: transformedData,
-    };
-  });
-
-  return sortedSeries;
-}
-
-/**
  * Sorts the series data based on the specified order.
  *
  * For input data like below:
@@ -333,7 +202,6 @@ function EagerSingleEChartsBarChart({
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
   const [series, setSeries] = React.useState<BarSeriesOption[]>([]);
-  const [option, setOption] = React.useState<EChartsOption>(null);
   const [axes, setAxes] = React.useState<{ xAxis: ReactEChartsProps['option']['xAxis']; yAxis: EChartsOption['yAxis'] }>({
     xAxis: null,
     yAxis: null,
@@ -688,21 +556,13 @@ function EagerSingleEChartsBarChart({
     updateSortSideEffect,
   ]);
 
-  // NOTE: @dv-usama-ansari: This effect is used to update the series data when the data changes.
-  React.useEffect(() => {
-    setOption((o) => {
-      let options = { ...o, ...optionBase };
-      if (series) {
-        options = { ...options, series };
-      }
-      if (axes.xAxis) {
-        options = { ...options, xAxis: axes.xAxis };
-      }
-      if (axes.yAxis) {
-        options = { ...options, yAxis: axes.yAxis };
-      }
-      return options;
-    });
+  const options = React.useMemo(() => {
+    return {
+      ...optionBase,
+      ...(series ? { series } : {}),
+      ...(axes.xAxis ? { xAxis: axes.xAxis } : {}),
+      ...(axes.yAxis ? { yAxis: axes.yAxis } : {}),
+    };
   }, [axes.xAxis, axes.yAxis, optionBase, series]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
@@ -722,8 +582,10 @@ function EagerSingleEChartsBarChart({
     [],
   );
 
-  const { setRef } = useChart({
-    options: option,
+  console.log(series);
+
+  const { setRef, instance } = useChart({
+    options,
     settings,
     mouseEvents: {
       click: [
@@ -762,10 +624,10 @@ function EagerSingleEChartsBarChart({
     },
   });
 
-  return option ? <div ref={setRef} style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
+  return options ? <div ref={setRef} style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
 
   return (
-    option && (
+    options && (
       <ReactECharts
         option={option}
         chartInstance={chartInstance}
