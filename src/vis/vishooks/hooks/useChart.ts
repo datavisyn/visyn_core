@@ -23,11 +23,16 @@ type ElementEventName =
   | 'drop'
   | 'globalout';
 
+// Type for mouse handlers in function form
 export type CallbackFunction = (event: ECElementEvent) => void;
+
+// Type for mouse handlers in object form
 export type CallbackObject = {
   query: string | object;
   handler: CallbackFunction;
 };
+
+// Array of mouse handlers
 export type CallbackArray = (CallbackFunction | CallbackObject)[];
 
 export function useChart({
@@ -37,7 +42,6 @@ export function useChart({
 }: {
   options?: EChartsOption;
   settings?: Parameters<ECharts['setOption']>[1];
-  // mouse events is typed with keys from mouse handler types and a function that takes an event
   mouseEvents?: Partial<{ [K in ElementEventName]: CallbackArray | CallbackFunction | CallbackObject }>;
 }) {
   const [state, setState] = useSetState({
@@ -55,19 +59,20 @@ export function useChart({
     Object.keys(mouseEventsRef.current ?? {}).forEach((eventName) => {
       instance.off(eventName);
     });
+
     // Readd new events -> this is necessary when adding options for instance
-    Object.keys(mouseEventsRef.current ?? {}).forEach((eventName) => {
+    Object.keys(mouseEventsRef.current ?? {}).forEach((eventName: ElementEventName) => {
       const value = mouseEventsRef.current[eventName as ElementEventName];
-      // Check if we have multiple event listeners
+
+      // Either the value is a handler like () => ..., an object with a query or an array containing both types
+
       if (Array.isArray(value)) {
         value.forEach((handler, index) => {
           if (typeof handler === 'function') {
-            instance.on(eventName, (params: ECElementEvent) =>
-              ((mouseEventsRef.current[eventName as ElementEventName] as CallbackArray)[index] as CallbackFunction)(params),
-            );
+            instance.on(eventName, (params: ECElementEvent) => ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackFunction)(params));
           } else {
             instance.on(eventName, handler.query, (params: ECElementEvent) =>
-              ((mouseEventsRef.current[eventName as ElementEventName] as CallbackArray)[index] as CallbackObject).handler(params),
+              ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
             );
           }
         });
@@ -75,15 +80,13 @@ export function useChart({
       }
 
       if (typeof value === 'function') {
-        instance.on(eventName, value);
-        return;
-      }
-
-      if (typeof value === 'object') {
-        instance.on(eventName, value.query, value.handler);
+        instance.on(eventName, (...args) => (mouseEventsRef.current[eventName] as CallbackFunction)(...args));
+      } else if (typeof value === 'object') {
+        instance.on(eventName, value.query, (...args) => (mouseEventsRef.current[eventName] as CallbackObject).handler(...args));
       }
     });
   };
+
   const { ref, setRef } = useSetRef<HTMLElement>({
     register: (element) => {
       const observer = new ResizeObserver((entries) => {
@@ -101,18 +104,21 @@ export function useChart({
       state.instance.dispose();
     },
   });
+
   React.useEffect(() => {
     if (state.instance) {
       state.instance.resize();
     }
   }, [state]);
+
   React.useEffect(() => {
-    if (state.instance && state.width && state.height) {
+    if (state.instance && state.width > 0 && state.height > 0) {
       // This should be the last use effect since a resize stops the animation
       state.instance.setOption(options, settings);
       // Sync events
       syncEvents(state.instance);
     }
   }, [state, options, settings]);
+
   return { ref, setRef, instance: state.instance };
 }
