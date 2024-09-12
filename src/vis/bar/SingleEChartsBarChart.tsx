@@ -336,7 +336,7 @@ export function SingleEChartsBarChart({
         type: 'bar',
         emphasis: { focus: 'series', blurScope: 'coordinateSystem', label: { show: true } },
         blur: { label: { show: false } },
-        barWidth: BAR_WIDTH,
+        barMaxWidth: BAR_WIDTH,
 
         label: {
           show: true,
