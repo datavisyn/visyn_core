@@ -27,7 +27,7 @@ const CHART_HEIGHT_MARGIN = 100;
 /**
  * Maximum character length of axis labels before truncation
  */
-const AXIS_LABEL_MAX_LENGTH = 50;
+const AXIS_LABEL_MAX_LENGTH = 10;
 
 function median(arr: number[]) {
   const mid = Math.floor(arr.length / 2);
