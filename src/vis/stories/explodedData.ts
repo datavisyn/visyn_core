@@ -7,6 +7,8 @@ export interface ExplodedItem {
   numerical2: number;
   categorical1: string;
   categorical2: string;
+  manyCategories1: string[];
+  manyCategories2: string[];
   statusFlag: 'active' | 'inactive';
   type1: 'TYPE_A' | 'TYPE_B' | 'TYPE_C' | 'TYPE_D' | 'TYPE_E';
   type2: 'TYPE_A' | 'TYPE_B' | 'TYPE_C' | 'TYPE_D' | 'TYPE_E';
@@ -26,6 +28,9 @@ function generate(amount: number) {
       numerical2: Math.random() * 100,
       categorical1: `Category ${Math.floor(Math.random() * 10)}`,
       categorical2: `Category ${Math.floor(Math.random() * 10)}`,
+      // 1000 unique categories
+      manyCategories1: `APC_${Math.floor(Math.random() * 100)}`,
+      manyCategories2: `EXPR_${Math.floor(Math.random() * 1000)}`,
       statusFlag: Math.random() > 0.5 ? 'active' : 'inactive',
       type1: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,
       type2: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,
@@ -96,6 +101,46 @@ export function fetchExplodedData(): VisColumn[] {
       type: EColumnTypes.CATEGORICAL,
       values: () => explodedData.map((r) => r.categorical2).map((val, i) => ({ id: i.toString(), val })),
       domain: Array.from(new Set(explodedData.map((r) => r.categorical2))),
+    },
+    {
+      info: {
+        description: 'The first type value',
+        id: 'type1',
+        name: 'Type 1',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.type1).map((val, i) => ({ id: i.toString(), val })),
+      domain: ['TYPE_A', 'TYPE_B', 'TYPE_C', 'TYPE_D', 'TYPE_E'],
+    },
+    {
+      info: {
+        description: 'The second type value',
+        id: 'type2',
+        name: 'Type 2',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.type2).map((val, i) => ({ id: i.toString(), val })),
+      domain: ['TYPE_A', 'TYPE_B', 'TYPE_C', 'TYPE_D', 'TYPE_E'],
+    },
+    {
+      info: {
+        description: 'The first set of many categories',
+        id: 'manyCategories1',
+        name: 'Many Categories 1',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.manyCategories1).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(explodedData.flatMap((r) => r.manyCategories1))),
+    },
+    {
+      info: {
+        description: 'The second set of many categories',
+        id: 'manyCategories2',
+        name: 'Many Categories 2',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: () => explodedData.map((r) => r.manyCategories2).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(explodedData.flatMap((r) => r.manyCategories2))),
     },
     {
       info: {

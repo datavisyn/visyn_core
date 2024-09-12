@@ -8,6 +8,7 @@ import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, IBarDataTableRow } from './interfaces';
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
+import { useChart } from '../vishooks/useChart';
 
 /**
  * Width of a single bar
@@ -408,7 +409,7 @@ function EagerSingleEChartsBarChart({
     return 0;
   }, [categories.length, config.direction, config.group, config.groupType, groupings.length]);
 
-  console.log('calculateChartHeight', calculateChartHeight);
+  // console.log('calculateChartHeight', calculateChartHeight);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -713,9 +714,54 @@ function EagerSingleEChartsBarChart({
     updateCategoriesSideEffect();
   }, [updateCategoriesSideEffect]);
 
-  const settings = {
-    notMerge: true, // disable merging to avoid stale series data when deselecting the group column
-  };
+  const settings = React.useMemo(
+    () => ({
+      notMerge: true,
+    }),
+    [],
+  );
+
+  const { setRef } = useChart({
+    options: option,
+    settings,
+    mouseEvents: {
+      click: [
+        {
+          query: { titleIndex: 0 },
+          handler: (params) => {
+            setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
+          },
+        },
+        {
+          query: { seriesType: 'bar' },
+          handler: (params) => {
+            const event = params.event.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+            const ids = filteredDataTable
+              .filter((item) => item.category === params.name && (!config.group || (config.group && item.group === params.seriesName)))
+              .map((item) => item.id);
+            if (event.shiftKey) {
+              // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
+              //  Using `Set` to reduce time complexity to O(1).
+              const newSelectedSet = new Set(selectedList);
+              ids.forEach((id) => {
+                if (newSelectedSet.has(id)) {
+                  newSelectedSet.delete(id);
+                } else {
+                  newSelectedSet.add(id);
+                }
+              });
+              const newSelectedList = [...newSelectedSet];
+              selectionCallback(event, [...new Set([...newSelectedList])]);
+            } else {
+              selectionCallback(event, ids);
+            }
+          },
+        },
+      ],
+    },
+  });
+
+  return option ? <div ref={setRef} style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
 
   return (
     option && (

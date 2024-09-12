@@ -43,7 +43,7 @@ export function ReactECharts({ option, style, settings, loading, theme, chartIns
     // Initialize chart
     let chart: ECharts | undefined;
     if (chartRef.current !== null) {
-      chart = init(chartRef.current, theme);
+      chart = init(chartRef.current, theme, { renderer: 'svg' });
     }
 
     // Add chart resize listener
