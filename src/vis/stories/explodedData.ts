@@ -7,8 +7,8 @@ export interface TestItem {
   numerical2: number;
   categorical1: string;
   categorical2: string;
-  manyCategories1: string[];
-  manyCategories2: string[];
+  manyCategories1: string;
+  manyCategories2: string;
   statusFlag: 'active' | 'inactive';
   type1: 'TYPE_A' | 'TYPE_B' | 'TYPE_C' | 'TYPE_D' | 'TYPE_E';
   type2: 'TYPE_A' | 'TYPE_B' | 'TYPE_C' | 'TYPE_D' | 'TYPE_E';
@@ -31,7 +31,7 @@ export function generateTestData(amount: number) {
       // 1000 unique categories
       manyCategories1: `APC_${Math.floor(Math.random() * 100)}`,
       manyCategories2: `EXPR_${Math.floor(Math.random() * 3000)}`,
-      statusFlag: Math.random() > 0.5 ? 'active' : 'inactive',
+      statusFlag: Math.random() > 0.5 ? ('active' as const) : ('inactive' as const),
       type1: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,
       type2: `TYPE_${String.fromCharCode(65 + Math.floor(Math.random() * 5))}` as any,
     };
