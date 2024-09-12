@@ -166,7 +166,7 @@ export function BarChart({
             <Loader />
           </Center>
         ) : !config.facets || !allColumns.facetsColVals ? (
-          <ScrollArea.Autosize h={innerHeight} w={containerWidth} scrollbars="y" offsetScrollbars>
+          <ScrollArea.Autosize h={innerHeight} w={containerWidth} scrollbars="y" offsetScrollbars style={{ overflowX: 'hidden' }}>
             <SingleEChartsBarChart
               config={config}
               dataTable={dataTable}

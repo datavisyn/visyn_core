@@ -27,7 +27,7 @@ const CHART_HEIGHT_MARGIN = 100;
 /**
  * Maximum character length of axis labels before truncation
  */
-const AXIS_LABEL_MAX_LENGTH = 50;
+const AXIS_LABEL_MAX_LENGTH = 10;
 
 function median(arr: number[]) {
   const mid = Math.floor(arr.length / 2);
@@ -97,6 +97,8 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
  * @param series - The array of bar series options.
  * @param order - The order in which to sort the data.
  * @returns An object containing the sorted matrix and the corresponding categories.
+ *
+ * @deprecated In favor of `sortSeries` function.
  */
 function matrixSort(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
   const { categories } = series[0];
@@ -158,6 +160,8 @@ function matrixSort(series: (BarSeriesOption & { categories: string[] })[], orde
  * @param series - The bar chart series to sort and restore.
  * @param order - The order in which to sort the matrix. Defaults to EBarSortState.NONE.
  * @returns The sorted and restored series.
+ *
+ * @deprecated In favor of `sortSeries` function.
  */
 function sortAndRestoreMatrix(series: (BarSeriesOption & { categories: string[] })[], order: EBarSortState = EBarSortState.NONE) {
   // Sort the matrix and update categories
@@ -173,6 +177,114 @@ function sortAndRestoreMatrix(series: (BarSeriesOption & { categories: string[] 
       data: transformedData,
     };
   });
+
+  return sortedSeries;
+}
+
+/**
+ * Sorts the series data based on the specified order.
+ *
+ * For input data like below:
+ * ```ts
+ * const series = [{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [26, 484, 389, 111],
+ * },{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [22, 344, 239, 69],
+ * },{
+ *   categories: ["Unknown", "High", "Moderate", "Low"],
+ *   data: [6, 111, 83, 20],
+ * }];
+ * ```
+ *
+ * This function would return an output like below:
+ * ```ts
+ * const sortedSeries = [{ // The total of `Moderate` is the highest, sorted in descending order and `Unknown` is placed last no matter what.
+ *   categories: ["Moderate", "Low", "High", "Unknown"],
+ *   data: [111, 20, 83, 6],
+ * },{
+ *   categories: ["Moderate", "Low", "High", "Unknown"],
+ *   data: [239, 69, 344, 22],
+ * },{
+ *   categories: ["Moderate", "Low", "High", "Unknown"],
+ *   data: [389, 484, 111, 26],
+ * }]
+ * ```
+ *
+ * This function uses `for` loop for maximum performance and readability.
+ *
+ * @param series
+ * @param sortOrder
+ * @returns
+ */
+function sortSeries(
+  series: { categories: string[]; data: BarSeriesOption['data'] }[],
+  sortOrder: EBarSortState = EBarSortState.NONE,
+): { categories: string[]; data: BarSeriesOption['data'] }[] {
+  // if (sortOrder === EBarSortState.NONE) {
+  //   return series;
+  // }
+
+  // Step 1: Aggregate the data
+  const aggregatedData: { [key: string]: number } = {};
+  let unknownCategorySum = 0;
+  for (const s of series) {
+    for (let i = 0; i < s.categories.length; i++) {
+      const category = s.categories[i];
+      const value = (s.data[i] as number) || 0;
+      if (category === 'Unknown') {
+        unknownCategorySum += value;
+      } else {
+        if (!aggregatedData[category]) {
+          aggregatedData[category] = 0;
+        }
+        aggregatedData[category] += value;
+      }
+    }
+  }
+
+  // Add the 'Unknown' category at the end
+  aggregatedData['Unknown'] = unknownCategorySum;
+
+  // NOTE: @dv-usama-ansari: filter out keys with 0 values
+  for (const key in aggregatedData) {
+    if (aggregatedData[key] === 0) {
+      delete aggregatedData[key];
+    }
+  }
+
+  // Step 2: Sort the aggregated data
+  const sortedCategories = Object.keys(aggregatedData).sort((a, b) => {
+    if (a === 'Unknown') return 1;
+    if (b === 'Unknown') return -1;
+    return sortOrder === EBarSortState.ASCENDING
+      ? aggregatedData[a] - aggregatedData[b]
+      : sortOrder === EBarSortState.DESCENDING
+        ? aggregatedData[b] - aggregatedData[a]
+        : 0;
+  });
+
+  // Create a mapping of categories to their sorted indices
+  const categoryIndexMap: { [key: string]: number } = {};
+  for (let i = 0; i < sortedCategories.length; i++) {
+    categoryIndexMap[sortedCategories[i]] = i;
+  }
+
+  // Step 3: Sort each series according to the sorted categories
+  const sortedSeries: typeof series = [];
+  for (const s of series) {
+    const sortedData = new Array(sortedCategories.length).fill(null);
+    for (let i = 0; i < s.categories.length; i++) {
+      // NOTE: @dv-usama-ansari: index of the category in the sorted array
+      sortedData[categoryIndexMap[s.categories[i]]] = s.data[i];
+    }
+    sortedSeries.push({
+      ...s,
+      categories: sortedCategories,
+      data: sortedData,
+    });
+  }
 
   return sortedSeries;
 }
@@ -358,8 +470,9 @@ function EagerSingleEChartsBarChart({
     () =>
       ({
         type: 'bar',
-        emphasis: { focus: 'series' },
-        barWidth: BAR_WIDTH,
+        emphasis: { focus: 'series', blurScope: 'coordinateSystem', label: { show: true } },
+        blur: { label: { show: false } },
+        barMaxWidth: BAR_WIDTH,
 
         label: {
           show: true,
@@ -369,14 +482,21 @@ function EagerSingleEChartsBarChart({
               ? `${params.value}%`
               : String(params.value),
         },
+        labelLayout: {
+          hideOverlap: true,
+        },
+
+        sampling: 'average',
+        large: filteredDataTable.length > 1000,
 
         // enable click events on bars -> handled by chartInstance callback
         triggerEvent: true,
+        clip: false,
 
         catColumnSelected: config.catColumnSelected,
         group: config.group,
       }) as BarSeriesOption,
-    [config.catColumnSelected, config.display, config.group, config.groupType],
+    [config.catColumnSelected, config.display, config.group, config.groupType, filteredDataTable.length],
   );
 
   const optionBase: ReactEChartsProps['option'] = React.useMemo(
@@ -423,19 +543,19 @@ function EagerSingleEChartsBarChart({
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
       if (config.direction === EBarDirection.HORIZONTAL) {
-        const sortedSeries = sortAndRestoreMatrix(
-          barSeries,
-          config.sortState.x === EBarSortState.ASCENDING
-            ? EBarSortState.DESCENDING
-            : config.sortState.x === EBarSortState.DESCENDING
-              ? EBarSortState.ASCENDING
-              : EBarSortState.NONE,
+        const sortedSeries = sortSeries(
+          barSeries.map((item) => ({ categories: item.categories, data: item.data })),
+          config.sortState.x,
         );
-        setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
-        setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: sortedSeries[0].categories } }));
+        // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
+        setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })));
+        setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: [...sortedSeries[0].categories].reverse() } }));
       }
       if (config.direction === EBarDirection.VERTICAL) {
-        const sortedSeries = sortAndRestoreMatrix(barSeries, config.sortState.y);
+        const sortedSeries = sortSeries(
+          barSeries.map((item) => ({ categories: item.categories, data: item.data })),
+          config.sortState.y,
+        );
         setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
         setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: sortedSeries[0].categories } }));
       }
@@ -508,6 +628,7 @@ function EagerSingleEChartsBarChart({
             formatter: (value) => {
               return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
             },
+            rotate: 45,
             // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
           },
         },
