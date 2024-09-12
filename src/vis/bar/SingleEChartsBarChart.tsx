@@ -1,6 +1,7 @@
 import { type ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import { ECharts } from 'echarts/core';
+import { useSetState } from '@mantine/hooks';
 import round from 'lodash/round';
 import uniq from 'lodash/uniq';
 import * as React from 'react';
@@ -201,10 +202,16 @@ function EagerSingleEChartsBarChart({
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
-  const [series, setSeries] = React.useState<BarSeriesOption[]>([]);
+  /* const [series, setSeries] = React.useState<BarSeriesOption[]>([]);
   const [axes, setAxes] = React.useState<{ xAxis: ReactEChartsProps['option']['xAxis']; yAxis: EChartsOption['yAxis'] }>({
     xAxis: null,
     yAxis: null,
+  }); */
+
+  const [visState, setVisState] = useSetState({
+    series: [] as BarSeriesOption[],
+    xAxis: null as EChartsOption['xAxis'],
+    yAxis: null as EChartsOption['yAxis'],
   });
 
   const filteredDataTable = React.useMemo(
@@ -418,61 +425,33 @@ function EagerSingleEChartsBarChart({
           config.sortState.x,
         );
         // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
-        setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })));
-        setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: [...sortedSeries[0].categories].reverse() } }));
+        setVisState({
+          series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })),
+          yAxis: { ...visState.yAxis, data: [...sortedSeries[0].categories].reverse() },
+        });
+        // setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })));
+        // setAxes((a) => ({ ...a, yAxis: { ...a.yAxis, data: [...sortedSeries[0].categories].reverse() } }));
       }
       if (config.direction === EBarDirection.VERTICAL) {
         const sortedSeries = sortSeries(
           barSeries.map((item) => ({ categories: item.categories, data: item.data })),
           config.sortState.y,
         );
-        setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
-        setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: sortedSeries[0].categories } }));
+
+        setVisState({
+          series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
+          xAxis: { ...visState.xAxis, data: sortedSeries[0].categories },
+        });
+        // setSeries(barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })));
+        // setAxes((a) => ({ ...a, xAxis: { ...a.xAxis, data: sortedSeries[0].categories } }));
       }
     },
-    [config.direction, config.sortState.x, config.sortState.y],
-  );
-
-  const chartInstance = React.useCallback(
-    (chart: ECharts) => {
-      // remove all listeners to avoid memory leaks and multiple listeners
-      chart.off('click');
-      // register EChart listerners to chartInstance
-      // NOTE: @dv-usama-ansari: Using queries to attach event listeners: https://echarts.apache.org/en/api.html#events
-      chart.on('click', { titleIndex: 0 }, () => {
-        setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
-      });
-
-      chart.on('click', { seriesType: 'bar' }, (params) => {
-        const event = params.event.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-        const ids = filteredDataTable
-          .filter((item) => item.category === params.name && (!config.group || (config.group && item.group === params.seriesName)))
-          .map((item) => item.id);
-        if (event.shiftKey) {
-          // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
-          //  Using `Set` to reduce time complexity to O(1).
-          const newSelectedSet = new Set(selectedList);
-          ids.forEach((id) => {
-            if (newSelectedSet.has(id)) {
-              newSelectedSet.delete(id);
-            } else {
-              newSelectedSet.add(id);
-            }
-          });
-          const newSelectedList = [...newSelectedSet];
-          selectionCallback(event, [...new Set([...newSelectedList])]);
-        } else {
-          selectionCallback(event, ids);
-        }
-      });
-    },
-    [config, filteredDataTable, selectedFacetIndex, selectedList, selectionCallback, setConfig],
+    [config.direction, config.sortState.x, config.sortState.y, setVisState, visState.xAxis, visState.yAxis],
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
     if (config.direction === EBarDirection.HORIZONTAL) {
-      setAxes((a) => ({
-        ...a,
+      setVisState((a) => ({
         xAxis: { type: 'value' as const },
         yAxis: {
           ...a.yAxis,
@@ -482,14 +461,13 @@ function EagerSingleEChartsBarChart({
             formatter: (value) => {
               return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
             },
-            // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+            // TODO: add tooltip for truncated labels (@see
           },
         },
       }));
     }
     if (config.direction === EBarDirection.VERTICAL) {
-      setAxes((a) => ({
-        ...a,
+      setVisState((a) => ({
         xAxis: {
           ...a.xAxis,
           type: 'category' as const,
@@ -499,13 +477,12 @@ function EagerSingleEChartsBarChart({
               return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
             },
             rotate: 45,
-            // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
           },
         },
         yAxis: { type: 'value' as const },
       }));
     }
-  }, [config.direction]);
+  }, [config.direction, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = groupings
@@ -559,11 +536,11 @@ function EagerSingleEChartsBarChart({
   const options = React.useMemo(() => {
     return {
       ...optionBase,
-      ...(series ? { series } : {}),
-      ...(axes.xAxis ? { xAxis: axes.xAxis } : {}),
-      ...(axes.yAxis ? { yAxis: axes.yAxis } : {}),
-    };
-  }, [axes.xAxis, axes.yAxis, optionBase, series]);
+      ...(visState.series ? { series: visState.series } : {}),
+      ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
+      ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
+    } as EChartsOption;
+  }, [visState.xAxis, visState.yAxis, optionBase, visState.series]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   React.useEffect(() => {
@@ -582,9 +559,7 @@ function EagerSingleEChartsBarChart({
     [],
   );
 
-  console.log(series);
-
-  const { setRef, instance } = useChart({
+  const { setRef } = useChart({
     options,
     settings,
     mouseEvents: {
@@ -625,17 +600,6 @@ function EagerSingleEChartsBarChart({
   });
 
   return options ? <div ref={setRef} style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
-
-  return (
-    options && (
-      <ReactECharts
-        option={option}
-        chartInstance={chartInstance}
-        settings={settings}
-        style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }}
-      />
-    )
-  );
 }
 
 export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);
