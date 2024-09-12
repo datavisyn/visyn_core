@@ -491,6 +491,7 @@ export function SingleEChartsBarChart({
             formatter: (value) => {
               return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
             },
+            rotate: 45,
             // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
           },
         },
