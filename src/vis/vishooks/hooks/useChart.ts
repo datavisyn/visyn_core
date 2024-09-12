@@ -1,12 +1,12 @@
 import { useSetState } from '@mantine/hooks';
 import * as echarts from 'echarts';
 import { ECElementEvent, ECharts, EChartsOption } from 'echarts';
-import { useSetRef } from 'visyn_core/hooks';
-import React from 'react';
-import { CanvasRenderer } from 'echarts/renderers';
+import { BarChart, LineChart, ScatterChart } from 'echarts/charts';
+import { DataZoomComponent, GridComponent, LegendComponent, TitleComponent, ToolboxComponent, TooltipComponent } from 'echarts/components';
 import { use } from 'echarts/core';
-import { ScatterChart, LineChart, BarChart } from 'echarts/charts';
-import { LegendComponent, GridComponent, TooltipComponent, ToolboxComponent, TitleComponent, DataZoomComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import React from 'react';
+import { useSetRef } from '../../../hooks';
 
 // Original code from https://dev.to/manufac/using-apache-echarts-with-react-and-typescript-optimizing-bundle-size-29l8
 
