@@ -15,16 +15,17 @@ import {
   IBarConfig,
   Vis,
 } from '../vis';
-import { breastCancerData } from '../vis/stories/breastCancerData';
-import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { explodedData, fetchExplodedData } from '../vis/stories/explodedData';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
-  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
-    type: ESupportedPlotlyVis.BAR,
-    numColumnsSelected: [],
-    catColumnSelected: {
+  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>(
+    () =>
+      ({
+        type: ESupportedPlotlyVis.BAR,
+        numColumnsSelected: [],
+        /* catColumnSelected: {
       description: null,
       id: 'cellularity',
       name: 'Cellularity',
@@ -33,34 +34,47 @@ export function MainApp() {
       description: 'some very long description',
       id: 'breastSurgeryType',
       name: 'Breast Surgery Type',
-    },
-    groupType: EBarGroupingType.STACK,
-    facets: {
+    }, */
+        catColumnSelected: {
+          description: 'some very long description',
+          id: 'categorical2',
+          name: 'Categorical 2',
+        },
+        group: null,
+        groupType: EBarGroupingType.STACK,
+        /* facets: {
       description: 'some very long description',
       id: 'tumorOtherHistologicSubtype',
       name: 'Tumor Other Histologic Subtype',
-    },
-    focusFacetIndex: null,
-    display: EBarDisplayType.ABSOLUTE,
-    direction: EBarDirection.HORIZONTAL,
-    aggregateColumn: {
+    }, */
+        facets: {
+          description: 'some very long description',
+          id: 'categorical1',
+          name: 'Categorical 1',
+        },
+        focusFacetIndex: null,
+        display: EBarDisplayType.ABSOLUTE,
+        direction: EBarDirection.HORIZONTAL,
+        /* aggregateColumn: {
       description: 'some very long description',
       id: 'tumorStage',
       name: 'Tumor Stage',
-    },
-    aggregateType: EAggregateTypes.COUNT,
-    showFocusFacetSelector: false,
-    sortState: {
-      x: EBarSortState.DESCENDING,
-      y: EBarSortState.NONE,
-    },
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    merged: true,
-  } as IBarConfig);
-  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
-  const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
+    }, */
+        aggregateColumn: null,
+        aggregateType: EAggregateTypes.COUNT,
+        showFocusFacetSelector: false,
+        sortState: {
+          x: EBarSortState.DESCENDING,
+          y: EBarSortState.NONE,
+        },
+        numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+        merged: true,
+      }) as IBarConfig,
+  );
+  const columns = React.useMemo(() => (user ? fetchExplodedData() : []), [user]);
+  const [selection, setSelection] = React.useState<typeof explodedData>([]);
 
-  const visSelection = React.useMemo(() => selection.map((s) => `${breastCancerData.indexOf(s)}`), [selection]);
+  const visSelection = React.useMemo(() => selection.map((s) => `${explodedData.indexOf(s)}`), [selection]);
   const [loading, setLoading] = React.useState(false);
   const lineupRef = React.useRef<DatavisynTaggle>();
 
@@ -119,7 +133,7 @@ export function MainApp() {
             />
 
             <VisynRanking
-              data={breastCancerData}
+              data={explodedData}
               selection={selection}
               setSelection={setSelection}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
@@ -138,7 +152,7 @@ export function MainApp() {
             selected={visSelection}
             selectionCallback={(s) => {
               if (s) {
-                setSelection(s.map((i) => breastCancerData[+i]!));
+                setSelection(s.map((i) => explodedData[+i]!));
               }
             }}
             filterCallback={(f) => {

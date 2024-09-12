@@ -3,6 +3,7 @@
   "compilerOptions": {
     "jsx": "react",
     "outDir": "./dist",
+    "strict": false,
   },
   "include": [
     "src/**/*.ts",
