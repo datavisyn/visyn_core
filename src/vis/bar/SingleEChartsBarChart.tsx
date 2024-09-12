@@ -345,14 +345,21 @@ export function SingleEChartsBarChart({
               ? `${params.value}%`
               : String(params.value),
         },
+        labelLayout: {
+          hideOverlap: true,
+        },
+
+        sampling: 'average',
+        large: filteredDataTable.length > 1000,
 
         // enable click events on bars -> handled by chartInstance callback
         triggerEvent: true,
+        clip: false,
 
         catColumnSelected: config.catColumnSelected,
         group: config.group,
       }) as BarSeriesOption,
-    [config.catColumnSelected, config.display, config.group, config.groupType],
+    [config.catColumnSelected, config.display, config.group, config.groupType, filteredDataTable.length],
   );
 
   const optionBase: ReactEChartsProps['option'] = React.useMemo(
