@@ -4,11 +4,12 @@ import { ECharts } from 'echarts/core';
 import round from 'lodash/round';
 import uniq from 'lodash/uniq';
 import * as React from 'react';
+import { EChartsOption } from 'echarts';
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, IBarDataTableRow } from './interfaces';
 import { ReactECharts, ReactEChartsProps } from './ReactECharts';
-import { useChart } from '../vishooks/useChart';
+import { useChart } from '../vishooks/hooks/useChart';
 
 /**
  * Width of a single bar
@@ -246,7 +247,7 @@ function sortSeries(
   }
 
   // Add the 'Unknown' category at the end
-  aggregatedData['Unknown'] = unknownCategorySum;
+  aggregatedData.Unknown = unknownCategorySum;
 
   // NOTE: @dv-usama-ansari: filter out keys with 0 values
   for (const key in aggregatedData) {
@@ -332,8 +333,8 @@ function EagerSingleEChartsBarChart({
   groupColorScale: ScaleOrdinal<string, string, never>;
 }) {
   const [series, setSeries] = React.useState<BarSeriesOption[]>([]);
-  const [option, setOption] = React.useState<ReactEChartsProps['option']>(null);
-  const [axes, setAxes] = React.useState<{ xAxis: ReactEChartsProps['option']['xAxis']; yAxis: ReactEChartsProps['option']['yAxis'] }>({
+  const [option, setOption] = React.useState<EChartsOption>(null);
+  const [axes, setAxes] = React.useState<{ xAxis: ReactEChartsProps['option']['xAxis']; yAxis: EChartsOption['yAxis'] }>({
     xAxis: null,
     yAxis: null,
   });
@@ -500,7 +501,7 @@ function EagerSingleEChartsBarChart({
     [config.catColumnSelected, config.display, config.group, config.groupType, filteredDataTable.length],
   );
 
-  const optionBase: ReactEChartsProps['option'] = React.useMemo(
+  const optionBase = React.useMemo(
     () =>
       ({
         height: `${calculateChartHeight}px`,
@@ -537,7 +538,7 @@ function EagerSingleEChartsBarChart({
           type: 'scroll',
           icon: 'circle',
         },
-      }) as ReactEChartsProps['option'],
+      }) as EChartsOption,
     [calculateChartHeight, selectedFacetValue],
   );
 
