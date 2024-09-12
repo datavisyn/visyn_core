@@ -1,6 +1,5 @@
 import { type ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
-import { ECharts } from 'echarts/core';
 import { useSetState } from '@mantine/hooks';
 import round from 'lodash/round';
 import uniq from 'lodash/uniq';
@@ -9,7 +8,6 @@ import { EChartsOption } from 'echarts';
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, IBarDataTableRow } from './interfaces';
-import { ReactECharts, ReactEChartsProps } from './ReactECharts';
 import { useChart } from '../vishooks/hooks/useChart';
 
 /**

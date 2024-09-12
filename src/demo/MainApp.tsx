@@ -16,7 +16,9 @@ import {
   Vis,
 } from '../vis';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
-import { explodedData, fetchExplodedData } from '../vis/stories/explodedData';
+import { fetchTestData, generateTestData } from '../vis/stories/explodedData';
+
+const testData = generateTestData(100000);
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -71,10 +73,10 @@ export function MainApp() {
         merged: true,
       }) as IBarConfig,
   );
-  const columns = React.useMemo(() => (user ? fetchExplodedData() : []), [user]);
-  const [selection, setSelection] = React.useState<typeof explodedData>([]);
+  const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);
+  const [selection, setSelection] = React.useState<typeof testData>([]);
 
-  const visSelection = React.useMemo(() => selection.map((s) => `${explodedData.indexOf(s)}`), [selection]);
+  const visSelection = React.useMemo(() => selection.map((s) => `${testData.indexOf(s)}`), [selection]);
   const [loading, setLoading] = React.useState(false);
   const lineupRef = React.useRef<DatavisynTaggle>();
 
@@ -133,7 +135,7 @@ export function MainApp() {
             />
 
             <VisynRanking
-              data={explodedData}
+              data={testData}
               selection={selection}
               setSelection={setSelection}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
@@ -152,7 +154,7 @@ export function MainApp() {
             selected={visSelection}
             selectionCallback={(s) => {
               if (s) {
-                setSelection(s.map((i) => explodedData[+i]!));
+                setSelection(s.map((i) => testData[+i]!));
               }
             }}
             filterCallback={(f) => {

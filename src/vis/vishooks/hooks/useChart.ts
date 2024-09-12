@@ -1,8 +1,28 @@
 import { useSetState } from '@mantine/hooks';
 import * as echarts from 'echarts';
 import { ECElementEvent, ECharts, EChartsOption } from 'echarts';
-import React from 'react';
 import { useSetRef } from 'visyn_core/hooks';
+import React from 'react';
+import { CanvasRenderer } from 'echarts/renderers';
+import { use } from 'echarts/core';
+import { ScatterChart, LineChart, BarChart } from 'echarts/charts';
+import { LegendComponent, GridComponent, TooltipComponent, ToolboxComponent, TitleComponent, DataZoomComponent } from 'echarts/components';
+
+// Original code from https://dev.to/manufac/using-apache-echarts-with-react-and-typescript-optimizing-bundle-size-29l8
+
+// Register the required components
+use([
+  LegendComponent,
+  ScatterChart,
+  LineChart,
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  ToolboxComponent, // A group of utility tools, which includes export, data view, dynamic type switching, data area zooming, and reset.
+  DataZoomComponent, // Used in Line Graph Charts
+  CanvasRenderer, // If you only need to use the canvas rendering mode, the bundle will not include the SVGRenderer module, which is not needed.
+]);
 
 type ElementEventName =
   | 'click'

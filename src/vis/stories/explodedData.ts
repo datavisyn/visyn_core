@@ -1,6 +1,6 @@
 import { EColumnTypes, VisColumn } from '../interfaces';
 
-export interface ExplodedItem {
+export interface TestItem {
   name: string;
   age: number;
   numerical1: number;
@@ -19,7 +19,7 @@ const POSSIBLE_NAMES = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Gra
 /**
  * Artificially exploded test dataset to check for performance issues.
  */
-function generate(amount: number) {
+export function generateTestData(amount: number) {
   return Array.from({ length: amount }).map(() => {
     return {
       name: POSSIBLE_NAMES[Math.floor(Math.random() * POSSIBLE_NAMES.length)],
@@ -38,9 +38,7 @@ function generate(amount: number) {
   });
 }
 
-export const explodedData = generate(100000);
-
-export function fetchExplodedData(): VisColumn[] {
+export function fetchTestData(testData: TestItem[]): VisColumn[] {
   return [
     {
       info: {
@@ -49,7 +47,7 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Name',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.name).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.name).map((val, i) => ({ id: i.toString(), val })),
       domain: POSSIBLE_NAMES,
     },
     {
@@ -59,7 +57,7 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Age',
       },
       type: EColumnTypes.NUMERICAL,
-      values: () => explodedData.map((r) => r.age).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.age).map((val, i) => ({ id: i.toString(), val })),
       domain: [0, 100],
     },
     {
@@ -69,7 +67,7 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Numerical 1',
       },
       type: EColumnTypes.NUMERICAL,
-      values: () => explodedData.map((r) => r.numerical1).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.numerical1).map((val, i) => ({ id: i.toString(), val })),
       domain: [0, 100],
     },
     {
@@ -79,7 +77,7 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Numerical 2',
       },
       type: EColumnTypes.NUMERICAL,
-      values: () => explodedData.map((r) => r.numerical2).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.numerical2).map((val, i) => ({ id: i.toString(), val })),
       domain: [0, 100],
     },
     {
@@ -89,8 +87,8 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Categorical 1',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.categorical1).map((val, i) => ({ id: i.toString(), val })),
-      domain: Array.from(new Set(explodedData.map((r) => r.categorical1))),
+      values: () => testData.map((r) => r.categorical1).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(testData.map((r) => r.categorical1))),
     },
     {
       info: {
@@ -99,8 +97,8 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Categorical 2',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.categorical2).map((val, i) => ({ id: i.toString(), val })),
-      domain: Array.from(new Set(explodedData.map((r) => r.categorical2))),
+      values: () => testData.map((r) => r.categorical2).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(testData.map((r) => r.categorical2))),
     },
     {
       info: {
@@ -109,7 +107,7 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Type 1',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.type1).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.type1).map((val, i) => ({ id: i.toString(), val })),
       domain: ['TYPE_A', 'TYPE_B', 'TYPE_C', 'TYPE_D', 'TYPE_E'],
     },
     {
@@ -119,7 +117,7 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Type 2',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.type2).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.type2).map((val, i) => ({ id: i.toString(), val })),
       domain: ['TYPE_A', 'TYPE_B', 'TYPE_C', 'TYPE_D', 'TYPE_E'],
     },
     {
@@ -129,8 +127,8 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Many Categories 1',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.manyCategories1).map((val, i) => ({ id: i.toString(), val })),
-      domain: Array.from(new Set(explodedData.flatMap((r) => r.manyCategories1))),
+      values: () => testData.map((r) => r.manyCategories1).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(testData.flatMap((r) => r.manyCategories1))),
     },
     {
       info: {
@@ -139,8 +137,8 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Many Categories 2',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.manyCategories2).map((val, i) => ({ id: i.toString(), val })),
-      domain: Array.from(new Set(explodedData.flatMap((r) => r.manyCategories2))),
+      values: () => testData.map((r) => r.manyCategories2).map((val, i) => ({ id: i.toString(), val })),
+      domain: Array.from(new Set(testData.flatMap((r) => r.manyCategories2))),
     },
     {
       info: {
@@ -149,7 +147,7 @@ export function fetchExplodedData(): VisColumn[] {
         name: 'Status Flag',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => explodedData.map((r) => r.statusFlag).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.statusFlag).map((val, i) => ({ id: i.toString(), val })),
       domain: ['active', 'inactive'],
     },
   ];
