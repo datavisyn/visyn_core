@@ -46,6 +46,9 @@ function median(arr: number[]) {
  * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
  */
 function normalizedValue({ config, value, total }: { config: IBarConfig; value: number; total: number }) {
+  if ([Infinity, -Infinity].includes(value)) {
+    return null;
+  }
   return config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
     ? round((value / total) * 100, 2)
     : round(value, 4);
@@ -226,6 +229,16 @@ function EagerSingleEChartsBarChart({
         };
       };
     } = {};
+    const minMax: {
+      [category: string]: {
+        groupings: {
+          [grouping: string]: {
+            selected: { min: number; max: number };
+            unselected: { min: number; max: number };
+          };
+        };
+      };
+    } = {};
     filteredDataTable.forEach((item) => {
       const { category, agg, group: grouping } = item;
       const selected = selectedMap?.[item.id] || false;
@@ -236,6 +249,15 @@ function EagerSingleEChartsBarChart({
         values[category].groupings[grouping] = {
           selected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
           unselected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
+        };
+      }
+      if (!minMax[category]) {
+        minMax[category] = { groupings: {} };
+      }
+      if (!minMax[category].groupings[grouping]) {
+        minMax[category].groupings[grouping] = {
+          selected: { min: Infinity, max: -Infinity },
+          unselected: { min: Infinity, max: -Infinity },
         };
       }
 
@@ -256,18 +278,25 @@ function EagerSingleEChartsBarChart({
       if (selected) {
         values[category].groupings[grouping].selected.count++;
         values[category].groupings[grouping].selected.sum += agg;
-        values[category].groupings[grouping].selected.min = Math.min(values[category].groupings[grouping].selected.min, agg);
-        values[category].groupings[grouping].selected.max = Math.max(values[category].groupings[grouping].selected.max, agg);
         values[category].groupings[grouping].selected.nums.push(agg);
         values[category].groupings[grouping].selected.ids.push(item.id);
+        minMax[category].groupings[grouping].selected.min = Math.min(minMax[category].groupings[grouping].selected.min, agg || Infinity);
+        minMax[category].groupings[grouping].selected.max = Math.max(minMax[category].groupings[grouping].selected.max, agg || -Infinity);
       } else {
         values[category].groupings[grouping].unselected.count++;
         values[category].groupings[grouping].unselected.sum += agg;
-        values[category].groupings[grouping].unselected.min = Math.min(values[category].groupings[grouping].unselected.min, agg);
-        values[category].groupings[grouping].unselected.max = Math.max(values[category].groupings[grouping].unselected.max, agg);
         values[category].groupings[grouping].unselected.nums.push(agg);
         values[category].groupings[grouping].unselected.ids.push(item.id);
+        minMax[category].groupings[grouping].unselected.min = Math.min(minMax[category].groupings[grouping].unselected.min, agg || Infinity);
+        minMax[category].groupings[grouping].unselected.max = Math.max(minMax[category].groupings[grouping].unselected.max, agg || -Infinity);
       }
+    });
+    filteredDataTable.forEach((item) => {
+      const { category, group: grouping } = item;
+      values[category].groupings[grouping].selected.min = minMax[category].groupings[grouping].selected.min;
+      values[category].groupings[grouping].selected.max = minMax[category].groupings[grouping].selected.max;
+      values[category].groupings[grouping].unselected.min = minMax[category].groupings[grouping].unselected.min;
+      values[category].groupings[grouping].unselected.max = minMax[category].groupings[grouping].unselected.max;
     });
     return values;
   }, [filteredDataTable, selectedMap]);
@@ -422,29 +451,31 @@ function EagerSingleEChartsBarChart({
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
-      if (config.direction === EBarDirection.HORIZONTAL) {
-        const sortedSeries = sortSeries(
-          barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-          config.sortState.x,
-        );
-        // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
-        setVisState((v) => ({
-          ...v,
-          series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })),
-          yAxis: { ...v.yAxis, type: 'category', data: [...sortedSeries[0].categories].reverse() },
-        }));
-      }
-      if (config.direction === EBarDirection.VERTICAL) {
-        const sortedSeries = sortSeries(
-          barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-          config.sortState.y,
-        );
+      if (barSeries.length > 0) {
+        if (config.direction === EBarDirection.HORIZONTAL) {
+          const sortedSeries = sortSeries(
+            barSeries.map((item) => ({ categories: item.categories, data: item.data })),
+            config.sortState.x,
+          );
+          // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
+          setVisState((v) => ({
+            ...v,
+            series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })),
+            yAxis: { ...v.yAxis, type: 'category' as const, data: [...sortedSeries[0].categories].reverse() },
+          }));
+        }
+        if (config.direction === EBarDirection.VERTICAL) {
+          const sortedSeries = sortSeries(
+            barSeries.map((item) => ({ categories: item.categories, data: item.data })),
+            config.sortState.y,
+          );
 
-        setVisState((v) => ({
-          ...v,
-          series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
-          xAxis: { ...v.xAxis, type: 'category', data: sortedSeries[0].categories },
-        }));
+          setVisState((v) => ({
+            ...v,
+            series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
+            xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0].categories },
+          }));
+        }
       }
     },
     [config.direction, config.sortState.x, config.sortState.y, setVisState],
@@ -504,7 +535,7 @@ function EagerSingleEChartsBarChart({
           const data = getDataForAggregationType(group, selected);
 
           // avoid rendering empty series (bars for a group with all 0 values)
-          if (data.every((d) => d.value === 0 || Number.isNaN(d.value))) {
+          if (data.every((d) => [Infinity, -Infinity].includes(d.value) || Number.isNaN(d.value))) {
             return null;
           }
 
