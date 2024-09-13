@@ -9,7 +9,6 @@ import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, IBarDataTableRow } from './interfaces';
-
 /**
  * Width of a single bar
  */
