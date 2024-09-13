@@ -122,8 +122,12 @@ function sortSeries(
 
   // Step 2: Sort the aggregated data
   const sortedCategories = Object.keys(aggregatedData).sort((a, b) => {
-    if (a === 'Unknown') return 1;
-    if (b === 'Unknown') return -1;
+    if (a === NAN_REPLACEMENT) {
+      return 1;
+    }
+    if (b === NAN_REPLACEMENT) {
+      return -1;
+    }
     return sortOrder === EBarSortState.ASCENDING
       ? aggregatedData[a] - aggregatedData[b]
       : sortOrder === EBarSortState.DESCENDING
@@ -272,7 +276,7 @@ function EagerSingleEChartsBarChart({
   const groupings = React.useMemo(() => uniq(filteredDataTable.map((item) => item.group)), [filteredDataTable]);
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
-  const calculateChartHeight = React.useMemo(() => {
+  const chartHeight = React.useMemo(() => {
     if (config.direction === EBarDirection.VERTICAL) {
       // use fixed height for vertical bars
       return VERTICAL_BAR_CHART_HEIGHT;
@@ -378,7 +382,7 @@ function EagerSingleEChartsBarChart({
   const optionBase = React.useMemo(
     () =>
       ({
-        height: `${calculateChartHeight}px`,
+        height: `${chartHeight}px`,
         animation: false,
 
         tooltip: {
@@ -413,7 +417,7 @@ function EagerSingleEChartsBarChart({
           icon: 'circle',
         },
       }) as EChartsOption,
-    [calculateChartHeight, selectedFacetValue],
+    [chartHeight, selectedFacetValue],
   );
 
   const updateSortSideEffect = React.useCallback(
@@ -594,7 +598,7 @@ function EagerSingleEChartsBarChart({
     },
   });
 
-  return options ? <div ref={setRef} style={{ width: '100%', height: `${calculateChartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
+  return options ? <div ref={setRef} style={{ width: '100%', height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
 }
 
 export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);
