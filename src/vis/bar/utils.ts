@@ -1,10 +1,8 @@
-import { op } from 'arquero';
-import ColumnTable from 'arquero/dist/types/table/column-table';
 import { bin as d3Bin, extent, max, min } from 'd3v7';
 import merge from 'lodash/merge';
 import { NAN_REPLACEMENT } from '../general';
 import { resolveSingleColumn } from '../general/layoutUtils';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { defaultConfig, IBarConfig } from './interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
@@ -67,28 +65,6 @@ export const createBinLookup = (data: VisNumericalValue[], maxBins: number = 8):
 
   return binMap;
 };
-
-// Helper function for the bar chart which rolls up the data depending on the aggregate type.
-// Mostly just code duplication with the different aggregate types.
-export function rollupByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
-  switch (aggregateType) {
-    case EAggregateTypes.COUNT:
-      return tempTable.rollup({ aggregateVal: () => op.count() });
-    case EAggregateTypes.AVG:
-      return tempTable.rollup({ aggregateVal: (d) => op.average(d.aggregateVal) });
-
-    case EAggregateTypes.MIN:
-      return tempTable.rollup({ aggregateVal: (d) => op.min(d.aggregateVal) });
-
-    case EAggregateTypes.MED:
-      return tempTable.rollup({ aggregateVal: (d) => op.median(d.aggregateVal) });
-    case EAggregateTypes.MAX:
-      return tempTable.rollup({ aggregateVal: (d) => op.max(d.aggregateVal) });
-
-    default:
-      return null;
-  }
-}
 
 export async function getBarData(
   columns: VisColumn[],
