@@ -265,5 +265,5 @@ export function useInteractions(options: UseInteractionsProps = {}) {
     },
   });
 
-  return { ref, setRef };
+  return { ref, setRef, state: stateRef.current };
 }

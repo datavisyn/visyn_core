@@ -27,7 +27,7 @@ export function useBrush(options: UseBrushProps = {}) {
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
-  const { ref, setRef } = useInteractions({
+  const { ref, setRef, state } = useInteractions({
     moveTarget: options.moveTarget,
     skip: options.skip,
     extent: options.extent,
@@ -75,5 +75,5 @@ export function useBrush(options: UseBrushProps = {}) {
     },
   });
 
-  return { ref, setRef, value: internalValue, setValue: setInternalValue };
+  return { ref, setRef, value: internalValue, setValue: setInternalValue, state };
 }
