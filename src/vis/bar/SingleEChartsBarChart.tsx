@@ -428,10 +428,11 @@ function EagerSingleEChartsBarChart({
           config.sortState.x,
         );
         // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
-        setVisState({
+        setVisState((v) => ({
+          ...v,
           series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })),
-          yAxis: { ...visState.yAxis, type: 'category', data: [...sortedSeries[0].categories].reverse() },
-        });
+          yAxis: { ...v.yAxis, type: 'category', data: [...sortedSeries[0].categories].reverse() },
+        }));
       }
       if (config.direction === EBarDirection.VERTICAL) {
         const sortedSeries = sortSeries(
@@ -439,21 +440,23 @@ function EagerSingleEChartsBarChart({
           config.sortState.y,
         );
 
-        setVisState({
+        setVisState((v) => ({
+          ...v,
           series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
-          xAxis: { ...visState.xAxis, type: 'category', data: sortedSeries[0].categories },
-        });
+          xAxis: { ...v.xAxis, type: 'category', data: sortedSeries[0].categories },
+        }));
       }
     },
-    [config.direction, config.sortState.x, config.sortState.y, setVisState, visState.xAxis, visState.yAxis],
+    [config.direction, config.sortState.x, config.sortState.y, setVisState],
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
     if (config.direction === EBarDirection.HORIZONTAL) {
-      setVisState((a) => ({
+      setVisState((v) => ({
+        ...v,
         xAxis: { type: 'value' as const },
         yAxis: {
-          ...a.yAxis,
+          ...v.yAxis,
           type: 'category' as const,
           axisLabel: {
             show: true,
@@ -466,9 +469,10 @@ function EagerSingleEChartsBarChart({
       }));
     }
     if (config.direction === EBarDirection.VERTICAL) {
-      setVisState((a) => ({
+      setVisState((v) => ({
+        ...v,
         xAxis: {
-          ...a.xAxis,
+          ...v.xAxis,
           type: 'category' as const,
           axisLabel: {
             show: true,
