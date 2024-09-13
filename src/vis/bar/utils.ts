@@ -1,11 +1,11 @@
-import { bin as aqBin, desc, op } from 'arquero';
-import { bin as d3Bin, extent, max, min } from 'd3v7';
+import { op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
+import { bin as d3Bin, extent, max, min } from 'd3v7';
 import merge from 'lodash/merge';
+import { NAN_REPLACEMENT } from '../general';
 import { resolveSingleColumn } from '../general/layoutUtils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
-import { IBarConfig, defaultConfig, SortTypes } from './interfaces';
-import { NAN_REPLACEMENT } from '../general';
+import { defaultConfig, IBarConfig } from './interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
@@ -22,22 +22,6 @@ export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig):
   }
 
   return merged;
-}
-
-// Helper function for the bar chart which sorts the data depending on the sort type.
-export function sortTableBySortType(tempTable: ColumnTable, sortType: SortTypes) {
-  switch (sortType) {
-    case SortTypes.CAT_ASC:
-      return tempTable.orderby(desc('category'));
-    case SortTypes.CAT_DESC:
-      return tempTable.orderby('category');
-    case SortTypes.COUNT_ASC:
-      return tempTable.orderby(desc('count'));
-    case SortTypes.COUNT_DESC:
-      return tempTable.orderby('count');
-    default:
-      return tempTable;
-  }
 }
 
 /**
@@ -83,114 +67,6 @@ export const createBinLookup = (data: VisNumericalValue[], maxBins: number = 8):
 
   return binMap;
 };
-
-// Helper function for the bar chart which bins the data depending on the aggregate type. Used for numerical column grouping
-export function binByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
-  switch (aggregateType) {
-    case EAggregateTypes.COUNT:
-      return tempTable
-        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({ aggregateVal: () => op.count(), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('group')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    case EAggregateTypes.AVG:
-      return tempTable
-        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({
-          aggregateVal: (d) => op.average(d.aggregateVal),
-          count: op.count(),
-          selectedCount: (d) => op.sum(d.selected),
-          ids: (d) => op.array_agg(d.id),
-        })
-        .orderby('group')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    case EAggregateTypes.MIN:
-      return tempTable
-        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({ aggregateVal: (d) => op.min(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('group')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    case EAggregateTypes.MED:
-      return tempTable
-        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({
-          aggregateVal: (d) => op.median(d.aggregateVal),
-          count: op.count(),
-          selectedCount: (d) => op.sum(d.selected),
-          ids: (d) => op.array_agg(d.id),
-        })
-        .orderby('group')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-
-    case EAggregateTypes.MAX:
-      return tempTable
-        .groupby('category', { group: aqBin('group', { maxbins: 9 }), group_max: aqBin('group', { maxbins: 9, offset: 1 }) })
-        .rollup({ aggregateVal: (d) => op.max(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('group')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    default:
-      return null;
-  }
-}
-// Helper function for the bar chart which aggregates the data based on the aggregate type.
-// Mostly just code duplication with the different aggregate types.
-export function groupByAggregateType(tempTable: ColumnTable, aggregateType: EAggregateTypes) {
-  switch (aggregateType) {
-    case EAggregateTypes.COUNT:
-      return tempTable
-        .groupby('category', 'group')
-        .rollup({ aggregateVal: () => op.count(), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('category')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    case EAggregateTypes.AVG:
-      return tempTable
-        .groupby('category', 'group')
-        .rollup({
-          aggregateVal: (d) => op.average(d.aggregateVal),
-          count: op.count(),
-          selectedCount: (d) => op.sum(d.selected),
-          ids: (d) => op.array_agg(d.id),
-        })
-        .orderby('category')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    case EAggregateTypes.MIN:
-      return tempTable
-        .groupby('category', 'group')
-        .rollup({ aggregateVal: (d) => op.min(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('category')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    case EAggregateTypes.MED:
-      return tempTable
-        .groupby('category', 'group')
-        .rollup({
-          aggregateVal: (d) => op.median(d.aggregateVal),
-          count: op.count(),
-          selectedCount: (d) => op.sum(d.selected),
-          ids: (d) => op.array_agg(d.id),
-        })
-        .orderby('category')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-
-    case EAggregateTypes.MAX:
-      return tempTable
-        .groupby('category', 'group')
-        .rollup({ aggregateVal: (d) => op.max(d.aggregateVal), count: op.count(), selectedCount: (d) => op.sum(d.selected), ids: (d) => op.array_agg(d.id) })
-        .orderby('category')
-        .groupby('category')
-        .derive({ categoryCount: (d) => op.sum(d.count) });
-    default:
-      return null;
-  }
-}
 
 // Helper function for the bar chart which rolls up the data depending on the aggregate type.
 // Mostly just code duplication with the different aggregate types.

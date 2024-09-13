@@ -10,12 +10,12 @@ import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './
 import { SingleSelect } from '../sidebar/SingleSelect';
 
 const defaultConfig = {
-  direction: { enable: true, customComponent: null },
-  display: { enable: true, customComponent: null },
-  filter: { enable: true, customComponent: null },
-  group: { enable: true, customComponent: null },
-  groupType: { enable: true, customComponent: null },
-  facets: { enable: true, customComponent: null },
+  direction: { enable: true, customComponent: null as unknown },
+  display: { enable: true, customComponent: null as unknown },
+  filter: { enable: true, customComponent: null as unknown },
+  group: { enable: true, customComponent: null as unknown },
+  groupType: { enable: true, customComponent: null as unknown },
+  facets: { enable: true, customComponent: null as unknown },
 };
 
 export function BarVisSidebar({
