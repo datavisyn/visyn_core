@@ -454,10 +454,15 @@ function EagerSingleEChartsBarChart({
     if (config.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
         ...v,
-        xAxis: { type: 'value' as const },
+        xAxis: { type: 'value' as const, name: config.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [20, 0, 0, 0] } },
         yAxis: {
           ...v.yAxis,
           type: 'category' as const,
+          name: config.catColumnSelected.name,
+          nameLocation: 'middle',
+          nameTextStyle: {
+            padding: [0, 0, 64, 0],
+          },
           axisLabel: {
             show: true,
             formatter: (value: string) => {
@@ -474,6 +479,11 @@ function EagerSingleEChartsBarChart({
         xAxis: {
           ...v.xAxis,
           type: 'category' as const,
+          name: config.catColumnSelected.name,
+          nameLocation: 'middle',
+          nameTextStyle: {
+            padding: [64, 0, 0, 0],
+          },
           axisLabel: {
             show: true,
             formatter: (value: string) => {
@@ -482,10 +492,10 @@ function EagerSingleEChartsBarChart({
             rotate: 45,
           },
         },
-        yAxis: { type: 'value' as const },
+        yAxis: { type: 'value' as const, name: config.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [0, 0, 40, 0] } },
       }));
     }
-  }, [config.direction, setVisState]);
+  }, [config.aggregateType, config.catColumnSelected.name, config.direction, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = groupings
