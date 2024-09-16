@@ -2,18 +2,41 @@ import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { VariableSizeList as List, ListChildComponentProps } from 'react-window';
 import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
-import { uniqueId, zipWith, sortBy } from 'lodash';
-import React, { useCallback, useMemo } from 'react';
+import { sortBy, uniq, uniqueId, zipWith } from 'lodash';
+import React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { ColumnInfo, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
-import { calculateChartHeight, SingleEChartsBarChart } from './SingleEChartsBarChart';
-import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { EBarDisplayType, IBarConfig } from './interfaces';
-import { createBinLookup, getBarData } from './utils';
+import { ColumnInfo, EColumnTypes, ICommonVisProps, VisColumn, VisNumericalValue } from '../interfaces';
 import { BarChartSortButton } from './BarChartSortButton';
+import { SingleEChartsBarChart } from './SingleEChartsBarChart';
+import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
+import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
+import { createBinLookup, getBarData } from './utils';
+
+function calculateChartHeight(config: IBarConfig, dataTable: IBarDataTableRow[], facetValue: string) {
+  const categories = new Set();
+  const groupings = new Set();
+  dataTable
+    .filter((i) => i.facet === facetValue)
+    .forEach((item) => {
+      categories.add(item.category);
+      groupings.add(item.group);
+    });
+
+  if (config.direction === EBarDirection.VERTICAL) {
+    // use fixed height for vertical bars
+    return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
+  }
+  if (config.direction === EBarDirection.HORIZONTAL) {
+    // calculate height for horizontal bars
+    const categoryWidth = config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.size; // TODO: Make dynamic group length based on series data filtered for null
+    return categories.size * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
+  }
+  return 0;
+}
 
 export function BarChart({
   config,
@@ -39,7 +62,7 @@ export function BarChart({
     config?.aggregateColumn as ColumnInfo,
   ]);
 
-  const dataTable = useMemo(() => {
+  const dataTable = React.useMemo(() => {
     if (!allColumns) {
       return [];
     }
@@ -66,7 +89,7 @@ export function BarChart({
     );
   }, [allColumns]);
 
-  const groupColorScale = useMemo(() => {
+  const groupColorScale = React.useMemo(() => {
     if (!allColumns?.groupColVals) {
       return null;
     }
@@ -82,19 +105,18 @@ export function BarChart({
     return scaleOrdinal<string>().domain(groups).range(range);
   }, [allColumns?.groupColVals, dataTable]);
 
-  const allUniqueFacetVals = useMemo(() => {
-    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
-  }, [allColumns?.facetsColVals?.resolvedValues]);
+  const allUniqueFacetVals = React.useMemo(() => {
+    const allFacets = ((allColumns?.facetsColVals as Omit<VisColumn, 'values'>)?.domain ?? []) as string[];
+    return uniq(sortBy(allFacets));
+  }, [allColumns?.facetsColVals]);
 
-  const filteredUniqueFacetVals = useMemo(() => {
-    return sortBy(
-      typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
-        ? [allUniqueFacetVals[config?.focusFacetIndex]]
-        : allUniqueFacetVals,
-    );
+  const filteredUniqueFacetVals = React.useMemo(() => {
+    return typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
+      ? [allUniqueFacetVals[config?.focusFacetIndex]]
+      : allUniqueFacetVals;
   }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
-  const customSelectionCallback = useCallback(
+  const customSelectionCallback = React.useCallback(
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
       if (selectionCallback) {
         if (e.ctrlKey) {
@@ -148,6 +170,15 @@ export function BarChart({
       </div>
     );
   }, []);
+
+  const calculateFacetChartHeight = React.useCallback(
+    (index: number): number => {
+      const chartHeight = calculateChartHeight(config!, dataTable, filteredUniqueFacetVals[index] as string);
+      console.log({ chartHeight, index, facet: filteredUniqueFacetVals[index] });
+      return chartHeight;
+    },
+    [config, dataTable, filteredUniqueFacetVals],
+  );
 
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>

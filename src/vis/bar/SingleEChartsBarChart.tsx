@@ -8,27 +8,8 @@ import * as React from 'react';
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
+import { AXIS_LABEL_MAX_LENGTH, BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, IBarDataTableRow } from './interfaces';
-
-/**
- * Width of a single bar
- */
-const BAR_WIDTH = 25;
-
-/**
- * Spacing between bars in a category
- */
-const BAR_SPACING = 10;
-
-/**
- * Height margin for the chart to avoid cutting off bars, legend, title, axis labels, etc.
- */
-const CHART_HEIGHT_MARGIN = 100;
-
-/**
- * Maximum character length of axis labels before truncation
- */
-const AXIS_LABEL_MAX_LENGTH = 10;
 
 function median(arr: number[]) {
   const mid = Math.floor(arr.length / 2);
@@ -162,30 +143,6 @@ function sortSeries(
 
   return sortedSeries;
 }
-
-const VERTICAL_BAR_CHART_HEIGHT = 250;
-
-export const calculateChartHeight = (config: IBarConfig, dataTable: IBarDataTableRow[], facetValue: string) => {
-  const categories = new Set();
-  const groupings = new Set();
-  dataTable
-    .filter((i) => i.facet === facetValue)
-    .forEach((item) => {
-      categories.add(item.category);
-      groupings.add(item.group);
-    });
-
-  if (config?.direction === EBarDirection.VERTICAL) {
-    // use fixed height for vertical bars
-    return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
-  }
-  if (config?.direction === EBarDirection.HORIZONTAL) {
-    // calculate height for horizontal bars
-    const categoryWidth = config?.group && config?.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.size; // TODO: Make dynamic group length based on series data filtered for null
-    return categories.size * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
-  }
-  return 0;
-};
 
 function EagerSingleEChartsBarChart({
   config,
