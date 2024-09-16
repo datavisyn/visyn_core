@@ -91,13 +91,12 @@ export function beautifyLayout(
   });
 
   sharedAxisTraces.forEach((t, i) => {
-    const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
-    // NOTE: @dv-usama-ansari: disable strict mode here.
-    // @ts-expect-error: TS7053
-    layout[axisX] = {
-      // @ts-expect-error: TS7053
-      ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
-      range: t.xDomain ? t.xDomain : null,
+    const xAxis = (t.data.xaxis?.replace('x', 'xaxis') || 'xaxis') as 'xaxis';
+    const indexedXAxis = `${xAxis}${i > 0 ? i + 1 : ''}` as `xaxis${2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}`;
+
+    layout[xAxis] = {
+      ...oldLayout?.[indexedXAxis],
+      range: t.xDomain ? t.xDomain : undefined,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
       zerolinecolor: VIS_GRID_COLOR,
@@ -105,34 +104,32 @@ export function beautifyLayout(
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
       tickfont: {
-        size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+        size: sharedAxisTraces.length > 1 ? +VIS_TICK_LABEL_SIZE_SMALL : +VIS_TICK_LABEL_SIZE,
       },
-      type: typeof t.data.x?.[0] === 'string' ? 'category' : null,
-      ticks: 'none',
-      text: t.xTicks,
+      type: typeof t.data.x?.[0] === 'string' ? 'category' : undefined,
+      ticks: undefined,
       showspikes: false,
       spikedash: 'dash',
-      categoryarray: categoryOrder?.get(i + 1) || null,
-      categoryorder: categoryOrder?.get(i + 1) ? 'array' : null,
+      categoryarray: categoryOrder?.get(i + 1) || undefined,
+      categoryorder: categoryOrder?.get(i + 1) ? 'array' : undefined,
 
       title: {
         standoff: 5,
         text: sharedAxisTraces.length > 1 ? truncateText(t.xLabel, false, 20) : truncateText(t.xLabel, true, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          size: sharedAxisTraces.length > 1 ? +VIS_AXIS_LABEL_SIZE_SMALL : +VIS_AXIS_LABEL_SIZE,
           color: VIS_LABEL_COLOR,
         },
       },
     };
 
-    const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
-    // NOTE: @dv-usama-ansari: disable strict mode here.
-    // @ts-expect-error: TS7053
-    layout[axisY] = {
-      // @ts-expect-error: TS7053
-      ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
-      range: t.yDomain ? t.yDomain : null,
+    const yAxis = (t.data.yaxis?.replace('y', 'yaxis') || 'yaxis') as 'yaxis';
+    const indexedYAxis = `${yAxis}${i > 0 ? i + 1 : ''}` as `yaxis${2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}`;
+
+    layout[yAxis] = {
+      ...oldLayout?.[indexedYAxis],
+      range: t.yDomain ? t.yDomain : undefined,
       automargin,
       autorange,
       color: VIS_LABEL_COLOR,
@@ -141,11 +138,10 @@ export function beautifyLayout(
       tickvals: t.yTicks,
       ticktext: t.yTickLabels,
       tickfont: {
-        size: sharedAxisTraces.length > 1 ? VIS_TICK_LABEL_SIZE_SMALL : VIS_TICK_LABEL_SIZE,
+        size: sharedAxisTraces.length > 1 ? +VIS_TICK_LABEL_SIZE_SMALL : +VIS_TICK_LABEL_SIZE,
       },
-      type: typeof t.data.y?.[0] === 'string' ? 'category' : null,
-      ticks: 'none',
-      text: t.yTicks,
+      type: typeof t.data.y?.[0] === 'string' ? 'category' : undefined,
+      ticks: undefined,
       showspikes: false,
       spikedash: 'dash',
       title: {
@@ -153,7 +149,7 @@ export function beautifyLayout(
         text: sharedAxisTraces.length > 1 ? truncateText(t.yLabel, false, 20) : truncateText(t.yLabel, true, 55),
         font: {
           family: 'Roboto, sans-serif',
-          size: sharedAxisTraces.length > 1 ? VIS_AXIS_LABEL_SIZE_SMALL : VIS_AXIS_LABEL_SIZE,
+          size: sharedAxisTraces.length > 1 ? +VIS_AXIS_LABEL_SIZE_SMALL : +VIS_AXIS_LABEL_SIZE,
           color: VIS_LABEL_COLOR,
         },
       },
@@ -184,18 +180,17 @@ export async function resolveSingleColumn(column: VisColumn | null) {
  */
 export async function createIdToLabelMapper(columns: VisColumn[]): Promise<(id: string) => string> {
   const labelColumns = (await resolveColumnValues(columns.filter((c) => c.isLabel))).map((c) => c.resolvedValues);
-  const labelsMap = labelColumns.reduce((acc, curr) => {
-    curr.forEach((obj) => {
-      // NOTE: @dv-usama-ansari: disable strict mode here.
-      // @ts-expect-error: TS7053
-      if (acc[obj.id] == null) {
-        // @ts-expect-error: TS7053
-        acc[obj.id] = obj.val;
-      }
-    });
-    return acc;
-  }, {});
-  // NOTE: @dv-usama-ansari: disable strict mode here.
-  // @ts-expect-error: TS7053
+  const labelsMap = labelColumns.reduce(
+    (acc, curr) => {
+      curr.forEach((obj) => {
+        if (acc[obj.id as string] == null) {
+          acc[obj.id as string] = obj.val as string;
+        }
+      });
+      return acc;
+    },
+    {} as { [key: string]: string },
+  );
+
   return (id: string) => labelsMap[id] ?? id;
 }

@@ -251,15 +251,12 @@ function EagerSingleEChartsBarChart({
     });
     filteredDataTable.forEach((item) => {
       const { category, group: grouping } = item;
-      // NOTE: @dv-usama-ansari: disable strict mode here
-      // @ts-expect-error: TS2532
-      values[category].groupings[grouping].selected.min = minMax[category].groupings[grouping].selected.min;
-      // @ts-expect-error: TS2532
-      values[category].groupings[grouping].selected.max = minMax[category].groupings[grouping].selected.max;
-      // @ts-expect-error: TS2532
-      values[category].groupings[grouping].unselected.min = minMax[category].groupings[grouping].unselected.min;
-      // @ts-expect-error: TS2532
-      values[category].groupings[grouping].unselected.max = minMax[category].groupings[grouping].unselected.max;
+      if (values?.[category]?.groupings[grouping] && minMax?.[category]?.groupings[grouping]) {
+        values[category].groupings[grouping].selected.min = minMax[category].groupings[grouping].selected.min;
+        values[category].groupings[grouping].selected.max = minMax[category].groupings[grouping].selected.max;
+        values[category].groupings[grouping].unselected.min = minMax[category].groupings[grouping].unselected.min;
+        values[category].groupings[grouping].unselected.max = minMax[category].groupings[grouping].unselected.max;
+      }
     });
     return values;
   }, [filteredDataTable, selectedMap]);

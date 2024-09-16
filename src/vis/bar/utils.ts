@@ -3,7 +3,7 @@ import merge from 'lodash/merge';
 import { NAN_REPLACEMENT } from '../general';
 import { resolveSingleColumn } from '../general/layoutUtils';
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
-import { defaultConfig, IBarConfig } from './interfaces';
+import { defaultConfig, IBarConfig, VisColumnWithResolvedValues } from './interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
@@ -95,13 +95,15 @@ export async function getBarData(
     info: ColumnInfo;
   };
 }> {
-  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id)!);
+  const catColVals = (await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id)!)) as VisColumnWithResolvedValues;
 
-  const groupColVals = await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id)! : null);
-  const facetsColVals = await resolveSingleColumn(facetsColumn ? columns.find((col) => col.info.id === facetsColumn.id)! : null);
-  const aggregateColVals = await resolveSingleColumn(aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id)! : null);
+  const groupColVals = (await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id)! : null)) as VisColumnWithResolvedValues;
+  const facetsColVals = (await resolveSingleColumn(
+    facetsColumn ? columns.find((col) => col.info.id === facetsColumn.id)! : null,
+  )) as VisColumnWithResolvedValues;
+  const aggregateColVals = (await resolveSingleColumn(
+    aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id)! : null,
+  )) as VisColumnWithResolvedValues;
 
-  // NOTE: @dv-usama-ansari: disable strict mode here.
-  // @ts-expect-error: TS2322
   return { catColVals, groupColVals, facetsColVals, aggregateColVals };
 }

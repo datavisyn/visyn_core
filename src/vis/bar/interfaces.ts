@@ -1,4 +1,4 @@
-import { BaseVisConfig, ColumnInfo, EAggregateTypes, ESupportedPlotlyVis } from '../interfaces';
+import { BaseVisConfig, ColumnInfo, EAggregateTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 
 export enum SortTypes {
   NONE = 'NONE',
@@ -75,3 +75,5 @@ export interface IBarDataTableRow {
   group: string;
   facet: string;
 }
+
+export type VisColumnWithResolvedValues = VisColumn & { resolvedValues: (VisNumericalValue | VisCategoricalValue)[] };
