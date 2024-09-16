@@ -1,9 +1,9 @@
-import { Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
-import { VariableSizeList as List, ListChildComponentProps } from 'react-window';
+import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
 import { sortBy, uniq, uniqueId, zipWith } from 'lodash';
 import React from 'react';
+import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
@@ -53,6 +53,8 @@ export function BarChart({
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
+
+  const listRef = React.useRef<VariableSizeList>(null);
 
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
@@ -151,11 +153,11 @@ export function BarChart({
     [dataTable, selectedList, selectedMap, customSelectionCallback, setConfig, groupColorScale, filteredUniqueFacetVals, config, allUniqueFacetVals],
   );
 
-  const renderer = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
-    const multiplesVal = props.data.filteredUniqueFacetVals[props.index];
+  const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
+    const multiplesVal = props.data.filteredUniqueFacetVals?.[props.index];
 
     return (
-      <div style={props.style}>
+      <Box component="div" style={props.style}>
         <SingleEChartsBarChart
           config={props.data.config}
           dataTable={props.data.dataTable}
@@ -167,8 +169,12 @@ export function BarChart({
           groupColorScale={props.data.groupColorScale!}
           selectedMap={props.data.selectedMap}
         />
-      </div>
+      </Box>
     );
+  }, []);
+
+  const handleScroll = React.useCallback(({ y }: { y: number }) => {
+    listRef.current?.scrollTo(y);
   }, []);
 
   const calculateFacetChartHeight = React.useCallback(
@@ -209,15 +215,20 @@ export function BarChart({
         ) : null}
 
         {colsStatus === 'success' && config?.facets && allColumns?.facetsColVals ? (
-          <List
-            height={innerHeight}
-            itemCount={filteredUniqueFacetVals.length}
-            itemSize={(index) => calculateChartHeight(config, dataTable, filteredUniqueFacetVals[index] as string)}
-            itemData={itemData}
-            width="100%"
-          >
-            {renderer}
-          </List>
+          // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
+          <ScrollArea style={{ width: '100%', height: innerHeight }} onScrollPositionChange={handleScroll} type="hover" scrollHideDelay={0}>
+            <VariableSizeList
+              height={innerHeight}
+              itemCount={filteredUniqueFacetVals.length}
+              itemData={itemData}
+              itemSize={calculateFacetChartHeight}
+              width="100%"
+              style={{ overflow: 'visible' }}
+              ref={listRef}
+            >
+              {Row}
+            </VariableSizeList>
+          </ScrollArea>
         ) : null}
       </Stack>
     </Stack>
