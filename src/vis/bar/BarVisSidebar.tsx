@@ -43,7 +43,7 @@ export function BarVisSidebar({
           })
         }
         columns={columns}
-        currentSelected={config.catColumnSelected}
+        currentSelected={config.catColumnSelected!}
         columnType={[EColumnTypes.CATEGORICAL]}
         label="Categorical column"
       />
@@ -53,7 +53,7 @@ export function BarVisSidebar({
             setConfig({
               ...config,
               aggregateType,
-              aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+              aggregateColumn: (columns ?? []).find((col) => col.type === EColumnTypes.NUMERICAL)?.info as ColumnInfo,
               display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
             });
           } else {
@@ -85,7 +85,7 @@ export function BarVisSidebar({
             <SingleSelect
               callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
               columns={columns}
-              currentSelected={config.facets}
+              currentSelected={config.facets!}
               label="Facets"
               columnType={[EColumnTypes.CATEGORICAL]}
             />

@@ -22,7 +22,7 @@ const POSSIBLE_NAMES = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Gra
 export function generateTestData(amount: number) {
   return Array.from({ length: amount }).map(() => {
     return {
-      name: POSSIBLE_NAMES[Math.floor(Math.random() * POSSIBLE_NAMES.length)],
+      name: POSSIBLE_NAMES[Math.floor(Math.random() * POSSIBLE_NAMES.length)] as string,
       age: Math.floor(Math.random() * 100),
       numerical1: Math.random() * 100,
       numerical2: Math.random() * 100,

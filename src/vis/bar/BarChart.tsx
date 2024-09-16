@@ -8,7 +8,7 @@ import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
 import { calculateChartHeight, SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { EBarDisplayType, IBarConfig } from './interfaces';
@@ -33,10 +33,10 @@ export function BarChart({
 
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
-    config.catColumnSelected,
-    config.group,
-    config.facets,
-    config.aggregateColumn,
+    config?.catColumnSelected as ColumnInfo,
+    config?.group as ColumnInfo,
+    config?.facets as ColumnInfo,
+    config?.aggregateColumn as ColumnInfo,
   ]);
 
   const dataTable = useMemo(() => {
@@ -45,7 +45,7 @@ export function BarChart({
     }
 
     // bin the `group` column values if a numerical column is selected
-    const binLookup: Map<VisNumericalValue, string> =
+    const binLookup: Map<VisNumericalValue, string> | null =
       allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? createBinLookup(allColumns.groupColVals?.resolvedValues as VisNumericalValue[]) : null;
 
     return zipWith(
@@ -59,7 +59,7 @@ export function BarChart({
           category: getLabelOrUnknown(cat?.val),
           agg: agg?.val as number,
           // if the group column is numerical, use the bin lookup to get the bin name, otherwise use the label or 'unknown'
-          group: typeof group?.val === 'number' ? binLookup.get(group as VisNumericalValue) : getLabelOrUnknown(group?.val),
+          group: typeof group?.val === 'number' ? (binLookup?.get(group as VisNumericalValue) as string) : getLabelOrUnknown(group?.val),
           facet: getLabelOrUnknown(facet?.val),
         };
       },
@@ -74,9 +74,9 @@ export function BarChart({
     const groups = Array.from(new Set(dataTable.map((row) => row.group)));
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? schemeBlues[Math.max(groups.length - 1, 3)] // use at least 3 colors for numerical values
+        ? (schemeBlues[Math.max(groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
-            (group, i) => allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length], // use the custom color from the column if available, otherwise use the default color scale
+            (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
 
     return scaleOrdinal<string>().domain(groups).range(range);
@@ -88,22 +88,20 @@ export function BarChart({
 
   const filteredUniqueFacetVals = useMemo(() => {
     return sortBy(
-      typeof config.focusFacetIndex === 'number' && config.focusFacetIndex < allUniqueFacetVals.length
-        ? [allUniqueFacetVals[config.focusFacetIndex]]
+      typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
+        ? [allUniqueFacetVals[config?.focusFacetIndex]]
         : allUniqueFacetVals,
     );
-  }, [allUniqueFacetVals, config.focusFacetIndex]);
-
-  // const [legendBoxRef] = useResizeObserver();
+  }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
   const customSelectionCallback = useCallback(
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
-      if (e.ctrlKey) {
-        selectionCallback([...new Set([...selectedList, ...ids])]);
-        return;
-      }
       if (selectionCallback) {
-        if (selectedList.length === ids.length && selectedList.every((value, index) => value === ids[index])) {
+        if (e.ctrlKey) {
+          selectionCallback([...new Set([...(selectedList ?? []), ...ids])]);
+          return;
+        }
+        if ((selectedList ?? []).length === ids.length && (selectedList ?? []).every((value, index) => value === ids[index])) {
           selectionCallback([]);
         } else {
           selectionCallback(ids);
@@ -144,7 +142,7 @@ export function BarChart({
           selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
           setConfig={props.data.setConfig}
           selectionCallback={props.data.customSelectionCallback}
-          groupColorScale={props.data.groupColorScale}
+          groupColorScale={props.data.groupColorScale!}
           selectedMap={props.data.selectedMap}
         />
       </div>
@@ -153,11 +151,11 @@ export function BarChart({
 
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
-      {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
+      {showDownloadScreenshot || config?.showFocusFacetSelector === true ? (
         <Group justify="center">
-          {config.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
-          {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
-          {config.display !== EBarDisplayType.NORMALIZED ? <BarChartSortButton config={config} setConfig={setConfig} /> : null}
+          {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
+          {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
+          {config?.display !== EBarDisplayType.NORMALIZED ? <BarChartSortButton config={config!} setConfig={setConfig!} /> : null}
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: innerHeight }}>
@@ -165,7 +163,7 @@ export function BarChart({
           <Center>
             <Loader />
           </Center>
-        ) : !config.facets || !allColumns.facetsColVals ? (
+        ) : !config?.facets || !allColumns?.facetsColVals ? (
           <ScrollArea.Autosize h={innerHeight} w={containerWidth} scrollbars="y" offsetScrollbars style={{ overflowX: 'hidden' }}>
             <SingleEChartsBarChart
               config={config}
@@ -173,7 +171,7 @@ export function BarChart({
               selectedList={selectedList}
               setConfig={setConfig}
               selectionCallback={customSelectionCallback}
-              groupColorScale={groupColorScale}
+              groupColorScale={groupColorScale!}
               selectedMap={selectedMap}
             />
           </ScrollArea.Autosize>
@@ -183,9 +181,7 @@ export function BarChart({
           <List
             height={innerHeight}
             itemCount={filteredUniqueFacetVals.length}
-            itemSize={(index) => {
-              return calculateChartHeight(config, dataTable, filteredUniqueFacetVals[index]);
-            }}
+            itemSize={(index) => calculateChartHeight(config, dataTable, filteredUniqueFacetVals[index] as string)}
             itemData={itemData}
             width="100%"
           >

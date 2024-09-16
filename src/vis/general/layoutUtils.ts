@@ -50,7 +50,7 @@ export function beautifyLayout(
   traces: PlotlyInfo,
   layout: Partial<PlotlyTypes.Layout>,
   oldLayout: Partial<PlotlyTypes.Layout>,
-  categoryOrder: Map<number, string[]> = null,
+  categoryOrder: Map<number, string[]> | null = null,
   automargin = true,
   autorange = true,
 ) {
@@ -74,7 +74,7 @@ export function beautifyLayout(
 
   titleTraces.forEach((t) => {
     if (t.title) {
-      layout.annotations.push({
+      layout.annotations?.push({
         text: truncateText(t.title, true, 30),
         showarrow: false,
         x: 0.5,
@@ -92,7 +92,10 @@ export function beautifyLayout(
 
   sharedAxisTraces.forEach((t, i) => {
     const axisX = t.data.xaxis?.replace('x', 'xaxis') || 'xaxis';
+    // NOTE: @dv-usama-ansari: disable strict mode here.
+    // @ts-expect-error: TS7053
     layout[axisX] = {
+      // @ts-expect-error: TS7053
       ...oldLayout?.[`xaxis${i > 0 ? i + 1 : ''}`],
       range: t.xDomain ? t.xDomain : null,
       color: VIS_LABEL_COLOR,
@@ -124,7 +127,10 @@ export function beautifyLayout(
     };
 
     const axisY = t.data.yaxis?.replace('y', 'yaxis') || 'yaxis';
+    // NOTE: @dv-usama-ansari: disable strict mode here.
+    // @ts-expect-error: TS7053
     layout[axisY] = {
+      // @ts-expect-error: TS7053
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       range: t.yDomain ? t.yDomain : null,
       automargin,
@@ -161,7 +167,7 @@ export function resolveColumnValues(columns: VisColumn[]) {
   return Promise.all(columns.map(async (col) => ({ ...col, resolvedValues: (await col?.values()) || [] })));
 }
 
-export async function resolveSingleColumn(column: VisColumn) {
+export async function resolveSingleColumn(column: VisColumn | null) {
   if (!column) {
     return null;
   }
@@ -180,11 +186,16 @@ export async function createIdToLabelMapper(columns: VisColumn[]): Promise<(id: 
   const labelColumns = (await resolveColumnValues(columns.filter((c) => c.isLabel))).map((c) => c.resolvedValues);
   const labelsMap = labelColumns.reduce((acc, curr) => {
     curr.forEach((obj) => {
+      // NOTE: @dv-usama-ansari: disable strict mode here.
+      // @ts-expect-error: TS7053
       if (acc[obj.id] == null) {
+        // @ts-expect-error: TS7053
         acc[obj.id] = obj.val;
       }
     });
     return acc;
   }, {});
+  // NOTE: @dv-usama-ansari: disable strict mode here.
+  // @ts-expect-error: TS7053
   return (id: string) => labelsMap[id] ?? id;
 }

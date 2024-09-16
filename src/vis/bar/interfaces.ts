@@ -37,7 +37,7 @@ export interface IBarConfig extends BaseVisConfig {
   display: EBarDisplayType;
   groupType: EBarGroupingType;
   numColumnsSelected: ColumnInfo[];
-  catColumnSelected: ColumnInfo;
+  catColumnSelected: ColumnInfo | null;
   aggregateType: EAggregateTypes;
   aggregateColumn: ColumnInfo | null;
   showFocusFacetSelector?: boolean;

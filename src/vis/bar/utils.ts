@@ -12,11 +12,11 @@ export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig):
   const numCols = columns.filter((c) => c.type === EColumnTypes.NUMERICAL);
 
   if (!merged.catColumnSelected && catCols.length > 0) {
-    merged.catColumnSelected = catCols[catCols.length - 1].info;
+    merged.catColumnSelected = catCols[catCols.length - 1]?.info as ColumnInfo;
   }
 
   if (!merged.aggregateColumn && numCols.length > 0) {
-    merged.aggregateColumn = numCols[numCols.length - 1].info;
+    merged.aggregateColumn = numCols[numCols.length - 1]?.info as ColumnInfo;
   }
 
   return merged;
@@ -95,11 +95,13 @@ export async function getBarData(
     info: ColumnInfo;
   };
 }> {
-  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id));
+  const catColVals = await resolveSingleColumn(columns.find((col) => col.info.id === catColumn.id)!);
 
-  const groupColVals = await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id) : null);
-  const facetsColVals = await resolveSingleColumn(facetsColumn ? columns.find((col) => col.info.id === facetsColumn.id) : null);
-  const aggregateColVals = await resolveSingleColumn(aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id) : null);
+  const groupColVals = await resolveSingleColumn(groupColumn ? columns.find((col) => col.info.id === groupColumn.id)! : null);
+  const facetsColVals = await resolveSingleColumn(facetsColumn ? columns.find((col) => col.info.id === facetsColumn.id)! : null);
+  const aggregateColVals = await resolveSingleColumn(aggregateColumn ? columns.find((col) => col.info.id === aggregateColumn.id)! : null);
 
+  // NOTE: @dv-usama-ansari: disable strict mode here.
+  // @ts-expect-error: TS2322
   return { catColVals, groupColVals, facetsColVals, aggregateColVals };
 }

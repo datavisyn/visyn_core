@@ -32,8 +32,8 @@ const AXIS_LABEL_MAX_LENGTH = 10;
 
 function median(arr: number[]) {
   const mid = Math.floor(arr.length / 2);
-  const nums = [...arr].sort((a, b) => a - b);
-  const medianVal = arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+  const nums = [...arr].sort((a, b) => a - b) as number[];
+  const medianVal = arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1]! + nums[mid]!) / 2;
   return medianVal;
 }
 
@@ -50,7 +50,7 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
   if ([Infinity, -Infinity].includes(value)) {
     return null;
   }
-  return config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
+  return config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
     ? round((value / total) * 100, 2)
     : round(value, 4);
 }
@@ -101,8 +101,8 @@ function sortSeries(
   let unknownCategorySum = 0;
   for (const s of series) {
     for (let i = 0; i < s.categories.length; i++) {
-      const category = s.categories[i];
-      const value = (s.data[i] as number) || 0;
+      const category = s.categories[i] as string;
+      const value = (s.data?.[i] as number) || 0;
       if (category === 'Unknown') {
         unknownCategorySum += value;
       } else {
@@ -133,16 +133,16 @@ function sortSeries(
       return -1;
     }
     return sortOrder === EBarSortState.ASCENDING
-      ? aggregatedData[a] - aggregatedData[b]
+      ? (aggregatedData[a] as number) - (aggregatedData[b] as number)
       : sortOrder === EBarSortState.DESCENDING
-        ? aggregatedData[b] - aggregatedData[a]
+        ? (aggregatedData[b] as number) - (aggregatedData[a] as number)
         : 0;
   });
 
   // Create a mapping of categories to their sorted indices
   const categoryIndexMap: { [key: string]: number } = {};
   for (let i = 0; i < sortedCategories.length; i++) {
-    categoryIndexMap[sortedCategories[i]] = i;
+    categoryIndexMap[sortedCategories[i] as string] = i;
   }
 
   // Step 3: Sort each series according to the sorted categories
@@ -151,7 +151,7 @@ function sortSeries(
     const sortedData = new Array(sortedCategories.length).fill(null);
     for (let i = 0; i < s.categories.length; i++) {
       // NOTE: @dv-usama-ansari: index of the category in the sorted array
-      sortedData[categoryIndexMap[s.categories[i]]] = s.data[i];
+      sortedData[categoryIndexMap[s.categories?.[i] as string] as number] = s.data?.[i];
     }
     sortedSeries.push({
       ...s,
@@ -175,13 +175,13 @@ export const calculateChartHeight = (config: IBarConfig, dataTable: IBarDataTabl
       groupings.add(item.group);
     });
 
-  if (config.direction === EBarDirection.VERTICAL) {
+  if (config?.direction === EBarDirection.VERTICAL) {
     // use fixed height for vertical bars
     return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
   }
-  if (config.direction === EBarDirection.HORIZONTAL) {
+  if (config?.direction === EBarDirection.HORIZONTAL) {
     // calculate height for horizontal bars
-    const categoryWidth = config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.size; // TODO: Make dynamic group length based on series data filtered for null
+    const categoryWidth = config?.group && config?.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.size; // TODO: Make dynamic group length based on series data filtered for null
     return categories.size * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
   }
   return 0;
@@ -206,8 +206,8 @@ function EagerSingleEChartsBarChart({
 }) {
   const [visState, setVisState] = useSetState({
     series: [] as BarSeriesOption[],
-    xAxis: null as EChartsOption['xAxis'],
-    yAxis: null as EChartsOption['yAxis'],
+    xAxis: null as EChartsOption['xAxis'] | null,
+    yAxis: null as EChartsOption['yAxis'] | null,
   });
 
   const filteredDataTable = React.useMemo(
@@ -294,9 +294,14 @@ function EagerSingleEChartsBarChart({
     });
     filteredDataTable.forEach((item) => {
       const { category, group: grouping } = item;
+      // NOTE: @dv-usama-ansari: disable strict mode here
+      // @ts-expect-error: TS2532
       values[category].groupings[grouping].selected.min = minMax[category].groupings[grouping].selected.min;
+      // @ts-expect-error: TS2532
       values[category].groupings[grouping].selected.max = minMax[category].groupings[grouping].selected.max;
+      // @ts-expect-error: TS2532
       values[category].groupings[grouping].unselected.min = minMax[category].groupings[grouping].unselected.min;
+      // @ts-expect-error: TS2532
       values[category].groupings[grouping].unselected.max = minMax[category].groupings[grouping].unselected.max;
     });
     return values;
@@ -308,22 +313,22 @@ function EagerSingleEChartsBarChart({
 
   const chartHeight = React.useMemo(() => {
     // NOTE: @dv-usama-ansari: Using memoized `categories` and `groupings` saves a lot of computation time as compared to using the `calculateChartHeight` function (where recalculates the categories and groupings over many data points).
-    if (config.direction === EBarDirection.VERTICAL) {
+    if (config?.direction === EBarDirection.VERTICAL) {
       // use fixed height for vertical bars
       return VERTICAL_BAR_CHART_HEIGHT;
     }
-    if (config.direction === EBarDirection.HORIZONTAL) {
+    if (config?.direction === EBarDirection.HORIZONTAL) {
       // calculate height for horizontal bars
       const categoryWidth =
-        config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.length; // TODO: Make dynamic group length based on series data filtered for null
+        config?.group && config?.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.length; // TODO: Make dynamic group length based on series data filtered for null
       return categories.length * categoryWidth + 2 * BAR_SPACING; // NOTE: @dv-usama-ansari: 20 = 10 padding top + 10 padding bottom
     }
     return 0;
-  }, [categories.length, config.direction, config.group, config.groupType, groupings.length]);
+  }, [categories.length, config?.direction, config?.group, config?.groupType, groupings.length]);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
-      switch (config.aggregateType) {
+      switch (config?.aggregateType) {
         case EAggregateTypes.COUNT:
           return categories.map((category, index) => ({
             value: aggregatedData[category]?.groupings[group]?.[selected]
@@ -363,13 +368,17 @@ function EagerSingleEChartsBarChart({
         case EAggregateTypes.MED:
           return categories.map((category, index) => ({
             value: aggregatedData[category]?.groupings[group]?.[selected]
-              ? normalizedValue({ config, value: median(aggregatedData[category].groupings[group][selected].nums), total: aggregatedData[category].total })
+              ? normalizedValue({
+                  config,
+                  value: median(aggregatedData[category].groupings[group][selected].nums) as number,
+                  total: aggregatedData[category].total,
+                })
               : 0,
             category: categories[index],
           }));
 
         default:
-          console.warn(`Aggregation type ${config.aggregateType} is not supported by bar chart.`);
+          console.warn(`Aggregation type ${config?.aggregateType} is not supported by bar chart.`);
           return [];
       }
     },
@@ -389,7 +398,7 @@ function EagerSingleEChartsBarChart({
           show: true,
           formatter: (params) =>
             // grouping always uses the absolute value
-            config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
+            config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
               ? `${params.value}%`
               : String(params.value),
         },
@@ -404,10 +413,10 @@ function EagerSingleEChartsBarChart({
         triggerEvent: true,
         clip: false,
 
-        catColumnSelected: config.catColumnSelected,
-        group: config.group,
+        catColumnSelected: config?.catColumnSelected,
+        group: config?.group,
       }) as BarSeriesOption,
-    [config.catColumnSelected, config.display, config.group, config.groupType, filteredDataTable.length],
+    [config?.catColumnSelected, config?.display, config?.group, config?.groupType, filteredDataTable.length],
   );
 
   const optionBase = React.useMemo(
@@ -454,44 +463,44 @@ function EagerSingleEChartsBarChart({
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
       if (barSeries.length > 0) {
-        if (config.direction === EBarDirection.HORIZONTAL) {
+        if (config?.direction === EBarDirection.HORIZONTAL) {
           const sortedSeries = sortSeries(
             barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-            config.sortState.x,
+            config?.sortState?.x,
           );
           // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
           setVisState((v) => ({
             ...v,
-            series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex].data].reverse() })),
-            yAxis: { ...v.yAxis, type: 'category' as const, data: [...sortedSeries[0].categories].reverse() },
+            series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex]!.data!].reverse() })),
+            yAxis: { ...v.yAxis, type: 'category' as const, data: [...(sortedSeries[0]?.categories as string[])].reverse() },
           }));
         }
-        if (config.direction === EBarDirection.VERTICAL) {
+        if (config?.direction === EBarDirection.VERTICAL) {
           const sortedSeries = sortSeries(
             barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-            config.sortState.y,
+            config?.sortState?.y,
           );
 
           setVisState((v) => ({
             ...v,
-            series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex].data })),
-            xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0].categories },
+            series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]!.data })),
+            xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
           }));
         }
       }
     },
-    [config.direction, config.sortState.x, config.sortState.y, setVisState],
+    [config?.direction, config?.sortState?.x, config?.sortState?.y, setVisState],
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
-    if (config.direction === EBarDirection.HORIZONTAL) {
+    if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
         ...v,
-        xAxis: { type: 'value' as const, name: config.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [20, 0, 0, 0] } },
+        xAxis: { type: 'value' as const, name: config?.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [20, 0, 0, 0] } },
         yAxis: {
           ...v.yAxis,
           type: 'category' as const,
-          name: config.catColumnSelected.name,
+          name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
           nameTextStyle: {
             padding: [0, 0, 64, 0],
@@ -506,13 +515,13 @@ function EagerSingleEChartsBarChart({
         },
       }));
     }
-    if (config.direction === EBarDirection.VERTICAL) {
+    if (config?.direction === EBarDirection.VERTICAL) {
       setVisState((v) => ({
         ...v,
         xAxis: {
           ...v.xAxis,
           type: 'category' as const,
-          name: config.catColumnSelected.name,
+          name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
           nameTextStyle: {
             padding: [64, 0, 0, 0],
@@ -525,10 +534,10 @@ function EagerSingleEChartsBarChart({
             rotate: 45,
           },
         },
-        yAxis: { type: 'value' as const, name: config.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [0, 0, 40, 0] } },
+        yAxis: { type: 'value' as const, name: config?.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [0, 0, 40, 0] } },
       }));
     }
-  }, [config.aggregateType, config.catColumnSelected.name, config.direction, setVisState]);
+  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = groupings
@@ -537,7 +546,7 @@ function EagerSingleEChartsBarChart({
           const data = getDataForAggregationType(group, selected);
 
           // avoid rendering empty series (bars for a group with all 0 values)
-          if (data.every((d) => [Infinity, -Infinity].includes(d.value) || Number.isNaN(d.value))) {
+          if (data.every((d) => [Infinity, -Infinity].includes(d.value as number) || Number.isNaN(d.value))) {
             return null;
           }
 
@@ -548,7 +557,7 @@ function EagerSingleEChartsBarChart({
               color:
                 group === NAN_REPLACEMENT
                   ? VIS_NEUTRAL_COLOR
-                  : config.group && groupColorScale
+                  : config?.group && groupColorScale
                     ? groupColorScale(group) || VIS_NEUTRAL_COLOR
                     : VIS_NEUTRAL_COLOR,
               // reduce opacity for unselected bars if there are selected items
@@ -558,19 +567,19 @@ function EagerSingleEChartsBarChart({
             categories: data.map((d) => d.category),
 
             // group = individual group names, stack = any fixed name
-            stack: config.groupType === EBarGroupingType.STACK ? 'total' : group,
-          } as BarSeriesOption & { categories: string[] };
+            stack: config?.groupType === EBarGroupingType.STACK ? 'total' : group,
+          };
         });
       })
       .flat()
-      .filter(Boolean);
+      .filter(Boolean) as (BarSeriesOption & { categories: string[] })[];
 
     updateSortSideEffect({ barSeries });
     updateDirectionSideEffect();
   }, [
     barSeriesBase,
-    config.group,
-    config.groupType,
+    config?.group,
+    config?.groupType,
     getDataForAggregationType,
     groupColorScale,
     groupings,
@@ -591,7 +600,7 @@ function EagerSingleEChartsBarChart({
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   React.useEffect(() => {
     updateDirectionSideEffect();
-  }, [config.direction, updateDirectionSideEffect]);
+  }, [config?.direction, updateDirectionSideEffect]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the selected categorical column changes.
   React.useEffect(() => {
@@ -613,15 +622,15 @@ function EagerSingleEChartsBarChart({
         {
           query: { titleIndex: 0 },
           handler: (params) => {
-            setConfig({ ...config, focusFacetIndex: config.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
+            setConfig?.({ ...config!, focusFacetIndex: config?.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
           },
         },
         {
           query: { seriesType: 'bar' },
           handler: (params) => {
-            const event = params.event.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+            const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
             const ids = filteredDataTable
-              .filter((item) => item.category === params.name && (!config.group || (config.group && item.group === params.seriesName)))
+              .filter((item) => item.category === params.name && (!config?.group || (config?.group && item.group === params.seriesName)))
               .map((item) => item.id);
             if (event.shiftKey) {
               // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
