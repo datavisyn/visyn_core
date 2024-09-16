@@ -46,6 +46,7 @@ function median(arr: number[]) {
  * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
  */
 function normalizedValue({ config, value, total }: { config: IBarConfig; value: number; total: number }) {
+  // NOTE: @dv-usama-ansari: Filter out Infinity and -Infinity values. This is required for proper display of minimum and maximum aggregations.
   if ([Infinity, -Infinity].includes(value)) {
     return null;
   }
@@ -306,6 +307,7 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
   const chartHeight = React.useMemo(() => {
+    // NOTE: @dv-usama-ansari: Using memoized `categories` and `groupings` saves a lot of computation time as compared to using the `calculateChartHeight` function (where recalculates the categories and groupings over many data points).
     if (config.direction === EBarDirection.VERTICAL) {
       // use fixed height for vertical bars
       return VERTICAL_BAR_CHART_HEIGHT;

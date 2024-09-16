@@ -27,16 +27,6 @@ export function MainApp() {
       ({
         type: ESupportedPlotlyVis.BAR,
         numColumnsSelected: [],
-        /* catColumnSelected: {
-      description: null,
-      id: 'cellularity',
-      name: 'Cellularity',
-    },
-    group: {
-      description: 'some very long description',
-      id: 'breastSurgeryType',
-      name: 'Breast Surgery Type',
-    }, */
         catColumnSelected: {
           description: 'some very long description',
           id: 'categorical2',
@@ -44,11 +34,6 @@ export function MainApp() {
         },
         group: null,
         groupType: EBarGroupingType.STACK,
-        /* facets: {
-      description: 'some very long description',
-      id: 'tumorOtherHistologicSubtype',
-      name: 'Tumor Other Histologic Subtype',
-    }, */
         facets: {
           description: 'some very long description',
           id: 'categorical1',
@@ -57,11 +42,6 @@ export function MainApp() {
         focusFacetIndex: null,
         display: EBarDisplayType.ABSOLUTE,
         direction: EBarDirection.HORIZONTAL,
-        /* aggregateColumn: {
-      description: 'some very long description',
-      id: 'tumorStage',
-      name: 'Tumor Stage',
-    }, */
         aggregateColumn: null,
         aggregateType: EAggregateTypes.COUNT,
         showFocusFacetSelector: false,
