@@ -5,7 +5,7 @@ import type { BarSeriesOption } from 'echarts/charts';
 import round from 'lodash/round';
 import uniq from 'lodash/uniq';
 import * as React from 'react';
-import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
+import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
 import { AXIS_LABEL_MAX_LENGTH, BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
@@ -344,7 +344,6 @@ function EagerSingleEChartsBarChart({
     () =>
       ({
         type: 'bar',
-        emphasis: { focus: 'series', blurScope: 'coordinateSystem', label: { show: true } },
         blur: { label: { show: false } },
         barMaxWidth: BAR_WIDTH,
 
@@ -450,15 +449,12 @@ function EagerSingleEChartsBarChart({
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
         ...v,
-        xAxis: { type: 'value' as const, name: config?.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [20, 0, 0, 0] } },
+        xAxis: {
+          type: 'value' as const,
+        },
         yAxis: {
           ...v.yAxis,
           type: 'category' as const,
-          name: config?.catColumnSelected?.name,
-          nameLocation: 'middle',
-          nameTextStyle: {
-            padding: [0, 0, 64, 0],
-          },
           axisLabel: {
             show: true,
             formatter: (value: string) => {
@@ -510,12 +506,14 @@ function EagerSingleEChartsBarChart({
             itemStyle: {
               color:
                 group === NAN_REPLACEMENT
-                  ? VIS_NEUTRAL_COLOR
+                  ? selected === 'selected'
+                    ? SELECT_COLOR
+                    : VIS_NEUTRAL_COLOR
                   : config?.group && groupColorScale
                     ? groupColorScale(group) || VIS_NEUTRAL_COLOR
                     : VIS_NEUTRAL_COLOR,
               // reduce opacity for unselected bars if there are selected items
-              opacity: hasSelected ? (selected === 'selected' ? 1 : 0.5) : 1,
+              opacity: hasSelected && config?.group && groupColorScale != null ? (selected === 'selected' ? 1 : 0.5) : 1,
             },
             data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
             categories: data.map((d) => d.category),
