@@ -449,14 +449,15 @@ function EagerSingleEChartsBarChart({
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
         ...v,
-        xAxis: {
-          type: 'value' as const,
-        },
+        xAxis: { type: 'value' as const, name: config?.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [20, 0, 0, 0] } },
         yAxis: {
           ...v.yAxis,
           type: 'category' as const,
           name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
+          nameTextStyle: {
+            padding: [0, 0, 100, 0],
+          },
           axisLabel: {
             show: true,
             formatter: (value: string) => {
