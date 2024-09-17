@@ -355,6 +355,7 @@ function EagerSingleEChartsBarChart({
               ? `${params.value}%`
               : String(params.value),
         },
+
         labelLayout: {
           hideOverlap: true,
         },
@@ -364,8 +365,8 @@ function EagerSingleEChartsBarChart({
 
         // enable click events on bars -> handled by chartInstance callback
         triggerEvent: true,
-        clip: false,
 
+        clip: false,
         catColumnSelected: config?.catColumnSelected,
         group: config?.group,
       }) as BarSeriesOption,
@@ -454,7 +455,7 @@ function EagerSingleEChartsBarChart({
           name: config?.aggregateType,
           nameLocation: 'middle',
           nameTextStyle: { padding: [20, 0, 0, 0] },
-          ...(config.xAxisDomain ? { min: config.xAxisDomain[0], max: config.xAxisDomain[1] } : {}),
+          // ...(config.xAxisDomain ? { min: config.xAxisDomain[0], max: config.xAxisDomain[1] } : {}),
         },
         yAxis: {
           ...v.yAxis,
@@ -592,8 +593,17 @@ function EagerSingleEChartsBarChart({
           handler: (params) => {
             const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
             const ids = filteredDataTable
-              .filter((item) => item.category === params.name && (!config?.group || (config?.group && item.group === params.seriesName)))
+              .filter((item) => {
+                if (config?.group) {
+                  if (config.group.id === config?.facets?.id) {
+                    return item.facet === selectedFacetValue && item.category === params.name;
+                  }
+                  return item.group === params.seriesName && item.category === params.name;
+                }
+                return item.category === params.name;
+              })
               .map((item) => item.id);
+
             if (event.shiftKey) {
               // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
               //  Using `Set` to reduce time complexity to O(1).
