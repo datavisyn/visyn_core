@@ -513,7 +513,7 @@ function EagerSingleEChartsBarChart({
                     ? groupColorScale(group) || VIS_NEUTRAL_COLOR
                     : VIS_NEUTRAL_COLOR,
               // reduce opacity for unselected bars if there are selected items
-              opacity: hasSelected && config?.group && groupColorScale != null ? (selected === 'selected' ? 1 : 0.5) : 1,
+              opacity: hasSelected && config?.group && groupColorScale != null ? (selected === 'selected' ? 1 : 0.8) : 1,
             },
             data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
             categories: data.map((d) => d.category),
