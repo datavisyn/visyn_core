@@ -1,14 +1,14 @@
 import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
-import { sortBy, uniq, uniqueId, zipWith } from 'lodash';
+import { uniqueId, zipWith } from 'lodash';
 import React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { ColumnInfo, EColumnTypes, ICommonVisProps, VisColumn, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
 import { BarChartSortButton } from './BarChartSortButton';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
@@ -108,9 +108,8 @@ export function BarChart({
   }, [allColumns?.groupColVals, dataTable]);
 
   const allUniqueFacetVals = React.useMemo(() => {
-    const allFacets = ((allColumns?.facetsColVals as Omit<VisColumn, 'values'>)?.domain ?? []) as string[];
-    return uniq(sortBy(allFacets));
-  }, [allColumns?.facetsColVals]);
+    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
+  }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
     return typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
