@@ -449,7 +449,13 @@ function EagerSingleEChartsBarChart({
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
         ...v,
-        xAxis: { type: 'value' as const, name: config?.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [20, 0, 0, 0] } },
+        xAxis: {
+          type: 'value' as const,
+          name: config?.aggregateType,
+          nameLocation: 'middle',
+          nameTextStyle: { padding: [20, 0, 0, 0] },
+          ...(config.xAxisDomain ? { min: config.xAxisDomain[0], max: config.xAxisDomain[1] } : {}),
+        },
         yAxis: {
           ...v.yAxis,
           type: 'category' as const,
@@ -519,6 +525,7 @@ function EagerSingleEChartsBarChart({
               opacity: hasSelected && config?.group && groupColorScale != null ? (selected === 'selected' ? 1 : 0.5) : 1,
             },
             data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
+
             categories: data.map((d) => d.category),
 
             // group = individual group names, stack = any fixed name
