@@ -455,6 +455,8 @@ function EagerSingleEChartsBarChart({
         yAxis: {
           ...v.yAxis,
           type: 'category' as const,
+          name: config?.catColumnSelected?.name,
+          nameLocation: 'middle',
           axisLabel: {
             show: true,
             formatter: (value: string) => {
