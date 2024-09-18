@@ -4,7 +4,7 @@ import { EChartsOption } from 'echarts';
 import type { BarSeriesOption } from 'echarts/charts';
 import round from 'lodash/round';
 import * as React from 'react';
-import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR } from '../general';
+import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
 import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
@@ -466,8 +466,8 @@ function EagerSingleEChartsBarChart({
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
       .map((group) => {
-        return (['selected', 'unselected'] as const).map((selected) => {
-          const data = getDataForAggregationType(group, selected);
+        return (['selected', 'unselected'] as const).map((items) => {
+          const data = getDataForAggregationType(group, items);
 
           if (!data) {
             return null;
@@ -476,26 +476,34 @@ function EagerSingleEChartsBarChart({
           if (data.every((d) => [Infinity, -Infinity].includes(d.value as number) || Number.isNaN(d.value))) {
             return null;
           }
-
+          const isGrouped = config?.group && groupColorScale != null;
+          const isSelectedCase = items === 'selected';
+          const shouldLowerOpacity = hasSelected && isGrouped && !isSelectedCase;
+          const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
+          const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
           return {
             ...barSeriesBase,
             name: aggregatedData.groupingsList.length > 1 ? group : null,
+            label: {
+              show: true,
+              ...fixLabelColor,
+            },
             itemStyle: {
               color:
                 group === NAN_REPLACEMENT
-                  ? selected === 'selected'
+                  ? isSelectedCase
                     ? SELECT_COLOR
                     : VIS_NEUTRAL_COLOR
-                  : config?.group && groupColorScale
+                  : isGrouped
                     ? groupColorScale(group) || VIS_NEUTRAL_COLOR
                     : VIS_NEUTRAL_COLOR,
-              // reduce opacity for unselected bars if there are selected items
-              opacity: hasSelected && config?.group && groupColorScale != null ? (selected === 'selected' ? 1 : 0.5) : 1,
+
+              ...lowerBarOpacity,
             },
             data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
             categories: data.map((d) => d.category),
             group,
-            selected,
+            selected: items,
 
             // group = individual group names, stack = any fixed name
             stack: config?.groupType === EBarGroupingType.STACK ? 'total' : group,
