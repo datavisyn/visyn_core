@@ -570,10 +570,15 @@ function EagerSingleEChartsBarChart({
           handler: (params) => {
             const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
             const ids: string[] = config?.group
-              ? [
-                  ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.unselected.ids ?? []),
-                  ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.selected.ids ?? []),
-                ]
+              ? config.group.id === config?.facets?.id
+                ? [
+                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
+                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
+                  ]
+                : [
+                    ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.unselected.ids ?? []),
+                    ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.selected.ids ?? []),
+                  ]
               : (aggregatedData?.categories[params.name]?.ids ?? []);
 
             if (event.shiftKey) {
