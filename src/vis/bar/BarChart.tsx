@@ -3,7 +3,8 @@ import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues } from 'd3v7';
 import groupBy from 'lodash/groupBy';
 import round from 'lodash/round';
-import uniq from 'lodash/uniq';
+import sort from 'lodash/sortBy';
+import sortedUniq from 'lodash/sortedUniq';
 import uniqueId from 'lodash/uniqueId';
 import zipWith from 'lodash/zipWith';
 import React from 'react';
@@ -59,8 +60,8 @@ function getAggregatedDataMap(
   Object.keys(facetGrouped).forEach((facet) => {
     const values = facetGrouped[facet];
     const facetSensitiveDataTable = facet === DEFAULT_FACET_NAME ? dataTable : dataTable.filter((item) => item.facet === facet);
-    const categoriesList = uniq(facetSensitiveDataTable.map((item) => item.category)) ?? [];
-    const groupingsList = uniq(facetSensitiveDataTable.map((item) => item.group)) ?? [];
+    const categoriesList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.category) ?? []));
+    const groupingsList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.group) ?? []));
     (values ?? []).forEach((item) => {
       const { category, agg, group } = item;
       const selected = selectedMap?.[item.id] || false;
