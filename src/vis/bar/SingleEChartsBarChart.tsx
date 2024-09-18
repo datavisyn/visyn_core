@@ -7,7 +7,7 @@ import * as React from 'react';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
+import { AXIS_LABEL_MAX_LENGTH, BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig } from './interfaces';
 
 // TODO: @dv-usama-ansari: Move this into utils
@@ -182,8 +182,8 @@ function EagerSingleEChartsBarChart({
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   aggregatedData: AggregatedDataType;
   chartHeight: number;
-  globalMax: number;
-  globalMin: number;
+  globalMax?: number;
+  globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
   selectedFacetIndex?: number;
   selectedFacetValue?: string;
@@ -283,7 +283,6 @@ function EagerSingleEChartsBarChart({
         label: {
           show: true,
           formatter: (params) =>
-            // grouping always uses the absolute value
             config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
               ? `${params.value}%`
               : String(params.value),
@@ -296,7 +295,7 @@ function EagerSingleEChartsBarChart({
         sampling: 'average',
         large: true,
 
-        // enable click events on bars -> handled by chartInstance callback
+        // enable click events on bars -> handled by chartInstance callback in `useChart.mouseEvents.click`
         triggerEvent: true,
 
         clip: false,
@@ -357,21 +356,16 @@ function EagerSingleEChartsBarChart({
             barSeries.map((item) => ({ categories: item.categories, data: item.data })),
             config?.sortState?.x,
           );
-          setVisState((v) => {
-            console.log({ visState: v });
-            return {
-              ...v,
-              series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]!.data! })),
-
-              yAxis: {
-                ...v.yAxis,
-                type: 'category' as const,
-                data: sortedSeries[0]?.categories as string[],
-                // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
-                inverse: true,
-              },
-            };
-          });
+          setVisState((v) => ({
+            ...v,
+            // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
+            series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex]!.data!].reverse() })),
+            yAxis: {
+              ...v.yAxis,
+              type: 'category' as const,
+              data: [...(sortedSeries[0]?.categories as string[])].reverse(),
+            },
+          }));
         }
         if (config?.direction === EBarDirection.VERTICAL) {
           const sortedSeries = sortSeries(
@@ -379,14 +373,11 @@ function EagerSingleEChartsBarChart({
             config?.sortState?.y,
           );
 
-          setVisState((v) => {
-            console.log({ visState: v });
-            return {
-              ...v,
-              series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]!.data })),
-              xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
-            };
-          });
+          setVisState((v) => ({
+            ...v,
+            series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]!.data })),
+            xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
+          }));
         }
       }
     },
@@ -395,80 +386,75 @@ function EagerSingleEChartsBarChart({
 
   const updateDirectionSideEffect = React.useCallback(() => {
     if (config?.direction === EBarDirection.HORIZONTAL) {
-      setVisState((v) => {
-        console.log({ visState: v });
-        return {
-          ...v,
+      setVisState((v) => ({
+        ...v,
 
-          xAxis: {
-            type: 'value' as const,
-            name: config?.aggregateType,
-            nameLocation: 'middle',
-            nameGap: 32,
-            min: globalMin,
-            max: globalMax,
-          },
+        xAxis: {
+          type: 'value' as const,
+          name: config?.aggregateType,
+          nameLocation: 'middle',
+          nameGap: 32,
+          min: globalMin ?? 'dataMin',
+          max: globalMax ?? 'dataMax',
+        },
 
-          yAxis: {
-            type: 'category' as const,
-            name: config?.catColumnSelected?.name,
-            nameLocation: 'middle',
-            nameGap: 72,
-            axisLabel: {
-              show: true,
-              formatter: (value: string) => {
-                // NOTE: @dv-usama-ansari: Use an abstract element to calculate the width of the text and truncate it accordingly.
-                const textEl = document.createElement('div');
-                textEl.innerText = value;
-                // ...
+        yAxis: {
+          type: 'category' as const,
+          name: config?.catColumnSelected?.name,
+          nameLocation: 'middle',
+          nameGap: 72,
+          data: (v.yAxis as { data: number[] })?.data ?? [],
+          axisLabel: {
+            show: true,
+            formatter: (value: string) => {
+              // NOTE: @dv-usama-ansari: Use an abstract element to calculate the width of the text and truncate it accordingly.
+              const textEl = document.createElement('div');
+              textEl.innerText = value;
+              // ...
 
-                // return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
-                return value;
-              },
-              // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
+              return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
             },
+            // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
           },
-        };
-      });
+        },
+      }));
     }
     if (config?.direction === EBarDirection.VERTICAL) {
-      setVisState((v) => {
-        console.log({ visState: v });
-        return {
-          ...v,
+      setVisState((v) => ({
+        ...v,
 
-          xAxis: {
-            type: 'category' as const,
-            name: config?.catColumnSelected?.name,
-            nameLocation: 'middle',
-            nameGap: 64,
-            axisLabel: {
-              show: true,
-              // formatter: (value: string) => {
-              //   return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
-              // },
-              rotate: 45,
+        xAxis: {
+          type: 'category' as const,
+          name: config?.catColumnSelected?.name,
+          nameLocation: 'middle',
+          nameGap: 64,
+          data: (v.xAxis as { data: number[] })?.data ?? [],
+          axisLabel: {
+            show: true,
+            formatter: (value: string) => {
+              return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
             },
+            rotate: 45,
           },
+        },
 
-          yAxis: {
-            type: 'value' as const,
-            name: config?.aggregateType,
-            nameLocation: 'middle',
-            nameGap: 40,
-            min: globalMin,
-            max: globalMax,
-          },
-        };
-      });
+        yAxis: {
+          type: 'value' as const,
+          name: config?.aggregateType,
+          nameLocation: 'middle',
+          nameGap: 40,
+          min: globalMin ?? 'dataMin',
+          max: globalMax ?? 'dataMax',
+        },
+      }));
     }
   }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, globalMax, globalMin, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
-      .map((group) => {
-        return (['selected', 'unselected'] as const).map((items) => {
-          const data = getDataForAggregationType(group, items);
+      .map((g) => {
+        return (['selected', 'unselected'] as const).map((s) => {
+          const data = getDataForAggregationType(g, s);
 
           if (!data) {
             return null;
@@ -478,36 +464,37 @@ function EagerSingleEChartsBarChart({
             return null;
           }
           const isGrouped = config?.group && groupColorScale != null;
-          const isSelectedCase = items === 'selected';
-          const shouldLowerOpacity = hasSelected && isGrouped && !isSelectedCase;
+          const isSelected = s === 'selected';
+          const shouldLowerOpacity = hasSelected && isGrouped && !isSelected;
           const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
           const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
           return {
             ...barSeriesBase,
-            name: aggregatedData.groupingsList.length > 1 ? group : null,
+            name: aggregatedData.groupingsList.length > 1 ? g : null,
             label: {
-              show: true,
+              ...barSeriesBase.label,
               ...fixLabelColor,
+              show: true,
             },
             itemStyle: {
               color:
-                group === NAN_REPLACEMENT
-                  ? isSelectedCase
+                g === NAN_REPLACEMENT
+                  ? isSelected
                     ? SELECT_COLOR
                     : VIS_NEUTRAL_COLOR
                   : isGrouped
-                    ? groupColorScale(group) || VIS_NEUTRAL_COLOR
+                    ? groupColorScale(g) || VIS_NEUTRAL_COLOR
                     : VIS_NEUTRAL_COLOR,
 
               ...lowerBarOpacity,
             },
             data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
             categories: data.map((d) => d.category),
-            group,
-            selected: items,
+            group: g,
+            selected: s,
 
             // group = individual group names, stack = any fixed name
-            stack: config?.groupType === EBarGroupingType.STACK ? 'total' : group,
+            stack: config?.groupType === EBarGroupingType.STACK ? 'total' : g,
           };
         });
       })
