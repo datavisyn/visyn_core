@@ -28,7 +28,7 @@ function calculateChartHeight(config: IBarConfig, aggregatedData: AggregatedData
     if (config.direction === EBarDirection.VERTICAL) {
       // use fixed height for vertical bars
       if (!config.facets && config.useFullHeight) {
-        return containerHeight - 2 * CHART_HEIGHT_MARGIN;
+        return containerHeight;
       }
       return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
     }

@@ -7,7 +7,7 @@ import * as React from 'react';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { AXIS_LABEL_MAX_LENGTH, BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
+import { AXIS_LABEL_MAX_WIDTH, BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig } from './interfaces';
 
 // TODO: @dv-usama-ansari: Move this into utils
@@ -251,6 +251,37 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
   const categoriesRef = React.useRef<string[]>([]);
+  const truncatedTextRef = React.useRef<{ [value: string]: string }>({});
+
+  const getTruncatedText = React.useCallback((value: string) => {
+    if (truncatedTextRef.current[value] !== undefined) {
+      return truncatedTextRef.current[value];
+    }
+
+    const textEl = document.createElement('p');
+    textEl.style.position = 'absolute';
+    textEl.style.visibility = 'hidden';
+    textEl.style.whiteSpace = 'nowrap';
+    textEl.style.maxWidth = `${AXIS_LABEL_MAX_WIDTH}px`;
+    textEl.innerText = value;
+
+    document.body.appendChild(textEl);
+
+    let truncatedText = '';
+    for (let i = 0; i < value.length; i++) {
+      textEl.innerText = `${truncatedText + value[i]}...`;
+      if (textEl.scrollWidth > textEl.clientWidth) {
+        truncatedText += '...';
+        break;
+      }
+      truncatedText += value[i];
+    }
+
+    document.body.removeChild(textEl);
+
+    truncatedTextRef.current[value] = truncatedText;
+    return { truncatedText };
+  }, []);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -464,12 +495,8 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             show: true,
             formatter: (value: string) => {
-              // NOTE: @dv-usama-ansari: Use an abstract element to calculate the width of the text and truncate it accordingly.
-              const textEl = document.createElement('div');
-              textEl.innerText = value;
-              // ...
-
-              return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+              const truncatedText = getTruncatedText(value);
+              return truncatedText;
             },
             // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
           },
@@ -489,7 +516,8 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             show: true,
             formatter: (value: string) => {
-              return value.length > AXIS_LABEL_MAX_LENGTH ? `${value.slice(0, AXIS_LABEL_MAX_LENGTH)}...` : value;
+              const truncatedText = getTruncatedText(value);
+              return truncatedText;
             },
             rotate: 45,
           },
@@ -505,7 +533,7 @@ function EagerSingleEChartsBarChart({
         },
       }));
     }
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, globalMax, globalMin, setVisState]);
+  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, getTruncatedText, globalMax, globalMin, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])

@@ -19,6 +19,11 @@ export const CHART_HEIGHT_MARGIN = 100;
 export const AXIS_LABEL_MAX_LENGTH = 10;
 
 /**
+ * Maximum width of axis labels before truncation
+ */
+export const AXIS_LABEL_MAX_WIDTH = 72;
+
+/**
  * Height of the vertical bar chart
  */
 export const VERTICAL_BAR_CHART_HEIGHT = 250;
