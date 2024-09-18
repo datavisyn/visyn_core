@@ -517,8 +517,9 @@ function EagerSingleEChartsBarChart({
           }
           const isGrouped = config?.group && groupColorScale != null;
           const isSelectedCase = items === 'selected';
-          const lowerBarOpacity = hasSelected && isGrouped && isSelectedCase ? { opacity: VIS_UNSELECTED_OPACITY } : {};
-          const lowerLabelOpacity = hasSelected && isGrouped && !isSelectedCase ? { opacity: 0.8 } : {};
+          const shouldLowerOpacity = hasSelected && isGrouped && !isSelectedCase;
+          const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
+          const lowerLabelOpacity = shouldLowerOpacity ? { opacity: 0.8 } : {};
           return {
             ...barSeriesBase,
             name: groupings.length > 1 ? group : null,
