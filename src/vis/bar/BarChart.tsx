@@ -23,24 +23,21 @@ import { createBinLookup, getBarData } from './utils';
 
 const DEFAULT_FACET_NAME = '$default$';
 
-function calculateChartHeight(config: IBarConfig, dataTable: IBarDataTableRow[], facetValue: string) {
-  const categories = new Set();
-  const groupings = new Set();
-  dataTable
-    .filter((i) => i.facet === facetValue)
-    .forEach((item) => {
-      categories.add(item.category);
-      groupings.add(item.group);
-    });
-
+function calculateChartHeight(config: IBarConfig, aggregatedData: AggregatedDataType, containerHeight: number): number {
   if (config.direction === EBarDirection.VERTICAL) {
     // use fixed height for vertical bars
+    if (!config.facets && config.useFullHeight) {
+      return containerHeight - 2 * CHART_HEIGHT_MARGIN;
+    }
     return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
   }
   if (config.direction === EBarDirection.HORIZONTAL) {
     // calculate height for horizontal bars
-    const categoryWidth = config.group && config.groupType === EBarGroupingType.STACK ? BAR_WIDTH + BAR_SPACING : (BAR_WIDTH + BAR_SPACING) * groupings.size; // TODO: Make dynamic group length based on series data filtered for null
-    return categories.size * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
+    const categoryWidth =
+      config.group && config.groupType === EBarGroupingType.STACK
+        ? BAR_WIDTH + BAR_SPACING
+        : (BAR_WIDTH + BAR_SPACING) * (aggregatedData?.groupingsList ?? []).length; // TODO: Make dynamic group length based on series data filtered for null
+    return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
   }
   return 0;
 }
@@ -345,16 +342,28 @@ export function BarChart({
   const itemData = React.useMemo(
     () => ({
       aggregatedDataMap,
+      allUniqueFacetVals,
+      config,
+      containerHeight,
+      filteredUniqueFacetVals,
+      groupColorScale,
       selectedList,
       selectedMap,
-      groupColorScale,
-      filteredUniqueFacetVals,
-      config,
-      setConfig,
-      allUniqueFacetVals,
       customSelectionCallback,
+      setConfig,
     }),
-    [aggregatedDataMap, selectedList, selectedMap, customSelectionCallback, setConfig, groupColorScale, filteredUniqueFacetVals, config, allUniqueFacetVals],
+    [
+      aggregatedDataMap,
+      allUniqueFacetVals,
+      config,
+      containerHeight,
+      customSelectionCallback,
+      filteredUniqueFacetVals,
+      groupColorScale,
+      selectedList,
+      selectedMap,
+      setConfig,
+    ],
   );
 
   const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
@@ -363,17 +372,18 @@ export function BarChart({
     return (
       <Box component="div" style={props.style}>
         <SingleEChartsBarChart
-          config={props.data.config}
           aggregatedData={props.data.aggregatedDataMap.facets[multiplesVal as string]!}
-          globalMin={props.data.aggregatedDataMap.globalDomain.min}
+          chartHeight={calculateChartHeight(props.data.config!, props.data.aggregatedDataMap.facets[multiplesVal as string]!, props.data.containerHeight)}
+          config={props.data.config}
           globalMax={props.data.aggregatedDataMap.globalDomain.max}
-          selectedList={props.data.selectedList}
-          selectedFacetValue={multiplesVal}
-          selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
-          setConfig={props.data.setConfig}
-          selectionCallback={props.data.customSelectionCallback}
+          globalMin={props.data.aggregatedDataMap.globalDomain.min}
           groupColorScale={props.data.groupColorScale!}
+          selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
+          selectedFacetValue={multiplesVal}
+          selectedList={props.data.selectedList}
           selectedMap={props.data.selectedMap}
+          selectionCallback={props.data.customSelectionCallback}
+          setConfig={props.data.setConfig}
         />
       </Box>
     );
@@ -384,8 +394,8 @@ export function BarChart({
   }, []);
 
   const calculateFacetChartHeight = React.useCallback(
-    (index: number): number => (config ? calculateChartHeight(config, dataTable, filteredUniqueFacetVals[index] as string) : 0),
-    [config, dataTable, filteredUniqueFacetVals],
+    (index: number) => (config ? calculateChartHeight(config, aggregatedDataMap.facets[filteredUniqueFacetVals[index] as string]!, containerHeight) : 0),
+    [aggregatedDataMap.facets, config, containerHeight, filteredUniqueFacetVals],
   );
 
   return (
@@ -409,6 +419,7 @@ export function BarChart({
               aggregatedData={aggregatedDataMap.facets[DEFAULT_FACET_NAME]!}
               globalMin={aggregatedDataMap.globalDomain.min}
               globalMax={aggregatedDataMap.globalDomain.max}
+              chartHeight={calculateChartHeight(config!, aggregatedDataMap.facets[DEFAULT_FACET_NAME]!, containerHeight)}
               selectedList={selectedList}
               setConfig={setConfig}
               selectionCallback={customSelectionCallback}

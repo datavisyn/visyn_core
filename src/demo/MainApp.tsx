@@ -33,6 +33,7 @@ export function MainApp() {
           id: 'categorical1',
           name: 'Categorical 1',
         },
+        // group: null,
         group: {
           description: 'Type 1',
           id: 'type1',
@@ -41,11 +42,12 @@ export function MainApp() {
         groupType: EBarGroupingType.STACK,
         xAxisDomain: EBarDirection.HORIZONTAL ? [0, 1000] : null,
         yAxisDomain: EBarDirection.VERTICAL ? [0, 1000] : null,
-        facets: {
-          description: 'some very long description',
-          id: 'name',
-          name: 'Name',
-        },
+        facets: null,
+        // facets: {
+        //   description: 'some very long description',
+        //   id: 'name',
+        //   name: 'Name',
+        // },
         focusFacetIndex: null,
         display: EBarDisplayType.ABSOLUTE,
         direction: EBarDirection.HORIZONTAL,
@@ -58,6 +60,7 @@ export function MainApp() {
         },
         numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
         merged: true,
+        useFullHeight: true,
       }) as IBarConfig,
   );
   const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);

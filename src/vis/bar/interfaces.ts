@@ -42,8 +42,7 @@ export interface IBarConfig extends BaseVisConfig {
   aggregateColumn: ColumnInfo | null;
   showFocusFacetSelector?: boolean;
   sortState?: { x: EBarSortState; y: EBarSortState };
-  xAxisDomain?: [number, number] | null;
-  yAxisDomain?: [number, number] | null;
+  useFullHeight?: boolean;
 }
 
 export const defaultConfig: IBarConfig = {
