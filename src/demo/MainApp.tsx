@@ -17,6 +17,7 @@ import {
 } from '../vis';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { fetchTestData, generateTestData } from '../vis/stories/explodedData';
+import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
 
 const testData = generateTestData(100000);
 
@@ -28,9 +29,9 @@ export function MainApp() {
         type: ESupportedPlotlyVis.BAR,
         numColumnsSelected: [],
         catColumnSelected: {
-          description: 'some very long description',
-          id: 'categorical2',
-          name: 'Categorical 2',
+          description: '',
+          id: 'breastSurgeryType',
+          name: 'Breast Surgery Type',
         },
         group: null,
         groupType: EBarGroupingType.STACK,
@@ -38,8 +39,8 @@ export function MainApp() {
         yAxisDomain: EBarDirection.VERTICAL ? [0, 1000] : null,
         facets: {
           description: 'some very long description',
-          id: 'categorical1',
-          name: 'Categorical 1',
+          id: 'cellularity',
+          name: 'Cellularity',
         },
         focusFacetIndex: null,
         display: EBarDisplayType.ABSOLUTE,
@@ -55,7 +56,7 @@ export function MainApp() {
         merged: true,
       }) as IBarConfig,
   );
-  const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);
+  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof testData>([]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${testData.indexOf(s)}`), [selection]);
