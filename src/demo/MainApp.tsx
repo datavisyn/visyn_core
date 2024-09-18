@@ -56,7 +56,7 @@ export function MainApp() {
         merged: true,
       }) as IBarConfig,
   );
-  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
+  const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);
   const [selection, setSelection] = React.useState<typeof testData>([]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${testData.indexOf(s)}`), [selection]);

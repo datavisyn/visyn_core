@@ -72,6 +72,8 @@ function getAggregatedDataMap(
         }
         if (!aggregated.facets[facet].categories[category].groups[group]) {
           aggregated.facets[facet].categories[category].groups[group] = {
+            total: 0,
+            ids: [],
             selected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
             unselected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
           };
@@ -80,6 +82,8 @@ function getAggregatedDataMap(
         // update category values
         aggregated.facets[facet].categories[category].total++;
         aggregated.facets[facet].categories[category].ids.push(item.id);
+        aggregated.facets[facet].categories[category].groups[group].total++;
+        aggregated.facets[facet].categories[category].groups[group].ids.push(item.id);
 
         // update group values
         if (selected) {
@@ -103,6 +107,8 @@ function getAggregatedDataMap(
         }
         if (!minMax.facets[facet].categories[category].groups[group]) {
           minMax.facets[facet].categories[category].groups[group] = {
+            total: 0,
+            ids: [],
             selected: { count: 0, sum: 0, nums: [], ids: [], min: Infinity, max: -Infinity },
             unselected: { count: 0, sum: 0, nums: [], ids: [], min: Infinity, max: -Infinity },
           };

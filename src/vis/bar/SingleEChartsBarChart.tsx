@@ -156,6 +156,8 @@ export type AggregatedDataType = {
       ids: string[];
       groups: {
         [group: string]: {
+          total: number;
+          ids: string[];
           selected: { count: number; sum: number; min: number; max: number; nums: number[]; ids: string[] };
           unselected: { count: number; sum: number; min: number; max: number; nums: number[]; ids: string[] };
         };
@@ -171,7 +173,6 @@ function EagerSingleEChartsBarChart({
   selectedMap,
   selectionCallback,
   aggregatedData,
-  // dataTable,
   globalMin,
   globalMax,
   selectedFacetValue,
@@ -179,7 +180,6 @@ function EagerSingleEChartsBarChart({
   groupColorScale,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   aggregatedData: AggregatedDataType;
-  // dataTable: IBarDataTableRow[];
   globalMin: number;
   globalMax: number;
   selectedFacetValue?: string;
@@ -568,18 +568,12 @@ function EagerSingleEChartsBarChart({
           query: { seriesType: 'bar' },
           handler: (params) => {
             const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-            // const ids = filteredDataTable
-            //   .filter((item) => {
-            //     if (config?.group) {
-            //       if (config.group.id === config?.facets?.id) {
-            //         return item.facet === selectedFacetValue && item.category === params.name;
-            //       }
-            //       return item.group === params.seriesName && item.category === params.name;
-            //     }
-            //     return item.category === params.name;
-            //   })
-            //   .map((item) => item.id);
-            const ids: string[] = [];
+            const ids: string[] = config?.group
+              ? [
+                  ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.unselected.ids ?? []),
+                  ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.selected.ids ?? []),
+                ]
+              : (aggregatedData?.categories[params.name]?.ids ?? []);
 
             if (event.shiftKey) {
               // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
