@@ -14,7 +14,7 @@ import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
-import { BarChartSortButton } from './BarChartSortButton';
+import { BarChartSortButton, EBarSortParameters } from './BarChartSortButton';
 import { AggregatedDataType, median, SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
@@ -472,7 +472,32 @@ export function BarChart({
         <Group justify="center">
           {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
-          {config?.display !== EBarDisplayType.NORMALIZED ? <BarChartSortButton config={config!} setConfig={setConfig!} /> : null}
+          {config?.display !== EBarDisplayType.NORMALIZED ? (
+            <BarChartSortButton
+              config={config!}
+              setConfig={setConfig!}
+              sort={
+                config?.direction === EBarDirection.HORIZONTAL
+                  ? EBarSortParameters.AGGREGATION
+                  : config?.direction === EBarDirection.VERTICAL
+                    ? EBarSortParameters.CATEGORIES
+                    : null
+              }
+            />
+          ) : null}
+          {config?.display !== EBarDisplayType.NORMALIZED ? (
+            <BarChartSortButton
+              config={config!}
+              setConfig={setConfig!}
+              sort={
+                config?.direction === EBarDirection.HORIZONTAL
+                  ? EBarSortParameters.CATEGORIES
+                  : config?.direction === EBarDirection.VERTICAL
+                    ? EBarSortParameters.AGGREGATION
+                    : null
+              }
+            />
+          ) : null}
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: innerHeight }}>

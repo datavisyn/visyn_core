@@ -28,17 +28,18 @@ export function MainApp() {
       ({
         type: ESupportedPlotlyVis.BAR,
         numColumnsSelected: [],
-        catColumnSelected: {
-          description: 'First category',
-          id: 'categorical1',
-          name: 'Categorical 1',
-        },
-        // group: null,
-        group: {
-          description: 'Type 1',
-          id: 'type1',
-          name: 'Type 1',
-        },
+        catColumnSelected: null,
+        // catColumnSelected: {
+        //   description: 'First category',
+        //   id: 'categorical1',
+        //   name: 'Categorical 1',
+        // },
+        group: null,
+        // group: {
+        //   description: 'Type 1',
+        //   id: 'type1',
+        //   name: 'Type 1',
+        // },
         groupType: EBarGroupingType.STACK,
         xAxisDomain: EBarDirection.HORIZONTAL ? [0, 1000] : null,
         yAxisDomain: EBarDirection.VERTICAL ? [0, 1000] : null,
@@ -55,7 +56,7 @@ export function MainApp() {
         aggregateType: EAggregateTypes.COUNT,
         showFocusFacetSelector: false,
         sortState: {
-          x: EBarSortState.DESCENDING,
+          x: EBarSortState.NONE,
           y: EBarSortState.NONE,
         },
         numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
@@ -63,7 +64,7 @@ export function MainApp() {
         useFullHeight: true,
       }) as IBarConfig,
   );
-  const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);
+  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof testData>([]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${testData.indexOf(s)}`), [selection]);

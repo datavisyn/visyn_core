@@ -73,12 +73,16 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
  * This function uses `for` loop for maximum performance and readability.
  *
  * @param series
- * @param sortOrder
+ * @param sortMetadata
  * @returns
  */
 function sortSeries(
   series: { categories: string[]; data: BarSeriesOption['data'] }[],
-  sortOrder: EBarSortState = EBarSortState.NONE,
+  originalOrder: string[],
+  sortMetadata: { sortState: { x: EBarSortState; y: EBarSortState }; direction: EBarDirection } = {
+    sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
+    direction: EBarDirection.HORIZONTAL,
+  },
 ): { categories: string[]; data: BarSeriesOption['data'] }[] {
   // Step 1: Aggregate the data
   const aggregatedData: { [key: string]: number } = {};
@@ -109,6 +113,7 @@ function sortSeries(
   }
 
   // Step 2: Sort the aggregated data
+  // NOTE: @dv-usama-ansari: Code optimized for readability.
   const sortedCategories = Object.keys(aggregatedData).sort((a, b) => {
     if (a === NAN_REPLACEMENT) {
       return 1;
@@ -116,11 +121,59 @@ function sortSeries(
     if (b === NAN_REPLACEMENT) {
       return -1;
     }
-    return sortOrder === EBarSortState.ASCENDING
-      ? (aggregatedData[a] as number) - (aggregatedData[b] as number)
-      : sortOrder === EBarSortState.DESCENDING
-        ? (aggregatedData[b] as number) - (aggregatedData[a] as number)
-        : 0;
+    if (sortMetadata.direction === EBarDirection.HORIZONTAL) {
+      if (sortMetadata.sortState.x === EBarSortState.ASCENDING) {
+        return (aggregatedData[a] as number) - (aggregatedData[b] as number);
+      }
+      if (sortMetadata.sortState.x === EBarSortState.DESCENDING) {
+        return (aggregatedData[b] as number) - (aggregatedData[a] as number);
+      }
+      if (sortMetadata.sortState.y === EBarSortState.ASCENDING) {
+        return a.localeCompare(b);
+      }
+      if (sortMetadata.sortState.y === EBarSortState.DESCENDING) {
+        return b.localeCompare(a);
+      }
+      if (sortMetadata.sortState.x === EBarSortState.NONE) {
+        // NOTE: @dv-usama-ansari: Sort according to the original order
+        //  SLOW CODE because of using `indexOf`!
+        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
+        return 0;
+      }
+      if (sortMetadata.sortState.y === EBarSortState.NONE) {
+        // NOTE: @dv-usama-ansari: Sort according to the original order
+        //  SLOW CODE because of using `indexOf`!
+        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
+        return 0;
+      }
+    }
+    if (sortMetadata.direction === EBarDirection.VERTICAL) {
+      if (sortMetadata.sortState.x === EBarSortState.ASCENDING) {
+        return a.localeCompare(b);
+      }
+      if (sortMetadata.sortState.x === EBarSortState.DESCENDING) {
+        return b.localeCompare(a);
+      }
+      if (sortMetadata.sortState.y === EBarSortState.ASCENDING) {
+        return (aggregatedData[a] as number) - (aggregatedData[b] as number);
+      }
+      if (sortMetadata.sortState.y === EBarSortState.DESCENDING) {
+        return (aggregatedData[b] as number) - (aggregatedData[a] as number);
+      }
+      if (sortMetadata.sortState.x === EBarSortState.NONE) {
+        // NOTE: @dv-usama-ansari: Sort according to the original order
+        //  SLOW CODE because of using `indexOf`!
+        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
+        return 0;
+      }
+      if (sortMetadata.sortState.y === EBarSortState.NONE) {
+        // NOTE: @dv-usama-ansari: Sort according to the original order
+        //  SLOW CODE because of using `indexOf`!
+        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
+        return 0;
+      }
+    }
+    return 0;
   });
 
   // Create a mapping of categories to their sorted indices
@@ -196,6 +249,8 @@ function EagerSingleEChartsBarChart({
   });
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
+
+  const categoriesRef = React.useRef<string[]>([]);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -349,12 +404,13 @@ function EagerSingleEChartsBarChart({
   );
 
   const updateSortSideEffect = React.useCallback(
-    ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
+    ({ barSeries = [], originalOrder = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[]; originalOrder: string[] }) => {
       if (barSeries.length > 0) {
         if (config?.direction === EBarDirection.HORIZONTAL) {
           const sortedSeries = sortSeries(
             barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-            config?.sortState?.x,
+            originalOrder,
+            { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
           );
           setVisState((v) => ({
             ...v,
@@ -370,7 +426,8 @@ function EagerSingleEChartsBarChart({
         if (config?.direction === EBarDirection.VERTICAL) {
           const sortedSeries = sortSeries(
             barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-            config?.sortState?.y,
+            originalOrder,
+            { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.VERTICAL },
           );
 
           setVisState((v) => ({
@@ -381,7 +438,7 @@ function EagerSingleEChartsBarChart({
         }
       }
     },
-    [config?.direction, config?.sortState?.x, config?.sortState?.y, setVisState],
+    [config?.direction, config?.sortState, setVisState],
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
@@ -468,6 +525,7 @@ function EagerSingleEChartsBarChart({
           const shouldLowerOpacity = hasSelected && isGrouped && !isSelected;
           const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
           const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
+          categoriesRef.current = data.map((d) => d.category);
           return {
             ...barSeriesBase,
             name: aggregatedData.groupingsList.length > 1 ? g : null,
@@ -501,7 +559,7 @@ function EagerSingleEChartsBarChart({
       .flat()
       .filter(Boolean) as (BarSeriesOption & { categories: string[] })[];
 
-    updateSortSideEffect({ barSeries });
+    updateSortSideEffect({ barSeries, originalOrder: categoriesRef.current });
     updateDirectionSideEffect();
   }, [
     aggregatedData?.groupingsList,
