@@ -5,7 +5,7 @@ import type { BarSeriesOption } from 'echarts/charts';
 import round from 'lodash/round';
 import uniq from 'lodash/uniq';
 import * as React from 'react';
-import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
+import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
 import { AXIS_LABEL_MAX_LENGTH, BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
@@ -519,13 +519,13 @@ function EagerSingleEChartsBarChart({
           const isSelectedCase = items === 'selected';
           const shouldLowerOpacity = hasSelected && isGrouped && !isSelectedCase;
           const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
-          const lowerLabelOpacity = shouldLowerOpacity ? { opacity: 0.8 } : {};
+          const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
           return {
             ...barSeriesBase,
             name: groupings.length > 1 ? group : null,
             label: {
               show: true,
-              ...lowerLabelOpacity,
+              ...fixLabelColor,
             },
             itemStyle: {
               color:
