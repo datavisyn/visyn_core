@@ -24,31 +24,28 @@ import { createBinLookup, getBarData } from './utils';
 const DEFAULT_FACET_NAME = '$default$';
 
 function calculateChartHeight(config: IBarConfig, aggregatedData: AggregatedDataType, containerHeight: number): number {
-  if (config.direction === EBarDirection.VERTICAL) {
-    // use fixed height for vertical bars
-    if (!config.facets && config.useFullHeight) {
-      return containerHeight - 2 * CHART_HEIGHT_MARGIN;
+  if (config && aggregatedData && containerHeight) {
+    if (config.direction === EBarDirection.VERTICAL) {
+      // use fixed height for vertical bars
+      if (!config.facets && config.useFullHeight) {
+        return containerHeight - 2 * CHART_HEIGHT_MARGIN;
+      }
+      return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
     }
-    return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
-  }
-  if (config.direction === EBarDirection.HORIZONTAL) {
-    // calculate height for horizontal bars
-    const categoryWidth =
-      config.group && config.groupType === EBarGroupingType.STACK
-        ? BAR_WIDTH + BAR_SPACING
-        : (BAR_WIDTH + BAR_SPACING) * (aggregatedData?.groupingsList ?? []).length; // TODO: Make dynamic group length based on series data filtered for null
-    return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
+    if (config.direction === EBarDirection.HORIZONTAL) {
+      // calculate height for horizontal bars
+      const categoryWidth =
+        config.group && config.groupType === EBarGroupingType.STACK
+          ? BAR_WIDTH + BAR_SPACING
+          : (BAR_WIDTH + BAR_SPACING) * (aggregatedData?.groupingsList ?? []).length; // TODO: Make dynamic group length based on series data filtered for null
+      return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
+    }
   }
   return 0;
 }
 
-function getAggregatedDataMap(
-  isFaceted: boolean,
-  dataTable: IBarDataTableRow[],
-  selectedMap: ICommonVisProps<IBarConfig>['selectedMap'],
-  aggregateType: EAggregateTypes,
-) {
-  const facetGrouped = isFaceted ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
+function getAggregatedDataMap(config: IBarConfig, dataTable: IBarDataTableRow[], selectedMap: ICommonVisProps<IBarConfig>['selectedMap']) {
+  const facetGrouped = config.facets ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
   const aggregated: { facets: { [facet: string]: AggregatedDataType }; globalDomain: { min: number; max: number } } = {
     facets: {},
     globalDomain: { min: Infinity, max: -Infinity },
@@ -147,87 +144,156 @@ function getAggregatedDataMap(
   Object.keys(aggregated.facets).forEach((facet) => {
     Object.keys(aggregated.facets[facet]?.categories ?? {}).forEach((category) => {
       Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).forEach((group) => {
-        switch (aggregateType) {
-          case EAggregateTypes.COUNT:
-            aggregated.globalDomain.max = Math.max(aggregated.facets[facet]?.categories[category]?.total ?? -Infinity, aggregated.globalDomain.max);
-            aggregated.globalDomain.min = Math.min(aggregated.facets[facet]?.categories[category]?.total ?? Infinity, aggregated.globalDomain.min, 0);
-            break;
+        if (config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED) {
+          aggregated.globalDomain.min = 0;
+          aggregated.globalDomain.max = 100;
+        } else {
+          switch (config.aggregateType) {
+            case EAggregateTypes.COUNT:
+              aggregated.globalDomain.max =
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.max(aggregated.facets[facet]?.categories[category]?.total ?? -Infinity, aggregated.globalDomain.max)
+                  : Math.max(aggregated.facets[facet]?.categories[category]?.groups[group]?.total ?? -Infinity, aggregated.globalDomain.max);
+              aggregated.globalDomain.min =
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(aggregated.facets[facet]?.categories[category]?.total ?? Infinity, aggregated.globalDomain.min, 0)
+                  : Math.min(aggregated.facets[facet]?.categories[category]?.groups[group]?.total ?? Infinity, aggregated.globalDomain.min, 0);
+              break;
 
-          case EAggregateTypes.AVG:
-            aggregated.globalDomain.max = round(
-              Math.max(
-                Math.max(
-                  (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.sum ?? -Infinity) /
-                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.count || 1),
-                  (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.sum ?? -Infinity) /
-                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.count || 1),
-                ),
-                aggregated.globalDomain.max,
-              ),
-              4,
-            );
-            aggregated.globalDomain.min = round(
-              Math.min(
+            case EAggregateTypes.AVG:
+              aggregated.globalDomain.max =
+                config.groupType === EBarGroupingType.STACK
+                  ? round(
+                      Math.max(
+                        Math.max(
+                          Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce(
+                            (acc, key) =>
+                              acc +
+                              (aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.sum ?? -Infinity) /
+                                (aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.count || 1),
+                            0,
+                          ),
+                          Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce(
+                            (acc, key) =>
+                              acc +
+                              (aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.sum ?? -Infinity) /
+                                (aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.count || 1),
+                            0,
+                          ),
+                        ),
+                        aggregated.globalDomain.max,
+                      ),
+                      4,
+                    )
+                  : round(
+                      Math.max(
+                        Math.max(
+                          (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.sum ?? -Infinity) /
+                            (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.count || 1),
+                          (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.sum ?? -Infinity) /
+                            (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.count || 1),
+                        ),
+                        aggregated.globalDomain.max,
+                      ),
+                      4,
+                    );
+              aggregated.globalDomain.min = round(
                 Math.min(
-                  (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.sum ?? Infinity) /
-                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.count || 1),
-                  (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.sum ?? Infinity) /
-                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.count || 1),
+                  Math.min(
+                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.sum ?? Infinity) /
+                      (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.count || 1),
+                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.sum ?? Infinity) /
+                      (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.count || 1),
+                  ),
+                  aggregated.globalDomain.min,
+                  0,
+                ),
+                4,
+              );
+              break;
+
+            case EAggregateTypes.MIN:
+              aggregated.globalDomain.max =
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.max(
+                      Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
+                        const selectedMin = aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.min ?? 0;
+                        const infiniteSafeSelectedMin = selectedMin === Infinity ? 0 : selectedMin;
+                        const unselectedMin = aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.min ?? 0;
+                        const infiniteSafeUnselectedMin = unselectedMin === Infinity ? 0 : unselectedMin;
+                        return acc + infiniteSafeSelectedMin + infiniteSafeUnselectedMin;
+                      }, 0),
+
+                      aggregated.globalDomain.max,
+                    )
+                  : Math.max(
+                      Math.min(
+                        aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.min ?? Infinity,
+                        aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.min ?? Infinity,
+                      ),
+                      aggregated.globalDomain.max,
+                    );
+              aggregated.globalDomain.min = Math.min(
+                Math.min(
+                  aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.min ?? Infinity,
+                  aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.min ?? Infinity,
                 ),
                 aggregated.globalDomain.min,
                 0,
-              ),
-              4,
-            );
-            break;
+              );
+              break;
 
-          case EAggregateTypes.MIN:
-            aggregated.globalDomain.max = Math.max(
-              Math.min(
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.min ?? Infinity,
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.min ?? Infinity,
-              ),
-              aggregated.globalDomain.max,
-            );
-            aggregated.globalDomain.min = Math.min(
-              Math.min(
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.min ?? Infinity,
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.min ?? Infinity,
-              ),
-              aggregated.globalDomain.min,
-              0,
-            );
-            break;
+            case EAggregateTypes.MAX:
+              aggregated.globalDomain.max =
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.max(
+                      Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
+                        const selectedMax = aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.max ?? 0;
+                        const infiniteSafeSelectedMax = selectedMax === -Infinity ? 0 : selectedMax;
+                        const unselectedMax = aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.max ?? 0;
+                        const infiniteSafeUnselectedMax = unselectedMax === -Infinity ? 0 : unselectedMax;
+                        return acc + infiniteSafeSelectedMax + infiniteSafeUnselectedMax;
+                      }, 0),
+                      aggregated.globalDomain.max,
+                    )
+                  : Math.max(
+                      Math.max(
+                        aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.max ?? -Infinity,
+                        aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.max ?? -Infinity,
+                      ),
+                      aggregated.globalDomain.max,
+                    );
+              aggregated.globalDomain.min = Math.min(
+                Math.max(
+                  aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.max ?? -Infinity,
+                  aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.max ?? -Infinity,
+                ),
+                aggregated.globalDomain.min,
+                0,
+              );
+              break;
 
-          case EAggregateTypes.MAX:
-            aggregated.globalDomain.max = Math.max(
-              Math.max(
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.max ?? -Infinity,
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.max ?? -Infinity,
-              ),
-              aggregated.globalDomain.max,
-            );
-            aggregated.globalDomain.min = Math.min(
-              Math.max(
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.max ?? -Infinity,
-                aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.max ?? -Infinity,
-              ),
-              aggregated.globalDomain.min,
-              0,
-            );
-            break;
+            case EAggregateTypes.MED: {
+              const selectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.nums ?? []);
+              const unselectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.nums ?? []);
+              aggregated.globalDomain.max =
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.max(
+                      Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
+                        const selectedStackMedian = median(aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.nums ?? []) ?? 0;
+                        const unselectedStackMedian = median(aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.nums ?? []) ?? 0;
+                        return acc + selectedStackMedian + unselectedStackMedian;
+                      }, 0),
+                    )
+                  : Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0);
+              break;
+            }
 
-          case EAggregateTypes.MED: {
-            const selectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.nums ?? []);
-            const unselectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.nums ?? []);
-            aggregated.globalDomain.max = Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max);
-            aggregated.globalDomain.min = Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0);
-            break;
+            default:
+              console.warn(`Aggregation type ${config.aggregateType} is not supported by bar chart.`);
+              break;
           }
-
-          default:
-            console.warn(`Aggregation type ${aggregateType} is not supported by bar chart.`);
-            break;
         }
       });
     });
@@ -288,10 +354,7 @@ export function BarChart({
     );
   }, [allColumns]);
 
-  const aggregatedDataMap = React.useMemo(
-    () => getAggregatedDataMap(!!config?.facets, dataTable, selectedMap, config?.aggregateType as EAggregateTypes),
-    [config?.aggregateType, config?.facets, dataTable, selectedMap],
-  );
+  const aggregatedDataMap = React.useMemo(() => (config ? getAggregatedDataMap(config!, dataTable, selectedMap) : null), [config, dataTable, selectedMap]);
 
   const groupColorScale = React.useMemo(() => {
     if (!allColumns?.groupColVals) {
@@ -372,11 +435,15 @@ export function BarChart({
     return (
       <Box component="div" style={props.style}>
         <SingleEChartsBarChart
-          aggregatedData={props.data.aggregatedDataMap.facets[multiplesVal as string]!}
-          chartHeight={calculateChartHeight(props.data.config!, props.data.aggregatedDataMap.facets[multiplesVal as string]!, props.data.containerHeight)}
+          aggregatedData={props.data.aggregatedDataMap?.facets[multiplesVal as string] as AggregatedDataType}
+          chartHeight={calculateChartHeight(
+            props.data.config!,
+            props.data.aggregatedDataMap?.facets[multiplesVal as string] as AggregatedDataType,
+            props.data.containerHeight,
+          )}
           config={props.data.config}
-          globalMax={props.data.aggregatedDataMap.globalDomain.max}
-          globalMin={props.data.aggregatedDataMap.globalDomain.min}
+          globalMax={props.data.aggregatedDataMap?.globalDomain.max}
+          globalMin={props.data.aggregatedDataMap?.globalDomain.min}
           groupColorScale={props.data.groupColorScale!}
           selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
           selectedFacetValue={multiplesVal}
@@ -394,8 +461,9 @@ export function BarChart({
   }, []);
 
   const calculateFacetChartHeight = React.useCallback(
-    (index: number) => (config ? calculateChartHeight(config, aggregatedDataMap.facets[filteredUniqueFacetVals[index] as string]!, containerHeight) : 0),
-    [aggregatedDataMap.facets, config, containerHeight, filteredUniqueFacetVals],
+    (index: number) =>
+      config ? calculateChartHeight(config, aggregatedDataMap?.facets[filteredUniqueFacetVals[index] as string] as AggregatedDataType, containerHeight) : 0,
+    [aggregatedDataMap?.facets, config, containerHeight, filteredUniqueFacetVals],
   );
 
   return (
@@ -416,10 +484,10 @@ export function BarChart({
           <ScrollArea.Autosize h={innerHeight} w={containerWidth} scrollbars="y" offsetScrollbars style={{ overflowX: 'hidden' }}>
             <SingleEChartsBarChart
               config={config}
-              aggregatedData={aggregatedDataMap.facets[DEFAULT_FACET_NAME]!}
-              globalMin={aggregatedDataMap.globalDomain.min}
-              globalMax={aggregatedDataMap.globalDomain.max}
-              chartHeight={calculateChartHeight(config!, aggregatedDataMap.facets[DEFAULT_FACET_NAME]!, containerHeight)}
+              aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
+              globalMin={aggregatedDataMap?.globalDomain.min}
+              globalMax={aggregatedDataMap?.globalDomain.max}
+              chartHeight={calculateChartHeight(config!, aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType, containerHeight)}
               selectedList={selectedList}
               setConfig={setConfig}
               selectionCallback={customSelectionCallback}
