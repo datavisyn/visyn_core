@@ -455,7 +455,7 @@ function EagerSingleEChartsBarChart({
           name: config?.aggregateType,
           nameLocation: 'middle',
           nameTextStyle: { padding: [20, 0, 0, 0] },
-          // ...(config.xAxisDomain ? { min: config.xAxisDomain[0], max: config.xAxisDomain[1] } : {}),
+          ...(config.xAxisDomain ? { min: config.xAxisDomain[0], max: config.xAxisDomain[1] } : {}),
         },
         yAxis: {
           ...v.yAxis,
@@ -494,10 +494,16 @@ function EagerSingleEChartsBarChart({
             rotate: 45,
           },
         },
-        yAxis: { type: 'value' as const, name: config?.aggregateType, nameLocation: 'middle', nameTextStyle: { padding: [0, 0, 40, 0] } },
+        yAxis: {
+          type: 'value' as const,
+          name: config?.aggregateType,
+          nameLocation: 'middle',
+          nameTextStyle: { padding: [0, 0, 40, 0] },
+          ...(config.yAxisDomain ? { min: config.yAxisDomain[0], max: config.yAxisDomain[1] } : {}),
+        },
       }));
     }
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, setVisState]);
+  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, config?.xAxisDomain, config?.yAxisDomain, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = groupings

@@ -34,7 +34,8 @@ export function MainApp() {
         },
         group: null,
         groupType: EBarGroupingType.STACK,
-        xAxisDomain: [0, 1000],
+        xAxisDomain: EBarDirection.HORIZONTAL ? [0, 1000] : null,
+        yAxisDomain: EBarDirection.VERTICAL ? [0, 1000] : null,
         facets: {
           description: 'some very long description',
           id: 'categorical1',
