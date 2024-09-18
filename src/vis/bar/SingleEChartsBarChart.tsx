@@ -332,6 +332,7 @@ function EagerSingleEChartsBarChart({
           axisPointer: {
             type: 'shadow',
           },
+          confine: true,
           backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
           borderWidth: 0,
           borderColor: 'transparent',
