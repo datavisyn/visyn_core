@@ -47,7 +47,7 @@ ScatterPlot.args = {
         name: 'Sepal Width',
       },
     ],
-    color: {
+    facets: {
       description: '',
       id: 'species',
       name: 'Species',

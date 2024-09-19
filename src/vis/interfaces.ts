@@ -94,6 +94,7 @@ export interface VisCategoricalColumn extends VisCommonColumn {
 export type VisColumn = VisNumericalColumn | VisCategoricalColumn;
 
 export type PlotlyInfo = {
+  validCols: (VisColumn & { resolvedValues: (VisNumericalValue | VisCategoricalValue)[] })[];
   plots: PlotlyData[];
   legendPlots: PlotlyData[];
   rows: number;

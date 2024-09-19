@@ -119,6 +119,7 @@ export async function createScatterTraces(
   const emptyVal = {
     plots: [],
     legendPlots: [],
+    validCols: [],
     rows: 0,
     cols: 0,
     errorMessage: i18n.t('visyn:vis.scatterError'),
@@ -152,6 +153,8 @@ export async function createScatterTraces(
   if (validCols.length === 1) {
     return emptyVal;
   }
+
+  console.log(validCols);
 
   const idToLabelMapper = await createIdToLabelMapper(columns);
 
@@ -237,6 +240,7 @@ export async function createScatterTraces(
     const sortOrder =
       (facetCol.domain as string[]) ||
       [...new Set(facetCol.resolvedValues.map((v) => v.val as string))].sort((a, b) => a?.localeCompare(b, undefined, { sensitivity: 'base' }));
+
     const groupedData = sortBy(groupBy(data, 'facet'), (group) => {
       const facetValue = group[0].facet;
       const index = sortOrder.indexOf(facetValue);
@@ -525,6 +529,7 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
   const defaultColNum = Math.min(Math.ceil(Math.sqrt(plots.length)), 5);
 
   return {
+    validCols,
     plots,
     legendPlots,
     rows: facetCol ? Math.ceil(plots.length / defaultColNum) : Math.sqrt(plots.length),

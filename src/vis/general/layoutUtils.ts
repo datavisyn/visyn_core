@@ -61,6 +61,8 @@ export function beautifyLayout(
     return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
   });
 
+  console.log(sharedAxisTraces);
+
   const titleTraces = sharedAxisTraces.filter((value, index, self) => {
     return value.title && self.findIndex((v) => v.title === value.title) === index;
   });
@@ -98,7 +100,6 @@ export function beautifyLayout(
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
       zerolinecolor: VIS_GRID_COLOR,
-      automargin,
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
       tickfont: {
@@ -127,8 +128,6 @@ export function beautifyLayout(
     layout[axisY] = {
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       range: t.yDomain ? t.yDomain : null,
-      automargin,
-      autorange,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
       zerolinecolor: VIS_GRID_COLOR,

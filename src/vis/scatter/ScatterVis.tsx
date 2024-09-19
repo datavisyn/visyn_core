@@ -78,6 +78,7 @@ export function ScatterVis({
   showDownloadScreenshot,
 }: ICommonVisProps<IInternalScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
+  
   const [showLegend, setShowLegend] = useUncontrolled({
     defaultValue: true,
     value: config.showLegend,
@@ -303,6 +304,8 @@ export function ScatterVis({
   useShallowEffect(() => {
     setConfig({ ...config, selectedPointsCount: selectedList.length });
   }, [selectedList, setConfig]);
+
+  console.log(selectedList, selectedMap);
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">

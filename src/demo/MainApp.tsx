@@ -13,9 +13,10 @@ import {
   IScatterConfig,
   Vis,
 } from '../vis';
-import { breastCancerData } from '../vis/stories/breastCancerData';
-import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { fetchTestData, generateTestData } from '../vis/stories/explodedData';
+
+const testData = generateTestData(100000);
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -51,10 +52,10 @@ export function MainApp() {
       showStats: true,
     },
   } as IScatterConfig);
-  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
-  const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
+  const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);
+  const [selection, setSelection] = React.useState<typeof testData>([]);
 
-  const visSelection = React.useMemo(() => selection.map((s) => `${breastCancerData.indexOf(s)}`), [selection]);
+  const visSelection = React.useMemo(() => selection.map((s) => `${testData.indexOf(s)}`), [selection]);
   const [loading, setLoading] = React.useState(false);
   const lineupRef = React.useRef<DatavisynTaggle>();
 
@@ -113,7 +114,7 @@ export function MainApp() {
             />
 
             <VisynRanking
-              data={breastCancerData}
+              data={testData}
               selection={selection}
               setSelection={setSelection}
               getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
@@ -132,7 +133,7 @@ export function MainApp() {
             selected={visSelection}
             selectionCallback={(s) => {
               if (s) {
-                setSelection(s.map((i) => breastCancerData[+i]!));
+                setSelection(s.map((i) => testData[+i]!));
               }
             }}
             filterCallback={(f) => {

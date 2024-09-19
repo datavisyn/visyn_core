@@ -50,6 +50,7 @@ import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
+import { ScatterVisNew } from './scatter/ScatterVisNew';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -57,7 +58,7 @@ function registerAllVis(visTypes?: string[]) {
   return [
     createVis({
       type: ESupportedPlotlyVis.SCATTER,
-      renderer: ScatterVis,
+      renderer: ScatterVisNew,
       sidebarRenderer: ScatterVisSidebar,
       mergeConfig: scatterMergeDefaultConfig,
       description: 'Visualizes two variables as individual data points in two-dimensional space',
