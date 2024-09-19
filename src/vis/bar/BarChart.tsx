@@ -65,73 +65,71 @@ function getAggregatedDataMap(config: IBarConfig, dataTable: IBarDataTableRow[],
       const selected = selectedMap?.[item.id] || false;
       if (!aggregated.facets[facet]) {
         aggregated.facets[facet] = { categoriesList, groupingsList, categories: {} };
+      }
+      if (!aggregated.facets[facet].categories[category]) {
+        aggregated.facets[facet].categories[category] = { total: 0, ids: [], groups: {} };
+      }
+      if (!aggregated.facets[facet].categories[category].groups[group]) {
+        aggregated.facets[facet].categories[category].groups[group] = {
+          total: 0,
+          ids: [],
+          selected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
+          unselected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
+        };
+      }
+
+      // update category values
+      aggregated.facets[facet].categories[category].total++;
+      aggregated.facets[facet].categories[category].ids.push(item.id);
+      aggregated.facets[facet].categories[category].groups[group].total++;
+      aggregated.facets[facet].categories[category].groups[group].ids.push(item.id);
+
+      // update group values
+      if (selected) {
+        aggregated.facets[facet].categories[category].groups[group].selected.count++;
+        aggregated.facets[facet].categories[category].groups[group].selected.sum += agg || 0;
+        aggregated.facets[facet].categories[category].groups[group].selected.nums.push(agg || 0);
+        aggregated.facets[facet].categories[category].groups[group].selected.ids.push(item.id);
       } else {
-        if (!aggregated.facets[facet].categories[category]) {
-          aggregated.facets[facet].categories[category] = { total: 0, ids: [], groups: {} };
-        }
-        if (!aggregated.facets[facet].categories[category].groups[group]) {
-          aggregated.facets[facet].categories[category].groups[group] = {
-            total: 0,
-            ids: [],
-            selected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
-            unselected: { count: 0, sum: 0, min: Infinity, max: -Infinity, nums: [], ids: [] },
-          };
-        }
-
-        // update category values
-        aggregated.facets[facet].categories[category].total++;
-        aggregated.facets[facet].categories[category].ids.push(item.id);
-        aggregated.facets[facet].categories[category].groups[group].total++;
-        aggregated.facets[facet].categories[category].groups[group].ids.push(item.id);
-
-        // update group values
-        if (selected) {
-          aggregated.facets[facet].categories[category].groups[group].selected.count++;
-          aggregated.facets[facet].categories[category].groups[group].selected.sum += agg || 0;
-          aggregated.facets[facet].categories[category].groups[group].selected.nums.push(agg || 0);
-          aggregated.facets[facet].categories[category].groups[group].selected.ids.push(item.id);
-        } else {
-          aggregated.facets[facet].categories[category].groups[group].unselected.count++;
-          aggregated.facets[facet].categories[category].groups[group].unselected.sum += agg || 0;
-          aggregated.facets[facet].categories[category].groups[group].unselected.nums.push(agg || 0);
-          aggregated.facets[facet].categories[category].groups[group].unselected.ids.push(item.id);
-        }
+        aggregated.facets[facet].categories[category].groups[group].unselected.count++;
+        aggregated.facets[facet].categories[category].groups[group].unselected.sum += agg || 0;
+        aggregated.facets[facet].categories[category].groups[group].unselected.nums.push(agg || 0);
+        aggregated.facets[facet].categories[category].groups[group].unselected.ids.push(item.id);
       }
 
       if (!minMax.facets[facet]) {
         minMax.facets[facet] = { categoriesList: [], groupingsList: [], categories: {} };
-      } else {
-        if (!minMax.facets[facet].categories[category]) {
-          minMax.facets[facet].categories[category] = { total: 0, ids: [], groups: {} };
-        }
-        if (!minMax.facets[facet].categories[category].groups[group]) {
-          minMax.facets[facet].categories[category].groups[group] = {
-            total: 0,
-            ids: [],
-            selected: { count: 0, sum: 0, nums: [], ids: [], min: Infinity, max: -Infinity },
-            unselected: { count: 0, sum: 0, nums: [], ids: [], min: Infinity, max: -Infinity },
-          };
-        }
+      }
+      if (!minMax.facets[facet].categories[category]) {
+        minMax.facets[facet].categories[category] = { total: 0, ids: [], groups: {} };
+      }
+      if (!minMax.facets[facet].categories[category].groups[group]) {
+        minMax.facets[facet].categories[category].groups[group] = {
+          total: 0,
+          ids: [],
+          selected: { count: 0, sum: 0, nums: [], ids: [], min: Infinity, max: -Infinity },
+          unselected: { count: 0, sum: 0, nums: [], ids: [], min: Infinity, max: -Infinity },
+        };
+      }
 
-        if (selected) {
-          minMax.facets[facet].categories[category].groups[group].selected.min = Math.min(
-            minMax.facets[facet].categories[category].groups[group].selected.min,
-            agg || Infinity,
-          );
-          minMax.facets[facet].categories[category].groups[group].selected.max = Math.max(
-            minMax.facets[facet].categories[category].groups[group].selected.max,
-            agg || -Infinity,
-          );
-        } else {
-          minMax.facets[facet].categories[category].groups[group].unselected.min = Math.min(
-            minMax.facets[facet].categories[category].groups[group].unselected.min,
-            agg || Infinity,
-          );
-          minMax.facets[facet].categories[category].groups[group].unselected.max = Math.max(
-            minMax.facets[facet].categories[category].groups[group].unselected.max,
-            agg || -Infinity,
-          );
-        }
+      if (selected) {
+        minMax.facets[facet].categories[category].groups[group].selected.min = Math.min(
+          minMax.facets[facet].categories[category].groups[group].selected.min,
+          agg || Infinity,
+        );
+        minMax.facets[facet].categories[category].groups[group].selected.max = Math.max(
+          minMax.facets[facet].categories[category].groups[group].selected.max,
+          agg || -Infinity,
+        );
+      } else {
+        minMax.facets[facet].categories[category].groups[group].unselected.min = Math.min(
+          minMax.facets[facet].categories[category].groups[group].unselected.min,
+          agg || Infinity,
+        );
+        minMax.facets[facet].categories[category].groups[group].unselected.max = Math.max(
+          minMax.facets[facet].categories[category].groups[group].unselected.max,
+          agg || -Infinity,
+        );
       }
     });
     (values ?? []).forEach((item) => {
