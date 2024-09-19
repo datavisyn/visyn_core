@@ -7,7 +7,7 @@ import * as React from 'react';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { AXIS_LABEL_MAX_WIDTH, BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
+import { AXIS_LABEL_MAX_WIDTH, BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig } from './interfaces';
 
 // TODO: @dv-usama-ansari: Move this into utils
@@ -280,7 +280,7 @@ function EagerSingleEChartsBarChart({
     document.body.removeChild(textEl);
 
     truncatedTextRef.current[value] = truncatedText;
-    return { truncatedText };
+    return truncatedText;
   }, []);
 
   const getDataForAggregationType = React.useCallback(
@@ -413,7 +413,7 @@ function EagerSingleEChartsBarChart({
 
         title: [
           {
-            text: selectedFacetValue || null,
+            text: `${config?.catColumnSelected?.name} vs ${config?.aggregateType}${selectedFacetValue ? ` for ${selectedFacetValue}` : ''}`,
             triggerEvent: true,
             name: 'facetTitle',
           },
@@ -421,7 +421,8 @@ function EagerSingleEChartsBarChart({
 
         grid: {
           containLabel: false,
-          left: 100,
+          left: AXIS_LABEL_MAX_WIDTH,
+          top: 55, // NOTE: @dv-usama-ansari: Arbitrary value!
         },
 
         legend: {
@@ -431,7 +432,7 @@ function EagerSingleEChartsBarChart({
           icon: 'circle',
         },
       }) as EChartsOption,
-    [chartHeight, selectedFacetValue],
+    [chartHeight, config?.aggregateType, config?.catColumnSelected?.name, selectedFacetValue],
   );
 
   const updateSortSideEffect = React.useCallback(
@@ -490,8 +491,13 @@ function EagerSingleEChartsBarChart({
           type: 'category' as const,
           name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
-          nameGap: 72,
+          nameGap: AXIS_LABEL_MAX_WIDTH - 15,
           data: (v.yAxis as { data: number[] })?.data ?? [],
+          axisPointer: {
+            show: true,
+            type: 'none',
+            triggerTooltip: false,
+          },
           axisLabel: {
             show: true,
             formatter: (value: string) => {

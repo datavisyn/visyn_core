@@ -14,7 +14,23 @@ export interface TestItem {
   type2: 'TYPE_A' | 'TYPE_B' | 'TYPE_C' | 'TYPE_D' | 'TYPE_E';
 }
 
-const POSSIBLE_NAMES = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Hannah', 'Ivan', 'Jack'];
+const POSSIBLE_NAMES = [
+  'Alice Marie Johnson',
+  'Bob James Smith',
+  'Charlie David Brown',
+  'David Michael Williams',
+  'Eve Elizabeth Jones',
+  'Frank Thomas Miller',
+  'Grace Patricia Wilson',
+  'Hannah Barbara Moore',
+  'Ivan Christopher Taylor',
+  'Jack Daniel Anderson',
+  'Alexander Jonathan Christopher William Smith',
+  'Elizabeth Alexandra Catherine Victoria Johnson',
+  'Maximilian Alexander Benjamin Theodore Brown',
+  'Isabella Sophia Olivia Charlotte Williams',
+  'Nathaniel Sebastian Alexander Harrison Jones',
+];
 
 /**
  * Artificially exploded test dataset to check for performance issues.

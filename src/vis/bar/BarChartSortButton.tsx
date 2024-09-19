@@ -55,7 +55,7 @@ export function BarChartSortButton({
             return {
               tooltipLabel: `Sort ${config.catColumnSelected?.name ?? 'selected category'} in descending order`,
               icon: dvSortAsc,
-              color: 'dark',
+              color: selectionColorDark,
               nextSortState: { ...fallbackSortState, x: EBarSortState.DESCENDING },
             };
           }
@@ -63,7 +63,7 @@ export function BarChartSortButton({
             return {
               tooltipLabel: `Remove sorting from ${config.catColumnSelected?.name ?? 'selected category'}`,
               icon: dvSortDesc,
-              color: 'dark',
+              color: selectionColorDark,
               nextSortState: fallbackSortState,
             };
           }

@@ -17,31 +17,35 @@ import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumerica
 import { BarChartSortButton, EBarSortParameters } from './BarChartSortButton';
 import { AggregatedDataType, median, SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, VERTICAL_BAR_CHART_HEIGHT } from './constants';
+import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, VERTICAL_BAR_CHART_HEIGHT } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
 import { createBinLookup, getBarData } from './utils';
 
 const DEFAULT_FACET_NAME = '$default$';
 
-function calculateChartHeight(config: IBarConfig, aggregatedData: AggregatedDataType, containerHeight: number): number {
-  if (config && aggregatedData && containerHeight) {
-    if (config.direction === EBarDirection.VERTICAL) {
-      // use fixed height for vertical bars
-      if (!config.facets && config.useFullHeight) {
-        return containerHeight;
-      }
-      return VERTICAL_BAR_CHART_HEIGHT + CHART_HEIGHT_MARGIN;
-    }
-    if (config.direction === EBarDirection.HORIZONTAL) {
-      // calculate height for horizontal bars
-      const categoryWidth =
-        config.group && config.groupType === EBarGroupingType.STACK
-          ? BAR_WIDTH + BAR_SPACING
-          : (BAR_WIDTH + BAR_SPACING) * (aggregatedData?.groupingsList ?? []).length; // TODO: Make dynamic group length based on series data filtered for null
-      return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING + CHART_HEIGHT_MARGIN;
-    }
+function calculateChartHeight({
+  config,
+  aggregatedData,
+  containerHeight,
+}: {
+  config?: IBarConfig;
+  aggregatedData?: AggregatedDataType;
+  containerHeight: number;
+}): number {
+  if (config?.direction === EBarDirection.HORIZONTAL) {
+    // calculate height for horizontal bars
+    const multiplicationFactor = !config?.group ? 1 : config?.groupType === EBarGroupingType.STACK ? 1 : (aggregatedData?.groupingsList ?? []).length;
+    const categoryWidth = (BAR_WIDTH + BAR_SPACING) * multiplicationFactor;
+    return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING;
   }
-  return 0;
+  if (config?.direction === EBarDirection.VERTICAL) {
+    // use fixed height for vertical bars
+    if (!config?.facets && config?.useFullHeight) {
+      return containerHeight - CHART_HEIGHT_MARGIN;
+    }
+    return VERTICAL_BAR_CHART_HEIGHT;
+  }
+  return DEFAULT_BAR_CHART_HEIGHT;
 }
 
 function getAggregatedDataMap(config: IBarConfig, dataTable: IBarDataTableRow[], selectedMap: ICommonVisProps<IBarConfig>['selectedMap']) {
@@ -399,13 +403,21 @@ export function BarChart({
     [selectedList, selectionCallback],
   );
 
-  const isToolbarVisible = config?.showFocusFacetSelector || showDownloadScreenshot || config?.display !== EBarDisplayType.NORMALIZED;
-  const innerHeight = containerHeight - (isToolbarVisible ? 40 : 0);
+  const chartHeightMap = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
+      if (facet) {
+        map[facet] = calculateChartHeight({ config, aggregatedData: value, containerHeight });
+      }
+    });
+    return map;
+  }, [aggregatedDataMap?.facets, config, containerHeight]);
 
   const itemData = React.useMemo(
     () => ({
       aggregatedDataMap,
       allUniqueFacetVals,
+      chartHeightMap,
       config,
       containerHeight,
       filteredUniqueFacetVals,
@@ -418,6 +430,7 @@ export function BarChart({
     [
       aggregatedDataMap,
       allUniqueFacetVals,
+      chartHeightMap,
       config,
       containerHeight,
       customSelectionCallback,
@@ -429,18 +442,18 @@ export function BarChart({
     ],
   );
 
+  const handleScroll = React.useCallback(({ y }: { y: number }) => {
+    listRef.current?.scrollTo(y);
+  }, []);
+
   const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
     const multiplesVal = props.data.filteredUniqueFacetVals?.[props.index];
 
     return (
-      <Box component="div" style={props.style}>
+      <Box component="div" style={{ ...props.style, padding: '10px 0px' }}>
         <SingleEChartsBarChart
           aggregatedData={props.data.aggregatedDataMap?.facets[multiplesVal as string] as AggregatedDataType}
-          chartHeight={calculateChartHeight(
-            props.data.config!,
-            props.data.aggregatedDataMap?.facets[multiplesVal as string] as AggregatedDataType,
-            props.data.containerHeight,
-          )}
+          chartHeight={props.data.chartHeightMap[multiplesVal as string] ?? DEFAULT_BAR_CHART_HEIGHT}
           config={props.data.config}
           globalMax={props.data.aggregatedDataMap?.globalDomain.max}
           globalMin={props.data.aggregatedDataMap?.globalDomain.min}
@@ -455,16 +468,6 @@ export function BarChart({
       </Box>
     );
   }, []);
-
-  const handleScroll = React.useCallback(({ y }: { y: number }) => {
-    listRef.current?.scrollTo(y);
-  }, []);
-
-  const calculateFacetChartHeight = React.useCallback(
-    (index: number) =>
-      config ? calculateChartHeight(config, aggregatedDataMap?.facets[filteredUniqueFacetVals[index] as string] as AggregatedDataType, containerHeight) : 0,
-    [aggregatedDataMap?.facets, config, containerHeight, filteredUniqueFacetVals],
-  );
 
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
@@ -500,19 +503,23 @@ export function BarChart({
           ) : null}
         </Group>
       ) : null}
-      <Stack gap={0} id={id} style={{ width: '100%', height: innerHeight }}>
+      <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>
         {colsStatus !== 'success' ? (
           <Center>
             <Loader />
           </Center>
         ) : !config?.facets || !allColumns?.facetsColVals ? (
-          <ScrollArea.Autosize h={innerHeight} w={containerWidth} scrollbars="y" offsetScrollbars style={{ overflowX: 'hidden' }}>
+          <ScrollArea.Autosize h={containerHeight - CHART_HEIGHT_MARGIN / 2} w={containerWidth} scrollbars="y" offsetScrollbars style={{ overflowX: 'hidden' }}>
             <SingleEChartsBarChart
               config={config}
               aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
               globalMin={aggregatedDataMap?.globalDomain.min}
               globalMax={aggregatedDataMap?.globalDomain.max}
-              chartHeight={calculateChartHeight(config!, aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType, containerHeight)}
+              chartHeight={calculateChartHeight({
+                config,
+                aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
+                containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
+              })}
               selectedList={selectedList}
               setConfig={setConfig}
               selectionCallback={customSelectionCallback}
@@ -524,12 +531,17 @@ export function BarChart({
 
         {colsStatus === 'success' && config?.facets && allColumns?.facetsColVals ? (
           // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
-          <ScrollArea style={{ width: '100%', height: innerHeight }} onScrollPositionChange={handleScroll} type="hover" scrollHideDelay={0}>
+          <ScrollArea
+            style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+            onScrollPositionChange={handleScroll}
+            type="hover"
+            scrollHideDelay={0}
+          >
             <VariableSizeList
-              height={innerHeight}
+              height={containerHeight - CHART_HEIGHT_MARGIN / 2}
               itemCount={filteredUniqueFacetVals.length}
               itemData={itemData}
-              itemSize={calculateFacetChartHeight}
+              itemSize={(index) => (chartHeightMap[filteredUniqueFacetVals[index] as string] as number) + CHART_HEIGHT_MARGIN}
               width="100%"
               style={{ overflow: 'visible' }}
               ref={listRef}

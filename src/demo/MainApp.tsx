@@ -17,6 +17,7 @@ import {
 } from '../vis';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { fetchTestData, generateTestData } from '../vis/stories/explodedData';
+import { breastCancerData } from '../vis/stories/breastCancerData';
 import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
 
 const testData = generateTestData(100000);
@@ -64,7 +65,7 @@ export function MainApp() {
         useFullHeight: true,
       }) as IBarConfig,
   );
-  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
+  const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);
   const [selection, setSelection] = React.useState<typeof testData>([]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${testData.indexOf(s)}`), [selection]);
