@@ -47,11 +47,7 @@ ScatterPlot.args = {
         name: 'Sepal Width',
       },
     ],
-    facets: {
-      description: '',
-      id: 'species',
-      name: 'Species',
-    },
+    facets: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
