@@ -4,6 +4,7 @@ import { Center, Group, Stack, deepMerge } from '@mantine/core';
 import * as React from 'react';
 import sortBy from 'lodash/sortBy';
 import groupBy from 'lodash/groupBy';
+import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
@@ -184,17 +185,25 @@ export function ScatterVisNew({
     for (let r = 0; r < value.validColumns.length; r++) {
       for (let c = 0; c < value.validColumns.length; c++) {
         const plotlyData = value.validColumns[r].resolvedValues.map((v, i) => ({
-          x: v.val as number,
-          y: value.validColumns[c].resolvedValues[i].val as number,
+          x: value.validColumns[c].resolvedValues[i].val as number,
+          y: v.val as number,
         }));
 
         xyPairs.push({ data: plotlyData, xref: `x${c > 0 ? c + 1 : ''}` as PlotlyTypes.XAxisName, yref: `y${r > 0 ? r + 1 : ''}` as PlotlyTypes.YAxisName });
       }
     }
 
+    const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
+    const idToIndex = new Map<string, number>();
+    ids.forEach((v, i) => {
+      idToIndex.set(v, i);
+    });
+
     return {
       dimensions: plotlyDimensions,
+      idToIndex,
       xyPairs,
+      ids,
     };
   }, [status, value]);
 
@@ -227,10 +236,25 @@ export function ScatterVisNew({
     const xDomain = d3v7.extent(value.validColumns[0].resolvedValues.map((v) => v.val as number));
     const yDomain = d3v7.extent(value.validColumns[1].resolvedValues.map((v) => v.val as number));
 
+    const resultData = groupedData.map((grouped, i) => {
+      const idToIndex = new Map<string, number>();
+      grouped.forEach((v, vi) => {
+        idToIndex.set(v.ids, vi);
+      });
+
+      return {
+        data: grouped,
+        idToIndex,
+        xref: `x${i > 0 ? i + 1 : ''}` as PlotlyTypes.XAxisName,
+        yref: `y${i > 0 ? i + 1 : ''}` as PlotlyTypes.YAxisName,
+      };
+    });
+
     return {
-      groupedData,
+      resultData,
       xDomain,
       yDomain,
+      ids: value.validColumns[0].resolvedValues.map((v) => v.id),
     };
   }, [status, value]);
 
@@ -265,9 +289,9 @@ export function ScatterVisNew({
     if (facet) {
       const plotlyShapes: Partial<PlotlyTypes.Shape>[] = [];
 
-      facet.groupedData.forEach((group, plotCounter) => {
+      facet.resultData.forEach((group, plotCounter) => {
         const curveFit = fitRegressionLine(
-          { x: group.map((e) => e.x), y: group.map((e) => e.y) },
+          { x: group.data.map((e) => e.x), y: group.data.map((e) => e.y) },
           config.regressionLineOptions.type,
           config.regressionLineOptions.fitOptions,
         );
@@ -308,6 +332,8 @@ export function ScatterVisNew({
           });
         }
       });
+
+      console.log(plotlyShapes);
 
       return { shapes: plotlyShapes, results };
     }
@@ -358,7 +384,7 @@ export function ScatterVisNew({
       const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
       const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
 
-      facet.groupedData.forEach((group, plotCounter) => {
+      facet.resultData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           range: facet.xDomain,
           // Spread the previous layout to keep things like zoom
@@ -384,7 +410,7 @@ export function ScatterVisNew({
           yref: `y${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.YAxisName,
           xanchor: 'center',
           yanchor: 'bottom',
-          text: group[0].facet,
+          text: group.data[0].facet,
           showarrow: false,
           font: {
             size: 12,
@@ -426,6 +452,7 @@ export function ScatterVisNew({
         {
           ...BASE_LAYOUT,
           ...axes,
+          shapes: regressions.shapes,
         },
         internalLayoutRef.current,
       );
@@ -439,6 +466,7 @@ export function ScatterVisNew({
   // Control certain plotly behaviors
   if (layout) {
     layout.dragmode = config.dragMode;
+    layout.shapes = regressions.shapes;
   }
 
   const data = React.useMemo<PlotlyTypes.Data[]>(() => {
@@ -465,6 +493,11 @@ export function ScatterVisNew({
       : null;
 
     if (scatter) {
+      const idToIndex = new Map<string, number>();
+      scatter.plotlyData.forEach((v, i) => {
+        idToIndex.set(v.ids, i);
+      });
+
       return [
         {
           type: 'scattergl',
@@ -473,6 +506,7 @@ export function ScatterVisNew({
           showlegend: false,
           xaxis: 'x',
           yaxis: 'y',
+          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => idToIndex.get(idx)) }),
           mode: 'markers',
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
@@ -502,18 +536,19 @@ export function ScatterVisNew({
       const xLabel = columnNameWithDescription(value.validColumns[0].info);
       const yLabel = columnNameWithDescription(value.validColumns[1].info);
 
-      const plots = facet.groupedData.map((group, plotCounter) => {
+      const plots = facet.resultData.map((group, plotCounter) => {
         return {
           type: 'scattergl',
-          x: group.map((d) => d.x as number),
-          y: group.map((d) => d.y as number),
+          x: group.data.map((d) => d.x as number),
+          y: group.data.map((d) => d.y as number),
           showlegend: false,
           // ids: group.map((d) => d.ids),
           xaxis: plotCounter === 0 ? 'x' : `x${plotCounter + 1}`,
           yaxis: plotCounter === 0 ? 'y' : `y${plotCounter + 1}`,
           mode: 'markers',
-          name: getLabelOrUnknown(group[0].facet),
-          hovertext: group.map((d) =>
+          name: getLabelOrUnknown(group.data[0].facet),
+          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => group.idToIndex.get(idx)).filter((v) => v !== undefined) }),
+          hovertext: group.data.map((d) =>
             `${value.idToLabelMapper(d.ids)}
             <br />${xLabel}: ${d.x}
             <br />${yLabel}: ${d.y}
@@ -523,7 +558,7 @@ export function ScatterVisNew({
           ),
           marker: {
             color: value.colorColumn
-              ? group.map((d) =>
+              ? group.data.map((d) =>
                   value.colorColumn.type === EColumnTypes.NUMERICAL
                     ? numericalColorScale(d.color as number)
                     : value.colorColumn.color
@@ -531,7 +566,7 @@ export function ScatterVisNew({
                       : scales.color(d.color),
                 )
               : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? group.map((d) => shapeScale(d.shape as string)) : 'circle',
+            symbol: value.shapeColumn ? group.data.map((d) => shapeScale(d.shape as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
           ...baseData(config.alphaSliderVal),
@@ -560,6 +595,7 @@ export function ScatterVisNew({
   ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i].val)}` : ''}
   ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i].val)}` : ''}`.trim(),
           ),
+          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
           marker: {
             color: value.colorColumn
               ? value.colorColumn.resolvedValues.map((v) =>
@@ -579,7 +615,7 @@ export function ScatterVisNew({
     }
 
     return [];
-  }, [status, value, config.numColorScaleType, config.alphaSliderVal, shapes, scatter, facet, splom, scales]);
+  }, [status, value, config.numColorScaleType, config.alphaSliderVal, shapes, scatter, facet, splom, selectedList, scales]);
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
@@ -600,7 +636,34 @@ export function ScatterVisNew({
         data={data}
         layout={layout}
         onUpdate={(figure) => {
+          console.log(figure.data);
           internalLayoutRef.current = cloneDeep(figure.layout);
+        }}
+        onDeselect={() => {
+          selectionCallback([]);
+        }}
+        onSelected={(event) => {
+          if (event && event.points.length > 0) {
+            if (scatter) {
+              const ids = event.points.map((point) => scatter.plotlyData[point.pointIndex].ids);
+              selectionCallback(ids);
+            }
+            if (splom) {
+              const ids = event.points.map((point) => splom.ids[point.pointIndex]);
+              selectionCallback(ids);
+            }
+            if (facet) {
+              console.log(event);
+              // Get xref and yref of selecting plot
+              const { xaxis, yaxis } = event.points[0].data;
+
+              // Find group
+              const group = facet.resultData.find((g) => g.xref === xaxis && g.yref === yaxis);
+
+              const ids = event.points.map((point) => group.data[point.pointIndex].ids);
+              selectionCallback(ids);
+            }
+          }
         }}
         config={{ responsive: true, scrollZoom, displayModeBar: false }}
         useResizeHandler
