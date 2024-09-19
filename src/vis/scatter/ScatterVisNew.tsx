@@ -216,18 +216,20 @@ export function ScatterVisNew({
 
       facet.groupedData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
+          range: facet.xDomain,
+          // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
           matches: 'x',
-          range: facet.xDomain,
           // @ts-ignore
           anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
+          range: facet.yDomain,
+          // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
           matches: 'y',
-          range: facet.yDomain,
           // @ts-ignore
           anchor: `x${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
@@ -252,16 +254,6 @@ export function ScatterVisNew({
         ...(internalLayoutRef.current || {}),
         grid: { rows: 2, columns: 3, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
         ...axes,
-        xaxis: {
-          // Spread the previous layout to keep things like zoom
-          ...(internalLayoutRef.current?.xaxis || {}),
-          anchor: 'y',
-        },
-        yaxis: {
-          // Spread the previous layout to keep things like zoom
-          ...(internalLayoutRef.current?.yaxis || {}),
-          anchor: 'x',
-        },
         annotations: titleAnnotations,
         shapes: regressions.filter((r) => r !== null) as PlotlyTypes.Shape[],
       };
