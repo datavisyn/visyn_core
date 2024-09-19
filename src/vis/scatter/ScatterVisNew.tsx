@@ -1,5 +1,6 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as d3v7 from 'd3v7';
+import { useWindowEvent } from '@mantine/hooks';
 import { Center, Group, Stack, deepMerge } from '@mantine/core';
 import * as React from 'react';
 import sortBy from 'lodash/sortBy';
@@ -119,6 +120,20 @@ export function ScatterVisNew({
   showDownloadScreenshot,
 }: ICommonVisProps<IInternalScatterConfig>) {
   const id = `ScatterVis_${React.useId()}`;
+
+  const [shiftPressed, setShiftPressed] = React.useState(false);
+
+  useWindowEvent('keydown', (event) => {
+    if (event.shiftKey) {
+      setShiftPressed(true);
+    }
+  });
+
+  useWindowEvent('keyup', (event) => {
+    if (!event.shiftKey) {
+      setShiftPressed(false);
+    }
+  });
 
   // Base data to work on
   const { value, status, args } = useAsync(fetchColumnData, [
@@ -332,8 +347,6 @@ export function ScatterVisNew({
           });
         }
       });
-
-      console.log(plotlyShapes);
 
       return { shapes: plotlyShapes, results };
     }
@@ -644,13 +657,21 @@ export function ScatterVisNew({
         }}
         onSelected={(event) => {
           if (event && event.points.length > 0) {
+            const mergeIntoSelection = (ids: string[]) => {
+              if (shiftPressed) {
+                selectionCallback(Array.from(new Set([...selectedList, ...ids])));
+              } else {
+                selectionCallback(ids);
+              }
+            };
+
             if (scatter) {
               const ids = event.points.map((point) => scatter.plotlyData[point.pointIndex].ids);
-              selectionCallback(ids);
+              mergeIntoSelection(ids);
             }
             if (splom) {
               const ids = event.points.map((point) => splom.ids[point.pointIndex]);
-              selectionCallback(ids);
+              mergeIntoSelection(ids);
             }
             if (facet) {
               console.log(event);
@@ -661,7 +682,7 @@ export function ScatterVisNew({
               const group = facet.resultData.find((g) => g.xref === xaxis && g.yref === yaxis);
 
               const ids = event.points.map((point) => group.data[point.pointIndex].ids);
-              selectionCallback(ids);
+              mergeIntoSelection(ids);
             }
           }
         }}
