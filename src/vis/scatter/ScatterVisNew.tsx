@@ -118,26 +118,29 @@ export function ScatterVisNew({
 }: ICommonVisProps<IInternalScatterConfig>) {
   const id = `ScatterVis_${React.useId()}`;
 
-  // Ref to previous config
-  const previousConfigRef = React.useRef(undefined);
-  if (previousConfigRef.current === undefined) {
-    previousConfigRef.current = { ...config };
-  }
+  // Base data to work on
+  const { value, status, args } = useAsync(fetchColumnData, [
+    columns,
+    config.numColumnsSelected,
+    config.labelColumns,
+    config.color,
+    config.shape,
+    config.facets,
+  ]);
+
+  // Ref to previous arguments for useAsync
+  const previousArgs = React.useRef<typeof args>(args);
 
   // Plotlys internal layout state
   const internalLayoutRef = React.useRef<Partial<PlotlyTypes.Layout>>({});
 
-  const conditionToClear = config.facets !== previousConfigRef.current.facets || config.numColumnsSelected !== previousConfigRef.current.numColumnsSelected;
-
-  // If we reset plot settings
-  if (conditionToClear) {
-    console.log('clearing');
+  // If the useAsync arguments change, clear the internal layout state.
+  // Why not just use the config to compare things?
+  // Because the useAsync takes one render cycle to update the value, and inbetween that, plotly has already updated the internalLayoutRef again with the old one.
+  if (args?.[1] !== previousArgs.current?.[1] || args?.[5] !== previousArgs.current?.[5]) {
     internalLayoutRef.current = {};
-    previousConfigRef.current = { ...config };
+    previousArgs.current = args;
   }
-
-  // Base data to work on
-  const { value, status } = useAsync(fetchColumnData, [columns, config.numColumnsSelected, config.labelColumns, config.color, config.shape, config.facets]);
 
   // Grouped by facets if we have any
   const facet = React.useMemo(() => {
@@ -433,12 +436,7 @@ export function ScatterVisNew({
         data={data}
         layout={layout}
         onUpdate={(figure) => {
-          console.log(layout);
           internalLayoutRef.current = cloneDeep(figure.layout);
-        }}
-        onRelayout={(changes) => {
-          // console.log(changes);
-          // internalLayoutRef.current = deepMerge(internalLayoutRef.current, changes);
         }}
         onSelected={(sel) => {
           console.log(sel);
