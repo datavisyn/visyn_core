@@ -216,6 +216,7 @@ export function ScatterVisNew({
 
       facet.groupedData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
+          ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
           matches: 'x',
           range: facet.xDomain,
@@ -223,6 +224,7 @@ export function ScatterVisNew({
           anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
+          ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
           matches: 'y',
           range: facet.yDomain,
@@ -245,30 +247,24 @@ export function ScatterVisNew({
         });
       });
 
-      const finalLayout = deepMerge(
-        {
-          ...BASE_LAYOUT,
-          grid: { rows: 2, columns: 3, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
-          ...axes,
-          xaxis: {
-            range:
-              'xaxis.range[0]' in internalLayoutRef.current && 'xaxis.range[1]' in internalLayoutRef.current
-                ? [internalLayoutRef.current['xaxis.range[0]'], internalLayoutRef.current['xaxis.range[1]']]
-                : facet.xDomain,
-            anchor: 'y',
-          },
-          yaxis: {
-            range:
-              'yaxis.range[0]' in internalLayoutRef.current && 'yaxis.range[1]' in internalLayoutRef.current
-                ? [internalLayoutRef.current['yaxis.range[0]'], internalLayoutRef.current['yaxis.range[1]']]
-                : facet.yDomain,
-            anchor: 'x',
-          },
-          annotations: titleAnnotations,
-          shapes: regressions.filter((r) => r !== null) as PlotlyTypes.Shape[],
+      const finalLayout = {
+        ...BASE_LAYOUT,
+        ...(internalLayoutRef.current || {}),
+        grid: { rows: 2, columns: 3, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
+        ...axes,
+        xaxis: {
+          // Spread the previous layout to keep things like zoom
+          ...(internalLayoutRef.current?.xaxis || {}),
+          anchor: 'y',
         },
-        internalLayoutRef.current,
-      );
+        yaxis: {
+          // Spread the previous layout to keep things like zoom
+          ...(internalLayoutRef.current?.yaxis || {}),
+          anchor: 'x',
+        },
+        annotations: titleAnnotations,
+        shapes: regressions.filter((r) => r !== null) as PlotlyTypes.Shape[],
+      };
 
       return finalLayout;
     }
