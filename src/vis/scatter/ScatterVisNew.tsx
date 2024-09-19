@@ -145,7 +145,7 @@ export function ScatterVisNew({
 
   // Case when we have just a scatterplot
   const scatter = React.useMemo(() => {
-    if (!(status === 'success' && value && value.validColumns.length === 2)) {
+    if (!(status === 'success' && value && value.validColumns.length === 2 && !value.facetColumn)) {
       return undefined;
     }
 
@@ -602,7 +602,7 @@ export function ScatterVisNew({
         onUpdate={(figure) => {
           internalLayoutRef.current = cloneDeep(figure.layout);
         }}
-        config={{ responsive: true, scrollZoom }}
+        config={{ responsive: true, scrollZoom, displayModeBar: false }}
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
       />
