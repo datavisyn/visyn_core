@@ -14,57 +14,14 @@ import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
-import { fetchColumnData } from './utilsNew';
+import { fetchColumnData, regressionToAnnotation } from './utilsNew';
 import { getLabelOrUnknown } from '../general/utils';
 import { getCssValue } from '../../utils/getCssValue';
 import { selectionColorDark } from '../../utils/colors';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { fitRegressionLine } from './Regression';
 import { defaultRegressionLineStyle } from './utils';
-
-const formatPValue = (pValue: number) => {
-  if (pValue === null) {
-    return '';
-  }
-  if (pValue < 0.001) {
-    return `<i>(P<.001)</i>`;
-  }
-  return `<i>(P=${pValue.toFixed(3).toString().replace(/^0+/, '')})</i>`;
-};
-
-const annotationsForRegressionStats = (results: IRegressionResult[], precision: number) => {
-  const annotations: Partial<PlotlyTypes.Annotations>[] = [];
-
-  for (const r of results) {
-    const statsFormatted = [
-      `n: ${r.stats.n}`,
-      `R²: ${r.stats.r2 < 0.001 ? '<0.001' : r.stats.r2} ${formatPValue(r.stats.pValue)}`,
-      `Pearson: ${r.stats.pearsonRho?.toFixed(precision)}`,
-      `Spearman: ${r.stats.spearmanRho?.toFixed(precision)}`,
-    ];
-
-    annotations.push({
-      x: 0.0,
-      y: 1.0,
-      xref: `${r.xref} domain` as PlotlyTypes.XAxisName,
-      yref: `${r.yref} domain` as PlotlyTypes.YAxisName,
-      text: statsFormatted.map((row) => `${row}`).join('<br>'),
-      showarrow: false,
-      font: {
-        family: 'Roboto, sans-serif',
-        size: results.length > 1 ? 12 : 13.4,
-        color: '#99A1A9',
-      },
-      align: 'left',
-      xanchor: 'left',
-      yanchor: 'top',
-      bgcolor: 'rgba(255, 255, 255, 0.8)',
-      xshift: 10,
-      yshift: -10,
-    });
-  }
-  return annotations;
-};
+import { useDataPreparation } from './useDataPreparation';
 
 const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
   hovermode: 'closest',
@@ -92,7 +49,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
     },
     unselected: {
       textfont: {
-        color: selectionColorDark,
+        color: VIS_NEUTRAL_COLOR,
       },
       marker: {
         color: VIS_NEUTRAL_COLOR,
@@ -105,7 +62,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
 export function ScatterVisNew({
   config,
   columns,
-  shapes = ['circle', 'square', 'triangle-up', 'star'],
+  shapes: uniqueSymbols = ['circle', 'square', 'triangle-up', 'star'],
   stats,
   statsCallback = () => null,
   selectionCallback = () => null,
@@ -159,128 +116,20 @@ export function ScatterVisNew({
     previousArgs.current = args;
   }
 
-  // Case when we have just a scatterplot
-  const scatter = React.useMemo(() => {
-    if (!(status === 'success' && value && value.validColumns.length === 2 && !value.facetColumn)) {
-      return undefined;
-    }
+  const { scatter, splom, facet } = useDataPreparation({ value, status });
 
-    const xLabel = columnNameWithDescription(value.validColumns[0].info);
-    const yLabel = columnNameWithDescription(value.validColumns[1].info);
-
-    const plotlyData = value.validColumns[0].resolvedValues.map((v, i) => ({
-      x: v.val,
-      y: value.validColumns[1].resolvedValues[i].val,
-      ids: v.id?.toString(),
-      color: value.colorColumn ? value.colorColumn.resolvedValues[i].val : undefined,
-      shape: value.shapeColumn ? value.shapeColumn.resolvedValues[i].val : undefined,
-    }));
-
-    return {
-      plotlyData,
-      xLabel,
-      yLabel,
-    };
-  }, [status, value]);
-
-  // Case when we have a scatterplot matrix
-  const splom = React.useMemo(() => {
-    if (!(status === 'success' && value && value.validColumns.length > 2)) {
-      return undefined;
-    }
-
-    const plotlyDimensions = value.validColumns.map((col) => ({
-      label: col.info.name,
-      values: col.resolvedValues.map((v) => v.val),
-    }));
-
-    // Split up data to xy plot pairs (for regression and subplots)
-    const xyPairs: { data: { x: number; y: number }[]; xref: PlotlyTypes.XAxisName; yref: PlotlyTypes.YAxisName }[] = [];
-
-    for (let r = 0; r < value.validColumns.length; r++) {
-      for (let c = 0; c < value.validColumns.length; c++) {
-        const plotlyData = value.validColumns[r].resolvedValues.map((v, i) => ({
-          x: value.validColumns[c].resolvedValues[i].val as number,
-          y: v.val as number,
-        }));
-
-        xyPairs.push({ data: plotlyData, xref: `x${c > 0 ? c + 1 : ''}` as PlotlyTypes.XAxisName, yref: `y${r > 0 ? r + 1 : ''}` as PlotlyTypes.YAxisName });
-      }
-    }
-
-    const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
-    const idToIndex = new Map<string, number>();
-    ids.forEach((v, i) => {
-      idToIndex.set(v, i);
-    });
-
-    return {
-      dimensions: plotlyDimensions,
-      idToIndex,
-      xyPairs,
-      ids,
-    };
-  }, [status, value]);
-
-  // Case when we have faceting
-  const facet = React.useMemo(() => {
-    if (!(status === 'success' && value && value.facetColumn && value.validColumns.length === 2)) {
-      return undefined;
-    }
-
-    const plotlyData = value.validColumns[0].resolvedValues.map((v, i) => ({
-      x: v.val,
-      y: value.validColumns[1].resolvedValues[i].val,
-      ids: v.id?.toString(),
-      facet: value.facetColumn.resolvedValues[i].val?.toString(),
-      color: value.colorColumn ? value.colorColumn.resolvedValues[i].val : undefined,
-      shape: value.shapeColumn ? value.shapeColumn.resolvedValues[i].val : undefined,
-    }));
-
-    const sortOrder =
-      (value.facetColumn.domain as string[]) ||
-      [...new Set(value.facetColumn.resolvedValues.map((v) => v.val as string))].sort((a, b) => a?.localeCompare(b, undefined, { sensitivity: 'base' }));
-
-    const groupedData = sortBy(groupBy(plotlyData, 'facet'), (group) => {
-      const facetValue = group[0].facet;
-      const index = sortOrder.indexOf(facetValue);
-      return index !== -1 ? index : Infinity;
-    });
-
-    // Get shared range for all plots
-    const xDomain = d3v7.extent(value.validColumns[0].resolvedValues.map((v) => v.val as number));
-    const yDomain = d3v7.extent(value.validColumns[1].resolvedValues.map((v) => v.val as number));
-
-    const resultData = groupedData.map((grouped, i) => {
-      const idToIndex = new Map<string, number>();
-      grouped.forEach((v, vi) => {
-        idToIndex.set(v.ids, vi);
-      });
-
-      return {
-        data: grouped,
-        idToIndex,
-        xref: `x${i > 0 ? i + 1 : ''}` as PlotlyTypes.XAxisName,
-        yref: `y${i > 0 ? i + 1 : ''}` as PlotlyTypes.YAxisName,
-      };
-    });
-
-    return {
-      resultData,
-      xDomain,
-      yDomain,
-      ids: value.validColumns[0].resolvedValues.map((v) => v.id),
-    };
-  }, [status, value]);
-
-  const regressions = React.useMemo<{ results: IRegressionResult[]; shapes: Partial<PlotlyTypes.Shape>[] }>(() => {
+  const regressions = React.useMemo<{
+    results: IRegressionResult[];
+    shapes: Partial<PlotlyTypes.Shape>[];
+    annotations: Partial<PlotlyTypes.Annotations>[];
+  }>(() => {
     if (status !== 'success' || !value || !config.regressionLineOptions?.type || config.regressionLineOptions.type === ERegressionLineType.NONE) {
-      return { shapes: [], results: [] };
+      return { shapes: [], annotations: [], results: [] };
     }
 
     if (scatter) {
       const curveFit = fitRegressionLine(
-        { x: scatter.plotlyData.map((e) => e.x), y: scatter.plotlyData.map((e) => e.y) },
+        { x: scatter.plotlyData.x, y: scatter.plotlyData.y },
         config.regressionLineOptions.type,
         config.regressionLineOptions.fitOptions,
       );
@@ -297,32 +146,36 @@ export function ScatterVisNew({
             },
           ],
           results: [curveFit],
+          annotations: [regressionToAnnotation(curveFit, 3, 'x', 'y')],
         };
       }
     }
 
     if (facet) {
-      const plotlyShapes: Partial<PlotlyTypes.Shape>[] = [];
+      const shapes: Partial<PlotlyTypes.Shape>[] = [];
+      const annotations: Partial<PlotlyTypes.Annotations>[] = [];
 
       facet.resultData.forEach((group, plotCounter) => {
         const curveFit = fitRegressionLine(
-          { x: group.data.map((e) => e.x), y: group.data.map((e) => e.y) },
+          { x: group.data.map((e) => e.x as number), y: group.data.map((e) => e.y as number) },
           config.regressionLineOptions.type,
           config.regressionLineOptions.fitOptions,
         );
 
         if (!curveFit.svgPath.includes('NaN')) {
-          plotlyShapes.push({
+          shapes.push({
             type: 'path',
             path: curveFit.svgPath,
             line: lineStyleToPlotlyShapeLine({ ...defaultRegressionLineStyle, ...config.regressionLineOptions.lineStyle }),
-            xref: `x${plotCounter > 0 ? plotCounter + 1 : ''}` as PlotlyTypes.XAxisName,
-            yref: `y${plotCounter > 0 ? plotCounter + 1 : ''}` as PlotlyTypes.YAxisName,
+            xref: group.xref,
+            yref: group.yref,
           });
+
+          annotations.push(regressionToAnnotation(curveFit, 3, group.xref, group.yref));
         }
       });
 
-      return { shapes: plotlyShapes, results: [] };
+      return { shapes, results: [], annotations };
     }
 
     if (splom) {
@@ -331,11 +184,7 @@ export function ScatterVisNew({
       const plotlyShapes: Partial<PlotlyTypes.Shape>[] = [];
       // eslint-disable-next-line guard-for-in
       splom.xyPairs.forEach((pair, i) => {
-        const curveFit = fitRegressionLine(
-          { x: pair.data.map((e) => e.x), y: pair.data.map((e) => e.y) },
-          config.regressionLineOptions.type,
-          config.regressionLineOptions.fitOptions,
-        );
+        const curveFit = fitRegressionLine({ x: pair.data.x, y: pair.data.y }, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
 
         if (!curveFit.svgPath.includes('NaN')) {
           plotlyShapes.push({
@@ -348,10 +197,10 @@ export function ScatterVisNew({
         }
       });
 
-      return { shapes: plotlyShapes, results };
+      return { shapes: plotlyShapes, results, annotations: [] };
     }
 
-    return { shapes: [], results: [] };
+    return { shapes: [], results: [], annotations: [] };
   }, [
     status,
     value,
@@ -388,6 +237,7 @@ export function ScatterVisNew({
           ...internalLayoutRef.current?.yaxis,
         },
         shapes: regressions.shapes,
+        annotations: regressions.annotations,
       };
 
       return finalLayout;
@@ -437,7 +287,7 @@ export function ScatterVisNew({
         ...(internalLayoutRef.current || {}),
         grid: { rows: 2, columns: 3, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
         ...axes,
-        annotations: titleAnnotations,
+        annotations: [...titleAnnotations, ...regressions.annotations],
         shapes: regressions.shapes,
       };
 
@@ -461,25 +311,23 @@ export function ScatterVisNew({
         axes[`yaxis${i > 0 ? i + 1 : ''}`] = axis();
       }
 
-      const finalLayout = deepMerge(
-        {
-          ...BASE_LAYOUT,
-          ...axes,
-          shapes: regressions.shapes,
-        },
-        internalLayoutRef.current,
-      );
+      const finalLayout: Partial<PlotlyTypes.Layout> = {
+        ...BASE_LAYOUT,
+        ...axes,
+        ...(internalLayoutRef.current || {}),
+        shapes: regressions.shapes,
+      };
 
       return finalLayout;
     }
 
     return {};
-  }, [scatter, facet, splom, regressions.shapes, value?.validColumns?.length]);
+  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, value?.validColumns.length]);
 
   // Control certain plotly behaviors
   if (layout) {
     layout.dragmode = config.dragMode;
-    layout.shapes = regressions.shapes;
+    // layout.shapes = regressions.shapes;
   }
 
   const data = React.useMemo<PlotlyTypes.Data[]>(() => {
@@ -502,24 +350,22 @@ export function ScatterVisNew({
       ? d3v7
           .scaleOrdinal<string>()
           .domain(value.shapeColumn.resolvedValues.map((v) => v.val as string))
-          .range(shapes)
+          .range(uniqueSymbols)
       : null;
 
     if (scatter) {
-      const idToIndex = new Map<string, number>();
-      scatter.plotlyData.forEach((v, i) => {
-        idToIndex.set(v.ids, i);
-      });
-
       return [
         {
           type: 'scattergl',
-          x: scatter.plotlyData.map((e) => e.x),
-          y: scatter.plotlyData.map((e) => e.y),
+          x: scatter.plotlyData.x,
+          y: scatter.plotlyData.y,
           showlegend: false,
+          // text: scatter.plotlyData.text,
+          // @ts-ignore
+          textposition: 'top center',
           xaxis: 'x',
           yaxis: 'y',
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => idToIndex.get(idx)) }),
+          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: 'markers',
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
@@ -542,6 +388,34 @@ export function ScatterVisNew({
           },
           ...baseData(config.alphaSliderVal),
         } as PlotlyTypes.Data,
+        {
+          type: 'scattergl',
+          name: '',
+          x: scatter.plotlyData.x.map((x) => x + Math.random() * 0.3),
+          y: scatter.plotlyData.y.map((y) => y + Math.random() * 0.3),
+          showlegend: false,
+          hoverinfo: 'none',
+          hovertemplate: '',
+          hoverlabel: { bgcolor: 'transparent', bordercolor: 'transparent', font: { color: 'transparent' } },
+          text: scatter.plotlyData.text,
+          xaxis: 'x',
+          yaxis: 'y',
+          selectedpoints: [],
+          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
+          mode: 'text',
+          marker: {
+            selected: {
+              textfont: {
+                color: VIS_NEUTRAL_COLOR,
+              },
+            },
+            unselected: {
+              textfont: {
+                color: VIS_NEUTRAL_COLOR,
+              },
+            },
+          },
+        } as PlotlyTypes.Data,
       ];
     }
 
@@ -549,15 +423,14 @@ export function ScatterVisNew({
       const xLabel = columnNameWithDescription(value.validColumns[0].info);
       const yLabel = columnNameWithDescription(value.validColumns[1].info);
 
-      const plots = facet.resultData.map((group, plotCounter) => {
+      const plots = facet.resultData.map((group) => {
         return {
           type: 'scattergl',
           x: group.data.map((d) => d.x as number),
           y: group.data.map((d) => d.y as number),
           showlegend: false,
-          // ids: group.map((d) => d.ids),
-          xaxis: plotCounter === 0 ? 'x' : `x${plotCounter + 1}`,
-          yaxis: plotCounter === 0 ? 'y' : `y${plotCounter + 1}`,
+          xaxis: group.xref,
+          yaxis: group.yref,
           mode: 'markers',
           name: getLabelOrUnknown(group.data[0].facet),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => group.idToIndex.get(idx)).filter((v) => v !== undefined) }),
@@ -628,7 +501,7 @@ export function ScatterVisNew({
     }
 
     return [];
-  }, [status, value, config.numColorScaleType, config.alphaSliderVal, shapes, scatter, facet, splom, selectedList, scales]);
+  }, [status, value, config.numColorScaleType, config.alphaSliderVal, uniqueSymbols, scatter, facet, splom, selectedList, scales]);
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
@@ -649,13 +522,13 @@ export function ScatterVisNew({
         data={data}
         layout={layout}
         onUpdate={(figure) => {
-          console.log(figure.data);
           internalLayoutRef.current = cloneDeep(figure.layout);
         }}
         onDeselect={() => {
           selectionCallback([]);
         }}
         onSelected={(event) => {
+          console.log(event);
           if (event && event.points.length > 0) {
             const mergeIntoSelection = (ids: string[]) => {
               if (shiftPressed) {
@@ -666,7 +539,7 @@ export function ScatterVisNew({
             };
 
             if (scatter) {
-              const ids = event.points.map((point) => scatter.plotlyData[point.pointIndex].ids);
+              const ids = event.points.map((point) => scatter.plotlyData.ids[point.pointIndex]);
               mergeIntoSelection(ids);
             }
             if (splom) {
@@ -674,7 +547,6 @@ export function ScatterVisNew({
               mergeIntoSelection(ids);
             }
             if (facet) {
-              console.log(event);
               // Get xref and yref of selecting plot
               const { xaxis, yaxis } = event.points[0].data;
 

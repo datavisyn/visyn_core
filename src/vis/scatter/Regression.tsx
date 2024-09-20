@@ -100,8 +100,8 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
  * @return {number} - The r^2 value, or NaN if one cannot be calculated.
  */
 function determinationCoefficient(data: RegressionData, results: RegressionData) {
-  const predictions = [];
-  const observations = [];
+  const predictions: number[][] = [];
+  const observations: number[][] = [];
 
   data.forEach((d, i) => {
     if (d[1] !== null) {
@@ -315,7 +315,7 @@ const methods = {
       .join(' ');
 
     const r2 = determinationCoefficient(data, points);
-    const pValue = null; // did not define p-value for exponential regression
+    const pValue = null as number; // did not define p-value for exponential regression
 
     return {
       stats: {
@@ -335,7 +335,7 @@ const regressionMethodsMapping = {
 };
 
 export const fitRegressionLine = (
-  data: Partial<Plotly.PlotData>,
+  data: { x: number[]; y: number[] },
   method: ERegressionLineType,
   options: IRegressionFitOptions = DEFAULT_CURVE_FIT_OPTIONS,
 ): IRegressionResult => {
@@ -346,16 +346,15 @@ export const fitRegressionLine = (
 
   const pearsonRho = round(corrcoeff(x, y), options.precision);
   const spearmanRho = round(spearmancoeff(x, y), options.precision);
-  const regressionResult = regressionMethodsMapping[method]
-    ? methods[regressionMethodsMapping[method]](
-        x.map((val, i) => [val, y[i]]),
-        options,
-      )
-    : null;
+  const fnc = method === ERegressionLineType.LINEAR ? methods.linear : methods.polynomial;
+
+  const regressionResult = fnc(
+    x.map((val, i) => [val, y[i]]),
+    options,
+  );
+
   return {
     ...regressionResult,
     stats: { ...regressionResult.stats, pearsonRho, spearmanRho },
-    xref: data.xaxis,
-    yref: data.yaxis,
   };
 };
