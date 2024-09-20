@@ -7,7 +7,7 @@ import * as React from 'react';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { AXIS_LABEL_MAX_WIDTH, BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
+import { BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig } from './interfaces';
 
 // TODO: @dv-usama-ansari: Move this into utils
@@ -253,37 +253,54 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
   const categoriesRef = React.useRef<string[]>([]);
-  const truncatedTextRef = React.useRef<{ [value: string]: string }>({});
+  const truncatedTextRef = React.useRef<{ labels: { [value: string]: string }; longestLabelWidth: number; containerWidth: number }>({
+    labels: {},
+    longestLabelWidth: 0,
+    containerWidth,
+  });
 
-  const getTruncatedText = React.useCallback((value: string) => {
-    if (truncatedTextRef.current[value] !== undefined) {
-      return truncatedTextRef.current[value];
-    }
+  const [gridLeft, setGridLeft] = React.useState(0);
 
-    const textEl = document.createElement('p');
-    textEl.style.position = 'absolute';
-    textEl.style.visibility = 'hidden';
-    textEl.style.whiteSpace = 'nowrap';
-    textEl.style.maxWidth = `${AXIS_LABEL_MAX_WIDTH}px`;
-    textEl.innerText = value;
+  React.useEffect(() => {
+    setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
+    // NOTE: @dv-usama-ansari: `truncatedTextRef.current.longestLabelWidth` should not be a dependency of this `useEffect`.
+    // eslint-disable-next-line react-compiler/react-compiler
+  }, [containerWidth, truncatedTextRef.current.longestLabelWidth]);
 
-    document.body.appendChild(textEl);
-
-    let truncatedText = '';
-    for (let i = 0; i < value.length; i++) {
-      textEl.innerText = `${truncatedText + value[i]}...`;
-      if (textEl.scrollWidth > textEl.clientWidth) {
-        truncatedText += '...';
-        break;
+  const getTruncatedText = React.useCallback(
+    (value: string, parentWidth: number) => {
+      // NOTE: @dv-usama-ansari: This might be a performance bottleneck if the number of labels is very high and/or the parentWidth changes frequently (when the viewport is resized).
+      if (containerWidth === truncatedTextRef.current.containerWidth && truncatedTextRef.current.labels[value] !== undefined) {
+        return truncatedTextRef.current.labels[value];
       }
-      truncatedText += value[i];
-    }
 
-    document.body.removeChild(textEl);
+      const textEl = document.createElement('p');
+      textEl.style.position = 'absolute';
+      textEl.style.visibility = 'hidden';
+      textEl.style.whiteSpace = 'nowrap';
+      textEl.style.maxWidth = `${Math.max(gridLeft, parentWidth / 3) - 20}px`;
+      textEl.innerText = value;
 
-    truncatedTextRef.current[value] = truncatedText;
-    return truncatedText;
-  }, []);
+      document.body.appendChild(textEl);
+      truncatedTextRef.current.longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
+
+      let truncatedText = '';
+      for (let i = 0; i < value.length; i++) {
+        textEl.innerText = `${truncatedText + value[i]}...`;
+        if (textEl.scrollWidth > textEl.clientWidth) {
+          truncatedText += '...';
+          break;
+        }
+        truncatedText += value[i];
+      }
+
+      document.body.removeChild(textEl);
+
+      truncatedTextRef.current.labels[value] = truncatedText;
+      return truncatedText;
+    },
+    [containerWidth, gridLeft],
+  );
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -393,49 +410,48 @@ function EagerSingleEChartsBarChart({
     [config?.catColumnSelected, config?.display, config?.group, config?.groupType],
   );
 
-  const optionBase = React.useMemo(
-    () =>
-      ({
-        height: `${chartHeight}px`,
-        animation: false,
+  const optionBase = React.useMemo(() => {
+    return {
+      height: `${chartHeight}px`,
+      animation: false,
 
-        tooltip: {
-          trigger: 'item',
-          axisPointer: {
-            type: 'shadow',
-          },
-          confine: true,
-          backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
-          borderWidth: 0,
-          borderColor: 'transparent',
-          textStyle: {
-            color: 'var(--tooltip-color,var(--mantine-color-white))',
-          },
+      tooltip: {
+        trigger: 'item',
+        axisPointer: {
+          type: 'shadow',
         },
-
-        title: [
-          {
-            text: selectedFacetValue ?? `${config?.catColumnSelected?.name} vs ${config?.aggregateType}`,
-            triggerEvent: true,
-            name: 'facetTitle',
-          },
-        ],
-
-        grid: {
-          containLabel: false,
-          left: AXIS_LABEL_MAX_WIDTH + 20,
-          top: 55, // NOTE: @dv-usama-ansari: Arbitrary value!
+        confine: true,
+        backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
+        borderWidth: 0,
+        borderColor: 'transparent',
+        textStyle: {
+          color: 'var(--tooltip-color,var(--mantine-color-white))',
         },
+      },
 
-        legend: {
-          orient: 'horizontal',
-          top: 30,
-          type: 'scroll',
-          icon: 'circle',
+      title: [
+        {
+          text: selectedFacetValue ?? `${config?.catColumnSelected?.name} vs ${config?.aggregateType}`,
+          triggerEvent: true,
+          name: 'facetTitle',
         },
-      }) as EChartsOption,
-    [chartHeight, config?.aggregateType, config?.catColumnSelected?.name, selectedFacetValue],
-  );
+      ],
+
+      grid: {
+        containLabel: false,
+        left: Math.max(gridLeft, containerWidth / 3),
+        top: 55, // NOTE: @dv-usama-ansari: Arbitrary value!
+        right: 20,
+      },
+
+      legend: {
+        orient: 'horizontal',
+        top: 30,
+        type: 'scroll',
+        icon: 'circle',
+      },
+    } as EChartsOption;
+  }, [chartHeight, config?.aggregateType, config?.catColumnSelected?.name, containerWidth, gridLeft, selectedFacetValue]);
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [], originalOrder = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[]; originalOrder: string[] }) => {
@@ -487,13 +503,16 @@ function EagerSingleEChartsBarChart({
           nameGap: 32,
           min: globalMin ?? 'dataMin',
           max: globalMax ?? 'dataMax',
+          axisLabel: {
+            hideOverlap: true,
+          },
         },
 
         yAxis: {
           type: 'category' as const,
           name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
-          nameGap: AXIS_LABEL_MAX_WIDTH + 2,
+          nameGap: containerWidth / 3 - 20,
           data: (v.yAxis as { data: number[] })?.data ?? [],
           axisPointer: {
             show: true,
@@ -502,11 +521,11 @@ function EagerSingleEChartsBarChart({
           },
           axisLabel: {
             show: true,
+            width: gridLeft - 20,
             formatter: (value: string) => {
-              const truncatedText = getTruncatedText(value);
+              const truncatedText = getTruncatedText(value, containerWidth);
               return truncatedText;
             },
-            // TODO: add tooltip for truncated labels (@see https://github.com/apache/echarts/issues/19616 and workaround https://codepen.io/plainheart/pen/jOGBrmJ)
           },
         },
       }));
@@ -515,16 +534,17 @@ function EagerSingleEChartsBarChart({
       setVisState((v) => ({
         ...v,
 
+        // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
         xAxis: {
           type: 'category' as const,
           name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
-          nameGap: 64,
+          nameGap: 32,
           data: (v.xAxis as { data: number[] })?.data ?? [],
           axisLabel: {
             show: true,
             formatter: (value: string) => {
-              const truncatedText = getTruncatedText(value);
+              const truncatedText = getTruncatedText(value, containerWidth);
               return truncatedText;
             },
             rotate: 45,
@@ -535,13 +555,26 @@ function EagerSingleEChartsBarChart({
           type: 'value' as const,
           name: config?.aggregateType,
           nameLocation: 'middle',
-          nameGap: 40,
+          nameGap: containerWidth / 3 - 20,
           min: globalMin ?? 'dataMin',
           max: globalMax ?? 'dataMax',
+          axisLabel: {
+            hideOverlap: true,
+          },
         },
       }));
     }
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, getTruncatedText, globalMax, globalMin, setVisState]);
+  }, [
+    config?.aggregateType,
+    config?.catColumnSelected?.name,
+    config?.direction,
+    containerWidth,
+    getTruncatedText,
+    globalMax,
+    globalMin,
+    gridLeft,
+    setVisState,
+  ]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
