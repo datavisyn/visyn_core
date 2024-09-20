@@ -3,6 +3,7 @@ import * as d3v7 from 'd3v7';
 import { useWindowEvent } from '@mantine/hooks';
 import { Center, Group, Stack, deepMerge } from '@mantine/core';
 import * as React from 'react';
+import debounce from 'lodash/debounce';
 import sortBy from 'lodash/sortBy';
 import groupBy from 'lodash/groupBy';
 import isEmpty from 'lodash/isEmpty';
@@ -46,7 +47,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
       },
       marker: {
         opacity: 1,
-        color: selectionColorDark,
+        // color: selectionColorDark,
       },
     },
     unselected: {
@@ -55,7 +56,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
       },
       marker: {
         color: VIS_NEUTRAL_COLOR,
-        opacity: Math.min(alpha, 0.5),
+        opacity: Math.min(alpha, 0.2),
       },
     },
   };
@@ -82,6 +83,8 @@ export function ScatterVisNew({
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
 
+  const plotlyRef = React.useRef<HTMLElement>(null);
+
   useWindowEvent('keydown', (event) => {
     if (event.shiftKey) {
       setShiftPressed(true);
@@ -93,6 +96,8 @@ export function ScatterVisNew({
       setShiftPressed(false);
     }
   });
+
+  const [forcePositions, setForcePositions] = React.useState<{ x: number[]; y: number[] }>(undefined);
 
   // Base data to work on
   const { value, status, args } = useAsync(fetchColumnData, [
@@ -388,20 +393,21 @@ export function ScatterVisNew({
           },
           ...baseData(config.alphaSliderVal),
         } as PlotlyTypes.Data,
-        /* {
+        {
           type: 'scattergl',
           name: '',
-          x: scatter.plotlyData.x.map((x) => x + Math.random() * 0.1),
-          y: scatter.plotlyData.y.map((y) => y + Math.random() * 0.1),
+          x: forcePositions ? forcePositions.x : scatter.plotlyData.x.map((x) => x),
+          y: forcePositions ? forcePositions.y : scatter.plotlyData.y.map((y) => y),
           showlegend: false,
           hoverinfo: 'none',
           hovertemplate: '',
           text: scatter.plotlyData.text,
+          textposition: 'top center',
           xaxis: 'x',
           yaxis: 'y',
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: 'text',
-        } as PlotlyTypes.Data, */
+        } as PlotlyTypes.Data,
       ];
 
       return traces;
@@ -489,7 +495,70 @@ export function ScatterVisNew({
     }
 
     return [];
-  }, [status, value, config.numColorScaleType, config.alphaSliderVal, uniqueSymbols, scatter, facet, splom, selectedList, scales]);
+  }, [status, value, config.numColorScaleType, config.alphaSliderVal, uniqueSymbols, scatter, facet, splom, selectedList, forcePositions, scales]);
+
+  const fixLabels = () => {
+    // Get plotly div
+    const div = document.getElementById(id);
+
+    if (scatter) {
+      const subplot = div.querySelector('.xy').querySelector('[data-subplot="xy"]');
+      const { width, height } = subplot.getBoundingClientRect();
+      const { xaxis, yaxis } = internalLayoutRef.current;
+
+      const trueSize = 10;
+      const scaleFactor = width / trueSize;
+
+      const scaleX = d3v7.scaleLinear().domain([xaxis.range[0], xaxis.range[1]]).range([0, trueSize]);
+      const scaleY = d3v7.scaleLinear().domain([yaxis.range[0], yaxis.range[1]]).range([0, trueSize]);
+
+      // Create d3 force layout
+      const simulation = d3v7.forceSimulation(
+        scatter.plotlyData.text.map((d, i) => ({ x: scaleX(scatter.plotlyData.x[i]), y: scaleY(scatter.plotlyData.y[i]), text: d })),
+      );
+
+      // Add repellant force
+      // 12 px to normalized radius
+      simulation.force('collide', d3v7.forceCollide(12 / scaleFactor).strength(0.01));
+
+      // Add link force to original position
+      simulation.force(
+        'x',
+        d3v7
+          .forceX((datum, index) => {
+            return scaleX(scatter.plotlyData.x[index]);
+          })
+          .strength(1),
+      );
+
+      simulation.force(
+        'y',
+        d3v7
+          .forceY((datum, index) => {
+            return scaleY(scatter.plotlyData.y[index]) + 16 / scaleFactor;
+          })
+          .strength(1),
+      );
+
+      // Simulate 100 steps
+      simulation.tick(300);
+
+      // Get new positions
+      const positions = simulation.nodes();
+
+      setForcePositions({
+        x: positions.map((d) => scaleX.invert(d.x)),
+        y: positions.map((d) => scaleY.invert(d.y)),
+      });
+    }
+  };
+
+  const fixRef = React.useRef<() => void>(fixLabels);
+  fixRef.current = fixLabels;
+
+  const debouncedForce = React.useMemo(() => {
+    return debounce(() => fixRef.current(), 1000);
+  }, []);
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
@@ -510,6 +579,7 @@ export function ScatterVisNew({
         data={data}
         layout={layout}
         onUpdate={(figure) => {
+          debouncedForce();
           internalLayoutRef.current = cloneDeep(figure.layout);
         }}
         onDeselect={() => {
