@@ -18,10 +18,12 @@ import { fetchColumnData, regressionToAnnotation } from './utilsNew';
 import { getLabelOrUnknown } from '../general/utils';
 import { getCssValue } from '../../utils/getCssValue';
 import { selectionColorDark } from '../../utils/colors';
-import { columnNameWithDescription } from '../general/layoutUtils';
+import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
 import { fitRegressionLine } from './Regression';
 import { defaultRegressionLineStyle } from './utils';
 import { useDataPreparation } from './useDataPreparation';
+
+// d3v7.forc
 
 const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
   hovermode: 'closest',
@@ -155,7 +157,7 @@ export function ScatterVisNew({
       const shapes: Partial<PlotlyTypes.Shape>[] = [];
       const annotations: Partial<PlotlyTypes.Annotations>[] = [];
 
-      facet.resultData.forEach((group, plotCounter) => {
+      facet.resultData.forEach((group) => {
         const curveFit = fitRegressionLine(
           { x: group.data.map((e) => e.x as number), y: group.data.map((e) => e.y as number) },
           config.regressionLineOptions.type,
@@ -170,8 +172,6 @@ export function ScatterVisNew({
             xref: group.xref,
             yref: group.yref,
           });
-
-          annotations.push(regressionToAnnotation(curveFit, 3, group.xref, group.yref));
         }
       });
 
@@ -354,7 +354,7 @@ export function ScatterVisNew({
       : null;
 
     if (scatter) {
-      return [
+      const traces = [
         {
           type: 'scattergl',
           x: scatter.plotlyData.x,
@@ -388,35 +388,23 @@ export function ScatterVisNew({
           },
           ...baseData(config.alphaSliderVal),
         } as PlotlyTypes.Data,
-        {
+        /* {
           type: 'scattergl',
           name: '',
-          x: scatter.plotlyData.x.map((x) => x + Math.random() * 0.3),
-          y: scatter.plotlyData.y.map((y) => y + Math.random() * 0.3),
+          x: scatter.plotlyData.x.map((x) => x + Math.random() * 0.1),
+          y: scatter.plotlyData.y.map((y) => y + Math.random() * 0.1),
           showlegend: false,
           hoverinfo: 'none',
           hovertemplate: '',
-          hoverlabel: { bgcolor: 'transparent', bordercolor: 'transparent', font: { color: 'transparent' } },
           text: scatter.plotlyData.text,
           xaxis: 'x',
           yaxis: 'y',
-          selectedpoints: [],
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: 'text',
-          marker: {
-            selected: {
-              textfont: {
-                color: VIS_NEUTRAL_COLOR,
-              },
-            },
-            unselected: {
-              textfont: {
-                color: VIS_NEUTRAL_COLOR,
-              },
-            },
-          },
-        } as PlotlyTypes.Data,
+        } as PlotlyTypes.Data, */
       ];
+
+      return traces;
     }
 
     if (facet) {
@@ -528,8 +516,10 @@ export function ScatterVisNew({
           selectionCallback([]);
         }}
         onSelected={(event) => {
-          console.log(event);
           if (event && event.points.length > 0) {
+            // These are the scatter trace points, not the text trace points!
+            const scatterPoints = event.points.filter((point) => !('text' in point));
+
             const mergeIntoSelection = (ids: string[]) => {
               if (shiftPressed) {
                 selectionCallback(Array.from(new Set([...selectedList, ...ids])));
@@ -539,21 +529,21 @@ export function ScatterVisNew({
             };
 
             if (scatter) {
-              const ids = event.points.map((point) => scatter.plotlyData.ids[point.pointIndex]);
+              const ids = scatterPoints.map((point) => scatter.plotlyData.ids[point.pointIndex]);
               mergeIntoSelection(ids);
             }
             if (splom) {
-              const ids = event.points.map((point) => splom.ids[point.pointIndex]);
+              const ids = scatterPoints.map((point) => splom.ids[point.pointIndex]);
               mergeIntoSelection(ids);
             }
             if (facet) {
               // Get xref and yref of selecting plot
-              const { xaxis, yaxis } = event.points[0].data;
+              const { xaxis, yaxis } = scatterPoints[0].data;
 
               // Find group
               const group = facet.resultData.find((g) => g.xref === xaxis && g.yref === yaxis);
 
-              const ids = event.points.map((point) => group.data[point.pointIndex].ids);
+              const ids = scatterPoints.map((point) => group.data[point.pointIndex].ids);
               mergeIntoSelection(ids);
             }
           }
