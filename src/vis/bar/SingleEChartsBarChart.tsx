@@ -223,6 +223,7 @@ function EagerSingleEChartsBarChart({
   aggregatedData,
   chartHeight,
   config,
+  containerWidth,
   globalMax,
   globalMin,
   groupColorScale,
@@ -235,6 +236,7 @@ function EagerSingleEChartsBarChart({
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   aggregatedData: AggregatedDataType;
   chartHeight: number;
+  containerWidth: number;
   globalMax?: number;
   globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
@@ -681,7 +683,7 @@ function EagerSingleEChartsBarChart({
       ],
     },
   });
-  return options ? <div ref={setRef} style={{ width: '100%', height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
+  return options ? <div ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
 }
 
 export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);

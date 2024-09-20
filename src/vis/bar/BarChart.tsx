@@ -418,6 +418,7 @@ export function BarChart({
       chartHeightMap,
       config,
       containerHeight,
+      containerWidth,
       filteredUniqueFacetVals,
       groupColorScale,
       selectedList,
@@ -431,6 +432,7 @@ export function BarChart({
       chartHeightMap,
       config,
       containerHeight,
+      containerWidth,
       customSelectionCallback,
       filteredUniqueFacetVals,
       groupColorScale,
@@ -452,6 +454,7 @@ export function BarChart({
         <SingleEChartsBarChart
           aggregatedData={props.data.aggregatedDataMap?.facets[multiplesVal as string] as AggregatedDataType}
           chartHeight={props.data.chartHeightMap[multiplesVal as string] ?? DEFAULT_BAR_CHART_HEIGHT}
+          containerWidth={props.data.containerWidth}
           config={props.data.config}
           globalMax={props.data.aggregatedDataMap?.globalDomain.max}
           globalMin={props.data.aggregatedDataMap?.globalDomain.min}
@@ -518,6 +521,7 @@ export function BarChart({
                 aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
                 containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
               })}
+              containerWidth={containerWidth}
               selectedList={selectedList}
               setConfig={setConfig}
               selectionCallback={customSelectionCallback}
