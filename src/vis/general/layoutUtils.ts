@@ -61,8 +61,6 @@ export function beautifyLayout(
     return self.findIndex((v) => v.data.xaxis === value.data.xaxis && v.data.yaxis === value.data.yaxis) === index;
   });
 
-  console.log(sharedAxisTraces);
-
   const titleTraces = sharedAxisTraces.filter((value, index, self) => {
     return value.title && self.findIndex((v) => v.title === value.title) === index;
   });

@@ -7,21 +7,6 @@ import { PlotlyTypes } from '../../plotly';
 
 export type ResolvedVisColumn = VisColumn & { resolvedValues: (VisNumericalValue | VisCategoricalValue)[] };
 
-export function calculateDomain(domain: [number, number] | [undefined, undefined], vals: number[]): [number, number] {
-  if (!domain) {
-    return null;
-  }
-  if (domain[0] !== undefined && domain[1] !== undefined) {
-    return [domain[0], domain[1]];
-  }
-
-  const [min, max] = d3v7.extent(vals as number[]);
-
-  const calcDomain: [number, number] = [domain[0] ? domain[0] : min, domain[1] ? domain[1] : max + max / 20];
-
-  return calcDomain;
-}
-
 export type FetchColumnDataResult = {
   validColumns: ResolvedVisColumn[];
   shapeColumn: ResolvedVisColumn;
@@ -82,17 +67,17 @@ export async function fetchColumnData(
   };
 }
 
-const formatPValue = (pValue: number) => {
-  if (pValue === null) {
-    return '';
-  }
-  if (pValue < 0.001) {
-    return `<i>(P<.001)</i>`;
-  }
-  return `<i>(P=${pValue.toFixed(3).toString().replace(/^0+/, '')})</i>`;
-};
-
 export function regressionToAnnotation(r: IRegressionResult, precision: number, xref: string, yref: string): Partial<PlotlyTypes.Annotations> {
+  const formatPValue = (pValue: number) => {
+    if (pValue === null) {
+      return '';
+    }
+    if (pValue < 0.001) {
+      return `<i>(P<.001)</i>`;
+    }
+    return `<i>(P=${pValue.toFixed(3).toString().replace(/^0+/, '')})</i>`;
+  };
+
   const statsFormatted = [
     `n: ${r.stats.n}`,
     `R²: ${r.stats.r2 < 0.001 ? '<0.001' : r.stats.r2} ${formatPValue(r.stats.pValue)}`,

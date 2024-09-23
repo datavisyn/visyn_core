@@ -1,5 +1,5 @@
 /**
- * No @types/jstat exist yet
+ * No @types/jstat exist yet, this is a temporary workaround.
  */
 declare module 'jstat' {
   export function corrcoeff(a: number[], b: number[]): number;

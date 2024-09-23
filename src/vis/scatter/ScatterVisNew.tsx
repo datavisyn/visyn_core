@@ -35,6 +35,13 @@ const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
   margin: { l: 50, r: 50, b: 50, t: 50, pad: 4 },
 };
 
+const textPositionOptions = ['top center', 'bottom center'];
+
+const BASE_DATA: Partial<PlotlyTypes.Data> = {
+  showlegend: false,
+  hoverinfo: 'x+y+text',
+};
+
 const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected: number; width: number; dash: PlotlyTypes.Dash }) => {
   return {
     color: lineStyle.colors[lineStyle.colorSelected],
@@ -98,8 +105,6 @@ export function ScatterVisNew({
 }: ICommonVisProps<IInternalScatterConfig>) {
   const id = `ScatterVis_${React.useId()}`;
 
-  console.log(dimensions);
-
   const [shiftPressed, setShiftPressed] = React.useState(false);
 
   useWindowEvent('keydown', (event) => {
@@ -114,7 +119,9 @@ export function ScatterVisNew({
     }
   });
 
-  const [forcePositions, setForcePositions] = React.useState<{ x: number[]; y: number[] }>(undefined);
+  const t0 = performance.now();
+
+  const [forcePositions, setForcePositions] = React.useState<{ x: number; y: number; text: string }[]>(undefined);
 
   // Base data to work on
   const { value, status, args, error } = useAsync(fetchColumnData, [
@@ -141,6 +148,23 @@ export function ScatterVisNew({
   }
 
   const { scatter, splom, facet } = useDataPreparation({ value, status });
+
+  const forceAnnotations = React.useMemo<Partial<PlotlyTypes.Annotations>[]>(() => {
+    if (!forcePositions) {
+      return [];
+    }
+
+    return forcePositions.map((position) => {
+      return {
+        x: position.x,
+        y: position.y,
+        xref: 'x',
+        yref: 'y',
+        text: position.text,
+        showarrow: false,
+      };
+    });
+  }, [forcePositions]);
 
   const regressions = React.useMemo<{
     results: IRegressionResult[];
@@ -249,7 +273,7 @@ export function ScatterVisNew({
           ...internalLayoutRef.current?.yaxis,
         },
         shapes: regressions.shapes,
-        annotations: regressions.annotations,
+        annotations: [...regressions.annotations, ...forceAnnotations],
       };
 
       return finalLayout;
@@ -280,6 +304,7 @@ export function ScatterVisNew({
           // @ts-ignore
           anchor: `x${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
+
         titleAnnotations.push({
           x: 0.5,
           y: 1,
@@ -304,7 +329,7 @@ export function ScatterVisNew({
         ...(internalLayoutRef.current || {}),
         grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
         ...axes,
-        annotations: [...titleAnnotations, ...regressions.annotations],
+        annotations: [...titleAnnotations, ...regressions.annotations, ...forceAnnotations],
         shapes: regressions.shapes,
       };
 
@@ -336,7 +361,7 @@ export function ScatterVisNew({
     }
 
     return undefined;
-  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, value?.validColumns.length, dimensions.width]);
+  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, dimensions.width, forceAnnotations, value?.validColumns.length]);
 
   // Control certain plotly behaviors
   if (layout) {
@@ -374,7 +399,7 @@ export function ScatterVisNew({
         data: {
           x: [null],
           y: [null],
-          type: 'scattergl',
+          type: 'scatter',
           mode: 'markers',
           showlegend: true,
           legendgroup: 'shape',
@@ -421,7 +446,7 @@ export function ScatterVisNew({
         data: {
           x: [null],
           y: [null],
-          type: 'scattergl',
+          type: 'scatter',
           mode: 'markers',
           legendgroup: 'color',
           hoverinfo: 'skip',
@@ -461,26 +486,25 @@ export function ScatterVisNew({
     if (scatter) {
       const traces = [
         {
+          ...BASE_DATA,
           type: 'scattergl',
           x: scatter.plotlyData.x,
           y: scatter.plotlyData.y,
-          showlegend: false,
           // text: scatter.plotlyData.text,
-          // @ts-ignore
-          textposition: 'top center',
+          textposition: scatter.plotlyData.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-          /* ...(config.showLabels === ELabelingOptions.NEVER
+          ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
                   text: scatter.plotlyData.text.map((t) => truncateText(t, true, 10)),
-                  textposition: 'top center',
+                  // textposition: 'top center',
                 }
               : {
                   text: scatter.plotlyData.text.map((t, i) => (selectedList.includes(scatter.ids[i]) ? truncateText(t, true, 10) : '')),
-                  textposition: 'top center',
-                }), */
+                  // textposition: 'top center',
+                }),
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
   ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
@@ -505,21 +529,6 @@ export function ScatterVisNew({
           },
           ...baseData(config.alphaSliderVal),
         } as PlotlyTypes.Data,
-        {
-          type: 'scattergl',
-          name: '',
-          x: forcePositions ? forcePositions.x : scatter.plotlyData.x.map((x) => x),
-          y: forcePositions ? forcePositions.y : scatter.plotlyData.y.map((y) => y),
-          showlegend: false,
-          hoverinfo: 'none',
-          hovertemplate: '',
-          text: scatter.plotlyData.text,
-          textposition: 'top center',
-          xaxis: 'x',
-          yaxis: 'y',
-          selectedpoints: undefined,
-          mode: 'text',
-        } as PlotlyTypes.Data,
       ];
 
       traces.push(...legendPlots.map((l) => l.data));
@@ -533,10 +542,10 @@ export function ScatterVisNew({
 
       const plots = facet.resultData.map((group) => {
         return {
+          ...BASE_DATA,
           type: 'scattergl',
           x: group.data.map((d) => d.x as number),
           y: group.data.map((d) => d.y as number),
-          showlegend: false,
           xaxis: group.xref,
           yaxis: group.yref,
           mode: 'markers',
@@ -581,10 +590,10 @@ export function ScatterVisNew({
 
       const traces = [
         {
+          ...BASE_DATA,
           type: 'splom',
           // @ts-ignore
           dimensions: plotlyDimensions,
-          showlegend: false,
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
   ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
@@ -628,10 +637,9 @@ export function ScatterVisNew({
     splom,
     scales,
     selectedList,
-    forcePositions,
   ]);
 
-  const fixLabels = () => {
+  /* const fixLabels = () => {
     // Get plotly div
     const div = document.getElementById(id);
 
@@ -639,46 +647,6 @@ export function ScatterVisNew({
       const subplot = div.querySelector('.xy').querySelector('[data-subplot="xy"]');
       const { width } = subplot.getBoundingClientRect();
       const { xaxis, yaxis } = internalLayoutRef.current;
-
-      /* const trueSize = 10;
-      const scaleFactor = width / trueSize;
-
-      const scaleX = d3v7.scaleLinear().domain([xaxis.range[0], xaxis.range[1]]).range([0, trueSize]);
-      const scaleY = d3v7.scaleLinear().domain([yaxis.range[0], yaxis.range[1]]).range([0, trueSize]);
-
-      // Create d3 force layout
-      const simulation = d3v7.forceSimulation(
-        scatter.plotlyData.text.map((d, i) => ({ x: scaleX(scatter.plotlyData.x[i]), y: scaleY(scatter.plotlyData.y[i]), text: d })),
-      );
-
-      // Add repellant force
-      // 12 px to normalized radius
-      simulation.force('collide', d3v7.forceCollide(12 / scaleFactor).strength(0.01));
-
-      // Add link force to original position
-      simulation.force(
-        'x',
-        d3v7
-          .forceX((datum, index) => {
-            return scaleX(scatter.plotlyData.x[index]);
-          })
-          .strength(1),
-      );
-
-      simulation.force(
-        'y',
-        d3v7
-          .forceY((datum, index) => {
-            return scaleY(scatter.plotlyData.y[index]) + 16 / scaleFactor;
-          })
-          .strength(1),
-      );
-
-      // Simulate 100 steps
-      simulation.tick(300);
-
-      // Get new positions
-      const positions = simulation.nodes(); */
 
       const resolvedLabels = repel({
         width,
@@ -696,19 +664,11 @@ export function ScatterVisNew({
         })),
       });
 
-      setForcePositions({
-        x: resolvedLabels.map((d) => d.x),
-        y: resolvedLabels.map((d) => d.y),
-      });
+      setForcePositions(resolvedLabels.map((d, index) => ({ x: d.x, y: d.y, text: 'x' })));
     }
   };
-
   const fixRef = React.useRef<() => void>(fixLabels);
-  fixRef.current = fixLabels;
-
-  const debouncedForce = React.useMemo(() => {
-    return debounce(() => fixRef.current(), 1000);
-  }, []);
+  fixRef.current = fixLabels; */
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
@@ -745,7 +705,6 @@ export function ScatterVisNew({
             data={data}
             layout={layout}
             onUpdate={(figure) => {
-              debouncedForce();
               internalLayoutRef.current = cloneDeep(figure.layout);
             }}
             onDeselect={() => {
@@ -753,10 +712,6 @@ export function ScatterVisNew({
             }}
             onSelected={(event) => {
               if (event && event.points.length > 0) {
-                // These are the scatter trace points, not the text trace points!
-                const scatterPoints = event.points.filter((point) => !('text' in point));
-                // const scatterPoints = event.points;
-
                 const mergeIntoSelection = (ids: string[]) => {
                   if (shiftPressed) {
                     selectionCallback(Array.from(new Set([...selectedList, ...ids])));
@@ -766,23 +721,23 @@ export function ScatterVisNew({
                 };
 
                 if (scatter) {
-                  const ids = scatterPoints.map((point) => scatter.ids[point.pointIndex]);
+                  const ids = event.points.map((point) => scatter.ids[point.pointIndex]);
                   mergeIntoSelection(ids);
                 }
 
                 if (splom) {
-                  const ids = scatterPoints.map((point) => splom.ids[point.pointIndex]);
+                  const ids = event.points.map((point) => splom.ids[point.pointIndex]);
                   mergeIntoSelection(ids);
                 }
 
                 if (facet) {
                   // Get xref and yref of selecting plot
-                  const { xaxis, yaxis } = scatterPoints[0].data;
+                  const { xaxis, yaxis } = event.points[0].data;
 
                   // Find group
                   const group = facet.resultData.find((g) => g.xref === xaxis && g.yref === yaxis);
 
-                  const ids = scatterPoints.map((point) => group.data[point.pointIndex].ids);
+                  const ids = event.points.map((point) => group.data[point.pointIndex].ids);
                   mergeIntoSelection(ids);
                 }
               }
