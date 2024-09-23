@@ -257,13 +257,7 @@ function EagerSingleEChartsBarChart({
     containerWidth,
   });
 
-  const [gridLeft, setGridLeft] = React.useState(0);
-
-  React.useEffect(() => {
-    setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
-    // NOTE: @dv-usama-ansari: `truncatedTextRef.current.longestLabelWidth` should not be a dependency of this `useEffect`.
-    // eslint-disable-next-line react-compiler/react-compiler
-  }, [containerWidth, truncatedTextRef.current.longestLabelWidth]);
+  const [gridLeft, setGridLeft] = React.useState(containerWidth / 3);
 
   const getTruncatedText = React.useCallback(
     (value: string, parentWidth: number) => {
@@ -299,6 +293,14 @@ function EagerSingleEChartsBarChart({
     },
     [containerWidth, gridLeft],
   );
+
+  // NOTE: @dv-usama-ansari: We might need an optimization here.
+  React.useEffect(() => {
+    aggregatedData.categoriesList.forEach((category) => {
+      truncatedTextRef.current.labels[category] = getTruncatedText(category, containerWidth);
+    });
+    setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
+  }, [aggregatedData.categoriesList, containerWidth, getTruncatedText]);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -437,7 +439,7 @@ function EagerSingleEChartsBarChart({
 
       grid: {
         containLabel: false,
-        left: Math.max(gridLeft, containerWidth / 3),
+        left: Math.min(gridLeft, containerWidth / 3),
         top: 55, // NOTE: @dv-usama-ansari: Arbitrary value!
         right: 20,
       },
@@ -508,7 +510,7 @@ function EagerSingleEChartsBarChart({
           type: 'category' as const,
           name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
-          nameGap: containerWidth / 3 - 20,
+          nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
           data: (v.yAxis as { data: number[] })?.data ?? [],
           axisPointer: {
             show: true,
@@ -519,7 +521,7 @@ function EagerSingleEChartsBarChart({
             show: true,
             width: gridLeft - 20,
             formatter: (value: string) => {
-              const truncatedText = getTruncatedText(value, containerWidth);
+              const truncatedText = truncatedTextRef.current.labels[value];
               return truncatedText;
             },
           },
@@ -540,7 +542,7 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             show: true,
             formatter: (value: string) => {
-              const truncatedText = getTruncatedText(value, containerWidth);
+              const truncatedText = truncatedTextRef.current.labels[value];
               return truncatedText;
             },
             rotate: 45,
@@ -560,17 +562,7 @@ function EagerSingleEChartsBarChart({
         },
       }));
     }
-  }, [
-    config?.aggregateType,
-    config?.catColumnSelected?.name,
-    config?.direction,
-    containerWidth,
-    getTruncatedText,
-    globalMax,
-    globalMin,
-    gridLeft,
-    setVisState,
-  ]);
+  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, globalMax, globalMin, gridLeft, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
@@ -717,7 +709,12 @@ function EagerSingleEChartsBarChart({
       ],
     },
   });
-  return options ? <div ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} /> : null;
+
+  console.log({ options: options.grid });
+
+  return options && containerWidth !== 0 ? (
+    <div ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
+  ) : null;
 }
 
 export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);
