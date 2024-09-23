@@ -470,6 +470,10 @@ export function BarChart({
     );
   }, []);
 
+  React.useEffect(() => {
+    listRef.current?.resetAfterIndex(0);
+  }, [config]);
+
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
       {showDownloadScreenshot || config?.showFocusFacetSelector === true ? (
@@ -543,7 +547,7 @@ export function BarChart({
               height={containerHeight - CHART_HEIGHT_MARGIN / 2}
               itemCount={filteredUniqueFacetVals.length}
               itemData={itemData}
-              itemSize={(index) => (chartHeightMap[filteredUniqueFacetVals[index] as string] as number) + CHART_HEIGHT_MARGIN}
+              itemSize={(index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN}
               width="100%"
               style={{ overflow: 'visible' }}
               ref={listRef}
