@@ -20,7 +20,7 @@ import { fetchTestData, generateTestData } from '../vis/stories/explodedData';
 import { breastCancerData } from '../vis/stories/breastCancerData';
 import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
 
-const testData = generateTestData(100000);
+const testData = generateTestData(1000);
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -80,6 +80,11 @@ export function MainApp() {
             aboutAppModal: {
               content: <Text>This is the demo app for visyn core.</Text>,
             },
+            center: (
+              <Text c="white" size="sm">
+                {testData.length} data points / {selection.length} points selected
+              </Text>
+            ),
           }}
         />
       }
