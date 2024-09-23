@@ -13,6 +13,10 @@ export function useDataPreparation({ status, value }: { status: string; value: F
       return undefined;
     }
 
+    // Get shared range for all plots
+    const xDomain = d3v7.extent(value.validColumns[0].resolvedValues.map((v) => v.val as number));
+    const yDomain = d3v7.extent(value.validColumns[1].resolvedValues.map((v) => v.val as number));
+
     const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
 
     const idToIndex = new Map<string, number>();
@@ -27,6 +31,8 @@ export function useDataPreparation({ status, value }: { status: string; value: F
         text: value.validColumns[0].resolvedValues.map((v) => v.id),
       },
       ids,
+      xDomain,
+      yDomain,
       xLabel: columnNameWithDescription(value.validColumns[0].info),
       yLabel: columnNameWithDescription(value.validColumns[1].info),
       idToIndex,

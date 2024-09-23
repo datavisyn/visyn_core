@@ -3,6 +3,7 @@ import * as d3v7 from 'd3v7';
 import { useWindowEvent } from '@mantine/hooks';
 import { Center, Group, Stack } from '@mantine/core';
 import * as React from 'react';
+import clamp from 'lodash/clamp';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
@@ -22,11 +23,15 @@ import { defaultRegressionLineStyle } from './utils';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
+import { repel } from './repel';
 
 // d3v7.forc
 
 const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
   hovermode: 'closest',
+  hoverlabel: {
+    align: 'left',
+  },
   margin: { l: 50, r: 50, b: 50, t: 50, pad: 4 },
 };
 
@@ -92,6 +97,8 @@ export function ScatterVisNew({
   showDownloadScreenshot,
 }: ICommonVisProps<IInternalScatterConfig>) {
   const id = `ScatterVis_${React.useId()}`;
+
+  console.log(dimensions);
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
 
@@ -233,10 +240,12 @@ export function ScatterVisNew({
         ...BASE_LAYOUT,
         xaxis: {
           ...AXIS_TICK_STYLES,
+          range: scatter.xDomain,
           ...internalLayoutRef.current?.xaxis,
         },
         yaxis: {
           ...AXIS_TICK_STYLES,
+          range: scatter.yDomain,
           ...internalLayoutRef.current?.yaxis,
         },
         shapes: regressions.shapes,
@@ -278,7 +287,7 @@ export function ScatterVisNew({
           yref: `y${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.YAxisName,
           xanchor: 'center',
           yanchor: 'bottom',
-          text: group.data[0].facet,
+          text: getLabelOrUnknown(group.data[0].facet),
           showarrow: false,
           font: {
             size: 12,
@@ -287,10 +296,13 @@ export function ScatterVisNew({
         });
       });
 
+      const nColumns = clamp(Math.floor(dimensions.width / 400), 1, 3);
+      const nRows = facet.resultData.length / nColumns;
+
       const finalLayout: Partial<PlotlyTypes.Layout> = {
         ...BASE_LAYOUT,
         ...(internalLayoutRef.current || {}),
-        grid: { rows: 2, columns: 3, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
+        grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
         ...axes,
         annotations: [...titleAnnotations, ...regressions.annotations],
         shapes: regressions.shapes,
@@ -324,7 +336,7 @@ export function ScatterVisNew({
     }
 
     return undefined;
-  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, value?.validColumns.length]);
+  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, value?.validColumns.length, dimensions.width]);
 
   // Control certain plotly behaviors
   if (layout) {
@@ -458,7 +470,7 @@ export function ScatterVisNew({
           textposition: 'top center',
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-          ...(config.showLabels === ELabelingOptions.NEVER
+          /* ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
@@ -468,7 +480,7 @@ export function ScatterVisNew({
               : {
                   text: scatter.plotlyData.text.map((t, i) => (selectedList.includes(scatter.ids[i]) ? truncateText(t, true, 10) : '')),
                   textposition: 'top center',
-                }),
+                }), */
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
   ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
@@ -493,7 +505,7 @@ export function ScatterVisNew({
           },
           ...baseData(config.alphaSliderVal),
         } as PlotlyTypes.Data,
-        /* {
+        {
           type: 'scattergl',
           name: '',
           x: forcePositions ? forcePositions.x : scatter.plotlyData.x.map((x) => x),
@@ -507,7 +519,7 @@ export function ScatterVisNew({
           yaxis: 'y',
           selectedpoints: undefined,
           mode: 'text',
-        } as PlotlyTypes.Data, */
+        } as PlotlyTypes.Data,
       ];
 
       traces.push(...legendPlots.map((l) => l.data));
@@ -616,6 +628,7 @@ export function ScatterVisNew({
     splom,
     scales,
     selectedList,
+    forcePositions,
   ]);
 
   const fixLabels = () => {
@@ -627,7 +640,7 @@ export function ScatterVisNew({
       const { width } = subplot.getBoundingClientRect();
       const { xaxis, yaxis } = internalLayoutRef.current;
 
-      const trueSize = 10;
+      /* const trueSize = 10;
       const scaleFactor = width / trueSize;
 
       const scaleX = d3v7.scaleLinear().domain([xaxis.range[0], xaxis.range[1]]).range([0, trueSize]);
@@ -665,11 +678,27 @@ export function ScatterVisNew({
       simulation.tick(300);
 
       // Get new positions
-      const positions = simulation.nodes();
+      const positions = simulation.nodes(); */
+
+      const resolvedLabels = repel({
+        width,
+        xRange: xaxis.range as [number, number],
+        yRange: yaxis.range as [number, number],
+        // Scatter positions
+        data: scatter.plotlyData.text.map((d, i) => ({ x: scatter.plotlyData.x[i], y: scatter.plotlyData.y[i] })),
+
+        // Text positions
+        text: scatter.plotlyData.text.map((d, index) => ({
+          height: 0.1,
+          width: 0.1,
+          x: scatter.plotlyData.x[index],
+          y: scatter.plotlyData.y[index],
+        })),
+      });
 
       setForcePositions({
-        x: positions.map((d) => scaleX.invert(d.x)),
-        y: positions.map((d) => scaleY.invert(d.y)),
+        x: resolvedLabels.map((d) => d.x),
+        y: resolvedLabels.map((d) => d.y),
       });
     }
   };
@@ -716,7 +745,7 @@ export function ScatterVisNew({
             data={data}
             layout={layout}
             onUpdate={(figure) => {
-              // debouncedForce();
+              debouncedForce();
               internalLayoutRef.current = cloneDeep(figure.layout);
             }}
             onDeselect={() => {
@@ -725,8 +754,8 @@ export function ScatterVisNew({
             onSelected={(event) => {
               if (event && event.points.length > 0) {
                 // These are the scatter trace points, not the text trace points!
-                // const scatterPoints = event.points.filter((point) => !('text' in point));
-                const scatterPoints = event.points;
+                const scatterPoints = event.points.filter((point) => !('text' in point));
+                // const scatterPoints = event.points;
 
                 const mergeIntoSelection = (ids: string[]) => {
                   if (shiftPressed) {
@@ -760,7 +789,7 @@ export function ScatterVisNew({
             }}
             config={{ responsive: true, scrollZoom, displayModeBar: false }}
             useResizeHandler
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: facet ? layout.grid.rows * 400 : undefined }}
           />
         </>
       ) : status !== 'pending' && status !== 'idle' ? (
