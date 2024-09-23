@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import sortBy from 'lodash/sortBy';
 import groupBy from 'lodash/groupBy';
-import { FetchColumnDataResult } from './utilsNew';
+import { FetchColumnDataResult } from './utils';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { PlotlyTypes } from '../../plotly';
 import { getCssValue } from '../../utils/getCssValue';
