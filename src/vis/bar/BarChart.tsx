@@ -329,6 +329,15 @@ export function BarChart({
     config?.aggregateColumn as ColumnInfo,
   ]);
 
+  const [gridLeft, setGridLeft] = React.useState(containerWidth / 3);
+
+  const truncatedTextRef = React.useRef<{ labels: { [value: string]: string }; longestLabelWidth: number; containerWidth: number }>({
+    labels: {},
+    longestLabelWidth: 0,
+    containerWidth,
+  });
+  const [labelsMap, setLabelsMap] = React.useState<Record<string, string>>({});
+
   const dataTable = React.useMemo(() => {
     if (!allColumns) {
       return [];
@@ -421,6 +430,8 @@ export function BarChart({
       containerWidth,
       filteredUniqueFacetVals,
       groupColorScale,
+      labelsMap,
+      longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
       selectedList,
       selectedMap,
       customSelectionCallback,
@@ -436,6 +447,7 @@ export function BarChart({
       customSelectionCallback,
       filteredUniqueFacetVals,
       groupColorScale,
+      labelsMap,
       selectedList,
       selectedMap,
       setConfig,
@@ -459,6 +471,8 @@ export function BarChart({
           globalMax={props.data.aggregatedDataMap?.globalDomain.max}
           globalMin={props.data.aggregatedDataMap?.globalDomain.min}
           groupColorScale={props.data.groupColorScale!}
+          labelsMap={props.data.labelsMap}
+          longestLabelWidth={props.data.longestLabelWidth}
           selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
           selectedFacetValue={multiplesVal}
           selectedList={props.data.selectedList}
@@ -469,6 +483,54 @@ export function BarChart({
       </Box>
     );
   }, []);
+
+  const getTruncatedText = React.useCallback(
+    (value: string) => {
+      // NOTE: @dv-usama-ansari: This might be a performance bottleneck if the number of labels is very high and/or the parentWidth changes frequently (when the viewport is resized).
+      if (containerWidth === truncatedTextRef.current.containerWidth && truncatedTextRef.current.labels[value] !== undefined) {
+        return truncatedTextRef.current.labels[value];
+      }
+
+      const textEl = document.createElement('p');
+      textEl.style.position = 'absolute';
+      textEl.style.visibility = 'hidden';
+      textEl.style.whiteSpace = 'nowrap';
+      textEl.style.maxWidth = config?.direction === EBarDirection.HORIZONTAL ? `${Math.max(gridLeft, containerWidth / 3) - 20}px` : '70px';
+      textEl.innerText = value;
+
+      document.body.appendChild(textEl);
+      truncatedTextRef.current.longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
+
+      let truncatedText = '';
+      for (let i = 0; i < value.length; i++) {
+        textEl.innerText = `${truncatedText + value[i]}...`;
+        if (textEl.scrollWidth > textEl.clientWidth) {
+          truncatedText += '...';
+          break;
+        }
+        truncatedText += value[i];
+      }
+
+      document.body.removeChild(textEl);
+
+      truncatedTextRef.current.labels[value] = truncatedText;
+      return truncatedText;
+    },
+    [config?.direction, containerWidth, gridLeft],
+  );
+
+  // NOTE: @dv-usama-ansari: We might need an optimization here.
+  React.useEffect(() => {
+    setLabelsMap({});
+    Object.values(aggregatedDataMap?.facets ?? {}).forEach((value) => {
+      (value?.categoriesList ?? []).forEach((category) => {
+        const truncatedText = getTruncatedText(category);
+        truncatedTextRef.current.labels[category] = truncatedText;
+        setLabelsMap((prev) => ({ ...prev, [category]: truncatedText }));
+      });
+    });
+    setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
+  }, [containerWidth, getTruncatedText, config, aggregatedDataMap?.facets]);
 
   React.useEffect(() => {
     listRef.current?.resetAfterIndex(0);
@@ -518,18 +580,20 @@ export function BarChart({
             <SingleEChartsBarChart
               config={config}
               aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
-              globalMin={aggregatedDataMap?.globalDomain.min}
-              globalMax={aggregatedDataMap?.globalDomain.max}
               chartHeight={calculateChartHeight({
                 config,
                 aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
                 containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
               })}
               containerWidth={containerWidth}
+              globalMin={aggregatedDataMap?.globalDomain.min}
+              globalMax={aggregatedDataMap?.globalDomain.max}
+              groupColorScale={groupColorScale!}
+              labelsMap={labelsMap}
+              longestLabelWidth={truncatedTextRef.current.longestLabelWidth}
               selectedList={selectedList}
               setConfig={setConfig}
               selectionCallback={customSelectionCallback}
-              groupColorScale={groupColorScale!}
               selectedMap={selectedMap}
             />
           </ScrollArea.Autosize>

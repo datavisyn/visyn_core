@@ -227,6 +227,8 @@ function EagerSingleEChartsBarChart({
   globalMax,
   globalMin,
   groupColorScale,
+  labelsMap,
+  longestLabelWidth,
   selectedFacetIndex,
   selectedFacetValue,
   selectedList,
@@ -240,10 +242,13 @@ function EagerSingleEChartsBarChart({
   globalMax?: number;
   globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
+  labelsMap: Record<string, string>;
+  longestLabelWidth: number;
   selectedFacetIndex?: number;
   selectedFacetValue?: string;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
 }) {
+  console.log({ labelsMap, longestLabelWidth });
   const [visState, setVisState] = useSetState({
     series: [] as BarSeriesOption[],
     xAxis: null as EChartsOption['xAxis'] | null,
@@ -252,56 +257,7 @@ function EagerSingleEChartsBarChart({
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
-  const truncatedTextRef = React.useRef<{ labels: { [value: string]: string }; longestLabelWidth: number; containerWidth: number }>({
-    labels: {},
-    longestLabelWidth: 0,
-    containerWidth,
-  });
-
-  const [gridLeft, setGridLeft] = React.useState(containerWidth / 3);
-
-  const getTruncatedText = React.useCallback(
-    (value: string, parentWidth: number) => {
-      // NOTE: @dv-usama-ansari: This might be a performance bottleneck if the number of labels is very high and/or the parentWidth changes frequently (when the viewport is resized).
-      if (containerWidth === truncatedTextRef.current.containerWidth && truncatedTextRef.current.labels[value] !== undefined) {
-        return truncatedTextRef.current.labels[value];
-      }
-
-      const textEl = document.createElement('p');
-      textEl.style.position = 'absolute';
-      textEl.style.visibility = 'hidden';
-      textEl.style.whiteSpace = 'nowrap';
-      textEl.style.maxWidth = config?.direction === EBarDirection.HORIZONTAL ? `${Math.max(gridLeft, parentWidth / 3) - 20}px` : '70px';
-      textEl.innerText = value;
-
-      document.body.appendChild(textEl);
-      truncatedTextRef.current.longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
-
-      let truncatedText = '';
-      for (let i = 0; i < value.length; i++) {
-        textEl.innerText = `${truncatedText + value[i]}...`;
-        if (textEl.scrollWidth > textEl.clientWidth) {
-          truncatedText += '...';
-          break;
-        }
-        truncatedText += value[i];
-      }
-
-      document.body.removeChild(textEl);
-
-      truncatedTextRef.current.labels[value] = truncatedText;
-      return truncatedText;
-    },
-    [config?.direction, containerWidth, gridLeft],
-  );
-
-  // NOTE: @dv-usama-ansari: We might need an optimization here.
-  React.useEffect(() => {
-    (aggregatedData?.categoriesList ?? []).forEach((category) => {
-      truncatedTextRef.current.labels[category] = getTruncatedText(category, containerWidth);
-    });
-    setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
-  }, [aggregatedData?.categoriesList, containerWidth, getTruncatedText, config]);
+  const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -522,7 +478,7 @@ function EagerSingleEChartsBarChart({
             show: true,
             width: gridLeft - 20,
             formatter: (value: string) => {
-              const truncatedText = truncatedTextRef.current.labels[value];
+              const truncatedText = labelsMap[value];
               return truncatedText;
             },
           },
@@ -543,7 +499,7 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             show: true,
             formatter: (value: string) => {
-              const truncatedText = truncatedTextRef.current.labels[value];
+              const truncatedText = labelsMap[value];
               return truncatedText;
             },
             rotate: 45,
@@ -568,7 +524,7 @@ function EagerSingleEChartsBarChart({
         },
       }));
     }
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, globalMax, globalMin, gridLeft, setVisState]);
+  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, globalMax, globalMin, gridLeft, labelsMap, setVisState]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
