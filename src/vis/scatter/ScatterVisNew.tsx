@@ -1,11 +1,9 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as d3v7 from 'd3v7';
 import { useWindowEvent } from '@mantine/hooks';
-import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
+import { Center, Group, Stack } from '@mantine/core';
 import * as React from 'react';
 import debounce from 'lodash/debounce';
-import sortBy from 'lodash/sortBy';
-import groupBy from 'lodash/groupBy';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import { useAsync } from '../../hooks';
@@ -18,7 +16,6 @@ import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegress
 import { fetchColumnData, regressionToAnnotation } from './utilsNew';
 import { getLabelOrUnknown } from '../general/utils';
 import { getCssValue } from '../../utils/getCssValue';
-import { selectionColorDark } from '../../utils/colors';
 import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
 import { fitRegressionLine } from './Regression';
 import { defaultRegressionLineStyle } from './utils';
