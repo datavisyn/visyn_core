@@ -78,7 +78,6 @@ function normalizedValue({ config, value, total }: { config: IBarConfig; value: 
  */
 function sortSeries(
   series: { categories: string[]; data: BarSeriesOption['data'] }[],
-  originalOrder: string[],
   sortMetadata: { sortState: { x: EBarSortState; y: EBarSortState }; direction: EBarDirection } = {
     sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
     direction: EBarDirection.HORIZONTAL,
@@ -252,7 +251,6 @@ function EagerSingleEChartsBarChart({
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
-  const categoriesRef = React.useRef<string[]>([]);
   const truncatedTextRef = React.useRef<{ labels: { [value: string]: string }; longestLabelWidth: number; containerWidth: number }>({
     labels: {},
     longestLabelWidth: 0,
@@ -454,12 +452,11 @@ function EagerSingleEChartsBarChart({
   }, [chartHeight, config?.aggregateType, config?.catColumnSelected?.name, containerWidth, gridLeft, selectedFacetValue]);
 
   const updateSortSideEffect = React.useCallback(
-    ({ barSeries = [], originalOrder = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[]; originalOrder: string[] }) => {
+    ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
       if (barSeries.length > 0) {
         if (config?.direction === EBarDirection.HORIZONTAL) {
           const sortedSeries = sortSeries(
             barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-            originalOrder,
             { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
           );
           setVisState((v) => ({
@@ -476,7 +473,6 @@ function EagerSingleEChartsBarChart({
         if (config?.direction === EBarDirection.VERTICAL) {
           const sortedSeries = sortSeries(
             barSeries.map((item) => ({ categories: item.categories, data: item.data })),
-            originalOrder,
             { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.VERTICAL },
           );
 
@@ -594,7 +590,6 @@ function EagerSingleEChartsBarChart({
           const shouldLowerOpacity = hasSelected && isGrouped && !isSelected;
           const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
           const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
-          categoriesRef.current = data.map((d) => d.category);
           return {
             ...barSeriesBase,
             name: aggregatedData.groupingsList.length > 1 ? g : null,
@@ -628,7 +623,7 @@ function EagerSingleEChartsBarChart({
       .flat()
       .filter(Boolean) as (BarSeriesOption & { categories: string[] })[];
 
-    updateSortSideEffect({ barSeries, originalOrder: categoriesRef.current });
+    updateSortSideEffect({ barSeries });
     updateDirectionSideEffect();
   }, [
     aggregatedData?.groupingsList,
