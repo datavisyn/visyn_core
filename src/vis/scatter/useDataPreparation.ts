@@ -5,8 +5,20 @@ import groupBy from 'lodash/groupBy';
 import { FetchColumnDataResult } from './utilsNew';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { PlotlyTypes } from '../../plotly';
+import { getCssValue } from '../../utils/getCssValue';
+import { ENumericalColorScaleType } from '../interfaces';
 
-export function useDataPreparation({ status, value }: { status: string; value: FetchColumnDataResult }) {
+export function useDataPreparation({
+  status,
+  value,
+  uniqueSymbols,
+  numColorScaleType,
+}: {
+  status: string;
+  value: FetchColumnDataResult;
+  uniqueSymbols: string[];
+  numColorScaleType: ENumericalColorScaleType;
+}) {
   // Case when we have just a scatterplot
   const scatter = React.useMemo(() => {
     if (!(status === 'success' && value && value.validColumns.length === 2 && !value.facetColumn)) {
@@ -131,9 +143,43 @@ export function useDataPreparation({ status, value }: { status: string; value: F
     };
   }, [status, value]);
 
+  const scales = React.useMemo(() => {
+    if (!value) {
+      return {
+        color: undefined,
+        shape: undefined,
+      };
+    }
+
+    const numericalColorScale = value.colorColumn
+      ? d3v7
+          .scaleLinear<string, number>()
+          .domain([value.colorDomain[1], (value.colorDomain[0] + value.colorDomain[1]) / 2, value.colorDomain[0]])
+          .range(
+            numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
+              ? [getCssValue('visyn-s9-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s1-blue')]
+              : [getCssValue('visyn-c1'), '#d3d3d3', getCssValue('visyn-c2')],
+          )
+      : null;
+
+    const shapeScale = value.shapeColumn
+      ? d3v7
+          .scaleOrdinal<string>()
+          .domain(value.shapeColumn.resolvedValues.map((v) => v.val as string))
+          .range(uniqueSymbols)
+      : null;
+
+    return {
+      color: numericalColorScale,
+      shape: shapeScale,
+    };
+  }, [numColorScaleType, uniqueSymbols, value]);
+
   return {
     splom,
     scatter,
     facet,
+    shapeScale: scales.shape,
+    colorScale: scales.color,
   };
 }

@@ -1,29 +1,25 @@
 /* eslint-disable react-compiler/react-compiler */
-import * as d3v7 from 'd3v7';
 import { useWindowEvent } from '@mantine/hooks';
-import { Center, Group, Stack } from '@mantine/core';
+import { Center, Group, Stack, Switch, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import clamp from 'lodash/clamp';
-import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
-import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
+import { EColumnTypes, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
 import { fetchColumnData, regressionToAnnotation } from './utilsNew';
 import { getLabelOrUnknown } from '../general/utils';
-import { getCssValue } from '../../utils/getCssValue';
 import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
 import { fitRegressionLine } from './Regression';
 import { defaultRegressionLineStyle } from './utils';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
-import { repel } from './repel';
 
 // d3v7.forc
 
@@ -106,6 +102,7 @@ export function ScatterVisNew({
   const id = `ScatterVis_${React.useId()}`;
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
+  const [showLegend, setShowLegend] = React.useState(false);
 
   useWindowEvent('keydown', (event) => {
     if (event.shiftKey) {
@@ -118,10 +115,6 @@ export function ScatterVisNew({
       setShiftPressed(false);
     }
   });
-
-  const t0 = performance.now();
-
-  const [forcePositions, setForcePositions] = React.useState<{ x: number; y: number; text: string }[]>(undefined);
 
   // Base data to work on
   const { value, status, args, error } = useAsync(fetchColumnData, [
@@ -147,24 +140,7 @@ export function ScatterVisNew({
     previousArgs.current = args;
   }
 
-  const { scatter, splom, facet } = useDataPreparation({ value, status });
-
-  const forceAnnotations = React.useMemo<Partial<PlotlyTypes.Annotations>[]>(() => {
-    if (!forcePositions) {
-      return [];
-    }
-
-    return forcePositions.map((position) => {
-      return {
-        x: position.x,
-        y: position.y,
-        xref: 'x',
-        yref: 'y',
-        text: position.text,
-        showarrow: false,
-      };
-    });
-  }, [forcePositions]);
+  const { scatter, splom, facet, shapeScale, colorScale } = useDataPreparation({ value, status, uniqueSymbols, numColorScaleType: config.numColorScaleType });
 
   const regressions = React.useMemo<{
     results: IRegressionResult[];
@@ -273,7 +249,8 @@ export function ScatterVisNew({
           ...internalLayoutRef.current?.yaxis,
         },
         shapes: regressions.shapes,
-        annotations: [...regressions.annotations, ...forceAnnotations],
+        annotations: [...regressions.annotations],
+        dragmode: config.dragMode,
       };
 
       return finalLayout;
@@ -290,7 +267,7 @@ export function ScatterVisNew({
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
-          ...(plotCounter > 0 ? { matches: 'x' } : {}),
+          // ...(plotCounter > 0 ? { matches: 'x' } : {}),
           // @ts-ignore
           anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
@@ -300,7 +277,7 @@ export function ScatterVisNew({
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
-          ...(plotCounter > 0 ? { matches: 'y' } : {}),
+          // ...(plotCounter > 0 ? { matches: 'y' } : {}),
           // @ts-ignore
           anchor: `x${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
@@ -329,8 +306,9 @@ export function ScatterVisNew({
         ...(internalLayoutRef.current || {}),
         grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
         ...axes,
-        annotations: [...titleAnnotations, ...regressions.annotations, ...forceAnnotations],
+        annotations: [...titleAnnotations, ...regressions.annotations],
         shapes: regressions.shapes,
+        dragmode: config.dragMode,
       };
 
       return finalLayout;
@@ -355,132 +333,105 @@ export function ScatterVisNew({
         ...axes,
         ...(internalLayoutRef.current || {}),
         shapes: regressions.shapes,
+        dragmode: config.dragMode,
       };
 
       return finalLayout;
     }
 
     return undefined;
-  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, dimensions.width, forceAnnotations, value?.validColumns.length]);
+  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, config.dragMode, dimensions.width, value]);
 
-  // Control certain plotly behaviors
-  if (layout) {
-    layout.dragmode = config.dragMode;
-    // layout.shapes = regressions.shapes;
-  }
-
-  const data = React.useMemo<PlotlyTypes.Data[]>(() => {
-    if (status !== 'success' || !value) {
+  const legendData = React.useMemo<PlotlyTypes.Data[]>(() => {
+    if (!value) {
       return [];
     }
 
-    const numericalColorScale = value.colorColumn
-      ? d3v7
-          .scaleLinear<string, number>()
-          .domain([value.colorDomain[1], (value.colorDomain[0] + value.colorDomain[1]) / 2, value.colorDomain[0]])
-          .range(
-            config.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
-              ? [getCssValue('visyn-s9-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s1-blue')]
-              : [getCssValue('visyn-c1'), '#d3d3d3', getCssValue('visyn-c2')],
-          )
-      : null;
-
-    const shapeScale = value.shapeColumn
-      ? d3v7
-          .scaleOrdinal<string>()
-          .domain(value.shapeColumn.resolvedValues.map((v) => v.val as string))
-          .range(uniqueSymbols)
-      : null;
-
-    const legendPlots: { data: PlotlyTypes.Data; xLabel?: string; yLabel?: string }[] = [];
+    const legendPlots: PlotlyTypes.Data[] = [];
 
     if (value.shapeColumn) {
       legendPlots.push({
-        data: {
-          x: [null],
-          y: [null],
-          type: 'scatter',
-          mode: 'markers',
-          showlegend: true,
-          legendgroup: 'shape',
-          hoverinfo: 'all',
+        x: [null],
+        y: [null],
+        type: 'scatter',
+        mode: 'markers',
+        showlegend: true,
+        legendgroup: 'shape',
+        hoverinfo: 'all',
 
-          hoverlabel: {
-            namelength: 10,
-            bgcolor: 'black',
-            align: 'left',
-            bordercolor: 'black',
-          },
-          // @ts-ignore
-          legendgrouptitle: {
-            text: truncateText(value.shapeColumn.info.name, true, 20),
-          },
-          marker: {
-            line: {
-              width: 0,
-            },
-            opacity: config.alphaSliderVal,
-            size: config.sizeSliderVal,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-            color: VIS_NEUTRAL_COLOR,
-          },
-          transforms: [
-            {
-              type: 'groupby',
-              groups: value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
-              styles: [
-                ...[...new Set<string>(value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
-                  return { target: c, value: { name: c } };
-                }),
-              ],
-            },
-          ],
+        hoverlabel: {
+          namelength: 10,
+          bgcolor: 'black',
+          align: 'left',
+          bordercolor: 'black',
         },
-        xLabel: null,
-        yLabel: null,
+        // @ts-ignore
+        legendgrouptitle: {
+          text: truncateText(value.shapeColumn.info.name, true, 20),
+        },
+        marker: {
+          line: {
+            width: 0,
+          },
+          symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+          color: VIS_NEUTRAL_COLOR,
+        },
+        transforms: [
+          {
+            type: 'groupby',
+            groups: value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
+            styles: [
+              ...[...new Set<string>(value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
+                return { target: c, value: { name: c } };
+              }),
+            ],
+          },
+        ],
       });
     }
 
     if (value.colorColumn && value.colorColumn.type === EColumnTypes.CATEGORICAL) {
       legendPlots.push({
-        data: {
-          x: [null],
-          y: [null],
-          type: 'scatter',
-          mode: 'markers',
-          legendgroup: 'color',
-          hoverinfo: 'skip',
+        x: [null],
+        y: [null],
+        type: 'scatter',
+        mode: 'markers',
+        legendgroup: 'color',
+        hoverinfo: 'skip',
 
-          // @ts-ignore
-          legendgrouptitle: {
-            text: truncateText(value.colorColumn.info.name, true, 20),
-          },
-          marker: {
-            line: {
-              width: 0,
-            },
-            symbol: 'circle',
-            size: config.sizeSliderVal,
-            color: value.colorColumn
-              ? value.colorColumn.resolvedValues.map((v) => (value.colorColumn.color ? value.colorColumn.color[v.val] : scales.color(v.val)))
-              : VIS_NEUTRAL_COLOR,
-            opacity: 1,
-          },
-          transforms: [
-            {
-              type: 'groupby',
-              groups: value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
-              styles: [
-                ...[...new Set<string>(value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
-                  return { target: c, value: { name: c } };
-                }),
-              ],
-            },
-          ],
+        // @ts-ignore
+        legendgrouptitle: {
+          text: truncateText(value.colorColumn.info.name, true, 20),
         },
-        xLabel: null,
-        yLabel: null,
+        marker: {
+          line: {
+            width: 0,
+          },
+          symbol: 'circle',
+          color: value.colorColumn
+            ? value.colorColumn.resolvedValues.map((v) => (value.colorColumn.color ? value.colorColumn.color[v.val] : scales.color(v.val)))
+            : VIS_NEUTRAL_COLOR,
+        },
+        transforms: [
+          {
+            type: 'groupby',
+            groups: value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
+            styles: [
+              ...[...new Set<string>(value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
+                return { target: c, value: { name: c } };
+              }),
+            ],
+          },
+        ],
       });
+    }
+
+    return legendPlots;
+  }, [value, shapeScale, scales]);
+
+  const data = React.useMemo<PlotlyTypes.Data[]>(() => {
+    if (status !== 'success' || !value) {
+      return [];
     }
 
     if (scatter) {
@@ -518,7 +469,7 @@ export function ScatterVisNew({
             color: value.colorColumn
               ? value.colorColumn.resolvedValues.map((v) =>
                   value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? numericalColorScale(v.val as number)
+                    ? colorScale(v.val as number)
                     : value.colorColumn.color
                       ? value.colorColumn.color[v.val]
                       : scales.color(v.val),
@@ -531,7 +482,9 @@ export function ScatterVisNew({
         } as PlotlyTypes.Data,
       ];
 
-      traces.push(...legendPlots.map((l) => l.data));
+      if (showLegend) {
+        traces.push(...legendData);
+      }
 
       return traces;
     }
@@ -563,7 +516,7 @@ export function ScatterVisNew({
             color: value.colorColumn
               ? group.data.map((d) =>
                   value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? numericalColorScale(d.color as number)
+                    ? colorScale(d.color as number)
                     : value.colorColumn.color
                       ? value.colorColumn.color[d.color]
                       : scales.color(d.color),
@@ -576,7 +529,9 @@ export function ScatterVisNew({
         } as PlotlyTypes.Data;
       });
 
-      plots.push(...legendPlots.map((l) => l.data));
+      if (showLegend) {
+        plots.push(...legendData);
+      }
 
       return plots;
     }
@@ -605,7 +560,7 @@ export function ScatterVisNew({
             color: value.colorColumn
               ? value.colorColumn.resolvedValues.map((v) =>
                   value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? numericalColorScale(v.val as number)
+                    ? colorScale(v.val as number)
                     : value.colorColumn.color
                       ? value.colorColumn.color[v.val]
                       : scales.color(v.val),
@@ -618,57 +573,15 @@ export function ScatterVisNew({
         } as PlotlyTypes.Data,
       ];
 
-      traces.push(...legendPlots.map((l) => l.data));
+      if (showLegend) {
+        traces.push(...legendData);
+      }
 
       return traces;
     }
 
     return [];
-  }, [
-    status,
-    value,
-    config.numColorScaleType,
-    config.alphaSliderVal,
-    config.sizeSliderVal,
-    config.showLabels,
-    uniqueSymbols,
-    scatter,
-    facet,
-    splom,
-    scales,
-    selectedList,
-  ]);
-
-  /* const fixLabels = () => {
-    // Get plotly div
-    const div = document.getElementById(id);
-
-    if (scatter) {
-      const subplot = div.querySelector('.xy').querySelector('[data-subplot="xy"]');
-      const { width } = subplot.getBoundingClientRect();
-      const { xaxis, yaxis } = internalLayoutRef.current;
-
-      const resolvedLabels = repel({
-        width,
-        xRange: xaxis.range as [number, number],
-        yRange: yaxis.range as [number, number],
-        // Scatter positions
-        data: scatter.plotlyData.text.map((d, i) => ({ x: scatter.plotlyData.x[i], y: scatter.plotlyData.y[i] })),
-
-        // Text positions
-        text: scatter.plotlyData.text.map((d, index) => ({
-          height: 0.1,
-          width: 0.1,
-          x: scatter.plotlyData.x[index],
-          y: scatter.plotlyData.y[index],
-        })),
-      });
-
-      setForcePositions(resolvedLabels.map((d, index) => ({ x: d.x, y: d.y, text: 'x' })));
-    }
-  };
-  const fixRef = React.useRef<() => void>(fixLabels);
-  fixRef.current = fixLabels; */
+  }, [status, value, scatter, facet, splom, selectedList, config.showLabels, config.alphaSliderVal, showLegend, colorScale, scales, shapeScale, legendData]);
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
@@ -684,12 +597,12 @@ export function ScatterVisNew({
       ) : null}
       {status === 'success' && layout ? (
         <>
-          {/* {config.showLegend === undefined ? (
+          {config.showLegend === undefined ? (
             <Tooltip label="Toggle legend" refProp="rootRef">
               <Switch
                 styles={{ label: { paddingLeft: '5px' } }}
                 size="xs"
-                disabled={traces.legendPlots.length === 0}
+                disabled={legendData.length === 0}
                 style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
                 defaultChecked
                 label="Legend"
@@ -697,7 +610,7 @@ export function ScatterVisNew({
                 checked={showLegend}
               />
             </Tooltip>
-          ) : null} */}
+          ) : null}
           <PlotlyComponent
             data-testid="ScatterPlotTestId"
             key={id}
