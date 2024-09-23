@@ -38,6 +38,19 @@ const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected
   };
 };
 
+const AXIS_TICK_STYLES: Partial<PlotlyTypes.Layout['xaxis']> = {
+  tickfont: {
+    color: VIS_NEUTRAL_COLOR,
+  },
+  title: {
+    font: {
+      size: 12,
+      color: VIS_NEUTRAL_COLOR,
+    },
+  },
+  zeroline: false,
+};
+
 function baseData(alpha: number): Partial<PlotlyTypes.Data> {
   return {
     selected: {
@@ -219,23 +232,11 @@ export function ScatterVisNew({
       const finalLayout: Partial<PlotlyTypes.Layout> = {
         ...BASE_LAYOUT,
         xaxis: {
-          title: {
-            text: scatter.xLabel,
-            font: {
-              size: 12,
-              color: VIS_TRACES_COLOR,
-            },
-          },
+          ...AXIS_TICK_STYLES,
           ...internalLayoutRef.current?.xaxis,
         },
         yaxis: {
-          title: {
-            text: scatter.yLabel,
-            font: {
-              size: 12,
-              color: VIS_TRACES_COLOR,
-            },
-          },
+          ...AXIS_TICK_STYLES,
           ...internalLayoutRef.current?.yaxis,
         },
         shapes: regressions.shapes,
@@ -251,6 +252,7 @@ export function ScatterVisNew({
 
       facet.resultData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
+          ...AXIS_TICK_STYLES,
           range: facet.xDomain,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
@@ -260,6 +262,7 @@ export function ScatterVisNew({
           anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
+          ...AXIS_TICK_STYLES,
           range: facet.yDomain,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
@@ -302,10 +305,7 @@ export function ScatterVisNew({
 
       const axis = () =>
         ({
-          showline: false,
-          zeroline: false,
-          gridcolor: '#E0E0E0',
-          ticklen: 4,
+          ...AXIS_TICK_STYLES,
         }) as PlotlyTypes.LayoutAxis;
 
       for (let i = 0; i < value.validColumns.length; i++) {
