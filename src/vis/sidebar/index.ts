@@ -11,3 +11,4 @@ export * from '../scatter/OpacitySlider';
 export * from './utils';
 export * from '../violin/ViolinSegmentedControl';
 export * from './VisTypeSelect';
+export * from './SingleSelect';
