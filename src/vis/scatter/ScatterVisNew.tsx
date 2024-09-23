@@ -355,6 +355,97 @@ export function ScatterVisNew({
           .range(uniqueSymbols)
       : null;
 
+    const legendPlots: { data: PlotlyTypes.Data; xLabel?: string; yLabel?: string }[] = [];
+
+    if (value.shapeColumn) {
+      legendPlots.push({
+        data: {
+          x: [null],
+          y: [null],
+          type: 'scattergl',
+          mode: 'markers',
+          showlegend: true,
+          legendgroup: 'shape',
+          hoverinfo: 'all',
+
+          hoverlabel: {
+            namelength: 10,
+            bgcolor: 'black',
+            align: 'left',
+            bordercolor: 'black',
+          },
+          // @ts-ignore
+          legendgrouptitle: {
+            text: truncateText(value.shapeColumn.info.name, true, 20),
+          },
+          marker: {
+            line: {
+              width: 0,
+            },
+            opacity: config.alphaSliderVal,
+            size: config.sizeSliderVal,
+            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+            color: VIS_NEUTRAL_COLOR,
+          },
+          transforms: [
+            {
+              type: 'groupby',
+              groups: value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
+              styles: [
+                ...[...new Set<string>(value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
+                  return { target: c, value: { name: c } };
+                }),
+              ],
+            },
+          ],
+        },
+        xLabel: null,
+        yLabel: null,
+      });
+    }
+
+    if (value.colorColumn && value.colorColumn.type === EColumnTypes.CATEGORICAL) {
+      legendPlots.push({
+        data: {
+          x: [null],
+          y: [null],
+          type: 'scattergl',
+          mode: 'markers',
+          legendgroup: 'color',
+          hoverinfo: 'skip',
+
+          // @ts-ignore
+          legendgrouptitle: {
+            text: truncateText(value.colorColumn.info.name, true, 20),
+          },
+          marker: {
+            line: {
+              width: 0,
+            },
+            symbol: 'circle',
+            size: config.sizeSliderVal,
+            color: value.colorColumn
+              ? value.colorColumn.resolvedValues.map((v) => (value.colorColumn.color ? value.colorColumn.color[v.val] : scales.color(v.val)))
+              : VIS_NEUTRAL_COLOR,
+            opacity: 1,
+          },
+          transforms: [
+            {
+              type: 'groupby',
+              groups: value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
+              styles: [
+                ...[...new Set<string>(value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
+                  return { target: c, value: { name: c } };
+                }),
+              ],
+            },
+          ],
+        },
+        xLabel: null,
+        yLabel: null,
+      });
+    }
+
     if (scatter) {
       const traces = [
         {
@@ -365,8 +456,6 @@ export function ScatterVisNew({
           // text: scatter.plotlyData.text,
           // @ts-ignore
           textposition: 'top center',
-          xaxis: 'x',
-          yaxis: 'y',
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
@@ -421,6 +510,8 @@ export function ScatterVisNew({
         } as PlotlyTypes.Data, */
       ];
 
+      traces.push(...legendPlots.map((l) => l.data));
+
       return traces;
     }
 
@@ -464,6 +555,8 @@ export function ScatterVisNew({
         } as PlotlyTypes.Data;
       });
 
+      plots.push(...legendPlots.map((l) => l.data));
+
       return plots;
     }
 
@@ -474,7 +567,7 @@ export function ScatterVisNew({
         values: col.resolvedValues.map((v) => v.val),
       }));
 
-      return [
+      const traces = [
         {
           type: 'splom',
           // @ts-ignore
@@ -503,10 +596,27 @@ export function ScatterVisNew({
           ...baseData(config.alphaSliderVal),
         } as PlotlyTypes.Data,
       ];
+
+      traces.push(...legendPlots.map((l) => l.data));
+
+      return traces;
     }
 
     return [];
-  }, [status, value, config.numColorScaleType, config.showLabels, config.alphaSliderVal, uniqueSymbols, scatter, facet, splom, selectedList, scales]);
+  }, [
+    status,
+    value,
+    config.numColorScaleType,
+    config.alphaSliderVal,
+    config.sizeSliderVal,
+    config.showLabels,
+    uniqueSymbols,
+    scatter,
+    facet,
+    splom,
+    scales,
+    selectedList,
+  ]);
 
   const fixLabels = () => {
     // Get plotly div
