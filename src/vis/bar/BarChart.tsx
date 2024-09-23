@@ -11,7 +11,7 @@ import { SingleBarChart } from './SingleBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { Legend } from './barComponents/Legend';
 import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { IBarConfig, SortTypes } from './interfaces';
+import { IBarConfig } from './interfaces';
 import { getBarData } from './utils';
 
 export function BarChart({
@@ -29,7 +29,6 @@ export function BarChart({
 >) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
   const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
-  const [sortType, setSortType] = React.useState<SortTypes>(SortTypes.NONE);
 
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
@@ -58,14 +57,19 @@ export function BarChart({
     true,
     selectedMap,
     config.groupType,
-    sortType,
+    config.sortType,
     config.aggregateType,
   );
 
   const [legendBoxRef] = useResizeObserver();
 
   const customSelectionCallback = useCallback(
-    (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
+    (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[], label?: string) => {
+      // If a label is passed we are selecting all ids with that label
+      if (label) {
+        allColumns.catColVals?.resolvedValues.filter((v) => getLabelOrUnknown(v.val) === label).forEach((v) => ids.push(v.id));
+      }
+
       if (e.ctrlKey) {
         selectionCallback([...new Set([...selectedList, ...ids])]);
         return;
@@ -78,7 +82,7 @@ export function BarChart({
         }
       }
     },
-    [selectedList, selectionCallback],
+    [allColumns.catColVals?.resolvedValues, selectedList, selectionCallback],
   );
 
   return (
@@ -117,8 +121,6 @@ export function BarChart({
               selectedMap={selectedMap}
               selectionCallback={customSelectionCallback}
               selectedList={selectedList}
-              sortType={sortType}
-              setSortType={setSortType}
               legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
             />
           ) : (
@@ -144,8 +146,6 @@ export function BarChart({
                   categoryFilter={multiplesVal === NAN_REPLACEMENT ? null : multiplesVal}
                   title={multiplesVal}
                   selectionCallback={customSelectionCallback}
-                  sortType={sortType}
-                  setSortType={setSortType}
                   legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
                 />
               ))}

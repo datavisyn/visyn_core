@@ -35,6 +35,7 @@ export interface IBarConfig extends BaseVisConfig {
   aggregateType: EAggregateTypes;
   aggregateColumn: ColumnInfo | null;
   showFocusFacetSelector?: boolean;
+  sortType?: SortTypes;
 }
 
 export const defaultConfig: IBarConfig = {
@@ -50,6 +51,7 @@ export const defaultConfig: IBarConfig = {
   aggregateColumn: null,
   aggregateType: EAggregateTypes.COUNT,
   showFocusFacetSelector: false,
+  sortType: SortTypes.NONE,
 };
 
 export function isBarConfig(s: BaseVisConfig): s is IBarConfig {

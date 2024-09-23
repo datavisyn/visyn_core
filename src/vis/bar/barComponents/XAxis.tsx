@@ -76,6 +76,7 @@ export function XAxis({
   sortedDesc = false,
   setSortType,
   shouldRotate,
+  selectionCallback,
 }: {
   showLines?: boolean;
   xScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>;
@@ -88,6 +89,7 @@ export function XAxis({
   sortedDesc?: boolean;
   setSortType: (label: string, nextSortState: ESortStates) => void;
   shouldRotate?: boolean;
+  selectionCallback?: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[], label?: string) => void;
 }) {
   const tickWidth = useMemo(() => {
     if (ticks.length > 1) {
@@ -111,6 +113,7 @@ export function XAxis({
             paddingRight: shouldRotateAxisTicks ? '20px' : 0,
             height: 120,
           }}
+          onClick={(e) => selectionCallback && selectionCallback(e, [], getLabelOrUnknown(value))}
         >
           {/* Ticks for testing - should not be shown! */}
           {/* <line y2="6" stroke="currentColor" /> */}
