@@ -1,7 +1,7 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as d3v7 from 'd3v7';
 import { useWindowEvent } from '@mantine/hooks';
-import { Center, Group, Stack, deepMerge } from '@mantine/core';
+import { Center, Group, Stack, Tooltip, Switch } from '@mantine/core';
 import * as React from 'react';
 import debounce from 'lodash/debounce';
 import sortBy from 'lodash/sortBy';
@@ -23,6 +23,8 @@ import { columnNameWithDescription, truncateText } from '../general/layoutUtils'
 import { fitRegressionLine } from './Regression';
 import { defaultRegressionLineStyle } from './utils';
 import { useDataPreparation } from './useDataPreparation';
+import { InvalidCols } from '../general/InvalidCols';
+import { i18n } from '../../i18n/I18nextManager';
 
 // d3v7.forc
 
@@ -98,7 +100,7 @@ export function ScatterVisNew({
   const [forcePositions, setForcePositions] = React.useState<{ x: number[]; y: number[] }>(undefined);
 
   // Base data to work on
-  const { value, status, args } = useAsync(fetchColumnData, [
+  const { value, status, args, error } = useAsync(fetchColumnData, [
     columns,
     config.numColumnsSelected,
     config.labelColumns,
@@ -324,7 +326,7 @@ export function ScatterVisNew({
       return finalLayout;
     }
 
-    return {};
+    return undefined;
   }, [scatter, facet, splom, regressions.shapes, regressions.annotations, value?.validColumns.length]);
 
   // Control certain plotly behaviors
@@ -580,63 +582,83 @@ export function ScatterVisNew({
             {showDragModeOptions ? (
               <BrushOptionButtons callback={(dragMode: EScatterSelectSettings) => setConfig({ ...config, dragMode })} dragMode={config.dragMode} />
             ) : null}
-            {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
+            {showDownloadScreenshot && layout ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
           </Group>
         </Center>
       ) : null}
-      <PlotlyComponent
-        data-testid="ScatterPlotTestId"
-        key={id}
-        divId={id}
-        data={data}
-        layout={layout}
-        onUpdate={(figure) => {
-          // debouncedForce();
-          internalLayoutRef.current = cloneDeep(figure.layout);
-        }}
-        onDeselect={() => {
-          selectionCallback([]);
-        }}
-        onSelected={(event) => {
-          if (event && event.points.length > 0) {
-            // These are the scatter trace points, not the text trace points!
-            // const scatterPoints = event.points.filter((point) => !('text' in point));
-            const scatterPoints = event.points;
+      {status === 'success' && layout ? (
+        <>
+          {/* {config.showLegend === undefined ? (
+            <Tooltip label="Toggle legend" refProp="rootRef">
+              <Switch
+                styles={{ label: { paddingLeft: '5px' } }}
+                size="xs"
+                disabled={traces.legendPlots.length === 0}
+                style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
+                defaultChecked
+                label="Legend"
+                onChange={() => setShowLegend(!showLegend)}
+                checked={showLegend}
+              />
+            </Tooltip>
+          ) : null} */}
+          <PlotlyComponent
+            data-testid="ScatterPlotTestId"
+            key={id}
+            divId={id}
+            data={data}
+            layout={layout}
+            onUpdate={(figure) => {
+              // debouncedForce();
+              internalLayoutRef.current = cloneDeep(figure.layout);
+            }}
+            onDeselect={() => {
+              selectionCallback([]);
+            }}
+            onSelected={(event) => {
+              if (event && event.points.length > 0) {
+                // These are the scatter trace points, not the text trace points!
+                // const scatterPoints = event.points.filter((point) => !('text' in point));
+                const scatterPoints = event.points;
 
-            const mergeIntoSelection = (ids: string[]) => {
-              if (shiftPressed) {
-                selectionCallback(Array.from(new Set([...selectedList, ...ids])));
-              } else {
-                selectionCallback(ids);
+                const mergeIntoSelection = (ids: string[]) => {
+                  if (shiftPressed) {
+                    selectionCallback(Array.from(new Set([...selectedList, ...ids])));
+                  } else {
+                    selectionCallback(ids);
+                  }
+                };
+
+                if (scatter) {
+                  const ids = scatterPoints.map((point) => scatter.ids[point.pointIndex]);
+                  mergeIntoSelection(ids);
+                }
+
+                if (splom) {
+                  const ids = scatterPoints.map((point) => splom.ids[point.pointIndex]);
+                  mergeIntoSelection(ids);
+                }
+
+                if (facet) {
+                  // Get xref and yref of selecting plot
+                  const { xaxis, yaxis } = scatterPoints[0].data;
+
+                  // Find group
+                  const group = facet.resultData.find((g) => g.xref === xaxis && g.yref === yaxis);
+
+                  const ids = scatterPoints.map((point) => group.data[point.pointIndex].ids);
+                  mergeIntoSelection(ids);
+                }
               }
-            };
-
-            if (scatter) {
-              const ids = scatterPoints.map((point) => scatter.ids[point.pointIndex]);
-              mergeIntoSelection(ids);
-            }
-
-            if (splom) {
-              const ids = scatterPoints.map((point) => splom.ids[point.pointIndex]);
-              mergeIntoSelection(ids);
-            }
-
-            if (facet) {
-              // Get xref and yref of selecting plot
-              const { xaxis, yaxis } = scatterPoints[0].data;
-
-              // Find group
-              const group = facet.resultData.find((g) => g.xref === xaxis && g.yref === yaxis);
-
-              const ids = scatterPoints.map((point) => group.data[point.pointIndex].ids);
-              mergeIntoSelection(ids);
-            }
-          }
-        }}
-        config={{ responsive: true, scrollZoom, displayModeBar: false }}
-        useResizeHandler
-        style={{ width: '100%', height: '100%' }}
-      />
+            }}
+            config={{ responsive: true, scrollZoom, displayModeBar: false }}
+            useResizeHandler
+            style={{ width: '100%', height: '100%' }}
+          />
+        </>
+      ) : status !== 'pending' && status !== 'idle' ? (
+        <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={error?.message || i18n.t('visyn:vis.scatterError')} />
+      ) : null}
     </Stack>
   );
 }
