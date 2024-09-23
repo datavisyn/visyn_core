@@ -81,8 +81,8 @@ export interface VisCommonColumn {
 
 export interface VisNumericalColumn extends VisCommonColumn {
   type: EColumnTypes.NUMERICAL;
-  domain?: [number | undefined, number | undefined];
   color?: Record<string, string>;
+  domain?: [number | undefined, number | undefined];
 }
 
 export interface VisCategoricalColumn extends VisCommonColumn {
@@ -91,7 +91,7 @@ export interface VisCategoricalColumn extends VisCommonColumn {
   domain?: string[];
 }
 
-export type VisColumn = VisNumericalColumn | VisCategoricalColumn;
+export type VisColumn = VisCategoricalColumn | VisNumericalColumn;
 
 export type PlotlyInfo = {
   plots: PlotlyData[];

@@ -85,12 +85,13 @@ export function useGetGroupedBarScales(
           ),
           colorScale,
         );
-    const domain = newGroup.array('group').sort();
+    const domainFromColumn = allColumns?.groupColVals?.domain;
+    const domainFromData = newGroup.array('group').sort();
+    const domain = domainFromColumn ? [...new Set([...domainFromColumn, ...domainFromData])] : domainFromData;
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? d3.schemeBlues[newGroup.array('group').length > 3 ? newGroup.array('group').length : 3]
         : categoricalColors;
-
     return d3.scaleOrdinal<string>().domain(domain).range(range);
   }, [groupedTable, allColumns]);
 

@@ -67,7 +67,7 @@ export function BarChart({
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[], label?: string) => {
       // If a label is passed we are selecting all ids with that label
       if (label) {
-        allColumns.catColVals?.resolvedValues.filter((v) => getLabelOrUnknown(v.val) === label).forEach((v) => ids.push(v.id));
+        allColumns?.catColVals?.resolvedValues.filter((v) => getLabelOrUnknown(v.val) === label).forEach((v) => ids.push(v.id));
       }
 
       if (e.ctrlKey) {
@@ -82,7 +82,7 @@ export function BarChart({
         }
       }
     },
-    [allColumns.catColVals?.resolvedValues, selectedList, selectionCallback],
+    [allColumns?.catColVals?.resolvedValues, selectedList, selectionCallback],
   );
 
   return (
