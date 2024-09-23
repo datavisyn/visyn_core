@@ -14,7 +14,7 @@ import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
+import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
 import { fetchColumnData, regressionToAnnotation } from './utilsNew';
 import { getLabelOrUnknown } from '../general/utils';
 import { getCssValue } from '../../utils/getCssValue';
@@ -43,7 +43,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
   return {
     selected: {
       textfont: {
-        color: selectionColorDark,
+        color: VIS_NEUTRAL_COLOR,
       },
       marker: {
         opacity: 1,
@@ -82,8 +82,6 @@ export function ScatterVisNew({
   const id = `ScatterVis_${React.useId()}`;
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
-
-  const plotlyRef = React.useRef<HTMLElement>(null);
 
   useWindowEvent('keydown', (event) => {
     if (event.shiftKey) {
@@ -371,7 +369,18 @@ export function ScatterVisNew({
           xaxis: 'x',
           yaxis: 'y',
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
-          mode: 'markers',
+          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+          ...(config.showLabels === ELabelingOptions.NEVER
+            ? {}
+            : config.showLabels === ELabelingOptions.ALWAYS
+              ? {
+                  text: scatter.plotlyData.text.map((t) => truncateText(t, true, 10)),
+                  textposition: 'top center',
+                }
+              : {
+                  text: scatter.plotlyData.text.map((t, i) => (selectedList.includes(scatter.ids[i]) ? truncateText(t, true, 10) : '')),
+                  textposition: 'top center',
+                }),
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
   ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
@@ -379,6 +388,9 @@ export function ScatterVisNew({
   ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i].val)}` : ''}`.trim(),
           ),
           marker: {
+            textfont: {
+              color: VIS_NEUTRAL_COLOR,
+            },
             color: value.colorColumn
               ? value.colorColumn.resolvedValues.map((v) =>
                   value.colorColumn.type === EColumnTypes.NUMERICAL
@@ -393,7 +405,7 @@ export function ScatterVisNew({
           },
           ...baseData(config.alphaSliderVal),
         } as PlotlyTypes.Data,
-        {
+        /* {
           type: 'scattergl',
           name: '',
           x: forcePositions ? forcePositions.x : scatter.plotlyData.x.map((x) => x),
@@ -405,9 +417,9 @@ export function ScatterVisNew({
           textposition: 'top center',
           xaxis: 'x',
           yaxis: 'y',
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
+          selectedpoints: undefined,
           mode: 'text',
-        } as PlotlyTypes.Data,
+        } as PlotlyTypes.Data, */
       ];
 
       return traces;
@@ -495,7 +507,7 @@ export function ScatterVisNew({
     }
 
     return [];
-  }, [status, value, config.numColorScaleType, config.alphaSliderVal, uniqueSymbols, scatter, facet, splom, selectedList, forcePositions, scales]);
+  }, [status, value, config.numColorScaleType, config.showLabels, config.alphaSliderVal, uniqueSymbols, scatter, facet, splom, selectedList, scales]);
 
   const fixLabels = () => {
     // Get plotly div
@@ -503,7 +515,7 @@ export function ScatterVisNew({
 
     if (scatter) {
       const subplot = div.querySelector('.xy').querySelector('[data-subplot="xy"]');
-      const { width, height } = subplot.getBoundingClientRect();
+      const { width } = subplot.getBoundingClientRect();
       const { xaxis, yaxis } = internalLayoutRef.current;
 
       const trueSize = 10;
@@ -579,7 +591,7 @@ export function ScatterVisNew({
         data={data}
         layout={layout}
         onUpdate={(figure) => {
-          debouncedForce();
+          // debouncedForce();
           internalLayoutRef.current = cloneDeep(figure.layout);
         }}
         onDeselect={() => {
@@ -588,7 +600,8 @@ export function ScatterVisNew({
         onSelected={(event) => {
           if (event && event.points.length > 0) {
             // These are the scatter trace points, not the text trace points!
-            const scatterPoints = event.points.filter((point) => !('text' in point));
+            // const scatterPoints = event.points.filter((point) => !('text' in point));
+            const scatterPoints = event.points;
 
             const mergeIntoSelection = (ids: string[]) => {
               if (shiftPressed) {
@@ -599,13 +612,15 @@ export function ScatterVisNew({
             };
 
             if (scatter) {
-              const ids = scatterPoints.map((point) => scatter.plotlyData.ids[point.pointIndex]);
+              const ids = scatterPoints.map((point) => scatter.ids[point.pointIndex]);
               mergeIntoSelection(ids);
             }
+
             if (splom) {
               const ids = scatterPoints.map((point) => splom.ids[point.pointIndex]);
               mergeIntoSelection(ids);
             }
+
             if (facet) {
               // Get xref and yref of selecting plot
               const { xaxis, yaxis } = scatterPoints[0].data;

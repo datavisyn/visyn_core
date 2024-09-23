@@ -4,7 +4,7 @@ import sortBy from 'lodash/sortBy';
 import groupBy from 'lodash/groupBy';
 import { FetchColumnDataResult } from './utilsNew';
 import { columnNameWithDescription } from '../general/layoutUtils';
-import { PlotlyComponent, PlotlyTypes } from '../../plotly';
+import { PlotlyTypes } from '../../plotly';
 
 export function useDataPreparation({ status, value }: { status: string; value: FetchColumnDataResult }) {
   // Case when we have just a scatterplot
@@ -25,8 +25,8 @@ export function useDataPreparation({ status, value }: { status: string; value: F
         x: value.validColumns[0].resolvedValues.map((v) => v.val as number),
         y: value.validColumns[1].resolvedValues.map((v) => v.val as number),
         text: value.validColumns[0].resolvedValues.map((v) => v.id),
-        ids,
       },
+      ids,
       xLabel: columnNameWithDescription(value.validColumns[0].info),
       yLabel: columnNameWithDescription(value.validColumns[1].info),
       idToIndex,
@@ -49,11 +49,6 @@ export function useDataPreparation({ status, value }: { status: string; value: F
 
     for (let r = 0; r < value.validColumns.length; r++) {
       for (let c = 0; c < value.validColumns.length; c++) {
-        const plotlyData = value.validColumns[r].resolvedValues.map((v, i) => ({
-          x: value.validColumns[c].resolvedValues[i].val as number,
-          y: v.val as number,
-        }));
-
         xyPairs.push({
           data: {
             x: value.validColumns[c].resolvedValues.map((v) => v.val as number),
