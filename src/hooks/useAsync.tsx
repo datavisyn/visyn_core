@@ -54,6 +54,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
   // useCallback ensures the below useEffect is not called
   // on every render, but only if asyncFunction changes.
   const execute = React.useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     (...args: Parameters<typeof asyncFunction>) => {
       setStatus('pending');
       // Do not unset the value, as we mostly want to retain the last value to avoid flickering, i.e. for "silent" updates.
