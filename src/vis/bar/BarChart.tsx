@@ -472,7 +472,7 @@ export function BarChart({
 
   React.useEffect(() => {
     listRef.current?.resetAfterIndex(0);
-  }, [config]);
+  }, [config, dataTable]);
 
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
