@@ -119,7 +119,6 @@ export async function createScatterTraces(
   const emptyVal = {
     plots: [],
     legendPlots: [],
-    validCols: [],
     rows: 0,
     cols: 0,
     errorMessage: i18n.t('visyn:vis.scatterError'),
@@ -153,8 +152,6 @@ export async function createScatterTraces(
   if (validCols.length === 1) {
     return emptyVal;
   }
-
-  console.log(validCols);
 
   const idToLabelMapper = await createIdToLabelMapper(columns);
 
@@ -529,7 +526,6 @@ ${shapeCol && shapeCol.info.id !== colorCol?.info.id ? `<br />${columnNameWithDe
   const defaultColNum = Math.min(Math.ceil(Math.sqrt(plots.length)), 5);
 
   return {
-    validCols,
     plots,
     legendPlots,
     rows: facetCol ? Math.ceil(plots.length / defaultColNum) : Math.sqrt(plots.length),

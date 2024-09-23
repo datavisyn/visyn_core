@@ -315,7 +315,7 @@ const methods = {
       .join(' ');
 
     const r2 = determinationCoefficient(data, points);
-    const pValue = null as number; // did not define p-value for exponential regression
+    const pValue: number = null; // did not define p-value for exponential regression
 
     return {
       stats: {

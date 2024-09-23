@@ -98,6 +98,7 @@ export function beautifyLayout(
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
       zerolinecolor: VIS_GRID_COLOR,
+      automargin,
       tickvals: t.xTicks,
       ticktext: t.xTickLabels,
       tickfont: {
@@ -126,6 +127,8 @@ export function beautifyLayout(
     layout[axisY] = {
       ...oldLayout?.[`yaxis${i > 0 ? i + 1 : ''}`],
       range: t.yDomain ? t.yDomain : null,
+      automargin,
+      autorange,
       color: VIS_LABEL_COLOR,
       gridcolor: VIS_GRID_COLOR,
       zerolinecolor: VIS_GRID_COLOR,

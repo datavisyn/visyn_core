@@ -305,8 +305,6 @@ export function ScatterVis({
     setConfig({ ...config, selectedPointsCount: selectedList.length });
   }, [selectedList, setConfig]);
 
-  console.log(selectedList, selectedMap);
-
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
       {showDragModeOptions || showDownloadScreenshot ? (
