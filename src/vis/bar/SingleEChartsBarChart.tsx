@@ -1,3 +1,4 @@
+import { Box } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import { type ScaleOrdinal } from 'd3v7';
 import { EChartsOption } from 'echarts';
@@ -270,7 +271,7 @@ function EagerSingleEChartsBarChart({
       textEl.style.position = 'absolute';
       textEl.style.visibility = 'hidden';
       textEl.style.whiteSpace = 'nowrap';
-      textEl.style.maxWidth = `${Math.max(gridLeft, parentWidth / 3) - 20}px`;
+      textEl.style.maxWidth = config?.direction === EBarDirection.HORIZONTAL ? `${Math.max(gridLeft, parentWidth / 3) - 20}px` : '70px';
       textEl.innerText = value;
 
       document.body.appendChild(textEl);
@@ -291,23 +292,23 @@ function EagerSingleEChartsBarChart({
       truncatedTextRef.current.labels[value] = truncatedText;
       return truncatedText;
     },
-    [containerWidth, gridLeft],
+    [config?.direction, containerWidth, gridLeft],
   );
 
   // NOTE: @dv-usama-ansari: We might need an optimization here.
   React.useEffect(() => {
-    aggregatedData.categoriesList.forEach((category) => {
+    (aggregatedData?.categoriesList ?? []).forEach((category) => {
       truncatedTextRef.current.labels[category] = getTruncatedText(category, containerWidth);
     });
     setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
-  }, [aggregatedData.categoriesList, containerWidth, getTruncatedText]);
+  }, [aggregatedData?.categoriesList, containerWidth, getTruncatedText, config]);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
       if (aggregatedData) {
         switch (config?.aggregateType) {
           case EAggregateTypes.COUNT:
-            return aggregatedData.categoriesList.map((category) => ({
+            return (aggregatedData?.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -319,7 +320,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.AVG:
-            return aggregatedData.categoriesList.map((category) => ({
+            return (aggregatedData?.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -331,7 +332,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MIN:
-            return aggregatedData.categoriesList.map((category) => ({
+            return (aggregatedData?.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -343,7 +344,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MAX:
-            return aggregatedData.categoriesList.map((category) => ({
+            return (aggregatedData?.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -355,7 +356,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MED:
-            return aggregatedData.categoriesList.map((category) => ({
+            return (aggregatedData?.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -412,7 +413,6 @@ function EagerSingleEChartsBarChart({
 
   const optionBase = React.useMemo(() => {
     return {
-      height: `${chartHeight}px`,
       animation: false,
 
       tooltip: {
@@ -439,9 +439,10 @@ function EagerSingleEChartsBarChart({
 
       grid: {
         containLabel: false,
-        left: Math.min(gridLeft, containerWidth / 3),
-        top: 55, // NOTE: @dv-usama-ansari: Arbitrary value!
-        right: 20,
+        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 40,
+        top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
+        right: 40,
+        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70,
       },
 
       legend: {
@@ -451,7 +452,7 @@ function EagerSingleEChartsBarChart({
         icon: 'circle',
       },
     } as EChartsOption;
-  }, [chartHeight, config?.aggregateType, config?.catColumnSelected?.name, containerWidth, gridLeft, selectedFacetValue]);
+  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, gridLeft, selectedFacetValue]);
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
@@ -537,7 +538,7 @@ function EagerSingleEChartsBarChart({
           type: 'category' as const,
           name: config?.catColumnSelected?.name,
           nameLocation: 'middle',
-          nameGap: 32,
+          nameGap: 60,
           data: (v.xAxis as { data: number[] })?.data ?? [],
           axisLabel: {
             show: true,
@@ -547,13 +548,18 @@ function EagerSingleEChartsBarChart({
             },
             rotate: 45,
           },
+          axisPointer: {
+            show: true,
+            type: 'none',
+            triggerTooltip: false,
+          },
         },
 
         yAxis: {
           type: 'value' as const,
           name: config?.aggregateType,
           nameLocation: 'middle',
-          nameGap: containerWidth / 3 - 20,
+          nameGap: 20,
           min: globalMin ?? 'dataMin',
           max: globalMax ?? 'dataMax',
           axisLabel: {
@@ -710,10 +716,8 @@ function EagerSingleEChartsBarChart({
     },
   });
 
-  console.log({ options: options.grid });
-
   return options && containerWidth !== 0 ? (
-    <div ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
+    <Box component="div" ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
   ) : null;
 }
 
