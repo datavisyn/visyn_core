@@ -704,7 +704,13 @@ function EagerSingleEChartsBarChart({
               const newSelectedList = [...newSelectedSet];
               selectionCallback(event, [...new Set([...newSelectedList])]);
             } else {
-              selectionCallback(event, ids);
+              // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
+              const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
+              if (isSameBarClicked) {
+                selectionCallback(event, []);
+              } else {
+                selectionCallback(event, ids);
+              }
             }
           },
         },
