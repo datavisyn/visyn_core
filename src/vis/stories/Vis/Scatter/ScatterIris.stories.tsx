@@ -47,11 +47,6 @@ Basic.args = {
         id: 'sepalWidth',
         name: 'Sepal Width',
       },
-      {
-        description: '',
-        id: 'petalWidth',
-        name: 'Petal Width',
-      },
     ],
     color: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,

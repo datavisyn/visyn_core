@@ -789,7 +789,7 @@ export function ScatterVisNew({
             }}
             config={{ responsive: true, scrollZoom, displayModeBar: false }}
             useResizeHandler
-            style={{ width: '100%', height: facet ? layout.grid.rows * 400 : undefined }}
+            style={{ width: '100%', height: facet ? layout.grid.rows * 400 : '100%' }}
           />
         </>
       ) : status !== 'pending' && status !== 'idle' ? (

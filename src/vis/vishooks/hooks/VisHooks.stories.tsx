@@ -1,14 +1,11 @@
 import React from 'react';
 import { StoryObj, Meta } from '@storybook/react';
 import { Center, Stack, Paper } from '@mantine/core';
-import { lassoToSvgPath, useLasso } from './useLasso';
+import { useLasso } from './useLasso';
 import { SVGLasso } from '../components/SVGLasso';
 import { useBrush } from './useBrush';
 import { SVGBrush } from '../components';
 import { useCanvas } from './useCanvas';
-import { useChart } from './useChart';
-import { EChartsOption } from 'echarts';
-import * as echartsGL from 'echarts-gl';
 
 function UseLassoComponent() {
   const { setRef, value } = useLasso();
@@ -65,36 +62,6 @@ function UseCanvasComponent() {
   );
 }
 
-function UseChartComponent() {
-  const options = React.useMemo(() => {
-    return {
-      xAxis: {},
-      yAxis: {},
-      brush: {
-        toolbox: ['lineX'],
-        type: 'lineX',
-      },
-      series: [
-        {
-          symbolSize: 5,
-          data: Array.from({ length: 100000 }).map(() => [Math.random() * 100, Math.random() * 100]),
-          type: 'scatter',
-        },
-      ],
-    } as EChartsOption;
-  }, []);
-
-  const { setRef } = useChart({
-    options,
-  });
-
-  return (
-    <div style={{ width: 600, height: 400, position: 'relative' }}>
-      <div ref={setRef} style={{ inset: 0, position: 'absolute' }} />
-    </div>
-  );
-}
-
 function VisHooksComponent() {
   const [element, setElement] = React.useState<HTMLElement>();
 
@@ -128,11 +95,5 @@ export const UseBrush: Story = {
 export const UseCanvas: Story = {
   render: () => {
     return <UseCanvasComponent />;
-  },
-};
-
-export const UseChart: Story = {
-  render: () => {
-    return <UseChartComponent />;
   },
 };
