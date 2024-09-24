@@ -113,7 +113,7 @@ export function XAxis({
             paddingRight: shouldRotateAxisTicks ? '20px' : 0,
             height: 120,
           }}
-          onClick={(e) => selectionCallback && selectionCallback(e, [], getLabelOrUnknown(value))}
+          onClick={(e) => selectionCallback?.(e, [], getLabelOrUnknown(value))}
         >
           {/* Ticks for testing - should not be shown! */}
           {/* <line y2="6" stroke="currentColor" /> */}
