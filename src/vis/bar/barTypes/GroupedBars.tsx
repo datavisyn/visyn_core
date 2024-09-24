@@ -42,7 +42,7 @@ export function GroupedBars({
   aggregateType?: EAggregateTypes;
   aggregateColumnName?: string;
 }) {
-  const bars = useMemo(() => {
+  const bars = React.useMemo(() => {
     if (groupedTable && width !== 0 && height !== 0) {
       return groupedTable
         .orderby(
