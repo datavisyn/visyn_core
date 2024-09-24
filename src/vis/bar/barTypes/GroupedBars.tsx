@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
 import * as d3 from 'd3v7';
+import React, { useMemo } from 'react';
 
 import ColumnTable from 'arquero/dist/types/table/column-table';
 
 import { Stack, Text } from '@mantine/core';
-import { SingleBar } from '../barComponents/SingleBar';
-import { EAggregateTypes } from '../../interfaces';
+import { escape } from 'arquero';
 import { getLabelOrUnknown } from '../../general/utils';
+import { EAggregateTypes } from '../../interfaces';
+import { SingleBar } from '../barComponents/SingleBar';
 
 export function GroupedBars({
   groupedTable,
@@ -44,7 +45,10 @@ export function GroupedBars({
   const bars = useMemo(() => {
     if (groupedTable && width !== 0 && height !== 0) {
       return groupedTable
-        .orderby('category', 'group')
+        .orderby(
+          'category',
+          escape((d) => groupColorScale.domain().indexOf(d.group)),
+        )
         .objects()
         .map((row: { category: string; group: string; count: number; aggregateVal: number; selectedCount: number; ids: string[] }) => {
           return (
