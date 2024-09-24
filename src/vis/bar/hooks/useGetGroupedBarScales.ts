@@ -52,6 +52,7 @@ export function useGetGroupedBarScales(
       if (categoryFilter && allColumns.facetsColVals) {
         filteredTable = baseTable.filter(escape((d) => d.facets === categoryFilter));
       }
+
       return allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? binByAggregateType(filteredTable, aggregateType)
         : groupByAggregateType(filteredTable, aggregateType);
@@ -66,15 +67,17 @@ export function useGetGroupedBarScales(
     }
 
     let i = -1;
+
     const newGroup = groupedTable.ungroup().groupby('group').count();
+    const domainFromColumn = allColumns?.groupColVals?.domain;
+    const domainFromData = newGroup.array('group').sort();
+    const domain = domainFromColumn ? [...new Set([...domainFromColumn, ...domainFromData])] : domainFromData;
+
     const categoricalColors = allColumns.groupColVals.color
-      ? newGroup
-          .array('group')
-          .sort()
-          .map((value) => {
-            i += 1;
-            return allColumns.groupColVals.color[value] || colorScale[i % colorScale.length];
-          })
+      ? domain.map((value) => {
+          i += 1;
+          return allColumns.groupColVals.color[value] || colorScale[i % colorScale.length];
+        })
       : assignColorToNullValues(
           Array.from(
             new Set(
@@ -85,12 +88,11 @@ export function useGetGroupedBarScales(
           ),
           colorScale,
         );
-    const domain = newGroup.array('group').sort();
+
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? d3.schemeBlues[newGroup.array('group').length > 3 ? newGroup.array('group').length : 3]
         : categoricalColors;
-
     return d3.scaleOrdinal<string>().domain(domain).range(range);
   }, [groupedTable, allColumns]);
 
