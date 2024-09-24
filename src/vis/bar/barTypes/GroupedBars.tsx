@@ -1,5 +1,5 @@
 import * as d3 from 'd3v7';
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import ColumnTable from 'arquero/dist/types/table/column-table';
 
