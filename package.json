@@ -119,6 +119,7 @@
     "react-highlight-words": "^0.20.0",
     "react-plotly.js": "^2.6.0",
     "react-spring": "^9.7.4",
+    "react-window": "^1.8.10",
     "use-deep-compare-effect": "^1.8.1",
     "visyn_scripts": "^11.1.0"
   },
@@ -136,6 +137,7 @@
     "@storybook/react": "^7.6.20",
     "@storybook/react-webpack5": "^7.6.20",
     "@storybook/testing-library": "0.2.2",
+    "@types/react-window": "^1.8.8",
     "chromatic": "^11.7.1",
     "storybook": "^7.6.20",
     "storybook-addon-swc": "^1.2.0"

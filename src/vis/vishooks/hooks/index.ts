@@ -7,3 +7,4 @@ export * from './useInteractions';
 export * from './useBrush';
 export * from './useLasso';
 export * from './useLinearScale';
+export * from './useChart';
