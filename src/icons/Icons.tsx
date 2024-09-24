@@ -295,9 +295,12 @@ export const dvClearSelection: IconDefinition = {
   ],
 };
 
+/*
+ * Species
+ */
 export const dvMouse: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'select' as IconName,
+  iconName: 'mouse' as IconName,
   icon: [
     512,
     512,
