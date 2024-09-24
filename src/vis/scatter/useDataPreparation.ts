@@ -21,7 +21,7 @@ export function useDataPreparation({
 }) {
   // Case when we have just a scatterplot
   const scatter = React.useMemo(() => {
-    if (!(status === 'success' && value && value.validColumns.length === 2 && !value.facetColumn)) {
+    if (!(status === 'success' && value && value.validColumns.length === 2 && value.validColumns[0] && value.validColumns[1] && !value.facetColumn)) {
       return undefined;
     }
 
@@ -89,6 +89,7 @@ export function useDataPreparation({
       idToIndex,
       xyPairs,
       ids,
+      text: value.validColumns[0].resolvedValues.map((v) => v.id),
     };
   }, [status, value]);
 
@@ -128,7 +129,15 @@ export function useDataPreparation({
       });
 
       return {
-        data: grouped,
+        data: {
+          x: grouped.map((v) => v.x as number),
+          y: grouped.map((v) => v.y as number),
+          text: grouped.map((v) => v.ids),
+          facet: grouped[0].facet,
+          ids: grouped.map((v) => v.ids),
+          color: grouped.map((v) => v.color),
+          shape: grouped.map((v) => v.shape),
+        },
         idToIndex,
         xref: `x${i > 0 ? i + 1 : ''}` as PlotlyTypes.XAxisName,
         yref: `y${i > 0 ? i + 1 : ''}` as PlotlyTypes.YAxisName,

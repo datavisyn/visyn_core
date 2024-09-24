@@ -179,11 +179,7 @@ export function ScatterVisNew({
       const annotations: Partial<PlotlyTypes.Annotations>[] = [];
 
       facet.resultData.forEach((group) => {
-        const curveFit = fitRegressionLine(
-          { x: group.data.map((e) => e.x as number), y: group.data.map((e) => e.y as number) },
-          config.regressionLineOptions.type,
-          config.regressionLineOptions.fitOptions,
-        );
+        const curveFit = fitRegressionLine({ x: group.data.x, y: group.data.y }, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
 
         if (!curveFit.svgPath.includes('NaN')) {
           shapes.push({
@@ -284,12 +280,14 @@ export function ScatterVisNew({
         titleAnnotations.push({
           x: 0.5,
           y: 1,
+          yshift: -12,
           xref: `x${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.XAxisName,
           yref: `y${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.YAxisName,
           xanchor: 'center',
           yanchor: 'bottom',
-          text: getLabelOrUnknown(group.data[0].facet),
+          text: getLabelOrUnknown(group.data.facet),
           showarrow: false,
+          bgcolor: '#ffffff',
           font: {
             size: 12,
             color: VIS_TRACES_COLOR,
@@ -433,7 +431,7 @@ export function ScatterVisNew({
       return [];
     }
 
-    if (scatter) {
+    if (scatter && config && value && value.validColumns[0]) {
       const traces = [
         {
           ...BASE_DATA,
@@ -488,40 +486,47 @@ export function ScatterVisNew({
       return traces;
     }
 
-    if (facet) {
-      const xLabel = columnNameWithDescription(value.validColumns[0].info);
-      const yLabel = columnNameWithDescription(value.validColumns[1].info);
-
+    if (facet && config && value && value.validColumns[0] && value.validColumns[1]) {
       const plots = facet.resultData.map((group) => {
         return {
           ...BASE_DATA,
           type: 'scattergl',
-          x: group.data.map((d) => d.x as number),
-          y: group.data.map((d) => d.y as number),
+          x: group.data.x,
+          y: group.data.y,
           xaxis: group.xref,
           yaxis: group.yref,
-          mode: 'markers',
-          name: getLabelOrUnknown(group.data[0].facet),
+          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+          textposition: group.data.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
+          ...(config.showLabels === ELabelingOptions.NEVER
+            ? {}
+            : config.showLabels === ELabelingOptions.ALWAYS
+              ? {
+                  text: group.data.text.map((t) => truncateText(t, true, 10)),
+                  // textposition: 'top center',
+                }
+              : {
+                  text: group.data.text.map((t, i) => (selectedList.includes(group.data.ids[i]!) ? truncateText(t, true, 10) : '')),
+                  // textposition: 'top center',
+                }),
+          name: getLabelOrUnknown(group.data.facet),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => group.idToIndex.get(idx)).filter((v) => v !== undefined) }),
-          hovertext: group.data.map((d) =>
-            `${value.idToLabelMapper(d.ids)}
-            <br />${xLabel}: ${d.x}
-            <br />${yLabel}: ${d.y}
-            ${(value.resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(d.ids))}`)}
-            ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(d.color)}` : ''}
-            ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(d.shape)}` : ''}`.trim(),
+          hovertext: group.data.ids.map((p_id, index) =>
+            `${value.idToLabelMapper(p_id)}
+            ${(value.resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(p_id))}`)}
+            ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(group.data.color[index])}` : ''}
+            ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(group.data.shape[index])}` : ''}`.trim(),
           ),
           marker: {
             color: value.colorColumn
-              ? group.data.map((d) =>
+              ? group.data.color.map((color) =>
                   value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? colorScale(d.color as number)
+                    ? colorScale(color as number)
                     : value.colorColumn.color
-                      ? value.colorColumn.color[d.color]
-                      : scales.color(d.color),
+                      ? value.colorColumn.color[color]
+                      : scales.color(color),
                 )
               : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? group.data.map((d) => shapeScale(d.shape as string)) : 'circle',
+            symbol: value.shapeColumn ? group.data.shape.map((shape) => shapeScale(shape as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
           ...baseData(config.alphaSliderVal),
@@ -580,7 +585,7 @@ export function ScatterVisNew({
     }
 
     return [];
-  }, [status, value, scatter, facet, splom, selectedList, config.showLabels, config.alphaSliderVal, showLegend, colorScale, scales, shapeScale, legendData]);
+  }, [status, value, scatter, config, facet, splom, selectedList, showLegend, colorScale, scales, shapeScale, legendData]);
 
   return (
     <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
@@ -649,7 +654,7 @@ export function ScatterVisNew({
                   // Find group
                   const group = facet.resultData.find((g) => g.xref === xaxis && g.yref === yaxis);
 
-                  const ids = event.points.map((point) => group.data[point.pointIndex].ids);
+                  const ids = event.points.map((point) => group.data.ids[point.pointIndex]);
                   mergeIntoSelection(ids);
                 }
               }
