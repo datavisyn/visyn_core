@@ -48,7 +48,7 @@ export type CallbackFunction = (event: ECElementEvent) => void;
 
 // Type for mouse handlers in object form
 export type CallbackObject = {
-  query: string | object;
+  query?: string | object;
   handler: CallbackFunction;
 };
 
@@ -91,9 +91,15 @@ export function useChart({
           if (typeof handler === 'function') {
             instance.on(eventName, (params: ECElementEvent) => ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackFunction)(params));
           } else {
-            instance.on(eventName, handler.query, (params: ECElementEvent) =>
-              ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
-            );
+            if (!handler.query) {
+              instance.on(eventName, (params: ECElementEvent) =>
+                ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
+              );
+            } else {
+              instance.on(eventName, handler.query, (params: ECElementEvent) =>
+                ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
+              );
+            }
           }
         });
         return;
@@ -102,7 +108,11 @@ export function useChart({
       if (typeof value === 'function') {
         instance.on(eventName, (...args) => (mouseEventsRef.current[eventName] as CallbackFunction)(...args));
       } else if (typeof value === 'object') {
-        instance.on(eventName, value.query, (...args) => (mouseEventsRef.current[eventName] as CallbackObject).handler(...args));
+        if (!value.query) {
+          instance.on(eventName, (...args) => (mouseEventsRef.current[eventName] as CallbackObject).handler(...args));
+        } else {
+          instance.on(eventName, value.query, (...args) => (mouseEventsRef.current[eventName] as CallbackObject).handler(...args));
+        }
       }
     });
   };

@@ -4,6 +4,7 @@ import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { fetchTestData, generateTestData } from '../../explodedData';
 
 function RNG(seed) {
   const m = 2 ** 35 - 31;
@@ -117,7 +118,9 @@ export default {
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
   // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+  // const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+  const testData = generateTestData(1000);
+  const columns = React.useMemo(() => fetchTestData(testData), [testData]);
 
   return (
     <VisProvider>
@@ -136,9 +139,9 @@ Basic.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: null,
