@@ -300,15 +300,34 @@ export function ScatterVisNew({
       // round up to the number of rows required, otherwise, we get chart overlap
       const nRows = Math.ceil(facet.resultData.length / nColumns);
 
-      const finalLayout: Partial<PlotlyTypes.Layout> = {
-        ...BASE_LAYOUT,
-        ...(internalLayoutRef.current || {}),
-        grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
-        ...axes,
-        annotations: [...titleAnnotations, ...regressions.annotations],
-        shapes: regressions.shapes,
-        dragmode: config!.dragMode,
-      };
+      // if we only find one facet (e.g., the categorical column only contains one value), we don't facet
+      const finalLayout: Partial<PlotlyTypes.Layout> =
+        facet?.resultData.length > 1
+          ? {
+              ...BASE_LAYOUT,
+              ...(internalLayoutRef.current || {}),
+              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
+              ...axes,
+              annotations: [...titleAnnotations, ...regressions.annotations],
+              shapes: regressions.shapes,
+              dragmode: config!.dragMode,
+            }
+          : {
+              ...BASE_LAYOUT,
+              xaxis: {
+                ...AXIS_TICK_STYLES,
+                range: facet.xDomain,
+                ...internalLayoutRef.current?.xaxis,
+              },
+              yaxis: {
+                ...AXIS_TICK_STYLES,
+                range: facet.yDomain,
+                ...internalLayoutRef.current?.yaxis,
+              },
+              shapes: regressions.shapes,
+              annotations: [...regressions.annotations],
+              dragmode: config.dragMode,
+            };
 
       return finalLayout;
     }
@@ -667,7 +686,7 @@ export function ScatterVisNew({
             }}
             config={{ responsive: true, scrollZoom, displayModeBar: false }}
             useResizeHandler
-            style={{ width: '100%', height: facet ? layout.grid.rows * 400 : '100%' }}
+            style={{ width: '100%', height: facet && facet?.resultData.length > 1 ? layout.grid.rows * 400 : '100%' }}
           />
         </>
       ) : status !== 'pending' && status !== 'idle' ? (
