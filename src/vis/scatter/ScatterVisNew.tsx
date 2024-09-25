@@ -448,11 +448,11 @@ export function ScatterVisNew({
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: scatter.plotlyData.text.map((t) => truncateText(t, true, 10)),
+                  text: scatter.plotlyData.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
                   // textposition: 'top center',
                 }
               : {
-                  text: scatter.plotlyData.text.map((t, i) => (selectedList.includes(scatter.ids[i]) ? truncateText(t, true, 10) : '')),
+                  text: scatter.plotlyData.text.map((t, i) => (selectedList.includes(scatter.ids[i]) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                   // textposition: 'top center',
                 }),
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
@@ -503,11 +503,11 @@ export function ScatterVisNew({
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: group.data.text.map((t) => truncateText(t, true, 10)),
+                  text: group.data.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
                   // textposition: 'top center',
                 }
               : {
-                  text: group.data.text.map((t, i) => (selectedList.includes(group.data.ids[i]!) ? truncateText(t, true, 10) : '')),
+                  text: group.data.text.map((t, i) => (selectedList.includes(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                   // textposition: 'top center',
                 }),
           name: getLabelOrUnknown(group.data.facet),
