@@ -4,18 +4,25 @@ import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { fetchTestData, generateTestData } from '../../explodedData';
 
-function RNG(seed) {
+function RNG(seed: number, sign: 'positive' | 'negative' | 'mixed' = 'positive') {
   const m = 2 ** 35 - 31;
   const a = 185852;
   let s = seed % m;
-  return function () {
-    return (s = (s * a) % m) / m;
+  return () => {
+    let value = ((s = (s * a) % m) / m) * 2 - 1; // Generate values between -1 and 1
+    if (sign === 'positive') {
+      value = Math.abs(value);
+    } else if (sign === 'negative') {
+      value = -Math.abs(value);
+    }
+    return value;
   };
 }
 
 function fetchData(numberOfPoints: number): VisColumn[] {
-  const rng = RNG(10);
+  const rng = RNG(10, 'mixed');
   const dataGetter = async () => ({
     value: Array(numberOfPoints)
       .fill(null)
@@ -42,61 +49,79 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   return [
     {
       info: {
-        description: '',
+        description: 'PCA_X value',
         id: 'pca_x',
-        name: 'pca_x',
+        name: 'PCA_X',
       },
       type: EColumnTypes.NUMERICAL,
       domain: [0, undefined],
-      values: () => dataPromise.then((data) => data.pca_x.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.pca_x.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
-        description: '',
+        description: 'PCA_Y value of the data point',
         id: 'pca_y',
-        name: 'pca_y',
+        name: 'PCA_Y',
       },
       type: EColumnTypes.NUMERICAL,
       domain: [0, undefined],
-      values: () => dataPromise.then((data) => data.pca_y.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.pca_y.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
-        description: '',
+        description: 'Numerical value of the data point with a long description that should be truncated in the UI',
         id: 'value',
-        name: 'value',
+        name: 'Value',
       },
       domain: [0, 100],
 
       type: EColumnTypes.NUMERICAL,
-      values: () => dataPromise.then((data) => data.value.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.value.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
-        description: '',
+        description: 'Description for category',
         id: 'category',
-        name: 'category',
+        name: 'Category',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.category.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.category.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
-        description: '',
+        description: 'Category 2 description',
         id: 'category2',
-        name: 'category2',
+        name: 'Category 2',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.category2.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.category2.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
     {
       info: {
-        description: '',
+        description: 'Category 3 with a long description that should be truncated in the UI',
         id: 'category3',
-        name: 'category3',
+        name: 'Category 3',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.then((data) => data.category3.map((val, i) => ({ id: i.toString(), val }))),
+      values: async () => {
+        const data = await dataPromise;
+        return data.category3.map((val, i) => ({ id: i.toString(), val }));
+      },
     },
   ];
 }
@@ -117,7 +142,9 @@ export default {
 // eslint-disable-next-line react/function-component-definition
 const Template: ComponentStory<typeof Vis> = (args) => {
   // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+  // const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+  const testData = generateTestData(1000);
+  const columns = React.useMemo(() => fetchTestData(testData), [testData]);
 
   return (
     <VisProvider>
@@ -136,9 +163,9 @@ Basic.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: null,
@@ -156,9 +183,9 @@ Vertical.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: null,
@@ -171,14 +198,35 @@ Vertical.args = {
   } as BaseVisConfig,
 };
 
+export const VerticalFullHeight: typeof Template = Template.bind({}) as typeof Template;
+VerticalFullHeight.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
+    },
+    facets: null,
+    group: null,
+    groupType: EBarGroupingType.GROUP,
+    direction: EBarDirection.VERTICAL,
+    display: EBarDisplayType.ABSOLUTE,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+    useFullHeight: true,
+  } as BaseVisConfig,
+};
+
 export const Grouped: typeof Template = Template.bind({}) as typeof Template;
 Grouped.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: {
@@ -200,9 +248,9 @@ GroupedStack.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: {
@@ -224,15 +272,15 @@ GroupedNumerical.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: {
-      description: '',
-      id: 'pca_y',
-      name: 'pca_y',
+      name: 'Numerical 1',
+      id: 'numerical1',
+      description: 'The first numerical value',
     },
     groupType: EBarGroupingType.GROUP,
     direction: EBarDirection.HORIZONTAL,
@@ -248,15 +296,15 @@ GroupedNumericalStack.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: {
-      description: '',
-      id: 'pca_y',
-      name: 'pca_y',
+      name: 'Numerical 1',
+      id: 'numerical1',
+      description: 'The first numerical value',
     },
     groupType: EBarGroupingType.STACK,
     direction: EBarDirection.HORIZONTAL,
@@ -272,14 +320,14 @@ facets.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: {
-      description: '',
-      id: 'category2',
-      name: 'category2',
+      name: 'Type 1',
+      id: 'type1',
+      description: 'The first type value',
     },
     group: null,
     groupType: EBarGroupingType.GROUP,
@@ -296,19 +344,19 @@ facetsAndGrouped.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: {
-      description: '',
-      id: 'category2',
-      name: 'category2',
+      name: 'Type 1',
+      id: 'type1',
+      description: 'The first type value',
     },
     group: {
-      description: '',
-      id: 'category3',
-      name: 'category3',
+      name: 'Numerical 1',
+      id: 'numerical1',
+      description: 'The first numerical value',
     },
     groupType: EBarGroupingType.GROUP,
     direction: EBarDirection.HORIZONTAL,
@@ -324,19 +372,19 @@ facetsAndGroupedStack.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: {
-      description: '',
-      id: 'category2',
-      name: 'category2',
+      name: 'Type 1',
+      id: 'type1',
+      description: 'The first type value',
     },
     group: {
-      description: '',
-      id: 'category3',
-      name: 'category3',
+      name: 'Numerical 1',
+      id: 'numerical1',
+      description: 'The first numerical value',
     },
     groupType: EBarGroupingType.STACK,
     direction: EBarDirection.HORIZONTAL,
@@ -352,9 +400,9 @@ AggregateAverage.args = {
   externalConfig: {
     type: ESupportedPlotlyVis.BAR,
     catColumnSelected: {
-      description: '',
-      id: 'category',
-      name: 'category',
+      name: 'Name of the patient',
+      id: 'name',
+      description: 'The name of the patient',
     },
     facets: null,
     group: null,

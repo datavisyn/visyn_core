@@ -248,7 +248,6 @@ function EagerSingleEChartsBarChart({
   selectedFacetValue?: string;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
 }) {
-  console.log({ labelsMap, longestLabelWidth });
   const [visState, setVisState] = useSetState({
     series: [] as BarSeriesOption[],
     xAxis: null as EChartsOption['xAxis'] | null,
@@ -258,6 +257,24 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
+
+  // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
+  const { axisTooltipDOM, axisTooltipContent } = React.useMemo(() => {
+    const dom = document.createElement('div');
+    const content = document.createElement('div');
+    dom.appendChild(content);
+    dom.id = 'axis-tooltip';
+    dom.style.position = 'absolute';
+    dom.style.backgroundColor = '#6E7079';
+    dom.style.borderRadius = '4px';
+    dom.style.color = '#F9F9F9';
+    dom.style.fontSize = '12px';
+    dom.style.opacity = '0';
+    dom.style.padding = '4px 8px';
+    dom.style.transformOrigin = 'bottom';
+    dom.style.visibility = 'hidden';
+    return { axisTooltipDOM: dom, axisTooltipContent: content };
+  }, []);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -461,6 +478,7 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             hideOverlap: true,
           },
+          triggerEvent: true,
         },
 
         yAxis: {
@@ -469,11 +487,6 @@ function EagerSingleEChartsBarChart({
           nameLocation: 'middle',
           nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
           data: (v.yAxis as { data: number[] })?.data ?? [],
-          axisPointer: {
-            show: true,
-            type: 'none',
-            triggerTooltip: false,
-          },
           axisLabel: {
             show: true,
             width: gridLeft - 20,
@@ -482,6 +495,7 @@ function EagerSingleEChartsBarChart({
               return truncatedText;
             },
           },
+          triggerEvent: true,
         },
       }));
     }
@@ -504,11 +518,7 @@ function EagerSingleEChartsBarChart({
             },
             rotate: 45,
           },
-          axisPointer: {
-            show: true,
-            type: 'none',
-            triggerTooltip: false,
-          },
+          triggerEvent: true,
         },
 
         yAxis: {
@@ -521,6 +531,7 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             hideOverlap: true,
           },
+          triggerEvent: true,
         },
       }));
     }
@@ -617,7 +628,7 @@ function EagerSingleEChartsBarChart({
     [],
   );
 
-  const { setRef } = useChart({
+  const { setRef, instance } = useChart({
     options,
     settings,
     mouseEvents: {
@@ -669,11 +680,58 @@ function EagerSingleEChartsBarChart({
           },
         },
       ],
+      mouseover: [
+        {
+          query:
+            config?.direction === EBarDirection.HORIZONTAL
+              ? { componentType: 'yAxis' }
+              : config?.direction === EBarDirection.VERTICAL
+                ? { componentType: 'xAxis' }
+                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+          handler: (params) => {
+            if (params.targetType === 'axisLabel') {
+              const currLabel = params.event?.target;
+              const fullText = params.value;
+              const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
+              if (fullText !== displayText) {
+                axisTooltipContent.innerText = fullText as string;
+                axisTooltipDOM.style.opacity = '1';
+                axisTooltipDOM.style.visibility = 'visible';
+
+                const top = (currLabel?.transform[5] ?? 0) - axisTooltipDOM.offsetHeight / 2;
+                const left = Math.max((currLabel?.transform[4] ?? 0) - axisTooltipDOM.offsetWidth, 0);
+                axisTooltipDOM.style.top = `${top}px`;
+                axisTooltipDOM.style.left = `${left}px`;
+              }
+            }
+          },
+        },
+      ],
+      mouseout: [
+        {
+          query:
+            config?.direction === EBarDirection.HORIZONTAL
+              ? { componentType: 'yAxis' }
+              : config?.direction === EBarDirection.VERTICAL
+                ? { componentType: 'xAxis' }
+                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+          handler: (params) => {
+            axisTooltipDOM.style.opacity = '0';
+            axisTooltipDOM.style.visibility = 'hidden';
+          },
+        },
+      ],
     },
   });
 
+  React.useEffect(() => {
+    if (instance && !instance.getDom().querySelector('#axis-tooltip')) {
+      instance.getDom().appendChild(axisTooltipDOM);
+    }
+  }, [axisTooltipDOM, instance]);
+
   return options && containerWidth !== 0 ? (
-    <Box component="div" ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
+    <Box component="div" pos="relative" ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
   ) : null;
 }
 
