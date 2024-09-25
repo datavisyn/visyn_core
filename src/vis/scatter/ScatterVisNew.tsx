@@ -296,8 +296,9 @@ export function ScatterVisNew({
         });
       });
 
-      const nRows = clamp(Math.floor(dimensions.height / 400), 1, 3);
-      const nColumns = Math.round(facet.resultData.length / nRows);
+      const nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
+      // round up to the number of rows required, otherwise, we get chart overlap
+      const nRows = Math.ceil(facet.resultData.length / nColumns);
 
       const finalLayout: Partial<PlotlyTypes.Layout> = {
         ...BASE_LAYOUT,
