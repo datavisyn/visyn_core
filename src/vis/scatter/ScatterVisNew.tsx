@@ -19,6 +19,7 @@ import { fitRegressionLine } from './Regression';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
+import { faSignature } from '@fortawesome/free-solid-svg-icons';
 
 // d3v7.forc
 
@@ -295,8 +296,8 @@ export function ScatterVisNew({
         });
       });
 
-      const nColumns = clamp(Math.floor(dimensions.width / 400), 1, 3);
-      const nRows = facet.resultData.length / nColumns;
+      const nRows = clamp(Math.floor(dimensions.height / 400), 1, 3);
+      const nColumns = Math.round(facet.resultData.length / nRows);
 
       const finalLayout: Partial<PlotlyTypes.Layout> = {
         ...BASE_LAYOUT,
@@ -305,7 +306,7 @@ export function ScatterVisNew({
         ...axes,
         annotations: [...titleAnnotations, ...regressions.annotations],
         shapes: regressions.shapes,
-        dragmode: config.dragMode,
+        dragmode: config!.dragMode,
       };
 
       return finalLayout;
@@ -610,7 +611,10 @@ export function ScatterVisNew({
                 style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
                 defaultChecked
                 label="Legend"
-                onChange={() => setShowLegend(!showLegend)}
+                onChange={() => {
+                  setShowLegend(!showLegend);
+                  // TODO: resize
+                }}
                 checked={showLegend}
               />
             </Tooltip>
@@ -622,6 +626,7 @@ export function ScatterVisNew({
             data={data}
             layout={layout}
             onUpdate={(figure) => {
+              console.log(figure.layout);
               internalLayoutRef.current = cloneDeep(figure.layout);
             }}
             onDeselect={() => {
