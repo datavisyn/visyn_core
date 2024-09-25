@@ -638,7 +638,7 @@ function EagerSingleEChartsBarChart({
       click: [
         {
           query: { titleIndex: 0 },
-          handler: (params) => {
+          handler: () => {
             setConfig?.({ ...config!, focusFacetIndex: config?.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
           },
         },
@@ -723,14 +723,27 @@ function EagerSingleEChartsBarChart({
               const fullText = params.value;
               const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
               if (fullText !== displayText) {
-                axisTooltipContent.innerText = fullText as string;
-                axisTooltipDOM.style.opacity = '1';
-                axisTooltipDOM.style.visibility = 'visible';
+                axisLabelTooltip.content.innerText = fullText as string;
+                axisLabelTooltip.dom.style.opacity = '1';
+                axisLabelTooltip.dom.style.visibility = 'visible';
+                axisLabelTooltip.dom.style.zIndex = '9999';
 
-                const top = (currLabel?.transform[5] ?? 0) - axisTooltipDOM.offsetHeight / 2;
-                const left = Math.max((currLabel?.transform[4] ?? 0) - axisTooltipDOM.offsetWidth, 0);
-                axisTooltipDOM.style.top = `${top}px`;
-                axisTooltipDOM.style.left = `${left}px`;
+                const topOffset =
+                  config?.direction === EBarDirection.HORIZONTAL
+                    ? axisLabelTooltip.dom.offsetHeight * -1.5
+                    : config?.direction === EBarDirection.VERTICAL
+                      ? axisLabelTooltip.dom.offsetHeight * -1.25
+                      : 0;
+                const top = (currLabel?.transform[5] ?? 0) + topOffset;
+                const leftOffset =
+                  config?.direction === EBarDirection.HORIZONTAL
+                    ? axisLabelTooltip.dom.offsetWidth * -1
+                    : config?.direction === EBarDirection.VERTICAL
+                      ? axisLabelTooltip.dom.offsetWidth * -0.5
+                      : 0;
+                const left = Math.max((currLabel?.transform[4] ?? 0) + leftOffset, 0);
+                axisLabelTooltip.dom.style.top = `${top}px`;
+                axisLabelTooltip.dom.style.left = `${left}px`;
               }
             }
           },
@@ -745,8 +758,11 @@ function EagerSingleEChartsBarChart({
                 ? { componentType: 'xAxis' }
                 : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
           handler: (params) => {
-            axisTooltipDOM.style.opacity = '0';
-            axisTooltipDOM.style.visibility = 'hidden';
+            if (params.targetType === 'axisLabel') {
+              axisLabelTooltip.dom.style.opacity = '0';
+              axisLabelTooltip.dom.style.visibility = 'hidden';
+              axisLabelTooltip.dom.style.zIndex = '-1';
+            }
           },
         },
       ],
