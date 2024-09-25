@@ -258,24 +258,6 @@ function EagerSingleEChartsBarChart({
 
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
 
-  // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
-  const { axisTooltipDOM, axisTooltipContent } = React.useMemo(() => {
-    const dom = document.createElement('div');
-    const content = document.createElement('div');
-    dom.appendChild(content);
-    dom.id = 'axis-tooltip';
-    dom.style.position = 'absolute';
-    dom.style.backgroundColor = '#6E7079';
-    dom.style.borderRadius = '4px';
-    dom.style.color = '#F9F9F9';
-    dom.style.fontSize = '12px';
-    dom.style.opacity = '0';
-    dom.style.padding = '4px 8px';
-    dom.style.transformOrigin = 'bottom';
-    dom.style.visibility = 'hidden';
-    return { axisTooltipDOM: dom, axisTooltipContent: content };
-  }, []);
-
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
       if (aggregatedData) {
@@ -628,6 +610,27 @@ function EagerSingleEChartsBarChart({
     [],
   );
 
+  // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
+  const axisLabelTooltip = React.useMemo(() => {
+    const dom = document.createElement('div');
+    dom.id = 'axis-tooltip';
+    dom.style.position = 'absolute';
+    dom.style.backgroundColor = '#6E7079';
+    dom.style.borderRadius = '4px';
+    dom.style.color = '#F9F9F9';
+    dom.style.fontSize = '12px';
+    dom.style.opacity = '0';
+    dom.style.padding = '4px 8px';
+    dom.style.transformOrigin = 'bottom';
+    dom.style.visibility = 'hidden';
+    dom.style.zIndex = '9999';
+
+    const content = document.createElement('div');
+    dom.appendChild(content);
+
+    return { dom, content };
+  }, []);
+
   const { setRef, instance } = useChart({
     options,
     settings,
@@ -671,10 +674,36 @@ function EagerSingleEChartsBarChart({
             } else {
               // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
               const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-              if (isSameBarClicked) {
-                selectionCallback(event, []);
+              selectionCallback(event, isSameBarClicked ? [] : ids);
+            }
+          },
+        },
+        {
+          query:
+            config?.direction === EBarDirection.HORIZONTAL
+              ? { componentType: 'yAxis' }
+              : config?.direction === EBarDirection.VERTICAL
+                ? { componentType: 'xAxis' }
+                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+
+          handler: (params) => {
+            if (params.targetType === 'axisLabel') {
+              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+              const ids = aggregatedData?.categories[params.value as string]?.ids ?? [];
+              if (event.shiftKey) {
+                const newSelectedSet = new Set(selectedList);
+                ids.forEach((id) => {
+                  if (newSelectedSet.has(id)) {
+                    newSelectedSet.delete(id);
+                  } else {
+                    newSelectedSet.add(id);
+                  }
+                });
+                const newSelectedList = [...newSelectedSet];
+                selectionCallback(event, [...new Set([...newSelectedList])]);
               } else {
-                selectionCallback(event, ids);
+                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
+                selectionCallback(event, isSameBarClicked ? [] : ids);
               }
             }
           },
@@ -725,10 +754,10 @@ function EagerSingleEChartsBarChart({
   });
 
   React.useEffect(() => {
-    if (instance && !instance.getDom().querySelector('#axis-tooltip')) {
-      instance.getDom().appendChild(axisTooltipDOM);
+    if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
+      instance.getDom().appendChild(axisLabelTooltip.dom);
     }
-  }, [axisTooltipDOM, instance]);
+  }, [axisLabelTooltip.dom, instance]);
 
   return options && containerWidth !== 0 ? (
     <Box component="div" pos="relative" ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
