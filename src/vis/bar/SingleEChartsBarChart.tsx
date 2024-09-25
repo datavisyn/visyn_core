@@ -265,17 +265,14 @@ function EagerSingleEChartsBarChart({
     dom.appendChild(content);
     dom.id = 'axis-tooltip';
     dom.style.position = 'absolute';
-    dom.style.visibility = 'hidden';
-    // dom.style.maxWidth = '50%';
-    dom.style.backgroundColor = '#666';
-    dom.style.color = '#fff';
-    dom.style.fontSize = '12px';
-    dom.style.padding = '4px 8px';
+    dom.style.backgroundColor = '#6E7079';
     dom.style.borderRadius = '2px';
-    dom.style.boxShadow = '0 0 2px #333';
-    dom.style.transition = 'transform ease .3s, visibility ease .3s';
+    dom.style.color = '#F9F9F9';
+    dom.style.fontSize = '12px';
     dom.style.opacity = '0';
+    dom.style.padding = '4px 8px';
     dom.style.transformOrigin = 'bottom';
+    dom.style.visibility = 'hidden';
     return { axisTooltipDOM: dom, axisTooltipStyle: dom.style, axisTooltipContent: content };
   }, []);
 
