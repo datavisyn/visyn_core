@@ -389,8 +389,16 @@ function EagerSingleEChartsBarChart({
       title: [
         {
           text: selectedFacetValue ?? `${config?.catColumnSelected?.name} vs ${config?.aggregateType}`,
-          triggerEvent: true,
+          triggerEvent: !!config?.facets,
+          left: '50%',
+          textAlign: 'center',
           name: 'facetTitle',
+          textStyle: {
+            color: '#7F7F7F',
+            fontFamily: 'Roboto, sans-serif',
+            fontSize: '14px',
+            whiteSpace: 'pre',
+          },
         },
       ],
 
@@ -409,7 +417,7 @@ function EagerSingleEChartsBarChart({
         icon: 'circle',
       },
     } as EChartsOption;
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, gridLeft, selectedFacetValue]);
+  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, config?.facets, containerWidth, gridLeft, selectedFacetValue]);
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
