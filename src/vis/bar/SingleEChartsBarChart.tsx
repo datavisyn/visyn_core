@@ -388,7 +388,9 @@ function EagerSingleEChartsBarChart({
 
       title: [
         {
-          text: selectedFacetValue ?? `${config?.catColumnSelected?.name} vs ${config?.aggregateType}`,
+          text: selectedFacetValue
+            ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.catColumnSelected?.name} vs ${config?.aggregateType}`
+            : `${config?.catColumnSelected?.name} vs ${config?.aggregateType}`,
           triggerEvent: !!config?.facets,
           left: '50%',
           textAlign: 'center',
