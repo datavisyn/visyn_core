@@ -472,7 +472,7 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             hideOverlap: true,
           },
-          triggerEvent: true,
+          triggerEvent: false,
         },
 
         yAxis: {
@@ -525,7 +525,7 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             hideOverlap: true,
           },
-          triggerEvent: true,
+          triggerEvent: false,
         },
       }));
     }
