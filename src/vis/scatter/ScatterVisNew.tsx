@@ -19,7 +19,6 @@ import { fitRegressionLine } from './Regression';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
-import { faSignature } from '@fortawesome/free-solid-svg-icons';
 
 // d3v7.forc
 
@@ -358,7 +357,7 @@ export function ScatterVisNew({
     }
 
     return undefined;
-  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, config.dragMode, dimensions.width, value]);
+  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, config, dimensions.width, value]);
 
   const legendData = React.useMemo<PlotlyTypes.Data[]>(() => {
     if (!value) {
