@@ -464,7 +464,7 @@ function EagerSingleEChartsBarChart({
 
         xAxis: {
           type: 'value' as const,
-          name: config?.aggregateType,
+          name: config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType,
           nameLocation: 'middle',
           nameGap: 32,
           min: globalMin ?? 'dataMin',
@@ -517,7 +517,7 @@ function EagerSingleEChartsBarChart({
 
         yAxis: {
           type: 'value' as const,
-          name: config?.aggregateType,
+          name: config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType,
           nameLocation: 'middle',
           nameGap: 20,
           min: globalMin ?? 'dataMin',
@@ -529,7 +529,19 @@ function EagerSingleEChartsBarChart({
         },
       }));
     }
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, globalMax, globalMin, gridLeft, labelsMap, setVisState]);
+  }, [
+    config?.aggregateType,
+    config?.catColumnSelected?.name,
+    config?.direction,
+    config?.display,
+    config?.group,
+    containerWidth,
+    globalMax,
+    globalMin,
+    gridLeft,
+    labelsMap,
+    setVisState,
+  ]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
