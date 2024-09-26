@@ -445,6 +445,8 @@ export function BarChart({
     return map;
   }, [aggregatedDataMap?.facets, config]);
 
+  const isGroupedByNumerical = React.useMemo(() => allColumns?.groupColVals?.type === EColumnTypes.NUMERICAL, [allColumns?.groupColVals?.type]);
+
   const itemData = React.useMemo(
     () => ({
       aggregatedDataMap,
@@ -456,6 +458,7 @@ export function BarChart({
       containerWidth,
       filteredUniqueFacetVals,
       groupColorScale,
+      isGroupedByNumerical,
       labelsMap,
       longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
       selectedList,
@@ -474,6 +477,7 @@ export function BarChart({
       customSelectionCallback,
       filteredUniqueFacetVals,
       groupColorScale,
+      isGroupedByNumerical,
       labelsMap,
       selectedList,
       selectedMap,
@@ -499,6 +503,7 @@ export function BarChart({
           globalMax={props.data.aggregatedDataMap?.globalDomain.max}
           globalMin={props.data.aggregatedDataMap?.globalDomain.min}
           groupColorScale={props.data.groupColorScale!}
+          isGroupedByNumerical={props.data.isGroupedByNumerical}
           labelsMap={props.data.labelsMap}
           longestLabelWidth={props.data.longestLabelWidth}
           selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
@@ -621,6 +626,7 @@ export function BarChart({
               globalMin={aggregatedDataMap?.globalDomain.min}
               globalMax={aggregatedDataMap?.globalDomain.max}
               groupColorScale={groupColorScale!}
+              isGroupedByNumerical={isGroupedByNumerical}
               labelsMap={labelsMap}
               longestLabelWidth={truncatedTextRef.current.longestLabelWidth}
               selectedList={selectedList}

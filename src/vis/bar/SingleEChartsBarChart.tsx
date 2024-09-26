@@ -228,6 +228,7 @@ function EagerSingleEChartsBarChart({
   globalMax,
   globalMin,
   groupColorScale,
+  isGroupedByNumerical,
   labelsMap,
   longestLabelWidth,
   selectedFacetIndex,
@@ -244,6 +245,7 @@ function EagerSingleEChartsBarChart({
   globalMax?: number;
   globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
+  isGroupedByNumerical: boolean;
   labelsMap: Record<string, string>;
   longestLabelWidth: number;
   selectedFacetIndex?: number;
@@ -417,9 +419,25 @@ function EagerSingleEChartsBarChart({
         top: 30,
         type: 'scroll',
         icon: 'circle',
+        formatter: (name: string) => {
+          if (isGroupedByNumerical) {
+            const [min, max] = name.split(' to ');
+            return `${round(Number(min), 4)} to ${round(Number(max), 4)}`;
+          }
+          return name;
+        },
       },
     } as EChartsOption;
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, config?.facets, containerWidth, gridLeft, selectedFacetValue]);
+  }, [
+    config?.aggregateType,
+    config?.catColumnSelected?.name,
+    config?.direction,
+    config?.facets,
+    containerWidth,
+    gridLeft,
+    isGroupedByNumerical,
+    selectedFacetValue,
+  ]);
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
