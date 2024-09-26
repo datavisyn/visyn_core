@@ -222,6 +222,7 @@ export type AggregatedDataType = {
 function EagerSingleEChartsBarChart({
   aggregatedData,
   chartHeight,
+  chartMinWidth,
   config,
   containerWidth,
   globalMax,
@@ -238,6 +239,7 @@ function EagerSingleEChartsBarChart({
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   aggregatedData: AggregatedDataType;
   chartHeight: number;
+  chartMinWidth: number;
   containerWidth: number;
   globalMax?: number;
   globalMin?: number;
@@ -775,8 +777,13 @@ function EagerSingleEChartsBarChart({
     }
   }, [axisLabelTooltip.dom, instance]);
 
-  return options && containerWidth !== 0 ? (
-    <Box component="div" pos="relative" ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
+  return options ? (
+    <Box
+      component="div"
+      pos="relative"
+      ref={setRef}
+      style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
+    />
   ) : null;
 }
 

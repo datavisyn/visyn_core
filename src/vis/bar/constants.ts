@@ -32,3 +32,8 @@ export const VERTICAL_BAR_CHART_HEIGHT = 300;
  * Fallback height of a bar chart
  */
 export const DEFAULT_BAR_CHART_HEIGHT = 300;
+
+/**
+ * Fallback height of a bar chart
+ */
+export const DEFAULT_BAR_CHART_MIN_WIDTH = 300;

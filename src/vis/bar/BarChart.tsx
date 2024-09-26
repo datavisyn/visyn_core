@@ -17,11 +17,26 @@ import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumerica
 import { BarChartSortButton, EBarSortParameters } from './BarChartSortButton';
 import { AggregatedDataType, median, SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, VERTICAL_BAR_CHART_HEIGHT } from './constants';
+import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, DEFAULT_BAR_CHART_MIN_WIDTH, VERTICAL_BAR_CHART_HEIGHT } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
 import { createBinLookup, getBarData } from './utils';
 
 const DEFAULT_FACET_NAME = '$default$';
+
+function calculateChartMinWidth({ config, aggregatedData }: { config?: IBarConfig; aggregatedData?: AggregatedDataType }): number {
+  if (config?.direction === EBarDirection.VERTICAL) {
+    // calculate height for horizontal bars
+    const multiplicationFactor = !config?.group ? 1 : config?.groupType === EBarGroupingType.STACK ? 1 : (aggregatedData?.groupingsList ?? []).length;
+    const categoryWidth = (BAR_WIDTH + BAR_SPACING) * multiplicationFactor;
+    return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING;
+  }
+  if (config?.direction === EBarDirection.HORIZONTAL) {
+    // use fixed height for vertical bars
+
+    return DEFAULT_BAR_CHART_MIN_WIDTH;
+  }
+  return DEFAULT_BAR_CHART_MIN_WIDTH;
+}
 
 function calculateChartHeight({
   config,
@@ -420,11 +435,22 @@ export function BarChart({
     return map;
   }, [aggregatedDataMap?.facets, config, containerHeight]);
 
+  const chartMinWidthMap = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
+      if (facet) {
+        map[facet] = calculateChartMinWidth({ config, aggregatedData: value });
+      }
+    });
+    return map;
+  }, [aggregatedDataMap?.facets, config]);
+
   const itemData = React.useMemo(
     () => ({
       aggregatedDataMap,
       allUniqueFacetVals,
       chartHeightMap,
+      chartMinWidthMap,
       config,
       containerHeight,
       containerWidth,
@@ -441,6 +467,7 @@ export function BarChart({
       aggregatedDataMap,
       allUniqueFacetVals,
       chartHeightMap,
+      chartMinWidthMap,
       config,
       containerHeight,
       containerWidth,
@@ -466,6 +493,7 @@ export function BarChart({
         <SingleEChartsBarChart
           aggregatedData={props.data.aggregatedDataMap?.facets[multiplesVal as string] as AggregatedDataType}
           chartHeight={props.data.chartHeightMap[multiplesVal as string] ?? DEFAULT_BAR_CHART_HEIGHT}
+          chartMinWidth={props.data.chartMinWidthMap[multiplesVal as string] ?? DEFAULT_BAR_CHART_MIN_WIDTH}
           containerWidth={props.data.containerWidth}
           config={props.data.config}
           globalMax={props.data.aggregatedDataMap?.globalDomain.max}
@@ -576,7 +604,10 @@ export function BarChart({
             <Loader />
           </Center>
         ) : !config?.facets || !allColumns?.facetsColVals ? (
-          <ScrollArea.Autosize h={containerHeight - CHART_HEIGHT_MARGIN / 2} w={containerWidth} scrollbars="y" offsetScrollbars style={{ overflowX: 'hidden' }}>
+          <ScrollArea
+            style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+            scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
+          >
             <SingleEChartsBarChart
               config={config}
               aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
@@ -585,6 +616,7 @@ export function BarChart({
                 aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
                 containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
               })}
+              chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
               containerWidth={containerWidth}
               globalMin={aggregatedDataMap?.globalDomain.min}
               globalMax={aggregatedDataMap?.globalDomain.max}
@@ -596,10 +628,14 @@ export function BarChart({
               selectionCallback={customSelectionCallback}
               selectedMap={selectedMap}
             />
-          </ScrollArea.Autosize>
+          </ScrollArea>
         ) : null}
 
-        {colsStatus === 'success' && config?.facets && allColumns?.facetsColVals ? (
+        {colsStatus !== 'success' ? (
+          <Center>
+            <Loader />
+          </Center>
+        ) : config?.facets && allColumns?.facetsColVals ? (
           // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
           <ScrollArea
             style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
