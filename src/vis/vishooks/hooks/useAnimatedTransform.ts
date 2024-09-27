@@ -27,30 +27,33 @@ export function useAnimatedTransform(options: UseAnimatedTransformProps) {
   const animationFrameRef = useRef(null);
   const previousTransformRef = useRef(options.defaultValue || m4.identityMatrix4x4());
 
-  const setAnimatedTransform = useCallback((targetTransform, duration = 0) => {
-    if (duration === 0) {
-      setTransform(targetTransform);
-      return;
-    }
-    const startTime = performance.now();
-
-    const step = (currentTime) => {
-      const timeElapsed = currentTime - startTime;
-      const progress = Math.min(timeElapsed / duration, 1);
-
-      if (progress > 0) {
-        const newMatrix = linearInterpolate(previousTransformRef.current, targetTransform, progress);
-        setTransform(newMatrix);
+  const setAnimatedTransform = useCallback(
+    (targetTransform, duration = 0) => {
+      if (duration === 0) {
+        setTransform(targetTransform);
+        return;
       }
-      if (progress < 1) {
-        animationFrameRef.current = requestAnimationFrame(step);
-      } else {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
+      const startTime = performance.now();
 
-    requestAnimationFrame(step);
-  }, []);
+      const step = (currentTime) => {
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+
+        if (progress > 0) {
+          const newMatrix = linearInterpolate(previousTransformRef.current, targetTransform, progress);
+          setTransform(newMatrix);
+        }
+        if (progress < 1) {
+          animationFrameRef.current = requestAnimationFrame(step);
+        } else {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+      };
+
+      requestAnimationFrame(step);
+    },
+    [setTransform],
+  );
 
   useEffect(() => {
     return () => {
