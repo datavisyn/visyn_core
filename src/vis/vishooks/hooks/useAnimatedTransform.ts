@@ -1,5 +1,13 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { ZoomTransform } from '../interfaces';
+import { m4 } from '../math';
+import { useControlledUncontrolled } from './useControlledUncontrolled';
+
+interface UseAnimatedTransformProps {
+  value?: ZoomTransform;
+  onChange?: (value: ZoomTransform) => void;
+  defaultValue?: ZoomTransform;
+}
 
 const linearInterpolate = (startMatrix, endMatrix, t) => {
   return startMatrix.map((startValue, index) => {
@@ -9,10 +17,15 @@ const linearInterpolate = (startMatrix, endMatrix, t) => {
   });
 };
 
-export function useAnimatedTransform(initialTransform: ZoomTransform) {
-  const [transform, setTransform] = useState(initialTransform);
+export function useAnimatedTransform(options: UseAnimatedTransformProps) {
+  const [transform, setTransform] = useControlledUncontrolled({
+    value: options.value,
+    defaultValue: options.defaultValue || m4.identityMatrix4x4(),
+    onChange: options.onChange,
+  });
+
   const animationFrameRef = useRef(null);
-  const previousTransformRef = useRef(initialTransform);
+  const previousTransformRef = useRef(options.defaultValue || m4.identityMatrix4x4());
 
   const setAnimatedTransform = useCallback((targetTransform, duration = 0) => {
     if (duration === 0) {
