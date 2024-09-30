@@ -422,7 +422,7 @@ function EagerSingleEChartsBarChart({
         data: (visState.series ?? []).map((seriesItem) => ({
           name: seriesItem.name,
           itemStyle: {
-            color: groupColorScale(seriesItem.name as string),
+            color: groupColorScale?.(seriesItem.name as string),
           },
         })),
         formatter: (name: string) => {
@@ -775,7 +775,7 @@ function EagerSingleEChartsBarChart({
               const currLabel = params.event?.target;
               const fullText = params.value;
               const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
-              if (fullText !== displayText) {
+              if (config?.direction === EBarDirection.VERTICAL || fullText !== displayText) {
                 axisLabelTooltip.content.innerText = fullText as string;
                 axisLabelTooltip.dom.style.opacity = '1';
                 axisLabelTooltip.dom.style.visibility = 'visible';
