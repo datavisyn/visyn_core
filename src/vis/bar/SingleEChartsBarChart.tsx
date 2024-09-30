@@ -408,7 +408,7 @@ function EagerSingleEChartsBarChart({
 
       grid: {
         containLabel: false,
-        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 40,
+        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60,
         top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
         right: 40,
         bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70,
@@ -548,7 +548,7 @@ function EagerSingleEChartsBarChart({
           type: 'value' as const,
           name: config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType,
           nameLocation: 'middle',
-          nameGap: 20,
+          nameGap: 40,
           min: globalMin ?? 'dataMin',
           max: globalMax ?? 'dataMax',
           axisLabel: {
