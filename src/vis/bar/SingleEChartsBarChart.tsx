@@ -419,8 +419,17 @@ function EagerSingleEChartsBarChart({
         top: 30,
         type: 'scroll',
         icon: 'circle',
+        data: (visState.series ?? []).map((seriesItem) => ({
+          name: seriesItem.name,
+          itemStyle: {
+            color: groupColorScale(seriesItem.name as string),
+          },
+        })),
         formatter: (name: string) => {
           if (isGroupedByNumerical) {
+            if (name === NAN_REPLACEMENT) {
+              return name;
+            }
             const [min, max] = name.split(' to ');
             return `${round(Number(min), 4)} to ${round(Number(max), 4)}`;
           }
@@ -435,8 +444,10 @@ function EagerSingleEChartsBarChart({
     config?.facets,
     containerWidth,
     gridLeft,
+    groupColorScale,
     isGroupedByNumerical,
     selectedFacetValue,
+    visState.series,
   ]);
 
   const updateSortSideEffect = React.useCallback(
@@ -633,7 +644,7 @@ function EagerSingleEChartsBarChart({
       ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
       ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
     } as EChartsOption;
-  }, [visState.xAxis, visState.yAxis, optionBase, visState.series]);
+  }, [visState.series, visState.xAxis, visState.yAxis, optionBase]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   React.useEffect(() => {

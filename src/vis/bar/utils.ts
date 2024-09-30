@@ -1,5 +1,7 @@
-import { bin as d3Bin, extent, max, min } from 'd3v7';
+import lodashMax from 'lodash/max';
 import merge from 'lodash/merge';
+import lodashMin from 'lodash/min';
+import range from 'lodash/range';
 import { NAN_REPLACEMENT } from '../general';
 import { resolveSingleColumn } from '../general/layoutUtils';
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
@@ -22,6 +24,24 @@ export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig):
   return merged;
 }
 
+function binValues(values: number[], numberOfBins: number) {
+  const min = lodashMin(values) || 0;
+  const max = lodashMax(values) || 1;
+  const binSize = (max - min) / numberOfBins;
+
+  // Create bins
+  const bins = range(0, numberOfBins).map((i) => {
+    const lowerBound = min + i * binSize;
+    const upperBound = lowerBound + binSize;
+    return {
+      range: [lowerBound, upperBound],
+      values: values.filter((value) => value >= lowerBound && value < upperBound),
+    };
+  });
+
+  return bins;
+}
+
 /**
  * Creates a bin lookup map based on the provided data and maximum number of bins.
  *
@@ -37,20 +57,18 @@ export const createBinLookup = (data: VisNumericalValue[], maxBins: number = 8):
   // Extract the numerical values from non-null data
   const values = nonNullData.map((row) => row.val as number);
 
-  // Create the bins using d3.bin
-  const bins = d3Bin<number, number>()
-    .domain(extent(values) as [number, number])
-    .thresholds(maxBins)(values);
+  // Create the bins using custom lodash function
+  const bins = binValues(values, maxBins);
 
   // Create a map to hold the bin names
   const binMap = new Map<VisNumericalValue, string>();
 
   // Map bins to our desired structure with names and filter out empty bins
   bins
-    .filter((bin) => bin.length > 0) // Filter out empty bins
+    .filter((bin) => bin.values.length > 0) // Filter out empty bins
     .forEach((bin) => {
-      const binName = `${min(bin)} to ${max(bin)}`;
-      const binRows = nonNullData.filter((row) => bin.includes(row.val as number));
+      const binName = `${bin.range[0]} to ${bin.range[1]}`;
+      const binRows = nonNullData.filter((row) => bin.values.includes(row.val as number));
       binRows.forEach((row) => {
         binMap.set(row, binName);
       });

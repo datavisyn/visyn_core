@@ -20,6 +20,7 @@ import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
 import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, DEFAULT_BAR_CHART_MIN_WIDTH, VERTICAL_BAR_CHART_HEIGHT } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
 import { createBinLookup, getBarData } from './utils';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 
 const DEFAULT_FACET_NAME = '$default$';
 
@@ -74,9 +75,9 @@ function getAggregatedDataMap(config: IBarConfig, dataTable: IBarDataTableRow[],
     const values = facetGrouped[facet];
     const facetSensitiveDataTable = facet === DEFAULT_FACET_NAME ? dataTable : dataTable.filter((item) => item.facet === facet);
     const categoriesList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.category) ?? []));
-    const groupingsList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.group) ?? []));
+    const groupingsList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.group ?? NAN_REPLACEMENT) ?? []));
     (values ?? []).forEach((item) => {
-      const { category, agg, group } = item;
+      const { category = NAN_REPLACEMENT, agg, group = NAN_REPLACEMENT } = item;
       const selected = selectedMap?.[item.id] || false;
       if (!aggregated.facets[facet]) {
         aggregated.facets[facet] = { categoriesList, groupingsList, categories: {} };
@@ -387,16 +388,21 @@ export function BarChart({
       return null;
     }
 
-    const groups = Array.from(new Set(dataTable.map((row) => row.group)));
+    const groups = aggregatedDataMap?.facets[config?.facets?.id ?? DEFAULT_FACET_NAME]?.groupingsList ?? [];
+    const hasUnknownGroups = groups.includes(NAN_REPLACEMENT);
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? (schemeBlues[Math.max(groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
+        ? (schemeBlues[Math.max(hasUnknownGroups ? groups.length - 2 : groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
             (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
 
+    if (range.length < groups.length) {
+      range.push(VIS_NEUTRAL_COLOR);
+      return scaleOrdinal<string>().domain(groups).range(range);
+    }
     return scaleOrdinal<string>().domain(groups).range(range);
-  }, [allColumns?.groupColVals, dataTable]);
+  }, [aggregatedDataMap?.facets, allColumns?.groupColVals, config?.facets?.id]);
 
   const allUniqueFacetVals = React.useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
