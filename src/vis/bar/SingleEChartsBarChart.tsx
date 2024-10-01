@@ -212,12 +212,15 @@ function EagerSingleEChartsBarChart({
         top: 30,
         type: 'scroll',
         icon: 'circle',
-        data: (visState.series ?? []).map((seriesItem) => ({
-          name: seriesItem.name,
-          itemStyle: {
-            color: groupColorScale?.(seriesItem.name as string),
-          },
-        })),
+        show: !!config?.group,
+        data: config?.group
+          ? (visState.series ?? []).map((seriesItem) => ({
+              name: seriesItem.name,
+              itemStyle: {
+                color: groupColorScale?.(seriesItem.name as string),
+              },
+            }))
+          : [],
         formatter: (name: string) => {
           if (isGroupedByNumerical) {
             if (name === NAN_REPLACEMENT) {
