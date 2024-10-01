@@ -20,7 +20,7 @@ import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
 
-// d3v7.forc
+// d3v7.force
 
 const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
   hovermode: 'closest',
@@ -81,7 +81,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
   };
 }
 
-export function ScatterVisNew({
+export function ScatterVis({
   config,
   columns,
   shapes: uniqueSymbols = ['circle', 'square', 'triangle-up', 'star'],
