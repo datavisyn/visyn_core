@@ -1,9 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ChromaticConfig } from '@chromatic-com/playwright';
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig({
+export default defineConfig<ChromaticConfig>({
   testDir: './playwright',
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -21,6 +22,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     /* Capture video */
     video: 'on-first-retry',
+    /* Chromatic: add delay to screenshot taking for more consistent results: https://www.chromatic.com/docs/playwright/configure/ */
+    delay: 300,
   },
   // increased as some tests are slow in CI (e.g. co-expression)
   expect: { timeout: 30000 },

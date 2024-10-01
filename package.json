@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "13.1.2-SNAPSHOT",
+  "version": "13.2.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -83,6 +83,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@mantine/carousel": "~7.12.2",
     "@mantine/code-highlight": "~7.12.2",
     "@mantine/core": "~7.12.2",
     "@mantine/dates": "~7.12.2",

@@ -185,6 +185,7 @@ export async function getBarData(
     type: EColumnTypes.NUMERICAL | EColumnTypes.CATEGORICAL;
     info: ColumnInfo;
     color?: Record<string, string>;
+    domain?: string[] | [number | undefined, number | undefined];
   };
   facetsColVals: {
     resolvedValues: (VisNumericalValue | VisCategoricalValue)[];
