@@ -596,7 +596,7 @@ export function BarChart({
                   ? EBarSortParameters.AGGREGATION
                   : config?.direction === EBarDirection.VERTICAL
                     ? EBarSortParameters.CATEGORIES
-                    : null
+                    : EBarSortParameters.AGGREGATION // default fallback
               }
             />
           ) : null}
@@ -609,7 +609,7 @@ export function BarChart({
                   ? EBarSortParameters.CATEGORIES
                   : config?.direction === EBarDirection.VERTICAL
                     ? EBarSortParameters.AGGREGATION
-                    : null
+                    : EBarSortParameters.AGGREGATION // default fallback
               }
             />
           ) : null}

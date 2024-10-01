@@ -1,9 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import * as React from 'react';
-import { EBarDirection, EBarSortParameters } from '../interfaces';
 import { useBarSortHelper } from '../hooks';
-import { IBarConfig } from '../interfaces';
+import { EBarDirection, EBarSortParameters, IBarConfig } from '../interfaces';
 
 export function BarChartSortButton({
   config,
@@ -12,9 +11,11 @@ export function BarChartSortButton({
 }: {
   config: IBarConfig;
   setConfig: (c: IBarConfig) => void;
-  sort: EBarSortParameters | null;
+  sort: EBarSortParameters;
 }) {
-  const { tooltipLabel, icon, color, nextSortState } = useBarSortHelper({ config, sort });
+  const [getSortMetadata] = useBarSortHelper({ config });
+  // NOTE: @dv-usama-ansari: Unhooked computation!
+  const { tooltipLabel, icon, color, nextSortState } = getSortMetadata(sort);
 
   return (
     <Tooltip label={tooltipLabel} disabled={!tooltipLabel} position="top" withArrow>

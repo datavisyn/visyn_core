@@ -8,8 +8,10 @@ import * as React from 'react';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig } from './interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { BAR_WIDTH, CHART_HEIGHT_MARGIN } from './interfaces/internal';
+import { useBarSortHelper } from './hooks';
+import { selectionColorDark } from '../../utils';
 
 // TODO: @dv-usama-ansari: Move this into utils
 export function median(arr: number[]) {
@@ -487,13 +489,32 @@ function EagerSingleEChartsBarChart({
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
+    const aggregationAxisNameBase =
+      config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType;
+    const aggregationAxisSortText =
+      config?.direction === EBarDirection.HORIZONTAL
+        ? SortDirectionMap[config?.sortState?.x as EBarSortState]
+        : config?.direction === EBarDirection.VERTICAL
+          ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+          : '';
+    const aggregationAxisName = `${aggregationAxisNameBase} (${aggregationAxisSortText})`;
+
+    const categoricalAxisNameBase = config?.catColumnSelected?.name;
+    const categoricalAxisSortText =
+      config?.direction === EBarDirection.HORIZONTAL
+        ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+        : config?.direction === EBarDirection.VERTICAL
+          ? SortDirectionMap[config?.sortState?.x as EBarSortState]
+          : '';
+    const categoricalAxisName = `${categoricalAxisNameBase} (${categoricalAxisSortText})`;
+
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
         ...v,
 
         xAxis: {
           type: 'value' as const,
-          name: config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType,
+          name: aggregationAxisName,
           nameLocation: 'middle',
           nameGap: 32,
           min: globalMin ?? 'dataMin',
@@ -501,12 +522,15 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             hideOverlap: true,
           },
-          triggerEvent: false,
+          nameTextStyle: {
+            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+          },
+          triggerEvent: true,
         },
 
         yAxis: {
           type: 'category' as const,
-          name: config?.catColumnSelected?.name,
+          name: categoricalAxisName,
           nameLocation: 'middle',
           nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
           data: (v.yAxis as { data: number[] })?.data ?? [],
@@ -517,6 +541,9 @@ function EagerSingleEChartsBarChart({
               const truncatedText = labelsMap[value];
               return truncatedText;
             },
+          },
+          nameTextStyle: {
+            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
           },
           triggerEvent: true,
         },
@@ -529,7 +556,7 @@ function EagerSingleEChartsBarChart({
         // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
         xAxis: {
           type: 'category' as const,
-          name: config?.catColumnSelected?.name,
+          name: categoricalAxisName,
           nameLocation: 'middle',
           nameGap: 60,
           data: (v.xAxis as { data: number[] })?.data ?? [],
@@ -541,12 +568,15 @@ function EagerSingleEChartsBarChart({
             },
             rotate: 45,
           },
+          nameTextStyle: {
+            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+          },
           triggerEvent: true,
         },
 
         yAxis: {
           type: 'value' as const,
-          name: config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType,
+          name: aggregationAxisName,
           nameLocation: 'middle',
           nameGap: 40,
           min: globalMin ?? 'dataMin',
@@ -554,7 +584,10 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             hideOverlap: true,
           },
-          triggerEvent: false,
+          nameTextStyle: {
+            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+          },
+          triggerEvent: true,
         },
       }));
     }
@@ -564,6 +597,8 @@ function EagerSingleEChartsBarChart({
     config?.direction,
     config?.display,
     config?.group,
+    config?.sortState?.x,
+    config?.sortState?.y,
     containerWidth,
     globalMax,
     globalMin,
@@ -684,7 +719,7 @@ function EagerSingleEChartsBarChart({
     return { dom, content };
   }, []);
 
-  // const {} = useBarSortHelper({config, })
+  const [getSortMetadata] = useBarSortHelper({ config: config! });
 
   const { setRef, instance } = useChart({
     options,
@@ -764,13 +799,34 @@ function EagerSingleEChartsBarChart({
           },
         },
         {
-          query:
-            config?.direction === EBarDirection.HORIZONTAL
-              ? { componentType: 'yAxis' }
-              : config?.direction === EBarDirection.VERTICAL
-                ? { componentType: 'xAxis' }
-                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
-          handler: (params) => {},
+          query: { componentType: 'yAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName' && params.componentType === 'yAxis') {
+              if (config?.direction === EBarDirection.HORIZONTAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+              }
+              if (config?.direction === EBarDirection.VERTICAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+              }
+            }
+          },
+        },
+        {
+          query: { componentType: 'xAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName' && params.componentType === 'xAxis') {
+              if (config?.direction === EBarDirection.HORIZONTAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+              }
+              if (config?.direction === EBarDirection.VERTICAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+              }
+            }
+          },
         },
       ],
       mouseover: [
