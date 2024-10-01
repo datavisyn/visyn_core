@@ -2,10 +2,10 @@ import lodashMax from 'lodash/max';
 import merge from 'lodash/merge';
 import lodashMin from 'lodash/min';
 import range from 'lodash/range';
-import { NAN_REPLACEMENT } from '../general';
-import { resolveSingleColumn } from '../general/layoutUtils';
-import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
-import { defaultConfig, IBarConfig, VisColumnWithResolvedValues } from './interfaces';
+import { NAN_REPLACEMENT } from '../../general';
+import { resolveSingleColumn } from '../../general/layoutUtils';
+import { BaseVisConfig, ColumnInfo, EColumnTypes, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../../interfaces';
+import { defaultConfig, IBarConfig, VisColumnWithResolvedValues } from '../interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);
@@ -124,4 +124,8 @@ export async function getBarData(
   )) as VisColumnWithResolvedValues;
 
   return { catColVals, groupColVals, facetsColVals, aggregateColVals };
+}
+
+export function isBarConfig(s: BaseVisConfig): s is IBarConfig {
+  return s.type === ESupportedPlotlyVis.BAR;
 }

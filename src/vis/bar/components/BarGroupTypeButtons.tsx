@@ -1,6 +1,6 @@
 import { Container, SegmentedControl, Stack } from '@mantine/core';
 import * as React from 'react';
-import { EBarGroupingType } from './interfaces';
+import { EBarGroupingType } from '../interfaces';
 
 interface BarGroupTypeProps {
   callback: (s: EBarGroupingType) => void;
@@ -13,7 +13,9 @@ export function BarGroupTypeButtons({ callback, currentSelected }: BarGroupTypeP
       <Stack gap={0}>
         <SegmentedControl
           value={currentSelected}
-          onChange={callback}
+          onChange={(s) => {
+            callback(s as EBarGroupingType);
+          }}
           data={[
             { label: EBarGroupingType.GROUP, value: EBarGroupingType.GROUP },
             { label: EBarGroupingType.STACK, value: EBarGroupingType.STACK },

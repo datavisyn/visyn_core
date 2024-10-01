@@ -1,25 +1,10 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ActionIcon, Tooltip } from '@mantine/core';
-import * as React from 'react';
-import { dvSortAsc, dvSortDesc, dvSort } from '../../icons';
-import { selectionColorDark } from '../../utils';
-import { IBarConfig, EBarSortState, EBarDirection } from './interfaces';
+import React from 'react';
+import { dvSort, dvSortAsc, dvSortDesc } from '../../../icons';
+import { selectionColorDark } from '../../../utils';
+import { EBarDirection, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from '../interfaces';
 
-export enum EBarSortParameters {
-  AGGREGATION = 'Aggregation',
-  CATEGORIES = 'Categories',
-}
-
-export function BarChartSortButton({
-  config,
-  setConfig,
-  sort = EBarSortParameters.AGGREGATION,
-}: {
-  config: IBarConfig;
-  setConfig: (c: IBarConfig) => void;
-  sort: EBarSortParameters | null;
-}) {
-  const { tooltipLabel, icon, color, nextSortState } = React.useMemo(() => {
+export function useBarSortHelper({ config, sort }: { config: IBarConfig; sort: EBarSortParameters | null }) {
+  const sortMetadata = React.useMemo(() => {
     const fallbackSortState = { x: EBarSortState.NONE, y: EBarSortState.NONE };
     // NOTE: @dv-usama-ansari: Code optimized for readability.
     if (config.sortState) {
@@ -28,6 +13,7 @@ export function BarChartSortButton({
           if (config.sortState.y === EBarSortState.ASCENDING) {
             return {
               tooltipLabel: `Sort ${config.catColumnSelected?.name ?? 'selected category'} in descending order`,
+              text: SortDirectionMap[config.sortState.y as EBarSortState],
               icon: dvSortAsc,
               color: selectionColorDark,
               nextSortState: { ...fallbackSortState, y: EBarSortState.DESCENDING },
@@ -36,6 +22,7 @@ export function BarChartSortButton({
           if (config.sortState.y === EBarSortState.DESCENDING) {
             return {
               tooltipLabel: `Remove sorting from ${config.catColumnSelected?.name ?? 'selected category'}`,
+              text: SortDirectionMap[config.sortState.y as EBarSortState],
               icon: dvSortDesc,
               color: selectionColorDark,
               nextSortState: fallbackSortState,
@@ -44,6 +31,7 @@ export function BarChartSortButton({
           if (config.sortState.y === EBarSortState.NONE) {
             return {
               tooltipLabel: `Sort ${config.catColumnSelected?.name ?? 'selected category'} in ascending order`,
+              text: SortDirectionMap[config.sortState.y as EBarSortState],
               icon: dvSort,
               color: 'dark',
               nextSortState: { ...fallbackSortState, y: EBarSortState.ASCENDING },
@@ -54,6 +42,7 @@ export function BarChartSortButton({
           if (config.sortState.x === EBarSortState.ASCENDING) {
             return {
               tooltipLabel: `Sort ${config.catColumnSelected?.name ?? 'selected category'} in descending order`,
+              text: SortDirectionMap[config.sortState.x as EBarSortState],
               icon: dvSortAsc,
               color: selectionColorDark,
               nextSortState: { ...fallbackSortState, x: EBarSortState.DESCENDING },
@@ -62,6 +51,7 @@ export function BarChartSortButton({
           if (config.sortState.x === EBarSortState.DESCENDING) {
             return {
               tooltipLabel: `Remove sorting from ${config.catColumnSelected?.name ?? 'selected category'}`,
+              text: SortDirectionMap[config.sortState.x as EBarSortState],
               icon: dvSortDesc,
               color: selectionColorDark,
               nextSortState: fallbackSortState,
@@ -70,6 +60,7 @@ export function BarChartSortButton({
           if (config.sortState.x === EBarSortState.NONE) {
             return {
               tooltipLabel: `Sort ${config.catColumnSelected?.name ?? 'selected category'} in ascending order`,
+              text: SortDirectionMap[config.sortState.x as EBarSortState],
               icon: dvSort,
               color: 'dark',
               nextSortState: { ...fallbackSortState, x: EBarSortState.ASCENDING },
@@ -82,6 +73,7 @@ export function BarChartSortButton({
           if (config.sortState.x === EBarSortState.ASCENDING) {
             return {
               tooltipLabel: `Sort ${config.aggregateType} in descending order`,
+              text: SortDirectionMap[config.sortState.x as EBarSortState],
               icon: dvSortAsc,
               color: selectionColorDark,
               nextSortState: { ...fallbackSortState, x: EBarSortState.DESCENDING },
@@ -90,6 +82,7 @@ export function BarChartSortButton({
           if (config.sortState.x === EBarSortState.DESCENDING) {
             return {
               tooltipLabel: `Remove sorting from ${config.aggregateType}`,
+              text: SortDirectionMap[config.sortState.x as EBarSortState],
               icon: dvSortDesc,
               color: selectionColorDark,
               nextSortState: fallbackSortState,
@@ -98,6 +91,7 @@ export function BarChartSortButton({
           if (config.sortState.x === EBarSortState.NONE) {
             return {
               tooltipLabel: `Sort ${config.aggregateType} in ascending order`,
+              text: SortDirectionMap[config.sortState.x as EBarSortState],
               icon: dvSort,
               color: 'dark',
               nextSortState: { ...fallbackSortState, x: EBarSortState.ASCENDING },
@@ -108,6 +102,7 @@ export function BarChartSortButton({
           if (config.sortState.y === EBarSortState.ASCENDING) {
             return {
               tooltipLabel: `Sort ${config.aggregateType} in descending order`,
+              text: SortDirectionMap[config.sortState.y as EBarSortState],
               icon: dvSortAsc,
               color: selectionColorDark,
               nextSortState: { ...fallbackSortState, y: EBarSortState.DESCENDING },
@@ -116,6 +111,7 @@ export function BarChartSortButton({
           if (config.sortState.y === EBarSortState.DESCENDING) {
             return {
               tooltipLabel: `Remove sorting from ${config.aggregateType}`,
+              text: SortDirectionMap[config.sortState.y as EBarSortState],
               icon: dvSortDesc,
               color: selectionColorDark,
               nextSortState: fallbackSortState,
@@ -124,6 +120,7 @@ export function BarChartSortButton({
           if (config.sortState.y === EBarSortState.NONE) {
             return {
               tooltipLabel: `Sort ${config.aggregateType} in ascending order`,
+              text: SortDirectionMap[config.sortState.y as EBarSortState],
               icon: dvSort,
               color: 'dark',
               nextSortState: { ...fallbackSortState, y: EBarSortState.ASCENDING },
@@ -134,6 +131,7 @@ export function BarChartSortButton({
     }
     return {
       tooltipLabel: `Sort ${sort === EBarSortParameters.CATEGORIES ? config.catColumnSelected?.name : sort === EBarSortParameters.AGGREGATION ? config.aggregateType : 'column'} in ascending order`,
+      text: SortDirectionMap[EBarSortState.NONE],
       icon: dvSort,
       color: 'dark',
       nextSortState:
@@ -145,32 +143,5 @@ export function BarChartSortButton({
     };
   }, [config.aggregateType, config.catColumnSelected?.name, config.direction, config.sortState, sort]);
 
-  return (
-    <Tooltip label={tooltipLabel} disabled={!tooltipLabel} position="top" withArrow>
-      <ActionIcon
-        c={color}
-        variant="subtle"
-        onClick={() => {
-          setConfig({ ...config, sortState: { ...nextSortState } });
-        }}
-        style={
-          sort === EBarSortParameters.CATEGORIES
-            ? config.direction === EBarDirection.HORIZONTAL
-              ? {}
-              : config.direction === EBarDirection.VERTICAL
-                ? { transform: 'rotate(90deg)' }
-                : {}
-            : sort === EBarSortParameters.AGGREGATION
-              ? config.direction === EBarDirection.HORIZONTAL
-                ? { transform: 'rotate(90deg)' }
-                : config.direction === EBarDirection.VERTICAL
-                  ? {}
-                  : {}
-              : {}
-        }
-      >
-        <FontAwesomeIcon icon={icon} />
-      </ActionIcon>
-    </Tooltip>
-  );
+  return sortMetadata;
 }

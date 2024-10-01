@@ -4,10 +4,9 @@ import { useMemo } from 'react';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { BarDirectionButtons } from './BarDirectionButtons';
-import { GroupSelect } from './GroupSelect';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import { SingleSelect } from '../sidebar/SingleSelect';
+import { BarDirectionButtons, GroupSelect } from './components';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 
 const defaultConfig = {
   direction: { enable: true, customComponent: null as unknown },
@@ -70,7 +69,7 @@ export function BarVisSidebar({
         ? mergedOptionsConfig.group.customComponent || (
             <GroupSelect
               aggregateType={config.aggregateType}
-              groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
+              groupColumnSelectCallback={(group: ColumnInfo | null) => setConfig({ ...config, group })}
               groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
               groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
               displayType={config.display}

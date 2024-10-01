@@ -1,10 +1,9 @@
 import { Stack } from '@mantine/core';
-import React from 'react';
-
-import { InvalidCols } from '../general/InvalidCols';
+import * as React from 'react';
+import { InvalidCols } from '../general';
 import { ICommonVisProps } from '../interfaces';
-import { BarChart } from './BarChart';
 import { IBarConfig } from './interfaces';
+import { BarChart } from './BarChart';
 
 export function BarVis({
   config,

@@ -1,9 +1,9 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
-import { Vis } from '../../../LazyVis';
-import { VisProvider } from '../../../Provider';
 import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { Vis } from '../../../LazyVis';
+import { VisProvider } from '../../../Provider';
 import { fetchTestData, generateTestData } from '../../explodedData';
 
 function RNG(seed: number, sign: 'positive' | 'negative' | 'mixed' = 'positive') {
@@ -143,7 +143,7 @@ export default {
 const Template: ComponentStory<typeof Vis> = (args) => {
   // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
   // const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
-  const testData = generateTestData(1000);
+  const testData = generateTestData(200);
   const columns = React.useMemo(() => fetchTestData(testData), [testData]);
 
   return (

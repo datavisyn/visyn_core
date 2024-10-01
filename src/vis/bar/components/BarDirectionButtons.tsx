@@ -1,6 +1,6 @@
 import { Input, SegmentedControl } from '@mantine/core';
 import * as React from 'react';
-import { EBarDirection } from './interfaces';
+import { EBarDirection } from '../interfaces';
 
 interface BarDirectionProps {
   callback: (s: EBarDirection) => void;
@@ -14,7 +14,9 @@ export function BarDirectionButtons({ callback, currentSelected }: BarDirectionP
         fullWidth
         size="xs"
         value={currentSelected}
-        onChange={callback}
+        onChange={(s) => {
+          callback(s as EBarDirection);
+        }}
         data={[
           { label: EBarDirection.VERTICAL, value: EBarDirection.VERTICAL },
           { label: EBarDirection.HORIZONTAL, value: EBarDirection.HORIZONTAL },

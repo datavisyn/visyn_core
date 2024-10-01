@@ -8,8 +8,8 @@ import * as React from 'react';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig } from './interfaces';
+import { BAR_WIDTH, CHART_HEIGHT_MARGIN } from './interfaces/internal';
 
 // TODO: @dv-usama-ansari: Move this into utils
 export function median(arr: number[]) {
@@ -684,6 +684,8 @@ function EagerSingleEChartsBarChart({
     return { dom, content };
   }, []);
 
+  // const {} = useBarSortHelper({config, })
+
   const { setRef, instance } = useChart({
     options,
     settings,
@@ -760,6 +762,15 @@ function EagerSingleEChartsBarChart({
               }
             }
           },
+        },
+        {
+          query:
+            config?.direction === EBarDirection.HORIZONTAL
+              ? { componentType: 'yAxis' }
+              : config?.direction === EBarDirection.VERTICAL
+                ? { componentType: 'xAxis' }
+                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+          handler: (params) => {},
         },
       ],
       mouseover: [

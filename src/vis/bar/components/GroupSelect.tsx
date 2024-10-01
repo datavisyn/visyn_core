@@ -1,13 +1,13 @@
 import { Stack } from '@mantine/core';
 import * as React from 'react';
-import { ColumnInfo, EAggregateTypes, VisColumn } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, VisColumn } from '../../interfaces';
+import { SingleSelect } from '../../sidebar/SingleSelect';
+import { EBarGroupingType, EBarDisplayType } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
-import { EBarDisplayType, EBarGroupingType } from './interfaces';
-import { SingleSelect } from '../sidebar/SingleSelect';
 
 interface GroupSelectProps {
-  groupColumnSelectCallback: (c: ColumnInfo) => void;
+  groupColumnSelectCallback: (c: ColumnInfo | null) => void;
   groupTypeSelectCallback: (c: EBarGroupingType) => void;
   groupDisplaySelectCallback: (c: EBarDisplayType) => void;
   groupType: EBarGroupingType;
@@ -31,9 +31,9 @@ export function GroupSelect({
     <Stack gap="sm">
       <SingleSelect
         label="Group"
-        callback={(e) => groupColumnSelectCallback(e ? columns.find((c) => c.info.id === e.id)?.info : null)}
+        callback={(e) => groupColumnSelectCallback(e ? ((columns ?? []).find((c) => c.info.id === e.id)?.info ?? null) : null)}
         columns={columns}
-        currentSelected={currentSelected}
+        currentSelected={currentSelected!}
         columnType={null}
       />
       {currentSelected ? (

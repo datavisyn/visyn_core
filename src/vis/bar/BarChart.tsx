@@ -1,26 +1,32 @@
 import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
-import { scaleOrdinal, schemeBlues } from 'd3v7';
+import { median, scaleOrdinal, schemeBlues } from 'd3v7';
 import groupBy from 'lodash/groupBy';
 import round from 'lodash/round';
 import sort from 'lodash/sortBy';
 import sortedUniq from 'lodash/sortedUniq';
 import uniqueId from 'lodash/uniqueId';
 import zipWith from 'lodash/zipWith';
-import React from 'react';
+import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
-import { BarChartSortButton, EBarSortParameters } from './BarChartSortButton';
-import { AggregatedDataType, median, SingleEChartsBarChart } from './SingleEChartsBarChart';
-import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, DEFAULT_BAR_CHART_MIN_WIDTH, VERTICAL_BAR_CHART_HEIGHT } from './constants';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, IBarDataTableRow } from './interfaces';
+import { BarChartSortButton, FocusFacetSelector } from './components';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig, IBarDataTableRow } from './interfaces';
+import {
+  BAR_SPACING,
+  BAR_WIDTH,
+  CHART_HEIGHT_MARGIN,
+  DEFAULT_BAR_CHART_HEIGHT,
+  DEFAULT_BAR_CHART_MIN_WIDTH,
+  VERTICAL_BAR_CHART_HEIGHT,
+} from './interfaces/internal';
+import { AggregatedDataType, SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { createBinLookup, getBarData } from './utils';
-import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 
 const DEFAULT_FACET_NAME = '$default$';
 
