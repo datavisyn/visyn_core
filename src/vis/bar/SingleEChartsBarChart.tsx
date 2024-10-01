@@ -252,6 +252,7 @@ function EagerSingleEChartsBarChart({
     config?.catColumnSelected?.name,
     config?.direction,
     config?.facets,
+    config?.group,
     containerWidth,
     gridLeft,
     groupColorScale,
