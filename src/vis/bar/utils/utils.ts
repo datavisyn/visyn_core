@@ -125,7 +125,3 @@ export async function getBarData(
 
   return { catColVals, groupColVals, facetsColVals, aggregateColVals };
 }
-
-export function isBarConfig(s: BaseVisConfig): s is IBarConfig {
-  return s.type === ESupportedPlotlyVis.BAR;
-}
