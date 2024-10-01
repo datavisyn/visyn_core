@@ -4,6 +4,9 @@ import * as React from 'react';
 import { useBarSortHelper } from '../hooks';
 import { EBarDirection, EBarSortParameters, IBarConfig } from '../interfaces';
 
+/**
+ * @deprecated In favor of sort by clicking the axis labels
+ */
 export function BarChartSortButton({
   config,
   setConfig,
