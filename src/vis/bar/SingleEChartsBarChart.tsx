@@ -3,223 +3,14 @@ import { useSetState } from '@mantine/hooks';
 import { type ScaleOrdinal } from 'd3v7';
 import { EChartsOption } from 'echarts';
 import type { BarSeriesOption } from 'echarts/charts';
-import round from 'lodash/round';
 import * as React from 'react';
+import { selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
-import { BAR_WIDTH, CHART_HEIGHT_MARGIN } from './interfaces/internal';
 import { useBarSortHelper } from './hooks';
-import { selectionColorDark } from '../../utils';
-
-// TODO: @dv-usama-ansari: Move this into utils
-export function median(arr: number[]) {
-  if (arr.length === 0) {
-    return null;
-  }
-  const mid = Math.floor(arr.length / 2);
-  const nums = [...arr].sort((a, b) => a - b) as number[];
-  const medianVal = arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1]! + nums[mid]!) / 2;
-  return medianVal;
-}
-
-/**
- * Calculates and returns the rounded absolute or normalized value, dependending on the config value.
- * Enabled grouping always returns the absolute value. The normalized value is only calculated for stacked bars.
- * @param config Bar chart configuration
- * @param value Absolute value
- * @param total Number of values in the category
- * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
- */
-function normalizedValue({ config, value, total }: { config: IBarConfig; value: number; total: number }) {
-  // NOTE: @dv-usama-ansari: Filter out Infinity and -Infinity values. This is required for proper display of minimum and maximum aggregations.
-  if ([Infinity, -Infinity].includes(value)) {
-    return null;
-  }
-  return config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
-    ? round((value / total) * 100, 2)
-    : round(value, 4);
-}
-
-/**
- * Sorts the series data based on the specified order.
- *
- * For input data like below:
- * ```ts
- * const series = [{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [26, 484, 389, 111],
- * },{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [22, 344, 239, 69],
- * },{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [6, 111, 83, 20],
- * }];
- * ```
- *
- * This function would return an output like below:
- * ```ts
- * const sortedSeries = [{ // The total of `Moderate` is the highest, sorted in descending order and `Unknown` is placed last no matter what.
- *   categories: ["Moderate", "Low", "High", "Unknown"],
- *   data: [111, 20, 83, 6],
- * },{
- *   categories: ["Moderate", "Low", "High", "Unknown"],
- *   data: [239, 69, 344, 22],
- * },{
- *   categories: ["Moderate", "Low", "High", "Unknown"],
- *   data: [389, 484, 111, 26],
- * }]
- * ```
- *
- * This function uses `for` loop for maximum performance and readability.
- *
- * @param series
- * @param sortMetadata
- * @returns
- */
-function sortSeries(
-  series: { categories: string[]; data: BarSeriesOption['data'] }[],
-  sortMetadata: { sortState: { x: EBarSortState; y: EBarSortState }; direction: EBarDirection } = {
-    sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
-    direction: EBarDirection.HORIZONTAL,
-  },
-): { categories: string[]; data: BarSeriesOption['data'] }[] {
-  // Step 1: Aggregate the data
-  const aggregatedData: { [key: string]: number } = {};
-  let unknownCategorySum = 0;
-  for (const s of series) {
-    for (let i = 0; i < s.categories.length; i++) {
-      const category = s.categories[i] as string;
-      const value = (s.data?.[i] as number) || 0;
-      if (category === 'Unknown') {
-        unknownCategorySum += value;
-      } else {
-        if (!aggregatedData[category]) {
-          aggregatedData[category] = 0;
-        }
-        aggregatedData[category] += value;
-      }
-    }
-  }
-
-  // Add the 'Unknown' category at the end
-  aggregatedData[NAN_REPLACEMENT] = unknownCategorySum;
-
-  // NOTE: @dv-usama-ansari: filter out keys with 0 values
-  for (const key in aggregatedData) {
-    if (aggregatedData[key] === 0) {
-      delete aggregatedData[key];
-    }
-  }
-
-  // Step 2: Sort the aggregated data
-  // NOTE: @dv-usama-ansari: Code optimized for readability.
-  const sortedCategories = Object.keys(aggregatedData).sort((a, b) => {
-    if (a === NAN_REPLACEMENT) {
-      return 1;
-    }
-    if (b === NAN_REPLACEMENT) {
-      return -1;
-    }
-    if (sortMetadata.direction === EBarDirection.HORIZONTAL) {
-      if (sortMetadata.sortState.x === EBarSortState.ASCENDING) {
-        return (aggregatedData[a] as number) - (aggregatedData[b] as number);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.DESCENDING) {
-        return (aggregatedData[b] as number) - (aggregatedData[a] as number);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.ASCENDING) {
-        return a.localeCompare(b);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.DESCENDING) {
-        return b.localeCompare(a);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-      if (sortMetadata.sortState.y === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-    }
-    if (sortMetadata.direction === EBarDirection.VERTICAL) {
-      if (sortMetadata.sortState.x === EBarSortState.ASCENDING) {
-        return a.localeCompare(b);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.DESCENDING) {
-        return b.localeCompare(a);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.ASCENDING) {
-        return (aggregatedData[a] as number) - (aggregatedData[b] as number);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.DESCENDING) {
-        return (aggregatedData[b] as number) - (aggregatedData[a] as number);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-      if (sortMetadata.sortState.y === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-    }
-    return 0;
-  });
-
-  // Create a mapping of categories to their sorted indices
-  const categoryIndexMap: { [key: string]: number } = {};
-  for (let i = 0; i < sortedCategories.length; i++) {
-    categoryIndexMap[sortedCategories[i] as string] = i;
-  }
-
-  // Step 3: Sort each series according to the sorted categories
-  const sortedSeries: typeof series = [];
-  for (const s of series) {
-    const sortedData = new Array(sortedCategories.length).fill(null);
-    for (let i = 0; i < s.categories.length; i++) {
-      // NOTE: @dv-usama-ansari: index of the category in the sorted array
-      sortedData[categoryIndexMap[s.categories?.[i] as string] as number] = s.data?.[i];
-    }
-    sortedSeries.push({
-      ...s,
-      categories: sortedCategories,
-      data: sortedData,
-    });
-  }
-
-  return sortedSeries;
-}
-
-export type AggregatedDataType = {
-  categoriesList: string[];
-  groupingsList: string[];
-  categories: {
-    [category: string]: {
-      total: number;
-      ids: string[];
-      groups: {
-        [group: string]: {
-          total: number;
-          ids: string[];
-          selected: { count: number; sum: number; min: number; max: number; nums: number[]; ids: string[] };
-          unselected: { count: number; sum: number; min: number; max: number; nums: number[]; ids: string[] };
-        };
-      };
-    };
-  };
-};
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
+import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, sortSeries } from './interfaces/internal';
 
 function EagerSingleEChartsBarChart({
   aggregatedData,
@@ -394,7 +185,7 @@ function EagerSingleEChartsBarChart({
         {
           text: selectedFacetValue
             ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.catColumnSelected?.name} vs ${config?.aggregateType}`
-            : `${config?.catColumnSelected?.name} vs ${config?.aggregateType}`,
+            : `${config?.catColumnSelected?.name} vs ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}`,
           triggerEvent: !!config?.facets,
           left: '50%',
           textAlign: 'center',
@@ -433,13 +224,27 @@ function EagerSingleEChartsBarChart({
               return name;
             }
             const [min, max] = name.split(' to ');
-            return `${round(Number(min), 4)} to ${round(Number(max), 4)}`;
+            // return `${round(Number(min), 4)} to ${round(Number(max), 4)}`;
+            const formattedMin = new Intl.NumberFormat('en-US', {
+              maximumFractionDigits: 4,
+              maximumSignificantDigits: 4,
+              notation: 'compact',
+              compactDisplay: 'short',
+            }).format(Number(min));
+            const formattedMax = new Intl.NumberFormat('en-US', {
+              maximumFractionDigits: 4,
+              maximumSignificantDigits: 4,
+              notation: 'compact',
+              compactDisplay: 'short',
+            }).format(Number(max));
+            return `${formattedMin} to ${formattedMax}`;
           }
           return name;
         },
       },
     } as EChartsOption;
   }, [
+    config?.aggregateColumn?.name,
     config?.aggregateType,
     config?.catColumnSelected?.name,
     config?.direction,
@@ -521,6 +326,15 @@ function EagerSingleEChartsBarChart({
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
+            formatter: (value: number) => {
+              const formattedValue = new Intl.NumberFormat('en-US', {
+                maximumFractionDigits: 4,
+                maximumSignificantDigits: 4,
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(value);
+              return formattedValue;
+            },
           },
           nameTextStyle: {
             color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
@@ -583,6 +397,15 @@ function EagerSingleEChartsBarChart({
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
+            formatter: (value: number) => {
+              const formattedValue = new Intl.NumberFormat('en-US', {
+                maximumFractionDigits: 4,
+                maximumSignificantDigits: 4,
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(value);
+              return formattedValue;
+            },
           },
           nameTextStyle: {
             color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
