@@ -114,19 +114,22 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
           aggregated.globalDomain.max = 100;
         } else {
           switch (config.aggregateType) {
-            case EAggregateTypes.COUNT:
-              aggregated.globalDomain.max =
+            case EAggregateTypes.COUNT: {
+              const max =
                 config.groupType === EBarGroupingType.STACK
                   ? Math.max(aggregated.facets[facet]?.categories[category]?.total ?? -Infinity, aggregated.globalDomain.max)
                   : Math.max(aggregated.facets[facet]?.categories[category]?.groups[group]?.total ?? -Infinity, aggregated.globalDomain.max);
-              aggregated.globalDomain.min =
+              const min =
                 config.groupType === EBarGroupingType.STACK
                   ? Math.min(aggregated.facets[facet]?.categories[category]?.total ?? Infinity, aggregated.globalDomain.min, 0)
                   : Math.min(aggregated.facets[facet]?.categories[category]?.groups[group]?.total ?? Infinity, aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
+            }
 
-            case EAggregateTypes.AVG:
-              aggregated.globalDomain.max =
+            case EAggregateTypes.AVG: {
+              const max =
                 config.groupType === EBarGroupingType.STACK
                   ? round(
                       Math.max(
@@ -162,7 +165,7 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
                       ),
                       4,
                     );
-              aggregated.globalDomain.min = round(
+              const min = round(
                 Math.min(
                   Math.min(
                     (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.sum ?? Infinity) /
@@ -175,10 +178,13 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
                 ),
                 4,
               );
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
+            }
 
-            case EAggregateTypes.MIN:
-              aggregated.globalDomain.max =
+            case EAggregateTypes.MIN: {
+              const max =
                 config.groupType === EBarGroupingType.STACK
                   ? Math.max(
                       Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
@@ -198,7 +204,7 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
                       ),
                       aggregated.globalDomain.max,
                     );
-              aggregated.globalDomain.min = Math.min(
+              const min = Math.min(
                 Math.min(
                   aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.min ?? Infinity,
                   aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.min ?? Infinity,
@@ -206,10 +212,13 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
                 aggregated.globalDomain.min,
                 0,
               );
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
+            }
 
-            case EAggregateTypes.MAX:
-              aggregated.globalDomain.max =
+            case EAggregateTypes.MAX: {
+              const max =
                 config.groupType === EBarGroupingType.STACK
                   ? Math.max(
                       Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
@@ -228,7 +237,7 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
                       ),
                       aggregated.globalDomain.max,
                     );
-              aggregated.globalDomain.min = Math.min(
+              const min = Math.min(
                 Math.max(
                   aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.max ?? -Infinity,
                   aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.max ?? -Infinity,
@@ -236,12 +245,15 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
                 aggregated.globalDomain.min,
                 0,
               );
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
+            }
 
             case EAggregateTypes.MED: {
               const selectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.nums ?? []);
               const unselectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.nums ?? []);
-              aggregated.globalDomain.max =
+              const max =
                 config.groupType === EBarGroupingType.STACK
                   ? Math.max(
                       Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
@@ -251,7 +263,9 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
                       }, 0),
                     )
                   : Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max);
-              aggregated.globalDomain.min = Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0);
+              const min = Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
             }
 
