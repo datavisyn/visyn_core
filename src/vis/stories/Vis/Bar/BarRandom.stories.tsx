@@ -195,6 +195,7 @@ Vertical.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
+    useFullHeight: false,
   } as BaseVisConfig,
 };
 
@@ -215,7 +216,6 @@ VerticalFullHeight.args = {
     aggregateType: EAggregateTypes.COUNT,
     aggregateColumn: null,
     numColumnsSelected: [],
-    useFullHeight: true,
   } as BaseVisConfig,
 };
 

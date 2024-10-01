@@ -16,4 +16,5 @@ export const defaultConfig: IBarConfig = {
   aggregateType: EAggregateTypes.COUNT,
   showFocusFacetSelector: false,
   sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
+  useFullHeight: true,
 };
