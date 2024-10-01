@@ -72,9 +72,10 @@ function calculateChartHeight({
 
 function getAggregatedDataMap(config: IBarConfig, dataTable: IBarDataTableRow[], selectedMap: ICommonVisProps<IBarConfig>['selectedMap']) {
   const facetGrouped = config.facets ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
-  const aggregated: { facets: { [facet: string]: AggregatedDataType }; globalDomain: { min: number; max: number } } = {
+  const aggregated: { facets: { [facet: string]: AggregatedDataType }; globalDomain: { min: number; max: number }; facetsList: string[] } = {
     facets: {},
     globalDomain: { min: Infinity, max: -Infinity },
+    facetsList: Object.keys(facetGrouped),
   };
   const minMax: { facets: { [facet: string]: AggregatedDataType } } = { facets: {} };
   Object.keys(facetGrouped).forEach((facet) => {
@@ -394,7 +395,10 @@ export function BarChart({
       return null;
     }
 
-    const groups = aggregatedDataMap?.facets[config?.facets?.id ?? DEFAULT_FACET_NAME]?.groupingsList ?? [];
+    const groups =
+      aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
+        ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
+        : (aggregatedDataMap?.facetsList ?? []);
     const hasUnknownGroups = groups.includes(NAN_REPLACEMENT);
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
@@ -408,7 +412,7 @@ export function BarChart({
       return scaleOrdinal<string>().domain(groups).range(range);
     }
     return scaleOrdinal<string>().domain(groups).range(range);
-  }, [aggregatedDataMap?.facets, allColumns?.groupColVals, config?.facets?.id]);
+  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, allColumns?.groupColVals]);
 
   const allUniqueFacetVals = React.useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
