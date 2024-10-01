@@ -152,7 +152,7 @@ export function ScatterVisNew({
 
     if (scatter) {
       const curveFit = fitRegressionLine(
-        { x: scatter.plotlyData.x, y: scatter.plotlyData.y },
+        { x: scatter.plotlyData.x.filter((x) => x), y: scatter.plotlyData.y.filter((y) => y) },
         config.regressionLineOptions.type,
         config.regressionLineOptions.fitOptions,
       );
@@ -179,7 +179,11 @@ export function ScatterVisNew({
       const annotations: Partial<PlotlyTypes.Annotations>[] = [];
 
       facet.resultData.forEach((group) => {
-        const curveFit = fitRegressionLine({ x: group.data.x, y: group.data.y }, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
+        const curveFit = fitRegressionLine(
+          { x: group.data.x.filter((x) => x), y: group.data.y.filter((y) => y) },
+          config.regressionLineOptions.type,
+          config.regressionLineOptions.fitOptions,
+        );
 
         if (!curveFit.svgPath.includes('NaN')) {
           shapes.push({
@@ -201,7 +205,11 @@ export function ScatterVisNew({
       const plotlyShapes: Partial<PlotlyTypes.Shape>[] = [];
       // eslint-disable-next-line guard-for-in
       splom.xyPairs.forEach((pair, i) => {
-        const curveFit = fitRegressionLine({ x: pair.data.x, y: pair.data.y }, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
+        const curveFit = fitRegressionLine(
+          { x: pair.data.x.filter((x) => x), y: pair.data.y.filter((y) => y) },
+          config.regressionLineOptions.type,
+          config.regressionLineOptions.fitOptions,
+        );
 
         if (!curveFit.svgPath.includes('NaN')) {
           plotlyShapes.push({
