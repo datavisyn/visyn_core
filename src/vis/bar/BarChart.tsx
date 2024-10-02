@@ -10,9 +10,9 @@ import { categoricalColors as colorScale } from '../../utils/colors';
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { ColumnInfo, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
 import { BarChartSortButton, FocusFacetSelector } from './components';
-import { EBarDirection, EBarDisplayType, EBarSortParameters, IBarConfig } from './interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
   calculateChartHeight,
@@ -90,8 +90,18 @@ export function BarChart({
   }, [allColumns]);
 
   const aggregatedDataMap = React.useMemo(
-    () => (config ? generateAggregatedDataLookup(config!, dataTable, selectedMap) : null),
-    [config, dataTable, selectedMap],
+    () =>
+      generateAggregatedDataLookup(
+        {
+          isFaceted: !!config?.facets?.id,
+          groupType: config?.groupType as EBarGroupingType,
+          display: config?.display as EBarDisplayType,
+          aggregateType: config?.aggregateType as EAggregateTypes,
+        },
+        dataTable,
+        selectedMap,
+      ),
+    [config?.aggregateType, config?.display, config?.facets?.id, config?.groupType, dataTable, selectedMap],
   );
 
   const groupColorScale = React.useMemo(() => {
