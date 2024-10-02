@@ -295,6 +295,7 @@ export function BarChart({
         <Group justify="center">
           {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
+          {/* // TODO: @dv-usama-ansari: Should this be removed? */}
           {config?.display !== EBarDisplayType.NORMALIZED ? (
             <BarChartSortButton
               config={config!}
