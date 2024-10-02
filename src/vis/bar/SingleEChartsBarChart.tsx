@@ -3,230 +3,25 @@ import { useSetState } from '@mantine/hooks';
 import { type ScaleOrdinal } from 'd3v7';
 import { EChartsOption } from 'echarts';
 import type { BarSeriesOption } from 'echarts/charts';
-import round from 'lodash/round';
 import * as React from 'react';
+import { selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
-import { BAR_WIDTH, CHART_HEIGHT_MARGIN } from './constants';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig } from './interfaces';
-
-// TODO: @dv-usama-ansari: Move this into utils
-export function median(arr: number[]) {
-  if (arr.length === 0) {
-    return null;
-  }
-  const mid = Math.floor(arr.length / 2);
-  const nums = [...arr].sort((a, b) => a - b) as number[];
-  const medianVal = arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1]! + nums[mid]!) / 2;
-  return medianVal;
-}
-
-/**
- * Calculates and returns the rounded absolute or normalized value, dependending on the config value.
- * Enabled grouping always returns the absolute value. The normalized value is only calculated for stacked bars.
- * @param config Bar chart configuration
- * @param value Absolute value
- * @param total Number of values in the category
- * @returns Returns the rounded absolute value. Otherwise returns the rounded normalized value.
- */
-function normalizedValue({ config, value, total }: { config: IBarConfig; value: number; total: number }) {
-  // NOTE: @dv-usama-ansari: Filter out Infinity and -Infinity values. This is required for proper display of minimum and maximum aggregations.
-  if ([Infinity, -Infinity].includes(value)) {
-    return null;
-  }
-  return config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
-    ? round((value / total) * 100, 2)
-    : round(value, 4);
-}
-
-/**
- * Sorts the series data based on the specified order.
- *
- * For input data like below:
- * ```ts
- * const series = [{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [26, 484, 389, 111],
- * },{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [22, 344, 239, 69],
- * },{
- *   categories: ["Unknown", "High", "Moderate", "Low"],
- *   data: [6, 111, 83, 20],
- * }];
- * ```
- *
- * This function would return an output like below:
- * ```ts
- * const sortedSeries = [{ // The total of `Moderate` is the highest, sorted in descending order and `Unknown` is placed last no matter what.
- *   categories: ["Moderate", "Low", "High", "Unknown"],
- *   data: [111, 20, 83, 6],
- * },{
- *   categories: ["Moderate", "Low", "High", "Unknown"],
- *   data: [239, 69, 344, 22],
- * },{
- *   categories: ["Moderate", "Low", "High", "Unknown"],
- *   data: [389, 484, 111, 26],
- * }]
- * ```
- *
- * This function uses `for` loop for maximum performance and readability.
- *
- * @param series
- * @param sortMetadata
- * @returns
- */
-function sortSeries(
-  series: { categories: string[]; data: BarSeriesOption['data'] }[],
-  sortMetadata: { sortState: { x: EBarSortState; y: EBarSortState }; direction: EBarDirection } = {
-    sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
-    direction: EBarDirection.HORIZONTAL,
-  },
-): { categories: string[]; data: BarSeriesOption['data'] }[] {
-  // Step 1: Aggregate the data
-  const aggregatedData: { [key: string]: number } = {};
-  let unknownCategorySum = 0;
-  for (const s of series) {
-    for (let i = 0; i < s.categories.length; i++) {
-      const category = s.categories[i] as string;
-      const value = (s.data?.[i] as number) || 0;
-      if (category === 'Unknown') {
-        unknownCategorySum += value;
-      } else {
-        if (!aggregatedData[category]) {
-          aggregatedData[category] = 0;
-        }
-        aggregatedData[category] += value;
-      }
-    }
-  }
-
-  // Add the 'Unknown' category at the end
-  aggregatedData[NAN_REPLACEMENT] = unknownCategorySum;
-
-  // NOTE: @dv-usama-ansari: filter out keys with 0 values
-  for (const key in aggregatedData) {
-    if (aggregatedData[key] === 0) {
-      delete aggregatedData[key];
-    }
-  }
-
-  // Step 2: Sort the aggregated data
-  // NOTE: @dv-usama-ansari: Code optimized for readability.
-  const sortedCategories = Object.keys(aggregatedData).sort((a, b) => {
-    if (a === NAN_REPLACEMENT) {
-      return 1;
-    }
-    if (b === NAN_REPLACEMENT) {
-      return -1;
-    }
-    if (sortMetadata.direction === EBarDirection.HORIZONTAL) {
-      if (sortMetadata.sortState.x === EBarSortState.ASCENDING) {
-        return (aggregatedData[a] as number) - (aggregatedData[b] as number);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.DESCENDING) {
-        return (aggregatedData[b] as number) - (aggregatedData[a] as number);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.ASCENDING) {
-        return a.localeCompare(b);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.DESCENDING) {
-        return b.localeCompare(a);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-      if (sortMetadata.sortState.y === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-    }
-    if (sortMetadata.direction === EBarDirection.VERTICAL) {
-      if (sortMetadata.sortState.x === EBarSortState.ASCENDING) {
-        return a.localeCompare(b);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.DESCENDING) {
-        return b.localeCompare(a);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.ASCENDING) {
-        return (aggregatedData[a] as number) - (aggregatedData[b] as number);
-      }
-      if (sortMetadata.sortState.y === EBarSortState.DESCENDING) {
-        return (aggregatedData[b] as number) - (aggregatedData[a] as number);
-      }
-      if (sortMetadata.sortState.x === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-      if (sortMetadata.sortState.y === EBarSortState.NONE) {
-        // NOTE: @dv-usama-ansari: Sort according to the original order
-        //  SLOW CODE because of using `indexOf`!
-        // return originalOrder.indexOf(a) - originalOrder.indexOf(b);
-        return 0;
-      }
-    }
-    return 0;
-  });
-
-  // Create a mapping of categories to their sorted indices
-  const categoryIndexMap: { [key: string]: number } = {};
-  for (let i = 0; i < sortedCategories.length; i++) {
-    categoryIndexMap[sortedCategories[i] as string] = i;
-  }
-
-  // Step 3: Sort each series according to the sorted categories
-  const sortedSeries: typeof series = [];
-  for (const s of series) {
-    const sortedData = new Array(sortedCategories.length).fill(null);
-    for (let i = 0; i < s.categories.length; i++) {
-      // NOTE: @dv-usama-ansari: index of the category in the sorted array
-      sortedData[categoryIndexMap[s.categories?.[i] as string] as number] = s.data?.[i];
-    }
-    sortedSeries.push({
-      ...s,
-      categories: sortedCategories,
-      data: sortedData,
-    });
-  }
-
-  return sortedSeries;
-}
-
-export type AggregatedDataType = {
-  categoriesList: string[];
-  groupingsList: string[];
-  categories: {
-    [category: string]: {
-      total: number;
-      ids: string[];
-      groups: {
-        [group: string]: {
-          total: number;
-          ids: string[];
-          selected: { count: number; sum: number; min: number; max: number; nums: number[]; ids: string[] };
-          unselected: { count: number; sum: number; min: number; max: number; nums: number[]; ids: string[] };
-        };
-      };
-    };
-  };
-};
+import { useBarSortHelper } from './hooks';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
+import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, sortSeries } from './interfaces/internal';
 
 function EagerSingleEChartsBarChart({
   aggregatedData,
   chartHeight,
+  chartMinWidth,
   config,
   containerWidth,
   globalMax,
   globalMin,
   groupColorScale,
+  isGroupedByNumerical,
   labelsMap,
   longestLabelWidth,
   selectedFacetIndex,
@@ -238,10 +33,12 @@ function EagerSingleEChartsBarChart({
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   aggregatedData: AggregatedDataType;
   chartHeight: number;
+  chartMinWidth: number;
   containerWidth: number;
   globalMax?: number;
   globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
+  isGroupedByNumerical: boolean;
   labelsMap: Record<string, string>;
   longestLabelWidth: number;
   selectedFacetIndex?: number;
@@ -257,24 +54,6 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
-
-  // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
-  const { axisTooltipDOM, axisTooltipContent } = React.useMemo(() => {
-    const dom = document.createElement('div');
-    const content = document.createElement('div');
-    dom.appendChild(content);
-    dom.id = 'axis-tooltip';
-    dom.style.position = 'absolute';
-    dom.style.backgroundColor = '#6E7079';
-    dom.style.borderRadius = '4px';
-    dom.style.color = '#F9F9F9';
-    dom.style.fontSize = '12px';
-    dom.style.opacity = '0';
-    dom.style.padding = '4px 8px';
-    dom.style.transformOrigin = 'bottom';
-    dom.style.visibility = 'hidden';
-    return { axisTooltipDOM: dom, axisTooltipContent: content };
-  }, []);
 
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
@@ -404,15 +183,25 @@ function EagerSingleEChartsBarChart({
 
       title: [
         {
-          text: selectedFacetValue ?? `${config?.catColumnSelected?.name} vs ${config?.aggregateType}`,
-          triggerEvent: true,
+          text: selectedFacetValue
+            ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.catColumnSelected?.name} vs ${config?.aggregateType}`
+            : `${config?.catColumnSelected?.name} vs ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}`,
+          triggerEvent: !!config?.facets,
+          left: '50%',
+          textAlign: 'center',
           name: 'facetTitle',
+          textStyle: {
+            color: '#7F7F7F',
+            fontFamily: 'Roboto, sans-serif',
+            fontSize: '14px',
+            whiteSpace: 'pre',
+          },
         },
       ],
 
       grid: {
         containLabel: false,
-        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 40,
+        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60,
         top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
         right: 40,
         bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70,
@@ -423,9 +212,54 @@ function EagerSingleEChartsBarChart({
         top: 30,
         type: 'scroll',
         icon: 'circle',
+        show: !!config?.group,
+        data: config?.group
+          ? (visState.series ?? []).map((seriesItem) => ({
+              name: seriesItem.name,
+              itemStyle: {
+                color: groupColorScale?.(seriesItem.name as string),
+              },
+            }))
+          : [],
+        formatter: (name: string) => {
+          if (isGroupedByNumerical) {
+            if (name === NAN_REPLACEMENT) {
+              return name;
+            }
+            const [min, max] = name.split(' to ');
+            // return `${round(Number(min), 4)} to ${round(Number(max), 4)}`;
+            const formattedMin = new Intl.NumberFormat('en-US', {
+              maximumFractionDigits: 4,
+              maximumSignificantDigits: 4,
+              notation: 'compact',
+              compactDisplay: 'short',
+            }).format(Number(min));
+            const formattedMax = new Intl.NumberFormat('en-US', {
+              maximumFractionDigits: 4,
+              maximumSignificantDigits: 4,
+              notation: 'compact',
+              compactDisplay: 'short',
+            }).format(Number(max));
+            return `${formattedMin} to ${formattedMax}`;
+          }
+          return name;
+        },
       },
     } as EChartsOption;
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, gridLeft, selectedFacetValue]);
+  }, [
+    config?.aggregateColumn?.name,
+    config?.aggregateType,
+    config?.catColumnSelected?.name,
+    config?.direction,
+    config?.facets,
+    config?.group,
+    containerWidth,
+    gridLeft,
+    groupColorScale,
+    isGroupedByNumerical,
+    selectedFacetValue,
+    visState.series,
+  ]);
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
@@ -464,26 +298,57 @@ function EagerSingleEChartsBarChart({
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
+    const aggregationAxisNameBase =
+      config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType;
+    const aggregationAxisSortText =
+      config?.direction === EBarDirection.HORIZONTAL
+        ? SortDirectionMap[config?.sortState?.x as EBarSortState]
+        : config?.direction === EBarDirection.VERTICAL
+          ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+          : '';
+    const aggregationAxisName = `${aggregationAxisNameBase} (${aggregationAxisSortText})`;
+
+    const categoricalAxisNameBase = config?.catColumnSelected?.name;
+    const categoricalAxisSortText =
+      config?.direction === EBarDirection.HORIZONTAL
+        ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+        : config?.direction === EBarDirection.VERTICAL
+          ? SortDirectionMap[config?.sortState?.x as EBarSortState]
+          : '';
+    const categoricalAxisName = `${categoricalAxisNameBase} (${categoricalAxisSortText})`;
+
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
         ...v,
 
         xAxis: {
           type: 'value' as const,
-          name: config?.aggregateType,
+          name: aggregationAxisName,
           nameLocation: 'middle',
           nameGap: 32,
           min: globalMin ?? 'dataMin',
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
+            formatter: (value: number) => {
+              const formattedValue = new Intl.NumberFormat('en-US', {
+                maximumFractionDigits: 4,
+                maximumSignificantDigits: 4,
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(value);
+              return formattedValue;
+            },
+          },
+          nameTextStyle: {
+            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
           },
           triggerEvent: true,
         },
 
         yAxis: {
           type: 'category' as const,
-          name: config?.catColumnSelected?.name,
+          name: categoricalAxisName,
           nameLocation: 'middle',
           nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
           data: (v.yAxis as { data: number[] })?.data ?? [],
@@ -494,6 +359,9 @@ function EagerSingleEChartsBarChart({
               const truncatedText = labelsMap[value];
               return truncatedText;
             },
+          },
+          nameTextStyle: {
+            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
           },
           triggerEvent: true,
         },
@@ -506,7 +374,7 @@ function EagerSingleEChartsBarChart({
         // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
         xAxis: {
           type: 'category' as const,
-          name: config?.catColumnSelected?.name,
+          name: categoricalAxisName,
           nameLocation: 'middle',
           nameGap: 60,
           data: (v.xAxis as { data: number[] })?.data ?? [],
@@ -518,24 +386,53 @@ function EagerSingleEChartsBarChart({
             },
             rotate: 45,
           },
+          nameTextStyle: {
+            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+          },
           triggerEvent: true,
         },
 
         yAxis: {
           type: 'value' as const,
-          name: config?.aggregateType,
+          name: aggregationAxisName,
           nameLocation: 'middle',
-          nameGap: 20,
+          nameGap: 40,
           min: globalMin ?? 'dataMin',
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
+            formatter: (value: number) => {
+              const formattedValue = new Intl.NumberFormat('en-US', {
+                maximumFractionDigits: 4,
+                maximumSignificantDigits: 4,
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(value);
+              return formattedValue;
+            },
+          },
+          nameTextStyle: {
+            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
           },
           triggerEvent: true,
         },
       }));
     }
-  }, [config?.aggregateType, config?.catColumnSelected?.name, config?.direction, containerWidth, globalMax, globalMin, gridLeft, labelsMap, setVisState]);
+  }, [
+    config?.aggregateType,
+    config?.catColumnSelected?.name,
+    config?.direction,
+    config?.display,
+    config?.group,
+    config?.sortState?.x,
+    config?.sortState?.y,
+    containerWidth,
+    globalMax,
+    globalMin,
+    gridLeft,
+    labelsMap,
+    setVisState,
+  ]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
@@ -609,7 +506,7 @@ function EagerSingleEChartsBarChart({
       ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
       ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
     } as EChartsOption;
-  }, [visState.xAxis, visState.yAxis, optionBase, visState.series]);
+  }, [visState.series, visState.xAxis, visState.yAxis, optionBase]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   React.useEffect(() => {
@@ -628,6 +525,29 @@ function EagerSingleEChartsBarChart({
     [],
   );
 
+  // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
+  const axisLabelTooltip = React.useMemo(() => {
+    const dom = document.createElement('div');
+    dom.id = 'axis-tooltip';
+    dom.style.position = 'absolute';
+    dom.style.backgroundColor = '#6E7079';
+    dom.style.borderRadius = '4px';
+    dom.style.color = '#F9F9F9';
+    dom.style.fontSize = '12px';
+    dom.style.opacity = '0';
+    dom.style.padding = '4px 8px';
+    dom.style.transformOrigin = 'bottom';
+    dom.style.visibility = 'hidden';
+    dom.style.zIndex = '9999';
+
+    const content = document.createElement('div');
+    dom.appendChild(content);
+
+    return { dom, content };
+  }, []);
+
+  const [getSortMetadata] = useBarSortHelper({ config: config! });
+
   const { setRef, instance } = useChart({
     options,
     settings,
@@ -635,7 +555,7 @@ function EagerSingleEChartsBarChart({
       click: [
         {
           query: { titleIndex: 0 },
-          handler: (params) => {
+          handler: () => {
             setConfig?.({ ...config!, focusFacetIndex: config?.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
           },
         },
@@ -671,10 +591,66 @@ function EagerSingleEChartsBarChart({
             } else {
               // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
               const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-              if (isSameBarClicked) {
-                selectionCallback(event, []);
+              selectionCallback(event, isSameBarClicked ? [] : ids);
+            }
+          },
+        },
+        {
+          query:
+            config?.direction === EBarDirection.HORIZONTAL
+              ? { componentType: 'yAxis' }
+              : config?.direction === EBarDirection.VERTICAL
+                ? { componentType: 'xAxis' }
+                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+
+          handler: (params) => {
+            if (params.targetType === 'axisLabel') {
+              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+              const ids = aggregatedData?.categories[params.value as string]?.ids ?? [];
+              if (event.shiftKey) {
+                const newSelectedSet = new Set(selectedList);
+                ids.forEach((id) => {
+                  if (newSelectedSet.has(id)) {
+                    newSelectedSet.delete(id);
+                  } else {
+                    newSelectedSet.add(id);
+                  }
+                });
+                const newSelectedList = [...newSelectedSet];
+                selectionCallback(event, [...new Set([...newSelectedList])]);
               } else {
-                selectionCallback(event, ids);
+                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
+                selectionCallback(event, isSameBarClicked ? [] : ids);
+              }
+            }
+          },
+        },
+        {
+          query: { componentType: 'yAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName' && params.componentType === 'yAxis') {
+              if (config?.direction === EBarDirection.HORIZONTAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+              }
+              if (config?.direction === EBarDirection.VERTICAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+              }
+            }
+          },
+        },
+        {
+          query: { componentType: 'xAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName' && params.componentType === 'xAxis') {
+              if (config?.direction === EBarDirection.HORIZONTAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+              }
+              if (config?.direction === EBarDirection.VERTICAL) {
+                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
+                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
               }
             }
           },
@@ -693,15 +669,28 @@ function EagerSingleEChartsBarChart({
               const currLabel = params.event?.target;
               const fullText = params.value;
               const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
-              if (fullText !== displayText) {
-                axisTooltipContent.innerText = fullText as string;
-                axisTooltipDOM.style.opacity = '1';
-                axisTooltipDOM.style.visibility = 'visible';
+              if (config?.direction === EBarDirection.VERTICAL || fullText !== displayText) {
+                axisLabelTooltip.content.innerText = fullText as string;
+                axisLabelTooltip.dom.style.opacity = '1';
+                axisLabelTooltip.dom.style.visibility = 'visible';
+                axisLabelTooltip.dom.style.zIndex = '9999';
 
-                const top = (currLabel?.transform[5] ?? 0) - axisTooltipDOM.offsetHeight / 2;
-                const left = Math.max((currLabel?.transform[4] ?? 0) - axisTooltipDOM.offsetWidth, 0);
-                axisTooltipDOM.style.top = `${top}px`;
-                axisTooltipDOM.style.left = `${left}px`;
+                const topOffset =
+                  config?.direction === EBarDirection.HORIZONTAL
+                    ? axisLabelTooltip.dom.offsetHeight * -1.5
+                    : config?.direction === EBarDirection.VERTICAL
+                      ? axisLabelTooltip.dom.offsetHeight * -1.25
+                      : 0;
+                const top = (currLabel?.transform[5] ?? 0) + topOffset;
+                const leftOffset =
+                  config?.direction === EBarDirection.HORIZONTAL
+                    ? axisLabelTooltip.dom.offsetWidth * -1
+                    : config?.direction === EBarDirection.VERTICAL
+                      ? axisLabelTooltip.dom.offsetWidth * -0.5
+                      : 0;
+                const left = Math.max((currLabel?.transform[4] ?? 0) + leftOffset, 0);
+                axisLabelTooltip.dom.style.top = `${top}px`;
+                axisLabelTooltip.dom.style.left = `${left}px`;
               }
             }
           },
@@ -716,8 +705,11 @@ function EagerSingleEChartsBarChart({
                 ? { componentType: 'xAxis' }
                 : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
           handler: (params) => {
-            axisTooltipDOM.style.opacity = '0';
-            axisTooltipDOM.style.visibility = 'hidden';
+            if (params.targetType === 'axisLabel') {
+              axisLabelTooltip.dom.style.opacity = '0';
+              axisLabelTooltip.dom.style.visibility = 'hidden';
+              axisLabelTooltip.dom.style.zIndex = '-1';
+            }
           },
         },
       ],
@@ -725,13 +717,18 @@ function EagerSingleEChartsBarChart({
   });
 
   React.useEffect(() => {
-    if (instance && !instance.getDom().querySelector('#axis-tooltip')) {
-      instance.getDom().appendChild(axisTooltipDOM);
+    if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
+      instance.getDom().appendChild(axisLabelTooltip.dom);
     }
-  }, [axisTooltipDOM, instance]);
+  }, [axisLabelTooltip.dom, instance]);
 
-  return options && containerWidth !== 0 ? (
-    <Box component="div" pos="relative" ref={setRef} style={{ width: `${containerWidth}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
+  return options ? (
+    <Box
+      component="div"
+      pos="relative"
+      ref={setRef}
+      style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
+    />
   ) : null;
 }
 

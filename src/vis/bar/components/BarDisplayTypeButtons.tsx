@@ -1,6 +1,6 @@
 import { Container, SegmentedControl, Stack } from '@mantine/core';
 import * as React from 'react';
-import { EBarDisplayType } from './interfaces';
+import { EBarDisplayType } from '../interfaces';
 
 interface BarDisplayProps {
   callback: (s: EBarDisplayType) => void;
@@ -15,7 +15,9 @@ export function BarDisplayButtons({ callback, currentSelected, isCount }: BarDis
         <SegmentedControl
           disabled={!isCount}
           value={isCount ? currentSelected : EBarDisplayType.ABSOLUTE}
-          onChange={callback}
+          onChange={(s) => {
+            callback(s as EBarDisplayType);
+          }}
           data={[
             { label: EBarDisplayType.ABSOLUTE, value: EBarDisplayType.ABSOLUTE },
             { label: EBarDisplayType.NORMALIZED, value: EBarDisplayType.NORMALIZED },

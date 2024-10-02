@@ -67,8 +67,8 @@ export function useChart({
   const [state, setState] = useSetState({
     width: 0,
     height: 0,
-    internalObserver: null as ResizeObserver,
-    instance: null as ECharts,
+    internalObserver: null as ResizeObserver | null,
+    instance: null as ECharts | null,
   });
 
   const mouseEventsRef = React.useRef(mouseEvents);
@@ -81,37 +81,36 @@ export function useChart({
     });
 
     // Readd new events -> this is necessary when adding options for instance
-    Object.keys(mouseEventsRef.current ?? {}).forEach((eventName: ElementEventName) => {
-      const value = mouseEventsRef.current[eventName as ElementEventName];
+    Object.keys(mouseEventsRef.current ?? {}).forEach((e) => {
+      const eventName = e as ElementEventName;
+      const value = mouseEventsRef.current?.[eventName as ElementEventName];
 
       // Either the value is a handler like () => ..., an object with a query or an array containing both types
 
       if (Array.isArray(value)) {
         value.forEach((handler, index) => {
           if (typeof handler === 'function') {
-            instance.on(eventName, (params: ECElementEvent) => ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackFunction)(params));
+            instance.on(eventName, (params: ECElementEvent) => ((mouseEventsRef.current?.[eventName] as CallbackArray)[index] as CallbackFunction)(params));
+          } else if (!handler.query) {
+            instance.on(eventName, (params: ECElementEvent) =>
+              ((mouseEventsRef.current?.[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
+            );
           } else {
-            if (!handler.query) {
-              instance.on(eventName, (params: ECElementEvent) =>
-                ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
-              );
-            } else {
-              instance.on(eventName, handler.query, (params: ECElementEvent) =>
-                ((mouseEventsRef.current[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
-              );
-            }
+            instance.on(eventName, handler.query, (params: ECElementEvent) =>
+              ((mouseEventsRef.current?.[eventName] as CallbackArray)[index] as CallbackObject).handler(params),
+            );
           }
         });
         return;
       }
 
       if (typeof value === 'function') {
-        instance.on(eventName, (...args) => (mouseEventsRef.current[eventName] as CallbackFunction)(...args));
+        instance.on(eventName, (...args) => (mouseEventsRef.current?.[eventName] as CallbackFunction)(...args));
       } else if (typeof value === 'object') {
         if (!value.query) {
-          instance.on(eventName, (...args) => (mouseEventsRef.current[eventName] as CallbackObject).handler(...args));
+          instance.on(eventName, (...args) => (mouseEventsRef.current?.[eventName] as CallbackObject).handler(...args));
         } else {
-          instance.on(eventName, value.query, (...args) => (mouseEventsRef.current[eventName] as CallbackObject).handler(...args));
+          instance.on(eventName, value.query, (...args) => (mouseEventsRef.current?.[eventName] as CallbackObject).handler(...args));
         }
       }
     });
@@ -120,8 +119,8 @@ export function useChart({
   const { ref, setRef } = useSetRef<HTMLElement>({
     register: (element) => {
       const observer = new ResizeObserver((entries) => {
-        const newDimensions = entries[0].contentRect;
-        setState({ width: newDimensions.width, height: newDimensions.height });
+        const newDimensions = entries[0]?.contentRect;
+        setState({ width: newDimensions?.width, height: newDimensions?.height });
       });
       // create the instance
       const instance = echarts.init(element);
@@ -131,7 +130,7 @@ export function useChart({
       observer.observe(element);
     },
     cleanup() {
-      state.instance.dispose();
+      state.instance?.dispose();
     },
   });
 
@@ -144,7 +143,7 @@ export function useChart({
   React.useEffect(() => {
     if (state.instance && state.width > 0 && state.height > 0) {
       // This should be the last use effect since a resize stops the animation
-      state.instance.setOption(options, settings);
+      state.instance.setOption(options!, settings);
       // Sync events
       syncEvents(state.instance);
     }

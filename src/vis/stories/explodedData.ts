@@ -1,7 +1,8 @@
+import { NAN_REPLACEMENT } from '../general';
 import { EColumnTypes, VisColumn } from '../interfaces';
 
 export interface TestItem {
-  name: string;
+  name: string | null | undefined;
   age: number;
   numerical1: number;
   numerical2: number;
@@ -15,8 +16,10 @@ export interface TestItem {
 }
 
 const POSSIBLE_NAMES = [
-  'Alice Marie Johnson',
-  'Bob James Smith',
+  // 'Alice Marie Johnson',
+  'AMJ',
+  // 'Bob James Smith',
+  'Bo Ja Sm',
   'Charlie David Brown',
   'David Michael Williams',
   'Eve Elizabeth Jones',
@@ -38,9 +41,9 @@ const POSSIBLE_NAMES = [
 export function generateTestData(amount: number) {
   return Array.from({ length: amount }).map(() => {
     return {
-      name: POSSIBLE_NAMES[Math.floor(Math.random() * POSSIBLE_NAMES.length)] as string,
+      name: Math.random() > 0.9 ? null : POSSIBLE_NAMES[Math.floor(Math.random() * POSSIBLE_NAMES.length)],
       age: Math.floor(Math.random() * 100),
-      numerical1: Math.random() * 100,
+      numerical1: Math.floor(Math.random() * 4),
       numerical2: Math.random() * 100,
       categorical1: `Category ${Math.floor(Math.random() * 10)}`,
       categorical2: `Category ${Math.floor(Math.random() * 10)}`,
@@ -63,7 +66,7 @@ export function fetchTestData(testData: TestItem[]): VisColumn[] {
         name: 'Name',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => testData.map((r) => r.name).map((val, i) => ({ id: i.toString(), val })),
+      values: () => testData.map((r) => r.name).map((val, i) => ({ id: i.toString(), val: val || NAN_REPLACEMENT })),
       domain: POSSIBLE_NAMES,
     },
     {
