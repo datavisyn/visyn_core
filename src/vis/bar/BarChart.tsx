@@ -367,12 +367,6 @@ export function BarChart({
               selectedMap={selectedMap}
             />
           </ScrollArea>
-        ) : null}
-
-        {colsStatus !== 'success' ? (
-          <Center>
-            <Loader />
-          </Center>
         ) : config?.facets && allColumns?.facetsColVals ? (
           // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
           <ScrollArea
