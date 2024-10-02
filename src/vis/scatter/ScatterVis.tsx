@@ -20,7 +20,7 @@ import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
 
-// d3v7.forc
+// d3v7.force
 
 const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
   hovermode: 'closest',
@@ -81,7 +81,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
   };
 }
 
-export function ScatterVisNew({
+export function ScatterVis({
   config,
   columns,
   shapes: uniqueSymbols = ['circle', 'square', 'triangle-up', 'star'],
@@ -152,7 +152,7 @@ export function ScatterVisNew({
 
     if (scatter) {
       const curveFit = fitRegressionLine(
-        { x: scatter.plotlyData.x, y: scatter.plotlyData.y },
+        { x: scatter.plotlyData.x.filter((x) => x), y: scatter.plotlyData.y.filter((y) => y) },
         config.regressionLineOptions.type,
         config.regressionLineOptions.fitOptions,
       );
@@ -179,7 +179,11 @@ export function ScatterVisNew({
       const annotations: Partial<PlotlyTypes.Annotations>[] = [];
 
       facet.resultData.forEach((group) => {
-        const curveFit = fitRegressionLine({ x: group.data.x, y: group.data.y }, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
+        const curveFit = fitRegressionLine(
+          { x: group.data.x.filter((x) => x), y: group.data.y.filter((y) => y) },
+          config.regressionLineOptions.type,
+          config.regressionLineOptions.fitOptions,
+        );
 
         if (!curveFit.svgPath.includes('NaN')) {
           shapes.push({
@@ -201,7 +205,11 @@ export function ScatterVisNew({
       const plotlyShapes: Partial<PlotlyTypes.Shape>[] = [];
       // eslint-disable-next-line guard-for-in
       splom.xyPairs.forEach((pair, i) => {
-        const curveFit = fitRegressionLine({ x: pair.data.x, y: pair.data.y }, config.regressionLineOptions.type, config.regressionLineOptions.fitOptions);
+        const curveFit = fitRegressionLine(
+          { x: pair.data.x.filter((x) => x), y: pair.data.y.filter((y) => y) },
+          config.regressionLineOptions.type,
+          config.regressionLineOptions.fitOptions,
+        );
 
         if (!curveFit.svgPath.includes('NaN')) {
           plotlyShapes.push({
@@ -685,7 +693,7 @@ export function ScatterVisNew({
             }}
             config={{ responsive: true, scrollZoom, displayModeBar: false }}
             useResizeHandler
-            style={{ width: '100%', height: facet && facet?.resultData.length > 1 ? layout.grid.rows * 400 : '100%' }}
+            style={{ width: '100%', height: '100%' }}
           />
         </>
       ) : status !== 'pending' && status !== 'idle' ? (
