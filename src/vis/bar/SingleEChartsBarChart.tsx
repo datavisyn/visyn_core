@@ -556,15 +556,17 @@ function EagerSingleEChartsBarChart({
     const dom = document.createElement('div');
     dom.id = 'axis-tooltip';
     dom.style.position = 'absolute';
-    dom.style.backgroundColor = '#6E7079';
+    dom.style.backgroundColor = 'rgba(50,50,50)';
     dom.style.borderRadius = '4px';
-    dom.style.color = '#F9F9F9';
-    dom.style.fontSize = '12px';
+    dom.style.color = '#FFFFFF';
+    dom.style.fontFamily = 'sans-serif';
+    dom.style.fontSize = '14px';
     dom.style.opacity = '0';
     dom.style.padding = '4px 8px';
     dom.style.transformOrigin = 'bottom';
     dom.style.visibility = 'hidden';
     dom.style.zIndex = '9999';
+    dom.style.transition = 'opacity 400ms';
 
     const content = document.createElement('div');
     dom.appendChild(content);
