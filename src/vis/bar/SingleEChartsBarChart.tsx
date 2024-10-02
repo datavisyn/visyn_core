@@ -150,7 +150,9 @@ function EagerSingleEChartsBarChart({
           },
           formatter: (params) => {
             const facetString = selectedFacetValue ? `Facet: <b>${selectedFacetValue}</b>` : '';
-            const groupString = config?.group ? `${config?.group.name}: <b>${params.seriesName}</b>` : '';
+            const groupString = config?.group
+              ? `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${params.seriesName}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`
+              : '';
             const aggregateString = `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: <b>${params.value}</b>`;
             const categoryString = `${config?.catColumnSelected?.name}: <b>${params.name}</b>`;
             const tooltipLines = [categoryString, aggregateString, groupString, facetString].filter((line) => line.trim() !== '');
@@ -180,7 +182,16 @@ function EagerSingleEChartsBarChart({
         catColumnSelected: config?.catColumnSelected,
         group: config?.group,
       }) as BarSeriesOption,
-    [config?.aggregateColumn?.name, config?.aggregateType, config?.catColumnSelected, config?.display, config?.group, config?.groupType, selectedFacetValue],
+    [
+      config?.aggregateColumn?.name,
+      config?.aggregateType,
+      config?.catColumnSelected,
+      config?.display,
+      config?.group,
+      config?.groupType,
+      groupColorScale,
+      selectedFacetValue,
+    ],
   );
 
   const optionBase = React.useMemo(() => {
