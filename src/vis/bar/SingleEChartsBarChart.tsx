@@ -299,7 +299,11 @@ function EagerSingleEChartsBarChart({
 
   const updateDirectionSideEffect = React.useCallback(() => {
     const aggregationAxisNameBase =
-      config?.group && config?.display === EBarDisplayType.NORMALIZED ? `Normalized ${config?.aggregateType} (%)` : config?.aggregateType;
+      config?.group && config?.display === EBarDisplayType.NORMALIZED
+        ? `Normalized ${config?.aggregateType} (%)`
+        : config?.aggregateType === EAggregateTypes.COUNT
+          ? config?.aggregateType
+          : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`;
     const aggregationAxisSortText =
       config?.direction === EBarDirection.HORIZONTAL
         ? SortDirectionMap[config?.sortState?.x as EBarSortState]
@@ -419,6 +423,7 @@ function EagerSingleEChartsBarChart({
       }));
     }
   }, [
+    config?.aggregateColumn?.name,
     config?.aggregateType,
     config?.catColumnSelected?.name,
     config?.direction,
