@@ -60,7 +60,7 @@ function EagerSingleEChartsBarChart({
       if (aggregatedData) {
         switch (config?.aggregateType) {
           case EAggregateTypes.COUNT:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -72,7 +72,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.AVG:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -84,7 +84,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MIN:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -96,7 +96,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MAX:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -108,7 +108,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MED:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -459,7 +459,7 @@ function EagerSingleEChartsBarChart({
           const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
           return {
             ...barSeriesBase,
-            name: aggregatedData.groupingsList.length > 1 ? g : null,
+            name: aggregatedData?.groupingsList.length > 1 ? g : null,
             label: {
               ...barSeriesBase.label,
               ...fixLabelColor,
