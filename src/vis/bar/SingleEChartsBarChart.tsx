@@ -249,7 +249,6 @@ function EagerSingleEChartsBarChart({
               return name;
             }
             const [min, max] = name.split(' to ');
-            // return `${round(Number(min), 4)} to ${round(Number(max), 4)}`;
             const formattedMin = new Intl.NumberFormat('en-US', {
               maximumFractionDigits: 4,
               maximumSignificantDigits: 4,
