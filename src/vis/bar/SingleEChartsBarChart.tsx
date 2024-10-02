@@ -225,12 +225,13 @@ function EagerSingleEChartsBarChart({
         left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60,
         top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
         right: 40,
-        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70,
+        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85,
       },
 
       legend: {
         orient: 'horizontal',
         top: 30,
+        right: 10,
         type: 'scroll',
         icon: 'circle',
         show: !!config?.group,

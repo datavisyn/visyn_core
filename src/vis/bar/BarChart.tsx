@@ -7,7 +7,7 @@ import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
-import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
+import { VIS_NEUTRAL_COLOR } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
@@ -261,7 +261,8 @@ export function BarChart({
       textEl.innerText = value;
 
       document.body.appendChild(textEl);
-      truncatedTextRef.current.longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
+      const longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
+      truncatedTextRef.current.longestLabelWidth = longestLabelWidth;
 
       let truncatedText = '';
       for (let i = 0; i < value.length; i++) {
@@ -291,8 +292,8 @@ export function BarChart({
         setLabelsMap((prev) => ({ ...prev, [category]: truncatedText }));
       });
     });
-    setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
-  }, [containerWidth, getTruncatedText, config, aggregatedDataMap?.facets]);
+    setGridLeft(Math.min(containerWidth / 3, Math.max(truncatedTextRef.current.longestLabelWidth + 20, 60)));
+  }, [containerWidth, getTruncatedText, config?.catColumnSelected?.id, aggregatedDataMap?.facets]);
 
   React.useEffect(() => {
     listRef.current?.resetAfterIndex(0);
@@ -342,6 +343,7 @@ export function BarChart({
           <ScrollArea
             style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
             scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
+            offsetScrollbars
           >
             <SingleEChartsBarChart
               config={config}
@@ -378,6 +380,7 @@ export function BarChart({
             onScrollPositionChange={handleScroll}
             type="hover"
             scrollHideDelay={0}
+            offsetScrollbars
           >
             <VariableSizeList
               height={containerHeight - CHART_HEIGHT_MARGIN / 2}
