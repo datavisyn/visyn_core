@@ -113,10 +113,9 @@ export function BarChart({
       aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
         ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
         : (aggregatedDataMap?.facetsList ?? []);
-    const hasUnknownGroups = groups.includes(NAN_REPLACEMENT);
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? (schemeBlues[Math.max(hasUnknownGroups ? groups.length - 2 : groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
+        ? (schemeBlues[Math.max(groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
             (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
