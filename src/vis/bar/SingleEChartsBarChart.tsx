@@ -224,14 +224,12 @@ function EagerSingleEChartsBarChart({
         containLabel: false,
         left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60,
         top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
-        right: 40,
         bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85,
       },
 
       legend: {
         orient: 'horizontal',
         top: 30,
-        right: 10,
         type: 'scroll',
         icon: 'circle',
         show: !!config?.group,
@@ -754,6 +752,7 @@ function EagerSingleEChartsBarChart({
     <Box
       component="div"
       pos="relative"
+      pr="xs"
       ref={setRef}
       style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
     />
