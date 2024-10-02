@@ -138,6 +138,26 @@ function EagerSingleEChartsBarChart({
         blur: { label: { show: false } },
         barMaxWidth: BAR_WIDTH,
 
+        tooltip: {
+          trigger: 'item',
+          show: true,
+          confine: true,
+          backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
+          borderWidth: 0,
+          borderColor: 'transparent',
+          textStyle: {
+            color: 'var(--tooltip-color,var(--mantine-color-white))',
+          },
+          formatter: (params) => {
+            const facetString = selectedFacetValue ? `Facet: <b>${selectedFacetValue}</b>` : '';
+            const groupString = config?.group ? `${config?.group.name}: <b>${params.seriesName}</b>` : '';
+            const aggregateString = `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: <b>${params.value}</b>`;
+            const categoryString = `${config?.catColumnSelected?.name}: <b>${params.name}</b>`;
+            const tooltipLines = [categoryString, aggregateString, groupString, facetString].filter((line) => line.trim() !== '');
+            return tooltipLines.join('<br />');
+          },
+        },
+
         label: {
           show: true,
           formatter: (params) =>
@@ -160,7 +180,7 @@ function EagerSingleEChartsBarChart({
         catColumnSelected: config?.catColumnSelected,
         group: config?.group,
       }) as BarSeriesOption,
-    [config?.catColumnSelected, config?.display, config?.group, config?.groupType],
+    [config?.aggregateColumn?.name, config?.aggregateType, config?.catColumnSelected, config?.display, config?.group, config?.groupType, selectedFacetValue],
   );
 
   const optionBase = React.useMemo(() => {
@@ -169,16 +189,6 @@ function EagerSingleEChartsBarChart({
 
       tooltip: {
         trigger: 'item',
-        axisPointer: {
-          type: 'shadow',
-        },
-        confine: true,
-        backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
-        borderWidth: 0,
-        borderColor: 'transparent',
-        textStyle: {
-          color: 'var(--tooltip-color,var(--mantine-color-white))',
-        },
       },
 
       title: [
