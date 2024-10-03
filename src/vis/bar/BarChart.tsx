@@ -7,12 +7,12 @@ import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
-import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general';
+import { VIS_NEUTRAL_COLOR } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { ColumnInfo, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
 import { BarChartSortButton, FocusFacetSelector } from './components';
-import { EBarDirection, EBarDisplayType, EBarSortParameters, IBarConfig } from './interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
   calculateChartHeight,
@@ -90,8 +90,18 @@ export function BarChart({
   }, [allColumns]);
 
   const aggregatedDataMap = React.useMemo(
-    () => (config ? generateAggregatedDataLookup(config!, dataTable, selectedMap) : null),
-    [config, dataTable, selectedMap],
+    () =>
+      generateAggregatedDataLookup(
+        {
+          isFaceted: !!config?.facets?.id,
+          groupType: config?.groupType as EBarGroupingType,
+          display: config?.display as EBarDisplayType,
+          aggregateType: config?.aggregateType as EAggregateTypes,
+        },
+        dataTable,
+        selectedMap,
+      ),
+    [config?.aggregateType, config?.display, config?.facets?.id, config?.groupType, dataTable, selectedMap],
   );
 
   const groupColorScale = React.useMemo(() => {
@@ -103,10 +113,9 @@ export function BarChart({
       aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
         ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
         : (aggregatedDataMap?.facetsList ?? []);
-    const hasUnknownGroups = groups.includes(NAN_REPLACEMENT);
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? (schemeBlues[Math.max(hasUnknownGroups ? groups.length - 2 : groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
+        ? (schemeBlues[Math.max(groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
             (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
@@ -252,7 +261,8 @@ export function BarChart({
       textEl.innerText = value;
 
       document.body.appendChild(textEl);
-      truncatedTextRef.current.longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
+      const longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
+      truncatedTextRef.current.longestLabelWidth = longestLabelWidth;
 
       let truncatedText = '';
       for (let i = 0; i < value.length; i++) {
@@ -282,8 +292,8 @@ export function BarChart({
         setLabelsMap((prev) => ({ ...prev, [category]: truncatedText }));
       });
     });
-    setGridLeft(Math.min(containerWidth / 3, truncatedTextRef.current.longestLabelWidth + 20));
-  }, [containerWidth, getTruncatedText, config, aggregatedDataMap?.facets]);
+    setGridLeft(Math.min(containerWidth / 3, Math.max(truncatedTextRef.current.longestLabelWidth + 20, 60)));
+  }, [containerWidth, getTruncatedText, config?.catColumnSelected?.id, aggregatedDataMap?.facets]);
 
   React.useEffect(() => {
     listRef.current?.resetAfterIndex(0);
@@ -333,6 +343,7 @@ export function BarChart({
           <ScrollArea
             style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
             scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
+            offsetScrollbars
           >
             <SingleEChartsBarChart
               config={config}
@@ -356,12 +367,6 @@ export function BarChart({
               selectedMap={selectedMap}
             />
           </ScrollArea>
-        ) : null}
-
-        {colsStatus !== 'success' ? (
-          <Center>
-            <Loader />
-          </Center>
         ) : config?.facets && allColumns?.facetsColVals ? (
           // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
           <ScrollArea
@@ -369,6 +374,7 @@ export function BarChart({
             onScrollPositionChange={handleScroll}
             type="hover"
             scrollHideDelay={0}
+            offsetScrollbars
           >
             <VariableSizeList
               height={containerHeight - CHART_HEIGHT_MARGIN / 2}

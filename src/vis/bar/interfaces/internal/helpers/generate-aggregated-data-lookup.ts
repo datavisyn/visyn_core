@@ -10,14 +10,19 @@ import { IBarConfig, IBarDataTableRow } from '../../interfaces';
 import { DEFAULT_FACET_NAME } from '../constants';
 import { AggregatedDataType } from '../types';
 
-export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBarDataTableRow[], selectedMap: ICommonVisProps<IBarConfig>['selectedMap']) {
-  const facetGrouped = config.facets ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
+export function generateAggregatedDataLookup(
+  config: { isFaceted: boolean; groupType: EBarGroupingType; display: EBarDisplayType; aggregateType: EAggregateTypes },
+  dataTable: IBarDataTableRow[],
+  selectedMap: ICommonVisProps<IBarConfig>['selectedMap'],
+) {
+  const facetGrouped = config.isFaceted ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
   const aggregated: { facets: { [facet: string]: AggregatedDataType }; globalDomain: { min: number; max: number }; facetsList: string[] } = {
     facets: {},
     globalDomain: { min: Infinity, max: -Infinity },
     facetsList: Object.keys(facetGrouped),
   };
   const minMax: { facets: { [facet: string]: AggregatedDataType } } = { facets: {} };
+
   Object.keys(facetGrouped).forEach((facet) => {
     const values = facetGrouped[facet];
     const facetSensitiveDataTable = facet === DEFAULT_FACET_NAME ? dataTable : dataTable.filter((item) => item.facet === facet);
@@ -277,5 +282,6 @@ export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBar
       });
     });
   });
+
   return aggregated;
 }

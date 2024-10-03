@@ -60,7 +60,7 @@ function EagerSingleEChartsBarChart({
       if (aggregatedData) {
         switch (config?.aggregateType) {
           case EAggregateTypes.COUNT:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -72,7 +72,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.AVG:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -84,7 +84,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MIN:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -96,7 +96,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MAX:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -108,7 +108,7 @@ function EagerSingleEChartsBarChart({
             }));
 
           case EAggregateTypes.MED:
-            return (aggregatedData?.categoriesList ?? []).map((category) => ({
+            return (aggregatedData.categoriesList ?? []).map((category) => ({
               value: aggregatedData.categories[category]?.groups[group]?.[selected]
                 ? normalizedValue({
                     config,
@@ -138,6 +138,28 @@ function EagerSingleEChartsBarChart({
         blur: { label: { show: false } },
         barMaxWidth: BAR_WIDTH,
 
+        tooltip: {
+          trigger: 'item',
+          show: true,
+          confine: true,
+          backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
+          borderWidth: 0,
+          borderColor: 'transparent',
+          textStyle: {
+            color: 'var(--tooltip-color,var(--mantine-color-white))',
+          },
+          formatter: (params) => {
+            const facetString = selectedFacetValue ? `Facet: <b>${selectedFacetValue}</b>` : '';
+            const groupString = config?.group
+              ? `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${params.seriesName}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`
+              : '';
+            const aggregateString = `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: <b>${params.value}</b>`;
+            const categoryString = `${config?.catColumnSelected?.name}: <b>${params.name}</b>`;
+            const tooltipLines = [categoryString, aggregateString, groupString, facetString].filter((line) => line.trim() !== '');
+            return tooltipLines.join('<br />');
+          },
+        },
+
         label: {
           show: true,
           formatter: (params) =>
@@ -160,7 +182,16 @@ function EagerSingleEChartsBarChart({
         catColumnSelected: config?.catColumnSelected,
         group: config?.group,
       }) as BarSeriesOption,
-    [config?.catColumnSelected, config?.display, config?.group, config?.groupType],
+    [
+      config?.aggregateColumn?.name,
+      config?.aggregateType,
+      config?.catColumnSelected,
+      config?.display,
+      config?.group,
+      config?.groupType,
+      groupColorScale,
+      selectedFacetValue,
+    ],
   );
 
   const optionBase = React.useMemo(() => {
@@ -169,16 +200,6 @@ function EagerSingleEChartsBarChart({
 
       tooltip: {
         trigger: 'item',
-        axisPointer: {
-          type: 'shadow',
-        },
-        confine: true,
-        backgroundColor: 'var(--tooltip-bg,var(--mantine-color-gray-9))',
-        borderWidth: 0,
-        borderColor: 'transparent',
-        textStyle: {
-          color: 'var(--tooltip-color,var(--mantine-color-white))',
-        },
       },
 
       title: [
@@ -203,8 +224,7 @@ function EagerSingleEChartsBarChart({
         containLabel: false,
         left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60,
         top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
-        right: 40,
-        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70,
+        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85,
       },
 
       legend: {
@@ -227,7 +247,6 @@ function EagerSingleEChartsBarChart({
               return name;
             }
             const [min, max] = name.split(' to ');
-            // return `${round(Number(min), 4)} to ${round(Number(max), 4)}`;
             const formattedMin = new Intl.NumberFormat('en-US', {
               maximumFractionDigits: 4,
               maximumSignificantDigits: 4,
@@ -459,7 +478,7 @@ function EagerSingleEChartsBarChart({
           const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
           return {
             ...barSeriesBase,
-            name: aggregatedData.groupingsList.length > 1 ? g : null,
+            name: aggregatedData?.groupingsList.length > 1 ? g : null,
             label: {
               ...barSeriesBase.label,
               ...fixLabelColor,
@@ -535,15 +554,17 @@ function EagerSingleEChartsBarChart({
     const dom = document.createElement('div');
     dom.id = 'axis-tooltip';
     dom.style.position = 'absolute';
-    dom.style.backgroundColor = '#6E7079';
+    dom.style.backgroundColor = 'rgba(50,50,50)';
     dom.style.borderRadius = '4px';
-    dom.style.color = '#F9F9F9';
-    dom.style.fontSize = '12px';
+    dom.style.color = '#FFFFFF';
+    dom.style.fontFamily = 'sans-serif';
+    dom.style.fontSize = '14px';
     dom.style.opacity = '0';
     dom.style.padding = '4px 8px';
     dom.style.transformOrigin = 'bottom';
     dom.style.visibility = 'hidden';
     dom.style.zIndex = '9999';
+    dom.style.transition = 'opacity 400ms';
 
     const content = document.createElement('div');
     dom.appendChild(content);
@@ -731,6 +752,7 @@ function EagerSingleEChartsBarChart({
     <Box
       component="div"
       pos="relative"
+      pr="xs"
       ref={setRef}
       style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
     />
