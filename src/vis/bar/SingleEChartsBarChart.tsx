@@ -150,9 +150,32 @@ function EagerSingleEChartsBarChart({
           },
           formatter: (params) => {
             const facetString = selectedFacetValue ? `Facet: <b>${selectedFacetValue}</b>` : '';
-            const groupString = config?.group
-              ? `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${params.seriesName}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`
-              : '';
+            // NOTE: @dv-usama-ansari: Using IIFE here is more convenient
+            const groupString = (() => {
+              if (config?.group) {
+                if (isGroupedByNumerical) {
+                  if (params.seriesName === NAN_REPLACEMENT) {
+                    return `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${params.seriesName}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                  }
+                  const [min, max] = (params.seriesName ?? '0 to 0').split(' to ');
+                  const formattedMin = new Intl.NumberFormat('en-US', {
+                    maximumFractionDigits: 4,
+                    maximumSignificantDigits: 4,
+                    notation: 'compact',
+                    compactDisplay: 'short',
+                  }).format(Number(min));
+                  const formattedMax = new Intl.NumberFormat('en-US', {
+                    maximumFractionDigits: 4,
+                    maximumSignificantDigits: 4,
+                    notation: 'compact',
+                    compactDisplay: 'short',
+                  }).format(Number(max));
+                  return `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${formattedMin} to ${formattedMax}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                }
+                return `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${params.seriesName}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+              }
+              return '';
+            })();
             const aggregateString = `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: <b>${params.value}</b>`;
             const categoryString = `${config?.catColumnSelected?.name}: <b>${params.name}</b>`;
             const tooltipLines = [categoryString, aggregateString, groupString, facetString].filter((line) => line.trim() !== '');
@@ -190,6 +213,7 @@ function EagerSingleEChartsBarChart({
       config?.group,
       config?.groupType,
       groupColorScale,
+      isGroupedByNumerical,
       selectedFacetValue,
     ],
   );
