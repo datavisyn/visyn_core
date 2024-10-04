@@ -1,19 +1,33 @@
+/* eslint-disable react-compiler/react-compiler */
+import * as React from 'react';
 import { useSetState } from '@mantine/hooks';
-import * as echarts from 'echarts';
-import { ECElementEvent, ECharts, EChartsOption } from 'echarts';
-import { BarChart, LineChart, ScatterChart } from 'echarts/charts';
+import type { ECElementEvent, ECharts, ComposeOption } from 'echarts/core';
+import { use, init } from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
 import { DataZoomComponent, GridComponent, LegendComponent, TitleComponent, ToolboxComponent, TooltipComponent } from 'echarts/components';
-import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import React from 'react';
+import type {
+  // The series option types are defined with the SeriesOption suffix
+  BarSeriesOption,
+  LineSeriesOption,
+} from 'echarts/charts';
+import type {
+  // The component option types are defined with the ComponentOption suffix
+  TitleComponentOption,
+  TooltipComponentOption,
+  GridComponentOption,
+  DatasetComponentOption,
+} from 'echarts/components';
 import { useSetRef } from '../../../hooks';
 
-// Original code from https://dev.to/manufac/using-apache-echarts-with-react-and-typescript-optimizing-bundle-size-29l8
+export type ECOption = ComposeOption<
+  BarSeriesOption | LineSeriesOption | TitleComponentOption | TooltipComponentOption | GridComponentOption | DatasetComponentOption
+>;
 
+// Original code from https://dev.to/manufac/using-apache-echarts-with-react-and-typescript-optimizing-bundle-size-29l8
 // Register the required components
 use([
   LegendComponent,
-  ScatterChart,
   LineChart,
   BarChart,
   GridComponent,
@@ -60,7 +74,7 @@ export function useChart({
   settings,
   mouseEvents,
 }: {
-  options?: EChartsOption;
+  options?: ECOption;
   settings?: Parameters<ECharts['setOption']>[1];
   mouseEvents?: Partial<{ [K in ElementEventName]: CallbackArray | CallbackFunction | CallbackObject }>;
 }) {
@@ -123,7 +137,7 @@ export function useChart({
         setState({ width: newDimensions?.width, height: newDimensions?.height });
       });
       // create the instance
-      const instance = echarts.init(element);
+      const instance = init(element);
       // Save the mouse events
       syncEvents(instance);
       setState({ instance, internalObserver: observer });
