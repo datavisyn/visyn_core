@@ -1,13 +1,13 @@
 import { Box } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
-import { type ScaleOrdinal } from 'd3v7';
-import { EChartsOption } from 'echarts';
+import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import * as React from 'react';
 import { selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
+import type { ECOption } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, sortSeries } from './interfaces/internal';
@@ -47,8 +47,8 @@ function EagerSingleEChartsBarChart({
 }) {
   const [visState, setVisState] = useSetState({
     series: [] as BarSeriesOption[],
-    xAxis: null as EChartsOption['xAxis'] | null,
-    yAxis: null as EChartsOption['yAxis'] | null,
+    xAxis: null as ECOption['xAxis'] | null,
+    yAxis: null as ECOption['yAxis'] | null,
   });
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
@@ -288,7 +288,7 @@ function EagerSingleEChartsBarChart({
           return name;
         },
       },
-    } as EChartsOption;
+    } as ECOption;
   }, [
     config?.aggregateColumn?.name,
     config?.aggregateType,
@@ -553,7 +553,7 @@ function EagerSingleEChartsBarChart({
       ...(visState.series ? { series: visState.series } : {}),
       ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
       ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
-    } as EChartsOption;
+    } as ECOption;
   }, [visState.series, visState.xAxis, visState.yAxis, optionBase]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
