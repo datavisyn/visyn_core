@@ -514,7 +514,12 @@ function EagerSingleEChartsBarChart({
             label: {
               ...barSeriesBase.label,
               ...fixLabelColor,
-              show: true,
+              show: !(config?.group && config?.groupType === EBarGroupingType.STACK),
+            },
+            emphasis: {
+              label: {
+                show: true,
+              },
             },
             itemStyle: {
               color:
