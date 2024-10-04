@@ -182,7 +182,7 @@ function EagerSingleEChartsBarChart({
             })();
             const aggregateString = `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: <b>${params.value}</b>`;
             const categoryString = `${config?.catColumnSelected?.name}: <b>${params.name}</b>`;
-            const tooltipLines = [categoryString, aggregateString, groupString, facetString].filter((line) => line.trim() !== '');
+            const tooltipLines = [facetString, categoryString, aggregateString, groupString].filter((line) => line.trim() !== '');
             return tooltipLines.join('<br />');
           },
         },
