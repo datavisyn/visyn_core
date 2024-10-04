@@ -231,8 +231,8 @@ function EagerSingleEChartsBarChart({
       title: [
         {
           text: selectedFacetValue
-            ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.catColumnSelected?.name} vs ${config?.aggregateType}`
-            : `${config?.catColumnSelected?.name} vs ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}`,
+            ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`
+            : `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`,
           triggerEvent: !!config?.facets,
           left: '50%',
           textAlign: 'center',
