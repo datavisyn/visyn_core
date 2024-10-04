@@ -103,6 +103,10 @@ export function ScatterVis({
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
 
+  // Subtract header
+  const width = Math.max(dimensions.width, 0);
+  const height = Math.max(dimensions.height - 40, 0);
+
   useWindowEvent('keydown', (event) => {
     if (event.shiftKey) {
       setShiftPressed(true);
@@ -254,6 +258,8 @@ export function ScatterVis({
         shapes: regressions.shapes,
         annotations: [...regressions.annotations],
         dragmode: config.dragMode,
+        width,
+        height,
       };
 
       return finalLayout;
@@ -318,6 +324,8 @@ export function ScatterVis({
               annotations: [...titleAnnotations, ...regressions.annotations],
               shapes: regressions.shapes,
               dragmode: config!.dragMode,
+              width,
+              height,
             }
           : {
               ...BASE_LAYOUT,
@@ -334,6 +342,8 @@ export function ScatterVis({
               shapes: regressions.shapes,
               annotations: [...regressions.annotations],
               dragmode: config.dragMode,
+              width,
+              height,
             };
 
       return finalLayout;
@@ -359,13 +369,15 @@ export function ScatterVis({
         ...(internalLayoutRef.current || {}),
         shapes: regressions.shapes,
         dragmode: config.dragMode,
+        width,
+        height,
       };
 
       return finalLayout;
     }
 
     return undefined;
-  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, config, dimensions.width, value]);
+  }, [scatter, facet, splom, regressions.shapes, regressions.annotations, config, dimensions.width, value, width, height]);
 
   const legendData = React.useMemo<PlotlyTypes.Data[]>(() => {
     if (!value) {
@@ -652,8 +664,12 @@ export function ScatterVis({
             divId={id}
             data={data}
             layout={layout}
+            useResizeHandler
+            style={{
+              width,
+              height,
+            }}
             onUpdate={(figure) => {
-              console.log(figure.layout);
               internalLayoutRef.current = cloneDeep(figure.layout);
             }}
             onDeselect={() => {
@@ -691,9 +707,7 @@ export function ScatterVis({
                 }
               }
             }}
-            config={{ responsive: true, scrollZoom, displayModeBar: false }}
-            useResizeHandler
-            style={{ width: '100%', height: '100%' }}
+            config={{ scrollZoom, displayModeBar: false }}
           />
         </>
       ) : status !== 'pending' && status !== 'idle' ? (
