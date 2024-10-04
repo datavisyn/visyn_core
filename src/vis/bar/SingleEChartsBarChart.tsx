@@ -149,6 +149,9 @@ function EagerSingleEChartsBarChart({
           textStyle: {
             color: 'var(--tooltip-color,var(--mantine-color-white))',
           },
+          axisPointer: {
+            type: 'shadow',
+          },
           formatter: (params) => {
             const facetString = selectedFacetValue ? `Facet: <b>${selectedFacetValue}</b>` : '';
             // NOTE: @dv-usama-ansari: Using IIFE here is more convenient
@@ -225,7 +228,10 @@ function EagerSingleEChartsBarChart({
       animation: false,
 
       tooltip: {
-        trigger: 'item',
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+        },
       },
 
       title: [
@@ -494,7 +500,7 @@ function EagerSingleEChartsBarChart({
             return null;
           }
           // avoid rendering empty series (bars for a group with all 0 values)
-          if (data.every((d) => [Infinity, -Infinity].includes(d.value as number) || Number.isNaN(d.value))) {
+          if (data.every((d) => Number.isNaN(Number(d.value)) || [Infinity, -Infinity, 0].includes(d.value as number))) {
             return null;
           }
           const isGrouped = config?.group && groupColorScale != null;
