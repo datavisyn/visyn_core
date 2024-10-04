@@ -137,6 +137,7 @@ function EagerSingleEChartsBarChart({
         type: 'bar',
         blur: { label: { show: false } },
         barMaxWidth: BAR_WIDTH,
+        barMinWidth: config?.useResponsiveBarWidth ? 1 : BAR_WIDTH,
 
         tooltip: {
           trigger: 'item',
@@ -212,6 +213,7 @@ function EagerSingleEChartsBarChart({
       config?.display,
       config?.group,
       config?.groupType,
+      config?.useResponsiveBarWidth,
       groupColorScale,
       isGroupedByNumerical,
       selectedFacetValue,

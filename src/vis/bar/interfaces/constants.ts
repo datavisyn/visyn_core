@@ -17,4 +17,5 @@ export const defaultConfig: IBarConfig = {
   showFocusFacetSelector: false,
   sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
   useFullHeight: true,
+  useResponsiveBarWidth: false,
 };
