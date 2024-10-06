@@ -33,16 +33,19 @@ export function useAnimatedTransform(options: UseAnimatedTransformProps) {
         setTransform(targetTransform);
         return;
       }
-      const startTime = performance.now();
+      let startTime = null; // Set startTime to null initially
 
       const step = (currentTime) => {
+        // If this is the first frame, initialize startTime to the currentTime
+        if (!startTime) startTime = currentTime;
+
         const timeElapsed = currentTime - startTime;
         const progress = Math.min(timeElapsed / duration, 1);
 
         if (progress > 0) {
           const newMatrix = linearInterpolate(previousTransformRef.current, targetTransform, progress);
           setTransform(newMatrix);
-        }
+        }        
         if (progress < 1) {
           animationFrameRef.current = requestAnimationFrame(step);
         } else {
