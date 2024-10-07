@@ -1,13 +1,13 @@
 import { Box } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
-import { type ScaleOrdinal } from 'd3v7';
-import { EChartsOption } from 'echarts';
+import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import * as React from 'react';
 import { selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
+import type { ECOption } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, sortSeries } from './interfaces/internal';
@@ -47,8 +47,8 @@ function EagerSingleEChartsBarChart({
 }) {
   const [visState, setVisState] = useSetState({
     series: [] as BarSeriesOption[],
-    xAxis: null as EChartsOption['xAxis'] | null,
-    yAxis: null as EChartsOption['yAxis'] | null,
+    xAxis: null as ECOption['xAxis'] | null,
+    yAxis: null as ECOption['yAxis'] | null,
   });
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
@@ -137,6 +137,7 @@ function EagerSingleEChartsBarChart({
         type: 'bar',
         blur: { label: { show: false } },
         barMaxWidth: BAR_WIDTH,
+        barMinWidth: config?.useResponsiveBarWidth ? 1 : BAR_WIDTH,
 
         tooltip: {
           trigger: 'item',
@@ -148,14 +149,19 @@ function EagerSingleEChartsBarChart({
           textStyle: {
             color: 'var(--tooltip-color,var(--mantine-color-white))',
           },
+          axisPointer: {
+            type: 'shadow',
+          },
           formatter: (params) => {
-            const facetString = selectedFacetValue ? `Facet: <b>${selectedFacetValue}</b>` : '';
+            const facetString = selectedFacetValue
+              ? `<div style="display: flex; gap: 8px"><div><span>Facet of ${config?.facets?.name}:</span></div><div><span style="font-weight: bold">${selectedFacetValue}</span></div></div>`
+              : '';
             // NOTE: @dv-usama-ansari: Using IIFE here is more convenient
             const groupString = (() => {
               if (config?.group) {
                 if (isGroupedByNumerical) {
                   if (params.seriesName === NAN_REPLACEMENT) {
-                    return `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${params.seriesName}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                    return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
                   }
                   const [min, max] = (params.seriesName ?? '0 to 0').split(' to ');
                   const formattedMin = new Intl.NumberFormat('en-US', {
@@ -170,16 +176,16 @@ function EagerSingleEChartsBarChart({
                     notation: 'compact',
                     compactDisplay: 'short',
                   }).format(Number(max));
-                  return `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${formattedMin} to ${formattedMax}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                  return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${formattedMin} to ${formattedMax}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
                 }
-                return `<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div>${config?.group.name}:</div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><b>${params.seriesName}</b></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
               }
               return '';
             })();
-            const aggregateString = `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: <b>${params.value}</b>`;
-            const categoryString = `${config?.catColumnSelected?.name}: <b>${params.name}</b>`;
-            const tooltipLines = [categoryString, aggregateString, groupString, facetString].filter((line) => line.trim() !== '');
-            return tooltipLines.join('<br />');
+            const aggregateString = `<div style="display: flex; gap: 8px"><div><span>${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}:</span></div><div><span style="font-weight: bold">${params.value}</span></div></div>`;
+            const categoryString = `<div style="display: flex; gap: 8px"><div><span>${config?.catColumnSelected?.name}:</span></div><div><span style="font-weight: bold">${params.name}</span></div></div>`;
+            const tooltipGrid = `<div style="display: grid; grid-template-rows: 1fr">${categoryString}${aggregateString}${facetString}${groupString}</div>`;
+            return tooltipGrid;
           },
         },
 
@@ -212,6 +218,8 @@ function EagerSingleEChartsBarChart({
       config?.display,
       config?.group,
       config?.groupType,
+      config?.facets?.name,
+      config?.useResponsiveBarWidth,
       groupColorScale,
       isGroupedByNumerical,
       selectedFacetValue,
@@ -223,14 +231,17 @@ function EagerSingleEChartsBarChart({
       animation: false,
 
       tooltip: {
-        trigger: 'item',
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+        },
       },
 
       title: [
         {
           text: selectedFacetValue
-            ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.catColumnSelected?.name} vs ${config?.aggregateType}`
-            : `${config?.catColumnSelected?.name} vs ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}`,
+            ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`
+            : `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`,
           triggerEvent: !!config?.facets,
           left: '50%',
           textAlign: 'center',
@@ -288,7 +299,7 @@ function EagerSingleEChartsBarChart({
           return name;
         },
       },
-    } as EChartsOption;
+    } as ECOption;
   }, [
     config?.aggregateColumn?.name,
     config?.aggregateType,
@@ -492,7 +503,7 @@ function EagerSingleEChartsBarChart({
             return null;
           }
           // avoid rendering empty series (bars for a group with all 0 values)
-          if (data.every((d) => [Infinity, -Infinity].includes(d.value as number) || Number.isNaN(d.value))) {
+          if (data.every((d) => Number.isNaN(Number(d.value)) || [Infinity, -Infinity, 0].includes(d.value as number))) {
             return null;
           }
           const isGrouped = config?.group && groupColorScale != null;
@@ -506,7 +517,12 @@ function EagerSingleEChartsBarChart({
             label: {
               ...barSeriesBase.label,
               ...fixLabelColor,
-              show: true,
+              show: !(config?.group && config?.groupType === EBarGroupingType.STACK),
+            },
+            emphasis: {
+              label: {
+                show: true,
+              },
             },
             itemStyle: {
               color:
@@ -553,7 +569,7 @@ function EagerSingleEChartsBarChart({
       ...(visState.series ? { series: visState.series } : {}),
       ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
       ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
-    } as EChartsOption;
+    } as ECOption;
   }, [visState.series, visState.xAxis, visState.yAxis, optionBase]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.

@@ -7,7 +7,7 @@ export function calculateChartMinWidth({ config, aggregatedData }: { config?: IB
   if (config?.direction === EBarDirection.VERTICAL) {
     // calculate height for horizontal bars
     const multiplicationFactor = !config?.group ? 1 : config?.groupType === EBarGroupingType.STACK ? 1 : (aggregatedData?.groupingsList ?? []).length;
-    const categoryWidth = (BAR_WIDTH + BAR_SPACING) * multiplicationFactor;
+    const categoryWidth = ((config?.useResponsiveBarWidth ? 1 : BAR_WIDTH) + BAR_SPACING) * multiplicationFactor;
     return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING;
   }
   if (config?.direction === EBarDirection.HORIZONTAL) {

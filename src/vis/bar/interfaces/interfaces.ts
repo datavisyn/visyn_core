@@ -16,6 +16,7 @@ export interface IBarConfig extends BaseVisConfig {
   showFocusFacetSelector?: boolean;
   sortState?: { x: EBarSortState; y: EBarSortState };
   useFullHeight?: boolean;
+  useResponsiveBarWidth?: boolean;
 }
 
 /**
