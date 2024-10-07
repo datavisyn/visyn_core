@@ -35,6 +35,9 @@ export function useAnimatedTransform2({ value, onIntermediate }: { value?: ZoomT
 
   const animationFrameRef = React.useRef<number | undefined>(undefined);
 
+  const onIntermediateRef = React.useRef(onIntermediate);
+  onIntermediateRef.current = onIntermediate;
+
   const requestFrame = () => {
     animationFrameRef.current = requestAnimationFrame((t1) => {
       if (state.start && state.end) {
@@ -43,12 +46,12 @@ export function useAnimatedTransform2({ value, onIntermediate }: { value?: ZoomT
         // End of animation
         if (t >= 1) {
           animationFrameRef.current = undefined;
-          onIntermediate(state.end);
+          onIntermediateRef.current(state.end);
           return;
         }
 
         const newMatrix = linearInterpolate(state.start, state.end, t);
-        onIntermediate(newMatrix);
+        onIntermediateRef.current(newMatrix);
 
         requestFrame();
       }
