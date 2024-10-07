@@ -70,5 +70,5 @@ export function useAnimatedTransform(options: UseAnimatedTransformProps) {
     previousTransformRef.current = transform;
   }, [transform]);
 
-  return { transform, setTransform: setAnimatedTransform, previousTransformRef };
+  return { transform, setTransform: setAnimatedTransform };
 }
