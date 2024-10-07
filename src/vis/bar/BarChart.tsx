@@ -113,9 +113,20 @@ export function BarChart({
       aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
         ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
         : (aggregatedDataMap?.facetsList ?? []);
+
+    let maxGroupings = 0;
+
+    if (allColumns.groupColVals.type === EColumnTypes.NUMERICAL && config?.catColumnSelected?.id === config?.facets?.id) {
+      maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc, facet) => {
+        return Math.max(acc, facet.groupingsList.length, maxGroupings);
+      }, 0);
+    }
+
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? (schemeBlues[Math.max(groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
+        ? config?.catColumnSelected?.id === config?.facets?.id
+          ? (schemeBlues[Math.max(Math.min(groups.length - 1, maxGroupings), 3)] as string[])
+          : (schemeBlues[Math.max(Math.min(groups.length - 1, 9), 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
             (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
@@ -125,7 +136,7 @@ export function BarChart({
       return scaleOrdinal<string>().domain(groups).range(range);
     }
     return scaleOrdinal<string>().domain(groups).range(range);
-  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, allColumns?.groupColVals]);
+  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, allColumns?.groupColVals, config?.catColumnSelected?.id, config?.facets?.id]);
 
   const allUniqueFacetVals = React.useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
