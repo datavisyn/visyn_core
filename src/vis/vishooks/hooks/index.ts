@@ -8,3 +8,4 @@ export * from './useBrush';
 export * from './useLasso';
 export * from './useLinearScale';
 export * from './useChart';
+export * from './useCanvas';

@@ -2,12 +2,20 @@ import * as React from 'react';
 import { useSetState } from '@mantine/hooks';
 import { useSetRef } from '../../../hooks/useSetRef';
 
-export function useCanvas(props?: { ratio?: number }) {
+export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 'webgl2' = '2d'>(props?: { ratio?: number; contextId?: ContextId }) {
   const [state, setState] = useSetState({
     width: 0,
     height: 0,
-    context: null,
-    internalObserver: null,
+    context: null as ContextId extends '2d'
+      ? CanvasRenderingContext2D
+      : ContextId extends 'webgl'
+        ? WebGLRenderingContext
+        : ContextId extends 'bitmaprenderer'
+          ? ImageBitmapRenderingContext
+          : ContextId extends 'webgl2'
+            ? WebGL2RenderingContext
+            : null,
+    internalObserver: undefined as ResizeObserver | undefined,
   });
 
   const scaleFactor = props?.ratio || window.devicePixelRatio;
@@ -18,25 +26,41 @@ export function useCanvas(props?: { ratio?: number }) {
     },
     register: (element) => {
       const observer = new ResizeObserver((entries) => {
-        const newDimensions = entries[0].contentRect;
+        if (entries[0]) {
+          const newDimensions = entries[0].contentRect;
 
-        if (element.width !== newDimensions.width || element.height !== newDimensions.height) {
-          setState({ width: newDimensions.width, height: newDimensions.height });
+          setState((previous) => {
+            if (previous.width === newDimensions.width && previous.height === newDimensions.height && previous.context) {
+              return previous;
+            }
+
+            return {
+              width: newDimensions.width,
+              height: newDimensions.height,
+              context: previous.context ? previous.context : (element.getContext(props?.contextId ?? '2d') as any),
+            };
+          });
         }
       });
 
       observer.observe(element);
 
-      setState({ internalObserver: observer, context: element.getContext('2d') });
+      setState({ internalObserver: observer });
     },
   });
 
   return {
+    // Real measured dimensions
+    contentWidth: state.width,
+    contentHeight: state.height,
+
+    // Suggested dimensions for the canvas
     width: state.width * scaleFactor,
     height: state.height * scaleFactor,
+
     context: state.context,
-    ref,
     ratio: scaleFactor,
     setRef,
+    ref,
   };
 }
