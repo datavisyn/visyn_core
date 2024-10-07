@@ -258,9 +258,10 @@ function EagerSingleEChartsBarChart({
 
       grid: {
         containLabel: false,
-        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60,
+        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60, // NOTE: @dv-usama-ansari: Arbitrary fallback value!
         top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
-        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85,
+        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85, // NOTE: @dv-usama-ansari: Arbitrary value!
+        right: 20, // NOTE: @dv-usama-ansari: Arbitrary value!
       },
 
       legend: {
