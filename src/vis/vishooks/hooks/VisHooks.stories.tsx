@@ -1,11 +1,14 @@
 import React from 'react';
 import { StoryObj, Meta } from '@storybook/react';
-import { Center, Stack, Paper } from '@mantine/core';
+import { Center, Stack, Paper, Button, Text, Group } from '@mantine/core';
 import { lassoToSvgPath, useLasso } from './useLasso';
 import { SVGLasso } from '../components/SVGLasso';
 import { useBrush } from './useBrush';
 import { SVGBrush } from '../components';
 import { useCanvas } from './useCanvas';
+import { m4 } from '../math';
+import { ZoomTransform } from '../interfaces';
+import { useAnimatedTransform2 } from './useAnimatedTransform';
 
 function UseLassoComponent() {
   const { setRef, value } = useLasso();
@@ -62,6 +65,56 @@ function UseCanvasComponent() {
   );
 }
 
+function UseAnimatedTransformComponent() {
+  const [toggled, setToggled] = React.useState(false);
+  const [transform, setTransform] = React.useState<ZoomTransform>(m4.identityMatrix4x4());
+
+  const [animatedTransform, setAnimatedTransform] = React.useState<ZoomTransform>(transform);
+
+  useAnimatedTransform2({
+    value: transform,
+    onIntermediate: (newT) => {
+      setAnimatedTransform(newT);
+    },
+  });
+
+  return (
+    <Center w={800} h={600}>
+      <Group>
+        <Button
+          onClick={() => {
+            if (toggled) {
+              setTransform(m4.identityMatrix4x4());
+            } else {
+              const id = m4.identityMatrix4x4();
+              m4.setTranslation(id, 100, 100, 0);
+              setTransform(id);
+            }
+            setToggled(!toggled);
+          }}
+        >
+          Toggle Transform
+        </Button>
+        <Stack>
+          <Stack>
+            <Text fw="bold">Animated transform:</Text>
+            <Text>t12: {animatedTransform[12]?.toPrecision(3)}</Text>
+            <Text>t13: {animatedTransform[13]?.toPrecision(3)}</Text>
+          </Stack>
+          <Stack>
+            <Text fw="bold">Fixed transform:</Text>
+            <Text>t12: {transform[12]?.toPrecision(3)}</Text>
+            <Text>t13: {transform[13]?.toPrecision(3)}</Text>
+          </Stack>
+        </Stack>
+        <svg width={300} height={300}>
+          <circle cx={50 + animatedTransform[12]!} cy={50 + animatedTransform[13]!} r={32} fill="red" />
+        </svg>
+      </Group>
+    </Center>
+  );
+}
+
 function VisHooksComponent() {
   const [element, setElement] = React.useState<HTMLElement>();
 
@@ -95,5 +148,11 @@ export const UseBrush: Story = {
 export const UseCanvas: Story = {
   render: () => {
     return <UseCanvasComponent />;
+  },
+};
+
+export const UseAnimated: Story = {
+  render: () => {
+    return <UseAnimatedTransformComponent />;
   },
 };
