@@ -11,7 +11,7 @@ import { VIS_NEUTRAL_COLOR } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
-import { BarChartSortButton, FocusFacetSelector } from './components';
+import { FocusFacetSelector } from './components';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
@@ -310,33 +310,6 @@ export function BarChart({
         <Group justify="center">
           {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
-          {/* // TODO: @dv-usama-ansari: Should this be removed? */}
-          {config?.display !== EBarDisplayType.NORMALIZED ? (
-            <BarChartSortButton
-              config={config!}
-              setConfig={setConfig!}
-              sort={
-                config?.direction === EBarDirection.HORIZONTAL
-                  ? EBarSortParameters.AGGREGATION
-                  : config?.direction === EBarDirection.VERTICAL
-                    ? EBarSortParameters.CATEGORIES
-                    : EBarSortParameters.AGGREGATION // default fallback
-              }
-            />
-          ) : null}
-          {config?.display !== EBarDisplayType.NORMALIZED ? (
-            <BarChartSortButton
-              config={config!}
-              setConfig={setConfig!}
-              sort={
-                config?.direction === EBarDirection.HORIZONTAL
-                  ? EBarSortParameters.CATEGORIES
-                  : config?.direction === EBarDirection.VERTICAL
-                    ? EBarSortParameters.AGGREGATION
-                    : EBarSortParameters.AGGREGATION // default fallback
-              }
-            />
-          ) : null}
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>
