@@ -66,9 +66,5 @@ export function useAnimatedTransform(options: UseAnimatedTransformProps) {
     };
   }, []);
 
-  useEffect(() => {
-    previousTransformRef.current = transform;
-  }, [transform]);
-
   return { transform, setTransform: setAnimatedTransform };
 }
