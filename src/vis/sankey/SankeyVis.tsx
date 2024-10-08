@@ -1,16 +1,16 @@
-import { MantineTheme, Stack, lighten, rgba, useMantineTheme, Center } from '@mantine/core';
-import * as React from 'react';
-import { uniqueId } from 'lodash';
 import { css } from '@emotion/react';
+import { Center, Stack } from '@mantine/core';
+import { uniqueId } from 'lodash';
+import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
+import { selectionColorDark } from '../../utils';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { InvalidCols } from '../general/InvalidCols';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
-import { selectionColorDark } from '../../utils';
 
 /**
  * Performs the data transformation that maps the fetched data to
