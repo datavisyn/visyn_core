@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import sortBy from 'lodash/sortBy';
 import groupBy from 'lodash/groupBy';
+import isFinite from 'lodash/isFinite';
 import { FetchColumnDataResult } from './utils';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { PlotlyTypes } from '../../plotly';
@@ -36,10 +37,14 @@ export function useDataPreparation({
       idToIndex.set(v, i);
     });
 
+    const x = value.validColumns[0].resolvedValues.map((v) => v.val as number);
+    const y = value.validColumns[1].resolvedValues.map((v) => v.val as number);
+
     return {
       plotlyData: {
-        x: value.validColumns[0].resolvedValues.map((v) => v.val as number),
-        y: value.validColumns[1].resolvedValues.map((v) => v.val as number),
+        validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
+        x,
+        y,
         text: value.validColumns[0].resolvedValues.map((v) => v.id),
       },
       ids,
@@ -63,14 +68,18 @@ export function useDataPreparation({
     }));
 
     // Split up data to xy plot pairs (for regression and subplots)
-    const xyPairs: { data: { x: number[]; y: number[] }; xref: PlotlyTypes.XAxisName; yref: PlotlyTypes.YAxisName }[] = [];
+    const xyPairs: { data: { x: number[]; y: number[]; validIndices: number[] }; xref: PlotlyTypes.XAxisName; yref: PlotlyTypes.YAxisName }[] = [];
 
     for (let r = 0; r < value.validColumns.length; r++) {
       for (let c = 0; c < value.validColumns.length; c++) {
+        const x = value.validColumns[c].resolvedValues.map((v) => v.val as number);
+        const y = value.validColumns[r].resolvedValues.map((v) => v.val as number);
+
         xyPairs.push({
           data: {
-            x: value.validColumns[c].resolvedValues.map((v) => v.val as number),
-            y: value.validColumns[r].resolvedValues.map((v) => v.val as number),
+            validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
+            x,
+            y,
           },
           xref: `x${c > 0 ? c + 1 : ''}` as PlotlyTypes.XAxisName,
           yref: `y${r > 0 ? r + 1 : ''}` as PlotlyTypes.YAxisName,
@@ -128,10 +137,14 @@ export function useDataPreparation({
         idToIndex.set(v.ids, vi);
       });
 
+      const x = grouped.map((v) => v.x as number);
+      const y = grouped.map((v) => v.y as number);
+
       return {
         data: {
-          x: grouped.map((v) => v.x as number),
-          y: grouped.map((v) => v.y as number),
+          validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
+          x,
+          y,
           text: grouped.map((v) => v.ids),
           facet: grouped[0].facet,
           ids: grouped.map((v) => v.ids),

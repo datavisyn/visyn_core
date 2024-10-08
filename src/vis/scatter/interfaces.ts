@@ -48,6 +48,8 @@ export interface IRegressionResult {
   stats: IPlotStats;
   equation: string;
   svgPath: string;
+  xref: string;
+  yref: string;
 }
 
 export interface IRegressionFitOptions {
