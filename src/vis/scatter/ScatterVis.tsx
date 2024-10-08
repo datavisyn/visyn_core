@@ -8,7 +8,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
+import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
 import { EColumnTypes, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
@@ -19,6 +19,7 @@ import { fitRegressionLine } from './Regression';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
+import { categoricalColors } from '../../utils';
 
 // d3v7.force
 
@@ -156,8 +157,13 @@ export function ScatterVis({
 
     if (scatter) {
       const curveFit = fitRegressionLine(
-        { x: scatter.plotlyData.x.filter((x) => x), y: scatter.plotlyData.y.filter((y) => y) },
+        {
+          x: scatter.plotlyData.validIndices.map((i) => scatter.plotlyData.x[i]) as number[],
+          y: scatter.plotlyData.validIndices.map((i) => scatter.plotlyData.y[i]) as number[],
+        },
         config.regressionLineOptions.type,
+        'x',
+        'y',
         config.regressionLineOptions.fitOptions,
       );
 
@@ -181,11 +187,14 @@ export function ScatterVis({
     if (facet) {
       const shapes: Partial<PlotlyTypes.Shape>[] = [];
       const annotations: Partial<PlotlyTypes.Annotations>[] = [];
+      const results: IRegressionResult[] = [];
 
       facet.resultData.forEach((group) => {
         const curveFit = fitRegressionLine(
-          { x: group.data.x.filter((x) => x), y: group.data.y.filter((y) => y) },
+          { x: group.data.validIndices.map((i) => group.data.x[i]) as number[], y: group.data.validIndices.map((i) => group.data.y[i]) as number[] },
           config.regressionLineOptions.type,
+          group.xref,
+          group.yref,
           config.regressionLineOptions.fitOptions,
         );
 
@@ -197,10 +206,12 @@ export function ScatterVis({
             xref: group.xref,
             yref: group.yref,
           });
+
+          results.push(curveFit);
         }
       });
 
-      return { shapes, results: [], annotations };
+      return { shapes, results, annotations };
     }
 
     if (splom) {
@@ -212,6 +223,8 @@ export function ScatterVis({
         const curveFit = fitRegressionLine(
           { x: pair.data.x.filter((x) => x), y: pair.data.y.filter((y) => y) },
           config.regressionLineOptions.type,
+          pair.xref,
+          pair.yref,
           config.regressionLineOptions.fitOptions,
         );
 
@@ -223,6 +236,8 @@ export function ScatterVis({
             xref: pair.xref,
             yref: pair.yref,
           });
+
+          results.push(curveFit);
         }
       });
 
@@ -249,11 +264,25 @@ export function ScatterVis({
           ...AXIS_TICK_STYLES,
           range: scatter.xDomain,
           ...internalLayoutRef.current?.xaxis,
+          title: {
+            font: {
+              size: 12,
+              color: VIS_NEUTRAL_COLOR,
+            },
+            text: scatter.xLabel,
+          },
         },
         yaxis: {
           ...AXIS_TICK_STYLES,
           range: scatter.yDomain,
           ...internalLayoutRef.current?.yaxis,
+          title: {
+            font: {
+              size: 12,
+              color: VIS_NEUTRAL_COLOR,
+            },
+            text: scatter.yLabel,
+          },
         },
         shapes: regressions.shapes,
         annotations: [...regressions.annotations],
@@ -511,7 +540,7 @@ export function ScatterVis({
                       ? value.colorColumn.color[v.val]
                       : scales.color(v.val),
                 )
-              : VIS_NEUTRAL_COLOR,
+              : categoricalColors[0],
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
@@ -565,7 +594,7 @@ export function ScatterVis({
                       ? value.colorColumn.color[color]
                       : scales.color(color),
                 )
-              : VIS_NEUTRAL_COLOR,
+              : categoricalColors[0],
             symbol: value.shapeColumn ? group.data.shape.map((shape) => shapeScale(shape as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
@@ -609,7 +638,7 @@ export function ScatterVis({
                       ? value.colorColumn.color[v.val]
                       : scales.color(v.val),
                 )
-              : VIS_NEUTRAL_COLOR,
+              : categoricalColors[0],
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
@@ -674,6 +703,25 @@ export function ScatterVis({
             }}
             onDeselect={() => {
               selectionCallback([]);
+            }}
+            // @ts-ignore
+            onBeforeHover={(evnt) => {
+              // Finds the hovered subplot and calls the statscallback with the stats of the regression line
+              if ('target' in evnt) {
+                const target = evnt.target as HTMLElement;
+                const subplot = target.getAttribute('data-subplot');
+                if (subplot) {
+                  const idx = subplot.indexOf('y');
+                  const xref = subplot.slice(0, idx);
+                  const yref = subplot.slice(idx);
+
+                  const regressionResult = regressions.results.find((r) => r.xref === xref && r.yref === yref);
+
+                  if (regressionResult) {
+                    statsCallback(regressionResult.stats);
+                  }
+                }
+              }
             }}
             onSelected={(event) => {
               if (event && event.points.length > 0) {

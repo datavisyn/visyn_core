@@ -236,7 +236,7 @@ const methods = {
       stats: {
         r2: round(r2, options.precision),
         n: len,
-        pValue: Number.isNaN(pValue) ? null : pValue,
+        pValue: Number.isNaN(pValue) ? undefined : pValue,
       },
       equation: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
       svgPath: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
@@ -337,24 +337,24 @@ const regressionMethodsMapping = {
 export const fitRegressionLine = (
   data: { x: number[]; y: number[] },
   method: ERegressionLineType,
+  xref: string,
+  yref: string,
   options: IRegressionFitOptions = DEFAULT_CURVE_FIT_OPTIONS,
 ): IRegressionResult => {
   // Filter out null or undefined values (equivalent to pd.dropna())
-  const filteredPairs = (data.x as number[]).map((value, index) => ({ x: value, y: data.y[index] })).filter((pair) => pair.x != null && pair.y != null);
-  const x = filteredPairs.map((pair) => pair.x);
-  const y = filteredPairs.map((pair) => pair.y);
-
-  const pearsonRho = round(corrcoeff(x, y), options.precision);
-  const spearmanRho = round(spearmancoeff(x, y), options.precision);
+  const pearsonRho = round(corrcoeff(data.x, data.y), options.precision);
+  const spearmanRho = round(spearmancoeff(data.x, data.y), options.precision);
   const fnc = method === ERegressionLineType.LINEAR ? methods.linear : methods.polynomial;
 
   const regressionResult = fnc(
-    x.map((val, i) => [val, y[i]]),
+    data.x.map((val, i) => [val, data.y[i]!]),
     options,
   );
 
   return {
     ...regressionResult,
     stats: { ...regressionResult.stats, pearsonRho, spearmanRho },
+    xref,
+    yref,
   };
 };
