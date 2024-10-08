@@ -31,6 +31,7 @@ export interface LassoProps {
   onChangeEnd?: (points: LassoValue) => void;
   minDistanceToCreatePoint?: number;
   skip?: boolean;
+  moveTarget?: 'overlay' | 'window';
 }
 
 export function checkForInclusion(lasso: LassoValue, point: { x: number; y: number }) {
@@ -63,6 +64,7 @@ export function useLasso(options: LassoProps = {}) {
 
   // eslint-disable-next-line react-compiler/react-compiler
   const { ref, setRef, state } = useInteractions({
+    moveTarget: options.moveTarget,
     skip: options.skip,
     onDrag: (event) => {
       const bounds = event.parent.getBoundingClientRect();
