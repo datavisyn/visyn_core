@@ -11,7 +11,7 @@ import { VIS_NEUTRAL_COLOR } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
-import { BarChartSortButton, FocusFacetSelector } from './components';
+import { FocusFacetSelector } from './components';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
@@ -113,9 +113,14 @@ export function BarChart({
       aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
         ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
         : (aggregatedDataMap?.facetsList ?? []);
+
+    const maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc: number, facet) => Math.max(acc, facet.groupingsList.length), 0);
+
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
-        ? (schemeBlues[Math.max(groups.length - 1, 3)] as string[]) // use at least 3 colors for numerical values
+        ? config?.catColumnSelected?.id === config?.facets?.id
+          ? (schemeBlues[Math.max(Math.min(groups.length - 1, maxGroupings), 3)] as string[]).slice(0, maxGroupings)
+          : (schemeBlues[Math.max(Math.min(groups.length - 1, 9), 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
             (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
@@ -124,8 +129,8 @@ export function BarChart({
       range.push(VIS_NEUTRAL_COLOR);
       return scaleOrdinal<string>().domain(groups).range(range);
     }
-    return scaleOrdinal<string>().domain(groups).range(range);
-  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, allColumns?.groupColVals]);
+    return scaleOrdinal<string>().domain(groups).range(range.slice(0, maxGroupings));
+  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, allColumns?.groupColVals, config?.catColumnSelected?.id, config?.facets?.id]);
 
   const allUniqueFacetVals = React.useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
@@ -305,33 +310,6 @@ export function BarChart({
         <Group justify="center">
           {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
           {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
-          {/* // TODO: @dv-usama-ansari: Should this be removed? */}
-          {config?.display !== EBarDisplayType.NORMALIZED ? (
-            <BarChartSortButton
-              config={config!}
-              setConfig={setConfig!}
-              sort={
-                config?.direction === EBarDirection.HORIZONTAL
-                  ? EBarSortParameters.AGGREGATION
-                  : config?.direction === EBarDirection.VERTICAL
-                    ? EBarSortParameters.CATEGORIES
-                    : EBarSortParameters.AGGREGATION // default fallback
-              }
-            />
-          ) : null}
-          {config?.display !== EBarDisplayType.NORMALIZED ? (
-            <BarChartSortButton
-              config={config!}
-              setConfig={setConfig!}
-              sort={
-                config?.direction === EBarDirection.HORIZONTAL
-                  ? EBarSortParameters.CATEGORIES
-                  : config?.direction === EBarDirection.VERTICAL
-                    ? EBarSortParameters.AGGREGATION
-                    : EBarSortParameters.AGGREGATION // default fallback
-              }
-            />
-          ) : null}
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>

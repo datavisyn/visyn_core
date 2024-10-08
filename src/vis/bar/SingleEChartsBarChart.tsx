@@ -159,9 +159,10 @@ function EagerSingleEChartsBarChart({
             // NOTE: @dv-usama-ansari: Using IIFE here is more convenient
             const groupString = (() => {
               if (config?.group) {
+                const color = params.seriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(params.seriesName as string) ?? VIS_NEUTRAL_COLOR);
                 if (isGroupedByNumerical) {
                   if (params.seriesName === NAN_REPLACEMENT) {
-                    return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                    return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
                   }
                   const [min, max] = (params.seriesName ?? '0 to 0').split(' to ');
                   const formattedMin = new Intl.NumberFormat('en-US', {
@@ -176,9 +177,9 @@ function EagerSingleEChartsBarChart({
                     notation: 'compact',
                     compactDisplay: 'short',
                   }).format(Number(max));
-                  return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${formattedMin} to ${formattedMax}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                  return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${formattedMin} to ${formattedMax}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
                 }
-                return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${groupColorScale?.(params.seriesName ?? NAN_REPLACEMENT) ?? VIS_NEUTRAL_COLOR};" /></div></div>`;
+                return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
               }
               return '';
             })();
@@ -257,9 +258,10 @@ function EagerSingleEChartsBarChart({
 
       grid: {
         containLabel: false,
-        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60,
+        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60, // NOTE: @dv-usama-ansari: Arbitrary fallback value!
         top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
-        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85,
+        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85, // NOTE: @dv-usama-ansari: Arbitrary value!
+        right: 20, // NOTE: @dv-usama-ansari: Arbitrary value!
       },
 
       legend: {
@@ -271,9 +273,7 @@ function EagerSingleEChartsBarChart({
         data: config?.group
           ? (visState.series ?? []).map((seriesItem) => ({
               name: seriesItem.name,
-              itemStyle: {
-                color: groupColorScale?.(seriesItem.name as string),
-              },
+              itemStyle: { color: seriesItem.name === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : groupColorScale?.(seriesItem.name as string) },
             }))
           : [],
         formatter: (name: string) => {
@@ -511,6 +511,7 @@ function EagerSingleEChartsBarChart({
           const shouldLowerOpacity = hasSelected && isGrouped && !isSelected;
           const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
           const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
+
           return {
             ...barSeriesBase,
             name: aggregatedData?.groupingsList.length > 1 ? g : null,

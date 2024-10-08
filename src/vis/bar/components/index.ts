@@ -1,4 +1,3 @@
-export * from './BarChartSortButton';
 export * from './BarDirectionButtons';
 export * from './BarDisplayTypeButtons';
 export * from './BarGroupTypeButtons';
