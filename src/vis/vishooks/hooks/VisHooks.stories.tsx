@@ -67,12 +67,10 @@ function UseCanvasComponent() {
 
 function UseAnimatedTransformComponent() {
   const [toggled, setToggled] = React.useState(false);
-  const [transform, setTransform] = React.useState<ZoomTransform>(m4.identityMatrix4x4());
 
-  const [animatedTransform, setAnimatedTransform] = React.useState<ZoomTransform>(transform);
+  const [animatedTransform, setAnimatedTransform] = React.useState<ZoomTransform>(m4.identityMatrix4x4());
 
-  useAnimatedTransform2({
-    value: transform,
+  const { animate } = useAnimatedTransform2({
     onIntermediate: (newT) => {
       setAnimatedTransform(newT);
     },
@@ -84,12 +82,17 @@ function UseAnimatedTransformComponent() {
         <Button
           onClick={() => {
             if (toggled) {
-              setTransform(m4.identityMatrix4x4());
+              const id = m4.identityMatrix4x4();
+              m4.setTranslation(id, 100, 100, 0);
+
+              animate(m4.identityMatrix4x4(), id);
             } else {
               const id = m4.identityMatrix4x4();
               m4.setTranslation(id, 100, 100, 0);
-              setTransform(id);
+
+              animate(id, m4.identityMatrix4x4());
             }
+
             setToggled(!toggled);
           }}
         >
@@ -100,11 +103,6 @@ function UseAnimatedTransformComponent() {
             <Text fw="bold">Animated transform:</Text>
             <Text>t12: {animatedTransform[12]?.toPrecision(3)}</Text>
             <Text>t13: {animatedTransform[13]?.toPrecision(3)}</Text>
-          </Stack>
-          <Stack>
-            <Text fw="bold">Fixed transform:</Text>
-            <Text>t12: {transform[12]?.toPrecision(3)}</Text>
-            <Text>t13: {transform[13]?.toPrecision(3)}</Text>
           </Stack>
         </Stack>
         <svg width={300} height={300}>

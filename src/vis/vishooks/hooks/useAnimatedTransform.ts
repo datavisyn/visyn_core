@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ZoomTransform } from '../interfaces';
 import { m4 } from '../math';
 import { useControlledUncontrolled } from './useControlledUncontrolled';
+import { useSyncedRef } from '../../../hooks';
 
 interface UseAnimatedTransformProps {
   value?: ZoomTransform;
@@ -22,35 +23,27 @@ function linearInterpolate(startMatrix: ZoomTransform, endMatrix: ZoomTransform,
   });
 }
 
-export function useAnimatedTransform2({ value, onIntermediate }: { value?: ZoomTransform; onIntermediate: (intermediateTransform: ZoomTransform) => void }) {
-  const [state, setState] = React.useState<{
-    start: ZoomTransform | undefined;
-    end: ZoomTransform | undefined;
-    t0: number;
-  }>({
-    start: undefined,
-    end: value,
+export function useAnimatedTransform2({ onIntermediate }: { onIntermediate: (intermediateTransform: ZoomTransform) => void }) {
+  const stateRef = React.useRef({
+    start: undefined as ZoomTransform | undefined,
+    end: undefined as ZoomTransform | undefined,
     t0: performance.now(),
   });
-
   const animationFrameRef = React.useRef<number | undefined>(undefined);
-
-  const onIntermediateRef = React.useRef(onIntermediate);
-  onIntermediateRef.current = onIntermediate;
+  const onIntermediateRef = useSyncedRef(onIntermediate);
 
   const requestFrame = () => {
     animationFrameRef.current = requestAnimationFrame((t1) => {
-      if (state.start && state.end) {
-        const t = (t1 - state.t0) / 1000;
-
+      if (stateRef.current.start && stateRef.current.end) {
+        const t = (t1 - stateRef.current.t0) / 1000;
         // End of animation
         if (t >= 1) {
           animationFrameRef.current = undefined;
-          onIntermediateRef.current(state.end);
+          onIntermediateRef.current(stateRef.current.end);
           return;
         }
 
-        const newMatrix = linearInterpolate(state.start, state.end, t);
+        const newMatrix = linearInterpolate(stateRef.current.start, stateRef.current.end, t);
         onIntermediateRef.current(newMatrix);
 
         requestFrame();
@@ -58,25 +51,27 @@ export function useAnimatedTransform2({ value, onIntermediate }: { value?: ZoomT
     });
   };
 
-  // If we get a new value, set the state of this hook and start animating
-  if (value !== state?.start) {
-    setState({
-      start: state.end,
-      end: value,
-      t0: performance.now(),
-    });
+  const requestFrameRef = useSyncedRef(requestFrame);
 
-    // eslint-disable-next-line react-compiler/react-compiler
-    if (animationFrameRef.current) {
-      // eslint-disable-next-line react-compiler/react-compiler
-      cancelAnimationFrame(animationFrameRef.current);
-    }
+  const animate = React.useCallback(
+    (start: ZoomTransform, end: ZoomTransform) => {
+      stateRef.current = {
+        start,
+        end,
+        t0: performance.now(),
+      };
 
-    if (value && state.end) {
       // eslint-disable-next-line react-compiler/react-compiler
-      requestFrame();
-    }
-  }
+      if (animationFrameRef.current) {
+        // eslint-disable-next-line react-compiler/react-compiler
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+
+      // eslint-disable-next-line react-compiler/react-compiler
+      requestFrameRef.current();
+    },
+    [requestFrameRef],
+  );
 
   React.useEffect(() => {
     return () => {
@@ -85,6 +80,10 @@ export function useAnimatedTransform2({ value, onIntermediate }: { value?: ZoomT
       }
     };
   }, []);
+
+  return {
+    animate,
+  };
 }
 
 export function useAnimatedTransform(options: UseAnimatedTransformProps) {
