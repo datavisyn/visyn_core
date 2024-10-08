@@ -518,7 +518,7 @@ function EagerSingleEChartsBarChart({
             label: {
               ...barSeriesBase.label,
               ...fixLabelColor,
-              show: !(config?.group && config?.groupType === EBarGroupingType.STACK),
+              show: !(config?.group && config?.groupType === EBarGroupingType.STACK && config?.group?.id === config?.facets?.id),
             },
             emphasis: {
               label: {
@@ -555,6 +555,7 @@ function EagerSingleEChartsBarChart({
   }, [
     aggregatedData?.groupingsList,
     barSeriesBase,
+    config?.facets?.id,
     config?.group,
     config?.groupType,
     getDataForAggregationType,
