@@ -49,7 +49,6 @@ function TransposeData(
 
   const lanes = data.map((lane) => {
     const values = lane.resolvedValues.map((value) => (value.val === undefined || value.val === null ? NAN_REPLACEMENT : (value.val as string)));
-    console.log(values);
     // const nodes = Array.from(new Set(values)).map((value) => ({id: nodeIndex++, value}))
     const nodes = new Array<{ id: number; value; inverseLookup: string[] }>();
 
