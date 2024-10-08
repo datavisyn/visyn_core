@@ -100,7 +100,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
   callbacksRef.current = options;
 
   // eslint-disable-next-line react-compiler/react-compiler
-  const { ref, setRef } = useSetRef<HTMLElement>({
+  const { ref, setRef } = useSetRef({
     register: (element) => {
       const relativeMousePosition = (event: MouseEvent) => {
         const bounds = element.getBoundingClientRect();
@@ -267,11 +267,11 @@ export function useInteractions(options: UseInteractionsProps = {}) {
         stateRef.current.listener = handleMouseDown;
       };
 
-      element.addEventListener('mousedown', handleMouseDown);
+      (element as HTMLElement).addEventListener('mousedown', handleMouseDown);
     },
     cleanup: (element) => {
       if (stateRef.current.listener) {
-        element.removeEventListener('mousedown', stateRef.current.listener);
+        (element as HTMLElement).removeEventListener('mousedown', stateRef.current.listener);
       }
     },
   });
