@@ -412,8 +412,8 @@ AggregateAverage.args = {
     aggregateType: EAggregateTypes.AVG,
     aggregateColumn: {
       description: '',
-      id: 'value',
-      name: 'value',
+      id: 'age',
+      name: 'Age',
     },
     numColumnsSelected: [],
   } as BaseVisConfig,
