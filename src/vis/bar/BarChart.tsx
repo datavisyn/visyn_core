@@ -7,12 +7,11 @@ import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
-import { VIS_NEUTRAL_COLOR } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
 import { FocusFacetSelector } from './components';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig } from './interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
   calculateChartHeight,
@@ -112,7 +111,15 @@ export function BarChart({
     const groups =
       aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
         ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
-        : (aggregatedDataMap?.facetsList ?? []);
+        : config?.group?.id === config?.facets?.id
+          ? (aggregatedDataMap?.facetsList ?? [])
+          : [
+              ...new Set(
+                Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
+                  return facet.groupingsList;
+                }),
+              ),
+            ];
 
     const maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc: number, facet) => Math.max(acc, facet.groupingsList.length), 0);
 
@@ -125,12 +132,8 @@ export function BarChart({
             (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
 
-    if (range.length < groups.length) {
-      range.push(VIS_NEUTRAL_COLOR);
-      return scaleOrdinal<string>().domain(groups).range(range);
-    }
-    return scaleOrdinal<string>().domain(groups).range(range.slice(0, maxGroupings));
-  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, allColumns?.groupColVals, config?.catColumnSelected?.id, config?.facets?.id]);
+    return scaleOrdinal<string>().domain(groups).range(range);
+  }, [aggregatedDataMap, allColumns, config]);
 
   const allUniqueFacetVals = React.useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
