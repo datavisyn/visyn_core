@@ -17,6 +17,7 @@ export function LabelingOptions({ callback, currentSelected, labelLimit }: Label
     <Stack>
       <Input.Wrapper label="Show labels">
         <SegmentedControl
+          data-testid="LabelingOptions"
           fullWidth
           size="xs"
           value={currentSelected}

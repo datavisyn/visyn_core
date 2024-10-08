@@ -5,8 +5,12 @@ import type { IUser } from '../security';
 export const VisynAppContext = React.createContext<{
   user: IUser | null;
   appName: JSX.Element | string;
-  clientConfig: IClientConfig;
-}>(null);
+  clientConfig: IClientConfig | null;
+}>({
+  user: null,
+  appName: '',
+  clientConfig: null,
+});
 
 export function useVisynAppContext() {
   const context = React.useContext(VisynAppContext);

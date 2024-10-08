@@ -56,21 +56,27 @@ export function CorrelationMatrix({
 
   // Scales
   const xScale = React.useMemo(() => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
     return scaleBand()
       .range([margin.left, availableSize + margin.left])
       .domain(data.map((column) => column.info.id));
   }, [data, availableSize]);
 
   const yScale = React.useMemo(() => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
     return scaleBand()
       .range([margin.top, availableSize + margin.top])
       .domain(data.map((column) => column.info.id));
   }, [data, availableSize]);
 
   const circleSizeScale = React.useMemo(() => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
     const maxSize = Math.min(xScale.bandwidth() / 2 - paddingCircle.left, yScale.bandwidth() / 2 - paddingCircle.top);
     return config.pScaleType === EScaleType.LINEAR
       ? d3.scaleLinear().domain(config.pDomain).range([CIRCLE_MIN_SIZE, maxSize]).clamp(true)
@@ -79,7 +85,9 @@ export function CorrelationMatrix({
 
   // Calculate correlation results
   const memoizedCorrelationResults = React.useMemo(() => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
 
     let coefffunc = (x: number[], y: number[]) => null;
     if (config.correlationType === ECorrelationType.PEARSON) {
@@ -128,7 +136,9 @@ export function CorrelationMatrix({
 
   // Show labels on diagonal of matrix
   const labelsDiagonal = React.useMemo(() => {
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
     return data.map((col) => {
       const currentX = xScale(col.info.id);
       const currentY = yScale(col.info.id);

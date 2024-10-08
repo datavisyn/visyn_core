@@ -36,8 +36,6 @@ export function SingleBarChart({
   selectedList,
   selectionCallback,
   isSmall = false,
-  sortType,
-  setSortType,
   legendHeight,
 }: {
   index?: number;
@@ -48,10 +46,8 @@ export function SingleBarChart({
   selectedList: string[];
   categoryFilter?: string;
   title?: string;
-  selectionCallback?: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[]) => void;
+  selectionCallback?: (e: React.MouseEvent<SVGGElement, MouseEvent>, ids: string[], label?: string) => void;
   isSmall?: boolean;
-  sortType: SortTypes;
-  setSortType: (sortType: SortTypes) => void;
   legendHeight: number;
 }) {
   const [ref, { height, width }] = useResizeObserver();
@@ -66,7 +62,7 @@ export function SingleBarChart({
     config.direction === EBarDirection.VERTICAL,
     selectedMap,
     config.groupType,
-    sortType,
+    config.sortType,
     config.aggregateType,
   );
 
@@ -105,21 +101,21 @@ export function SingleBarChart({
     (label: string, nextSortState: ESortStates) => {
       if (label === config.catColumnSelected.name) {
         if (nextSortState === ESortStates.ASC) {
-          setSortType(SortTypes.CAT_ASC);
+          setConfig({ ...config, sortType: SortTypes.CAT_ASC });
         } else if (nextSortState === ESortStates.DESC) {
-          setSortType(SortTypes.CAT_DESC);
+          setConfig({ ...config, sortType: SortTypes.CAT_DESC });
         } else {
-          setSortType(SortTypes.NONE);
+          setConfig({ ...config, sortType: SortTypes.NONE });
         }
       } else if (nextSortState === ESortStates.ASC) {
-        setSortType(SortTypes.COUNT_ASC);
+        setConfig({ ...config, sortType: SortTypes.COUNT_ASC });
       } else if (nextSortState === ESortStates.DESC) {
-        setSortType(SortTypes.COUNT_DESC);
+        setConfig({ ...config, sortType: SortTypes.COUNT_DESC });
       } else {
-        setSortType(SortTypes.NONE);
+        setConfig({ ...config, sortType: SortTypes.NONE });
       }
     },
-    [config.catColumnSelected.name, setSortType],
+    [config, setConfig],
   );
 
   return (
@@ -178,8 +174,8 @@ export function SingleBarChart({
                       : `${config.aggregateType} ${config.aggregateType !== EAggregateTypes.COUNT ? config?.aggregateColumn?.name || '' : ''}`
                   }
                   ticks={countTicks}
-                  sortedDesc={sortType === SortTypes.COUNT_DESC}
-                  sortedAsc={sortType === SortTypes.COUNT_ASC}
+                  sortedDesc={config.sortType === SortTypes.COUNT_DESC}
+                  sortedAsc={config.sortType === SortTypes.COUNT_ASC}
                   setSortType={sortTypeCallback}
                 />
               ) : (
@@ -190,8 +186,8 @@ export function SingleBarChart({
                   horizontalPosition={getMargin(rotateXAxisTicks).left}
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
-                  sortedDesc={sortType === SortTypes.CAT_DESC}
-                  sortedAsc={sortType === SortTypes.CAT_ASC}
+                  sortedDesc={config.sortType === SortTypes.CAT_DESC}
+                  sortedAsc={config.sortType === SortTypes.CAT_ASC}
                   setSortType={sortTypeCallback}
                 />
               )
@@ -206,9 +202,10 @@ export function SingleBarChart({
                   vertPosition={height - getMargin(rotateXAxisTicks).bottom - legendHeight}
                   label={config.catColumnSelected.name}
                   ticks={categoryTicks}
-                  sortedDesc={sortType === SortTypes.CAT_DESC}
-                  sortedAsc={sortType === SortTypes.CAT_ASC}
+                  sortedDesc={config.sortType === SortTypes.CAT_DESC}
+                  sortedAsc={config.sortType === SortTypes.CAT_ASC}
                   setSortType={sortTypeCallback}
+                  selectionCallback={selectionCallback}
                 />
               ) : (
                 <XAxis
@@ -224,9 +221,10 @@ export function SingleBarChart({
                   }
                   showLines
                   ticks={countTicks}
-                  sortedDesc={sortType === SortTypes.COUNT_DESC}
-                  sortedAsc={sortType === SortTypes.COUNT_ASC}
+                  sortedDesc={config.sortType === SortTypes.COUNT_DESC}
+                  sortedAsc={config.sortType === SortTypes.COUNT_ASC}
                   setSortType={sortTypeCallback}
+                  selectionCallback={selectionCallback}
                 />
               )
             ) : null}

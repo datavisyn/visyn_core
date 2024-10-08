@@ -24,6 +24,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
     <Stack>
       <Input.Wrapper>
         <Select
+          data-testid="RegressionLineSelect"
           searchable
           label={
             <HelpHoverCard
@@ -55,9 +56,10 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
       {currentSelected?.type === ERegressionLineType.POLYNOMIAL && (
         <Input.Wrapper label="Order">
           <SegmentedControl
+            data-testid="PolynomialRegressionOption"
             fullWidth
             size="xs"
-            value={`${currentSelected.fitOptions.order}`}
+            value={`${currentSelected.fitOptions?.order}`}
             onChange={(s) => callback({ ...currentSelected, fitOptions: { ...currentSelected.fitOptions, order: Number.parseInt(s, 10) } })}
             data={[
               { label: 'Quadratic', value: '2' },
@@ -68,9 +70,10 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
       )}
       {showColorPicker && currentSelected?.type !== ERegressionLineType.NONE && (
         <Input.Wrapper label="Line color">
-          <Group>
+          <Group data-testid="RegressionLineColor">
             {currentSelected?.lineStyle?.colors?.map((color, idx) => (
               <ColorSwatch
+                data-testid="ColorSwatch"
                 key={color}
                 component="button"
                 color={color}
@@ -336,8 +339,11 @@ export const fitRegressionLine = (
   method: ERegressionLineType,
   options: IRegressionFitOptions = DEFAULT_CURVE_FIT_OPTIONS,
 ): IRegressionResult => {
-  const x = data.x as number[];
-  const y = data.y as number[];
+  // Filter out null or undefined values (equivalent to pd.dropna())
+  const filteredPairs = (data.x as number[]).map((value, index) => ({ x: value, y: data.y[index] })).filter((pair) => pair.x != null && pair.y != null);
+  const x = filteredPairs.map((pair) => pair.x);
+  const y = filteredPairs.map((pair) => pair.y);
+
   const pearsonRho = round(corrcoeff(x, y), options.precision);
   const spearmanRho = round(spearmancoeff(x, y), options.precision);
   const regressionResult = regressionMethodsMapping[method]

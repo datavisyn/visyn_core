@@ -45,7 +45,9 @@ export function Heatmap({
 }) {
   const [ref, { width, height }] = useResizeObserver();
   const baseTable = useMemo(() => {
-    if (!column1 || !column2) return null;
+    if (!column1 || !column2) {
+      return null;
+    }
 
     return table({
       xVal: column1.resolvedValues.map(({ val }) => val),
@@ -55,7 +57,9 @@ export function Heatmap({
     });
   }, [aggregateColumn?.resolvedValues, column1, column2]);
   const aggregatedTable = useMemo(() => {
-    if (!baseTable) return null;
+    if (!baseTable) {
+      return null;
+    }
 
     let valueTable = rollupByAggregateType(baseTable.groupby('xVal', 'yVal'), config.aggregateType);
 
@@ -158,7 +162,9 @@ export function Heatmap({
   }, [aggregatedTable, width, margin.left, margin.right, margin.top, margin.bottom, height, config?.numColorScaleType, config.aggregateType]);
 
   const rects = useMemo(() => {
-    if (width === 0 || height === 0) return null;
+    if (width === 0 || height === 0) {
+      return null;
+    }
     return groupedValues.map((d, i) => {
       const { aggregateVal, x, y, xVal, yVal, color } = d;
       const ids: string[] = Array.from(
@@ -187,7 +193,9 @@ export function Heatmap({
   }, [baseTable, groupedValues, height, rectHeight, rectWidth, selected, selectionCallback, width, xScale, yScale, config.isAnimationEnabled]);
 
   const text = useMemo(() => {
-    if (width === 0 || height === 0) return null;
+    if (width === 0 || height === 0) {
+      return null;
+    }
     return (
       <HeatmapText
         height={height}
@@ -215,7 +223,7 @@ export function Heatmap({
       </Box>
       <Group wrap="nowrap" style={{ width: '100%', height: '100%', display: 'flex' }} gap={0} pr="40px">
         <Center>
-          <Group style={{ transform: 'rotate(-90deg)' }} gap="0" wrap="nowrap" maw={20}>
+          <Group data-testid="idYAxis" style={{ transform: 'rotate(-90deg)' }} gap="0" wrap="nowrap" maw={20}>
             <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ userSelect: 'none', textWrap: 'nowrap' }}>
               {column2.info.name}
             </Text>
@@ -258,7 +266,7 @@ export function Heatmap({
           </Container>
         </Box>
       </Group>
-      <Group gap="0" wrap="nowrap" justify="center" align="center">
+      <Group data-testid="idXAxis" gap="0" wrap="nowrap" justify="center" align="center">
         <Text c={VIS_LABEL_COLOR} size={rem(VIS_AXIS_LABEL_SIZE)} style={{ whiteSpace: 'nowrap', userSelect: 'none' }}>
           {column1.info.name}
         </Text>

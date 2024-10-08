@@ -42,7 +42,9 @@ export function useGetGroupedBarScales(
   );
 
   const groupedTable = useMemo(() => {
-    if (!allColumns) return null;
+    if (!allColumns) {
+      return null;
+    }
 
     if (allColumns.groupColVals) {
       let filteredTable = baseTable;
@@ -50,6 +52,7 @@ export function useGetGroupedBarScales(
       if (categoryFilter && allColumns.facetsColVals) {
         filteredTable = baseTable.filter(escape((d) => d.facets === categoryFilter));
       }
+
       return allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? binByAggregateType(filteredTable, aggregateType)
         : groupByAggregateType(filteredTable, aggregateType);
@@ -59,18 +62,22 @@ export function useGetGroupedBarScales(
   }, [aggregateType, allColumns, baseTable, categoryFilter]);
 
   const groupColorScale = useMemo(() => {
-    if (!groupedTable) return null;
+    if (!groupedTable) {
+      return null;
+    }
 
     let i = -1;
+
     const newGroup = groupedTable.ungroup().groupby('group').count();
+    const domainFromColumn = allColumns?.groupColVals?.domain;
+    const domainFromData = newGroup.array('group').sort();
+    const domain = domainFromColumn ? [...new Set([...domainFromColumn, ...domainFromData])] : domainFromData;
+
     const categoricalColors = allColumns.groupColVals.color
-      ? newGroup
-          .array('group')
-          .sort()
-          .map((value) => {
-            i += 1;
-            return allColumns.groupColVals.color[value] || colorScale[i % colorScale.length];
-          })
+      ? domain.map((value) => {
+          i += 1;
+          return allColumns.groupColVals.color[value] || colorScale[i % colorScale.length];
+        })
       : assignColorToNullValues(
           Array.from(
             new Set(
@@ -81,24 +88,27 @@ export function useGetGroupedBarScales(
           ),
           colorScale,
         );
-    const domain = newGroup.array('group').sort();
+
     const range =
       allColumns.groupColVals.type === EColumnTypes.NUMERICAL
         ? d3.schemeBlues[newGroup.array('group').length > 3 ? newGroup.array('group').length : 3]
         : categoricalColors;
-
     return d3.scaleOrdinal<string>().domain(domain).range(range);
   }, [groupedTable, allColumns]);
 
   const groupScale = useMemo(() => {
-    if (!groupedTable) return null;
+    if (!groupedTable) {
+      return null;
+    }
     const newGroup = groupedTable.ungroup().groupby('category', 'group').count();
 
     return d3.scaleBand().range([0, categoryScale.bandwidth()]).domain(newGroup.array('group').sort()).padding(0.1);
   }, [categoryScale, groupedTable]);
 
   const newCountScale = useMemo(() => {
-    if (!allColumns) return null;
+    if (!allColumns) {
+      return null;
+    }
 
     // No facets, only group
     if (!allColumns.facetsColVals) {
