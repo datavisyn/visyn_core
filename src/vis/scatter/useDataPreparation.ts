@@ -131,7 +131,7 @@ export function useDataPreparation({
     const xDomain = d3v7.extent(value.validColumns[0].resolvedValues.map((v) => v.val as number));
     const yDomain = d3v7.extent(value.validColumns[1].resolvedValues.map((v) => v.val as number));
 
-    const resultData = groupedData.map((grouped, i) => {
+    const resultData = groupedData.map((grouped, index) => {
       const idToIndex = new Map<string, number>();
       grouped.forEach((v, vi) => {
         idToIndex.set(v.ids, vi);
@@ -152,8 +152,8 @@ export function useDataPreparation({
           shape: grouped.map((v) => v.shape),
         },
         idToIndex,
-        xref: `x${i > 0 ? i + 1 : ''}` as PlotlyTypes.XAxisName,
-        yref: `y${i > 0 ? i + 1 : ''}` as PlotlyTypes.YAxisName,
+        xref: `x${index > 0 ? index + 1 : ''}` as PlotlyTypes.XAxisName,
+        yref: `y${index > 0 ? index + 1 : ''}` as PlotlyTypes.YAxisName,
       };
     });
 
