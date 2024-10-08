@@ -83,10 +83,10 @@ export function useInteractions(options: UseInteractionsProps = {}) {
     state: 'idle',
     anchor: { x: 0, y: 0 },
     start: { x: 0, y: 0 },
-    overlay: null,
-    parent: null,
-    target: null,
-    frame: undefined,
+    overlay: null as HTMLDivElement | null,
+    parent: null as Element | null,
+    target: null as Element | null,
+    frame: undefined as number | undefined,
     isFirstDrag: false,
     isLastDrag: false,
     listener: undefined,
@@ -95,6 +95,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
   const callbacksRef = useRef(options);
   callbacksRef.current = options;
 
+  // eslint-disable-next-line react-compiler/react-compiler
   const { ref, setRef } = useSetRef({
     register: (element) => {
       const relativeMousePosition = (event: MouseEvent) => {
@@ -265,5 +266,5 @@ export function useInteractions(options: UseInteractionsProps = {}) {
     },
   });
 
-  return { ref, setRef, state: stateRef.current };
+  return { ref, setRef, state: stateRef.current.state };
 }

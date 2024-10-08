@@ -75,5 +75,5 @@ export function useBrush(options: UseBrushProps = {}) {
     },
   });
 
-  return { ref, setRef, value: internalValue, setValue: setInternalValue, state };
+  return { ref, setRef, value: internalValue, setValue: setInternalValue, state.state === 'dragging' };
 }
