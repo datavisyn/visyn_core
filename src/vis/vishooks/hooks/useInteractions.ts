@@ -36,7 +36,7 @@ interface ClickEvent extends BaseEvent {
   target: Element;
 }
 
-interface UseInteractionsProps {
+export interface UseInteractionsProps {
   skip?: boolean;
 
   extent?: Extent;
@@ -93,14 +93,14 @@ export function useInteractions(options: UseInteractionsProps = {}) {
     frame: undefined as number | undefined,
     isFirstDrag: false,
     isLastDrag: false,
-    listener: undefined,
+    listener: undefined as ((event: MouseEvent) => void) | undefined,
   });
 
   const callbacksRef = useRef(options);
   callbacksRef.current = options;
 
   // eslint-disable-next-line react-compiler/react-compiler
-  const { ref, setRef } = useSetRef({
+  const { ref, setRef } = useSetRef<HTMLElement>({
     register: (element) => {
       const relativeMousePosition = (event: MouseEvent) => {
         const bounds = element.getBoundingClientRect();
@@ -147,7 +147,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
 
         stateRef.current.anchor = { x: mouseDownX, y: mouseDownY };
         stateRef.current.parent = element;
-        stateRef.current.target = mouseDownEvent.target;
+        stateRef.current.target = mouseDownEvent.target as Element;
 
         // Combines multiple mouse move events into one by only allow
         // one event to be processed every frame
@@ -208,8 +208,8 @@ export function useInteractions(options: UseInteractionsProps = {}) {
               isLastDrag: stateRef.current.isLastDrag,
               clientX: event.clientX,
               clientY: event.clientY,
-              parent: stateRef.current.parent,
-              target: stateRef.current.target,
+              parent: stateRef.current.parent!,
+              target: stateRef.current.target!,
               nativeEvent: event,
             });
           }
@@ -232,8 +232,8 @@ export function useInteractions(options: UseInteractionsProps = {}) {
               isLastDrag: true,
               clientX: event.clientX,
               clientY: event.clientY,
-              parent: stateRef.current.parent,
-              target: stateRef.current.target,
+              parent: stateRef.current.parent!,
+              target: stateRef.current.target!,
               nativeEvent: event,
             });
           } else if (stateRef.current.state === 'mouse_down') {
@@ -243,7 +243,7 @@ export function useInteractions(options: UseInteractionsProps = {}) {
             callbacksRef.current.onClick?.({
               x,
               y,
-              target: stateRef.current.target,
+              target: stateRef.current.target!,
               nativeEvent: event,
             });
           }
@@ -270,7 +270,9 @@ export function useInteractions(options: UseInteractionsProps = {}) {
       element.addEventListener('mousedown', handleMouseDown);
     },
     cleanup: (element) => {
-      element.removeEventListener('mousedown', stateRef.current.listener);
+      if (stateRef.current.listener) {
+        element.removeEventListener('mousedown', stateRef.current.listener);
+      }
     },
   });
 
