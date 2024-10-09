@@ -31,14 +31,15 @@ export interface LassoProps {
   onChangeEnd?: (points: LassoValue) => void;
   minDistanceToCreatePoint?: number;
   skip?: boolean;
+  moveTarget?: 'overlay' | 'window';
 }
 
 export function checkForInclusion(lasso: LassoValue, point: { x: number; y: number }) {
   let numberOfIntersections = 0;
 
   for (let i = 0, j = lasso.length - 1; i < lasso.length; j = i++) {
-    const { x: prevX, y: prevY } = lasso[j];
-    const { x, y } = lasso[i];
+    const { x: prevX, y: prevY } = lasso[j]!;
+    const { x, y } = lasso[i]!;
 
     if (y > point.y !== prevY > point.y && point.x < ((prevX - x) * (point.y - y)) / (prevY - y) + x) {
       numberOfIntersections++;
@@ -61,7 +62,9 @@ export function useLasso(options: LassoProps = {}) {
   const callbacksRef = useRef(options);
   callbacksRef.current = options;
 
-  const { ref, setRef } = useInteractions({
+  // eslint-disable-next-line react-compiler/react-compiler
+  const { ref, setRef, state } = useInteractions({
+    moveTarget: options.moveTarget,
     skip: options.skip,
     onDrag: (event) => {
       const bounds = event.parent.getBoundingClientRect();
@@ -99,5 +102,5 @@ export function useLasso(options: LassoProps = {}) {
     },
   });
 
-  return { value: internalValue, setValue: setInternalValue, ref, setRef };
+  return { value: internalValue, setValue: setInternalValue, ref, setRef, state };
 }
