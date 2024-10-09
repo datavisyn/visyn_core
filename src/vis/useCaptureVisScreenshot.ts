@@ -31,22 +31,20 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
         const config = visConfig as IBarConfig;
         const viewingSingleBarChart = !config.facets || (config.facets && typeof config.focusFacetIndex === 'number');
         if (viewingSingleBarChart) {
-          await htmlToImage
-            .toPng(plotElement.querySelector('canvas')!, {
-              backgroundColor: 'white',
-              width: plotElement.querySelector('canvas')?.width,
-              height: plotElement.querySelector('canvas')?.height,
-              canvasWidth: plotElement.querySelector('canvas')?.width,
-              canvasHeight: plotElement.querySelector('canvas')?.height,
-              cacheBust: true,
-            })
-            .then((dataUrl) => {
-              const link = document.createElement('a');
-              link.download = `${options?.fileName ?? visConfig.type}.png`;
-              link.href = dataUrl;
-              link.click();
-              link.remove();
-            });
+          const dataUrl = await htmlToImage.toPng(plotElement.querySelector('canvas')!, {
+            backgroundColor: 'white',
+            width: plotElement.querySelector('canvas')?.width,
+            height: plotElement.querySelector('canvas')?.height,
+            canvasWidth: plotElement.querySelector('canvas')?.width,
+            canvasHeight: plotElement.querySelector('canvas')?.height,
+            cacheBust: true,
+          });
+
+          const link = document.createElement('a');
+          link.download = `${options?.fileName ?? visConfig.type}.png`;
+          link.href = dataUrl;
+          link.click();
+          link.remove();
         } else {
           const zip = new JSZip();
           const boxList = plotElement.querySelectorAll('[data-in-viewport="true"]') as NodeListOf<HTMLDivElement>;
@@ -78,18 +76,15 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
           link.remove();
         }
       } else {
-        await htmlToImage
-          .toPng(plotElement.querySelector('canvas')!, {
-            backgroundColor: 'white',
-            cacheBust: true,
-          })
-          .then((dataUrl) => {
-            const link = document.createElement('a');
-            link.download = `${options?.fileName ?? visConfig.type}.png`;
-            link.href = dataUrl;
-            link.click();
-            link.remove();
-          });
+        const dataUrl = await htmlToImage.toPng(plotElement.querySelector('canvas')!, {
+          backgroundColor: 'white',
+          cacheBust: true,
+        });
+        const link = document.createElement('a');
+        link.download = `${options?.fileName ?? visConfig.type}.png`;
+        link.href = dataUrl;
+        link.click();
+        link.remove();
       }
     } catch (e) {
       setIsLoading(false);
