@@ -1,16 +1,16 @@
-import { MantineTheme, Stack, lighten, rgba, useMantineTheme, Center } from '@mantine/core';
-import * as React from 'react';
-import { uniqueId } from 'lodash';
 import { css } from '@emotion/react';
+import { Center, Stack } from '@mantine/core';
+import { uniqueId } from 'lodash';
+import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
+import { selectionColorDark } from '../../utils';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { InvalidCols } from '../general/InvalidCols';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
-import { selectionColorDark } from '../../utils';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -48,16 +48,16 @@ function TransposeData(
   }
 
   const lanes = data.map((lane) => {
-    const values = lane.resolvedValues.map((value) => value.val as string);
+    const values = lane.resolvedValues.map((value) => (value.val === undefined || value.val === null ? NAN_REPLACEMENT : (value.val as string)));
     // const nodes = Array.from(new Set(values)).map((value) => ({id: nodeIndex++, value}))
     const nodes = new Array<{ id: number; value; inverseLookup: string[] }>();
 
     const nodesSet = new Set<string>();
     lane.resolvedValues.forEach((value) => {
       if (nodesSet.has(value.val as string)) {
-        nodes.find((node) => node.value === value.val).inverseLookup.push(value.id);
+        nodes.find((node) => node.value === (value.val ?? NAN_REPLACEMENT)).inverseLookup.push(value.id);
       } else {
-        nodes.push({ id: nodeIndex++, value: value.val, inverseLookup: [value.id] });
+        nodes.push({ id: nodeIndex++, value: value.val ?? NAN_REPLACEMENT, inverseLookup: [value.id] });
         nodesSet.add(value.val as string);
       }
     });
