@@ -8,7 +8,7 @@ import { useSyncedRef } from './useSyncedRef';
  * https://medium.com/@teh_builder/ref-objects-inside-useeffect-hooks-eb7c15198780
  */
 export function useSetRef<T extends Element>(props?: { cleanup: (lastElement: T) => void; register: (element: T) => void }) {
-  const ref = React.useRef<T | null>();
+  const ref = React.useRef<T>();
 
   const callbackRef = useSyncedRef(props);
 
@@ -22,7 +22,7 @@ export function useSetRef<T extends Element>(props?: { cleanup: (lastElement: T)
         callbackRef.current?.register(newElement);
       }
 
-      ref.current = newElement;
+      ref.current = newElement ?? undefined;
     },
     [callbackRef],
   );
