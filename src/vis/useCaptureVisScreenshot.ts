@@ -2,7 +2,7 @@ import * as htmlToImage from 'html-to-image';
 import JSZip from 'jszip';
 import * as React from 'react';
 import { BaseVisConfig, EAggregateTypes, ESupportedPlotlyVis } from './interfaces';
-import { IBarConfig } from './bar';
+import { IBarConfig } from './bar/interfaces';
 
 export type DownloadPlotOptions = {
   fileName?: string;
