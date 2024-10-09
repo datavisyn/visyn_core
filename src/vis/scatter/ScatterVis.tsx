@@ -305,7 +305,7 @@ export function ScatterVis({
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
-          // ...(plotCounter > 0 ? { matches: 'x' } : {}),
+          ...(plotCounter > 0 ? { matches: 'x' } : {}),
           // @ts-ignore
           anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
@@ -315,7 +315,7 @@ export function ScatterVis({
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           // This enables axis sharing, but is really slow for some reason
-          // ...(plotCounter > 0 ? { matches: 'y' } : {}),
+          ...(plotCounter > 0 ? { matches: 'y' } : {}),
           // @ts-ignore
           anchor: `x${plotCounter > 0 ? plotCounter + 1 : ''}`,
         };
