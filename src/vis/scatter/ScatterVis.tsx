@@ -19,7 +19,7 @@ import { fitRegressionLine } from './Regression';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
-import { categoricalColors } from '../../utils';
+import { categoricalColors, selectionColorDark } from '../../utils';
 
 // d3v7.force
 
@@ -59,7 +59,7 @@ const AXIS_TICK_STYLES: Partial<PlotlyTypes.Layout['xaxis']> = {
   zeroline: false,
 };
 
-function baseData(alpha: number): Partial<PlotlyTypes.Data> {
+function baseData(alpha: number, hasColor: boolean): Partial<PlotlyTypes.Data> {
   return {
     selected: {
       textfont: {
@@ -67,7 +67,7 @@ function baseData(alpha: number): Partial<PlotlyTypes.Data> {
       },
       marker: {
         opacity: 1,
-        // color: selectionColorDark,
+        ...(!hasColor ? { color: selectionColorDark } : {}),
       },
     },
     unselected: {
@@ -304,7 +304,6 @@ export function ScatterVis({
           range: facet.xDomain,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
-          // This enables axis sharing, but is really slow for some reason
           ...(plotCounter > 0 ? { matches: 'x' } : {}),
           // @ts-ignore
           anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
@@ -314,7 +313,6 @@ export function ScatterVis({
           range: facet.yDomain,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
-          // This enables axis sharing, but is really slow for some reason
           ...(plotCounter > 0 ? { matches: 'y' } : {}),
           // @ts-ignore
           anchor: `x${plotCounter > 0 ? plotCounter + 1 : ''}`,
@@ -540,11 +538,11 @@ export function ScatterVis({
                       ? value.colorColumn.color[v.val]
                       : scales.color(v.val),
                 )
-              : categoricalColors[0],
+              : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
-          ...baseData(config.alphaSliderVal),
+          ...baseData(config.alphaSliderVal, !!value.colorColumn),
         } as PlotlyTypes.Data,
       ];
 
@@ -594,11 +592,11 @@ export function ScatterVis({
                       ? value.colorColumn.color[color]
                       : scales.color(color),
                 )
-              : categoricalColors[0],
+              : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? group.data.shape.map((shape) => shapeScale(shape as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
-          ...baseData(config.alphaSliderVal),
+          ...baseData(config.alphaSliderVal, !!value.colorColumn),
         } as PlotlyTypes.Data;
       });
 
@@ -621,6 +619,11 @@ export function ScatterVis({
           ...BASE_DATA,
           type: 'splom',
           // @ts-ignore
+          diagonal: {
+            visible: false,
+          },
+          showupperhalf: false,
+          // @ts-ignore
           dimensions: plotlyDimensions,
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
@@ -638,11 +641,11 @@ export function ScatterVis({
                       ? value.colorColumn.color[v.val]
                       : scales.color(v.val),
                 )
-              : categoricalColors[0],
+              : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
-          ...baseData(config.alphaSliderVal),
+          ...baseData(config.alphaSliderVal, !!value.colorColumn),
         } as PlotlyTypes.Data,
       ];
 
