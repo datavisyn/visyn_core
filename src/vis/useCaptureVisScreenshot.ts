@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import * as React from 'react';
 import { BaseVisConfig, EAggregateTypes, ESupportedPlotlyVis } from './interfaces';
 import { IBarConfig } from './bar/interfaces';
+import { sanitize } from '../utils/sanitize-filname';
 
 export type DownloadPlotOptions = {
   fileName?: string;
@@ -64,7 +65,9 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
           );
           blobList.forEach((blob, i) => {
             if (blob) {
-              const fileName = `${config?.facets?.name}: ${boxList[i]?.dataset?.facet} | ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`;
+              const fileName = sanitize(
+                `${config?.facets?.name}: ${boxList[i]?.dataset?.facet} | ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`,
+              );
               zip.file(`${fileName}.png`, blob);
             }
           });
