@@ -10,7 +10,7 @@ import { useChart } from '../vishooks/hooks/useChart';
 import type { ECOption } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
-import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, sortSeries } from './interfaces/internal';
+import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, SERIES_ZERO, sortSeries } from './interfaces/internal';
 
 function EagerSingleEChartsBarChart({
   aggregatedData,
@@ -160,11 +160,12 @@ function EagerSingleEChartsBarChart({
             const groupString = (() => {
               if (config?.group) {
                 const color = params.seriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(params.seriesName as string) ?? VIS_NEUTRAL_COLOR);
+                const name = params.seriesName === SERIES_ZERO ? params.name : params.seriesName;
                 if (isGroupedByNumerical) {
                   if (params.seriesName === NAN_REPLACEMENT) {
-                    return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
+                    return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${name}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
                   }
-                  const [min, max] = (params.seriesName ?? '0 to 0').split(' to ');
+                  const [min, max] = (name ?? '0 to 0').split(' to ');
                   const formattedMin = new Intl.NumberFormat('en-US', {
                     maximumFractionDigits: 4,
                     maximumSignificantDigits: 4,
@@ -179,7 +180,7 @@ function EagerSingleEChartsBarChart({
                   }).format(Number(max));
                   return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${formattedMin} to ${formattedMax}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
                 }
-                return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${params.seriesName}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
+                return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${name}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
               }
               return '';
             })();
