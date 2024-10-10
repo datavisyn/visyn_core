@@ -47,32 +47,6 @@ type VirtualizedBarChartProps = {
   setConfig: (config: IBarConfig) => void;
 };
 
-function VirtualizedBarChart({ props, facet }: { props: ListChildComponentProps<VirtualizedBarChartProps>; facet: string }) {
-  return (
-    <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
-      <SingleEChartsBarChart
-        aggregatedData={props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType}
-        chartHeight={props.data.chartHeightMap[facet as string] ?? DEFAULT_BAR_CHART_HEIGHT}
-        chartMinWidth={props.data.chartMinWidthMap[facet as string] ?? DEFAULT_BAR_CHART_MIN_WIDTH}
-        containerWidth={props.data.containerWidth}
-        config={props.data.config}
-        globalMax={props.data.aggregatedDataMap?.globalDomain.max}
-        globalMin={props.data.aggregatedDataMap?.globalDomain.min}
-        groupColorScale={props.data.groupColorScale!}
-        isGroupedByNumerical={props.data.isGroupedByNumerical}
-        labelsMap={props.data.labelsMap}
-        longestLabelWidth={props.data.longestLabelWidth}
-        selectedFacetIndex={facet ? props.data.allUniqueFacetVals.indexOf(facet) : undefined} // use the index of the original list to return back to the grid
-        selectedFacetValue={facet}
-        selectedList={props.data.selectedList}
-        selectedMap={props.data.selectedMap}
-        selectionCallback={props.data.selectionCallback}
-        setConfig={props.data.setConfig}
-      />
-    </Box>
-  );
-}
-
 export function BarChart({
   config,
   setConfig,
@@ -276,7 +250,29 @@ export function BarChart({
 
   const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
     const facet = props.data.filteredUniqueFacetVals?.[props.index] as string;
-    return <VirtualizedBarChart props={props} facet={facet} />;
+    return (
+      <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
+        <SingleEChartsBarChart
+          aggregatedData={props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType}
+          chartHeight={props.data.chartHeightMap[facet as string] ?? DEFAULT_BAR_CHART_HEIGHT}
+          chartMinWidth={props.data.chartMinWidthMap[facet as string] ?? DEFAULT_BAR_CHART_MIN_WIDTH}
+          containerWidth={props.data.containerWidth}
+          config={props.data.config}
+          globalMax={props.data.aggregatedDataMap?.globalDomain.max}
+          globalMin={props.data.aggregatedDataMap?.globalDomain.min}
+          groupColorScale={props.data.groupColorScale!}
+          isGroupedByNumerical={props.data.isGroupedByNumerical}
+          labelsMap={props.data.labelsMap}
+          longestLabelWidth={props.data.longestLabelWidth}
+          selectedFacetIndex={facet ? props.data.allUniqueFacetVals.indexOf(facet) : undefined} // use the index of the original list to return back to the grid
+          selectedFacetValue={facet}
+          selectedList={props.data.selectedList}
+          selectedMap={props.data.selectedMap}
+          selectionCallback={props.data.selectionCallback}
+          setConfig={props.data.setConfig}
+        />
+      </Box>
+    );
   }, []);
 
   const getTruncatedText = React.useCallback(
