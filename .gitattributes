@@ -132,3 +132,7 @@ AUTHORS text
 
 # Hide compiled files from git diff and auto-replace them when merging different branches
 /dist/** -diff -merge
+
+
+# The file contains a UNICODE character, therefore this file is treated as binary in GitHub
+src/vis/bar/interfaces/internal/constants/group.ts diff
