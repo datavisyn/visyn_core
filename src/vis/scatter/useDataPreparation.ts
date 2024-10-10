@@ -72,6 +72,11 @@ export function useDataPreparation({
 
     for (let r = 0; r < value.validColumns.length; r++) {
       for (let c = 0; c < value.validColumns.length; c++) {
+        // Only create lower triangular matrix
+        if (r <= c) {
+          continue;
+        }
+
         const x = value.validColumns[c].resolvedValues.map((v) => v.val as number);
         const y = value.validColumns[r].resolvedValues.map((v) => v.val as number);
 
