@@ -141,10 +141,11 @@ function EagerSingleEChartsBarChart({
   );
 
   const groupSortedSeries = React.useMemo(() => {
+    const unknownSeries = (visState.series ?? []).find((series) => (series as typeof series & { group: string }).group === NAN_REPLACEMENT);
+    const knownSeries = (visState.series ?? []).filter(
+      (series) => (series as typeof series & { group: string }).group !== NAN_REPLACEMENT && !series.data?.every((d) => d === null || d === undefined),
+    );
     if (isGroupedByNumerical) {
-      const unknownSeries = (visState.series ?? []).find((series) => (series as typeof series & { group: string }).group === NAN_REPLACEMENT);
-      const knownSeries = (visState.series ?? []).filter((series) => (series as typeof series & { group: string }).group !== NAN_REPLACEMENT);
-
       if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
         const namedKnownSeries = knownSeries.map((series) => {
           const name = String((series as typeof series).data?.[0]);
@@ -168,7 +169,7 @@ function EagerSingleEChartsBarChart({
       });
       return unknownSeries ? [...sortedSeries, unknownSeries] : sortedSeries;
     }
-    return visState.series ?? [];
+    return unknownSeries ? [...knownSeries, unknownSeries] : knownSeries;
   }, [groupColorScale, isGroupedByNumerical, visState.series]);
 
   // prepare data
