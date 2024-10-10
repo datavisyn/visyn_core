@@ -141,9 +141,17 @@ function EagerSingleEChartsBarChart({
   );
 
   const groupSortedSeries = React.useMemo(() => {
-    const unknownSeries = (visState.series ?? []).find((series) => (series as typeof series & { group: string }).group === NAN_REPLACEMENT);
-    const knownSeries = (visState.series ?? []).filter(
-      (series) => (series as typeof series & { group: string }).group !== NAN_REPLACEMENT && !series.data?.every((d) => d === null || d === undefined),
+    const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
+    const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
+      (acc, series) => {
+        if ((series as typeof series & { group: string }).group === NAN_REPLACEMENT) {
+          acc[1].push(series);
+        } else {
+          acc[0].push(series);
+        }
+        return acc;
+      },
+      [[] as BarSeriesOption[], [] as BarSeriesOption[]],
     );
     if (isGroupedByNumerical) {
       if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
@@ -156,7 +164,7 @@ function EagerSingleEChartsBarChart({
             itemStyle: { color },
           };
         });
-        return unknownSeries ? [...namedKnownSeries, unknownSeries] : namedKnownSeries;
+        return [...namedKnownSeries, ...unknownSeries];
       }
 
       const sortedSeries = knownSeries.sort((a, b) => {
@@ -167,9 +175,9 @@ function EagerSingleEChartsBarChart({
         const [bMin, bMax] = (b as typeof b & { group: string }).group.split(' to ').map(Number);
         return (aMin as number) - (bMin as number) || (aMax as number) - (bMax as number);
       });
-      return unknownSeries ? [...sortedSeries, unknownSeries] : sortedSeries;
+      return [...sortedSeries, ...unknownSeries];
     }
-    return unknownSeries ? [...knownSeries, unknownSeries] : knownSeries;
+    return [...knownSeries, ...unknownSeries];
   }, [groupColorScale, isGroupedByNumerical, visState.series]);
 
   // prepare data
