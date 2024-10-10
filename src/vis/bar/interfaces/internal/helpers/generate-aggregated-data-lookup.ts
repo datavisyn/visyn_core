@@ -128,8 +128,8 @@ export function generateAggregatedDataLookup(
                 config.groupType === EBarGroupingType.STACK
                   ? Math.min(aggregated.facets[facet]?.categories[category]?.total ?? Infinity, aggregated.globalDomain.min, 0)
                   : Math.min(aggregated.facets[facet]?.categories[category]?.groups[group]?.total ?? Infinity, aggregated.globalDomain.min, 0);
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
             }
 
@@ -183,8 +183,8 @@ export function generateAggregatedDataLookup(
                 ),
                 4,
               );
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
             }
 
@@ -217,8 +217,8 @@ export function generateAggregatedDataLookup(
                 aggregated.globalDomain.min,
                 0,
               );
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
             }
 
@@ -250,8 +250,8 @@ export function generateAggregatedDataLookup(
                 aggregated.globalDomain.min,
                 0,
               );
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
             }
 
@@ -269,8 +269,8 @@ export function generateAggregatedDataLookup(
                     )
                   : Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max);
               const min = Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0);
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
               break;
             }
 
