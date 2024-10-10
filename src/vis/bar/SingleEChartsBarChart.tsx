@@ -11,6 +11,7 @@ import type { ECOption } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, SERIES_ZERO, sortSeries } from './interfaces/internal';
+import { sanitize } from '../../utils/sanitize-filname';
 
 function EagerSingleEChartsBarChart({
   aggregatedData,
@@ -160,7 +161,8 @@ function EagerSingleEChartsBarChart({
             const groupString = (() => {
               if (config?.group) {
                 const color = params.seriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(params.seriesName as string) ?? VIS_NEUTRAL_COLOR);
-                const name = params.seriesName === SERIES_ZERO ? params.name : params.seriesName;
+                // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
+                const name = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
                 if (isGroupedByNumerical) {
                   if (params.seriesName === NAN_REPLACEMENT) {
                     return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${name}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
