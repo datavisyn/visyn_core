@@ -30,7 +30,10 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
         });
       } else if (visConfig.type === ESupportedPlotlyVis.BAR) {
         const config = visConfig as IBarConfig;
-        const viewingSingleBarChart = !config.facets || (config.facets && typeof config.focusFacetIndex === 'number');
+        const viewingSingleBarChart =
+          !config.facets ||
+          (config.facets && typeof config.focusFacetIndex === 'number') ||
+          (config.facets && plotElement.querySelectorAll('[data-in-viewport="true"] canvas').length === 1);
         if (viewingSingleBarChart) {
           const dataUrl = await htmlToImage.toPng(plotElement.querySelector('canvas')!, {
             backgroundColor: 'white',
