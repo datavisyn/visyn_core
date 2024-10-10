@@ -3,7 +3,7 @@ import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import * as React from 'react';
-import { selectionColorDark } from '../../utils';
+import { sanitize, selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useChart } from '../vishooks/hooks/useChart';
@@ -11,7 +11,6 @@ import type { ECOption } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, SERIES_ZERO, sortSeries } from './interfaces/internal';
-import { sanitize } from '../../utils/sanitize-filname';
 
 function EagerSingleEChartsBarChart({
   aggregatedData,
@@ -160,9 +159,9 @@ function EagerSingleEChartsBarChart({
             // NOTE: @dv-usama-ansari: Using IIFE here is more convenient
             const groupString = (() => {
               if (config?.group) {
-                const color = params.seriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(params.seriesName as string) ?? VIS_NEUTRAL_COLOR);
-                // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
+                // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which makes github confused.
                 const name = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
+                const color = params.seriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
                 if (isGroupedByNumerical) {
                   if (params.seriesName === NAN_REPLACEMENT) {
                     return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${name}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
@@ -634,6 +633,8 @@ function EagerSingleEChartsBarChart({
           query: { seriesType: 'bar' },
           handler: (params) => {
             const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+            // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
+            const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
             const ids: string[] = config?.group
               ? config.group.id === config?.facets?.id
                 ? [
@@ -641,8 +642,8 @@ function EagerSingleEChartsBarChart({
                     ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
                   ]
                 : [
-                    ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.unselected.ids ?? []),
-                    ...(aggregatedData?.categories[params.name]?.groups[params.seriesName!]?.selected.ids ?? []),
+                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
+                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
                   ]
               : (aggregatedData?.categories[params.name]?.ids ?? []);
 
