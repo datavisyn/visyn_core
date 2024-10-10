@@ -161,10 +161,11 @@ export function resolveColumnValues(columns: VisColumn[]) {
   return Promise.all(columns.map(async (col) => ({ ...col, resolvedValues: (await col?.values()) || [] })));
 }
 
-export async function resolveSingleColumn(column: VisColumn) {
+export async function resolveSingleColumn(column: VisColumn | null) {
   if (!column) {
     return null;
   }
+
   return {
     ...column,
     resolvedValues: await column.values(),

@@ -7,7 +7,11 @@ import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from './constants';
  * @returns the label if it is not undefined, null or empty, otherwise NAN_REPLACEMENT (Unknown)
  */
 export function getLabelOrUnknown(label: string | number | null | undefined, unknownLabel: string = NAN_REPLACEMENT): string {
-  return label === null || label === 'null' || label === undefined || label === 'undefined' || label === '' ? unknownLabel : label.toString();
+  return label === null || label === 'null' || label === undefined || label === 'undefined' || label === ''
+    ? unknownLabel
+    : Number(label) && !Number.isInteger(label) // if it is a number, but not an integer, round to 3 decimal places
+      ? Number(label).toFixed(3)
+      : label.toString();
 }
 
 /**

@@ -44,12 +44,12 @@ import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
 import { ISankeyConfig } from './sankey/interfaces';
 import { sankeyMergeDefaultConfig } from './sankey/utils';
 import { scatterMergeDefaultConfig } from './scatter';
-import { ScatterVis } from './scatter/ScatterVis';
 import { ScatterVisSidebar } from './scatter/ScatterVisSidebar';
 import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
+import { ScatterVis } from './scatter/ScatterVis';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
