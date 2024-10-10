@@ -14,6 +14,7 @@ export * from './useCaptureVisScreenshot';
 
 // Export interfaces ONLY since else the lazy loading will break
 export * from './bar/interfaces';
+export * from './boxplot/interfaces';
 export * from './correlation/interfaces';
 export * from './heatmap/interfaces';
 export * from './violin/interfaces';
