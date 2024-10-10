@@ -1,4 +1,5 @@
 // NOTE: @dv-usama-ansari: Referenced from https://github.com/parshap/truncate-utf8-bytes/blob/master/lib/truncate.js
+import { Buffer } from 'buffer';
 
 function isHighSurrogate(codePoint: number) {
   return codePoint >= 0xd800 && codePoint <= 0xdbff;
