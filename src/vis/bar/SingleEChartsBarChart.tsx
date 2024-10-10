@@ -159,7 +159,8 @@ function EagerSingleEChartsBarChart({
             // NOTE: @dv-usama-ansari: Using IIFE here is more convenient
             const groupString = (() => {
               if (config?.group) {
-                const name = params.seriesName === SERIES_ZERO ? params.name : params.seriesName;
+                // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which makes github confused.
+                const name = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
                 const color = params.seriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
                 if (isGroupedByNumerical) {
                   if (params.seriesName === NAN_REPLACEMENT) {
