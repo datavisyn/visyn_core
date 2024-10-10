@@ -49,6 +49,8 @@ Basic.args = {
       },
     ],
     color: null,
+    facets: null,
+    sizeSliderVal: 8,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
@@ -57,12 +59,76 @@ Basic.args = {
     regressionLineOptions: {
       type: ERegressionLineType.NONE,
     },
-  } as BaseVisConfig,
+  } as IScatterConfig,
 
   filterCallback: (option) => {
     console.log({ option });
   },
 };
+
+export const ControlledSubplots: typeof Template = Template.bind({}) as typeof Template;
+ControlledSubplots.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.SCATTER,
+    color: null,
+    subplots: [
+      {
+        xColumn: {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal Length',
+        },
+        yColumn: {
+          description: '',
+          id: 'petalWidth',
+          name: 'Petal Width',
+        },
+        title: 'Nicer Title',
+      },
+      {
+        yColumn: {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal Length',
+        },
+        xColumn: {
+          description: '',
+          id: 'petalWidth',
+          name: 'Petal Width',
+        },
+        title: 'Petal Length vs Petal Width',
+      },
+      {
+        xColumn: {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal Length',
+        },
+        yColumn: {
+          description: '',
+          id: 'petalWidth',
+          name: 'Petal Width',
+        },
+        title: 'Petal Length vs Petal Width',
+      },
+    ],
+    facets: null,
+    sizeSliderVal: 8,
+    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    shape: null,
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    alphaSliderVal: 1,
+    showLabels: ELabelingOptions.NEVER,
+    regressionLineOptions: {
+      type: ERegressionLineType.NONE,
+    },
+  } as IScatterConfig,
+
+  filterCallback: (option) => {
+    console.log({ option });
+  },
+};
+
 
 export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
 ColorByCategory.args = {

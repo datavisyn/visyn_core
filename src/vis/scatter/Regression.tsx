@@ -26,6 +26,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
         <Select
           data-testid="RegressionLineSelect"
           searchable
+          clearable
           label={
             <HelpHoverCard
               title={
