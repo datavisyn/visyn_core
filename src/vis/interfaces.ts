@@ -66,7 +66,7 @@ export interface IVisCommonValue<Type extends number | string> {
   /**
    * Value of a vis column.
    */
-  val: Type;
+  val: Type | null;
 }
 
 export type VisNumericalValue = IVisCommonValue<number>;
