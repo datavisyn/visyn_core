@@ -1,5 +1,5 @@
 import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
-import { useElementSize, useInViewport } from '@mantine/hooks';
+import { useElementSize } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import zipWith from 'lodash/zipWith';
@@ -48,10 +48,8 @@ type VirtualizedBarChartProps = {
 };
 
 function VirtualizedBarChart({ props, facet }: { props: ListChildComponentProps<VirtualizedBarChartProps>; facet: string }) {
-  const { ref, inViewport } = useInViewport();
-
   return (
-    <Box component="div" ref={ref} data-facet={facet} data-in-viewport={inViewport} style={{ ...props.style, padding: '10px 0px' }}>
+    <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
       <SingleEChartsBarChart
         aggregatedData={props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType}
         chartHeight={props.data.chartHeightMap[facet as string] ?? DEFAULT_BAR_CHART_HEIGHT}
