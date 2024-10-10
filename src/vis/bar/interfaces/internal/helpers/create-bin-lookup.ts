@@ -9,6 +9,10 @@ function binValues(values: number[], numberOfBins: number) {
   const max = lodashMax(values) || 1;
   const binSize = (max - min) / numberOfBins;
 
+  if (min === max) {
+    return [{ range: [min, max], values }];
+  }
+
   // Create bins
   const bins = range(0, numberOfBins).map((i) => {
     const lowerBound = min + i * binSize;
@@ -47,7 +51,8 @@ export const createBinLookup = (data: VisNumericalValue[], maxBins: number = 8):
   bins
     .filter((bin) => bin.values.length > 0) // Filter out empty bins
     .forEach((bin) => {
-      const binName = `${bin.range[0]} to ${bin.range[1]}`;
+      const [min, max] = bin.range;
+      const binName = min === max ? `${min || max}` : `${bin.range[0]} to ${bin.range[1]}`;
       const binRows = nonNullData.filter((row) => bin.values.includes(row.val as number));
       binRows.forEach((row) => {
         binMap.set(row, binName);
