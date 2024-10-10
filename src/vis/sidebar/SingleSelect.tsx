@@ -80,19 +80,15 @@ export function SingleSelect({
         <Tooltip label={disabledTooltip} disabled={!disabled} withArrow>
           <InputBase
             data-testid={`SingleSelect${label}`}
-            className={css`
-              button.mantine-Input-input.mantine-InputBase-input {
-                height: 44px; // increase the height of the input to make some space for the description
-              }
-            `}
+            type="button"
             component="button"
+            multiline
             label={
               <Text size="sm" fw={500} c={disabled ? 'dimmed' : 'black'}>
                 {label}
               </Text>
             }
             disabled={disabled}
-            type="button"
             pointer
             onClick={() => combobox.toggleDropdown()}
             rightSectionPointerEvents={currentSelected === null ? 'none' : 'all'}

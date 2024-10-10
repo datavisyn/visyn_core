@@ -20,6 +20,43 @@ export function useDataPreparation({
   uniqueSymbols: string[];
   numColorScaleType: ENumericalColorScaleType;
 }) {
+  const subplots = React.useMemo(() => {
+    if (!(status === 'success' && value.subplots && value.subplots.length > 0 && value.subplots[0])) {
+      return undefined;
+    }
+
+    const ids = value.subplots[0].xColumn.resolvedValues.map((v) => v.id);
+    const idToIndex = new Map<string, number>();
+    ids.forEach((v, i) => {
+      idToIndex.set(v, i);
+    });
+
+    const xyPairs = value.subplots.map((subplot, index) => {
+      const x = subplot.xColumn.resolvedValues.map((v) => v.val as number);
+      const y = subplot.yColumn.resolvedValues.map((v) => v.val as number);
+
+      const validIndices = x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[];
+
+      const xDomain = d3v7.extent(x);
+      const yDomain = d3v7.extent(y);
+
+      return {
+        x,
+        y,
+        xDomain,
+        yDomain,
+        xTitle: columnNameWithDescription(subplot.xColumn.info),
+        yTitle: columnNameWithDescription(subplot.yColumn.info),
+        validIndices,
+        title: subplot.title,
+        xref: `x${index > 0 ? index + 1 : ''}` as PlotlyTypes.XAxisName,
+        yref: `y${index > 0 ? index + 1 : ''}` as PlotlyTypes.YAxisName,
+      };
+    });
+
+    return { xyPairs, ids, text: ids, idToIndex };
+  }, [status, value]);
+
   // Case when we have just a scatterplot
   const scatter = React.useMemo(() => {
     if (!(status === 'success' && value && value.validColumns.length === 2 && value.validColumns[0] && value.validColumns[1] && !value.facetColumn)) {
@@ -58,7 +95,7 @@ export function useDataPreparation({
 
   // Case when we have a scatterplot matrix
   const splom = React.useMemo(() => {
-    if (!(status === 'success' && value && value.validColumns.length > 2)) {
+    if (!(status === 'success' && value && value.validColumns.length > 2 && value.validColumns[0] && value.validColumns[1])) {
       return undefined;
     }
 
@@ -109,7 +146,7 @@ export function useDataPreparation({
 
   // Case when we have faceting
   const facet = React.useMemo(() => {
-    if (!(status === 'success' && value && value.facetColumn && value.validColumns.length === 2)) {
+    if (!(status === 'success' && value && value.facetColumn && value.validColumns.length === 2 && value.validColumns[0] && value.validColumns[1])) {
       return undefined;
     }
 
@@ -184,8 +221,8 @@ export function useDataPreparation({
           .domain([value.colorDomain[1], (value.colorDomain[0] + value.colorDomain[1]) / 2, value.colorDomain[0]])
           .range(
             numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
-              ? [getCssValue('visyn-s9-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s1-blue')]
-              : [getCssValue('visyn-c1'), '#d3d3d3', getCssValue('visyn-c2')],
+              ? ([getCssValue('visyn-s9-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s1-blue')] as string[])
+              : ([getCssValue('visyn-c1'), '#d3d3d3', getCssValue('visyn-c2')] as string[]),
           )
       : null;
 
@@ -206,6 +243,7 @@ export function useDataPreparation({
     splom,
     scatter,
     facet,
+    subplots,
     shapeScale: scales.shape,
     colorScale: scales.color,
   };

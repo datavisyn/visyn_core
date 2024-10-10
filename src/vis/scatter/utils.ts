@@ -34,6 +34,7 @@ export const defaultConfig: IScatterConfig = {
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
   sizeSliderVal: 8,
+  subplots: undefined,
   showLabels: ELabelingOptions.NEVER,
   showLabelLimit: 50,
   regressionLineOptions: {
@@ -74,6 +75,7 @@ export type FetchColumnDataResult = {
   idToLabelMapper: (id: string) => string;
   resolvedLabelColumns: ResolvedVisColumn[];
   resolvedLabelColumnsWithMappedValues: (ResolvedVisColumn & { mappedValues: Map<any, any> })[];
+  subplots?: { xColumn: ResolvedVisColumn; yColumn: ResolvedVisColumn; title: string }[];
 };
 
 /**
@@ -83,6 +85,7 @@ export async function fetchColumnData(
   columns: VisColumn[],
   numericalColumnsSelected: ColumnInfo[],
   labelColumns: ColumnInfo[],
+  subplots: { xColumn: ColumnInfo; yColumn: ColumnInfo; title: string }[],
   color: ColumnInfo,
   shape: ColumnInfo,
   facet: ColumnInfo,
@@ -104,6 +107,24 @@ export async function fetchColumnData(
     max = d3v7.max(colorColumn.resolvedValues.map((v) => +v.val).filter((v) => v !== null));
   }
 
+  // Resolve subplots columns all at once to types of [{ resolvedX, resolvedY, title }]
+  const resolvedSubplots = subplots
+    ? await Promise.all(
+        subplots
+          .map(async (subplot) => {
+            const xColumn: ResolvedVisColumn | null = await resolveSingleColumn(getCol(columns, subplot.xColumn));
+            const yColumn: ResolvedVisColumn | null = await resolveSingleColumn(getCol(columns, subplot.yColumn));
+
+            if (!xColumn || !yColumn) {
+              return null;
+            }
+
+            return { xColumn, yColumn, title: subplot.title };
+          })
+          .filter((s) => s !== null) as unknown as { xColumn: ResolvedVisColumn; yColumn: ResolvedVisColumn; title: string }[],
+      )
+    : undefined;
+
   const idToLabelMapper = await createIdToLabelMapper(columns);
   const resolvedLabelColumnsWithMappedValues = resolvedLabelColumns.map((c) => {
     const mappedValues = new Map();
@@ -122,6 +143,7 @@ export async function fetchColumnData(
     idToLabelMapper,
     resolvedLabelColumns,
     resolvedLabelColumnsWithMappedValues,
+    subplots: resolvedSubplots,
   };
 }
 
