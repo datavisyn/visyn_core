@@ -3,7 +3,7 @@ import JSZip from 'jszip';
 import * as React from 'react';
 import { BaseVisConfig, EAggregateTypes, ESupportedPlotlyVis } from './interfaces';
 import { IBarConfig } from './bar/interfaces';
-import { sanitize } from '../utils/sanitize-filname';
+import { sanitize } from '../utils';
 
 export type DownloadPlotOptions = {
   fileName?: string;
