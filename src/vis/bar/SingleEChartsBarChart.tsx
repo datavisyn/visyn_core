@@ -145,7 +145,7 @@ function EagerSingleEChartsBarChart({
       const unknownSeries = (visState.series ?? []).find((series) => (series as typeof series & { group: string }).group === NAN_REPLACEMENT);
       const knownSeries = (visState.series ?? []).filter((series) => (series as typeof series & { group: string }).group !== NAN_REPLACEMENT);
 
-      if (!(knownSeries[0] as (typeof knownSeries)[number] & { group: string })?.group.includes(' to ')) {
+      if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
         const namedKnownSeries = knownSeries.map((series) => {
           const name = String((series as typeof series).data?.[0]);
           const color = groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR;
