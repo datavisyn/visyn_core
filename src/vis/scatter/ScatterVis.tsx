@@ -5,6 +5,7 @@ import * as React from 'react';
 import clamp from 'lodash/clamp';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import d3v7 from 'd3v7';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
@@ -358,7 +359,7 @@ function useData({
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
   selectedList: string[];
   showLegend: boolean;
-  colorScale: (val: number) => string;
+  colorScale: d3v7.ScaleLinear<string, number>;
   scales: { color: (val: any) => string };
   shapeScale: (val: string) => string;
   legendData: PlotlyTypes.Data[];
