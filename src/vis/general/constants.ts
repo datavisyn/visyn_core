@@ -26,7 +26,7 @@ export const VIS_LABEL_COLOR = '#99A1A9';
 export const VIS_GRID_COLOR = '#E9ECEF';
 
 /**
- * Neutral color (e.g., histogram in scatterplot matrix)
+ * Neutral color (e.g., histogram in scatterplot matrix and should be also used for "Unknown" categorical values)
  */
 export const VIS_NEUTRAL_COLOR = '#71787E';
 

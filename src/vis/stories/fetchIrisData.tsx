@@ -46,7 +46,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Species',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val })),
+      values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val: val ?? null })),
       // color: {
       //   Setosa: 'red',
       //   Virginica: 'blue',
@@ -62,7 +62,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Random category',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val })),
+      values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val: val ?? null })),
     },
     {
       info: {
@@ -71,7 +71,7 @@ export function fetchIrisData(): VisColumn[] {
         name: 'Random category2',
       },
       type: EColumnTypes.CATEGORICAL,
-      values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val })),
+      values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val: val ?? null })),
     },
   ];
 }

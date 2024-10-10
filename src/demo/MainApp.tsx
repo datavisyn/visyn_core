@@ -5,52 +5,66 @@ import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../rank
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
 import {
   BaseVisConfig,
-  ELabelingOptions,
+  EAggregateTypes,
+  EBarDirection,
+  EBarDisplayType,
+  EBarGroupingType,
+  EBarSortState,
   ENumericalColorScaleType,
-  ERegressionLineType,
-  EScatterSelectSettings,
   ESupportedPlotlyVis,
-  IScatterConfig,
+  IBarConfig,
   Vis,
 } from '../vis';
+import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { fetchTestData, generateTestData } from '../vis/stories/explodedData';
 import { breastCancerData } from '../vis/stories/breastCancerData';
 import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
-import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+
+const testData = generateTestData(1000);
 
 export function MainApp() {
   const { user } = useVisynAppContext();
-  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: 'Gene expression',
-        id: 'stat2GeneExpression',
-        name: 'STAT2',
-      },
-      {
-        description: 'Gene expression',
-        id: 'brca1GeneExpression',
-        name: 'BRCA1',
-      },
-    ],
-    color: {
-      description: null,
-      id: 'cellularity',
-      name: 'Cellularity',
-    },
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    facets: null,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
-    sizeSliderVal: 5,
-    showLabels: ELabelingOptions.SELECTED,
-    showLabelLimit: 20,
-    regressionLineOptions: {
-      type: ERegressionLineType.LINEAR,
-      showStats: true,
-    },
-  } as IScatterConfig);
+  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>(
+    () =>
+      ({
+        type: ESupportedPlotlyVis.BAR,
+        numColumnsSelected: [],
+        catColumnSelected: null,
+        // catColumnSelected: {
+        //   description: 'First category',
+        //   id: 'categorical1',
+        //   name: 'Categorical 1',
+        // },
+        group: null,
+        // group: {
+        //   description: 'Type 1',
+        //   id: 'type1',
+        //   name: 'Type 1',
+        // },
+        groupType: EBarGroupingType.STACK,
+        xAxisDomain: EBarDirection.HORIZONTAL ? [0, 1000] : null,
+        yAxisDomain: EBarDirection.VERTICAL ? [0, 1000] : null,
+        facets: null,
+        // facets: {
+        //   description: 'some very long description',
+        //   id: 'name',
+        //   name: 'Name',
+        // },
+        focusFacetIndex: null,
+        display: EBarDisplayType.ABSOLUTE,
+        direction: EBarDirection.HORIZONTAL,
+        aggregateColumn: null,
+        aggregateType: EAggregateTypes.COUNT,
+        showFocusFacetSelector: false,
+        sortState: {
+          x: EBarSortState.NONE,
+          y: EBarSortState.NONE,
+        },
+        numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+        merged: true,
+        useFullHeight: true,
+      }) as IBarConfig,
+  );
   const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
 
@@ -66,6 +80,11 @@ export function MainApp() {
             aboutAppModal: {
               content: <Text>This is the demo app for visyn core.</Text>,
             },
+            center: (
+              <Text c="white" size="sm">
+                {breastCancerData.length} data points / {selection.length} points selected
+              </Text>
+            ),
           }}
         />
       }
