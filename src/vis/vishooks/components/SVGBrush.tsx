@@ -14,7 +14,7 @@ interface BrushProps {
   direction?: Direction;
   onChange?: (brush: Brush) => void;
   onChangeEnd?: (brush: Brush) => void;
-  parent: React.RefObject<Element>;
+  parent: React.RefObject<Element | undefined>;
   extent?: Extent;
   clearOnMouse?: boolean;
 }
