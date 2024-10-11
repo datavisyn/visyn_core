@@ -2,6 +2,8 @@ import { Box } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
+import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
 import * as React from 'react';
 import { sanitize, selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
@@ -202,63 +204,63 @@ function EagerSingleEChartsBarChart({
           axisPointer: {
             type: 'shadow',
           },
-          formatter: (params) => {
-            const facetString = selectedFacetValue ? generateHTMLString({ label: `Facet of ${config?.facets?.name}`, value: selectedFacetValue }) : '';
+          // formatter: (params) => {
+          //   const facetString = selectedFacetValue ? generateHTMLString({ label: `Facet of ${config?.facets?.name}`, value: selectedFacetValue }) : '';
 
-            const groupString = (() => {
-              if (config?.group) {
-                const sanitizedSeriesName = sanitize(params.seriesName as string);
-                const name = sanitizedSeriesName === SERIES_ZERO ? params.name : sanitizedSeriesName;
-                const color = sanitizedSeriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
+          //   const groupString = (() => {
+          //     if (config?.group) {
+          //       const sanitizedSeriesName = sanitize(params.seriesName as string);
+          //       const name = sanitizedSeriesName === SERIES_ZERO ? params.name : sanitizedSeriesName;
+          //       const color = sanitizedSeriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
 
-                if (isGroupedByNumerical) {
-                  if (sanitizedSeriesName === NAN_REPLACEMENT) {
-                    return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
-                  }
-                  if (!name.includes(' to ')) {
-                    return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
-                  }
-                  const [min, max] = (name ?? '0 to 0').split(' to ');
-                  if (!Number.isNaN(Number(min)) && !Number.isNaN(Number(max))) {
-                    const formattedMin = new Intl.NumberFormat('en-US', {
-                      maximumFractionDigits: 4,
-                      maximumSignificantDigits: 4,
-                      notation: 'compact',
-                      compactDisplay: 'short',
-                    }).format(Number(min));
-                    const formattedMax = new Intl.NumberFormat('en-US', {
-                      maximumFractionDigits: 4,
-                      maximumSignificantDigits: 4,
-                      notation: 'compact',
-                      compactDisplay: 'short',
-                    }).format(Number(max));
-                    return generateHTMLString({ label: `Group of ${config.group.name}`, value: `${formattedMin} to ${formattedMax}`, color });
-                  }
-                  return generateHTMLString({ label: `Group of ${config.group.name}`, value: params.value as string, color });
-                }
-                return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
-              }
-              return '';
-            })();
+          //       if (isGroupedByNumerical) {
+          //         if (sanitizedSeriesName === NAN_REPLACEMENT) {
+          //           return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
+          //         }
+          //         if (!name.includes(' to ')) {
+          //           return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
+          //         }
+          //         const [min, max] = (name ?? '0 to 0').split(' to ');
+          //         if (!Number.isNaN(Number(min)) && !Number.isNaN(Number(max))) {
+          //           const formattedMin = new Intl.NumberFormat('en-US', {
+          //             maximumFractionDigits: 4,
+          //             maximumSignificantDigits: 4,
+          //             notation: 'compact',
+          //             compactDisplay: 'short',
+          //           }).format(Number(min));
+          //           const formattedMax = new Intl.NumberFormat('en-US', {
+          //             maximumFractionDigits: 4,
+          //             maximumSignificantDigits: 4,
+          //             notation: 'compact',
+          //             compactDisplay: 'short',
+          //           }).format(Number(max));
+          //           return generateHTMLString({ label: `Group of ${config.group.name}`, value: `${formattedMin} to ${formattedMax}`, color });
+          //         }
+          //         return generateHTMLString({ label: `Group of ${config.group.name}`, value: params.value as string, color });
+          //       }
+          //       return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
+          //     }
+          //     return '';
+          //   })();
 
-            const aggregateString = generateHTMLString({
-              label: config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`,
-              value: params.value as string,
-            });
+          //   const aggregateString = generateHTMLString({
+          //     label: config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`,
+          //     value: params.value as string,
+          //   });
 
-            const categoryString = generateHTMLString({ label: config?.catColumnSelected?.name as string, value: params.name });
+          //   const categoryString = generateHTMLString({ label: config?.catColumnSelected?.name as string, value: params.name });
 
-            const tooltipGrid = `<div style="display: grid; grid-template-rows: 1fr">${categoryString}${aggregateString}${facetString}${groupString}</div>`;
-            return tooltipGrid;
-          },
+          //   const tooltipGrid = `<div style="display: grid; grid-template-rows: 1fr">${categoryString}${aggregateString}${facetString}${groupString}</div>`;
+          //   return tooltipGrid;
+          // },
         },
 
         label: {
           show: true,
-          formatter: (params) =>
-            config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
-              ? `${params.value}%`
-              : String(params.value),
+          // formatter: (params) =>
+          //   config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
+          //     ? `${params.value}%`
+          //     : String(params.value),
         },
 
         labelLayout: {
@@ -341,31 +343,31 @@ function EagerSingleEChartsBarChart({
               };
             })
           : [],
-        formatter: (name: string) => {
-          if (isGroupedByNumerical) {
-            if (name === NAN_REPLACEMENT) {
-              return name;
-            }
-            if (!name.includes(' to ')) {
-              return name;
-            }
-            const [min, max] = name.split(' to ');
-            const formattedMin = new Intl.NumberFormat('en-US', {
-              maximumFractionDigits: 4,
-              maximumSignificantDigits: 4,
-              notation: 'compact',
-              compactDisplay: 'short',
-            }).format(Number(min));
-            const formattedMax = new Intl.NumberFormat('en-US', {
-              maximumFractionDigits: 4,
-              maximumSignificantDigits: 4,
-              notation: 'compact',
-              compactDisplay: 'short',
-            }).format(Number(max));
-            return `${formattedMin} to ${formattedMax}`;
-          }
-          return name;
-        },
+        // formatter: (name: string) => {
+        //   if (isGroupedByNumerical) {
+        //     if (name === NAN_REPLACEMENT) {
+        //       return name;
+        //     }
+        //     if (!name.includes(' to ')) {
+        //       return name;
+        //     }
+        //     const [min, max] = name.split(' to ');
+        //     const formattedMin = new Intl.NumberFormat('en-US', {
+        //       maximumFractionDigits: 4,
+        //       maximumSignificantDigits: 4,
+        //       notation: 'compact',
+        //       compactDisplay: 'short',
+        //     }).format(Number(min));
+        //     const formattedMax = new Intl.NumberFormat('en-US', {
+        //       maximumFractionDigits: 4,
+        //       maximumSignificantDigits: 4,
+        //       notation: 'compact',
+        //       compactDisplay: 'short',
+        //     }).format(Number(max));
+        //     return `${formattedMin} to ${formattedMax}`;
+        //   }
+        //   return name;
+        // },
       },
     } as ECOption;
   }, [
@@ -456,15 +458,15 @@ function EagerSingleEChartsBarChart({
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
-            formatter: (value: number) => {
-              const formattedValue = new Intl.NumberFormat('en-US', {
-                maximumFractionDigits: 4,
-                maximumSignificantDigits: 4,
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(value);
-              return formattedValue;
-            },
+            // formatter: (value: number) => {
+            //   const formattedValue = new Intl.NumberFormat('en-US', {
+            //     maximumFractionDigits: 4,
+            //     maximumSignificantDigits: 4,
+            //     notation: 'compact',
+            //     compactDisplay: 'short',
+            //   }).format(value);
+            //   return formattedValue;
+            // },
           },
           nameTextStyle: {
             color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
@@ -481,10 +483,10 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             show: true,
             width: gridLeft - 20,
-            formatter: (value: string) => {
-              const truncatedText = labelsMap[value];
-              return truncatedText;
-            },
+            // formatter: (value: string) => {
+            //   const truncatedText = labelsMap[value];
+            //   return truncatedText;
+            // },
           },
           nameTextStyle: {
             color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
@@ -506,10 +508,10 @@ function EagerSingleEChartsBarChart({
           data: (v.xAxis as { data: number[] })?.data ?? [],
           axisLabel: {
             show: true,
-            formatter: (value: string) => {
-              const truncatedText = labelsMap[value];
-              return truncatedText;
-            },
+            // formatter: (value: string) => {
+            //   const truncatedText = labelsMap[value];
+            //   return truncatedText;
+            // },
             rotate: 45,
           },
           nameTextStyle: {
@@ -527,15 +529,15 @@ function EagerSingleEChartsBarChart({
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
-            formatter: (value: number) => {
-              const formattedValue = new Intl.NumberFormat('en-US', {
-                maximumFractionDigits: 4,
-                maximumSignificantDigits: 4,
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(value);
-              return formattedValue;
-            },
+            // formatter: (value: number) => {
+            //   const formattedValue = new Intl.NumberFormat('en-US', {
+            //     maximumFractionDigits: 4,
+            //     maximumSignificantDigits: 4,
+            //     notation: 'compact',
+            //     compactDisplay: 'short',
+            //   }).format(value);
+            //   return formattedValue;
+            // },
           },
           nameTextStyle: {
             color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
@@ -660,215 +662,242 @@ function EagerSingleEChartsBarChart({
   );
 
   // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
-  const axisLabelTooltip = React.useMemo(() => {
-    const dom = document.createElement('div');
-    dom.id = 'axis-tooltip';
-    dom.style.position = 'absolute';
-    dom.style.backgroundColor = 'rgba(50,50,50)';
-    dom.style.borderRadius = '4px';
-    dom.style.color = '#FFFFFF';
-    dom.style.fontFamily = 'sans-serif';
-    dom.style.fontSize = '14px';
-    dom.style.opacity = '0';
-    dom.style.padding = '4px 8px';
-    dom.style.transformOrigin = 'bottom';
-    dom.style.visibility = 'hidden';
-    dom.style.zIndex = '9999';
-    dom.style.transition = 'opacity 400ms';
+  // const axisLabelTooltip = React.useMemo(() => {
+  //   const dom = document.createElement('div');
+  //   dom.id = 'axis-tooltip';
+  //   dom.style.position = 'absolute';
+  //   dom.style.backgroundColor = 'rgba(50,50,50)';
+  //   dom.style.borderRadius = '4px';
+  //   dom.style.color = '#FFFFFF';
+  //   dom.style.fontFamily = 'sans-serif';
+  //   dom.style.fontSize = '14px';
+  //   dom.style.opacity = '0';
+  //   dom.style.padding = '4px 8px';
+  //   dom.style.transformOrigin = 'bottom';
+  //   dom.style.visibility = 'hidden';
+  //   dom.style.zIndex = '9999';
+  //   dom.style.transition = 'opacity 400ms';
 
-    const content = document.createElement('div');
-    dom.appendChild(content);
+  //   const content = document.createElement('div');
+  //   dom.appendChild(content);
 
-    return { dom, content };
-  }, []);
+  //   return { dom, content };
+  // }, []);
 
   const [getSortMetadata] = useBarSortHelper({ config: config! });
 
-  const { setRef, instance } = useChart({
-    options,
-    settings,
-    mouseEvents: {
-      click: [
-        {
-          query: { titleIndex: 0 },
-          handler: () => {
-            setConfig?.({ ...config!, focusFacetIndex: config?.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
-          },
-        },
-        {
-          query: { seriesType: 'bar' },
-          handler: (params) => {
-            const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-            // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
-            const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
-            const ids: string[] = config?.group
-              ? config.group.id === config?.facets?.id
-                ? [
-                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
-                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
-                  ]
-                : [
-                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
-                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
-                  ]
-              : (aggregatedData?.categories[params.name]?.ids ?? []);
+  // const { setRef, instance } = useChart({
+  //   options,
+  //   settings,
+  //   mouseEvents: {
+  //     click: [
+  //       {
+  //         query: { titleIndex: 0 },
+  //         handler: () => {
+  //           setConfig?.({ ...config!, focusFacetIndex: config?.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
+  //         },
+  //       },
+  //       {
+  //         query: { seriesType: 'bar' },
+  //         handler: (params) => {
+  //           const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+  //           // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
+  //           const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
+  //           const ids: string[] = config?.group
+  //             ? config.group.id === config?.facets?.id
+  //               ? [
+  //                   ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
+  //                   ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
+  //                 ]
+  //               : [
+  //                   ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
+  //                   ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
+  //                 ]
+  //             : (aggregatedData?.categories[params.name]?.ids ?? []);
 
-            if (event.shiftKey) {
-              // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
-              //  Using `Set` to reduce time complexity to O(1).
-              const newSelectedSet = new Set(selectedList);
-              ids.forEach((id) => {
-                if (newSelectedSet.has(id)) {
-                  newSelectedSet.delete(id);
-                } else {
-                  newSelectedSet.add(id);
-                }
-              });
-              const newSelectedList = [...newSelectedSet];
-              selectionCallback(event, [...new Set([...newSelectedList])]);
-            } else {
-              // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
-              const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-              selectionCallback(event, isSameBarClicked ? [] : ids);
-            }
-          },
-        },
-        {
-          query:
-            config?.direction === EBarDirection.HORIZONTAL
-              ? { componentType: 'yAxis' }
-              : config?.direction === EBarDirection.VERTICAL
-                ? { componentType: 'xAxis' }
-                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+  //           if (event.shiftKey) {
+  //             // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
+  //             //  Using `Set` to reduce time complexity to O(1).
+  //             const newSelectedSet = new Set(selectedList);
+  //             ids.forEach((id) => {
+  //               if (newSelectedSet.has(id)) {
+  //                 newSelectedSet.delete(id);
+  //               } else {
+  //                 newSelectedSet.add(id);
+  //               }
+  //             });
+  //             const newSelectedList = [...newSelectedSet];
+  //             selectionCallback(event, [...new Set([...newSelectedList])]);
+  //           } else {
+  //             // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
+  //             const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
+  //             selectionCallback(event, isSameBarClicked ? [] : ids);
+  //           }
+  //         },
+  //       },
+  //       {
+  //         query:
+  //           config?.direction === EBarDirection.HORIZONTAL
+  //             ? { componentType: 'yAxis' }
+  //             : config?.direction === EBarDirection.VERTICAL
+  //               ? { componentType: 'xAxis' }
+  //               : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
 
-          handler: (params) => {
-            if (params.targetType === 'axisLabel') {
-              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-              const ids = aggregatedData?.categories[params.value as string]?.ids ?? [];
-              if (event.shiftKey) {
-                const newSelectedSet = new Set(selectedList);
-                ids.forEach((id) => {
-                  if (newSelectedSet.has(id)) {
-                    newSelectedSet.delete(id);
-                  } else {
-                    newSelectedSet.add(id);
-                  }
-                });
-                const newSelectedList = [...newSelectedSet];
-                selectionCallback(event, [...new Set([...newSelectedList])]);
-              } else {
-                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-                selectionCallback(event, isSameBarClicked ? [] : ids);
-              }
-            }
-          },
-        },
-        {
-          query: { componentType: 'yAxis' },
-          handler: (params) => {
-            if (params.targetType === 'axisName' && params.componentType === 'yAxis') {
-              if (config?.direction === EBarDirection.HORIZONTAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-              if (config?.direction === EBarDirection.VERTICAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-            }
-          },
-        },
-        {
-          query: { componentType: 'xAxis' },
-          handler: (params) => {
-            if (params.targetType === 'axisName' && params.componentType === 'xAxis') {
-              if (config?.direction === EBarDirection.HORIZONTAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-              if (config?.direction === EBarDirection.VERTICAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-            }
-          },
-        },
-      ],
-      mouseover: [
-        {
-          query:
-            config?.direction === EBarDirection.HORIZONTAL
-              ? { componentType: 'yAxis' }
-              : config?.direction === EBarDirection.VERTICAL
-                ? { componentType: 'xAxis' }
-                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
-          handler: (params) => {
-            if (params.targetType === 'axisLabel') {
-              const currLabel = params.event?.target;
-              const fullText = params.value;
-              const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
-              if (config?.direction === EBarDirection.VERTICAL || fullText !== displayText) {
-                axisLabelTooltip.content.innerText = fullText as string;
-                axisLabelTooltip.dom.style.opacity = '1';
-                axisLabelTooltip.dom.style.visibility = 'visible';
-                axisLabelTooltip.dom.style.zIndex = '9999';
+  //         handler: (params) => {
+  //           if (params.targetType === 'axisLabel') {
+  //             const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+  //             const ids = aggregatedData?.categories[params.value as string]?.ids ?? [];
+  //             if (event.shiftKey) {
+  //               const newSelectedSet = new Set(selectedList);
+  //               ids.forEach((id) => {
+  //                 if (newSelectedSet.has(id)) {
+  //                   newSelectedSet.delete(id);
+  //                 } else {
+  //                   newSelectedSet.add(id);
+  //                 }
+  //               });
+  //               const newSelectedList = [...newSelectedSet];
+  //               selectionCallback(event, [...new Set([...newSelectedList])]);
+  //             } else {
+  //               const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
+  //               selectionCallback(event, isSameBarClicked ? [] : ids);
+  //             }
+  //           }
+  //         },
+  //       },
+  //       {
+  //         query: { componentType: 'yAxis' },
+  //         handler: (params) => {
+  //           if (params.targetType === 'axisName' && params.componentType === 'yAxis') {
+  //             if (config?.direction === EBarDirection.HORIZONTAL) {
+  //               const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
+  //               setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+  //             }
+  //             if (config?.direction === EBarDirection.VERTICAL) {
+  //               const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
+  //               setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+  //             }
+  //           }
+  //         },
+  //       },
+  //       {
+  //         query: { componentType: 'xAxis' },
+  //         handler: (params) => {
+  //           if (params.targetType === 'axisName' && params.componentType === 'xAxis') {
+  //             if (config?.direction === EBarDirection.HORIZONTAL) {
+  //               const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
+  //               setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+  //             }
+  //             if (config?.direction === EBarDirection.VERTICAL) {
+  //               const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
+  //               setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
+  //             }
+  //           }
+  //         },
+  //       },
+  //     ],
+  //     mouseover: [
+  //       {
+  //         query:
+  //           config?.direction === EBarDirection.HORIZONTAL
+  //             ? { componentType: 'yAxis' }
+  //             : config?.direction === EBarDirection.VERTICAL
+  //               ? { componentType: 'xAxis' }
+  //               : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+  //         handler: (params) => {
+  //           if (params.targetType === 'axisLabel') {
+  //             const currLabel = params.event?.target;
+  //             const fullText = params.value;
+  //             const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
+  //             if (config?.direction === EBarDirection.VERTICAL || fullText !== displayText) {
+  //               axisLabelTooltip.content.innerText = fullText as string;
+  //               axisLabelTooltip.dom.style.opacity = '1';
+  //               axisLabelTooltip.dom.style.visibility = 'visible';
+  //               axisLabelTooltip.dom.style.zIndex = '9999';
 
-                const topOffset =
-                  config?.direction === EBarDirection.HORIZONTAL
-                    ? axisLabelTooltip.dom.offsetHeight * -1.5
-                    : config?.direction === EBarDirection.VERTICAL
-                      ? axisLabelTooltip.dom.offsetHeight * -1.25
-                      : 0;
-                const top = (currLabel?.transform[5] ?? 0) + topOffset;
-                const leftOffset =
-                  config?.direction === EBarDirection.HORIZONTAL
-                    ? axisLabelTooltip.dom.offsetWidth * -1
-                    : config?.direction === EBarDirection.VERTICAL
-                      ? axisLabelTooltip.dom.offsetWidth * -0.5
-                      : 0;
-                const left = Math.max((currLabel?.transform[4] ?? 0) + leftOffset, 0);
-                axisLabelTooltip.dom.style.top = `${top}px`;
-                axisLabelTooltip.dom.style.left = `${left}px`;
-              }
-            }
-          },
-        },
-      ],
-      mouseout: [
-        {
-          query:
-            config?.direction === EBarDirection.HORIZONTAL
-              ? { componentType: 'yAxis' }
-              : config?.direction === EBarDirection.VERTICAL
-                ? { componentType: 'xAxis' }
-                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
-          handler: (params) => {
-            if (params.targetType === 'axisLabel') {
-              axisLabelTooltip.dom.style.opacity = '0';
-              axisLabelTooltip.dom.style.visibility = 'hidden';
-              axisLabelTooltip.dom.style.zIndex = '-1';
-            }
-          },
-        },
-      ],
-    },
-  });
+  //               const topOffset =
+  //                 config?.direction === EBarDirection.HORIZONTAL
+  //                   ? axisLabelTooltip.dom.offsetHeight * -1.5
+  //                   : config?.direction === EBarDirection.VERTICAL
+  //                     ? axisLabelTooltip.dom.offsetHeight * -1.25
+  //                     : 0;
+  //               const top = (currLabel?.transform[5] ?? 0) + topOffset;
+  //               const leftOffset =
+  //                 config?.direction === EBarDirection.HORIZONTAL
+  //                   ? axisLabelTooltip.dom.offsetWidth * -1
+  //                   : config?.direction === EBarDirection.VERTICAL
+  //                     ? axisLabelTooltip.dom.offsetWidth * -0.5
+  //                     : 0;
+  //               const left = Math.max((currLabel?.transform[4] ?? 0) + leftOffset, 0);
+  //               axisLabelTooltip.dom.style.top = `${top}px`;
+  //               axisLabelTooltip.dom.style.left = `${left}px`;
+  //             }
+  //           }
+  //         },
+  //       },
+  //     ],
+  //     mouseout: [
+  //       {
+  //         query:
+  //           config?.direction === EBarDirection.HORIZONTAL
+  //             ? { componentType: 'yAxis' }
+  //             : config?.direction === EBarDirection.VERTICAL
+  //               ? { componentType: 'xAxis' }
+  //               : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
+  //         handler: (params) => {
+  //           if (params.targetType === 'axisLabel') {
+  //             axisLabelTooltip.dom.style.opacity = '0';
+  //             axisLabelTooltip.dom.style.visibility = 'hidden';
+  //             axisLabelTooltip.dom.style.zIndex = '-1';
+  //           }
+  //         },
+  //       },
+  //     ],
+  //   },
+  // });
+
+  // React.useEffect(() => {
+  //   if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
+  //     instance.getDom().appendChild(axisLabelTooltip.dom);
+  //   }
+  // }, [axisLabelTooltip.dom, instance]);
+
+  const canvasRef = React.useRef<HTMLCanvasElement>(null); // Store the HTMLCanvasElement
+  const workerRef = React.useRef<Worker | null>(null); // Store the Web Worker reference
+  const isTransferred = React.useRef(false); // Flag to prevent multiple transfers
 
   React.useEffect(() => {
-    if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
-      instance.getDom().appendChild(axisLabelTooltip.dom);
-    }
-  }, [axisLabelTooltip.dom, instance]);
+    if (canvasRef.current && !isEmpty(options.series) && !isTransferred.current) {
+      // Transfer control to an OffscreenCanvas
+      const offscreenCanvas = canvasRef.current.transferControlToOffscreen();
 
-  return options ? (
-    <Box
-      component="div"
-      pos="relative"
-      pr="xs"
-      ref={setRef}
-      style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
-    />
-  ) : null;
+      // Initialize the worker
+      const worker = new Worker(new URL('./worker.js', import.meta.url));
+      workerRef.current = worker;
+
+      // Transfer the OffscreenCanvas to the worker
+      workerRef.current.postMessage({ canvas: offscreenCanvas, options }, [offscreenCanvas]);
+
+      // Set flag to avoid re-transfer
+      isTransferred.current = true;
+    }
+    // Clean up when the component unmounts (terminate worker)
+    // return () => {
+    //   if (workerRef.current) {
+    //     // workerRef.current.terminate();
+    //     // workerRef.current = null;
+    //   }
+    // };
+  }, [options]); // Empty dependency array ensures this runs only on mount
+
+  return <canvas ref={canvasRef} width={`${Math.max(containerWidth, chartMinWidth)}px`} height={`${chartHeight + CHART_HEIGHT_MARGIN}px`} />;
+
+  //   component="div"
+  //   pos="relative"
+  //   pr="xs"
+  //   // ref={setRef}
+  //   style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
+  // />
 }
 
 export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);
