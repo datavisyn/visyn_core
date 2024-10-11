@@ -18,6 +18,7 @@ import type {
   GridComponentOption,
   DatasetComponentOption,
 } from 'echarts/components';
+import isEmpty from 'lodash/isEmpty';
 import { useSetRef } from '../../../hooks';
 
 export type ECOption = ComposeOption<
@@ -73,10 +74,12 @@ export function useChart({
   options,
   settings,
   mouseEvents,
+  canvas,
 }: {
   options?: ECOption;
   settings?: Parameters<ECharts['setOption']>[1];
   mouseEvents?: Partial<{ [K in ElementEventName]: CallbackArray | CallbackFunction | CallbackObject }>;
+  canvas?: HTMLCanvasElement;
 }) {
   const [state, setState] = useSetState({
     width: 0,
@@ -162,6 +165,34 @@ export function useChart({
       syncEvents(state.instance);
     }
   }, [state, options, settings]);
+
+  // const canvasRef = React.useRef<HTMLCanvasElement | undefined>(canvas); // Store the HTMLCanvasElement
+  // const workerRef = React.useRef<Worker | null>(null); // Store the Web Worker reference
+  // const isTransferred = React.useRef(false); // Flag to prevent multiple transfers
+
+  // React.useEffect(() => {
+  //   if (canvasRef.current && !isEmpty(options?.series) && !isTransferred.current) {
+  //     // Transfer control to an OffscreenCanvas
+  //     const offscreenCanvas = canvasRef.current.transferControlToOffscreen();
+
+  //     // Initialize the worker
+  //     const worker = new Worker(new URL('./worker.js', import.meta.url));
+  //     workerRef.current = worker;
+
+  //     // Transfer the OffscreenCanvas to the worker
+  //     workerRef.current.postMessage({ canvas: offscreenCanvas, options }, [offscreenCanvas]);
+
+  //     // Set flag to avoid re-transfer
+  //     isTransferred.current = true;
+  //   }
+  //   // Clean up when the component unmounts (terminate worker)
+  //   // return () => {
+  //   //   if (workerRef.current) {
+  //   //     // workerRef.current.terminate();
+  //   //     // workerRef.current = null;
+  //   //   }
+  //   // };
+  // }, [options]); // Empty dependency array ensures this runs only on mount
 
   return { ref, setRef, instance: state.instance };
 }

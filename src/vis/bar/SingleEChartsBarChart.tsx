@@ -862,9 +862,10 @@ function EagerSingleEChartsBarChart({
   //   }
   // }, [axisLabelTooltip.dom, instance]);
 
-  const canvasRef = React.useRef<HTMLCanvasElement>(null); // Store the HTMLCanvasElement
-  const workerRef = React.useRef<Worker | null>(null); // Store the Web Worker reference
-  const isTransferred = React.useRef(false); // Flag to prevent multiple transfers
+  const canvasRef = React.useRef<HTMLCanvasElement>(null); // Canvas ref
+  const workerRef = React.useRef<Worker | null>(null); // Worker ref
+  const isTransferred = React.useRef(false); // Transfer flag
+  const boxRef = React.useRef<HTMLDivElement>(null); // Div container ref
 
   React.useEffect(() => {
     if (canvasRef.current && !isEmpty(options.series) && !isTransferred.current) {
@@ -875,29 +876,42 @@ function EagerSingleEChartsBarChart({
       const worker = new Worker(new URL('./worker.js', import.meta.url));
       workerRef.current = worker;
 
-      // Transfer the OffscreenCanvas to the worker
-      workerRef.current.postMessage({ canvas: offscreenCanvas, options }, [offscreenCanvas]);
+      // Log canvas and options being sent to the worker
+      console.log('Sending to worker:', { canvas: offscreenCanvas, options, config });
 
-      // Set flag to avoid re-transfer
+      // Transfer the OffscreenCanvas to the worker
+      worker.postMessage({ type: 'init', canvas: offscreenCanvas, options, config }, [offscreenCanvas]);
+
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect;
+          console.log('Resizing canvas to:', { width, height });
+
+          // Send resize information to the worker
+          worker.postMessage({ type: 'resize', width, height, options, config }, []);
+        }
+      });
+
+      resizeObserver.observe(boxRef.current!);
+
+      // Mark the canvas as transferred to prevent multiple transfers
       isTransferred.current = true;
     }
-    // Clean up when the component unmounts (terminate worker)
+
+    // Clean up worker on component unmount
     // return () => {
     //   if (workerRef.current) {
-    //     // workerRef.current.terminate();
-    //     // workerRef.current = null;
+    //     workerRef.current.terminate();
+    //     workerRef.current = null;
     //   }
     // };
-  }, [options]); // Empty dependency array ensures this runs only on mount
+  }, [options, config]);
 
-  return <canvas ref={canvasRef} width={`${Math.max(containerWidth, chartMinWidth)}px`} height={`${chartHeight + CHART_HEIGHT_MARGIN}px`} />;
-
-  //   component="div"
-  //   pos="relative"
-  //   pr="xs"
-  //   // ref={setRef}
-  //   style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
-  // />
+  return (
+    <div ref={boxRef} style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}>
+      <canvas ref={canvasRef} style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }} />
+    </div>
+  );
 }
 
 export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);
