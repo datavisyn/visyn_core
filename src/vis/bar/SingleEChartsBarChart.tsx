@@ -209,8 +209,20 @@ function EagerSingleEChartsBarChart({
               if (config?.group) {
                 const label = `Group of ${config.group.name}`;
                 const sanitizedSeriesName = sanitize(params.seriesName as string);
-                const name = sanitizedSeriesName === SERIES_ZERO ? params.name : sanitizedSeriesName;
-                const color = sanitizedSeriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
+                const name =
+                  sanitizedSeriesName === SERIES_ZERO
+                    ? config?.group?.id === config?.facets?.id
+                      ? (selectedFacetValue as string)
+                      : params.name
+                    : sanitizedSeriesName;
+                const color =
+                  sanitizedSeriesName === NAN_REPLACEMENT
+                    ? VIS_NEUTRAL_COLOR
+                    : config?.group?.id === config?.facets?.id
+                      ? selectedFacetValue === NAN_REPLACEMENT
+                        ? VIS_NEUTRAL_COLOR
+                        : (groupColorScale?.(selectedFacetValue as string) ?? VIS_NEUTRAL_COLOR)
+                      : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
 
                 if (isGroupedByNumerical) {
                   if (sanitizedSeriesName === NAN_REPLACEMENT) {
@@ -277,17 +289,18 @@ function EagerSingleEChartsBarChart({
         group: config?.group,
       }) as BarSeriesOption,
     [
-      config?.aggregateColumn?.name,
-      config?.aggregateType,
-      config?.catColumnSelected,
-      config?.display,
-      config?.group,
-      config?.groupType,
-      config?.facets?.name,
       config?.useResponsiveBarWidth,
+      config?.catColumnSelected,
+      config?.group,
+      config?.facets?.name,
+      config?.facets?.id,
+      config?.aggregateType,
+      config?.aggregateColumn?.name,
+      config?.groupType,
+      config?.display,
+      selectedFacetValue,
       groupColorScale,
       isGroupedByNumerical,
-      selectedFacetValue,
     ],
   );
 
@@ -560,6 +573,7 @@ function EagerSingleEChartsBarChart({
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
       .map((g) => {
+        console.log({ g });
         return (['selected', 'unselected'] as const).map((s) => {
           const data = getDataForAggregationType(g, s);
 
@@ -582,7 +596,7 @@ function EagerSingleEChartsBarChart({
             label: {
               ...barSeriesBase.label,
               ...fixLabelColor,
-              show: !(config?.group && config?.groupType === EBarGroupingType.STACK && config?.group?.id === config?.facets?.id),
+              show: config?.group?.id === config?.facets?.id ? true : !(config?.group && config?.groupType === EBarGroupingType.STACK),
             },
             emphasis: {
               label: {

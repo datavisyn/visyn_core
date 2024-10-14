@@ -1,4 +1,3 @@
-import { median } from 'd3v7';
 import groupBy from 'lodash/groupBy';
 import round from 'lodash/round';
 import sort from 'lodash/sortBy';
@@ -9,6 +8,7 @@ import { EBarDisplayType, EBarGroupingType } from '../../enums';
 import { IBarConfig, IBarDataTableRow } from '../../interfaces';
 import { DEFAULT_FACET_NAME } from '../constants';
 import { AggregatedDataType } from '../types';
+import { median } from './median';
 
 export function generateAggregatedDataLookup(
   config: { isFaceted: boolean; groupType: EBarGroupingType; display: EBarDisplayType; aggregateType: EAggregateTypes },
@@ -263,34 +263,32 @@ export function generateAggregatedDataLookup(
             }
 
             case EAggregateTypes.MED: {
-              const selectedMedian = median(group?.selected.nums ?? []);
-              const unselectedMedian = median(group?.unselected.nums ?? []);
-              const max = round(
-                config.groupType === EBarGroupingType.STACK
-                  ? Math.max(
-                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
-                        const selectedStackMedian = median(g?.selected.nums ?? []) ?? 0;
-                        const unselectedStackMedian = median(g?.unselected.nums ?? []) ?? 0;
-                        return Math.max(acc + selectedStackMedian + unselectedStackMedian, acc);
-                      }, 0),
-                    )
-                  : Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max),
-                4,
-              );
-              const min = round(
-                config.groupType === EBarGroupingType.STACK
-                  ? Math.min(
-                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
-                        const selectedStackMedian = median(g?.selected.nums ?? []) ?? 0;
-                        const unselectedStackMedian = median(g?.unselected.nums ?? []) ?? 0;
-                        return Math.min(acc + selectedStackMedian + unselectedStackMedian, acc);
-                      }, 0),
-                    )
-                  : Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0),
-                4,
-              );
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
+              const selectedMedian = median(group?.selected.nums ?? []) ?? 0;
+              const unselectedMedian = median(group?.unselected.nums ?? []) ?? 0;
+
+              if (config.groupType === EBarGroupingType.STACK) {
+                const { max, min } = Object.values(category?.groups ?? {}).reduce(
+                  (acc, g) => {
+                    const selectedStackMedian = median(g?.selected.nums ?? []) ?? 0;
+                    const unselectedStackMedian = median(g?.unselected.nums ?? []) ?? 0;
+                    return {
+                      ...acc,
+                      max: Math.max(acc.max + selectedStackMedian + unselectedStackMedian, acc.max),
+                      min: Math.min(acc.min + selectedStackMedian + unselectedStackMedian, acc.min),
+                    };
+                  },
+                  { max: 0, min: 0 },
+                );
+                aggregated.globalDomain.max = Math.max(round(max, 4), aggregated.globalDomain.max, 0);
+                aggregated.globalDomain.min = Math.min(round(min, 4), aggregated.globalDomain.min, 0);
+                break;
+              } else if (config.groupType === EBarGroupingType.GROUP) {
+                const max = round(Math.max(Math.max(selectedMedian, unselectedMedian), aggregated.globalDomain.max), 4);
+                const min = round(Math.min(Math.max(selectedMedian, unselectedMedian), aggregated.globalDomain.min, 0), 4);
+                aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
+                aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
+                break;
+              }
               break;
             }
 
