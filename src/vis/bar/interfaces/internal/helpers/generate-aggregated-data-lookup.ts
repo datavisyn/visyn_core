@@ -134,37 +134,53 @@ export function generateAggregatedDataLookup(
             }
 
             case EAggregateTypes.AVG: {
-              const max =
+              const max = round(
                 config.groupType === EBarGroupingType.STACK
-                  ? round(
+                  ? Math.max(
                       Math.max(
-                        Math.max(
-                          Object.values(category?.groups ?? {}).reduce((acc, g) => acc + (g?.selected.sum ?? -Infinity) / (g?.selected.count || 1), 0),
-                          Object.values(category?.groups ?? {}).reduce((acc, g) => acc + (g?.unselected.sum ?? -Infinity) / (g?.unselected.count || 1), 0),
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.max(acc + (g?.selected.sum ?? -Infinity) / (g?.selected.count || 1), acc),
+                          0,
                         ),
-                        aggregated.globalDomain.max,
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.max(acc + (g?.unselected.sum ?? -Infinity) / (g?.unselected.count || 1), acc),
+                          0,
+                        ),
                       ),
-                      4,
+                      aggregated.globalDomain.max,
                     )
-                  : round(
+                  : Math.max(
                       Math.max(
-                        Math.max(
-                          (group?.selected.sum ?? -Infinity) / (group?.selected.count || 1),
-                          (group?.unselected.sum ?? -Infinity) / (group?.unselected.count || 1),
-                        ),
-                        aggregated.globalDomain.max,
+                        (group?.selected.sum ?? -Infinity) / (group?.selected.count || 1),
+                        (group?.unselected.sum ?? -Infinity) / (group?.unselected.count || 1),
                       ),
-                      4,
-                    );
+                      aggregated.globalDomain.max,
+                    ),
+                4,
+              );
               const min = round(
-                Math.min(
-                  Math.min(
-                    (group?.selected.sum ?? Infinity) / (group?.selected.count || 1),
-                    (group?.unselected.sum ?? Infinity) / (group?.unselected.count || 1),
-                  ),
-                  aggregated.globalDomain.min,
-                  0,
-                ),
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Math.min(
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.min(acc + (g?.selected.sum ?? -Infinity) / (g?.selected.count || 1), acc),
+                          0,
+                        ),
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.min(acc + (g?.unselected.sum ?? -Infinity) / (g?.unselected.count || 1), acc),
+                          0,
+                        ),
+                      ),
+                      aggregated.globalDomain.min,
+                    )
+                  : Math.min(
+                      Math.min(
+                        (group?.selected.sum ?? Infinity) / (group?.selected.count || 1),
+                        (group?.unselected.sum ?? Infinity) / (group?.unselected.count || 1),
+                      ),
+                      aggregated.globalDomain.min,
+                      0,
+                    ),
                 4,
               );
               aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
