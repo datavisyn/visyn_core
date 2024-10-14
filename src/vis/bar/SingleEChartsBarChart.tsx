@@ -572,9 +572,8 @@ function EagerSingleEChartsBarChart({
 
   const updateCategoriesSideEffect = React.useCallback(() => {
     const barSeries = (aggregatedData?.groupingsList ?? [])
-      .map((g) => {
-        console.log({ g });
-        return (['selected', 'unselected'] as const).map((s) => {
+      .map((g) =>
+        (['selected', 'unselected'] as const).map((s) => {
           const data = getDataForAggregationType(g, s);
 
           if (!data) {
@@ -623,8 +622,8 @@ function EagerSingleEChartsBarChart({
             // group = individual group names, stack = any fixed name
             stack: config?.groupType === EBarGroupingType.STACK ? 'total' : g,
           };
-        });
-      })
+        }),
+      )
       .flat()
       .filter(Boolean) as (BarSeriesOption & { categories: string[] })[];
 
