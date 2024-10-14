@@ -12,6 +12,16 @@ import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, SERIES_ZERO, sortSeries } from './interfaces/internal';
 
+function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
+  return `<div style="display: flex; gap: 8px">
+  <div><span>${label}:</span></div>
+  <div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px">
+    <div><span style="font-weight: bold">${value}</span></div>
+    ${color ? `<div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" />` : ''}
+  </div>
+</div>`;
+}
+
 function EagerSingleEChartsBarChart({
   aggregatedData,
   chartHeight,
@@ -130,6 +140,46 @@ function EagerSingleEChartsBarChart({
     [aggregatedData, config],
   );
 
+  const groupSortedSeries = React.useMemo(() => {
+    const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
+    const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
+      (acc, series) => {
+        if ((series as typeof series & { group: string }).group === NAN_REPLACEMENT) {
+          acc[1].push(series);
+        } else {
+          acc[0].push(series);
+        }
+        return acc;
+      },
+      [[] as BarSeriesOption[], [] as BarSeriesOption[]],
+    );
+    if (isGroupedByNumerical) {
+      if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
+        const namedKnownSeries = knownSeries.map((series) => {
+          const name = String((series as typeof series).data?.[0]);
+          const color = groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR;
+          return {
+            ...series,
+            name,
+            itemStyle: { color },
+          };
+        });
+        return [...namedKnownSeries, ...unknownSeries];
+      }
+
+      const sortedSeries = knownSeries.sort((a, b) => {
+        if (!(a as typeof a & { group: string }).group.includes(' to ')) {
+          return 0;
+        }
+        const [aMin, aMax] = (a as typeof a & { group: string }).group.split(' to ').map(Number);
+        const [bMin, bMax] = (b as typeof b & { group: string }).group.split(' to ').map(Number);
+        return (aMin as number) - (bMin as number) || (aMax as number) - (bMax as number);
+      });
+      return [...sortedSeries, ...unknownSeries];
+    }
+    return [...knownSeries, ...unknownSeries];
+  }, [groupColorScale, isGroupedByNumerical, visState.series]);
+
   // prepare data
   const barSeriesBase = React.useMemo(
     () =>
@@ -153,40 +203,51 @@ function EagerSingleEChartsBarChart({
             type: 'shadow',
           },
           formatter: (params) => {
-            const facetString = selectedFacetValue
-              ? `<div style="display: flex; gap: 8px"><div><span>Facet of ${config?.facets?.name}:</span></div><div><span style="font-weight: bold">${selectedFacetValue}</span></div></div>`
-              : '';
-            // NOTE: @dv-usama-ansari: Using IIFE here is more convenient
+            const facetString = selectedFacetValue ? generateHTMLString({ label: `Facet of ${config?.facets?.name}`, value: selectedFacetValue }) : '';
+
             const groupString = (() => {
               if (config?.group) {
-                // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which makes github confused.
-                const name = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
-                const color = params.seriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
+                const sanitizedSeriesName = sanitize(params.seriesName as string);
+                const name = sanitizedSeriesName === SERIES_ZERO ? params.name : sanitizedSeriesName;
+                const color = sanitizedSeriesName === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : (groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR);
+
                 if (isGroupedByNumerical) {
-                  if (params.seriesName === NAN_REPLACEMENT) {
-                    return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${name}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
+                  if (sanitizedSeriesName === NAN_REPLACEMENT) {
+                    return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
+                  }
+                  if (!name.includes(' to ')) {
+                    return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
                   }
                   const [min, max] = (name ?? '0 to 0').split(' to ');
-                  const formattedMin = new Intl.NumberFormat('en-US', {
-                    maximumFractionDigits: 4,
-                    maximumSignificantDigits: 4,
-                    notation: 'compact',
-                    compactDisplay: 'short',
-                  }).format(Number(min));
-                  const formattedMax = new Intl.NumberFormat('en-US', {
-                    maximumFractionDigits: 4,
-                    maximumSignificantDigits: 4,
-                    notation: 'compact',
-                    compactDisplay: 'short',
-                  }).format(Number(max));
-                  return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${formattedMin} to ${formattedMax}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
+                  if (!Number.isNaN(Number(min)) && !Number.isNaN(Number(max))) {
+                    const formattedMin = new Intl.NumberFormat('en-US', {
+                      maximumFractionDigits: 4,
+                      maximumSignificantDigits: 4,
+                      notation: 'compact',
+                      compactDisplay: 'short',
+                    }).format(Number(min));
+                    const formattedMax = new Intl.NumberFormat('en-US', {
+                      maximumFractionDigits: 4,
+                      maximumSignificantDigits: 4,
+                      notation: 'compact',
+                      compactDisplay: 'short',
+                    }).format(Number(max));
+                    return generateHTMLString({ label: `Group of ${config.group.name}`, value: `${formattedMin} to ${formattedMax}`, color });
+                  }
+                  return generateHTMLString({ label: `Group of ${config.group.name}`, value: params.value as string, color });
                 }
-                return `<div style="display: flex; gap: 8px"><div><span>Group of ${config?.group.name}:</span></div><div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;"><div><span style="font-weight: bold">${name}</span></div><div style="width: 12px; height: 12px; border-radius: 12px; background-color: ${color};" /></div></div>`;
+                return generateHTMLString({ label: `Group of ${config.group.name}`, value: name, color });
               }
               return '';
             })();
-            const aggregateString = `<div style="display: flex; gap: 8px"><div><span>${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}:</span></div><div><span style="font-weight: bold">${params.value}</span></div></div>`;
-            const categoryString = `<div style="display: flex; gap: 8px"><div><span>${config?.catColumnSelected?.name}:</span></div><div><span style="font-weight: bold">${params.name}</span></div></div>`;
+
+            const aggregateString = generateHTMLString({
+              label: config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`,
+              value: params.value as string,
+            });
+
+            const categoryString = generateHTMLString({ label: config?.catColumnSelected?.name as string, value: params.name });
+
             const tooltipGrid = `<div style="display: grid; grid-template-rows: 1fr">${categoryString}${aggregateString}${facetString}${groupString}</div>`;
             return tooltipGrid;
           },
@@ -273,14 +334,19 @@ function EagerSingleEChartsBarChart({
         icon: 'circle',
         show: !!config?.group,
         data: config?.group
-          ? (visState.series ?? []).map((seriesItem) => ({
-              name: seriesItem.name,
-              itemStyle: { color: seriesItem.name === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : groupColorScale?.(seriesItem.name as string) },
-            }))
+          ? groupSortedSeries.map((seriesItem) => {
+              return {
+                name: seriesItem.name,
+                itemStyle: { color: seriesItem.name === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : groupColorScale?.(seriesItem.name as string) },
+              };
+            })
           : [],
         formatter: (name: string) => {
           if (isGroupedByNumerical) {
             if (name === NAN_REPLACEMENT) {
+              return name;
+            }
+            if (!name.includes(' to ')) {
               return name;
             }
             const [min, max] = name.split(' to ');
@@ -312,9 +378,9 @@ function EagerSingleEChartsBarChart({
     containerWidth,
     gridLeft,
     groupColorScale,
+    groupSortedSeries,
     isGroupedByNumerical,
     selectedFacetValue,
-    visState.series,
   ]);
 
   const updateSortSideEffect = React.useCallback(
@@ -570,11 +636,11 @@ function EagerSingleEChartsBarChart({
   const options = React.useMemo(() => {
     return {
       ...optionBase,
-      ...(visState.series ? { series: visState.series } : {}),
+      series: groupSortedSeries,
       ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
       ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
     } as ECOption;
-  }, [visState.series, visState.xAxis, visState.yAxis, optionBase]);
+  }, [optionBase, groupSortedSeries, visState.xAxis, visState.yAxis]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   React.useEffect(() => {

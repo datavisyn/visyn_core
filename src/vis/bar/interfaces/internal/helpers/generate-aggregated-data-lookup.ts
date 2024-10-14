@@ -111,9 +111,9 @@ export function generateAggregatedDataLookup(
     });
   });
 
-  Object.keys(aggregated.facets).forEach((facet) => {
-    Object.keys(aggregated.facets[facet]?.categories ?? {}).forEach((category) => {
-      Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).forEach((group) => {
+  Object.values(aggregated.facets).forEach((facet) => {
+    Object.values(facet?.categories ?? {}).forEach((category) => {
+      Object.values(category?.groups ?? {}).forEach((group) => {
         if (config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED) {
           aggregated.globalDomain.min = 0;
           aggregated.globalDomain.max = 100;
@@ -122,155 +122,175 @@ export function generateAggregatedDataLookup(
             case EAggregateTypes.COUNT: {
               const max =
                 config.groupType === EBarGroupingType.STACK
-                  ? Math.max(aggregated.facets[facet]?.categories[category]?.total ?? -Infinity, aggregated.globalDomain.max)
-                  : Math.max(aggregated.facets[facet]?.categories[category]?.groups[group]?.total ?? -Infinity, aggregated.globalDomain.max);
+                  ? Math.max(category?.total ?? -Infinity, aggregated.globalDomain.max)
+                  : Math.max(group?.total ?? -Infinity, aggregated.globalDomain.max);
               const min =
                 config.groupType === EBarGroupingType.STACK
-                  ? Math.min(aggregated.facets[facet]?.categories[category]?.total ?? Infinity, aggregated.globalDomain.min, 0)
-                  : Math.min(aggregated.facets[facet]?.categories[category]?.groups[group]?.total ?? Infinity, aggregated.globalDomain.min, 0);
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
+                  ? Math.min(category?.total ?? Infinity, aggregated.globalDomain.min, 0)
+                  : Math.min(group?.total ?? Infinity, aggregated.globalDomain.min, 0);
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
             }
 
             case EAggregateTypes.AVG: {
-              const max =
+              const max = round(
                 config.groupType === EBarGroupingType.STACK
-                  ? round(
+                  ? Math.max(
                       Math.max(
-                        Math.max(
-                          Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce(
-                            (acc, key) =>
-                              acc +
-                              (aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.sum ?? -Infinity) /
-                                (aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.count || 1),
-                            0,
-                          ),
-                          Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce(
-                            (acc, key) =>
-                              acc +
-                              (aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.sum ?? -Infinity) /
-                                (aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.count || 1),
-                            0,
-                          ),
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.max(acc + (g?.selected.sum ?? -Infinity) / (g?.selected.count || 1), acc),
+                          0,
                         ),
-                        aggregated.globalDomain.max,
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.max(acc + (g?.unselected.sum ?? -Infinity) / (g?.unselected.count || 1), acc),
+                          0,
+                        ),
                       ),
-                      4,
+                      aggregated.globalDomain.max,
                     )
-                  : round(
+                  : Math.max(
                       Math.max(
-                        Math.max(
-                          (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.sum ?? -Infinity) /
-                            (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.count || 1),
-                          (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.sum ?? -Infinity) /
-                            (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.count || 1),
-                        ),
-                        aggregated.globalDomain.max,
+                        (group?.selected.sum ?? -Infinity) / (group?.selected.count || 1),
+                        (group?.unselected.sum ?? -Infinity) / (group?.unselected.count || 1),
                       ),
-                      4,
-                    );
-              const min = round(
-                Math.min(
-                  Math.min(
-                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.sum ?? Infinity) /
-                      (aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.count || 1),
-                    (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.sum ?? Infinity) /
-                      (aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.count || 1),
-                  ),
-                  aggregated.globalDomain.min,
-                  0,
-                ),
+                      aggregated.globalDomain.max,
+                    ),
                 4,
               );
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
+              const min = round(
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Math.min(
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.min(acc + (g?.selected.sum ?? -Infinity) / (g?.selected.count || 1), acc),
+                          0,
+                        ),
+                        Object.values(category?.groups ?? {}).reduce(
+                          (acc, g) => Math.min(acc + (g?.unselected.sum ?? -Infinity) / (g?.unselected.count || 1), acc),
+                          0,
+                        ),
+                      ),
+                      aggregated.globalDomain.min,
+                    )
+                  : Math.min(
+                      Math.min(
+                        (group?.selected.sum ?? Infinity) / (group?.selected.count || 1),
+                        (group?.unselected.sum ?? Infinity) / (group?.unselected.count || 1),
+                      ),
+                      aggregated.globalDomain.min,
+                      0,
+                    ),
+                4,
+              );
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
             }
 
             case EAggregateTypes.MIN: {
-              const max =
+              const max = round(
                 config.groupType === EBarGroupingType.STACK
                   ? Math.max(
-                      Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
-                        const selectedMin = aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.min ?? 0;
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedMin = g?.selected.min ?? 0;
                         const infiniteSafeSelectedMin = selectedMin === Infinity ? 0 : selectedMin;
-                        const unselectedMin = aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.min ?? 0;
+                        const unselectedMin = g?.unselected.min ?? 0;
                         const infiniteSafeUnselectedMin = unselectedMin === Infinity ? 0 : unselectedMin;
-                        return acc + infiniteSafeSelectedMin + infiniteSafeUnselectedMin;
+                        return Math.max(acc + infiniteSafeSelectedMin + infiniteSafeUnselectedMin, acc);
                       }, 0),
 
                       aggregated.globalDomain.max,
                     )
-                  : Math.max(
-                      Math.min(
-                        aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.min ?? Infinity,
-                        aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.min ?? Infinity,
-                      ),
-                      aggregated.globalDomain.max,
-                    );
-              const min = Math.min(
-                Math.min(
-                  aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.min ?? Infinity,
-                  aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.min ?? Infinity,
-                ),
-                aggregated.globalDomain.min,
-                0,
+                  : Math.max(Math.min(group?.selected.min ?? Infinity, group?.unselected.min ?? Infinity), aggregated.globalDomain.max),
+                4,
               );
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
+              const min = round(
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedMin = g?.selected.min ?? 0;
+                        const infiniteSafeSelectedMin = selectedMin === Infinity ? 0 : selectedMin;
+                        const unselectedMin = g?.unselected.min ?? 0;
+                        const infiniteSafeUnselectedMin = unselectedMin === Infinity ? 0 : unselectedMin;
+                        return Math.min(acc + infiniteSafeSelectedMin + infiniteSafeUnselectedMin, acc);
+                      }, 0),
+
+                      aggregated.globalDomain.min,
+                    )
+                  : Math.min(Math.min(group?.selected.min ?? Infinity, group?.unselected.min ?? Infinity), aggregated.globalDomain.min, 0),
+                4,
+              );
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
             }
 
             case EAggregateTypes.MAX: {
-              const max =
+              const max = round(
                 config.groupType === EBarGroupingType.STACK
                   ? Math.max(
-                      Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
-                        const selectedMax = aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.max ?? 0;
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedMax = g?.selected.max ?? 0;
                         const infiniteSafeSelectedMax = selectedMax === -Infinity ? 0 : selectedMax;
-                        const unselectedMax = aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.max ?? 0;
+                        const unselectedMax = g?.unselected.max ?? 0;
                         const infiniteSafeUnselectedMax = unselectedMax === -Infinity ? 0 : unselectedMax;
-                        return acc + infiniteSafeSelectedMax + infiniteSafeUnselectedMax;
+                        return Math.max(acc + infiniteSafeSelectedMax + infiniteSafeUnselectedMax, acc);
                       }, 0),
                       aggregated.globalDomain.max,
                     )
-                  : Math.max(
-                      Math.max(
-                        aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.max ?? -Infinity,
-                        aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.max ?? -Infinity,
-                      ),
-                      aggregated.globalDomain.max,
-                    );
-              const min = Math.min(
-                Math.max(
-                  aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.max ?? -Infinity,
-                  aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.max ?? -Infinity,
-                ),
-                aggregated.globalDomain.min,
-                0,
+                  : Math.max(Math.max(group?.selected.max ?? -Infinity, group?.unselected.max ?? -Infinity), aggregated.globalDomain.max),
+                4,
               );
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
+              const min = round(
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedMax = g?.selected.max ?? 0;
+                        const infiniteSafeSelectedMax = selectedMax === -Infinity ? 0 : selectedMax;
+                        const unselectedMax = g?.unselected.max ?? 0;
+                        const infiniteSafeUnselectedMax = unselectedMax === -Infinity ? 0 : unselectedMax;
+                        return Math.min(acc + infiniteSafeSelectedMax + infiniteSafeUnselectedMax, acc);
+                      }, 0),
+                      aggregated.globalDomain.min,
+                    )
+                  : Math.min(Math.max(group?.selected.max ?? -Infinity, group?.unselected.max ?? -Infinity), aggregated.globalDomain.min, 0),
+                4,
+              );
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
             }
 
             case EAggregateTypes.MED: {
-              const selectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.selected.nums ?? []);
-              const unselectedMedian = median(aggregated.facets[facet]?.categories[category]?.groups[group]?.unselected.nums ?? []);
-              const max =
+              const selectedMedian = median(group?.selected.nums ?? []);
+              const unselectedMedian = median(group?.unselected.nums ?? []);
+              const max = round(
                 config.groupType === EBarGroupingType.STACK
                   ? Math.max(
-                      Object.keys(aggregated.facets[facet]?.categories[category]?.groups ?? {}).reduce((acc, key) => {
-                        const selectedStackMedian = median(aggregated.facets[facet]?.categories[category]?.groups[key]?.selected.nums ?? []) ?? 0;
-                        const unselectedStackMedian = median(aggregated.facets[facet]?.categories[category]?.groups[key]?.unselected.nums ?? []) ?? 0;
-                        return acc + selectedStackMedian + unselectedStackMedian;
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedStackMedian = median(g?.selected.nums ?? []) ?? 0;
+                        const unselectedStackMedian = median(g?.unselected.nums ?? []) ?? 0;
+                        return Math.max(acc + selectedStackMedian + unselectedStackMedian, acc);
                       }, 0),
                     )
-                  : Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max);
-              const min = Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0);
-              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max);
-              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min);
+                  : Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max),
+                4,
+              );
+              const min = round(
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedStackMedian = median(g?.selected.nums ?? []) ?? 0;
+                        const unselectedStackMedian = median(g?.unselected.nums ?? []) ?? 0;
+                        return Math.min(acc + selectedStackMedian + unselectedStackMedian, acc);
+                      }, 0),
+                    )
+                  : Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0),
+                4,
+              );
+              aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
+              aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
             }
 
