@@ -51,8 +51,8 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
           link.remove();
         } else {
           const zip = new JSZip();
-          const boxList = plotElement.querySelectorAll('[data-in-viewport]') as NodeListOf<HTMLDivElement>;
-          const canvasList = plotElement.querySelectorAll('[data-in-viewport] canvas') as NodeListOf<HTMLCanvasElement>;
+          const boxList = plotElement.querySelectorAll('[data-facet]') as NodeListOf<HTMLDivElement>;
+          const canvasList = plotElement.querySelectorAll('[data-facet] canvas') as NodeListOf<HTMLCanvasElement>;
           const blobList = await Promise.all(
             Array.from(canvasList).map(async (canvas) => {
               const blob = await htmlToImage.toBlob(canvas, {
