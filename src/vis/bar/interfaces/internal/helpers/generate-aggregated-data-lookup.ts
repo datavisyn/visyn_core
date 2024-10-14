@@ -1,4 +1,3 @@
-import { median } from 'd3v7';
 import groupBy from 'lodash/groupBy';
 import round from 'lodash/round';
 import sort from 'lodash/sortBy';
@@ -9,6 +8,7 @@ import { EBarDisplayType, EBarGroupingType } from '../../enums';
 import { IBarConfig, IBarDataTableRow } from '../../interfaces';
 import { DEFAULT_FACET_NAME } from '../constants';
 import { AggregatedDataType } from '../types';
+import { median } from './median';
 
 export function generateAggregatedDataLookup(
   config: { isFaceted: boolean; groupType: EBarGroupingType; display: EBarDisplayType; aggregateType: EAggregateTypes },
