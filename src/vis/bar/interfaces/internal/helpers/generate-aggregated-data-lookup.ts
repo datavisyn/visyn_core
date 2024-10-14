@@ -181,7 +181,7 @@ export function generateAggregatedDataLookup(
                         const infiniteSafeSelectedMin = selectedMin === Infinity ? 0 : selectedMin;
                         const unselectedMin = g?.unselected.min ?? 0;
                         const infiniteSafeUnselectedMin = unselectedMin === Infinity ? 0 : unselectedMin;
-                        return acc + infiniteSafeSelectedMin + infiniteSafeUnselectedMin;
+                        return Math.max(acc + infiniteSafeSelectedMin + infiniteSafeUnselectedMin, acc);
                       }, 0),
 
                       aggregated.globalDomain.max,
@@ -189,7 +189,22 @@ export function generateAggregatedDataLookup(
                   : Math.max(Math.min(group?.selected.min ?? Infinity, group?.unselected.min ?? Infinity), aggregated.globalDomain.max),
                 4,
               );
-              const min = round(Math.min(Math.min(group?.selected.min ?? Infinity, group?.unselected.min ?? Infinity), aggregated.globalDomain.min, 0), 4);
+              const min = round(
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedMin = g?.selected.min ?? 0;
+                        const infiniteSafeSelectedMin = selectedMin === Infinity ? 0 : selectedMin;
+                        const unselectedMin = g?.unselected.min ?? 0;
+                        const infiniteSafeUnselectedMin = unselectedMin === Infinity ? 0 : unselectedMin;
+                        return Math.min(acc + infiniteSafeSelectedMin + infiniteSafeUnselectedMin, acc);
+                      }, 0),
+
+                      aggregated.globalDomain.min,
+                    )
+                  : Math.min(Math.min(group?.selected.min ?? Infinity, group?.unselected.min ?? Infinity), aggregated.globalDomain.min, 0),
+                4,
+              );
               aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
               aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
@@ -204,14 +219,28 @@ export function generateAggregatedDataLookup(
                         const infiniteSafeSelectedMax = selectedMax === -Infinity ? 0 : selectedMax;
                         const unselectedMax = g?.unselected.max ?? 0;
                         const infiniteSafeUnselectedMax = unselectedMax === -Infinity ? 0 : unselectedMax;
-                        return acc + infiniteSafeSelectedMax + infiniteSafeUnselectedMax;
+                        return Math.max(acc + infiniteSafeSelectedMax + infiniteSafeUnselectedMax, acc);
                       }, 0),
                       aggregated.globalDomain.max,
                     )
                   : Math.max(Math.max(group?.selected.max ?? -Infinity, group?.unselected.max ?? -Infinity), aggregated.globalDomain.max),
                 4,
               );
-              const min = round(Math.min(Math.max(group?.selected.max ?? -Infinity, group?.unselected.max ?? -Infinity), aggregated.globalDomain.min, 0), 4);
+              const min = round(
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedMax = g?.selected.max ?? 0;
+                        const infiniteSafeSelectedMax = selectedMax === -Infinity ? 0 : selectedMax;
+                        const unselectedMax = g?.unselected.max ?? 0;
+                        const infiniteSafeUnselectedMax = unselectedMax === -Infinity ? 0 : unselectedMax;
+                        return Math.min(acc + infiniteSafeSelectedMax + infiniteSafeUnselectedMax, acc);
+                      }, 0),
+                      aggregated.globalDomain.min,
+                    )
+                  : Math.min(Math.max(group?.selected.max ?? -Infinity, group?.unselected.max ?? -Infinity), aggregated.globalDomain.min, 0),
+                4,
+              );
               aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
               aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
@@ -226,13 +255,24 @@ export function generateAggregatedDataLookup(
                       Object.values(category?.groups ?? {}).reduce((acc, g) => {
                         const selectedStackMedian = median(g?.selected.nums ?? []) ?? 0;
                         const unselectedStackMedian = median(g?.unselected.nums ?? []) ?? 0;
-                        return acc + selectedStackMedian + unselectedStackMedian;
+                        return Math.max(acc + selectedStackMedian + unselectedStackMedian, acc);
                       }, 0),
                     )
                   : Math.max(Math.max(selectedMedian ?? -Infinity, unselectedMedian ?? -Infinity), aggregated.globalDomain.max),
                 4,
               );
-              const min = round(Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0), 4);
+              const min = round(
+                config.groupType === EBarGroupingType.STACK
+                  ? Math.min(
+                      Object.values(category?.groups ?? {}).reduce((acc, g) => {
+                        const selectedStackMedian = median(g?.selected.nums ?? []) ?? 0;
+                        const unselectedStackMedian = median(g?.unselected.nums ?? []) ?? 0;
+                        return Math.min(acc + selectedStackMedian + unselectedStackMedian, acc);
+                      }, 0),
+                    )
+                  : Math.min(Math.min(selectedMedian ?? Infinity, unselectedMedian ?? Infinity), aggregated.globalDomain.min, 0),
+                4,
+              );
               aggregated.globalDomain.max = Math.max(max, aggregated.globalDomain.max, 0);
               aggregated.globalDomain.min = Math.min(min, aggregated.globalDomain.min, 0);
               break;
