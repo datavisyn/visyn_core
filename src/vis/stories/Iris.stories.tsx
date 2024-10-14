@@ -69,11 +69,7 @@ BarChart.args = {
     display: EBarDisplayType.ABSOLUTE,
     groupType: EBarGroupingType.GROUP,
     numColumnsSelected: [],
-    catColumnSelected: {
-      description: '',
-      id: 'randomThing',
-      name: 'Random Thing',
-    },
+    catColumnSelected: null,
     aggregateColumn: null,
     aggregateType: EAggregateTypes.COUNT,
   } as BaseVisConfig,
