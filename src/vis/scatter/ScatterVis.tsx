@@ -145,7 +145,10 @@ function useLayout({
         });
       });
 
-      const nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
+      let nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
+      if (nColumns > subplots.xyPairs.length) {
+        nColumns = subplots.xyPairs.length;
+      }
       // round up to the number of rows required, otherwise, we get chart overlap
       const nRows = Math.ceil(subplots.xyPairs.length / nColumns);
 
@@ -264,7 +267,10 @@ function useLayout({
         });
       });
 
-      const nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
+      let nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
+      if (nColumns > facet.resultData.length) {
+        nColumns = facet.resultData.length;
+      }
       // round up to the number of rows required, otherwise, we get chart overlap
       const nRows = Math.ceil(facet.resultData.length / nColumns);
 
@@ -386,11 +392,9 @@ function useData({
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
                   text: subplots.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
-                  // textposition: 'top center',
                 }
               : {
                   text: subplots.text.map((t, i) => (selectedList.includes(subplots.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
-                  // textposition: 'top center',
                 }),
           hovertext: subplots.ids.map((p_id, index) =>
             `${value.idToLabelMapper(p_id)}
