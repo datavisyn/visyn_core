@@ -448,13 +448,13 @@ export function ScatterVis({
       ) : null}
 
       {status === 'success' && layout && config?.showLegend === undefined ? (
-        <div>
+        <div style={{ gridArea: 'corner', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 40 }}>
           <Tooltip label="Toggle legend" refProp="rootRef">
             <Switch
               styles={{ label: { paddingLeft: '5px' } }}
               size="xs"
               disabled={legendData === undefined}
-              style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
+              style={{ position: 'absolute', right: 52, top: 18, zIndex: 99 }}
               defaultChecked
               label="Legend"
               onChange={() => {
