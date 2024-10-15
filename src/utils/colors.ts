@@ -1,5 +1,5 @@
 // categorical color map
-export const categoricalColors = ['#337AB7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044', '#7b7b7b'];
+export const categoricalColors = ['#337AB7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044'];
 
 // sequential color map blue
 export const sequentialBlueColors = ['#cff6ff', '#b0d6fe', '#93b9e8', '#779ecb', '#5c84af', '#406a94', '#23527a', '#023a60', '#002245'];
