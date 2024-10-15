@@ -68,7 +68,7 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
           );
           blobList.forEach((blob, i) => {
             if (blob) {
-              const fileName = `${sanitize(config?.facets?.name as string)}: ${sanitize(boxList[i]?.dataset?.facet as string)} | ${config?.aggregateType === EAggregateTypes.COUNT ? sanitize(config?.aggregateType as string) : sanitize(`${config?.aggregateType} of ${config?.aggregateColumn?.name}`)}: ${sanitize(config?.catColumnSelected?.name as string)}`;
+              const fileName = `${sanitize(config?.facets?.name as string)} - ${sanitize(boxList[i]?.dataset?.facet as string)} -- ${config?.aggregateType === EAggregateTypes.COUNT ? sanitize(config?.aggregateType as string) : sanitize(`${config?.aggregateType} of ${config?.aggregateColumn?.name}`)} - ${sanitize(config?.catColumnSelected?.name as string)}`;
               zip.file(`${fileName}.png`, blob);
             }
           });
