@@ -45,6 +45,7 @@ describe('Generate aggregated data lookup', () => {
   it('should return an instance of object', async () => {
     const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
       isFaceted: !!config.facets,
+      isGrouped: !!config.group,
       aggregateType: config.aggregateType,
       display: config.display,
       groupType: config.groupType,
@@ -58,6 +59,7 @@ describe('Generate aggregated data lookup', () => {
   it('should return aggregated lookup of breast cancer data', async () => {
     const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
       isFaceted: !!config.facets,
+      isGrouped: !!config.group,
       aggregateType: config.aggregateType,
       display: config.display,
       groupType: config.groupType,
@@ -88,6 +90,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with AVERAGE aggregate type', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: !!config.group,
         aggregateType: EAggregateTypes.AVG,
         display: config.display,
         groupType: config.groupType,
@@ -107,6 +110,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MINIMUM aggregate type', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: !!config.group,
         aggregateType: EAggregateTypes.MIN,
         display: config.display,
         groupType: config.groupType,
@@ -126,6 +130,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: !!config.group,
         aggregateType: EAggregateTypes.MAX,
         display: config.display,
         groupType: config.groupType,
@@ -145,6 +150,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MEDIAN aggregate type', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: !!config.group,
         aggregateType: EAggregateTypes.MED,
         display: config.display,
         groupType: config.groupType,
@@ -166,6 +172,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with COUNT aggregate type and stacked data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: config.aggregateType,
         display: config.display,
         groupType: config.groupType,
@@ -202,6 +209,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with COUNT aggregate type and grouped data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: config.aggregateType,
         display: config.display,
         groupType: config.groupType,
@@ -239,6 +247,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with AVERAGE aggregate type and stacked data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.AVG,
         display: config.display,
         groupType: config.groupType,
@@ -259,6 +268,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with AVERAGE aggregate type and grouped data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.AVG,
         display: config.display,
         groupType: EBarGroupingType.GROUP,
@@ -280,6 +290,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MINIMUM aggregate type and stacked data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.MIN,
         display: config.display,
         groupType: config.groupType,
@@ -300,6 +311,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MINIMUM aggregate type and grouped data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.MIN,
         display: config.display,
         groupType: EBarGroupingType.GROUP,
@@ -321,6 +333,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type and stacked data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.MAX,
         display: config.display,
         groupType: config.groupType,
@@ -341,6 +354,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type and grouped data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.MAX,
         display: config.display,
         groupType: EBarGroupingType.GROUP,
@@ -362,6 +376,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MEDIAN aggregate type and stacked data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.MED,
         display: config.display,
         groupType: config.groupType,
@@ -382,6 +397,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for a column with MEDIAN aggregate type and grouped data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: !!config.facets,
+        isGrouped: true,
         aggregateType: EAggregateTypes.MED,
         display: config.display,
         groupType: EBarGroupingType.GROUP,
@@ -403,6 +419,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for SAME group and facet columns', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: true,
+        isGrouped: true,
         aggregateType: config.aggregateType,
         display: config.display,
         groupType: EBarGroupingType.GROUP,
@@ -427,6 +444,7 @@ describe('Generate aggregated data lookup', () => {
     it('should return the correct aggregate values and global domain for grouped and faceted data', async () => {
       const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         isFaceted: true,
+        isGrouped: true,
         aggregateType: config.aggregateType,
         display: config.display,
         groupType: config.groupType,

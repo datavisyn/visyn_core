@@ -93,6 +93,7 @@ export function BarChart({
       generateAggregatedDataLookup(
         {
           isFaceted: !!config?.facets?.id,
+          isGrouped: !!config?.group?.id,
           groupType: config?.groupType as EBarGroupingType,
           display: config?.display as EBarDisplayType,
           aggregateType: config?.aggregateType as EAggregateTypes,
@@ -100,7 +101,7 @@ export function BarChart({
         dataTable,
         selectedMap,
       ),
-    [config?.aggregateType, config?.display, config?.facets?.id, config?.groupType, dataTable, selectedMap],
+    [config?.aggregateType, config?.display, config?.facets?.id, config?.group?.id, config?.groupType, dataTable, selectedMap],
   );
 
   const groupColorScale = React.useMemo(() => {
