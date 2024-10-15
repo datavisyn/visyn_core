@@ -1,6 +1,6 @@
 import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
-import { scaleOrdinal, schemeBlues } from 'd3v7';
+import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import zipWith from 'lodash/zipWith';
 import * as React from 'react';
@@ -25,6 +25,27 @@ import {
   getBarData,
 } from './interfaces/internal';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
+
+type VirtualizedBarChartProps = {
+  aggregatedDataMap: ReturnType<typeof generateAggregatedDataLookup>;
+  allUniqueFacetVals: string[];
+  chartHeightMap: Record<string, number>;
+  chartMinWidthMap: Record<string, number>;
+  containerHeight: number;
+  containerWidth: number;
+  config: IBarConfig;
+  filteredUniqueFacetVals: string[];
+  groupColorScale: ScaleOrdinal<string, string>;
+  isGroupedByNumerical: boolean;
+  labelsMap: Record<string, string>;
+  longestLabelWidth: number;
+  selectedFacetIndex?: number;
+  selectedFacetValue?: string;
+  selectedList: string[];
+  selectedMap: Record<string, boolean>;
+  selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
+  setConfig: (config: IBarConfig) => void;
+};
 
 export function BarChart({
   config,
@@ -186,24 +207,25 @@ export function BarChart({
   const isGroupedByNumerical = React.useMemo(() => allColumns?.groupColVals?.type === EColumnTypes.NUMERICAL, [allColumns?.groupColVals?.type]);
 
   const itemData = React.useMemo(
-    () => ({
-      aggregatedDataMap,
-      allUniqueFacetVals,
-      chartHeightMap,
-      chartMinWidthMap,
-      config,
-      containerHeight,
-      containerWidth,
-      filteredUniqueFacetVals,
-      groupColorScale,
-      isGroupedByNumerical,
-      labelsMap,
-      longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
-      selectedList,
-      selectedMap,
-      customSelectionCallback,
-      setConfig,
-    }),
+    () =>
+      ({
+        aggregatedDataMap,
+        allUniqueFacetVals,
+        chartHeightMap,
+        chartMinWidthMap,
+        config: config!,
+        containerHeight,
+        containerWidth,
+        filteredUniqueFacetVals: filteredUniqueFacetVals as string[],
+        groupColorScale: groupColorScale!,
+        isGroupedByNumerical,
+        labelsMap,
+        longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
+        selectedList: selectedList!,
+        selectedMap: selectedMap!,
+        selectionCallback: customSelectionCallback,
+        setConfig: setConfig!,
+      }) satisfies VirtualizedBarChartProps,
     [
       aggregatedDataMap,
       allUniqueFacetVals,
@@ -228,14 +250,13 @@ export function BarChart({
   }, []);
 
   const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
-    const multiplesVal = props.data.filteredUniqueFacetVals?.[props.index];
-
+    const facet = props.data.filteredUniqueFacetVals?.[props.index] as string;
     return (
-      <Box component="div" style={{ ...props.style, padding: '10px 0px' }}>
+      <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
         <SingleEChartsBarChart
-          aggregatedData={props.data.aggregatedDataMap?.facets[multiplesVal as string] as AggregatedDataType}
-          chartHeight={props.data.chartHeightMap[multiplesVal as string] ?? DEFAULT_BAR_CHART_HEIGHT}
-          chartMinWidth={props.data.chartMinWidthMap[multiplesVal as string] ?? DEFAULT_BAR_CHART_MIN_WIDTH}
+          aggregatedData={props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType}
+          chartHeight={props.data.chartHeightMap[facet as string] ?? DEFAULT_BAR_CHART_HEIGHT}
+          chartMinWidth={props.data.chartMinWidthMap[facet as string] ?? DEFAULT_BAR_CHART_MIN_WIDTH}
           containerWidth={props.data.containerWidth}
           config={props.data.config}
           globalMax={props.data.aggregatedDataMap?.globalDomain.max}
@@ -244,11 +265,11 @@ export function BarChart({
           isGroupedByNumerical={props.data.isGroupedByNumerical}
           labelsMap={props.data.labelsMap}
           longestLabelWidth={props.data.longestLabelWidth}
-          selectedFacetIndex={multiplesVal ? props.data.allUniqueFacetVals.indexOf(multiplesVal) : undefined} // use the index of the original list to return back to the grid
-          selectedFacetValue={multiplesVal}
+          selectedFacetIndex={facet ? props.data.allUniqueFacetVals.indexOf(facet) : undefined} // use the index of the original list to return back to the grid
+          selectedFacetValue={facet}
           selectedList={props.data.selectedList}
           selectedMap={props.data.selectedMap}
-          selectionCallback={props.data.customSelectionCallback}
+          selectionCallback={props.data.selectionCallback}
           setConfig={props.data.setConfig}
         />
       </Box>
