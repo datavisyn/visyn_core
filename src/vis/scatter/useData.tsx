@@ -50,7 +50,6 @@ export function useData({
   splom,
   subplots,
   selectedList,
-  colorScale,
   shapeScale,
   mappingFunction,
 }: {
@@ -62,9 +61,7 @@ export function useData({
   splom?: ReturnType<typeof useDataPreparation>['splom'];
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
   selectedList: string[];
-  colorScale: d3v7.ScaleLinear<string, number>;
   shapeScale: (val: string) => string;
-  legendData: PlotlyTypes.Data[];
   mappingFunction?: (val: string | number) => string;
 }) {
   return React.useMemo<PlotlyTypes.Data[]>(() => {

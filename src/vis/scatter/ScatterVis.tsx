@@ -416,7 +416,6 @@ export function ScatterVis({
     splom,
     selectedList,
     subplots,
-    colorScale,
     shapeScale,
     mappingFunction: legendData?.color.mappingFunction,
   });
