@@ -65,6 +65,7 @@ function EagerSingleEChartsBarChart({
 
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
 
+  // TODO: @dv-usama-ansari: This should be moved to a pure function so that it could be unit tested.
   const getDataForAggregationType = React.useCallback(
     (group: string, selected: 'selected' | 'unselected') => {
       if (aggregatedData) {
