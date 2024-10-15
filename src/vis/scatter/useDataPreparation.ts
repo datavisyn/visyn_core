@@ -7,7 +7,7 @@ import { FetchColumnDataResult } from './utils';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { PlotlyTypes } from '../../plotly';
 import { getCssValue } from '../../utils/getCssValue';
-import { ENumericalColorScaleType } from '../interfaces';
+import { EColumnTypes, ENumericalColorScaleType } from '../interfaces';
 
 export function useDataPreparation({
   status,
