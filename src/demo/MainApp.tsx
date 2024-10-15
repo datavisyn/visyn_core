@@ -15,12 +15,9 @@ import {
   IBarConfig,
   Vis,
 } from '../vis';
-import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
-import { fetchTestData, generateTestData } from '../vis/stories/explodedData';
 import { breastCancerData } from '../vis/stories/breastCancerData';
 import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
-
-const testData = generateTestData(1000);
+import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
