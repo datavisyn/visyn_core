@@ -1,6 +1,7 @@
 export * from './useBandScale';
 export * from './usePan';
 export * from './useTransformScale';
+export * from './useAnimatedTransform';
 export * from './useZoom';
 export * from './useWheel';
 export * from './useInteractions';
