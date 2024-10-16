@@ -131,17 +131,32 @@ export function BarChart({
     }
 
     const groups =
-      aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
-        ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
-        : config?.group?.id === config?.facets?.id
-          ? (aggregatedDataMap?.facetsList ?? [])
-          : [
-              ...new Set(
-                Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
-                  return facet.groupingsList;
+      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+        ? [
+            ...new Set(
+              Object.values(aggregatedDataMap?.facets ?? {})
+                .flatMap((facet) => facet.groupingsList)
+                .sort((a, b) => {
+                  const [minA] = a.split(' to ');
+                  const [minB] = b.split(' to ');
+                  if (minA && minB) {
+                    return Number(minA) - Number(minB);
+                  }
+                  return 0;
                 }),
-              ),
-            ];
+            ),
+          ]
+        : aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
+          ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
+          : config?.group?.id === config?.facets?.id
+            ? (aggregatedDataMap?.facetsList ?? [])
+            : [
+                ...new Set(
+                  Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
+                    return facet.groupingsList;
+                  }),
+                ),
+              ];
 
     const maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc: number, facet) => Math.max(acc, facet.groupingsList.length), 0);
 
