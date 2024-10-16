@@ -41,12 +41,12 @@ import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
 import { ISankeyConfig } from './sankey/interfaces';
 import { sankeyMergeDefaultConfig } from './sankey/utils';
 import { scatterMergeDefaultConfig } from './scatter';
-import { ScatterVis } from './scatter/ScatterVis';
 import { ScatterVisSidebar } from './scatter/ScatterVisSidebar';
 import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
+import { ScatterVis } from './scatter/ScatterVis';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -280,28 +280,6 @@ export function EagerVis({
     return currMap;
   }, [selected]);
 
-  const scales: Scales = React.useMemo(
-    () => ({
-      color: d3v7
-        .scaleOrdinal()
-        .range(
-          colors || [
-            getCssValue('visyn-c1'),
-            getCssValue('visyn-c2'),
-            getCssValue('visyn-c3'),
-            getCssValue('visyn-c4'),
-            getCssValue('visyn-c5'),
-            getCssValue('visyn-c6'),
-            getCssValue('visyn-c7'),
-            getCssValue('visyn-c8'),
-            getCssValue('visyn-c9'),
-            getCssValue('visyn-c10'),
-          ],
-        ),
-    }),
-    [colors],
-  );
-
   const commonProps = {
     showSidebar,
     setShowSidebar,
@@ -363,7 +341,6 @@ export function EagerVis({
               selectedMap={selectedMap}
               selectedList={selected}
               columns={columns}
-              scales={scales}
               showSidebar={showSidebar}
               showCloseButton={showCloseButton}
               closeButtonCallback={closeCallback}

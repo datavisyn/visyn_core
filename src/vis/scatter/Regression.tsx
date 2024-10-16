@@ -26,6 +26,7 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
         <Select
           data-testid="RegressionLineSelect"
           searchable
+          clearable
           label={
             <HelpHoverCard
               title={
@@ -100,8 +101,8 @@ export function RegressionLineOptions({ callback, currentSelected, showColorPick
  * @return {number} - The r^2 value, or NaN if one cannot be calculated.
  */
 function determinationCoefficient(data: RegressionData, results: RegressionData) {
-  const predictions = [];
-  const observations = [];
+  const predictions: number[][] = [];
+  const observations: number[][] = [];
 
   data.forEach((d, i) => {
     if (d[1] !== null) {
@@ -236,7 +237,7 @@ const methods = {
       stats: {
         r2: round(r2, options.precision),
         n: len,
-        pValue: Number.isNaN(pValue) ? null : pValue,
+        pValue: Number.isNaN(pValue) ? undefined : pValue,
       },
       equation: intercept === 0 ? `y = ${gradient}x` : `y = ${gradient}x + ${intercept}`,
       svgPath: `M ${min} ${predict(min)[1]} L ${max} ${predict(max)[1]}`,
@@ -315,7 +316,7 @@ const methods = {
       .join(' ');
 
     const r2 = determinationCoefficient(data, points);
-    const pValue = null; // did not define p-value for exponential regression
+    const pValue: number = null; // did not define p-value for exponential regression
 
     return {
       stats: {
@@ -335,27 +336,26 @@ const regressionMethodsMapping = {
 };
 
 export const fitRegressionLine = (
-  data: Partial<Plotly.PlotData>,
+  data: { x: number[]; y: number[] },
   method: ERegressionLineType,
+  xref: string,
+  yref: string,
   options: IRegressionFitOptions = DEFAULT_CURVE_FIT_OPTIONS,
 ): IRegressionResult => {
   // Filter out null or undefined values (equivalent to pd.dropna())
-  const filteredPairs = (data.x as number[]).map((value, index) => ({ x: value, y: data.y[index] })).filter((pair) => pair.x != null && pair.y != null);
-  const x = filteredPairs.map((pair) => pair.x);
-  const y = filteredPairs.map((pair) => pair.y);
+  const pearsonRho = round(corrcoeff(data.x, data.y), options.precision);
+  const spearmanRho = round(spearmancoeff(data.x, data.y), options.precision);
+  const fnc = method === ERegressionLineType.LINEAR ? methods.linear : methods.polynomial;
 
-  const pearsonRho = round(corrcoeff(x, y), options.precision);
-  const spearmanRho = round(spearmancoeff(x, y), options.precision);
-  const regressionResult = regressionMethodsMapping[method]
-    ? methods[regressionMethodsMapping[method]](
-        x.map((val, i) => [val, y[i]]),
-        options,
-      )
-    : null;
+  const regressionResult = fnc(
+    data.x.map((val, i) => [val, data.y[i]!]),
+    options,
+  );
+
   return {
     ...regressionResult,
     stats: { ...regressionResult.stats, pearsonRho, spearmanRho },
-    xref: data.xaxis,
-    yref: data.yaxis,
+    xref,
+    yref,
   };
 };

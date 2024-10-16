@@ -13,11 +13,11 @@ export function getLabelOrUnknown(label: string | number | null | undefined, unk
     notation: 'compact',
     compactDisplay: 'short',
   });
-  return [null, 'null', undefined, 'undefined', ''].includes(label as string)
+  return label === null || label === 'null' || label === undefined || label === 'undefined' || label === ''
     ? unknownLabel
-    : Number.isNaN(Number(label))
-      ? (label as string)
-      : formatter.format(label as number);
+    : Number(label) && !Number.isInteger(label) // if it is a number, but not an integer, apply NumberFormat
+      ? formatter.format(label as number)
+      : label.toString();
 }
 
 /**

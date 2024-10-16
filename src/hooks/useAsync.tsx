@@ -37,6 +37,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
 ) => {
   const [status, setStatus] = React.useState<useAsyncStatus>('idle');
   const [value, setValue] = React.useState<T | null>(null);
+  const [args, setArgs] = React.useState<Parameters<F> | null>(null);
   const [error, setError] = React.useState<E | null>(null);
   const latestPromiseRef = React.useRef<Promise<T> | null>();
   const mountedRef = React.useRef<boolean>(false);
@@ -53,6 +54,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
   // useCallback ensures the below useEffect is not called
   // on every render, but only if asyncFunction changes.
   const execute = React.useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     (...args: Parameters<typeof asyncFunction>) => {
       setStatus('pending');
       // Do not unset the value, as we mostly want to retain the last value to avoid flickering, i.e. for "silent" updates.
@@ -62,6 +64,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
         .then((response: T) => {
           if (mountedRef.current && currentPromise === latestPromiseRef.current) {
             setValue(response);
+            setArgs(args);
             setStatus('success');
           }
           return response;
@@ -69,6 +72,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
         .catch((e: E) => {
           if (mountedRef.current && currentPromise === latestPromiseRef.current) {
             setValue(null);
+            setArgs(args);
             setError(e);
             setStatus('error');
           }
@@ -93,5 +97,5 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
     }
   }, [execute, immediate]);
 
-  return { execute, status, value, error };
+  return { execute, status, value, error, args };
 };

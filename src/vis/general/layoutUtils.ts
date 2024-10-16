@@ -167,6 +167,7 @@ export async function resolveSingleColumn(column: VisColumn | null) {
   if (!column) {
     return null;
   }
+
   return {
     ...column,
     resolvedValues: await column.values(),
