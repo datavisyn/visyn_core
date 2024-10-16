@@ -23,10 +23,7 @@ import {
 
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
-import { BarVis } from './bar/BarVis';
-import { BarVisSidebar } from './bar/BarVisSidebar';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './bar/interfaces';
-import { barMergeDefaultConfig } from './bar/utils';
+import { BarVis, BarVisSidebar, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './bar';
 import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
 import { CorrelationVisSidebar } from './correlation/CorrelationVisSidebar';
@@ -256,7 +253,7 @@ export function EagerVis({
     if (isSelectedVisTypeRegistered && (!visConfig?.merged || prevVisConfig?.type !== visConfig?.type)) {
       // TODO: I would prefer this to be not in a useEffect, as then we wouldn't have the render-flicker: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
       setPrevVisConfig(visConfig);
-      _setVisConfig?.(getVisByType(visConfig.type)?.mergeConfig(columns, { ...visConfig, merged: true }));
+      _setVisConfig?.(getVisByType(visConfig.type)?.mergeConfig(columns, { ...visConfig, merged: true }) as BaseVisConfig);
     }
   }, [_setVisConfig, columns, getVisByType, isSelectedVisTypeRegistered, prevVisConfig?.type, visConfig]);
 
