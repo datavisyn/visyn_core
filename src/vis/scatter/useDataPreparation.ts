@@ -201,6 +201,8 @@ export function useDataPreparation({
 
     return {
       resultData,
+      xTitle: columnNameWithDescription(value.validColumns[0].info),
+      yTitle: columnNameWithDescription(value.validColumns[1].info),
       xDomain,
       yDomain,
       ids: value.validColumns[0].resolvedValues.map((v) => v.id),

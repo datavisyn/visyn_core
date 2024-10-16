@@ -6,6 +6,42 @@ import { IInternalScatterConfig } from './interfaces';
 import { getLabelOrUnknown } from '../general/utils';
 import { useDataPreparation } from './useDataPreparation';
 
+let textWidthCanvas: HTMLCanvasElement;
+let textWidthContext: CanvasRenderingContext2D;
+
+function cutoffText(text: string, physicalWidth: number) {
+  if (!text || physicalWidth <= 0) {
+    return text;
+  }
+
+  if (!textWidthCanvas) {
+    textWidthCanvas = document.createElement('canvas');
+    textWidthContext = textWidthCanvas.getContext('2d')!;
+
+    // Axis style is 12 px open sans
+    textWidthContext.font = '12px Open Sans';
+  }
+
+  const textWidth = textWidthContext.measureText(text).width;
+
+  if (textWidth <= physicalWidth) {
+    return text;
+  }
+
+  const ellipsis = '…';
+  const ellipsisWidth = textWidthContext.measureText(ellipsis).width;
+
+  let newText = text;
+  let newWidth = textWidth;
+
+  while (newWidth + ellipsisWidth > physicalWidth) {
+    newText = newText.slice(0, -1);
+    newWidth = textWidthContext.measureText(newText).width;
+  }
+
+  return newText + ellipsis;
+}
+
 export const AXIS_TICK_STYLES: Partial<PlotlyTypes.Layout['xaxis']> = {
   tickfont: {
     color: VIS_NEUTRAL_COLOR,
@@ -24,8 +60,28 @@ export const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
   hoverlabel: {
     align: 'left',
   },
-  margin: { l: 50, r: 50, b: 50, t: 50, pad: 4 },
+  margin: { l: 50, r: 20, b: 50, t: 20, pad: 4 },
 };
+
+function gaps(width: number, height: number, nSubplots: number) {
+  let nColumns = clamp(Math.floor(width / 400), 2, 4);
+  if (nColumns > nSubplots) {
+    nColumns = nSubplots;
+  }
+  // round up to the number of rows required, otherwise, we get chart overlap
+  const nRows = Math.ceil(nSubplots / nColumns);
+
+  // "Hack" to calculate the correct yGap by translating absolute to relative plotly units
+  const requiredYGap = nRows * 50;
+  const yGap = requiredYGap / height;
+
+  return {
+    nColumns,
+    nRows,
+    yGap,
+    yTitleSize: height / nRows - 25,
+  };
+}
 
 export function useLayout({
   scatter,
@@ -34,7 +90,6 @@ export function useLayout({
   subplots,
   regressions,
   config,
-  dimensions,
   width,
   height,
   internalLayoutRef,
@@ -45,7 +100,6 @@ export function useLayout({
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
   regressions: { shapes: Partial<PlotlyTypes.Shape>[]; annotations: Partial<PlotlyTypes.Annotations>[] };
   config: IInternalScatterConfig;
-  dimensions: { width: number; height: number };
   width: number;
   height: number;
   internalLayoutRef: React.MutableRefObject<Partial<PlotlyTypes.Layout>>;
@@ -55,20 +109,35 @@ export function useLayout({
       const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
       const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
 
+      const { nColumns, nRows, yGap, yTitleSize } = gaps(width, height, subplots.xyPairs.length);
+
       subplots.xyPairs.forEach((pair, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
           range: pair.xDomain,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
-          title: pair.xTitle,
+          title: {
+            text: pair.xTitle,
+            standoff: 0,
+            font: {
+              size: 12,
+              color: VIS_NEUTRAL_COLOR,
+            },
+          },
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
           range: pair.yDomain,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
-          title: pair.yTitle,
+          title: {
+            font: {
+              size: 12,
+              color: VIS_NEUTRAL_COLOR,
+            },
+            text: cutoffText(pair.yTitle, yTitleSize),
+          },
         };
 
         titleAnnotations.push({
@@ -89,20 +158,13 @@ export function useLayout({
         });
       });
 
-      let nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
-      if (nColumns > subplots.xyPairs.length) {
-        nColumns = subplots.xyPairs.length;
-      }
-      // round up to the number of rows required, otherwise, we get chart overlap
-      const nRows = Math.ceil(subplots.xyPairs.length / nColumns);
-
       // if we only find one facet (e.g., the categorical column only contains one value), we don't facet
       const finalLayout: Partial<PlotlyTypes.Layout> =
         subplots.xyPairs.length > 1
           ? {
               ...BASE_LAYOUT,
               ...(internalLayoutRef.current || {}),
-              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
+              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: yGap, pattern: 'independent' },
               ...axes,
               annotations: [...titleAnnotations, ...regressions.annotations],
               shapes: regressions.shapes,
@@ -173,6 +235,8 @@ export function useLayout({
       const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
       const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
 
+      const { nColumns, nRows, yGap, yTitleSize } = gaps(width, height, facet.resultData.length);
+
       facet.resultData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
@@ -182,6 +246,14 @@ export function useLayout({
           ...(plotCounter > 0 ? { matches: 'x' } : {}),
           // @ts-ignore
           anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
+          title: {
+            font: {
+              size: 12,
+              color: VIS_NEUTRAL_COLOR,
+            },
+            standoff: 0,
+            text: facet.xTitle,
+          },
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
@@ -191,6 +263,13 @@ export function useLayout({
           ...(plotCounter > 0 ? { matches: 'y' } : {}),
           // @ts-ignore
           anchor: `x${plotCounter > 0 ? plotCounter + 1 : ''}`,
+          title: {
+            font: {
+              size: 12,
+              color: VIS_NEUTRAL_COLOR,
+            },
+            text: cutoffText(facet.yTitle, yTitleSize),
+          },
         };
 
         titleAnnotations.push({
@@ -211,20 +290,13 @@ export function useLayout({
         });
       });
 
-      let nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
-      if (nColumns > facet.resultData.length) {
-        nColumns = facet.resultData.length;
-      }
-      // round up to the number of rows required, otherwise, we get chart overlap
-      const nRows = Math.ceil(facet.resultData.length / nColumns);
-
       // if we only find one facet (e.g., the categorical column only contains one value), we don't facet
       const finalLayout: Partial<PlotlyTypes.Layout> =
         facet?.resultData.length > 1
           ? {
               ...BASE_LAYOUT,
               ...(internalLayoutRef.current || {}),
-              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
+              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: yGap, pattern: 'independent' },
               ...axes,
               annotations: [...titleAnnotations, ...regressions.annotations],
               shapes: regressions.shapes,
@@ -282,5 +354,5 @@ export function useLayout({
     }
 
     return undefined;
-  }, [subplots, scatter, facet, splom, dimensions.width, internalLayoutRef, regressions.annotations, regressions.shapes, config, width, height]);
+  }, [subplots, scatter, facet, splom, internalLayoutRef, regressions.annotations, regressions.shapes, config, width, height]);
 }

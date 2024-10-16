@@ -122,7 +122,7 @@ export function ScatterVis({
     previousArgs.current = args;
   }
 
-  const { subplots, scatter, splom, facet, shapeScale, colorScale } = useDataPreparation({
+  const { subplots, scatter, splom, facet, shapeScale } = useDataPreparation({
     value,
     status,
     uniqueSymbols,
@@ -277,7 +277,6 @@ export function ScatterVis({
     subplots,
     regressions,
     config,
-    dimensions,
     width,
     height,
     internalLayoutRef,
