@@ -1,6 +1,7 @@
 import * as htmlToImage from 'html-to-image';
 import JSZip from 'jszip';
 import * as React from 'react';
+import { notifications } from '@mantine/notifications';
 import { BaseVisConfig, EAggregateTypes, ESupportedPlotlyVis } from './interfaces';
 import { IBarConfig } from './bar/interfaces';
 import { sanitize } from '../utils';
@@ -19,8 +20,16 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
       console.error('Could not find plot div to capture screenshot');
       return;
     }
+
+    setIsLoading(true);
+    setError(null);
+
     try {
-      if ([ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY].includes(visConfig.type as ESupportedPlotlyVis)) {
+      if (
+        [ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY, ESupportedPlotlyVis.BOXPLOT].includes(
+          visConfig.type as ESupportedPlotlyVis,
+        )
+      ) {
         const Plotly = await import('plotly.js-dist-min');
         await Plotly.downloadImage(plotElement, {
           format: 'png',
@@ -91,8 +100,15 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
         link.remove();
       }
     } catch (e) {
+      console.error(e);
+      const errorMessage = e instanceof Error ? e.message : 'An error occurred while capturing the screenshot';
+      notifications.show({
+        title: 'Error download screenshot',
+        message: errorMessage,
+        color: 'red',
+      });
       setIsLoading(false);
-      setError((e as { message: string }).message);
+      setError(errorMessage);
     }
 
     setIsLoading(false);
