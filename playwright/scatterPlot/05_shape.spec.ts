@@ -10,5 +10,10 @@ test('shape selected', async ({ page }) => {
   await page.getByTestId('SingleSelectShape').click();
   await page.getByRole('option', { name: 'Breast Surgery Type Sparse' }).click();
   await expect(page.getByLabel('Legend')).not.toBeDisabled();
-  expect(await page.locator('g[class="legend"]')).toBeVisible();
+
+  const toggleLegend = await page.getByTestId('ToggleLegend');
+  const parentElement = await toggleLegend.evaluateHandle((node) => node.parentElement);
+  await parentElement.click();
+
+  await expect(page.getByTestId('PlotLegend')).toBeVisible();
 });

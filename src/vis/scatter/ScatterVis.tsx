@@ -461,6 +461,7 @@ export function ScatterVis({
                 // TODO: resize
               }}
               checked={showLegend}
+              data-testid="ToggleLegend"
             />
           </Tooltip>
         </div>
