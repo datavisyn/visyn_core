@@ -165,7 +165,6 @@ export interface ICommonVisProps<T> {
   selectedList?: string[];
   showCloseButton?: boolean;
   closeButtonCallback?: () => void;
-  scales?: Scales;
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showSidebarDefault?: boolean;

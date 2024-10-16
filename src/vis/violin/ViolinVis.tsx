@@ -15,7 +15,6 @@ import { IBoxplotConfig } from '../boxplot';
 export function ViolinVis({
   config,
   columns,
-  scales,
   dimensions,
   selectedList,
   selectedMap,

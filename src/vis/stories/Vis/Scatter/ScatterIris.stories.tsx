@@ -99,6 +99,45 @@ ControlledSubplots.args = {
         title: 'Petal Length vs Petal Width',
       },
       {
+        yColumn: {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal Length',
+        },
+        xColumn: {
+          description: '',
+          id: 'petalWidth',
+          name: 'Petal Width',
+        },
+        title: 'Petal Length vs Petal Width',
+      },
+      {
+        yColumn: {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal Length',
+        },
+        xColumn: {
+          description: '',
+          id: 'petalWidth',
+          name: 'Petal Width',
+        },
+        title: 'Petal Length vs Petal Width',
+      },
+      {
+        yColumn: {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal Length',
+        },
+        xColumn: {
+          description: '',
+          id: 'petalWidth',
+          name: 'Petal Width',
+        },
+        title: 'Petal Length vs Petal Width',
+      },
+      {
         xColumn: {
           description: '',
           id: 'petalLength',
@@ -128,7 +167,6 @@ ControlledSubplots.args = {
     console.log({ option });
   },
 };
-
 
 export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
 ColorByCategory.args = {

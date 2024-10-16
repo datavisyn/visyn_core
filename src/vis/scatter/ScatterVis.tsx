@@ -1,43 +1,53 @@
 /* eslint-disable react-compiler/react-compiler */
-import { useWindowEvent } from '@mantine/hooks';
-import { Center, Group, Stack, Switch, Tooltip } from '@mantine/core';
+import { useElementSize, useResizeObserver, useWindowEvent } from '@mantine/hooks';
+import { Center, Group, Stack, Switch, Tooltip, ScrollArea } from '@mantine/core';
 import * as React from 'react';
-import clamp from 'lodash/clamp';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
-import d3v7 from 'd3v7';
+import uniq from 'lodash/uniq';
+import * as d3v7 from 'd3v7';
+import { css } from '@emotion/css';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { VIS_LABEL_COLOR, VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
-import { EColumnTypes, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
+import { VIS_NEUTRAL_COLOR } from '../general/constants';
+import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { ELabelingOptions, ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
-import { FetchColumnDataResult, defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
+import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
+import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 import { getLabelOrUnknown } from '../general/utils';
-import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
+import { truncateText } from '../general/layoutUtils';
 import { fitRegressionLine } from './Regression';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
-import { categoricalColors, selectionColorDark } from '../../utils';
+import { LegendItem } from '../general/LegendItem';
+import { useLayout } from './useLayout';
+import { useData } from './useData';
+import { categoricalColors, getCssValue } from '../../utils';
+
+function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
+  return (
+    <ScrollArea
+      data-testid="PlotLegend"
+      style={{ height: '100%' }}
+      scrollbars="y"
+      className={css`
+        .mantine-ScrollArea-viewport > div {
+          display: flex !important;
+          flex-direction: column !important;
+        }
+      `}
+    >
+      <Stack gap={0}>
+        {categories.map((c) => {
+          return <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={false} />;
+        })}
+      </Stack>
+    </ScrollArea>
+  );
+}
 
 // d3v7.force
-
-const BASE_LAYOUT: Partial<PlotlyTypes.Layout> = {
-  hovermode: 'closest',
-  hoverlabel: {
-    align: 'left',
-  },
-  margin: { l: 50, r: 50, b: 50, t: 50, pad: 4 },
-};
-
-const textPositionOptions = ['top center', 'bottom center'];
-
-const BASE_DATA: Partial<PlotlyTypes.Data> = {
-  showlegend: false,
-  hoverinfo: 'x+y+text',
-};
 
 const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected: number; width: number; dash: PlotlyTypes.Dash }) => {
   return {
@@ -46,549 +56,6 @@ const lineStyleToPlotlyShapeLine = (lineStyle: { colors: string[]; colorSelected
     dash: lineStyle.dash,
   };
 };
-
-const AXIS_TICK_STYLES: Partial<PlotlyTypes.Layout['xaxis']> = {
-  tickfont: {
-    color: VIS_NEUTRAL_COLOR,
-  },
-  title: {
-    font: {
-      size: 12,
-      color: VIS_NEUTRAL_COLOR,
-    },
-  },
-  zeroline: false,
-};
-
-function baseData(alpha: number, hasColor: boolean): Partial<PlotlyTypes.Data> {
-  return {
-    selected: {
-      textfont: {
-        color: VIS_NEUTRAL_COLOR,
-      },
-      marker: {
-        opacity: 1,
-        ...(!hasColor ? { color: selectionColorDark } : {}),
-      },
-    },
-    unselected: {
-      textfont: {
-        color: VIS_NEUTRAL_COLOR,
-      },
-      marker: {
-        color: VIS_NEUTRAL_COLOR,
-        opacity: Math.min(alpha, 0.2),
-      },
-    },
-  };
-}
-
-function useLayout({
-  scatter,
-  facet,
-  splom,
-  subplots,
-  regressions,
-  config,
-  dimensions,
-  width,
-  height,
-  internalLayoutRef,
-}: {
-  scatter?: ReturnType<typeof useDataPreparation>['scatter'];
-  facet?: ReturnType<typeof useDataPreparation>['facet'];
-  splom?: ReturnType<typeof useDataPreparation>['splom'];
-  subplots?: ReturnType<typeof useDataPreparation>['subplots'];
-  regressions: { shapes: Partial<PlotlyTypes.Shape>[]; annotations: Partial<PlotlyTypes.Annotations>[] };
-  config: IInternalScatterConfig;
-  dimensions: { width: number; height: number };
-  width: number;
-  height: number;
-  internalLayoutRef: React.MutableRefObject<Partial<PlotlyTypes.Layout>>;
-}) {
-  return React.useMemo<Partial<PlotlyTypes.Layout> | undefined>(() => {
-    if (subplots) {
-      const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
-      const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
-
-      subplots.xyPairs.forEach((pair, plotCounter) => {
-        axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
-          ...AXIS_TICK_STYLES,
-          range: pair.xDomain,
-          // Spread the previous layout to keep things like zoom
-          ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
-          title: pair.xTitle,
-        };
-        axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
-          ...AXIS_TICK_STYLES,
-          range: pair.yDomain,
-          // Spread the previous layout to keep things like zoom
-          ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
-          title: pair.yTitle,
-        };
-
-        titleAnnotations.push({
-          x: 0.5,
-          y: 1,
-          yshift: -12,
-          xref: `x${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.XAxisName,
-          yref: `y${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.YAxisName,
-          xanchor: 'center',
-          yanchor: 'bottom',
-          text: pair.title,
-          showarrow: false,
-          bgcolor: '#ffffff',
-          font: {
-            size: 12,
-            color: VIS_TRACES_COLOR,
-          },
-        });
-      });
-
-      let nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
-      if (nColumns > subplots.xyPairs.length) {
-        nColumns = subplots.xyPairs.length;
-      }
-      // round up to the number of rows required, otherwise, we get chart overlap
-      const nRows = Math.ceil(subplots.xyPairs.length / nColumns);
-
-      // if we only find one facet (e.g., the categorical column only contains one value), we don't facet
-      const finalLayout: Partial<PlotlyTypes.Layout> =
-        subplots.xyPairs.length > 1
-          ? {
-              ...BASE_LAYOUT,
-              ...(internalLayoutRef.current || {}),
-              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
-              ...axes,
-              annotations: [...titleAnnotations, ...regressions.annotations],
-              shapes: regressions.shapes,
-              dragmode: config!.dragMode,
-              width,
-              height,
-            }
-          : {
-              ...BASE_LAYOUT,
-              xaxis: {
-                ...AXIS_TICK_STYLES,
-                ...internalLayoutRef.current?.xaxis,
-                title: subplots.xyPairs[0]!.xTitle,
-              },
-              yaxis: {
-                ...AXIS_TICK_STYLES,
-                ...internalLayoutRef.current?.yaxis,
-                title: subplots.xyPairs[0]!.yTitle,
-              },
-              shapes: regressions.shapes,
-              annotations: [...regressions.annotations],
-              dragmode: config.dragMode,
-              width,
-              height,
-            };
-
-      return finalLayout;
-    }
-
-    if (scatter) {
-      const finalLayout: Partial<PlotlyTypes.Layout> = {
-        ...BASE_LAYOUT,
-        xaxis: {
-          ...AXIS_TICK_STYLES,
-          range: scatter.xDomain,
-          ...internalLayoutRef.current?.xaxis,
-          title: {
-            font: {
-              size: 12,
-              color: VIS_NEUTRAL_COLOR,
-            },
-            text: scatter.xLabel,
-          },
-        },
-        yaxis: {
-          ...AXIS_TICK_STYLES,
-          range: scatter.yDomain,
-          ...internalLayoutRef.current?.yaxis,
-          title: {
-            font: {
-              size: 12,
-              color: VIS_NEUTRAL_COLOR,
-            },
-            text: scatter.yLabel,
-          },
-        },
-        shapes: regressions.shapes,
-        annotations: [...regressions.annotations],
-        dragmode: config.dragMode,
-        width,
-        height,
-      };
-
-      return finalLayout;
-    }
-
-    if (facet) {
-      const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
-      const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
-
-      facet.resultData.forEach((group, plotCounter) => {
-        axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
-          ...AXIS_TICK_STYLES,
-          range: facet.xDomain,
-          // Spread the previous layout to keep things like zoom
-          ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
-          ...(plotCounter > 0 ? { matches: 'x' } : {}),
-          // @ts-ignore
-          anchor: `y${plotCounter > 0 ? plotCounter + 1 : ''}`,
-        };
-        axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
-          ...AXIS_TICK_STYLES,
-          range: facet.yDomain,
-          // Spread the previous layout to keep things like zoom
-          ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
-          ...(plotCounter > 0 ? { matches: 'y' } : {}),
-          // @ts-ignore
-          anchor: `x${plotCounter > 0 ? plotCounter + 1 : ''}`,
-        };
-
-        titleAnnotations.push({
-          x: 0.5,
-          y: 1,
-          yshift: -12,
-          xref: `x${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.XAxisName,
-          yref: `y${plotCounter > 0 ? plotCounter + 1 : ''} domain` as PlotlyTypes.YAxisName,
-          xanchor: 'center',
-          yanchor: 'bottom',
-          text: getLabelOrUnknown(group.data.facet),
-          showarrow: false,
-          bgcolor: '#ffffff',
-          font: {
-            size: 12,
-            color: VIS_TRACES_COLOR,
-          },
-        });
-      });
-
-      let nColumns = clamp(Math.floor(dimensions.width / 400), 2, 4);
-      if (nColumns > facet.resultData.length) {
-        nColumns = facet.resultData.length;
-      }
-      // round up to the number of rows required, otherwise, we get chart overlap
-      const nRows = Math.ceil(facet.resultData.length / nColumns);
-
-      // if we only find one facet (e.g., the categorical column only contains one value), we don't facet
-      const finalLayout: Partial<PlotlyTypes.Layout> =
-        facet?.resultData.length > 1
-          ? {
-              ...BASE_LAYOUT,
-              ...(internalLayoutRef.current || {}),
-              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: 0.3, pattern: 'independent' },
-              ...axes,
-              annotations: [...titleAnnotations, ...regressions.annotations],
-              shapes: regressions.shapes,
-              dragmode: config!.dragMode,
-              width,
-              height,
-            }
-          : {
-              ...BASE_LAYOUT,
-              xaxis: {
-                ...AXIS_TICK_STYLES,
-                range: facet.xDomain,
-                ...internalLayoutRef.current?.xaxis,
-              },
-              yaxis: {
-                ...AXIS_TICK_STYLES,
-                range: facet.yDomain,
-                ...internalLayoutRef.current?.yaxis,
-              },
-              shapes: regressions.shapes,
-              annotations: [...regressions.annotations],
-              dragmode: config.dragMode,
-              width,
-              height,
-            };
-
-      return finalLayout;
-    }
-
-    if (splom) {
-      // SPLOM case
-      const axes: Record<string, PlotlyTypes.LayoutAxis> = {};
-
-      const axis = () =>
-        ({
-          ...AXIS_TICK_STYLES,
-        }) as PlotlyTypes.LayoutAxis;
-
-      for (let i = 0; i < splom.dimensions.length; i++) {
-        axes[`xaxis${i > 0 ? i + 1 : ''}`] = axis();
-        axes[`yaxis${i > 0 ? i + 1 : ''}`] = axis();
-      }
-
-      const finalLayout: Partial<PlotlyTypes.Layout> = {
-        ...BASE_LAYOUT,
-        ...axes,
-        ...(internalLayoutRef.current || {}),
-        shapes: regressions.shapes,
-        dragmode: config.dragMode,
-        width,
-        height,
-      };
-
-      return finalLayout;
-    }
-
-    return undefined;
-  }, [subplots, scatter, facet, splom, dimensions.width, internalLayoutRef, regressions.annotations, regressions.shapes, config, width, height]);
-}
-
-function useData({
-  status,
-  value,
-  scatter,
-  config,
-  facet,
-  splom,
-  subplots,
-  selectedList,
-  showLegend,
-  colorScale,
-  scales,
-  shapeScale,
-  legendData,
-}: {
-  status: string;
-  value: FetchColumnDataResult | undefined;
-  scatter?: ReturnType<typeof useDataPreparation>['scatter'];
-  config: IInternalScatterConfig;
-  facet?: ReturnType<typeof useDataPreparation>['facet'];
-  splom?: ReturnType<typeof useDataPreparation>['splom'];
-  subplots?: ReturnType<typeof useDataPreparation>['subplots'];
-  selectedList: string[];
-  showLegend: boolean;
-  colorScale: d3v7.ScaleLinear<string, number>;
-  scales: { color: (val: any) => string };
-  shapeScale: (val: string) => string;
-  legendData: PlotlyTypes.Data[];
-}) {
-  return React.useMemo<PlotlyTypes.Data[]>(() => {
-    if (status !== 'success' || !value) {
-      return [];
-    }
-
-    if (subplots) {
-      const plots = subplots.xyPairs.map((pair) => {
-        return {
-          ...BASE_DATA,
-          type: 'scattergl',
-          x: pair.x,
-          y: pair.y,
-          xaxis: pair.xref,
-          yaxis: pair.yref,
-          textposition: subplots.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => subplots.idToIndex.get(idx)) }),
-          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-          ...(config.showLabels === ELabelingOptions.NEVER
-            ? {}
-            : config.showLabels === ELabelingOptions.ALWAYS
-              ? {
-                  text: subplots.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
-                }
-              : {
-                  text: subplots.text.map((t, i) => (selectedList.includes(subplots.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
-                }),
-          hovertext: subplots.ids.map((p_id, index) =>
-            `${value.idToLabelMapper(p_id)}
-            ${(value.resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(p_id))}`)}
-            ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[index].val)}` : ''}
-            ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[index].val)}` : ''}`.trim(),
-          ),
-          marker: {
-            color: value.colorColumn
-              ? value.colorColumn.resolvedValues.map((v) =>
-                  value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? colorScale(v.val as number)
-                    : value.colorColumn.color
-                      ? value.colorColumn.color[v.val]
-                      : scales.color(v.val),
-                )
-              : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-            opacity: config.alphaSliderVal,
-          },
-          ...baseData(config.alphaSliderVal, !!value.colorColumn),
-        } as PlotlyTypes.Data;
-      });
-
-      if (showLegend) {
-        plots.push(...legendData);
-      }
-
-      return plots;
-    }
-
-    if (scatter && config && value && value.validColumns[0]) {
-      const traces = [
-        {
-          ...BASE_DATA,
-          type: 'scattergl',
-          x: scatter.plotlyData.x,
-          y: scatter.plotlyData.y,
-          // text: scatter.plotlyData.text,
-          textposition: scatter.plotlyData.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
-          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-          ...(config.showLabels === ELabelingOptions.NEVER
-            ? {}
-            : config.showLabels === ELabelingOptions.ALWAYS
-              ? {
-                  text: scatter.plotlyData.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
-                  // textposition: 'top center',
-                }
-              : {
-                  text: scatter.plotlyData.text.map((t, i) =>
-                    selectedList.includes(scatter.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '',
-                  ),
-                  // textposition: 'top center',
-                }),
-          hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
-            `${value.idToLabelMapper(v.id)}
-  ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
-  ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i].val)}` : ''}
-  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i].val)}` : ''}`.trim(),
-          ),
-          marker: {
-            textfont: {
-              color: VIS_NEUTRAL_COLOR,
-            },
-            color: value.colorColumn
-              ? value.colorColumn.resolvedValues.map((v) =>
-                  value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? colorScale(v.val as number)
-                    : value.colorColumn.color
-                      ? value.colorColumn.color[v.val]
-                      : scales.color(v.val),
-                )
-              : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-            opacity: config.alphaSliderVal,
-          },
-          ...baseData(config.alphaSliderVal, !!value.colorColumn),
-        } as PlotlyTypes.Data,
-      ];
-
-      if (showLegend) {
-        traces.push(...legendData);
-      }
-
-      return traces;
-    }
-
-    if (facet && config && value && value.validColumns[0] && value.validColumns[1]) {
-      const plots = facet.resultData.map((group) => {
-        return {
-          ...BASE_DATA,
-          type: 'scattergl',
-          x: group.data.x,
-          y: group.data.y,
-          xaxis: group.xref,
-          yaxis: group.yref,
-          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
-          textposition: group.data.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
-          ...(config.showLabels === ELabelingOptions.NEVER
-            ? {}
-            : config.showLabels === ELabelingOptions.ALWAYS
-              ? {
-                  text: group.data.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
-                  // textposition: 'top center',
-                }
-              : {
-                  text: group.data.text.map((t, i) => (selectedList.includes(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
-                  // textposition: 'top center',
-                }),
-          name: getLabelOrUnknown(group.data.facet),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => group.idToIndex.get(idx)).filter((v) => v !== undefined) }),
-          hovertext: group.data.ids.map((p_id, index) =>
-            `${value.idToLabelMapper(p_id)}
-            ${(value.resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(p_id))}`)}
-            ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(group.data.color[index])}` : ''}
-            ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(group.data.shape[index])}` : ''}`.trim(),
-          ),
-          marker: {
-            color: value.colorColumn
-              ? group.data.color.map((color) =>
-                  value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? colorScale(color as number)
-                    : value.colorColumn.color
-                      ? value.colorColumn.color[color]
-                      : scales.color(color),
-                )
-              : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? group.data.shape.map((shape) => shapeScale(shape as string)) : 'circle',
-            opacity: config.alphaSliderVal,
-          },
-          ...baseData(config.alphaSliderVal, !!value.colorColumn),
-        } as PlotlyTypes.Data;
-      });
-
-      if (showLegend) {
-        plots.push(...legendData);
-      }
-
-      return plots;
-    }
-
-    if (splom) {
-      // SPLOM case
-      const plotlyDimensions = value.validColumns.map((col) => ({
-        label: col.info.name,
-        values: col.resolvedValues.map((v) => v.val),
-      }));
-
-      const traces = [
-        {
-          ...BASE_DATA,
-          type: 'splom',
-          // @ts-ignore
-          diagonal: {
-            visible: false,
-          },
-          showupperhalf: false,
-          // @ts-ignore
-          dimensions: plotlyDimensions,
-          hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
-            `${value.idToLabelMapper(v.id)}
-  ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
-  ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i].val)}` : ''}
-  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i].val)}` : ''}`.trim(),
-          ),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
-          marker: {
-            color: value.colorColumn
-              ? value.colorColumn.resolvedValues.map((v) =>
-                  value.colorColumn.type === EColumnTypes.NUMERICAL
-                    ? colorScale(v.val as number)
-                    : value.colorColumn.color
-                      ? value.colorColumn.color[v.val]
-                      : scales.color(v.val),
-                )
-              : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-            opacity: config.alphaSliderVal,
-          },
-          ...baseData(config.alphaSliderVal, !!value.colorColumn),
-        } as PlotlyTypes.Data,
-      ];
-
-      if (showLegend) {
-        traces.push(...legendData);
-      }
-
-      return traces;
-    }
-
-    return [];
-  }, [status, value, subplots, scatter, config, facet, splom, selectedList, showLegend, colorScale, scales, shapeScale, legendData]);
-}
 
 export function ScatterVis({
   config,
@@ -602,7 +69,6 @@ export function ScatterVis({
   setConfig,
   dimensions,
   showDragModeOptions,
-  scales,
   scrollZoom,
   uniquePlotId,
   showDownloadScreenshot,
@@ -612,9 +78,8 @@ export function ScatterVis({
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
 
-  // Subtract header
-  const width = Math.max(dimensions.width, 0);
-  const height = Math.max(dimensions.height - 40, 0);
+  // const [ref, { width, height }] = useResizeObserver();
+  const { ref, width, height } = useElementSize();
 
   useWindowEvent('keydown', (event) => {
     if (event.shiftKey) {
@@ -639,6 +104,10 @@ export function ScatterVis({
     config.facets,
   ]);
 
+  // Subtract header
+  // const width = Math.max(dimensions.width, 0);
+  // const height = Math.max(dimensions.height - 40, 0);
+
   // Ref to previous arguments for useAsync
   const previousArgs = React.useRef<typeof args>(args);
 
@@ -653,7 +122,7 @@ export function ScatterVis({
     previousArgs.current = args;
   }
 
-  const { subplots, scatter, splom, facet, shapeScale, colorScale } = useDataPreparation({
+  const { subplots, scatter, splom, facet, shapeScale } = useDataPreparation({
     value,
     status,
     uniqueSymbols,
@@ -795,6 +264,7 @@ export function ScatterVis({
     config.regressionLineOptions.type,
     config.regressionLineOptions.fitOptions,
     config.regressionLineOptions.lineStyle,
+    subplots,
     scatter,
     facet,
     splom,
@@ -807,18 +277,17 @@ export function ScatterVis({
     subplots,
     regressions,
     config,
-    dimensions,
     width,
     height,
     internalLayoutRef,
   });
 
-  const legendData = React.useMemo<PlotlyTypes.Data[]>(() => {
+  const legendData = React.useMemo(() => {
     if (!value) {
-      return [];
+      return undefined;
     }
 
-    const legendPlots: PlotlyTypes.Data[] = [];
+    /* const legendPlots: PlotlyTypes.Data[] = [];
 
     if (value.shapeColumn) {
       legendPlots.push({
@@ -860,45 +329,82 @@ export function ScatterVis({
         ],
       });
     }
-
+*/
     if (value.colorColumn && value.colorColumn.type === EColumnTypes.CATEGORICAL) {
-      legendPlots.push({
-        x: [null],
-        y: [null],
-        type: 'scatter',
-        mode: 'markers',
-        legendgroup: 'color',
-        hoverinfo: 'skip',
+      // Get distinct values
+      const colorValues = uniq(value.colorColumn.resolvedValues.map((v) => v.val ?? 'Unknown') as string[]);
+      const valuesWithoutUnknown = colorValues.filter((v) => v !== 'Unknown');
+      const mapping: Record<string, string> = {};
 
-        // @ts-ignore
-        legendgrouptitle: {
-          text: truncateText(value.colorColumn.info.name, true, 20),
-        },
-        marker: {
-          line: {
-            width: 0,
-          },
-          symbol: 'circle',
-          color: value.colorColumn
-            ? value.colorColumn.resolvedValues.map((v) => (value.colorColumn.color ? value.colorColumn.color[v.val] : scales.color(v.val)))
-            : VIS_NEUTRAL_COLOR,
-        },
-        transforms: [
-          {
-            type: 'groupby',
-            groups: value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
-            styles: [
-              ...[...new Set<string>(value.colorColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
-                return { target: c, value: { name: c } };
-              }),
-            ],
-          },
-        ],
+      // Just return the domain when we got a domain from outside
+      if (value.colorColumn.color) {
+        colorValues.forEach((v) => {
+          const mapped = value.colorColumn.color?.[v];
+          if (mapped) {
+            mapping[v] = mapped;
+          } else {
+            mapping[v] = VIS_NEUTRAL_COLOR;
+          }
+        });
+      } else {
+        // Create d3 color scale
+        valuesWithoutUnknown.forEach((v, i) => {
+          mapping[v] = categoricalColors[i % categoricalColors.length]!;
+        });
+        mapping.Unknown = VIS_NEUTRAL_COLOR;
+      }
+
+      // Sort the colorMap by the order of the domain
+      const categories = Object.keys(mapping);
+      categories.sort((a, b) => {
+        // Unknown should always be last, else alphabetically
+        if (a === 'Unknown') {
+          return 1;
+        }
+
+        if (b === 'Unknown') {
+          return -1;
+        }
+
+        return a.localeCompare(b);
       });
+
+      // Otherwise infer the domain from the resolved values
+      return {
+        color: {
+          categories,
+          mapping,
+          mappingFunction: (v: string | number) => mapping[v] || VIS_NEUTRAL_COLOR,
+        },
+      };
+    }
+    // Sequential color scale
+    if (value.colorColumn && value.colorColumn.type === EColumnTypes.NUMERICAL) {
+      const numericalColorScale = d3v7
+        .scaleLinear<string, number>()
+        .domain([value.colorDomain[1], (value.colorDomain[0] + value.colorDomain[1]) / 2, value.colorDomain[0]])
+        .range(
+          config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
+            ? ([getCssValue('visyn-s9-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s1-blue')] as string[])
+            : ([getCssValue('visyn-c1'), '#d3d3d3', getCssValue('visyn-c2')] as string[]),
+        );
+
+      return {
+        color: {
+          categories: [],
+          mappingFunction: ((v: string | number) => {
+            if (v === undefined || v === 'undefined' || v === null || v === 'null' || v === '') {
+              return VIS_NEUTRAL_COLOR;
+            }
+
+            return numericalColorScale(v as number);
+          }) as (v: string | number) => string,
+        },
+      };
     }
 
-    return legendPlots;
-  }, [value, shapeScale, scales]);
+    return undefined;
+  }, [config?.numColorScaleType, value]);
 
   const data = useData({
     status,
@@ -908,16 +414,27 @@ export function ScatterVis({
     facet,
     splom,
     selectedList,
-    showLegend,
     subplots,
-    colorScale,
-    scales,
     shapeScale,
-    legendData,
+    mappingFunction: legendData?.color.mappingFunction,
   });
 
   return (
-    <Stack gap={0} style={{ height: '100%', width: '100%' }} pos="relative">
+    <div
+      className={css`
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-areas:
+          'toolbar corner'
+          'plot legend';
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 1fr fit-content(200px);
+        grid-row-gap: 0.5rem;
+      `}
+      id={id}
+    >
       {showDragModeOptions || showDownloadScreenshot ? (
         <Center>
           <Group>
@@ -928,25 +445,29 @@ export function ScatterVis({
           </Group>
         </Center>
       ) : null}
-      {status === 'success' && layout ? (
-        <>
-          {config.showLegend === undefined ? (
-            <Tooltip label="Toggle legend" refProp="rootRef">
-              <Switch
-                styles={{ label: { paddingLeft: '5px' } }}
-                size="xs"
-                disabled={legendData.length === 0}
-                style={{ position: 'absolute', right: 42, top: 18, zIndex: 99 }}
-                defaultChecked
-                label="Legend"
-                onChange={() => {
-                  setShowLegend(!showLegend);
-                  // TODO: resize
-                }}
-                checked={showLegend}
-              />
-            </Tooltip>
-          ) : null}
+
+      {status === 'success' && layout && config?.showLegend === undefined ? (
+        <div style={{ gridArea: 'corner', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 40 }}>
+          <Tooltip label="Toggle legend" refProp="rootRef">
+            <Switch
+              styles={{ label: { paddingLeft: '5px' } }}
+              size="xs"
+              disabled={legendData === undefined}
+              style={{ position: 'absolute', right: 52, top: 18, zIndex: 99 }}
+              defaultChecked
+              label="Legend"
+              onChange={() => {
+                setShowLegend(!showLegend);
+                // TODO: resize
+              }}
+              checked={showLegend}
+            />
+          </Tooltip>
+        </div>
+      ) : null}
+
+      <div ref={ref} style={{ gridArea: 'plot', overflow: 'hidden' }}>
+        {status === 'success' && layout ? (
           <PlotlyComponent
             data-testid="ScatterPlotTestId"
             key={id}
@@ -970,6 +491,7 @@ export function ScatterVis({
               if ('target' in evnt) {
                 const target = evnt.target as HTMLElement;
                 const subplot = target.getAttribute('data-subplot');
+
                 if (subplot) {
                   const idx = subplot.indexOf('y');
                   const xref = subplot.slice(0, idx);
@@ -1024,10 +546,22 @@ export function ScatterVis({
             }}
             config={{ scrollZoom, displayModeBar: false }}
           />
-        </>
-      ) : status !== 'pending' && status !== 'idle' ? (
-        <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={error?.message || i18n.t('visyn:vis.scatterError')} />
+        ) : status !== 'idle' && status !== 'pending' ? (
+          <InvalidCols
+            style={{
+              gridArea: 'plot',
+            }}
+            headerMessage={i18n.t('visyn:vis.errorHeader')}
+            bodyMessage={error?.message || i18n.t('visyn:vis.scatterError')}
+          />
+        ) : null}
+      </div>
+
+      {status === 'success' && layout && legendData?.color.mapping && showLegend ? (
+        <div style={{ gridArea: 'legend', overflow: 'hidden' }}>
+          <Legend categories={legendData.color.categories} colorMap={legendData.color.mappingFunction} onClick={() => {}} />
+        </div>
       ) : null}
-    </Stack>
+    </div>
   );
 }

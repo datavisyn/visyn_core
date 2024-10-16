@@ -7,7 +7,7 @@ import { FetchColumnDataResult } from './utils';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { PlotlyTypes } from '../../plotly';
 import { getCssValue } from '../../utils/getCssValue';
-import { ENumericalColorScaleType } from '../interfaces';
+import { EColumnTypes, ENumericalColorScaleType } from '../interfaces';
 
 export function useDataPreparation({
   status,
@@ -201,6 +201,8 @@ export function useDataPreparation({
 
     return {
       resultData,
+      xTitle: columnNameWithDescription(value.validColumns[0].info),
+      yTitle: columnNameWithDescription(value.validColumns[1].info),
       xDomain,
       yDomain,
       ids: value.validColumns[0].resolvedValues.map((v) => v.id),
