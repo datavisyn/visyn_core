@@ -382,10 +382,10 @@ export function ScatterVis({
     if (value.colorColumn && value.colorColumn.type === EColumnTypes.NUMERICAL) {
       const numericalColorScale = d3v7
         .scaleLinear<string, number>()
-        .domain([value.colorDomain[1], (value.colorDomain[0] + value.colorDomain[1]) / 2, value.colorDomain[0]])
+        .domain([value.colorDomain[0], (value.colorDomain[0] + value.colorDomain[1]) / 2, value.colorDomain[1]])
         .range(
           config?.numColorScaleType === ENumericalColorScaleType.SEQUENTIAL
-            ? ([getCssValue('visyn-s9-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s1-blue')] as string[])
+            ? ([getCssValue('visyn-s1-blue'), getCssValue('visyn-s5-blue'), getCssValue('visyn-s9-blue')] as string[])
             : ([getCssValue('visyn-c1'), '#d3d3d3', getCssValue('visyn-c2')] as string[]),
         );
 
