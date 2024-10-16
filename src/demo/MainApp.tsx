@@ -34,7 +34,7 @@ export function MainApp() {
       },
     ],
     color: {
-      description: null,
+      description: '',
       id: 'cellularity',
       name: 'Cellularity',
     },
@@ -66,6 +66,11 @@ export function MainApp() {
             aboutAppModal: {
               content: <Text>This is the demo app for visyn core.</Text>,
             },
+            center: (
+              <Text c="white" size="sm">
+                {breastCancerData.length} data points / {selection.length} points selected
+              </Text>
+            ),
           }}
         />
       }
