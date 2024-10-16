@@ -4,10 +4,14 @@
  */
 export const categoricalColors = ['#337AB7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044'];
 
-// categorical color map with 10 colors
+/**
+ * categorical color map with 10 colors
+ */
 export const categoricalColors10 = ['#337ab7', '#f75a1e', '#75c4c2', '#f0d034', '#15a154', '#e891ae', '#db933c', '#a380c4', '#a4c255', '#8c574b'];
 
-// categorical color map with 20 colors
+/**
+ * categorical color map with 20 colors
+ */
 export const categoricalColors20 = [
   '#337ab7',
   '#f75a1e',
