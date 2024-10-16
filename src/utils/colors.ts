@@ -1,5 +1,7 @@
 // categorical color map
-// @deprecated
+/**
+ * @deprecated Use `categoricalColors10` instead.
+ */
 export const categoricalColors = ['#337AB7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044'];
 
 // categorical color map with 10 colors
