@@ -5,42 +5,9 @@ import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
 import { IInternalScatterConfig } from './interfaces';
 import { getLabelOrUnknown } from '../general/utils';
 import { useDataPreparation } from './useDataPreparation';
+import { FastTextMeasure } from './FastTextMeasure';
 
-let textWidthCanvas: HTMLCanvasElement;
-let textWidthContext: CanvasRenderingContext2D;
-
-function cutoffText(text: string, physicalWidth: number) {
-  if (!text || physicalWidth <= 0) {
-    return text;
-  }
-
-  if (!textWidthCanvas) {
-    textWidthCanvas = document.createElement('canvas');
-    textWidthContext = textWidthCanvas.getContext('2d')!;
-
-    // Axis style is 12 px open sans
-    textWidthContext.font = '12px Open Sans';
-  }
-
-  const textWidth = textWidthContext.measureText(text).width;
-
-  if (textWidth <= physicalWidth) {
-    return text;
-  }
-
-  const ellipsis = '…';
-  const ellipsisWidth = textWidthContext.measureText(ellipsis).width;
-
-  let newText = text;
-  let newWidth = textWidth;
-
-  while (newWidth + ellipsisWidth > physicalWidth) {
-    newText = newText.slice(0, -1);
-    newWidth = textWidthContext.measureText(newText).width;
-  }
-
-  return newText + ellipsis;
-}
+const textMeasure = new FastTextMeasure('12px Open Sans');
 
 export const AXIS_TICK_STYLES: Partial<PlotlyTypes.Layout['xaxis']> = {
   tickfont: {
@@ -75,10 +42,15 @@ function gaps(width: number, height: number, nSubplots: number) {
   const requiredYGap = nRows * 50;
   const yGap = requiredYGap / height;
 
+  const requiredXGap = nColumns * 50;
+  const xGap = requiredXGap / width;
+
   return {
     nColumns,
     nRows,
+    xGap,
     yGap,
+    xTitleSize: width / nColumns - 25,
     yTitleSize: height / nRows - 25,
   };
 }
@@ -109,7 +81,7 @@ export function useLayout({
       const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
       const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
 
-      const { nColumns, nRows, yGap, yTitleSize } = gaps(width, height, subplots.xyPairs.length);
+      const { nColumns, nRows, xGap, yGap, xTitleSize, yTitleSize } = gaps(width, height, subplots.xyPairs.length);
 
       subplots.xyPairs.forEach((pair, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
@@ -118,7 +90,7 @@ export function useLayout({
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           title: {
-            text: pair.xTitle,
+            text: textMeasure.textEllipsis(pair.xTitle, xTitleSize),
             standoff: 0,
             font: {
               size: 12,
@@ -136,7 +108,7 @@ export function useLayout({
               size: 12,
               color: VIS_NEUTRAL_COLOR,
             },
-            text: cutoffText(pair.yTitle, yTitleSize),
+            text: textMeasure.textEllipsis(pair.yTitle, yTitleSize),
           },
         };
 
@@ -164,7 +136,7 @@ export function useLayout({
           ? {
               ...BASE_LAYOUT,
               ...(internalLayoutRef.current || {}),
-              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: yGap, pattern: 'independent' },
+              grid: { rows: nRows, columns: nColumns, xgap: xGap, ygap: yGap, pattern: 'independent' },
               ...axes,
               annotations: [...titleAnnotations, ...regressions.annotations],
               shapes: regressions.shapes,
@@ -235,7 +207,7 @@ export function useLayout({
       const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
       const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
 
-      const { nColumns, nRows, yGap, yTitleSize } = gaps(width, height, facet.resultData.length);
+      const { nColumns, nRows, xGap, yGap, xTitleSize, yTitleSize } = gaps(width, height, facet.resultData.length);
 
       facet.resultData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
@@ -252,7 +224,7 @@ export function useLayout({
               color: VIS_NEUTRAL_COLOR,
             },
             standoff: 0,
-            text: facet.xTitle,
+            text: textMeasure.textEllipsis(facet.xTitle, xTitleSize),
           },
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
@@ -268,7 +240,7 @@ export function useLayout({
               size: 12,
               color: VIS_NEUTRAL_COLOR,
             },
-            text: cutoffText(facet.yTitle, yTitleSize),
+            text: textMeasure.textEllipsis(facet.yTitle, yTitleSize),
           },
         };
 
@@ -296,7 +268,7 @@ export function useLayout({
           ? {
               ...BASE_LAYOUT,
               ...(internalLayoutRef.current || {}),
-              grid: { rows: nRows, columns: nColumns, xgap: 0.2, ygap: yGap, pattern: 'independent' },
+              grid: { rows: nRows, columns: nColumns, xgap: xGap, ygap: yGap, pattern: 'independent' },
               ...axes,
               annotations: [...titleAnnotations, ...regressions.annotations],
               shapes: regressions.shapes,
