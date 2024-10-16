@@ -1,6 +1,6 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
-import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../../../bar/interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from '../../../bar/interfaces';
 import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
@@ -24,6 +24,7 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   const positiveRNG = RNG(10, 'positive');
   const negativeRNG = RNG(10, 'negative');
   const mixedRNG = RNG(10, 'mixed');
+
   const dataGetter = async () => ({
     positiveNumbers: Array(numberOfPoints)
       .fill(null)
@@ -43,7 +44,13 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     manyCategories: Array(numberOfPoints)
       .fill(null)
       .map(() => `MANY_CATEGORIES_${parseInt((positiveRNG() * 100).toString(), 10).toString()}`),
-    oneCategory: Array(numberOfPoints)
+    twoCategories: Array(numberOfPoints)
+      .fill(null)
+      .map((_, i) => `${parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 3 ? 'EVEN' : 'ODD'}_CATEGORY`),
+    categoriesAsNumberOfPoints: Array(numberOfPoints)
+      .fill(null)
+      .map((_, i) => `DATA_CATEGORY_${i}`),
+    singleCategory: Array(numberOfPoints)
       .fill(null)
       .map(() => `ONE_CATEGORY`),
   });
@@ -131,6 +138,30 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
+        description: 'Two specific categories for the data',
+        id: 'twoCategories',
+        name: 'Two categories',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: async () => {
+        const data = await dataPromise;
+        return data.twoCategories.map((val, i) => ({ id: i.toString(), val }));
+      },
+    },
+    {
+      info: {
+        description: 'Categories as much as the number of points',
+        id: 'categoriesAsNumberOfPoints',
+        name: 'Categories as number of points',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: async () => {
+        const data = await dataPromise;
+        return data.categoriesAsNumberOfPoints.map((val, i) => ({ id: i.toString(), val }));
+      },
+    },
+    {
+      info: {
         description: 'One category for the data',
         id: 'oneCategory',
         name: 'Single category',
@@ -138,7 +169,7 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       type: EColumnTypes.CATEGORICAL,
       values: async () => {
         const data = await dataPromise;
-        return data.oneCategory.map((val, i) => ({ id: i.toString(), val }));
+        return data.singleCategory.map((val, i) => ({ id: i.toString(), val }));
       },
     },
   ];
@@ -541,5 +572,30 @@ AggregateMedianWithGroupedAndFacetedMixedValues.args = {
       name: 'Random numbers',
     },
     numColumnsSelected: [],
+  } as BaseVisConfig,
+};
+
+export const PreconfiguredSorted: typeof Template = Template.bind({}) as typeof Template;
+PreconfiguredSorted.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      description: 'Categories for the data',
+      id: 'categories',
+      name: 'Categories',
+    },
+    facets: null,
+    group: {
+      description: 'Two specific categories for the data',
+      id: 'twoCategories',
+      name: 'Two categories',
+    },
+    groupType: EBarGroupingType.STACK,
+    direction: EBarDirection.HORIZONTAL,
+    display: EBarDisplayType.ABSOLUTE,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+    sortState: { x: EBarSortState.DESCENDING, y: EBarSortState.NONE },
   } as BaseVisConfig,
 };
