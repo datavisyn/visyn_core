@@ -8,7 +8,7 @@ interface NumericalColorButtonsProps {
 }
 
 export function NumericalColorButtons({ callback, currentSelected }: NumericalColorButtonsProps) {
-  const sequentialColors = ['#002245', '#214066', '#3e618a', '#5c84af', '#83a8c9', '#a9cfe4', '#cff6ff'];
+  const sequentialColors = ['#cff6ff', '#a9cfe4', '#83a8c9', '#5c84af', '#3e618a', '#214066', '#002245'];
   const divergentColors = ['#337ab7', '#7496c1', '#a5b4ca', '#d3d3d3', '#e5b19d', '#ec8e6a', '#ec6836'];
 
   return (

@@ -1,18 +1,51 @@
-import { Box, Center, Group, Loader, Stack } from '@mantine/core';
-import { useResizeObserver } from '@mantine/hooks';
-import { uniqueId } from 'lodash';
-import React, { useCallback, useMemo } from 'react';
+import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
+import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
+import uniqueId from 'lodash/uniqueId';
+import zipWith from 'lodash/zipWith';
+import * as React from 'react';
+import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
-import { NAN_REPLACEMENT } from '../general';
+import { categoricalColors as colorScale } from '../../utils/colors';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { EColumnTypes, ICommonVisProps } from '../interfaces';
-import { SingleBarChart } from './SingleBarChart';
-import { FocusFacetSelector } from './barComponents/FocusFacetSelector';
-import { Legend } from './barComponents/Legend';
-import { useGetGroupedBarScales } from './hooks/useGetGroupedBarScales';
-import { IBarConfig } from './interfaces';
-import { getBarData } from './utils';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
+import { FocusFacetSelector } from './components';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
+import {
+  AggregatedDataType,
+  calculateChartHeight,
+  calculateChartMinWidth,
+  CHART_HEIGHT_MARGIN,
+  createBinLookup,
+  DEFAULT_BAR_CHART_HEIGHT,
+  DEFAULT_BAR_CHART_MIN_WIDTH,
+  DEFAULT_FACET_NAME,
+  generateAggregatedDataLookup,
+  getBarData,
+} from './interfaces/internal';
+import { SingleEChartsBarChart } from './SingleEChartsBarChart';
+
+type VirtualizedBarChartProps = {
+  aggregatedDataMap: ReturnType<typeof generateAggregatedDataLookup>;
+  allUniqueFacetVals: string[];
+  chartHeightMap: Record<string, number>;
+  chartMinWidthMap: Record<string, number>;
+  containerHeight: number;
+  containerWidth: number;
+  config: IBarConfig;
+  filteredUniqueFacetVals: string[];
+  groupColorScale: ScaleOrdinal<string, string>;
+  isGroupedByNumerical: boolean;
+  labelsMap: Record<string, string>;
+  longestLabelWidth: number;
+  selectedFacetIndex?: number;
+  selectedFacetValue?: string;
+  selectedList: string[];
+  selectedMap: Record<string, boolean>;
+  selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
+  setConfig: (config: IBarConfig) => void;
+};
 
 export function BarChart({
   config,
@@ -27,131 +60,353 @@ export function BarChart({
   ICommonVisProps<IBarConfig>,
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
+  const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
-  const [filteredOut, setFilteredOut] = React.useState<string[]>([]);
+
+  const listRef = React.useRef<VariableSizeList>(null);
 
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
-    config.catColumnSelected,
-    config.group,
-    config.facets,
-    config.aggregateColumn,
+    config?.catColumnSelected as ColumnInfo,
+    config?.group as ColumnInfo,
+    config?.facets as ColumnInfo,
+    config?.aggregateColumn as ColumnInfo,
   ]);
 
-  const allUniqueFacetVals = useMemo(() => {
+  const [gridLeft, setGridLeft] = React.useState(containerWidth / 3);
+
+  const truncatedTextRef = React.useRef<{ labels: { [value: string]: string }; longestLabelWidth: number; containerWidth: number }>({
+    labels: {},
+    longestLabelWidth: 0,
+    containerWidth,
+  });
+  const [labelsMap, setLabelsMap] = React.useState<Record<string, string>>({});
+
+  const dataTable = React.useMemo(() => {
+    if (!allColumns) {
+      return [];
+    }
+
+    // bin the `group` column values if a numerical column is selected
+    const binLookup: Map<VisNumericalValue, string> | null =
+      allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? createBinLookup(allColumns.groupColVals?.resolvedValues as VisNumericalValue[]) : null;
+
+    return zipWith(
+      allColumns.catColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.aggregateColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.groupColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
+      allColumns.facetsColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
+      (cat, agg, group, facet) => {
+        return {
+          id: cat.id,
+          category: getLabelOrUnknown(cat?.val),
+          agg: agg?.val as number,
+          // if the group column is numerical, use the bin lookup to get the bin name, otherwise use the label or 'unknown'
+          group: typeof group?.val === 'number' ? (binLookup?.get(group as VisNumericalValue) as string) : getLabelOrUnknown(group?.val),
+          facet: getLabelOrUnknown(facet?.val),
+        };
+      },
+    );
+  }, [allColumns]);
+
+  const aggregatedDataMap = React.useMemo(
+    () =>
+      generateAggregatedDataLookup(
+        {
+          isFaceted: !!config?.facets?.id,
+          isGrouped: !!config?.group?.id,
+          groupType: config?.groupType as EBarGroupingType,
+          display: config?.display as EBarDisplayType,
+          aggregateType: config?.aggregateType as EAggregateTypes,
+        },
+        dataTable,
+        selectedMap,
+      ),
+    [config?.aggregateType, config?.display, config?.facets?.id, config?.group?.id, config?.groupType, dataTable, selectedMap],
+  );
+
+  const groupColorScale = React.useMemo(() => {
+    if (!allColumns?.groupColVals) {
+      return null;
+    }
+
+    const groups =
+      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+        ? [
+            ...new Set(
+              Object.values(aggregatedDataMap?.facets ?? {})
+                .flatMap((facet) => facet.groupingsList)
+                .sort((a, b) => {
+                  const [minA] = a.split(' to ');
+                  const [minB] = b.split(' to ');
+                  if (minA && minB) {
+                    return Number(minA) - Number(minB);
+                  }
+                  return 0;
+                }),
+            ),
+          ]
+        : aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
+          ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
+          : config?.group?.id === config?.facets?.id
+            ? (aggregatedDataMap?.facetsList ?? [])
+            : [
+                ...new Set(
+                  Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
+                    return facet.groupingsList;
+                  }),
+                ),
+              ];
+
+    const maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc: number, facet) => Math.max(acc, facet.groupingsList.length), 0);
+
+    const range =
+      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+        ? config?.catColumnSelected?.id === config?.facets?.id
+          ? (schemeBlues[Math.max(Math.min(groups.length - 1, maxGroupings), 3)] as string[]).slice(0, maxGroupings)
+          : (schemeBlues[Math.max(Math.min(groups.length - 1, 9), 3)] as string[]) // use at least 3 colors for numerical values
+        : groups.map(
+            (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
+          );
+
+    return scaleOrdinal<string>().domain(groups).range(range);
+  }, [aggregatedDataMap, allColumns, config]);
+
+  const allUniqueFacetVals = React.useMemo(() => {
     return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
-  const filteredUniqueFacetVals = useMemo(() => {
-    return typeof config.focusFacetIndex === 'number' && config.focusFacetIndex < allUniqueFacetVals.length
-      ? [allUniqueFacetVals[config.focusFacetIndex]]
+  const filteredUniqueFacetVals = React.useMemo(() => {
+    return typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
+      ? [allUniqueFacetVals[config?.focusFacetIndex]]
       : allUniqueFacetVals;
-  }, [allUniqueFacetVals, config.focusFacetIndex]);
+  }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
-  const { groupColorScale, groupedTable } = useGetGroupedBarScales(
-    allColumns,
-    0,
-    0,
-    { left: 0, top: 0, right: 0, bottom: 0 },
-    null,
-    true,
-    selectedMap,
-    config.groupType,
-    config.sortType,
-    config.aggregateType,
-  );
-
-  const [legendBoxRef] = useResizeObserver();
-
-  const customSelectionCallback = useCallback(
-    (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[], label?: string) => {
-      // If a label is passed we are selecting all ids with that label
-      if (label) {
-        allColumns?.catColVals?.resolvedValues.filter((v) => getLabelOrUnknown(v.val) === label).forEach((v) => ids.push(v.id));
-      }
-
-      if (e.ctrlKey) {
-        selectionCallback([...new Set([...selectedList, ...ids])]);
-        return;
-      }
+  const customSelectionCallback = React.useCallback(
+    (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
       if (selectionCallback) {
-        if (selectedList.length === ids.length && selectedList.every((value, index) => value === ids[index])) {
+        if (e.ctrlKey) {
+          selectionCallback([...new Set([...(selectedList ?? []), ...ids])]);
+          return;
+        }
+        if ((selectedList ?? []).length === ids.length && (selectedList ?? []).every((value, index) => value === ids[index])) {
           selectionCallback([]);
         } else {
           selectionCallback(ids);
         }
       }
     },
-    [allColumns?.catColVals?.resolvedValues, selectedList, selectionCallback],
+    [selectedList, selectionCallback],
   );
 
+  const chartHeightMap = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
+      if (facet) {
+        map[facet] = calculateChartHeight({ config, aggregatedData: value, containerHeight });
+      }
+    });
+    return map;
+  }, [aggregatedDataMap?.facets, config, containerHeight]);
+
+  const chartMinWidthMap = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
+      if (facet) {
+        map[facet] = calculateChartMinWidth({ config, aggregatedData: value });
+      }
+    });
+    return map;
+  }, [aggregatedDataMap?.facets, config]);
+
+  const isGroupedByNumerical = React.useMemo(() => allColumns?.groupColVals?.type === EColumnTypes.NUMERICAL, [allColumns?.groupColVals?.type]);
+
+  const itemData = React.useMemo(
+    () =>
+      ({
+        aggregatedDataMap,
+        allUniqueFacetVals,
+        chartHeightMap,
+        chartMinWidthMap,
+        config: config!,
+        containerHeight,
+        containerWidth,
+        filteredUniqueFacetVals: filteredUniqueFacetVals as string[],
+        groupColorScale: groupColorScale!,
+        isGroupedByNumerical,
+        labelsMap,
+        longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
+        selectedList: selectedList!,
+        selectedMap: selectedMap!,
+        selectionCallback: customSelectionCallback,
+        setConfig: setConfig!,
+      }) satisfies VirtualizedBarChartProps,
+    [
+      aggregatedDataMap,
+      allUniqueFacetVals,
+      chartHeightMap,
+      chartMinWidthMap,
+      config,
+      containerHeight,
+      containerWidth,
+      customSelectionCallback,
+      filteredUniqueFacetVals,
+      groupColorScale,
+      isGroupedByNumerical,
+      labelsMap,
+      selectedList,
+      selectedMap,
+      setConfig,
+    ],
+  );
+
+  const handleScroll = React.useCallback(({ y }: { y: number }) => {
+    listRef.current?.scrollTo(y);
+  }, []);
+
+  const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
+    const facet = props.data.filteredUniqueFacetVals?.[props.index] as string;
+    return (
+      <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
+        <SingleEChartsBarChart
+          aggregatedData={props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType}
+          chartHeight={props.data.chartHeightMap[facet as string] ?? DEFAULT_BAR_CHART_HEIGHT}
+          chartMinWidth={props.data.chartMinWidthMap[facet as string] ?? DEFAULT_BAR_CHART_MIN_WIDTH}
+          containerWidth={props.data.containerWidth}
+          config={props.data.config}
+          globalMax={props.data.aggregatedDataMap?.globalDomain.max}
+          globalMin={props.data.aggregatedDataMap?.globalDomain.min}
+          groupColorScale={props.data.groupColorScale!}
+          isGroupedByNumerical={props.data.isGroupedByNumerical}
+          labelsMap={props.data.labelsMap}
+          longestLabelWidth={props.data.longestLabelWidth}
+          selectedFacetIndex={facet ? props.data.allUniqueFacetVals.indexOf(facet) : undefined} // use the index of the original list to return back to the grid
+          selectedFacetValue={facet}
+          selectedList={props.data.selectedList}
+          selectedMap={props.data.selectedMap}
+          selectionCallback={props.data.selectionCallback}
+          setConfig={props.data.setConfig}
+        />
+      </Box>
+    );
+  }, []);
+
+  const getTruncatedText = React.useCallback(
+    (value: string) => {
+      // NOTE: @dv-usama-ansari: This might be a performance bottleneck if the number of labels is very high and/or the parentWidth changes frequently (when the viewport is resized).
+      if (containerWidth === truncatedTextRef.current.containerWidth && truncatedTextRef.current.labels[value] !== undefined) {
+        return truncatedTextRef.current.labels[value];
+      }
+
+      const textEl = document.createElement('p');
+      textEl.style.position = 'absolute';
+      textEl.style.visibility = 'hidden';
+      textEl.style.whiteSpace = 'nowrap';
+      textEl.style.maxWidth = config?.direction === EBarDirection.HORIZONTAL ? `${Math.max(gridLeft, containerWidth / 3) - 20}px` : '70px';
+      textEl.innerText = value;
+
+      document.body.appendChild(textEl);
+      const longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
+      truncatedTextRef.current.longestLabelWidth = longestLabelWidth;
+
+      let truncatedText = '';
+      for (let i = 0; i < value.length; i++) {
+        textEl.innerText = `${truncatedText + value[i]}...`;
+        if (textEl.scrollWidth > textEl.clientWidth) {
+          truncatedText += '...';
+          break;
+        }
+        truncatedText += value[i];
+      }
+
+      document.body.removeChild(textEl);
+
+      truncatedTextRef.current.labels[value] = truncatedText;
+      return truncatedText;
+    },
+    [config?.direction, containerWidth, gridLeft],
+  );
+
+  // NOTE: @dv-usama-ansari: We might need an optimization here.
+  React.useEffect(() => {
+    setLabelsMap({});
+    Object.values(aggregatedDataMap?.facets ?? {}).forEach((value) => {
+      (value?.categoriesList ?? []).forEach((category) => {
+        const truncatedText = getTruncatedText(category);
+        truncatedTextRef.current.labels[category] = truncatedText;
+        setLabelsMap((prev) => ({ ...prev, [category]: truncatedText }));
+      });
+    });
+    setGridLeft(Math.min(containerWidth / 3, Math.max(truncatedTextRef.current.longestLabelWidth + 20, 60)));
+  }, [containerWidth, getTruncatedText, config?.catColumnSelected?.id, aggregatedDataMap?.facets]);
+
+  React.useEffect(() => {
+    listRef.current?.resetAfterIndex(0);
+  }, [config, dataTable]);
+
   return (
-    <Stack pr="40px" flex={1} style={{ width: '100%', height: '100%' }}>
-      {showDownloadScreenshot || config.showFocusFacetSelector === true ? (
+    <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
+      {showDownloadScreenshot || config?.showFocusFacetSelector === true ? (
         <Group justify="center">
-          {config.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
-          {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
+          {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
+          {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
         </Group>
       ) : null}
-      <Stack gap={0} id={id} style={{ width: '100%', height: showDownloadScreenshot ? 'calc(100% - 20px)' : '100%' }}>
-        <Box ref={legendBoxRef}>
-          {groupColorScale ? (
-            <Legend
-              left={60}
-              categories={groupColorScale.domain()}
-              filteredOut={filteredOut}
-              isNumerical={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL}
-              colorScale={groupColorScale}
-              stepSize={allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? groupedTable.get('group_max', 0) - groupedTable.get('group', 0) : 0}
-              onFilteredOut={() => {}} // disable legend click for now
-            />
-          ) : null}
-        </Box>
-
-        <Box style={{ display: 'flex', flex: 1, height: groupColorScale ? 'calc(100% - 30px)' : '100%' }}>
-          {colsStatus !== 'success' ? (
-            <Center>
-              <Loader />
-            </Center>
-          ) : !config.facets || !allColumns.facetsColVals ? (
-            <SingleBarChart
+      <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>
+        {colsStatus !== 'success' ? (
+          <Center>
+            <Loader />
+          </Center>
+        ) : !config?.facets || !allColumns?.facetsColVals ? (
+          <ScrollArea
+            style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+            scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
+            offsetScrollbars
+          >
+            <SingleEChartsBarChart
               config={config}
-              setConfig={setConfig}
-              allColumns={allColumns}
-              selectedMap={selectedMap}
-              selectionCallback={customSelectionCallback}
+              aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
+              chartHeight={calculateChartHeight({
+                config,
+                aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
+                containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
+              })}
+              chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
+              containerWidth={containerWidth}
+              globalMin={aggregatedDataMap?.globalDomain.min}
+              globalMax={aggregatedDataMap?.globalDomain.max}
+              groupColorScale={groupColorScale!}
+              isGroupedByNumerical={isGroupedByNumerical}
+              labelsMap={labelsMap}
+              longestLabelWidth={truncatedTextRef.current.longestLabelWidth}
               selectedList={selectedList}
-              legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
+              setConfig={setConfig}
+              selectionCallback={customSelectionCallback}
+              selectedMap={selectedMap}
             />
-          ) : (
-            <Box
-              style={{
-                flex: 1,
-                display: 'grid',
-                gridTemplateColumns: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
-                gridTemplateRows: `repeat(${Math.min(Math.ceil(Math.sqrt(filteredUniqueFacetVals.length)), 5)}, 1fr)`,
-                maxHeight: '100%',
-              }}
+          </ScrollArea>
+        ) : config?.facets && allColumns?.facetsColVals ? (
+          // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
+          <ScrollArea
+            style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+            onScrollPositionChange={handleScroll}
+            type="hover"
+            scrollHideDelay={0}
+            offsetScrollbars
+          >
+            <VariableSizeList
+              height={containerHeight - CHART_HEIGHT_MARGIN / 2}
+              itemCount={filteredUniqueFacetVals.length}
+              itemData={itemData}
+              itemSize={(index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN}
+              width="100%"
+              style={{ overflow: 'visible' }}
+              ref={listRef}
             >
-              {filteredUniqueFacetVals.map((multiplesVal) => (
-                <SingleBarChart
-                  isSmall
-                  index={allUniqueFacetVals.indexOf(multiplesVal)} // use the index of the original list to return back to the grid
-                  selectedList={selectedList}
-                  selectedMap={selectedMap}
-                  key={multiplesVal as string}
-                  config={config}
-                  setConfig={setConfig}
-                  allColumns={allColumns}
-                  categoryFilter={multiplesVal === NAN_REPLACEMENT ? null : multiplesVal}
-                  title={multiplesVal}
-                  selectionCallback={customSelectionCallback}
-                  legendHeight={legendBoxRef?.current?.getBoundingClientRect().height || 0}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
+              {Row}
+            </VariableSizeList>
+          </ScrollArea>
+        ) : null}
       </Stack>
     </Stack>
   );

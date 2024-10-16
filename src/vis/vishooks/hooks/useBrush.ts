@@ -1,23 +1,24 @@
 import { useRef } from 'react';
-import { useInteractions } from './useInteractions';
+import { UseInteractionsProps, useInteractions } from './useInteractions';
 import { Brush, Direction, Extent, PersistMode } from '../interfaces';
 import { clamp } from '../util';
 import { useControlledUncontrolled } from './useControlledUncontrolled';
 
 interface UseBrushProps {
   value?: Brush;
-  onChange?: (brush: Brush) => void;
-  onChangeEnd?: (brush: Brush, nativeEvent: Parameters<Parameters<typeof useInteractions>[0]['onClick']>[0]) => void;
-  onClick?: Parameters<typeof useInteractions>[0]['onClick'];
+  onChange?: (brush: Brush | undefined) => void;
+  onChangeEnd?: (brush: Brush | undefined, nativeEvent: Parameters<NonNullable<UseInteractionsProps['onClick']>>[0]) => void;
+  onClick?: NonNullable<UseInteractionsProps['onClick']>;
   defaultValue?: Brush;
   direction?: Direction;
   extent?: Extent;
   persistMode?: PersistMode;
   skip?: boolean;
+  moveTarget?: 'overlay' | 'window';
 }
 
 export function useBrush(options: UseBrushProps = {}) {
-  const [internalValue, setInternalValue] = useControlledUncontrolled({
+  const [internalValue, setInternalValue] = useControlledUncontrolled<Brush | undefined>({
     value: options.value,
     onChange: options.onChange,
     defaultValue: options.defaultValue,
@@ -26,8 +27,8 @@ export function useBrush(options: UseBrushProps = {}) {
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
-  const { ref, setRef } = useInteractions({
-    moveTarget: 'overlay',
+  const { ref, setRef, state } = useInteractions({
+    moveTarget: options.moveTarget,
     skip: options.skip,
     extent: options.extent,
     onClick: optionsRef.current.onClick,
@@ -74,5 +75,5 @@ export function useBrush(options: UseBrushProps = {}) {
     },
   });
 
-  return { ref, setRef, value: internalValue, setValue: setInternalValue };
+  return { ref, setRef, value: internalValue, setValue: setInternalValue, state };
 }

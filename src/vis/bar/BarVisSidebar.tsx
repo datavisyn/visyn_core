@@ -4,18 +4,17 @@ import { useMemo } from 'react';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
-import { BarDirectionButtons } from './BarDirectionButtons';
-import { GroupSelect } from './GroupSelect';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import { SingleSelect } from '../sidebar/SingleSelect';
+import { BarDirectionButtons, GroupSelect } from './components';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 
 const defaultConfig = {
-  direction: { enable: true, customComponent: null },
-  display: { enable: true, customComponent: null },
-  filter: { enable: true, customComponent: null },
-  group: { enable: true, customComponent: null },
-  groupType: { enable: true, customComponent: null },
-  facets: { enable: true, customComponent: null },
+  direction: { enable: true, customComponent: null as unknown },
+  display: { enable: true, customComponent: null as unknown },
+  filter: { enable: true, customComponent: null as unknown },
+  group: { enable: true, customComponent: null as unknown },
+  groupType: { enable: true, customComponent: null as unknown },
+  facets: { enable: true, customComponent: null as unknown },
 };
 
 export function BarVisSidebar({
@@ -43,7 +42,7 @@ export function BarVisSidebar({
           })
         }
         columns={columns}
-        currentSelected={config.catColumnSelected}
+        currentSelected={config.catColumnSelected!}
         columnType={[EColumnTypes.CATEGORICAL]}
         label="Categorical column"
       />
@@ -53,7 +52,7 @@ export function BarVisSidebar({
             setConfig({
               ...config,
               aggregateType,
-              aggregateColumn: columns.find((col) => col.type === EColumnTypes.NUMERICAL).info,
+              aggregateColumn: (columns ?? []).find((col) => col.type === EColumnTypes.NUMERICAL)?.info as ColumnInfo,
               display: aggregateType === EAggregateTypes.COUNT ? config.display : EBarDisplayType.ABSOLUTE,
             });
           } else {
@@ -70,12 +69,12 @@ export function BarVisSidebar({
         ? mergedOptionsConfig.group.customComponent || (
             <GroupSelect
               aggregateType={config.aggregateType}
-              groupColumnSelectCallback={(group: ColumnInfo) => setConfig({ ...config, group })}
+              groupColumnSelectCallback={(group: ColumnInfo | null) => setConfig({ ...config, group })}
               groupTypeSelectCallback={(groupType: EBarGroupingType) => setConfig({ ...config, groupType })}
               groupDisplaySelectCallback={(display: EBarDisplayType) => setConfig({ ...config, display })}
               displayType={config.display}
               groupType={config.groupType}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
+              columns={columns}
               currentSelected={config.group}
             />
           )
@@ -84,8 +83,8 @@ export function BarVisSidebar({
         ? mergedOptionsConfig.facets.customComponent || (
             <SingleSelect
               callback={(facets: ColumnInfo) => setConfig({ ...config, facets })}
-              columns={columns.filter((c) => config.catColumnSelected && c.info.id !== config.catColumnSelected.id)}
-              currentSelected={config.facets}
+              columns={columns}
+              currentSelected={config.facets!}
               label="Facets"
               columnType={[EColumnTypes.CATEGORICAL]}
             />

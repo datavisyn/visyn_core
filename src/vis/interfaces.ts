@@ -17,6 +17,10 @@ export function isESupportedPlotlyVis(value: string): value is ESupportedPlotlyV
 
 export interface BaseVisConfig {
   type: string;
+  /**
+   * Merge the config with the default values once or if the vis type changes.
+   * @default false
+   */
   merged?: boolean;
 }
 
@@ -66,7 +70,7 @@ export interface IVisCommonValue<Type extends number | string> {
   /**
    * Value of a vis column.
    */
-  val: Type;
+  val: Type | null;
 }
 
 export type VisNumericalValue = IVisCommonValue<number>;
@@ -161,7 +165,6 @@ export interface ICommonVisProps<T> {
   selectedList?: string[];
   showCloseButton?: boolean;
   closeButtonCallback?: () => void;
-  scales?: Scales;
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showSidebarDefault?: boolean;

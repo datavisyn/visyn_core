@@ -1,7 +1,7 @@
 import React from 'react';
 import { StoryObj, Meta } from '@storybook/react';
 import { Center, Stack, Paper } from '@mantine/core';
-import { lassoToSvgPath, useLasso } from './useLasso';
+import { useLasso } from './useLasso';
 import { SVGLasso } from '../components/SVGLasso';
 import { useBrush } from './useBrush';
 import { SVGBrush } from '../components';
