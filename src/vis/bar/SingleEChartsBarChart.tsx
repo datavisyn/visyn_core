@@ -366,13 +366,16 @@ function EagerSingleEChartsBarChart({
               notation: 'compact',
               compactDisplay: 'short',
             }).format(Number(min));
-            const formattedMax = new Intl.NumberFormat('en-US', {
-              maximumFractionDigits: 4,
-              maximumSignificantDigits: 4,
-              notation: 'compact',
-              compactDisplay: 'short',
-            }).format(Number(max));
-            return `${formattedMin} to ${formattedMax}`;
+            if (max) {
+              const formattedMax = new Intl.NumberFormat('en-US', {
+                maximumFractionDigits: 4,
+                maximumSignificantDigits: 4,
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(Number(max));
+              return `${formattedMin} to ${formattedMax}`;
+            }
+            return formattedMin;
           }
           return name;
         },
