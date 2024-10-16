@@ -1,4 +1,4 @@
-import { Container, SegmentedControl, Stack } from '@mantine/core';
+import { Container, SegmentedControl, Stack, Tooltip } from '@mantine/core';
 import * as React from 'react';
 import { EBarDisplayType } from '../interfaces';
 
@@ -12,17 +12,19 @@ export function BarDisplayButtons({ callback, currentSelected, isCount }: BarDis
   return (
     <Container p={0} fluid style={{ width: '100%' }}>
       <Stack gap={0}>
-        <SegmentedControl
-          disabled={!isCount}
-          value={isCount ? currentSelected : EBarDisplayType.ABSOLUTE}
-          onChange={(s) => {
-            callback(s as EBarDisplayType);
-          }}
-          data={[
-            { label: EBarDisplayType.ABSOLUTE, value: EBarDisplayType.ABSOLUTE },
-            { label: EBarDisplayType.NORMALIZED, value: EBarDisplayType.NORMALIZED },
-          ]}
-        />
+        <Tooltip label="Normalized display is enabled only for count aggregation" hidden={isCount} withArrow withinPortal>
+          <SegmentedControl
+            disabled={!isCount}
+            value={isCount ? currentSelected : EBarDisplayType.ABSOLUTE}
+            onChange={(s) => {
+              callback(s as EBarDisplayType);
+            }}
+            data={[
+              { label: EBarDisplayType.ABSOLUTE, value: EBarDisplayType.ABSOLUTE },
+              { label: EBarDisplayType.NORMALIZED, value: EBarDisplayType.NORMALIZED },
+            ]}
+          />
+        </Tooltip>
       </Stack>
     </Container>
   );
