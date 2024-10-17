@@ -1,6 +1,6 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
-import { useSetState } from '@mantine/hooks';
+import { useDebouncedCallback, useSetState } from '@mantine/hooks';
 import type { ECElementEvent, ECharts, ComposeOption } from 'echarts/core';
 import { use, init } from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
@@ -85,6 +85,11 @@ export function useChart({
     instance: null as ECharts | null,
   });
 
+  const debouncedResizeObserver = useDebouncedCallback((entries: ResizeObserverEntry[]) => {
+    const newDimensions = entries[0]?.contentRect;
+    setState({ width: newDimensions?.width, height: newDimensions?.height });
+  }, 250);
+
   const mouseEventsRef = React.useRef(mouseEvents);
   mouseEventsRef.current = mouseEvents;
 
@@ -132,10 +137,7 @@ export function useChart({
 
   const { ref, setRef } = useSetRef<HTMLElement>({
     register: (element) => {
-      const observer = new ResizeObserver((entries) => {
-        const newDimensions = entries[0]?.contentRect;
-        setState({ width: newDimensions?.width, height: newDimensions?.height });
-      });
+      const observer = new ResizeObserver(debouncedResizeObserver);
       // create the instance
       const instance = init(element);
       // Save the mouse events
