@@ -1,8 +1,9 @@
-import { Box } from '@mantine/core';
+import { Box, Center, Loader } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import * as React from 'react';
+import { useAsync } from '../../hooks';
 import { sanitize, selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { ColumnInfo, EAggregateTypes, ICommonVisProps } from '../interfaces';
@@ -14,10 +15,11 @@ import {
   AggregatedDataType,
   BAR_WIDTH,
   CHART_HEIGHT_MARGIN,
+  GenerateAggregatedDataLookup,
   generateBarSeries,
-  getDataForAggregationType,
   SERIES_ZERO,
   sortSeries,
+  WorkerWrapper,
 } from './interfaces/internal';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
@@ -513,23 +515,60 @@ function EagerSingleEChartsBarChart({
     setVisState,
   ]);
 
-  const updateCategoriesSideEffect = React.useCallback(() => {
-    const barSeries = generateBarSeries(
-      aggregatedData,
-      barSeriesBase,
-      {
-        aggregateType: config?.aggregateType as EAggregateTypes,
-        display: config?.display as EBarDisplayType,
-        facets: config?.facets as ColumnInfo,
-        group: config?.group as ColumnInfo,
-        groupType: config?.groupType as EBarGroupingType,
-      },
-      groupColorScale,
-      hasSelected,
-    );
+  const aggregator = React.useCallback(async (...args: Parameters<GenerateAggregatedDataLookup['generateBarSeries']>) => {
+    return WorkerWrapper.generateBarSeries(...args);
+  }, []);
+  const { execute, status: aggregationStatus } = useAsync(aggregator);
 
-    updateSortSideEffect({ barSeries });
-    updateDirectionSideEffect();
+  const updateCategoriesSideEffect = React.useCallback(async () => {
+    if (aggregatedData) {
+      const serializedData = JSON.parse(JSON.stringify(aggregatedData));
+      const serializedConfig = JSON.parse(
+        JSON.stringify({
+          aggregateType: config?.aggregateType as EAggregateTypes,
+          display: config?.display as EBarDisplayType,
+          facets: config?.facets as ColumnInfo,
+          group: config?.group as ColumnInfo,
+          groupType: config?.groupType as EBarGroupingType,
+        }),
+      );
+      const result = await execute(serializedData, serializedConfig);
+      // const result = generateBarSeries(serializedData, serializedConfig);
+
+      const barSeries = result.map((series) => {
+        const r = series as typeof series & { selected: 'selected' | 'unselected'; group: string };
+        const isGrouped = config?.group && groupColorScale != null;
+        const isSelected = r.selected === 'selected';
+        const shouldLowerOpacity = hasSelected && isGrouped && !isSelected;
+        const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
+        const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
+        return {
+          ...barSeriesBase,
+          ...r,
+          label: {
+            ...barSeriesBase.label,
+            ...r.label,
+            ...fixLabelColor,
+          },
+          itemStyle: {
+            ...barSeriesBase.itemStyle,
+            ...r.itemStyle,
+            ...lowerBarOpacity,
+            color:
+              r.group === NAN_REPLACEMENT
+                ? isSelected
+                  ? SELECT_COLOR
+                  : VIS_NEUTRAL_COLOR
+                : isGrouped
+                  ? groupColorScale(r.group) || VIS_NEUTRAL_COLOR
+                  : VIS_NEUTRAL_COLOR,
+          },
+        };
+      });
+
+      updateSortSideEffect({ barSeries });
+      updateDirectionSideEffect();
+    }
   }, [
     aggregatedData,
     barSeriesBase,
@@ -538,6 +577,7 @@ function EagerSingleEChartsBarChart({
     config?.facets,
     config?.group,
     config?.groupType,
+    execute,
     groupColorScale,
     hasSelected,
     updateDirectionSideEffect,
@@ -771,7 +811,11 @@ function EagerSingleEChartsBarChart({
     }
   }, [axisLabelTooltip.dom, instance]);
 
-  return options ? (
+  return aggregationStatus === 'pending' ? (
+    <Center>
+      <Loader />
+    </Center>
+  ) : aggregationStatus === 'success' && options ? (
     <Box
       component="div"
       pos="relative"
