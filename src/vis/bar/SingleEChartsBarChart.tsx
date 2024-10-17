@@ -10,7 +10,15 @@ import type { ECOption } from '../vishooks/hooks/useChart';
 import { useChart } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
-import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, getDataForAggregationType, SERIES_ZERO, sortSeries } from './interfaces/internal';
+import {
+  AggregatedDataType,
+  BAR_WIDTH,
+  CHART_HEIGHT_MARGIN,
+  generateBarSeries,
+  getDataForAggregationType,
+  SERIES_ZERO,
+  sortSeries,
+} from './interfaces/internal';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
@@ -506,71 +514,19 @@ function EagerSingleEChartsBarChart({
   ]);
 
   const updateCategoriesSideEffect = React.useCallback(() => {
-    const barSeries = (aggregatedData?.groupingsList ?? [])
-      .map((g) =>
-        (['selected', 'unselected'] as const).map((s) => {
-          const data = getDataForAggregationType(
-            aggregatedData,
-            {
-              aggregateType: config?.aggregateType as EAggregateTypes,
-              display: config?.display as EBarDisplayType,
-              group: config?.group as ColumnInfo,
-              groupType: config?.groupType as EBarGroupingType,
-            },
-            g,
-            s,
-          );
-
-          if (!data) {
-            return null;
-          }
-          // avoid rendering empty series (bars for a group with all 0 values)
-          if (data.every((d) => Number.isNaN(Number(d.value)) || [Infinity, -Infinity, 0].includes(d.value as number))) {
-            return null;
-          }
-          const isGrouped = config?.group && groupColorScale != null;
-          const isSelected = s === 'selected';
-          const shouldLowerOpacity = hasSelected && isGrouped && !isSelected;
-          const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
-          const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
-
-          return {
-            ...barSeriesBase,
-            name: aggregatedData?.groupingsList.length > 1 ? g : null,
-            label: {
-              ...barSeriesBase.label,
-              ...fixLabelColor,
-              show: config?.group?.id === config?.facets?.id ? true : !(config?.group && config?.groupType === EBarGroupingType.STACK),
-            },
-            emphasis: {
-              label: {
-                show: true,
-              },
-            },
-            itemStyle: {
-              color:
-                g === NAN_REPLACEMENT
-                  ? isSelected
-                    ? SELECT_COLOR
-                    : VIS_NEUTRAL_COLOR
-                  : isGrouped
-                    ? groupColorScale(g) || VIS_NEUTRAL_COLOR
-                    : VIS_NEUTRAL_COLOR,
-
-              ...lowerBarOpacity,
-            },
-            data: data.map((d) => (d.value === 0 ? null : d.value)) as number[],
-            categories: data.map((d) => d.category),
-            group: g,
-            selected: s,
-
-            // group = individual group names, stack = any fixed name
-            stack: config?.groupType === EBarGroupingType.STACK ? 'total' : g,
-          };
-        }),
-      )
-      .flat()
-      .filter(Boolean) as (BarSeriesOption & { categories: string[] })[];
+    const barSeries = generateBarSeries(
+      aggregatedData,
+      barSeriesBase,
+      {
+        aggregateType: config?.aggregateType as EAggregateTypes,
+        display: config?.display as EBarDisplayType,
+        facets: config?.facets as ColumnInfo,
+        group: config?.group as ColumnInfo,
+        groupType: config?.groupType as EBarGroupingType,
+      },
+      groupColorScale,
+      hasSelected,
+    );
 
     updateSortSideEffect({ barSeries });
     updateDirectionSideEffect();
@@ -579,7 +535,7 @@ function EagerSingleEChartsBarChart({
     barSeriesBase,
     config?.aggregateType,
     config?.display,
-    config?.facets?.id,
+    config?.facets,
     config?.group,
     config?.groupType,
     groupColorScale,
