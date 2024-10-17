@@ -307,6 +307,7 @@ export function BarChart({
     );
   }, []);
 
+  // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
   const getTruncatedText = React.useCallback(
     (value: string) => {
       // NOTE: @dv-usama-ansari: This might be a performance bottleneck if the number of labels is very high and/or the parentWidth changes frequently (when the viewport is resized).

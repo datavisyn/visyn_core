@@ -203,6 +203,7 @@ function EagerSingleEChartsBarChart({
           axisPointer: {
             type: 'shadow',
           },
+          // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
           formatter: (params) => {
             const facetString = selectedFacetValue ? generateHTMLString({ label: `Facet of ${config?.facets?.name}`, value: selectedFacetValue }) : '';
 
@@ -269,6 +270,7 @@ function EagerSingleEChartsBarChart({
 
         label: {
           show: true,
+          // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
           formatter: (params) =>
             config?.group && config?.groupType === EBarGroupingType.STACK && config?.display === EBarDisplayType.NORMALIZED
               ? `${params.value}%`
@@ -354,6 +356,7 @@ function EagerSingleEChartsBarChart({
               itemStyle: { color: seriesItem.name === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : groupColorScale?.(seriesItem.name as string) },
             }))
           : [],
+        // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
         formatter: (name: string) => {
           if (isGroupedByNumerical) {
             if (name === NAN_REPLACEMENT && !name.includes(' to ')) {
@@ -469,6 +472,7 @@ function EagerSingleEChartsBarChart({
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
+            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
             formatter: (value: number) => {
               const formattedValue = new Intl.NumberFormat('en-US', {
                 maximumFractionDigits: 4,
@@ -494,6 +498,7 @@ function EagerSingleEChartsBarChart({
           axisLabel: {
             show: true,
             width: gridLeft - 20,
+            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
             formatter: (value: string) => {
               const truncatedText = labelsMap[value];
               return truncatedText;
@@ -519,6 +524,7 @@ function EagerSingleEChartsBarChart({
           data: (v.xAxis as { data: number[] })?.data ?? [],
           axisLabel: {
             show: true,
+            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
             formatter: (value: string) => {
               const truncatedText = labelsMap[value];
               return truncatedText;
@@ -540,6 +546,7 @@ function EagerSingleEChartsBarChart({
           max: globalMax ?? 'dataMax',
           axisLabel: {
             hideOverlap: true,
+            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
             formatter: (value: number) => {
               const formattedValue = new Intl.NumberFormat('en-US', {
                 maximumFractionDigits: 4,
