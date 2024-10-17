@@ -33,7 +33,6 @@ export const defaultConfig: IScatterConfig = {
   shape: null,
   dragMode: EScatterSelectSettings.RECTANGLE,
   alphaSliderVal: 0.5,
-  sizeSliderVal: 8,
   subplots: undefined,
   showLabels: ELabelingOptions.NEVER,
   showLabelLimit: 50,
@@ -181,7 +180,7 @@ export function regressionToAnnotation(r: IRegressionResult, precision: number, 
     xanchor: 'left',
     yanchor: 'top',
     bgcolor: 'rgba(255, 255, 255, 0.8)',
-    xshift: 5,
+    xshift: 10,
     yshift: -5,
   };
 }
