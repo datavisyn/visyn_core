@@ -25,6 +25,7 @@ import {
   getBarData,
 } from './interfaces/internal';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
+import { NAN_REPLACEMENT } from '../general';
 
 type VirtualizedBarChartProps = {
   aggregatedDataMap: ReturnType<typeof generateAggregatedDataLookup>;
@@ -177,9 +178,11 @@ export function BarChart({
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
-    return typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
-      ? [allUniqueFacetVals[config?.focusFacetIndex]]
-      : allUniqueFacetVals;
+    const unsorted =
+      typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
+        ? [allUniqueFacetVals[config?.focusFacetIndex]]
+        : allUniqueFacetVals;
+    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
   }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
   const customSelectionCallback = React.useCallback(
