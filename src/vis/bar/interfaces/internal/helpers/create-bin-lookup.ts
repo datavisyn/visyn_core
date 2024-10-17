@@ -30,10 +30,10 @@ function binValues(values: number[], numberOfBins: number) {
  * Creates a bin lookup map based on the provided data and maximum number of bins.
  *
  * @param data - The array of VisNumericalValue objects.
- * @param maxBins - The maximum number of bins (default: 8).
+ * @param binCount - The maximum number of bins (default: 8).
  * @returns A Map object with VisNumericalValue keys and string values representing the bin names.
  */
-export const createBinLookup = (data: VisNumericalValue[], maxBins: number = 8): Map<VisNumericalValue, string> => {
+export const createBinLookup = (data: VisNumericalValue[], binCount: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 = 8): Map<VisNumericalValue, string> => {
   // Separate null values from the data
   const nonNullData = data.filter((row) => row.val !== null);
   const nullData = data.filter((row) => row.val === null);
@@ -42,7 +42,7 @@ export const createBinLookup = (data: VisNumericalValue[], maxBins: number = 8):
   const values = nonNullData.map((row) => row.val as number);
 
   // Create the bins using custom lodash function
-  const bins = binValues(values, maxBins);
+  const bins = binValues(values, Math.max(binCount, 8));
 
   // Create a map to hold the bin names
   const binMap = new Map<VisNumericalValue, string>();
