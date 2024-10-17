@@ -3,6 +3,7 @@ export * from './aggregation.worker-helper';
 export * from './calculate-chart-dimensions';
 export * from './create-bin-lookup';
 export * from './generate-aggregated-data-lookup';
+export * from './get-data-for-aggregate-type';
 export * from './get-bar-data';
 export * from './median';
 export * from './normalized-value';

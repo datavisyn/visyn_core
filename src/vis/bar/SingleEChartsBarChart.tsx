@@ -5,12 +5,12 @@ import type { BarSeriesOption } from 'echarts/charts';
 import * as React from 'react';
 import { sanitize, selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
-import { EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { useChart } from '../vishooks/hooks/useChart';
+import { ColumnInfo, EAggregateTypes, ICommonVisProps } from '../interfaces';
 import type { ECOption } from '../vishooks/hooks/useChart';
+import { useChart } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
-import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, SERIES_ZERO, sortSeries } from './interfaces/internal';
+import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, getDataForAggregationType, SERIES_ZERO, sortSeries } from './interfaces/internal';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
@@ -64,82 +64,6 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
 
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
-
-  // TODO: @dv-usama-ansari: This should be moved to a pure function so that it could be unit tested.
-  const getDataForAggregationType = React.useCallback(
-    (group: string, selected: 'selected' | 'unselected') => {
-      if (aggregatedData) {
-        switch (config?.aggregateType) {
-          case EAggregateTypes.COUNT:
-            return (aggregatedData.categoriesList ?? []).map((category) => ({
-              value: aggregatedData.categories[category]?.groups[group]?.[selected]
-                ? normalizedValue({
-                    config,
-                    value: aggregatedData.categories[category].groups[group][selected].count,
-                    total: aggregatedData.categories[category].total,
-                  })
-                : 0,
-              category,
-            }));
-
-          case EAggregateTypes.AVG:
-            return (aggregatedData.categoriesList ?? []).map((category) => ({
-              value: aggregatedData.categories[category]?.groups[group]?.[selected]
-                ? normalizedValue({
-                    config,
-                    value: aggregatedData.categories[category].groups[group][selected].sum / aggregatedData.categories[category].groups[group][selected].count,
-                    total: aggregatedData.categories[category].total,
-                  })
-                : 0,
-              category,
-            }));
-
-          case EAggregateTypes.MIN:
-            return (aggregatedData.categoriesList ?? []).map((category) => ({
-              value: aggregatedData.categories[category]?.groups[group]?.[selected]
-                ? normalizedValue({
-                    config,
-                    value: aggregatedData.categories[category].groups[group][selected].min,
-                    total: aggregatedData.categories[category].total,
-                  })
-                : 0,
-              category,
-            }));
-
-          case EAggregateTypes.MAX:
-            return (aggregatedData.categoriesList ?? []).map((category) => ({
-              value: aggregatedData.categories[category]?.groups[group]?.[selected]
-                ? normalizedValue({
-                    config,
-                    value: aggregatedData.categories[category].groups[group][selected].max,
-                    total: aggregatedData.categories[category].total,
-                  })
-                : 0,
-              category,
-            }));
-
-          case EAggregateTypes.MED:
-            return (aggregatedData.categoriesList ?? []).map((category) => ({
-              value: aggregatedData.categories[category]?.groups[group]?.[selected]
-                ? normalizedValue({
-                    config,
-                    value: median(aggregatedData.categories[category].groups[group][selected].nums) as number,
-                    total: aggregatedData.categories[category].total,
-                  })
-                : 0,
-              category,
-            }));
-
-          default:
-            console.warn(`Aggregation type ${config?.aggregateType} is not supported by bar chart.`);
-            return [];
-        }
-      }
-      console.warn(`No data available`);
-      return null;
-    },
-    [aggregatedData, config],
-  );
 
   const groupSortedSeries = React.useMemo(() => {
     const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
@@ -585,7 +509,17 @@ function EagerSingleEChartsBarChart({
     const barSeries = (aggregatedData?.groupingsList ?? [])
       .map((g) =>
         (['selected', 'unselected'] as const).map((s) => {
-          const data = getDataForAggregationType(g, s);
+          const data = getDataForAggregationType(
+            aggregatedData,
+            {
+              aggregateType: config?.aggregateType as EAggregateTypes,
+              display: config?.display as EBarDisplayType,
+              group: config?.group as ColumnInfo,
+              groupType: config?.groupType as EBarGroupingType,
+            },
+            g,
+            s,
+          );
 
           if (!data) {
             return null;
@@ -641,12 +575,13 @@ function EagerSingleEChartsBarChart({
     updateSortSideEffect({ barSeries });
     updateDirectionSideEffect();
   }, [
-    aggregatedData?.groupingsList,
+    aggregatedData,
     barSeriesBase,
+    config?.aggregateType,
+    config?.display,
     config?.facets?.id,
     config?.group,
     config?.groupType,
-    getDataForAggregationType,
     groupColorScale,
     hasSelected,
     updateDirectionSideEffect,
