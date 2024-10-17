@@ -38,6 +38,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     singleNumber: Array(numberOfPoints)
       .fill(null)
       .map(() => RNG(numberOfPoints, 'mixed')()),
+    badNumbers: Array(numberOfPoints)
+      .fill(null)
+      .map(() => [null, undefined, Infinity, -Infinity, NaN][parseInt((positiveRNG() * numberOfPoints).toString(), 10) % 5]),
     categories: Array(numberOfPoints)
       .fill(null)
       .map(() => `CATEGORY_${parseInt((positiveRNG() * 10).toString(), 10).toString()}`),
@@ -114,6 +117,19 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       values: async () => {
         const data = await dataPromise;
         return data.singleNumber.map((val, i) => ({ id: i.toString(), val }));
+      },
+    },
+    {
+      info: {
+        description: 'Bad numbers like null, undefined, Infinity, -Infinity, NaN',
+        id: 'badNumbers',
+        name: 'Bad numbers',
+      },
+      type: EColumnTypes.NUMERICAL,
+      domain: [undefined, undefined],
+      values: async () => {
+        const data = await dataPromise;
+        return data.badNumbers.map((val, i) => ({ id: i.toString(), val }));
       },
     },
     {
