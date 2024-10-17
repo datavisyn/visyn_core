@@ -13,7 +13,6 @@ export interface IScatterConfig extends BaseVisConfig {
   shape: ColumnInfo | null;
   dragMode: EScatterSelectSettings;
   alphaSliderVal: number;
-  sizeSliderVal: number;
   showLabels: ELabelingOptions;
   showLabelLimit?: number;
   regressionLineOptions?: IRegressionLineOptions;

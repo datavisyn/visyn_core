@@ -330,11 +330,6 @@ const methods = {
   },
 };
 
-const regressionMethodsMapping = {
-  [ERegressionLineType.LINEAR]: 'linear',
-  [ERegressionLineType.POLYNOMIAL]: 'polynomial',
-};
-
 export const fitRegressionLine = (
   data: { x: number[]; y: number[] },
   method: ERegressionLineType,

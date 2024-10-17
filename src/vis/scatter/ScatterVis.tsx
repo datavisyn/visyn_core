@@ -1,5 +1,5 @@
 /* eslint-disable react-compiler/react-compiler */
-import { useElementSize, useResizeObserver, useWindowEvent } from '@mantine/hooks';
+import { useElementSize, useWindowEvent } from '@mantine/hooks';
 import { Center, Group, Stack, Switch, Tooltip, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
@@ -14,8 +14,6 @@ import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommon
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
 import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
-import { getLabelOrUnknown } from '../general/utils';
-import { truncateText } from '../general/layoutUtils';
 import { fitRegressionLine } from './Regression';
 import { useDataPreparation } from './useDataPreparation';
 import { InvalidCols } from '../general/InvalidCols';
@@ -192,7 +190,7 @@ export function ScatterVis({
             },
           ],
           results: [curveFit],
-          annotations: [regressionToAnnotation(curveFit, 3, 'x', 'y')],
+          annotations: config.regressionLineOptions.showStats !== false ? [regressionToAnnotation(curveFit, 3, 'x', 'y')] : [],
         };
       }
     }
@@ -232,9 +230,9 @@ export function ScatterVis({
       const results: IRegressionResult[] = [];
       const plotlyShapes: Partial<PlotlyTypes.Shape>[] = [];
       // eslint-disable-next-line guard-for-in
-      splom.xyPairs.forEach((pair, i) => {
+      splom.xyPairs.forEach((pair) => {
         const curveFit = fitRegressionLine(
-          { x: pair.data.x.filter((x) => x), y: pair.data.y.filter((y) => y) },
+          { x: pair.data.validIndices.map((i) => pair.data.x[i]), y: pair.data.validIndices.map((i) => pair.data.y[i]) },
           config.regressionLineOptions.type,
           pair.xref,
           pair.yref,
@@ -264,6 +262,7 @@ export function ScatterVis({
     config.regressionLineOptions.type,
     config.regressionLineOptions.fitOptions,
     config.regressionLineOptions.lineStyle,
+    config.regressionLineOptions.showStats,
     subplots,
     scatter,
     facet,
@@ -467,7 +466,7 @@ export function ScatterVis({
         </div>
       ) : null}
 
-      <div ref={ref} style={{ gridArea: 'plot', overflow: 'hidden' }}>
+      <div ref={ref} style={{ gridArea: 'plot', overflow: 'hidden', paddingBottom: '0.5rem' }}>
         {status === 'success' && layout ? (
           <PlotlyComponent
             data-testid="ScatterPlotTestId"

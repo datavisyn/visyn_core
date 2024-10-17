@@ -43,7 +43,6 @@ export function MainApp() {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-    sizeSliderVal: 5,
     showLabels: ELabelingOptions.SELECTED,
     showLabelLimit: 20,
     regressionLineOptions: {
