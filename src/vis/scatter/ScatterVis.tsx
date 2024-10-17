@@ -466,7 +466,7 @@ export function ScatterVis({
         </div>
       ) : null}
 
-      <div ref={ref} style={{ gridArea: 'plot', overflow: 'hidden' }}>
+      <div ref={ref} style={{ gridArea: 'plot', overflow: 'hidden', paddingBottom: '0.5rem' }}>
         {status === 'success' && layout ? (
           <PlotlyComponent
             data-testid="ScatterPlotTestId"
