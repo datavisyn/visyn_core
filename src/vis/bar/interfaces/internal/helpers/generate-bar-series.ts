@@ -51,6 +51,5 @@ export function generateBarSeries(
         };
       }),
     )
-    .flat()
-    .filter(Boolean) as (BarSeriesOption & { categories: string[]; group: string; selected: 'selected' | 'unselected' })[];
+    .flat() as (BarSeriesOption & { categories: string[]; group: string; selected: 'selected' | 'unselected' })[];
 }

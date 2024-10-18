@@ -1,4 +1,4 @@
-import { Box, Center, Loader } from '@mantine/core';
+import { Box } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
@@ -79,7 +79,6 @@ function EagerSingleEChartsBarChart({
   });
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
-
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
 
   const groupSortedSeries = React.useMemo(() => {
@@ -329,13 +328,16 @@ function EagerSingleEChartsBarChart({
       if (barSeries.length > 0) {
         if (config?.direction === EBarDirection.HORIZONTAL) {
           const sortedSeries = sortSeries(
-            barSeries.map((item) => ({ categories: item.categories, data: item.data })),
+            barSeries.map((item) => (item ? { categories: item.categories, data: item.data } : null)),
             { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
           );
           setVisState((v) => ({
             ...v,
             // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
-            series: barSeries.map((item, itemIndex) => ({ ...item, data: [...sortedSeries[itemIndex]!.data!].reverse() })),
+            series: barSeries.map((item, itemIndex) => ({
+              ...item,
+              data: [...(sortedSeries[itemIndex]?.data as NonNullable<BarSeriesOption['data']>)].reverse(),
+            })),
             yAxis: {
               ...v.yAxis,
               type: 'category' as const,
@@ -345,13 +347,13 @@ function EagerSingleEChartsBarChart({
         }
         if (config?.direction === EBarDirection.VERTICAL) {
           const sortedSeries = sortSeries(
-            barSeries.map((item) => ({ categories: item.categories, data: item.data })),
+            barSeries.map((item) => (item ? { categories: item.categories, data: item.data } : null)),
             { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.VERTICAL },
           );
 
           setVisState((v) => ({
             ...v,
-            series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]!.data })),
+            series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]?.data })),
             xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
           }));
         }
@@ -487,7 +489,7 @@ function EagerSingleEChartsBarChart({
   const aggregator = React.useCallback(async (...args: Parameters<GenerateAggregatedDataLookup['generateBarSeries']>) => {
     return WorkerWrapper.generateBarSeries(...args);
   }, []);
-  const { execute, status: aggregationStatus } = useAsync(aggregator);
+  const { execute } = useAsync(aggregator);
 
   const updateCategoriesSideEffect = React.useCallback(async () => {
     if (aggregatedData) {
@@ -500,6 +502,9 @@ function EagerSingleEChartsBarChart({
       });
 
       const barSeries = result.map((series) => {
+        if (!series) {
+          return series;
+        }
         const r = series as typeof series & { selected: 'selected' | 'unselected'; group: string };
         const isGrouped = config?.group && groupColorScale != null;
         const isSelected = r.selected === 'selected';
@@ -607,7 +612,7 @@ function EagerSingleEChartsBarChart({
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the selected categorical column changes.
   React.useEffect(() => {
     updateCategoriesSideEffect();
-  }, [updateCategoriesSideEffect]);
+  }, [config?.catColumnSelected?.id, selectedMap, updateCategoriesSideEffect]);
 
   const settings = React.useMemo(
     () => ({
@@ -817,11 +822,7 @@ function EagerSingleEChartsBarChart({
     }
   }, [axisLabelTooltip.dom, instance]);
 
-  return aggregationStatus === 'pending' ? (
-    <Center>
-      <Loader />
-    </Center>
-  ) : aggregationStatus === 'success' && options ? (
+  return options ? (
     <Box
       component="div"
       pos="relative"
