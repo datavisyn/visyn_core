@@ -40,7 +40,7 @@ export function getDataForAggregationType(
           value: aggregatedData.categories[category]?.groups[group]?.[selected]
             ? normalizedValue(
                 config,
-                aggregatedData.categories[category].groups[group][selected].sum / aggregatedData.categories[category].groups[group][selected].count,
+                aggregatedData.categories[category].groups[group][selected].sum / (aggregatedData.categories[category].groups[group][selected].count || 1),
                 aggregatedData.categories[category].total,
               )
             : 0,

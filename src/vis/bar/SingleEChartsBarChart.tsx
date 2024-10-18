@@ -241,97 +241,99 @@ function EagerSingleEChartsBarChart({
     ],
   );
 
-  const optionBase = React.useMemo(() => {
-    return {
-      animation: false,
+  const optionBase = React.useMemo(
+    () =>
+      ({
+        animation: false,
 
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow',
-        },
-      },
-
-      title: [
-        {
-          text: selectedFacetValue
-            ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`
-            : `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`,
-          triggerEvent: !!config?.facets,
-          left: '50%',
-          textAlign: 'center',
-          name: 'facetTitle',
-          textStyle: {
-            color: '#7F7F7F',
-            fontFamily: 'Roboto, sans-serif',
-            fontSize: '14px',
-            whiteSpace: 'pre',
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow',
           },
         },
-      ],
 
-      grid: {
-        containLabel: false,
-        left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60, // NOTE: @dv-usama-ansari: Arbitrary fallback value!
-        top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
-        bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85, // NOTE: @dv-usama-ansari: Arbitrary value!
-        right: 20, // NOTE: @dv-usama-ansari: Arbitrary value!
-      },
+        title: [
+          {
+            text: selectedFacetValue
+              ? `${config?.facets?.name}: ${selectedFacetValue} | ${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`
+              : `${config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`}: ${config?.catColumnSelected?.name}`,
+            triggerEvent: !!config?.facets,
+            left: '50%',
+            textAlign: 'center',
+            name: 'facetTitle',
+            textStyle: {
+              color: '#7F7F7F',
+              fontFamily: 'Roboto, sans-serif',
+              fontSize: '14px',
+              whiteSpace: 'pre',
+            },
+          },
+        ],
 
-      legend: {
-        orient: 'horizontal',
-        top: 30,
-        type: 'scroll',
-        icon: 'circle',
-        show: !!config?.group,
-        data: config?.group
-          ? groupSortedSeries.map((seriesItem) => ({
-              name: seriesItem.name,
-              itemStyle: { color: seriesItem.name === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : groupColorScale?.(seriesItem.name as string) },
-            }))
-          : [],
-        // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-        formatter: (name: string) => {
-          if (isGroupedByNumerical) {
-            if (name === NAN_REPLACEMENT && !name.includes(' to ')) {
-              return name;
-            }
-            const [min, max] = name.split(' to ');
-            const formattedMin = new Intl.NumberFormat('en-US', {
-              maximumFractionDigits: 4,
-              maximumSignificantDigits: 4,
-              notation: 'compact',
-              compactDisplay: 'short',
-            }).format(Number(min));
-            if (max) {
-              const formattedMax = new Intl.NumberFormat('en-US', {
+        grid: {
+          containLabel: false,
+          left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60, // NOTE: @dv-usama-ansari: Arbitrary fallback value!
+          top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
+          bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85, // NOTE: @dv-usama-ansari: Arbitrary value!
+          right: 20, // NOTE: @dv-usama-ansari: Arbitrary value!
+        },
+
+        legend: {
+          orient: 'horizontal',
+          top: 30,
+          type: 'scroll',
+          icon: 'circle',
+          show: !!config?.group,
+          data: config?.group
+            ? groupSortedSeries.map((seriesItem) => ({
+                name: seriesItem.name,
+                itemStyle: { color: seriesItem.name === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : groupColorScale?.(seriesItem.name as string) },
+              }))
+            : [],
+          // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
+          formatter: (name: string) => {
+            if (isGroupedByNumerical) {
+              if (name === NAN_REPLACEMENT && !name.includes(' to ')) {
+                return name;
+              }
+              const [min, max] = name.split(' to ');
+              const formattedMin = new Intl.NumberFormat('en-US', {
                 maximumFractionDigits: 4,
                 maximumSignificantDigits: 4,
                 notation: 'compact',
                 compactDisplay: 'short',
-              }).format(Number(max));
-              return `${formattedMin} to ${formattedMax}`;
+              }).format(Number(min));
+              if (max) {
+                const formattedMax = new Intl.NumberFormat('en-US', {
+                  maximumFractionDigits: 4,
+                  maximumSignificantDigits: 4,
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                }).format(Number(max));
+                return `${formattedMin} to ${formattedMax}`;
+              }
+              return formattedMin;
             }
-            return formattedMin;
-          }
-          return name;
+            return name;
+          },
         },
-      },
-    } as ECOption;
-  }, [
-    config?.aggregateColumn?.name,
-    config?.aggregateType,
-    config?.catColumnSelected?.name,
-    config?.direction,
-    config?.facets,
-    config?.group,
-    containerWidth,
-    gridLeft,
-    groupColorScale,
-    groupSortedSeries,
-    isGroupedByNumerical,
-    selectedFacetValue,
-  ]);
+      }) as ECOption,
+    [
+      config?.aggregateColumn?.name,
+      config?.aggregateType,
+      config?.catColumnSelected?.name,
+      config?.direction,
+      config?.facets,
+      config?.group,
+      containerWidth,
+      gridLeft,
+      groupColorScale,
+      groupSortedSeries,
+      isGroupedByNumerical,
+      selectedFacetValue,
+    ],
+  );
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
@@ -522,18 +524,13 @@ function EagerSingleEChartsBarChart({
 
   const updateCategoriesSideEffect = React.useCallback(async () => {
     if (aggregatedData) {
-      const serializedData = JSON.parse(JSON.stringify(aggregatedData));
-      const serializedConfig = JSON.parse(
-        JSON.stringify({
-          aggregateType: config?.aggregateType as EAggregateTypes,
-          display: config?.display as EBarDisplayType,
-          facets: config?.facets as ColumnInfo,
-          group: config?.group as ColumnInfo,
-          groupType: config?.groupType as EBarGroupingType,
-        }),
-      );
-      const result = await execute(serializedData, serializedConfig);
-      // const result = generateBarSeries(serializedData, serializedConfig);
+      const result = await execute(aggregatedData, {
+        aggregateType: config?.aggregateType as EAggregateTypes,
+        display: config?.display as EBarDisplayType,
+        facets: config?.facets as ColumnInfo,
+        group: config?.group as ColumnInfo,
+        groupType: config?.groupType as EBarGroupingType,
+      });
 
       const barSeries = result.map((series) => {
         const r = series as typeof series & { selected: 'selected' | 'unselected'; group: string };

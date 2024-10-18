@@ -27,7 +27,7 @@ export function generateBarSeries(
           return null;
         }
         // avoid rendering empty series (bars for a group with all 0 values)
-        if (data.every((d) => Number.isNaN(Number(d.value)) || [Infinity, -Infinity, 0].includes(d.value as number))) {
+        if (data.every((d) => Number.isNaN(Number(d.value)) || [Infinity, -Infinity, 0, null, undefined].includes(d.value as number))) {
           return null;
         }
 

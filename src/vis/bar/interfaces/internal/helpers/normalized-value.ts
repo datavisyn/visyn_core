@@ -16,7 +16,7 @@ export function normalizedValue(
   total: number,
 ): number | null {
   // NOTE: @dv-usama-ansari: Filter out Infinity and -Infinity values. This is required for proper display of minimum and maximum aggregations.
-  if ([Infinity, -Infinity].includes(value)) {
+  if ([Infinity, -Infinity, NaN, null, undefined].includes(value)) {
     return null;
   }
   return config.group && config.groupType === EBarGroupingType.STACK && config.display === EBarDisplayType.NORMALIZED
