@@ -15,6 +15,7 @@ import {
   AggregatedDataType,
   BAR_WIDTH,
   CHART_HEIGHT_MARGIN,
+  DEFAULT_BAR_CHART_HEIGHT,
   GenerateAggregatedDataLookup,
   SERIES_ZERO,
   sortSeries,
@@ -121,7 +122,9 @@ function EagerSingleEChartsBarChart({
     return [...knownSeries, ...unknownSeries];
   }, [groupColorScale, isGroupedByNumerical, visState.series]);
 
-  // prepare data
+  const showChart = React.useMemo(() => groupSortedSeries.reduce((acc, s) => acc + (s.data ?? []).length, 0) < 1501, [groupSortedSeries]);
+
+  // NOTE: @dv-usama-ansari: Prepare the base series options for the bar chart.
   const barSeriesBase = React.useMemo(
     () =>
       ({
@@ -546,6 +549,27 @@ function EagerSingleEChartsBarChart({
 
   const options = React.useMemo(() => {
     if (groupSortedSeries.length > 0) {
+      if (!showChart) {
+        return {
+          ...optionBase,
+          title: [
+            ...(optionBase.title as ECOption['title'][]),
+            {
+              text: 'Too much data to display!',
+              left: '50%',
+              top: '50%',
+              textAlign: 'center',
+              name: 'noDataTitle',
+              textStyle: {
+                color: '#7F7F7F',
+                fontFamily: 'Roboto, sans-serif',
+                fontSize: '16px',
+                whiteSpace: 'pre',
+              },
+            },
+          ],
+        } as ECOption;
+      }
       return {
         ...optionBase,
         series: groupSortedSeries,
@@ -572,7 +596,7 @@ function EagerSingleEChartsBarChart({
         },
       ],
     } as ECOption;
-  }, [optionBase, groupSortedSeries, visState.xAxis, visState.yAxis]);
+  }, [groupSortedSeries, optionBase, showChart, visState.xAxis, visState.yAxis]);
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   React.useEffect(() => {
@@ -802,7 +826,10 @@ function EagerSingleEChartsBarChart({
       pos="relative"
       pr="xs"
       ref={setRef}
-      style={{ width: `${Math.max(containerWidth, chartMinWidth)}px`, height: `${chartHeight + CHART_HEIGHT_MARGIN}px` }}
+      style={{
+        width: showChart ? `${Math.max(containerWidth, chartMinWidth)}px` : '100%',
+        height: showChart ? `${chartHeight + CHART_HEIGHT_MARGIN}px` : DEFAULT_BAR_CHART_HEIGHT,
+      }}
     />
   ) : null;
 }
