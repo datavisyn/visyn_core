@@ -62,7 +62,7 @@ export function useData({
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
   selectedList: string[];
   shapeScale: (val: string) => string;
-  mappingFunction?: (val: string | number) => string;
+  mappingFunction?: (val: string | number | null | undefined) => string;
 }) {
   return React.useMemo<PlotlyTypes.Data[]>(() => {
     if (status !== 'success' || !value) {
@@ -97,10 +97,7 @@ export function useData({
             ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[index]?.val)}` : ''}`.trim(),
           ),
           marker: {
-            color:
-              value.colorColumn && mappingFunction
-                ? value.colorColumn.resolvedValues.map((v) => (v.val ? mappingFunction(v.val) : VIS_NEUTRAL_COLOR))
-                : VIS_NEUTRAL_COLOR,
+            color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
@@ -145,10 +142,7 @@ export function useData({
             textfont: {
               color: VIS_NEUTRAL_COLOR,
             },
-            color:
-              value.colorColumn && mappingFunction
-                ? value.colorColumn.resolvedValues.map((v) => (v.val ? mappingFunction(v.val) : VIS_NEUTRAL_COLOR))
-                : VIS_NEUTRAL_COLOR,
+            color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
@@ -227,10 +221,7 @@ export function useData({
           ),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
           marker: {
-            color:
-              value.colorColumn && mappingFunction
-                ? value.colorColumn.resolvedValues.map((v) => (v.val ? mappingFunction(v.val) : VIS_NEUTRAL_COLOR))
-                : VIS_NEUTRAL_COLOR,
+            color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: config.alphaSliderVal,
           },
