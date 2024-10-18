@@ -372,133 +372,135 @@ function EagerSingleEChartsBarChart({
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
-    const aggregationAxisNameBase =
-      config?.group && config?.display === EBarDisplayType.NORMALIZED
-        ? `Normalized ${config?.aggregateType} (%)`
-        : config?.aggregateType === EAggregateTypes.COUNT
-          ? config?.aggregateType
-          : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`;
-    const aggregationAxisSortText =
-      config?.direction === EBarDirection.HORIZONTAL
-        ? SortDirectionMap[config?.sortState?.x as EBarSortState]
-        : config?.direction === EBarDirection.VERTICAL
-          ? SortDirectionMap[config?.sortState?.y as EBarSortState]
-          : '';
-    const aggregationAxisName = `${aggregationAxisNameBase} (${aggregationAxisSortText})`;
-
-    const categoricalAxisNameBase = config?.catColumnSelected?.name;
-    const categoricalAxisSortText =
-      config?.direction === EBarDirection.HORIZONTAL
-        ? SortDirectionMap[config?.sortState?.y as EBarSortState]
-        : config?.direction === EBarDirection.VERTICAL
+    if (visState.series.length > 0) {
+      const aggregationAxisNameBase =
+        config?.group && config?.display === EBarDisplayType.NORMALIZED
+          ? `Normalized ${config?.aggregateType} (%)`
+          : config?.aggregateType === EAggregateTypes.COUNT
+            ? config?.aggregateType
+            : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`;
+      const aggregationAxisSortText =
+        config?.direction === EBarDirection.HORIZONTAL
           ? SortDirectionMap[config?.sortState?.x as EBarSortState]
-          : '';
-    const categoricalAxisName = `${categoricalAxisNameBase} (${categoricalAxisSortText})`;
+          : config?.direction === EBarDirection.VERTICAL
+            ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+            : '';
+      const aggregationAxisName = `${aggregationAxisNameBase} (${aggregationAxisSortText})`;
 
-    if (config?.direction === EBarDirection.HORIZONTAL) {
-      setVisState((v) => ({
-        ...v,
+      const categoricalAxisNameBase = config?.catColumnSelected?.name;
+      const categoricalAxisSortText =
+        config?.direction === EBarDirection.HORIZONTAL
+          ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+          : config?.direction === EBarDirection.VERTICAL
+            ? SortDirectionMap[config?.sortState?.x as EBarSortState]
+            : '';
+      const categoricalAxisName = `${categoricalAxisNameBase} (${categoricalAxisSortText})`;
 
-        xAxis: {
-          type: 'value' as const,
-          name: aggregationAxisName,
-          nameLocation: 'middle',
-          nameGap: 32,
-          min: globalMin ?? 'dataMin',
-          max: globalMax ?? 'dataMax',
-          axisLabel: {
-            hideOverlap: true,
-            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-            formatter: (value: number) => {
-              const formattedValue = new Intl.NumberFormat('en-US', {
-                maximumFractionDigits: 4,
-                maximumSignificantDigits: 4,
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(value);
-              return formattedValue;
+      if (config?.direction === EBarDirection.HORIZONTAL) {
+        setVisState((v) => ({
+          ...v,
+
+          xAxis: {
+            type: 'value' as const,
+            name: aggregationAxisName,
+            nameLocation: 'middle',
+            nameGap: 32,
+            min: globalMin ?? 'dataMin',
+            max: globalMax ?? 'dataMax',
+            axisLabel: {
+              hideOverlap: true,
+              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
+              formatter: (value: number) => {
+                const formattedValue = new Intl.NumberFormat('en-US', {
+                  maximumFractionDigits: 4,
+                  maximumSignificantDigits: 4,
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                }).format(value);
+                return formattedValue;
+              },
             },
-          },
-          nameTextStyle: {
-            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-          },
-          triggerEvent: true,
-        },
-
-        yAxis: {
-          type: 'category' as const,
-          name: categoricalAxisName,
-          nameLocation: 'middle',
-          nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
-          data: (v.yAxis as { data: number[] })?.data ?? [],
-          axisLabel: {
-            show: true,
-            width: gridLeft - 20,
-            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-            formatter: (value: string) => {
-              const truncatedText = labelsMap[value];
-              return truncatedText;
+            nameTextStyle: {
+              color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
             },
+            triggerEvent: true,
           },
-          nameTextStyle: {
-            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-          },
-          triggerEvent: true,
-        },
-      }));
-    }
-    if (config?.direction === EBarDirection.VERTICAL) {
-      setVisState((v) => ({
-        ...v,
 
-        // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
-        xAxis: {
-          type: 'category' as const,
-          name: categoricalAxisName,
-          nameLocation: 'middle',
-          nameGap: 60,
-          data: (v.xAxis as { data: number[] })?.data ?? [],
-          axisLabel: {
-            show: true,
-            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-            formatter: (value: string) => {
-              const truncatedText = labelsMap[value];
-              return truncatedText;
+          yAxis: {
+            type: 'category' as const,
+            name: categoricalAxisName,
+            nameLocation: 'middle',
+            nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
+            data: (v.yAxis as { data: number[] })?.data ?? [],
+            axisLabel: {
+              show: true,
+              width: gridLeft - 20,
+              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
+              formatter: (value: string) => {
+                const truncatedText = labelsMap[value];
+                return truncatedText;
+              },
             },
-            rotate: 45,
+            nameTextStyle: {
+              color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+            },
+            triggerEvent: true,
           },
-          nameTextStyle: {
-            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-          },
-          triggerEvent: true,
-        },
+        }));
+      }
+      if (config?.direction === EBarDirection.VERTICAL) {
+        setVisState((v) => ({
+          ...v,
 
-        yAxis: {
-          type: 'value' as const,
-          name: aggregationAxisName,
-          nameLocation: 'middle',
-          nameGap: 40,
-          min: globalMin ?? 'dataMin',
-          max: globalMax ?? 'dataMax',
-          axisLabel: {
-            hideOverlap: true,
-            // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-            formatter: (value: number) => {
-              const formattedValue = new Intl.NumberFormat('en-US', {
-                maximumFractionDigits: 4,
-                maximumSignificantDigits: 4,
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(value);
-              return formattedValue;
+          // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
+          xAxis: {
+            type: 'category' as const,
+            name: categoricalAxisName,
+            nameLocation: 'middle',
+            nameGap: 60,
+            data: (v.xAxis as { data: number[] })?.data ?? [],
+            axisLabel: {
+              show: true,
+              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
+              formatter: (value: string) => {
+                const truncatedText = labelsMap[value];
+                return truncatedText;
+              },
+              rotate: 45,
             },
+            nameTextStyle: {
+              color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+            },
+            triggerEvent: true,
           },
-          nameTextStyle: {
-            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+
+          yAxis: {
+            type: 'value' as const,
+            name: aggregationAxisName,
+            nameLocation: 'middle',
+            nameGap: 40,
+            min: globalMin ?? 'dataMin',
+            max: globalMax ?? 'dataMax',
+            axisLabel: {
+              hideOverlap: true,
+              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
+              formatter: (value: number) => {
+                const formattedValue = new Intl.NumberFormat('en-US', {
+                  maximumFractionDigits: 4,
+                  maximumSignificantDigits: 4,
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                }).format(value);
+                return formattedValue;
+              },
+            },
+            nameTextStyle: {
+              color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+            },
+            triggerEvent: true,
           },
-          triggerEvent: true,
-        },
-      }));
+        }));
+      }
     }
   }, [
     config?.aggregateColumn?.name,
@@ -515,6 +517,7 @@ function EagerSingleEChartsBarChart({
     gridLeft,
     labelsMap,
     setVisState,
+    visState.series.length,
   ]);
 
   const aggregator = React.useCallback(async (...args: Parameters<GenerateAggregatedDataLookup['generateBarSeries']>) => {
@@ -582,11 +585,32 @@ function EagerSingleEChartsBarChart({
   ]);
 
   const options = React.useMemo(() => {
+    if (groupSortedSeries.length > 0) {
+      return {
+        ...optionBase,
+        series: groupSortedSeries,
+        ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
+        ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
+      } as ECOption;
+    }
     return {
       ...optionBase,
-      series: groupSortedSeries,
-      ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
-      ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
+      title: [
+        ...(optionBase.title as ECOption['title'][]),
+        {
+          text: 'No data to display!',
+          left: '50%',
+          top: '50%',
+          textAlign: 'center',
+          name: 'noDataTitle',
+          textStyle: {
+            color: '#7F7F7F',
+            fontFamily: 'Roboto, sans-serif',
+            fontSize: '16px',
+            whiteSpace: 'pre',
+          },
+        },
+      ],
     } as ECOption;
   }, [optionBase, groupSortedSeries, visState.xAxis, visState.yAxis]);
 
