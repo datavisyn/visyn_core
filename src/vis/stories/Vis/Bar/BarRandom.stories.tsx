@@ -1,7 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 import React from 'react';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from '../../../bar/interfaces';
-import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
+import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisCategoricalColumn, VisColumn } from '../../../interfaces';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 
@@ -38,12 +38,19 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     singleNumber: Array(numberOfPoints)
       .fill(null)
       .map(() => RNG(numberOfPoints, 'mixed')()),
+    badNumbers: Array(numberOfPoints)
+      .fill(null)
+      .map(() => [null, undefined, Infinity, -Infinity, NaN][parseInt((positiveRNG() * numberOfPoints).toString(), 10) % 5]),
     categories: Array(numberOfPoints)
       .fill(null)
       .map(() => `CATEGORY_${parseInt((positiveRNG() * 10).toString(), 10).toString()}`),
-    manyCategories: Array(numberOfPoints)
+    manyCategoriesWithBadValues: Array(numberOfPoints)
       .fill(null)
-      .map(() => `MANY_CATEGORIES_${parseInt((positiveRNG() * 100).toString(), 10).toString()}`),
+      .map((_, i) =>
+        parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 135
+          ? `MANY_CATEGORIES_${parseInt((positiveRNG() * 150).toString(), 10).toString()}`
+          : [null, undefined][parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 2],
+      ),
     twoCategories: Array(numberOfPoints)
       .fill(null)
       .map((_, i) => `${parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 3 ? 'EVEN' : 'ODD'}_CATEGORY`),
@@ -114,6 +121,19 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
+        description: 'Bad numbers like null, undefined, Infinity, -Infinity, NaN',
+        id: 'badNumbers',
+        name: 'Bad numbers',
+      },
+      type: EColumnTypes.NUMERICAL,
+      domain: [undefined, undefined],
+      values: async () => {
+        const data = await dataPromise;
+        return data.badNumbers.map((val, i) => ({ id: i.toString(), val }));
+      },
+    },
+    {
+      info: {
         description: 'Categories for the data',
         id: 'categories',
         name: 'Categories',
@@ -126,14 +146,14 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     },
     {
       info: {
-        description: 'Many categories for the data',
-        id: 'manyCategories',
-        name: 'Many categories',
+        description: 'Many categories for the data having some bad values',
+        id: 'manyCategoriesWithBadValues',
+        name: 'Many categories with bad values',
       },
       type: EColumnTypes.CATEGORICAL,
       values: async () => {
         const data = await dataPromise;
-        return data.manyCategories.map((val, i) => ({ id: i.toString(), val }));
+        return data.manyCategoriesWithBadValues.map((val, i) => ({ id: i.toString(), val }));
       },
     },
     {
@@ -278,9 +298,9 @@ Grouped.args = {
     },
     facets: null,
     group: {
-      description: 'Many categories for the data',
-      id: 'manyCategories',
-      name: 'Many categories',
+      description: 'Many categories for the data having some bad values',
+      id: 'manyCategoriesWithBadValues',
+      name: 'Many categories with bad values',
     },
     groupType: EBarGroupingType.GROUP,
     direction: EBarDirection.HORIZONTAL,
@@ -302,9 +322,9 @@ GroupedStack.args = {
     },
     facets: null,
     group: {
-      description: 'Many categories for the data',
-      id: 'manyCategories',
-      name: 'Many categories',
+      description: 'Many categories for the data having some bad values',
+      id: 'manyCategoriesWithBadValues',
+      name: 'Many categories with bad values',
     },
     groupType: EBarGroupingType.STACK,
     direction: EBarDirection.HORIZONTAL,
@@ -397,9 +417,9 @@ facets.args = {
       name: 'Categories',
     },
     facets: {
-      description: 'Many categories for the data',
-      id: 'manyCategories',
-      name: 'Many categories',
+      description: 'Many categories for the data having some bad values',
+      id: 'manyCategoriesWithBadValues',
+      name: 'Many categories with bad values',
     },
     group: null,
     groupType: EBarGroupingType.GROUP,
@@ -421,9 +441,9 @@ facetsAndGrouped.args = {
       name: 'Categories',
     },
     facets: {
-      description: 'Many categories for the data',
-      id: 'manyCategories',
-      name: 'Many categories',
+      description: 'Many categories for the data having some bad values',
+      id: 'manyCategoriesWithBadValues',
+      name: 'Many categories with bad values',
     },
     group: {
       description: 'Random numbers generated for the data point. May be positive or negative or zero',
@@ -449,9 +469,9 @@ facetsAndGroupedStack.args = {
       name: 'Categories',
     },
     facets: {
-      description: 'Many categories for the data',
-      id: 'manyCategories',
-      name: 'Many categories',
+      description: 'Many categories for the data having some bad values',
+      id: 'manyCategoriesWithBadValues',
+      name: 'Many categories with bad values',
     },
     group: {
       description: 'Random numbers generated for the data point. May be positive or negative or zero',
@@ -553,9 +573,9 @@ AggregateMedianWithGroupedAndFacetedMixedValues.args = {
       name: 'Categories',
     },
     facets: {
-      description: 'Many categories for the data',
-      id: 'manyCategories',
-      name: 'Many categories',
+      description: 'Many categories for the data having some bad values',
+      id: 'manyCategoriesWithBadValues',
+      name: 'Many categories with bad values',
     },
     group: {
       description: 'Random numbers generated for the data point. May be positive or negative or zero',

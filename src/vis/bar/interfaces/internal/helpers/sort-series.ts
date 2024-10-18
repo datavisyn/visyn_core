@@ -40,19 +40,22 @@ import { EBarSortState, EBarDirection } from '../../enums';
  * @returns
  */
 export function sortSeries(
-  series: { categories: string[]; data: BarSeriesOption['data'] }[],
+  series: ({ categories: string[]; data: BarSeriesOption['data'] } | null)[],
   sortMetadata: { sortState: { x: EBarSortState; y: EBarSortState }; direction: EBarDirection } = {
     sortState: { x: EBarSortState.NONE, y: EBarSortState.NONE },
     direction: EBarDirection.HORIZONTAL,
   },
-): { categories: string[]; data: BarSeriesOption['data'] }[] {
+): ({ categories: string[]; data: BarSeriesOption['data'] } | null)[] {
+  if (!series) {
+    return [];
+  }
   // Step 1: Aggregate the data
   const aggregatedData: { [key: string]: number } = {};
   let unknownCategorySum = 0;
   for (const s of series) {
-    for (let i = 0; i < s.categories.length; i++) {
-      const category = s.categories[i] as string;
-      const value = (s.data?.[i] as number) || 0;
+    for (let i = 0; i < (s?.categories ?? []).length; i++) {
+      const category = s?.categories[i] as string;
+      const value = (s?.data?.[i] as number) || 0;
       if (category === 'Unknown') {
         unknownCategorySum += value;
       } else {
@@ -148,9 +151,9 @@ export function sortSeries(
   const sortedSeries: typeof series = [];
   for (const s of series) {
     const sortedData = new Array(sortedCategories.length).fill(null);
-    for (let i = 0; i < s.categories.length; i++) {
+    for (let i = 0; i < (s?.categories ?? []).length; i++) {
       // NOTE: @dv-usama-ansari: index of the category in the sorted array
-      sortedData[categoryIndexMap[s.categories?.[i] as string] as number] = s.data?.[i];
+      sortedData[categoryIndexMap[s?.categories?.[i] as string] as number] = s?.data?.[i];
     }
     sortedSeries.push({
       ...s,

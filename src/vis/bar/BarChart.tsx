@@ -1,5 +1,5 @@
 import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
+import { useElementSize, useShallowEffect } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import zipWith from 'lodash/zipWith';
@@ -7,6 +7,7 @@ import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors as colorScale } from '../../utils/colors';
+import { NAN_REPLACEMENT } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
@@ -23,11 +24,13 @@ import {
   DEFAULT_FACET_NAME,
   generateAggregatedDataLookup,
   getBarData,
+  WorkerWrapper,
 } from './interfaces/internal';
+import { GenerateAggregatedDataLookup } from './interfaces/internal/helpers';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 
 type VirtualizedBarChartProps = {
-  aggregatedDataMap: ReturnType<typeof generateAggregatedDataLookup>;
+  aggregatedDataMap: Awaited<ReturnType<typeof generateAggregatedDataLookup>>;
   allUniqueFacetVals: string[];
   chartHeightMap: Record<string, number>;
   chartMinWidthMap: Record<string, number>;
@@ -109,9 +112,16 @@ export function BarChart({
     );
   }, [allColumns]);
 
-  const aggregatedDataMap = React.useMemo(
-    () =>
-      generateAggregatedDataLookup(
+  const aggregator = React.useCallback(async (...args: Parameters<GenerateAggregatedDataLookup['generateAggregatedDataLookup']>) => {
+    return WorkerWrapper.generateAggregatedDataLookup(...args);
+  }, []);
+
+  const [aggregatedDataMap, setAggregatedDataMap] = React.useState<Awaited<ReturnType<typeof aggregator>> | null>(null);
+  const { execute } = useAsync(aggregator);
+
+  useShallowEffect(() => {
+    const fetchLookup = async () => {
+      const lookup = await execute(
         {
           isFaceted: !!config?.facets?.id,
           isGrouped: !!config?.group?.id,
@@ -121,9 +131,11 @@ export function BarChart({
         },
         dataTable,
         selectedMap,
-      ),
-    [config?.aggregateType, config?.display, config?.facets?.id, config?.group?.id, config?.groupType, dataTable, selectedMap],
-  );
+      );
+      setAggregatedDataMap(lookup);
+    };
+    fetchLookup();
+  }, [config?.aggregateType, config?.display, config?.facets?.id, config?.group?.id, config?.groupType, dataTable, execute, selectedMap]);
 
   const groupColorScale = React.useMemo(() => {
     if (!allColumns?.groupColVals) {
@@ -177,9 +189,11 @@ export function BarChart({
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
-    return typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
-      ? [allUniqueFacetVals[config?.focusFacetIndex]]
-      : allUniqueFacetVals;
+    const unsorted =
+      typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
+        ? [allUniqueFacetVals[config?.focusFacetIndex]]
+        : allUniqueFacetVals;
+    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
   }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
   const customSelectionCallback = React.useCallback(
@@ -224,7 +238,7 @@ export function BarChart({
   const itemData = React.useMemo(
     () =>
       ({
-        aggregatedDataMap,
+        aggregatedDataMap: aggregatedDataMap!,
         allUniqueFacetVals,
         chartHeightMap,
         chartMinWidthMap,
@@ -291,6 +305,7 @@ export function BarChart({
     );
   }, []);
 
+  // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
   const getTruncatedText = React.useCallback(
     (value: string) => {
       // NOTE: @dv-usama-ansari: This might be a performance bottleneck if the number of labels is very high and/or the parentWidth changes frequently (when the viewport is resized).
@@ -353,60 +368,63 @@ export function BarChart({
         </Group>
       ) : null}
       <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>
-        {colsStatus !== 'success' ? (
+        {colsStatus === 'pending' ? (
           <Center>
             <Loader />
           </Center>
-        ) : !config?.facets || !allColumns?.facetsColVals ? (
-          <ScrollArea
-            style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
-            scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
-            offsetScrollbars
-          >
-            <SingleEChartsBarChart
-              config={config}
-              aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
-              chartHeight={calculateChartHeight({
-                config,
-                aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
-                containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
-              })}
-              chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
-              containerWidth={containerWidth}
-              globalMin={aggregatedDataMap?.globalDomain.min}
-              globalMax={aggregatedDataMap?.globalDomain.max}
-              groupColorScale={groupColorScale!}
-              isGroupedByNumerical={isGroupedByNumerical}
-              labelsMap={labelsMap}
-              longestLabelWidth={truncatedTextRef.current.longestLabelWidth}
-              selectedList={selectedList}
-              setConfig={setConfig}
-              selectionCallback={customSelectionCallback}
-              selectedMap={selectedMap}
-            />
-          </ScrollArea>
-        ) : config?.facets && allColumns?.facetsColVals ? (
-          // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
-          <ScrollArea
-            style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
-            onScrollPositionChange={handleScroll}
-            type="hover"
-            scrollHideDelay={0}
-            offsetScrollbars
-          >
-            <VariableSizeList
-              height={containerHeight - CHART_HEIGHT_MARGIN / 2}
-              itemCount={filteredUniqueFacetVals.length}
-              itemData={itemData}
-              itemSize={(index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN}
-              width="100%"
-              style={{ overflow: 'visible' }}
-              ref={listRef}
+        ) : (
+          colsStatus === 'success' &&
+          (!config?.facets || !allColumns?.facetsColVals ? (
+            <ScrollArea
+              style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+              scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
+              offsetScrollbars
             >
-              {Row}
-            </VariableSizeList>
-          </ScrollArea>
-        ) : null}
+              <SingleEChartsBarChart
+                config={config}
+                aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
+                chartHeight={calculateChartHeight({
+                  config,
+                  aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
+                  containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
+                })}
+                chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
+                containerWidth={containerWidth}
+                globalMin={aggregatedDataMap?.globalDomain.min}
+                globalMax={aggregatedDataMap?.globalDomain.max}
+                groupColorScale={groupColorScale!}
+                isGroupedByNumerical={isGroupedByNumerical}
+                labelsMap={labelsMap}
+                longestLabelWidth={truncatedTextRef.current.longestLabelWidth}
+                selectedList={selectedList}
+                setConfig={setConfig}
+                selectionCallback={customSelectionCallback}
+                selectedMap={selectedMap}
+              />
+            </ScrollArea>
+          ) : config?.facets && allColumns?.facetsColVals ? (
+            // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
+            <ScrollArea
+              style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+              onScrollPositionChange={handleScroll}
+              type="hover"
+              scrollHideDelay={0}
+              offsetScrollbars
+            >
+              <VariableSizeList
+                height={containerHeight - CHART_HEIGHT_MARGIN / 2}
+                itemCount={filteredUniqueFacetVals.length}
+                itemData={itemData}
+                itemSize={(index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN}
+                width="100%"
+                style={{ overflow: 'visible' }}
+                ref={listRef}
+              >
+                {Row}
+              </VariableSizeList>
+            </ScrollArea>
+          ) : null)
+        )}
       </Stack>
     </Stack>
   );
