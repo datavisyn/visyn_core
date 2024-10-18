@@ -16,7 +16,6 @@ import {
   BAR_WIDTH,
   CHART_HEIGHT_MARGIN,
   GenerateAggregatedDataLookup,
-  generateBarSeries,
   SERIES_ZERO,
   sortSeries,
   WorkerWrapper,
@@ -31,6 +30,13 @@ function generateHTMLString({ label, value, color }: { label: string; value: str
   </div>
 </div>`;
 }
+
+const numberFormatter = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 4,
+  maximumSignificantDigits: 4,
+  notation: 'compact',
+  compactDisplay: 'short',
+});
 
 function EagerSingleEChartsBarChart({
   aggregatedData,
@@ -169,18 +175,8 @@ function EagerSingleEChartsBarChart({
                   }
                   const [min, max] = (name ?? '0 to 0').split(' to ');
                   if (!Number.isNaN(Number(min)) && !Number.isNaN(Number(max))) {
-                    const formattedMin = new Intl.NumberFormat('en-US', {
-                      maximumFractionDigits: 4,
-                      maximumSignificantDigits: 4,
-                      notation: 'compact',
-                      compactDisplay: 'short',
-                    }).format(Number(min));
-                    const formattedMax = new Intl.NumberFormat('en-US', {
-                      maximumFractionDigits: 4,
-                      maximumSignificantDigits: 4,
-                      notation: 'compact',
-                      compactDisplay: 'short',
-                    }).format(Number(max));
+                    const formattedMin = numberFormatter.format(Number(min));
+                    const formattedMax = numberFormatter.format(Number(max));
                     return generateHTMLString({ label, value: `${formattedMin} to ${formattedMax}`, color });
                   }
                   return generateHTMLString({ label, value: params.value as string, color });
@@ -298,19 +294,9 @@ function EagerSingleEChartsBarChart({
                 return name;
               }
               const [min, max] = name.split(' to ');
-              const formattedMin = new Intl.NumberFormat('en-US', {
-                maximumFractionDigits: 4,
-                maximumSignificantDigits: 4,
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(Number(min));
+              const formattedMin = numberFormatter.format(Number(min));
               if (max) {
-                const formattedMax = new Intl.NumberFormat('en-US', {
-                  maximumFractionDigits: 4,
-                  maximumSignificantDigits: 4,
-                  notation: 'compact',
-                  compactDisplay: 'short',
-                }).format(Number(max));
+                const formattedMax = numberFormatter.format(Number(max));
                 return `${formattedMin} to ${formattedMax}`;
               }
               return formattedMin;
@@ -409,16 +395,7 @@ function EagerSingleEChartsBarChart({
             max: globalMax ?? 'dataMax',
             axisLabel: {
               hideOverlap: true,
-              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-              formatter: (value: number) => {
-                const formattedValue = new Intl.NumberFormat('en-US', {
-                  maximumFractionDigits: 4,
-                  maximumSignificantDigits: 4,
-                  notation: 'compact',
-                  compactDisplay: 'short',
-                }).format(value);
-                return formattedValue;
-              },
+              formatter: (value: number) => numberFormatter.format(value),
             },
             nameTextStyle: {
               color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
@@ -435,11 +412,7 @@ function EagerSingleEChartsBarChart({
             axisLabel: {
               show: true,
               width: gridLeft - 20,
-              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-              formatter: (value: string) => {
-                const truncatedText = labelsMap[value];
-                return truncatedText;
-              },
+              formatter: (value: string) => labelsMap[value],
             },
             nameTextStyle: {
               color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
@@ -461,11 +434,7 @@ function EagerSingleEChartsBarChart({
             data: (v.xAxis as { data: number[] })?.data ?? [],
             axisLabel: {
               show: true,
-              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-              formatter: (value: string) => {
-                const truncatedText = labelsMap[value];
-                return truncatedText;
-              },
+              formatter: (value: string) => labelsMap[value],
               rotate: 45,
             },
             nameTextStyle: {
@@ -483,16 +452,7 @@ function EagerSingleEChartsBarChart({
             max: globalMax ?? 'dataMax',
             axisLabel: {
               hideOverlap: true,
-              // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-              formatter: (value: number) => {
-                const formattedValue = new Intl.NumberFormat('en-US', {
-                  maximumFractionDigits: 4,
-                  maximumSignificantDigits: 4,
-                  notation: 'compact',
-                  compactDisplay: 'short',
-                }).format(value);
-                return formattedValue;
-              },
+              formatter: (value: number) => numberFormatter.format(value),
             },
             nameTextStyle: {
               color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
