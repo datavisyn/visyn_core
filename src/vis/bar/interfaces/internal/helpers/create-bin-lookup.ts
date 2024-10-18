@@ -42,7 +42,7 @@ export const createBinLookup = (data: VisNumericalValue[], binCount: 1 | 2 | 3 |
   const values = nonNullData.map((row) => row.val as number);
 
   // Create the bins using custom lodash function
-  const bins = binValues(values, Math.max(binCount, 8));
+  const bins = binValues(values, Math.min(binCount, 8));
 
   // Create a map to hold the bin names
   const binMap = new Map<VisNumericalValue, string>();
