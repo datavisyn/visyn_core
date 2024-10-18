@@ -62,7 +62,7 @@ export function useData({
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
   selectedList: string[];
   shapeScale: (val: string) => string;
-  mappingFunction?: (val: string | number) => string;
+  mappingFunction?: (val: string | number | null | undefined) => string;
 }) {
   return React.useMemo<PlotlyTypes.Data[]>(() => {
     if (status !== 'success' || !value) {
@@ -93,8 +93,8 @@ export function useData({
           hovertext: subplots.ids.map((p_id, index) =>
             `${value.idToLabelMapper(p_id)}
             ${(value.resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(p_id))}`)}
-            ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[index].val)}` : ''}
-            ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[index].val)}` : ''}`.trim(),
+            ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[index]?.val)}` : ''}
+            ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[index]?.val)}` : ''}`.trim(),
           ),
           marker: {
             color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
@@ -134,9 +134,9 @@ export function useData({
                 }),
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
-  ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
-  ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i].val)}` : ''}
-  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i].val)}` : ''}`.trim(),
+  ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i]?.val)}`)}
+  ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i]?.val)}` : ''}
+  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}` : ''}`.trim(),
           ),
           marker: {
             textfont: {
@@ -195,7 +195,7 @@ export function useData({
       return plots;
     }
 
-    if (splom) {
+    if (splom && value.validColumns[0]) {
       // SPLOM case
       const plotlyDimensions = value.validColumns.map((col) => ({
         label: col.info.name,
@@ -215,9 +215,9 @@ export function useData({
           dimensions: plotlyDimensions,
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
-  ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i].val)}`)}
-  ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i].val)}` : ''}
-  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i].val)}` : ''}`.trim(),
+  ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i]?.val)}`)}
+  ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i]?.val)}` : ''}
+  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}` : ''}`.trim(),
           ),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
           marker: {
