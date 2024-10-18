@@ -47,8 +47,8 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     manyCategoriesWithBadValues: Array(numberOfPoints)
       .fill(null)
       .map((_, i) =>
-        parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 75
-          ? `MANY_CATEGORIES_${parseInt((positiveRNG() * 100).toString(), 10).toString()}`
+        parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 135
+          ? `MANY_CATEGORIES_${parseInt((positiveRNG() * 150).toString(), 10).toString()}`
           : [null, undefined][parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 2],
       ),
     twoCategories: Array(numberOfPoints)
