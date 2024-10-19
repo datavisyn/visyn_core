@@ -45,7 +45,7 @@ export function Highlight2(props: Props) {
   const circleStrokeColor = splitComplementaryFrom2Colors(colors[0 + delta], colors[colors.length - 1 - delta]);
 
   return (
-    <svg style={{ position: 'absolute', width: '100%', height: '100%', pointerEvents: 'none' }}>
+    <svg style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
       {props.hoverVertices.map((vertex, i) => {
         const c = color(getColor(props.config.gradient.palette.colors, vertex.atomSmilesElement.score));
         c!.opacity = 0.6;

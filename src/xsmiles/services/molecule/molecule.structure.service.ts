@@ -332,49 +332,40 @@ class MoleculeStructureService {
     // adds the ring to the smileElement.rings list
     let visitedElementsIndexes: number[] = [];
     let ringID = 0;
-    try {
-      let inGroup = false;
-      // console.log(smilesElements.map((e) => e.chars).join(""));
-      for (let start = 0; start < smilesElements.length; start++) {
-        const smilesElement = smilesElements[start];
-        if (smilesElement.chars === '[') {
-          inGroup = true;
-        } else if (smilesElement.chars === ']') {
-          inGroup = false;
-        }
-        // if we are inside a Group, do not try to find a ring
-        if (!inGroup) {
-          // if it is a number and not visited yet, find the end of this ring
-          if (!Number.isNaN(Number(smilesElement.chars)) && !visitedElementsIndexes.includes(start) && start < smilesElements.length - 1) {
-            const ringContext = this.getRingContext(smilesElements, start, visitedElementsIndexes);
 
-            const { lastIndex } = ringContext;
-            visitedElementsIndexes = ringContext.visited;
-            // console.log(
-            //     "Ring Context",
-            //     visitedElementsIndexes,
-            //     lastIndex,
-            //     smilesElements[lastIndex],
-            //     smilesElement
-            // );
-            if (lastIndex > 0) {
-              // if found an end
-              // set the ringId to the numerical smilesElement (they can only be in 1 ring because they define a ring)
-              smilesElement.rings = [ringID];
-              const lastSmilesElement = smilesElements[lastIndex];
-              lastSmilesElement.rings = [ringID];
+    let inGroup = false;
 
-              this.appendRingToSmilesElements(ringID, start, ringContext.lastIndex, smilesElements);
+    for (let start = 0; start < smilesElements.length; start++) {
+      const smilesElement = smilesElements[start];
+      if (smilesElement.chars === '[') {
+        inGroup = true;
+      } else if (smilesElement.chars === ']') {
+        inGroup = false;
+      }
+      // if we are inside a Group, do not try to find a ring
+      if (!inGroup) {
+        // if it is a number and not visited yet, find the end of this ring
+        if (!Number.isNaN(Number(smilesElement.chars)) && !visitedElementsIndexes.includes(start) && start < smilesElements.length - 1) {
+          const ringContext = this.getRingContext(smilesElements, start, visitedElementsIndexes);
 
-              ringID += 1;
-            } else {
-              console.warn('Could not find the end of this ring', smilesElements.length, start, visitedElementsIndexes);
-            }
+          const { lastIndex } = ringContext;
+          visitedElementsIndexes = ringContext.visited;
+
+          if (lastIndex > 0) {
+            // if found an end
+            // set the ringId to the numerical smilesElement (they can only be in 1 ring because they define a ring)
+            smilesElement.rings = [ringID];
+            const lastSmilesElement = smilesElements[lastIndex];
+            lastSmilesElement.rings = [ringID];
+
+            this.appendRingToSmilesElements(ringID, start, ringContext.lastIndex, smilesElements);
+
+            ringID += 1;
+          } else {
+            console.warn('Could not find the end of this ring', smilesElements.length, start, visitedElementsIndexes);
           }
         }
       }
-    } catch (error) {
-      throw error;
     }
   };
 
@@ -504,28 +495,16 @@ class MoleculeStructureService {
     return smilesElement.chars.toUpperCase() === 'H';
   };
 
-  public setWhichElementIsInWhichRing(smilesElements: SmilesElement[], drawer: Drawer, findGVertex: (gVertices: any[], smilesElement: SmilesElement) => any) {
+  public setWhichElementIsInWhichRing(smilesElements: SmilesElement[]) {
     this.setRingsIntoSmilesElements(smilesElements);
   }
 
   public setVerticesInSmilesElements(
     smilesElements: SmilesElement[],
-    drawer: Drawer,
+    gVertices: any,
     findGVertex: (gVertices: any[], smilesElement: SmilesElement) => any,
     createVertex: (smilesElement: SmilesElement, gVertex: any) => Vertex | null,
-    debug = false,
   ) {
-    // vertices from withing extendedSmilesDrawer
-    const gVertices = drawer.getOriginalVerticesFromExternalDrawer();
-
-    // console.log("Heatmap vertices from sD", gVertices.length);
-    // Groups are already set
-    debug &&
-      console.log(
-        'Group',
-        smilesElements.filter((e) => e.groupIndex !== -1).map((e) => e.chars),
-      );
-
     // Reset Vertices, in case the drawer is changed... vertex should be cleaned up
     smilesElements.forEach((smilesElement) => {
       // if we have a [group]
@@ -565,21 +544,10 @@ class MoleculeStructureService {
 
     // Set up branches
     this.setSmilesElementsBranches(smilesElements);
-    debug &&
-      console.log(
-        'Branches',
-        smilesElements.filter((element) => element.branchesIds!.length > 0).map((e) => e.chars),
-      );
 
     this.spreadVerticesToOtherSmilesElements(smilesElements);
 
-    debug &&
-      console.log(
-        'vertices',
-        smilesElements.map((e) => e.vertex),
-      );
-
-    this.setWhichElementIsInWhichRing(smilesElements, drawer, findGVertex);
+    this.setWhichElementIsInWhichRing(smilesElements);
   }
 
   public getNAtomsFromSmilesString(smilesString: string): number {

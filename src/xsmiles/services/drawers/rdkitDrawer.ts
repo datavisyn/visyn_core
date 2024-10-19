@@ -122,7 +122,7 @@ export default class RDKitDrawer implements Drawer {
   }
 
   updateMoleculeWithVertices(molecule: Molecule) {
-    rdkitService.setVerticesInMolecule(molecule, this);
+    rdkitService.setVerticesInMolecule(molecule, this.getOriginalVerticesFromExternalDrawer());
   }
 
   updateMoleculeWithOldDrawerVertices(molecule: Molecule) {

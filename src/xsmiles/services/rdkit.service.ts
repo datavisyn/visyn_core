@@ -19,8 +19,8 @@ type SVGEdge = {
 };
 
 class RDKitServices {
-  public setVerticesInMolecule(molecule: Molecule, rdkitDrawer: RDKitDrawer) {
-    moleculeStructureService.setVerticesInSmilesElements(molecule.smilesElements!, rdkitDrawer, this.findGVertex, this.createVertex);
+  public setVerticesInMolecule(molecule: Molecule, gVertices: any) {
+    moleculeStructureService.setVerticesInSmilesElements(molecule.smilesElements!, gVertices, this.findGVertex, this.createVertex);
     molecule.vertices = moleculeStructureService.getVerticesFromMolecule(molecule);
   }
 

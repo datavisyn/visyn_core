@@ -3,7 +3,7 @@ import { ComponentStory } from '@storybook/react';
 import { Stack, Text } from '@mantine/core';
 import type { RDKitModule } from '@rdkit/rdkit';
 import { SingleView as SingleView3 } from 'xsmiles';
-import SingleView, { SingleView2 } from './modules/SingleView';
+import SingleView from './modules/SingleView';
 
 const wasmURL = new URL('@rdkit/rdkit/dist/RDKit_minimal.wasm', import.meta.url);
 
@@ -43,8 +43,9 @@ function TimeUtil() {
             attributes: {},
           },
           attributes: {},
-          substructureHighlight: undefined,
+          substructureHighlight: 'CC',
         }}
+        showScoresOnStructure
         drawerType="RDKitDrawer"
         hideAttributesTable
         width={200}
@@ -69,25 +70,7 @@ function TimeUtil() {
         width={200}
         height={200}
       />
-      <SingleView2
-        molecule={{
-          string: 'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N',
-          method: {
-            name: 'method 1',
-            scores: [
-              0.0154, -0.0155, 0.00199, 0.00147, 0.7825, 0.9472, 0.8076, 0.9898, 0.9165, 0.9723, 0.9433, 0.9547, 0.9975, 1, 1, 1, 0.2531, -0.0341, 0.0462,
-              0.1739, -0.1962, -0.0836, 0.4161, -0.9365, -0.9853, -0.9894, -0.9229, -0.0213, 0.934, 0.6666, 0.8192,
-            ],
-            attributes: {},
-          },
-          attributes: {},
-          substructureHighlight: undefined,
-        }}
-        drawerType="RDKitDrawer"
-        hideAttributesTable
-        width={200}
-        height={200}
-      />
+
     </Stack>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import KDBush from 'kdbush';
-import Smiles, { Smiles2 } from './smiles/Smiles';
+import Smiles from './smiles/Smiles';
 import { SmilesElement, Method, Molecule, Vertex, RawMolecule } from '../../types/molecule.types';
 import { GradientConfig } from '../../types/gradient.types';
 
@@ -20,6 +20,7 @@ export interface Props {
   id: string;
 
   rawMolecule: RawMolecule;
+  molecule: Molecule;
   method?: Method; //! method.scores is redefined if smilesSequence is undefined or if method.scores has a different size from smilesElements -> e.g. when graph-based scores are provided, 1 scores per atom instead of 1 scores per "smiles element" (atoms and special chars)
 
   width?: number;
@@ -52,7 +53,6 @@ export interface Props {
 }
 
 interface State {
-  molecule: Molecule;
   mouseOverChange: boolean;
   viewsConfig: MoleculeViewsConfig;
   kdTreeForAtoms: KDBush<Vertex> | undefined;
@@ -76,10 +76,10 @@ class MoleculeViews extends React.Component<Props, State> {
 
   returnMoleculeWithVertices = (molecule: Molecule) => {
     const newState = { molecule, kdTreeForAtoms: undefined };
-    if (this.state.molecule !== molecule) {
+    if (this.props.molecule !== molecule) {
       this.setState(newState);
     }
-    if (this.state.molecule.vertices == null) {
+    if (this.props.molecule.vertices == null) {
       this.setState(newState);
     }
   };
@@ -121,19 +121,12 @@ class MoleculeViews extends React.Component<Props, State> {
   private initializeState(props: Props): State {
     const viewsConfig: MoleculeViewsConfig = moleculeViewsService.getConfigBasedOnPropsAndMethod(props);
 
-    const molecule = this.createMolecule(props.rawMolecule);
-
     return {
-      molecule,
       mouseOverChange: false,
       viewsConfig,
       kdTreeForAtoms: undefined,
       mouseOverVertices: [],
     };
-  }
-
-  private createMolecule(rawMolecule: RawMolecule): Molecule {
-    return moleculeStructureService.preprocessSmilesElementsAndMethod(rawMolecule);
   }
 
   private updateColorMaps(gradientConfig: GradientConfig, molecule: Molecule) {
@@ -149,7 +142,7 @@ class MoleculeViews extends React.Component<Props, State> {
   }
 
   render() {
-    const { molecule } = this.state;
+    const { molecule } = this.props;
     if (molecule == null) {
       return null;
     }
@@ -200,7 +193,7 @@ class MoleculeViews extends React.Component<Props, State> {
               colorsDomain={colorDomain!} // if colorsDomain is undefined, showBarChart is false
               colorsRange={colorsRange}
               smilesElements={molecule.smilesElements!} // TODO now smilesElements contains scores, chars, etc... so this component's properties can be compacted
-              alphaRange={[0.2, 1.0]}
+              alphaRange={this.state.viewsConfig.smilesAlphaRange}
               thresholds={gradientConfig.thresholds.length ? gradientConfig.thresholds : [0.5, 1.0]}
             />
           )}

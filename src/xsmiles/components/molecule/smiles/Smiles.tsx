@@ -31,6 +31,8 @@ export function Smiles2({
   alphaRange,
   smilesElements,
   smilesScores,
+  atomHover,
+  setAtomHover,
 }: {
   smilesString: string;
   thresholds: number[];
@@ -39,7 +41,10 @@ export function Smiles2({
   alphaRange: number[];
   smilesElements: SmilesElement[];
   smilesScores: number[];
+  atomHover: number[];
+  setAtomHover: (atomHover: number[]) => void;
 }) {
+  console.log(atomHover);
   const padding = 5;
   const charWidth = 16;
   const height = 100;
@@ -50,8 +55,6 @@ export function Smiles2({
 
   const maxBarSize = height - 4 * fontSize;
   const barThresholdsScale01 = scaleLinear<number>().domain([0, 1]).range([0.25, maxBarSize]);
-
-  const [atomHover, setAtomHover] = React.useState<number[]>([]);
 
   return (
     <div className="smiles-view" style={{ lineHeight: `${height}px` }}>
@@ -82,6 +85,11 @@ export function Smiles2({
                 key={smilesElement.smilesIndex}
                 // onMouseOver={(event: MouseEvent) => this.onMouseOver(smilesElement)}
                 onMouseOver={() => {
+                  // Clear all hover
+                  smilesElements.forEach((e) => {
+                    e.vertex.hover = false;
+                  });
+
                   // console.log(smilesElements);
                   moleculeGraphicService.setVerticesHoverStateBasedOnType(smilesElements, [smilesElement], true);
 
@@ -94,14 +102,13 @@ export function Smiles2({
                     .map((e) => e[0]);
 
                   // console.log('fdl');
-
                   setAtomHover(indices);
                 }}
               >
                 <SmilesChar
                   char={smilesElement.chars}
                   index={smilesElement.smilesIndex}
-                  hover={atomHover.includes(smilesElement.smilesIndex)}
+                  hover={smilesElement.vertex ? smilesElement.vertex.hover : false}
                   updateStructure={() => {}}
                   score={smilesScores[i]}
                   width={charWidth}
@@ -137,7 +144,6 @@ class Smiles extends Component<SmilesProps, SmilesState> {
 
   onMouseOver = (smilesElement: SmilesElement) => {
     const { smilesElements } = this.props;
-    console.log(smilesElements);
     moleculeGraphicService.setVerticesHoverStateBasedOnType(smilesElements, [smilesElement], true);
     this.props.updateStructure();
     this.updateComponent();
