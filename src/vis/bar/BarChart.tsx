@@ -207,7 +207,7 @@ export function BarChart({
   const filteredUniqueFacetVals = React.useMemo(() => {
     const unsorted =
       typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
-        ? [allUniqueFacetVals[config?.focusFacetIndex]]
+        ? ([allUniqueFacetVals[config?.focusFacetIndex]] as string[])
         : allUniqueFacetVals;
     return unsorted.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
   }, [allUniqueFacetVals, config?.focusFacetIndex]);
@@ -251,50 +251,53 @@ export function BarChart({
 
   const isGroupedByNumerical = React.useMemo(() => allColumns?.groupColVals?.type === EColumnTypes.NUMERICAL, [allColumns?.groupColVals?.type]);
 
-  const itemData = React.useMemo(
-    () =>
-      ({
-        aggregatedDataMap: aggregatedDataMap!,
-        allUniqueFacetVals,
-        chartHeightMap,
-        chartMinWidthMap,
-        config: config!,
-        containerHeight,
-        containerWidth,
-        filteredUniqueFacetVals: filteredUniqueFacetVals as string[],
-        groupColorScale: groupColorScale!,
-        isGroupedByNumerical,
-        labelsMap,
-        longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
-        selectedList: selectedList!,
-        selectedMap: selectedMap!,
-        selectionCallback: customSelectionCallback,
-        setConfig: setConfig!,
-      }) satisfies VirtualizedBarChartProps,
-    [
-      aggregatedDataMap,
+  const [itemData, setItemData] = React.useState<VirtualizedBarChartProps | null>(null);
+
+  React.useEffect(() => {
+    setItemData({
+      aggregatedDataMap: aggregatedDataMap!,
       allUniqueFacetVals,
       chartHeightMap,
       chartMinWidthMap,
-      config,
+      config: config!,
       containerHeight,
       containerWidth,
-      customSelectionCallback,
       filteredUniqueFacetVals,
-      groupColorScale,
+      groupColorScale: groupColorScale!,
       isGroupedByNumerical,
       labelsMap,
-      selectedList,
-      selectedMap,
-      setConfig,
-    ],
-  );
+      longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
+      selectedList: selectedList!,
+      selectedMap: selectedMap!,
+      selectionCallback: customSelectionCallback,
+      setConfig: setConfig!,
+    } satisfies VirtualizedBarChartProps);
+  }, [
+    aggregatedDataMap,
+    allUniqueFacetVals,
+    chartHeightMap,
+    chartMinWidthMap,
+    config,
+    containerHeight,
+    containerWidth,
+    customSelectionCallback,
+    filteredUniqueFacetVals,
+    groupColorScale,
+    isGroupedByNumerical,
+    labelsMap,
+    selectedList,
+    selectedMap,
+    setConfig,
+  ]);
 
   const handleScroll = React.useCallback(({ y }: { y: number }) => {
     listRef.current?.scrollTo(y);
   }, []);
 
   const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
+    if (!props.data) {
+      return null;
+    }
     const facet = props.data.filteredUniqueFacetVals?.[props.index] as string;
     return (
       <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
@@ -375,6 +378,16 @@ export function BarChart({
     listRef.current?.resetAfterIndex(0);
   }, [config, dataTable]);
 
+  const calculateItemHeight = React.useCallback(
+    (index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN,
+    [chartHeightMap, filteredUniqueFacetVals],
+  );
+
+  const shouldRenderFacets = React.useMemo(
+    () => Boolean(config?.facets && allColumns?.facetsColVals && filteredUniqueFacetVals.length === Object.keys(chartHeightMap).length),
+    [config?.facets, allColumns?.facetsColVals, filteredUniqueFacetVals.length, chartHeightMap],
+  );
+
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
       {showDownloadScreenshot || config?.showFocusFacetSelector === true ? (
@@ -420,25 +433,27 @@ export function BarChart({
             </ScrollArea>
           ) : config?.facets && allColumns?.facetsColVals ? (
             // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
-            <ScrollArea
-              style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
-              onScrollPositionChange={handleScroll}
-              type="hover"
-              scrollHideDelay={0}
-              offsetScrollbars
-            >
-              <VariableSizeList
-                height={containerHeight - CHART_HEIGHT_MARGIN / 2}
-                itemCount={filteredUniqueFacetVals.length}
-                itemData={itemData}
-                itemSize={(index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN}
-                width="100%"
-                style={{ overflow: 'visible' }}
-                ref={listRef}
+            shouldRenderFacets && (
+              <ScrollArea
+                style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+                onScrollPositionChange={handleScroll}
+                type="hover"
+                scrollHideDelay={0}
+                offsetScrollbars
               >
-                {Row}
-              </VariableSizeList>
-            </ScrollArea>
+                <VariableSizeList
+                  height={containerHeight - CHART_HEIGHT_MARGIN / 2}
+                  itemCount={filteredUniqueFacetVals.length}
+                  itemData={itemData}
+                  itemSize={calculateItemHeight}
+                  width="100%"
+                  style={{ overflow: 'visible' }}
+                  ref={listRef}
+                >
+                  {Row}
+                </VariableSizeList>
+              </ScrollArea>
+            )
           ) : null)
         )}
       </Stack>
