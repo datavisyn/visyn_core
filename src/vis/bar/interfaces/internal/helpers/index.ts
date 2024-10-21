@@ -4,6 +4,7 @@ export * from './calculate-chart-dimensions';
 export * from './create-bin-lookup';
 export * from './generate-aggregated-data-lookup';
 export * from './generate-bar-series';
+export * from './generate-data-table';
 export * from './get-data-for-aggregate-type';
 export * from './get-bar-data';
 export * from './median';

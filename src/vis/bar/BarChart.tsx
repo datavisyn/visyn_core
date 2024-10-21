@@ -2,7 +2,6 @@ import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
 import { useElementSize, useShallowEffect } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
-import zipWith from 'lodash/zipWith';
 import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
@@ -10,7 +9,7 @@ import { categoricalColors as colorScale } from '../../utils/colors';
 import { NAN_REPLACEMENT } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps, VisNumericalValue } from '../interfaces';
+import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps } from '../interfaces';
 import { FocusFacetSelector } from './components';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import {
@@ -18,12 +17,12 @@ import {
   calculateChartHeight,
   calculateChartMinWidth,
   CHART_HEIGHT_MARGIN,
-  createBinLookup,
   DEFAULT_BAR_CHART_HEIGHT,
   DEFAULT_BAR_CHART_MIN_WIDTH,
   DEFAULT_FACET_NAME,
   generateAggregatedDataLookup,
   GenerateAggregatedDataLookup,
+  generateDataTable,
   getBarData,
   WorkerWrapper,
 } from './interfaces/internal';
@@ -85,44 +84,52 @@ export function BarChart({
   });
   const [labelsMap, setLabelsMap] = React.useState<Record<string, string>>({});
 
-  const dataTable = React.useMemo(() => {
-    if (!allColumns) {
-      return [];
+  const generateDataTableWorker = React.useCallback(async (...args: Parameters<typeof generateDataTable>) => WorkerWrapper.generateDataTable(...args), []);
+  const [dataTable, setDataTable] = React.useState<ReturnType<typeof generateDataTable>>([]);
+  const { execute: generateDataTableTrigger } = useAsync(generateDataTableWorker);
+
+  useShallowEffect(() => {
+    console.log(allColumns);
+    if (colsStatus === 'success' && allColumns) {
+      const fetchDataTable = async () => {
+        const table = await generateDataTableTrigger({
+          aggregateColVals: {
+            info: allColumns.aggregateColVals?.info,
+            resolvedValues: allColumns.aggregateColVals?.resolvedValues,
+            type: allColumns.aggregateColVals?.type,
+          },
+          catColVals: {
+            info: allColumns.catColVals?.info,
+            resolvedValues: allColumns.catColVals?.resolvedValues,
+            type: allColumns.catColVals?.type,
+          },
+          facetsColVals: {
+            info: allColumns.facetsColVals?.info,
+            resolvedValues: allColumns.facetsColVals?.resolvedValues,
+            type: allColumns.facetsColVals?.type,
+          },
+          groupColVals: {
+            info: allColumns.groupColVals?.info,
+            resolvedValues: allColumns.groupColVals?.resolvedValues,
+            type: allColumns.groupColVals?.type,
+          },
+        });
+        setDataTable(table);
+      };
+      fetchDataTable();
     }
+  }, [allColumns, colsStatus, generateDataTableTrigger]);
 
-    // bin the `group` column values if a numerical column is selected
-    const binLookup: Map<VisNumericalValue, string> | null =
-      allColumns.groupColVals?.type === EColumnTypes.NUMERICAL ? createBinLookup(allColumns.groupColVals?.resolvedValues as VisNumericalValue[]) : null;
-
-    return zipWith(
-      allColumns.catColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
-      allColumns.aggregateColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
-      allColumns.groupColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
-      allColumns.facetsColVals?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
-      (cat, agg, group, facet) => {
-        return {
-          id: cat.id,
-          category: getLabelOrUnknown(cat?.val),
-          agg: agg?.val as number,
-          // if the group column is numerical, use the bin lookup to get the bin name, otherwise use the label or 'unknown'
-          group: typeof group?.val === 'number' ? (binLookup?.get(group as VisNumericalValue) as string) : getLabelOrUnknown(group?.val),
-          facet: getLabelOrUnknown(facet?.val),
-        };
-      },
-    );
-  }, [allColumns]);
-
-  const aggregator = React.useCallback(
+  const generateAggregateDataLookupWorker = React.useCallback(
     async (...args: Parameters<GenerateAggregatedDataLookup['generateAggregatedDataLookup']>) => WorkerWrapper.generateAggregatedDataLookup(...args),
     [],
   );
-
-  const [aggregatedDataMap, setAggregatedDataMap] = React.useState<Awaited<ReturnType<typeof aggregator>> | null>(null);
-  const { execute } = useAsync(aggregator);
+  const [aggregatedDataMap, setAggregatedDataMap] = React.useState<Awaited<ReturnType<typeof generateAggregateDataLookupWorker>> | null>(null);
+  const { execute: generateAggregatedDataLookupTrigger } = useAsync(generateAggregateDataLookupWorker);
 
   useShallowEffect(() => {
     const fetchLookup = async () => {
-      const lookup = await execute(
+      const lookup = await generateAggregatedDataLookupTrigger(
         {
           isFaceted: !!config?.facets?.id,
           isGrouped: !!config?.group?.id,
@@ -136,7 +143,16 @@ export function BarChart({
       setAggregatedDataMap(lookup);
     };
     fetchLookup();
-  }, [config?.aggregateType, config?.display, config?.facets?.id, config?.group?.id, config?.groupType, dataTable, execute, selectedMap]);
+  }, [
+    config?.aggregateType,
+    config?.display,
+    config?.facets?.id,
+    config?.group?.id,
+    config?.groupType,
+    dataTable,
+    generateAggregatedDataLookupTrigger,
+    selectedMap,
+  ]);
 
   const groupColorScale = React.useMemo(() => {
     if (!allColumns?.groupColVals) {
