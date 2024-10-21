@@ -325,7 +325,7 @@ function EagerSingleEChartsBarChart({
 
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
-      if (barSeries.length > 0) {
+      if (barSeries.length > 0 || !aggregatedData) {
         if (config?.direction === EBarDirection.HORIZONTAL) {
           const sortedSeries = sortSeries(
             barSeries.map((item) => (item ? { categories: item.categories, data: item.data } : null)),
@@ -359,7 +359,7 @@ function EagerSingleEChartsBarChart({
         }
       }
     },
-    [config?.direction, config?.sortState, setVisState],
+    [aggregatedData, config?.direction, config?.sortState, setVisState],
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
@@ -576,13 +576,36 @@ function EagerSingleEChartsBarChart({
               },
             },
           ],
+          series: [],
+        } as ECOption;
+      }
+      if (visState.xAxis && visState.yAxis) {
+        return {
+          ...optionBase,
+          series: groupSortedSeries,
+          xAxis: visState.xAxis,
+          yAxis: visState.yAxis,
         } as ECOption;
       }
       return {
         ...optionBase,
-        series: groupSortedSeries,
-        ...(visState.xAxis ? { xAxis: visState.xAxis } : {}),
-        ...(visState.yAxis ? { yAxis: visState.yAxis } : {}),
+        title: [
+          ...(optionBase.title as ECOption['title'][]),
+          {
+            text: 'Invalid data!',
+            left: '50%',
+            top: '50%',
+            textAlign: 'center',
+            name: 'noDataTitle',
+            textStyle: {
+              color: '#7F7F7F',
+              fontFamily: 'Roboto, sans-serif',
+              fontSize: '16px',
+              whiteSpace: 'pre',
+            },
+          },
+        ],
+        series: [],
       } as ECOption;
     }
     return {
@@ -603,6 +626,7 @@ function EagerSingleEChartsBarChart({
           },
         },
       ],
+      series: [],
     } as ECOption;
   }, [groupSortedSeries, optionBase, showChart, visState.xAxis, visState.yAxis]);
 
