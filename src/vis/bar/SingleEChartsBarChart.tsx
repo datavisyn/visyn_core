@@ -486,9 +486,10 @@ function EagerSingleEChartsBarChart({
     visState.series.length,
   ]);
 
-  const aggregator = React.useCallback(async (...args: Parameters<GenerateAggregatedDataLookup['generateBarSeries']>) => {
-    return WorkerWrapper.generateBarSeries(...args);
-  }, []);
+  const aggregator = React.useCallback(
+    async (...args: Parameters<GenerateAggregatedDataLookup['generateBarSeries']>) => WorkerWrapper.generateBarSeries(...args),
+    [],
+  );
   const { execute } = useAsync(aggregator);
 
   const updateCategoriesSideEffect = React.useCallback(async () => {

@@ -23,10 +23,10 @@ import {
   DEFAULT_BAR_CHART_MIN_WIDTH,
   DEFAULT_FACET_NAME,
   generateAggregatedDataLookup,
+  GenerateAggregatedDataLookup,
   getBarData,
   WorkerWrapper,
 } from './interfaces/internal';
-import { GenerateAggregatedDataLookup } from './interfaces/internal/helpers';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 
 type VirtualizedBarChartProps = {
@@ -112,9 +112,10 @@ export function BarChart({
     );
   }, [allColumns]);
 
-  const aggregator = React.useCallback(async (...args: Parameters<GenerateAggregatedDataLookup['generateAggregatedDataLookup']>) => {
-    return WorkerWrapper.generateAggregatedDataLookup(...args);
-  }, []);
+  const aggregator = React.useCallback(
+    async (...args: Parameters<GenerateAggregatedDataLookup['generateAggregatedDataLookup']>) => WorkerWrapper.generateAggregatedDataLookup(...args),
+    [],
+  );
 
   const [aggregatedDataMap, setAggregatedDataMap] = React.useState<Awaited<ReturnType<typeof aggregator>> | null>(null);
   const { execute } = useAsync(aggregator);
