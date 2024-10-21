@@ -175,7 +175,7 @@ export function Heatmap2(props: Props) {
     const div = ref.current;
     const { molecule, config } = props;
 
-    if (ref.current) {
+    if (ref.current && width > 0 && height > 0) {
       debouncedHeatmap(div, molecule, config);
     }
   }, [ref, width, height, props, debouncedHeatmap]);

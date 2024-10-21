@@ -66,56 +66,55 @@ export function Smiles2({
   const barThresholdsScale01 = scaleLinear<number>().domain([0, 1]).range([0.25, maxBarSize]);
 
   return (
-    <div style={{ lineHeight: `${height}px` }}>
-      <svg
-        style={{
-          width: graphicWidth,
-          height,
-        }}
-        onMouseOut={() => {
-          setAtomHover([]);
-        }}
-      >
-        <g transform={`translate(${2 * padding},0)`}>
-          <g>
-            {thresholds.map((threshold) => (
-              <line
-                key={threshold}
-                x1={-padding + fontSize / 4}
-                y1={maxBarSize - barThresholdsScale01(threshold)}
-                x2={charWidth * paddingControl * smilesElements.length + padding}
-                y2={maxBarSize - barThresholdsScale01(threshold)}
-                stroke="black"
-                // strokeWidth={width / 2}
-                opacity={0.1}
-              />
-            ))}
-          </g>
-          {smilesElements.map((smilesElement, i) => {
-            return (
-              <g
-                key={smilesElement.smilesIndex}
-                onMouseOver={() => {
-                  setAtomHover(inferHoveredAtomIndices(smilesElements, smilesElement));
-                }}
-              >
-                <SmilesChar
-                  char={smilesElement.chars}
-                  hover={smilesElement.vertex ? atomHover.includes(smilesElement.vertex.atomIndex) : false}
-                  score={smilesScores[i]}
-                  width={charWidth}
-                  height={height}
-                  x={i * (charWidth * paddingControl)}
-                  fontSize={fontSize}
-                  colorsDomain={colorsDomain}
-                  colorsRange={colorsRange}
-                  alphaRange={alphaRange}
-                />
-              </g>
-            );
-          })}
+    <svg
+      style={{
+        width: graphicWidth,
+        height,
+        userSelect: 'none',
+      }}
+      onMouseOut={() => {
+        setAtomHover([]);
+      }}
+    >
+      <g transform={`translate(${2 * padding},0)`}>
+        <g>
+          {thresholds.map((threshold) => (
+            <line
+              key={threshold}
+              x1={-padding + fontSize / 4}
+              y1={maxBarSize - barThresholdsScale01(threshold)}
+              x2={charWidth * paddingControl * smilesElements.length + padding}
+              y2={maxBarSize - barThresholdsScale01(threshold)}
+              stroke="black"
+              // strokeWidth={width / 2}
+              opacity={0.1}
+            />
+          ))}
         </g>
-      </svg>
-    </div>
+        {smilesElements.map((smilesElement, i) => {
+          return (
+            <g
+              key={smilesElement.smilesIndex}
+              onMouseOver={() => {
+                setAtomHover(inferHoveredAtomIndices(smilesElements, smilesElement));
+              }}
+            >
+              <SmilesChar
+                char={smilesElement.chars}
+                hover={smilesElement.vertex ? atomHover.includes(smilesElement.vertex.atomIndex) : false}
+                score={smilesScores[i]}
+                width={charWidth}
+                height={height}
+                x={i * (charWidth * paddingControl)}
+                fontSize={fontSize}
+                colorsDomain={colorsDomain}
+                colorsRange={colorsRange}
+                alphaRange={alphaRange}
+              />
+            </g>
+          );
+        })}
+      </g>
+    </svg>
   );
 }

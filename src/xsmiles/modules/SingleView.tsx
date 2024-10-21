@@ -17,15 +17,6 @@ import { useDeepMemo } from '../../hooks';
 export const REFERENCE_WIDTH = 200;
 export const REFERENCE_HEIGHT = 200;
 
-/**
- * Properties to define the visualization of a molecule.
- */
-export type Props = {
-  molecule: RawMolecule;
-  gradientConfig: GradientConfigOverwriteDefaults;
-  showScoresOnStructure?: boolean;
-};
-
 export type MoleculeWithMethods = {
   string: string;
   sequence?: string[];
@@ -61,11 +52,17 @@ function updateColorMaps(gradientConfig: GradientConfig, molecule: RawMolecule) 
  * @param props Parameters to create the visualization of a molecule.
  * @returns Rendered interactive visualization encapsulated in a <div> element.
  */
-export function SingleView(props: Props) {
-  const { molecule } = props;
-
-  const { showScoresOnStructure = false } = props;
-
+export function SingleView({
+  molecule,
+  gradientConfig,
+  showScoresOnStructure,
+  showSmiles = true,
+}: {
+  molecule: RawMolecule;
+  gradientConfig: GradientConfigOverwriteDefaults;
+  showScoresOnStructure?: boolean;
+  showSmiles?: boolean;
+}) {
   const preprocessedMolecule = useDeepMemo(() => {
     return moleculeStructureService.preprocessSmilesElementsAndMethod(molecule);
   }, [molecule]);
@@ -114,9 +111,9 @@ export function SingleView(props: Props) {
 
   const [hoveredAtoms, setHoveredAtoms] = React.useState<number[]>([]);
 
-  const gradientConfig: GradientConfig = gradientsService.getGradientConfig(props.gradientConfig);
+  const preprocessedGradientConfig: GradientConfig = gradientsService.getGradientConfig(gradientConfig);
 
-  const { gradient, colorDomain, colorsRange } = updateColorMaps(gradientConfig, molecule);
+  const { gradient, colorDomain, colorsRange } = updateColorMaps(preprocessedGradientConfig, molecule);
 
   const structureViewConfig = { gradient };
 
@@ -149,44 +146,35 @@ export function SingleView(props: Props) {
   };
 
   return (
-    <div
-      style={{
-        resize: 'both',
-        overflow: 'hidden',
-        border: '1px solid black',
-      }}
-    >
-      <Stack align="center">
-        <div
-          style={{
-            position: 'relative',
-            aspectRatio: '1/1',
-            width: '100%',
-            maxWidth: 250,
-          }}
-          onMouseMove={(event) => onMouseMoveOverStructure(event.nativeEvent, preprocessedMolecule)}
-        >
-          <Heatmap2 molecule={preprocessedMolecule} config={structureViewConfig} />
+    <Stack align="center" w="100%" h="100%">
+      <div
+        style={{
+          position: 'relative',
+          aspectRatio: '1/1',
+          height: 0,
+          flexGrow: 1,
+          maxWidth: '100%',
+          maxHeight: 250,
+          minHeight: 100,
+        }}
+        onMouseMove={(event) => onMouseMoveOverStructure(event.nativeEvent, preprocessedMolecule)}
+        onMouseOut={() => setHoveredAtoms([])}
+      >
+        <Heatmap2 molecule={preprocessedMolecule} config={structureViewConfig} />
 
-          <img
-            loading="lazy"
-            alt={molecule.string}
-            src={`data:image/svg+xml;base64,${btoa(svg)}`}
-            style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'contain' }}
-          />
+        <img
+          loading="lazy"
+          alt={molecule.string}
+          src={`data:image/svg+xml;base64,${btoa(svg)}`}
+          style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'contain' }}
+        />
 
-          <Highlight2 hoverVertices={hoveredAtoms.map((hovered) => preprocessedMolecule.vertices[hovered])} config={structureViewConfig} />
-        </div>
+        <Highlight2 hoverVertices={hoveredAtoms.map((hovered) => preprocessedMolecule.vertices[hovered])} config={structureViewConfig} />
+      </div>
 
-        <ScrollArea
-          w="100%"
-          scrollbars="x"
-          /* style={{
-            display: 'flex',
-            overflowX: 'auto',
-          }} */
-        >
-          <div style={{ marginInline: 'auto', width: 'fit-content' }}>
+      {showSmiles ? (
+        <ScrollArea w="100%" scrollbars="x">
+          <div style={{ marginInline: 'auto', width: 'fit-content', height: 'fit-content' }}>
             <Smiles2
               atomHover={hoveredAtoms}
               setAtomHover={setHoveredAtoms}
@@ -196,12 +184,12 @@ export function SingleView(props: Props) {
               colorsRange={colorsRange}
               smilesElements={preprocessedMolecule.smilesElements!} // TODO now smilesElements contains scores, chars, etc... so this component's properties can be compacted
               alphaRange={[1, 1]}
-              thresholds={gradientConfig.thresholds.length ? gradientConfig.thresholds : [0.5, 1.0]}
+              thresholds={preprocessedGradientConfig.thresholds.length ? gradientConfig.thresholds : [0.5, 1.0]}
             />
           </div>
         </ScrollArea>
-      </Stack>
-    </div>
+      ) : null}
+    </Stack>
   );
 }
 
