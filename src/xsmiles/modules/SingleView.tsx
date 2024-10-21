@@ -120,7 +120,7 @@ export function SingleView(props: Props) {
 
   const structureViewConfig = { gradient };
 
-  const onMouseMoveOverStructure = (event: MouseEvent, mol: FullMolecule, scaleResolution: number) => {
+  const onMouseMoveOverStructure = (event: MouseEvent, mol: FullMolecule) => {
     if (mol.vertices) {
       // Scale to reference size
       const target = event.target as HTMLElement;
@@ -140,10 +140,7 @@ export function SingleView(props: Props) {
         .filter((v) => v.distance < 40)
         .sort((a, b) => a.distance - b.distance);
 
-      mol.vertices.forEach((v) => (v.hover = false));
-
       if (verticesWithDistance.length > 0) {
-        verticesWithDistance[0].vertex.hover = true;
         setHoveredAtoms([verticesWithDistance[0].vertex.atomIndex]);
       } else {
         setHoveredAtoms([]);
@@ -167,7 +164,7 @@ export function SingleView(props: Props) {
             width: '100%',
             maxWidth: 250,
           }}
-          onMouseMove={(event) => onMouseMoveOverStructure(event.nativeEvent, preprocessedMolecule, window.devicePixelRatio)}
+          onMouseMove={(event) => onMouseMoveOverStructure(event.nativeEvent, preprocessedMolecule)}
         >
           <Heatmap2 molecule={preprocessedMolecule} config={structureViewConfig} />
 
@@ -178,7 +175,7 @@ export function SingleView(props: Props) {
             style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'contain' }}
           />
 
-          <Highlight2 hoverVertices={moleculeStructureService.getHoveredVerticesFromMolecule(preprocessedMolecule)} config={structureViewConfig} />
+          <Highlight2 hoverVertices={hoveredAtoms.map((hovered) => preprocessedMolecule.vertices[hovered])} config={structureViewConfig} />
         </div>
 
         <ScrollArea
@@ -198,7 +195,7 @@ export function SingleView(props: Props) {
               colorsDomain={colorDomain!} // if colorsDomain is undefined, showBarChart is false
               colorsRange={colorsRange}
               smilesElements={preprocessedMolecule.smilesElements!} // TODO now smilesElements contains scores, chars, etc... so this component's properties can be compacted
-              alphaRange={[0.2, 1]}
+              alphaRange={[1, 1]}
               thresholds={gradientConfig.thresholds.length ? gradientConfig.thresholds : [0.5, 1.0]}
             />
           </div>

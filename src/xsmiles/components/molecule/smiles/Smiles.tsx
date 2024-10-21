@@ -1,8 +1,37 @@
 import * as React from 'react';
 import { scaleLinear } from 'd3v7';
+import uniq from 'lodash/uniq';
 import SmilesChar from './SmilesChar';
 import { SmilesElement } from '../../../types/molecule.types';
-import moleculeGraphicService from '../../../services/molecule/molecule.graphic.service';
+import { isEmptyNullUndefined } from '../../../util';
+
+function getElementsIfInAllBranches(smilesElements: SmilesElement[], branches: number[]) {
+  const branch = smilesElements.filter((e) => {
+    return branches.every((branchId) => {
+      if (isEmptyNullUndefined(e.branchesIds)) {
+        return false;
+      }
+      return e.branchesIds!.includes(branchId);
+    });
+  });
+  return branch;
+}
+
+function inferHoveredAtomIndices(smilesElements: SmilesElement[], hoveredSmilesElement: SmilesElement) {
+  if (hoveredSmilesElement.chars === '(' || hoveredSmilesElement.chars === ')') {
+    const elementsInBranch = getElementsIfInAllBranches(smilesElements, hoveredSmilesElement.branchesIds || []);
+    return uniq(elementsInBranch.map((e) => e.vertex.atomIndex));
+  }
+
+  if (!Number.isNaN(Number(hoveredSmilesElement.chars))) {
+    const smilesElementsInRing = smilesElements.filter(
+      (e) => hoveredSmilesElement.rings && hoveredSmilesElement.rings.some((c) => e.rings && e.rings.includes(c)),
+    );
+    return smilesElementsInRing.map((e) => e.vertex.atomIndex);
+  }
+
+  return hoveredSmilesElement.vertex ? [hoveredSmilesElement.vertex.atomIndex] : [];
+}
 
 export function Smiles2({
   smilesString,
@@ -43,6 +72,9 @@ export function Smiles2({
           width: graphicWidth,
           height,
         }}
+        onMouseOut={() => {
+          setAtomHover([]);
+        }}
       >
         <g transform={`translate(${2 * padding},0)`}>
           <g>
@@ -63,31 +95,13 @@ export function Smiles2({
             return (
               <g
                 key={smilesElement.smilesIndex}
-                // onMouseOver={(event: MouseEvent) => this.onMouseOver(smilesElement)}
                 onMouseOver={() => {
-                  // Clear all hover
-                  smilesElements.forEach((e) => {
-                    e.vertex.hover = false;
-                  });
-
-                  // console.log(smilesElements);
-                  moleculeGraphicService.setVerticesHoverStateBasedOnType(smilesElements, [smilesElement], true);
-
-                  // console.log('hfljd');
-                  // console.log(clonedSmilesElements);
-
-                  const indices = smilesElements
-                    .map((e) => [e.smilesIndex, e.vertex.hover])
-                    .filter((e) => e[1])
-                    .map((e) => e[0]) as number[];
-
-                  // console.log('fdl');
-                  setAtomHover(indices);
+                  setAtomHover(inferHoveredAtomIndices(smilesElements, smilesElement));
                 }}
               >
                 <SmilesChar
                   char={smilesElement.chars}
-                  hover={smilesElement.vertex ? smilesElement.vertex.hover : false}
+                  hover={smilesElement.vertex ? atomHover.includes(smilesElement.vertex.atomIndex) : false}
                   score={smilesScores[i]}
                   width={charWidth}
                   height={height}

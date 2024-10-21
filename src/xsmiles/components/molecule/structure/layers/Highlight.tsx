@@ -45,7 +45,7 @@ export function Highlight2(props: Props) {
 
   return (
     <svg viewBox="0 0 200 200" style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-      {props.hoverVertices.map((vertex, i) => {
+      {props.hoverVertices.map((vertex) => {
         const c = color(getColor(props.config.gradient.palette.colors, vertex.atomSmilesElement.score));
         c!.opacity = 0.6;
 
