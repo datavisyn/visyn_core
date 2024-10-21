@@ -363,7 +363,7 @@ function EagerSingleEChartsBarChart({
   );
 
   const updateDirectionSideEffect = React.useCallback(() => {
-    if (visState.series.length === 0) {
+    if (visState.series.length === 0 || !aggregatedData) {
       return;
     }
     const aggregationAxisNameBase =
@@ -469,6 +469,7 @@ function EagerSingleEChartsBarChart({
       }));
     }
   }, [
+    aggregatedData,
     config?.aggregateColumn?.name,
     config?.aggregateType,
     config?.catColumnSelected?.name,

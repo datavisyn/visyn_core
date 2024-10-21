@@ -89,7 +89,6 @@ export function BarChart({
   const { execute: generateDataTableTrigger } = useAsync(generateDataTableWorker);
 
   useShallowEffect(() => {
-    console.log(allColumns);
     if (colsStatus === 'success' && allColumns) {
       const fetchDataTable = async () => {
         const table = await generateDataTableTrigger({
