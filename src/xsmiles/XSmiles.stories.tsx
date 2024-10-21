@@ -32,6 +32,7 @@ function TimeUtil() {
   return (
     <Stack p="xl" gap="xl">
       <SingleView
+        gradientConfig={{}}
         molecule={{
           string: 'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N',
           method: {

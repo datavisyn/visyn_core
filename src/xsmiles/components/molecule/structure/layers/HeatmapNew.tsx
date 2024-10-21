@@ -158,10 +158,17 @@ export function Heatmap2(props: Props) {
   const { ref, width, height } = useElementSize();
 
   const debouncedHeatmap = React.useMemo(() => {
-    return debounce((div, molecule, config) => {
-      clearDivChildren(div);
-      appendHeatmap(div, molecule, config.gradient);
-    }, 200);
+    return debounce(
+      (div, molecule, config) => {
+        clearDivChildren(div);
+        appendHeatmap(div, molecule, config.gradient);
+      },
+      200,
+      {
+        leading: true,
+        trailing: true,
+      },
+    );
   }, []);
 
   React.useEffect(() => {

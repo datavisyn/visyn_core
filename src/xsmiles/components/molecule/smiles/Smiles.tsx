@@ -79,7 +79,7 @@ export function Smiles2({
                   const indices = smilesElements
                     .map((e) => [e.smilesIndex, e.vertex.hover])
                     .filter((e) => e[1])
-                    .map((e) => e[0]);
+                    .map((e) => e[0]) as number[];
 
                   // console.log('fdl');
                   setAtomHover(indices);
@@ -87,9 +87,7 @@ export function Smiles2({
               >
                 <SmilesChar
                   char={smilesElement.chars}
-                  index={smilesElement.smilesIndex}
                   hover={smilesElement.vertex ? smilesElement.vertex.hover : false}
-                  updateStructure={() => {}}
                   score={smilesScores[i]}
                   width={charWidth}
                   height={height}

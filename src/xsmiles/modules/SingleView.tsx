@@ -169,7 +169,7 @@ export function SingleView(props: Props) {
           }}
           onMouseMove={(event) => onMouseMoveOverStructure(event.nativeEvent, preprocessedMolecule, window.devicePixelRatio)}
         >
-          <Heatmap2 molecule={preprocessedMolecule} config={structureViewConfig} scaleResolution={window.devicePixelRatio} />
+          <Heatmap2 molecule={preprocessedMolecule} config={structureViewConfig} />
 
           <img
             loading="lazy"

@@ -4,8 +4,6 @@ import colorsService from '../../../services/colors.service';
 
 interface Props {
   char: string;
-  updateStructure(hoverVertices: { smilesElementIndex: number; hover: boolean }[]): void;
-  index: number;
   hover: boolean;
   score: number;
   width: number;
@@ -180,9 +178,6 @@ function areEqual(prevProps: Props, nextProps: Props) {
     return false;
   }
   if (prevProps.height !== nextProps.height) {
-    return false;
-  }
-  if (prevProps.updateStructure !== nextProps.updateStructure) {
     return false;
   }
   if (prevProps.x !== nextProps.x) {
