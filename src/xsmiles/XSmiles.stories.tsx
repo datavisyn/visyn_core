@@ -46,10 +46,6 @@ function TimeUtil() {
           substructureHighlight: 'CC',
         }}
         showScoresOnStructure
-        drawerType="RDKitDrawer"
-        hideAttributesTable
-        width={200}
-        height={200}
       />
       <SingleView3
         molecule={{

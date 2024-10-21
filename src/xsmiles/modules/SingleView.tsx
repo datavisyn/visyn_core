@@ -1,42 +1,29 @@
 import React from 'react';
-import { Method, RawMolecule, Molecule as FullMolecule, Vertex } from '../types/molecule.types';
+import { ScrollArea, Stack } from '@mantine/core';
+import { Method, Molecule as FullMolecule, RawMolecule } from '../types/molecule.types';
 import { GradientConfig, GradientConfigOverwriteDefaults } from '../types/gradient.types';
-import MoleculeViews from '../components/molecule/MoleculeViews';
-import './SingleView.css';
-import cloneDeep from 'lodash/cloneDeep';
 import gradientsService from '../services/gradients.service';
-import { DrawerType } from '../types/drawer.interface';
-import Smiles, { Smiles2 } from '../components/molecule/smiles/Smiles';
+import { Smiles2 } from '../components/molecule/smiles/Smiles';
 import colorsService from '../services/colors.service';
 import moleculeStructureService from '../services/molecule/molecule.structure.service';
 import rdkitService from '../services/rdkit.service';
-import { config } from 'react-spring';
 import { GVertex } from '../services/drawers/rdkitDrawer';
 import { Highlight2 } from '../components/molecule/structure/layers/Highlight';
+import { Heatmap2 } from '../components/molecule/structure/layers/HeatmapNew';
+import { useDeepMemo } from '../../hooks';
 
-export var SingleViewCounter = 0;
+// This is the reference size of the SVG mol where the vertices are getting drawn from
+// This is used to scale the vertices to the actual size of the molecule
+export const REFERENCE_WIDTH = 200;
+export const REFERENCE_HEIGHT = 200;
 
 /**
  * Properties to define the visualization of a molecule.
  */
 export type Props = {
-  molecule: Molecule;
+  molecule: RawMolecule;
   gradientConfig: GradientConfigOverwriteDefaults;
-  drawerType: DrawerType;
-  width?: number;
-  height?: number;
-  bondLength?: number;
-  hideBarChart?: boolean;
-  hideAttributesTable?: boolean;
   showScoresOnStructure?: boolean;
-};
-
-export type Molecule = {
-  string: string;
-  sequence?: string[];
-  method: Method;
-  attributes: { [id: string]: number | string }; // attributes for each
-  substructureHighlight;
 };
 
 export type MoleculeWithMethods = {
@@ -57,7 +44,7 @@ export function SVGRenderer() {
   return <div>test</div>;
 }
 
-function updateColorMaps(gradientConfig: GradientConfig, molecule: Molecule) {
+function updateColorMaps(gradientConfig: GradientConfig, molecule: RawMolecule) {
   const colorDomain = gradientsService.getColorDomainWithDefaultIfEmpty(gradientConfig, molecule.method.scores);
   gradientConfig.colorDomain = colorDomain;
   // colorDomain can be empty [] in the gradientConfig, here we want then to set a default behavior: calculate max |scores| and set it to -max, 0, max.
@@ -75,36 +62,33 @@ function updateColorMaps(gradientConfig: GradientConfig, molecule: Molecule) {
  * @returns Rendered interactive visualization encapsulated in a <div> element.
  */
 export function SingleView(props: Props) {
-  const index = SingleViewCounter;
-  SingleViewCounter += 1;
-
   const { molecule } = props;
-  const id = `${Date.now()}_${index}_${molecule.string}_${props.molecule.method?.name}`;
-  const rawMolecule: RawMolecule = {
-    ...molecule,
-    id,
-    index,
-  } as RawMolecule;
 
-  const { method } = props.molecule;
-  const { bondLength = 50 } = props;
-  const { width = 600 } = props;
-  const { height = 300 } = props;
-  const { hideBarChart = false } = props;
-  const { hideAttributesTable = false } = props;
   const { showScoresOnStructure = false } = props;
 
+  const preprocessedMolecule = useDeepMemo(() => {
+    return moleculeStructureService.preprocessSmilesElementsAndMethod(molecule);
+  }, [molecule]);
+
   const svg = React.useMemo(() => {
-    return window.RDKit.get_mol(molecule.string).get_svg(200, 200);
-  }, [molecule.string]);
+    const details = {
+      clearBackground: false,
+      width: REFERENCE_WIDTH,
+      height: REFERENCE_HEIGHT,
+      bondLineWidth: 1.5,
+      minFontSize: 8,
+      maxFontSize: 16,
+      annotationFontScale: 0.75,
+    };
+
+    const input = showScoresOnStructure ? moleculeStructureService.getCxSmilesWithScores(preprocessedMolecule) : molecule.string;
+
+    return window.RDKit.get_mol(input).get_svg_with_highlights(JSON.stringify(details));
+  }, [molecule.string, showScoresOnStructure, preprocessedMolecule]);
 
   const coordinates = React.useMemo(() => {
     return rdkitService.getAtomsCoordinatesFromSVG(svg);
   }, [svg]);
-
-  const preprocessedMolecule = React.useMemo(() => {
-    return moleculeStructureService.preprocessSmilesElementsAndMethod(rawMolecule);
-  }, []);
 
   const gVertices = React.useMemo(() => {
     const { smilesElements } = preprocessedMolecule;
@@ -130,29 +114,27 @@ export function SingleView(props: Props) {
 
   const [hoveredAtoms, setHoveredAtoms] = React.useState<number[]>([]);
 
-  const structureColorMode = 'attribution';
-
-  const heatmap = true;
-
-  const theme = 'light';
-
-  const gradientConfig: GradientConfig = gradientsService.getGradientConfig(props.gradientConfig); //! this gradient is further stored in ViewConfig
-
-  const { drawerType = 'RDKitDrawer_black' } = props;
+  const gradientConfig: GradientConfig = gradientsService.getGradientConfig(props.gradientConfig);
 
   const { gradient, colorDomain, colorsRange } = updateColorMaps(gradientConfig, molecule);
 
-  const structureViewConfig = { gradient, width, height };
+  const structureViewConfig = { gradient };
 
   const onMouseMoveOverStructure = (event: MouseEvent, mol: FullMolecule, scaleResolution: number) => {
     if (mol.vertices) {
-      const x = event.offsetX; // x position within the element.
-      const y = event.offsetY; // y position within the element.
+      // Scale to reference size
+      const target = event.target as HTMLElement;
+
+      const scaleX = REFERENCE_WIDTH / target.clientWidth;
+      const scaleY = REFERENCE_HEIGHT / target.clientHeight;
+
+      const x = event.offsetX * scaleX;
+      const y = event.offsetY * scaleY;
 
       const verticesWithDistance = mol.vertices
         .map((vertex) => {
-          const dx = vertex.position.x / scaleResolution - x;
-          const dy = vertex.position.y / scaleResolution - y;
+          const dx = vertex.position.x - x;
+          const dy = vertex.position.y - y;
           return { vertex, distance: Math.sqrt(dx * dx + dy * dy) };
         })
         .filter((v) => v.distance < 40)
@@ -168,64 +150,60 @@ export function SingleView(props: Props) {
       }
     }
   };
-  console.log(hoveredAtoms);
+
   return (
-    <div className="SingleView">
-      <div>
+    <div
+      style={{
+        resize: 'both',
+        overflow: 'hidden',
+        border: '1px solid black',
+      }}
+    >
+      <Stack align="center">
         <div
           style={{
             position: 'relative',
-            width: props.width,
-            height: props.height,
+            aspectRatio: '1/1',
+            width: '100%',
+            maxWidth: 250,
           }}
           onMouseMove={(event) => onMouseMoveOverStructure(event.nativeEvent, preprocessedMolecule, window.devicePixelRatio)}
         >
+          <Heatmap2 molecule={preprocessedMolecule} config={structureViewConfig} scaleResolution={window.devicePixelRatio} />
+
           <img
             loading="lazy"
             alt={molecule.string}
             src={`data:image/svg+xml;base64,${btoa(svg)}`}
-            style={{ position: 'absolute', left: 0, top: 0, width: props.width, height: props.height, objectFit: 'contain' }}
+            style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'contain' }}
           />
 
-          <Highlight2
-            hoverVertices={moleculeStructureService.getHoveredVerticesFromMolecule(preprocessedMolecule)}
-            config={structureViewConfig}
-            scaleResolution={window.devicePixelRatio}
-          />
+          <Highlight2 hoverVertices={moleculeStructureService.getHoveredVerticesFromMolecule(preprocessedMolecule)} config={structureViewConfig} />
         </div>
-        <Smiles2
-          key={`smiles${id}`}
-          id={"test"}
-          atomHover={hoveredAtoms}
-          setAtomHover={setHoveredAtoms}
-          smilesString={molecule.string}
-          smilesScores={molecule.method.scores}
-          updateStructure={() => {}}
-          colorsDomain={colorDomain!} // if colorsDomain is undefined, showBarChart is false
-          colorsRange={colorsRange}
-          smilesElements={preprocessedMolecule.smilesElements!} // TODO now smilesElements contains scores, chars, etc... so this component's properties can be compacted
-          alphaRange={[0.2, 1]}
-          thresholds={gradientConfig.thresholds.length ? gradientConfig.thresholds : [0.5, 1.0]}
-        />
-      </div>
 
-      <MoleculeViews
-        id={id}
-        molecule={preprocessedMolecule}
-        rawMolecule={rawMolecule}
-        method={method} // TODO remove method from this component, since it is already in molecule
-        gradientConfig={gradientConfig}
-        structureColorMode={structureColorMode}
-        width={width}
-        height={height}
-        heatmap={heatmap}
-        theme={theme}
-        drawerType={drawerType}
-        bondLength={bondLength}
-        hideAttributesTable={hideAttributesTable}
-        hideBarChart={hideBarChart}
-        showScoresOnStructure={showScoresOnStructure}
-      />
+        <ScrollArea
+          w="100%"
+          scrollbars="x"
+          /* style={{
+            display: 'flex',
+            overflowX: 'auto',
+          }} */
+        >
+          <div style={{ marginInline: 'auto', width: 'fit-content' }}>
+            <Smiles2
+              atomHover={hoveredAtoms}
+              setAtomHover={setHoveredAtoms}
+              smilesString={molecule.string}
+              smilesScores={molecule.method.scores}
+              colorsDomain={colorDomain!} // if colorsDomain is undefined, showBarChart is false
+              colorsRange={colorsRange}
+              smilesElements={preprocessedMolecule.smilesElements!} // TODO now smilesElements contains scores, chars, etc... so this component's properties can be compacted
+              alphaRange={[0.2, 1]}
+              thresholds={gradientConfig.thresholds.length ? gradientConfig.thresholds : [0.5, 1.0]}
+            />
+          </div>
+        </ScrollArea>
+      </Stack>
     </div>
   );
 }

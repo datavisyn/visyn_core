@@ -18,8 +18,6 @@ class MoleculeStructureService {
 
   createRawMolecule(processedJsonMolecule: ProcessedMoleculeFromJson, selectedMethod: Method): import('../../types/molecule.types').RawMolecule {
     return {
-      id: processedJsonMolecule.id,
-      index: processedJsonMolecule.index,
       string: processedJsonMolecule.string,
       sequence: processedJsonMolecule.sequence, // string[] = molecule.string.split(regex-for-smiles-string) -- if regex fails to recognize the atoms correctly, users can still upload this vector
       method: selectedMethod,

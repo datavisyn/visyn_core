@@ -38,8 +38,6 @@ export interface ProcessedMoleculeFromJson extends MoleculeFromJson {
  * Represents a compound/smiles-string and its attributes, methods, etc.
  */
 export interface RawMolecule {
-  id: string;
-  index: number;
   string: string;
   substructureHighlight?: string; // SMARTS to highlight a substructure with rdkit
   sequence?: string[]; // string[] = molecule.string.split(regex-for-smiles-string) -- if regex fails to recognize the atoms correctly, users can still upload this vector
