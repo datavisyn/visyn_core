@@ -1,13 +1,12 @@
 import React from 'react';
 import { ScrollArea, Stack } from '@mantine/core';
-import { Method, Molecule as FullMolecule, RawMolecule } from '../types/molecule.types';
+import { Method, Molecule as FullMolecule, RawMolecule, GVertex } from '../types/molecule.types';
 import { GradientConfig, GradientConfigOverwriteDefaults } from '../types/gradient.types';
 import gradientsService from '../services/gradients.service';
 import { Smiles2 } from '../components/molecule/smiles/Smiles';
 import colorsService from '../services/colors.service';
 import moleculeStructureService from '../services/molecule/molecule.structure.service';
 import rdkitService from '../services/rdkit.service';
-import { GVertex } from '../services/drawers/rdkitDrawer';
 import { Highlight2 } from '../components/molecule/structure/layers/Highlight';
 import { Heatmap2 } from '../components/molecule/structure/layers/HeatmapNew';
 import { useDeepMemo } from '../../hooks';

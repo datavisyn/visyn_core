@@ -36,14 +36,6 @@ class MoleculeStructureService {
     return Array.from(new Set<Vertex>(vertices));
   }
 
-  getHoveredVerticesFromMolecule(molecule: Molecule): Vertex[] {
-    return this.getVerticesFromMolecule(molecule).filter((v) => v.hover === true);
-  }
-
-  public getHoverStatusFromAtoms(indexedSmilesElements: SmilesElement[]) {
-    return indexedSmilesElements.map((element) => (element.vertex ? element.vertex.hover : false));
-  }
-
   public cloneMoleculeFromJson = (molecule: MoleculeFromJson) => {
     const copy = { ...molecule };
     copy.methods = [
@@ -438,8 +430,8 @@ class MoleculeStructureService {
     let gVertex = findGVertex(vertices, groupedElements[i]);
     while (!gVertex && i < groupedElements.length) {
       i += 1;
-      const local_i = i; // resolve warning
-      gVertex = findGVertex(vertices, groupedElements[local_i]);
+      const localI = i; // resolve warning
+      gVertex = findGVertex(vertices, groupedElements[localI]);
     }
     return gVertex;
   };

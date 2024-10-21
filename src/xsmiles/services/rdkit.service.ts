@@ -1,8 +1,6 @@
 import getBounds from 'svg-path-bounds';
-import { Molecule, SmilesElement, Vertex } from '../types/molecule.types';
+import { GVertex, Molecule, SmilesElement, Vertex } from '../types/molecule.types';
 import { isEmptyNullUndefined, isEven, mean } from '../util';
-import type { GVertex } from './drawers/rdkitDrawer';
-import type RDKitDrawer from './drawers/rdkitDrawer';
 import moleculeStructureService from './molecule/molecule.structure.service';
 
 const cmdRegEx = /[a-z][^a-z]*/gi;

@@ -1,3 +1,10 @@
+export type GVertex = {
+  index: number;
+  smilesIndex: number;
+  x: number;
+  y: number;
+};
+
 export type Method = {
   /**
    * Method's name.
