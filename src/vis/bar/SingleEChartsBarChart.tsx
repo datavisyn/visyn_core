@@ -1,6 +1,6 @@
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Box, Stack, Text } from '@mantine/core';
+import { Alert, Box, Loader, Stack, Text } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
@@ -82,6 +82,7 @@ function EagerSingleEChartsBarChart({
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const groupSortedSeries = React.useMemo(() => {
     const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
@@ -497,6 +498,7 @@ function EagerSingleEChartsBarChart({
 
   const updateCategoriesSideEffect = React.useCallback(async () => {
     if (aggregatedData) {
+      setIsLoading(true);
       const result = await execute(aggregatedData, {
         aggregateType: config?.aggregateType as EAggregateTypes,
         display: config?.display as EBarDisplayType,
@@ -523,7 +525,7 @@ function EagerSingleEChartsBarChart({
             ...r.label,
             ...fixLabelColor,
           },
-          large: numberOfBars > 1000,
+          large: true,
           itemStyle: {
             ...barSeriesBase.itemStyle,
             ...r.itemStyle,
@@ -542,6 +544,7 @@ function EagerSingleEChartsBarChart({
 
       updateSortSideEffect({ barSeries });
       updateDirectionSideEffect();
+      setIsLoading(false);
     }
   }, [
     aggregatedData,
@@ -554,7 +557,7 @@ function EagerSingleEChartsBarChart({
     execute,
     groupColorScale,
     hasSelected,
-    numberOfBars,
+    setIsLoading,
     updateDirectionSideEffect,
     updateSortSideEffect,
   ]);
@@ -788,19 +791,18 @@ function EagerSingleEChartsBarChart({
     }
   }, [axisLabelTooltip.dom, instance]);
 
-  return groupSortedSeries.length === 0 ? (
-    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} style={{ display: 'grid', placeContent: 'center' }}>
+  return isLoading ? (
+    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
+      <Loader />
+      <Text ta="center">Loading</Text>
+    </Stack>
+  ) : groupSortedSeries.length === 0 ? (
+    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
       <Alert variant="light" color="yellow" title={<Text fw="bold">No data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
         There is no data to display. Please select a different configuration or datasource.
       </Alert>
     </Stack>
-  ) : !(visState.xAxis && visState.yAxis) ? (
-    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} style={{ display: 'grid', placeContent: 'center' }}>
-      <Alert variant="light" color="yellow" title={<Text fw="bold">Invalid data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-        Bar plot cannot be displayed due to invalid data. Please select a different configuration or datasource.
-      </Alert>
-    </Stack>
-  ) : options ? (
+  ) : !(visState.xAxis && visState.yAxis) ? null : options ? (
     <Box
       component="div"
       pos="relative"
