@@ -1,4 +1,6 @@
-import { Box } from '@mantine/core';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Alert, Box, Stack, Text } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
@@ -121,7 +123,7 @@ function EagerSingleEChartsBarChart({
     return [...knownSeries, ...unknownSeries];
   }, [groupColorScale, isGroupedByNumerical, visState.series]);
 
-  const showChart = React.useMemo(() => groupSortedSeries.reduce((acc, s) => acc + (s.data ?? []).length, 0) < 1501, [groupSortedSeries]);
+  const numberOfBars = React.useMemo(() => groupSortedSeries.reduce((acc, s) => acc + (s.data ?? []).length, 0), [groupSortedSeries]);
 
   // NOTE: @dv-usama-ansari: Prepare the base series options for the bar chart.
   const barSeriesBase = React.useMemo(
@@ -521,6 +523,7 @@ function EagerSingleEChartsBarChart({
             ...r.label,
             ...fixLabelColor,
           },
+          large: numberOfBars > 1000,
           itemStyle: {
             ...barSeriesBase.itemStyle,
             ...r.itemStyle,
@@ -551,84 +554,21 @@ function EagerSingleEChartsBarChart({
     execute,
     groupColorScale,
     hasSelected,
+    numberOfBars,
     updateDirectionSideEffect,
     updateSortSideEffect,
   ]);
 
-  const options = React.useMemo(() => {
-    if (groupSortedSeries.length > 0) {
-      if (!showChart) {
-        return {
-          ...optionBase,
-          title: [
-            ...(optionBase.title as ECOption['title'][]),
-            {
-              text: 'Too much data to display!',
-              left: '50%',
-              top: '50%',
-              textAlign: 'center',
-              name: 'noDataTitle',
-              textStyle: {
-                color: '#7F7F7F',
-                fontFamily: 'Roboto, sans-serif',
-                fontSize: '16px',
-                whiteSpace: 'pre',
-              },
-            },
-          ],
-          series: [],
-        } as ECOption;
-      }
-      if (visState.xAxis && visState.yAxis) {
-        return {
-          ...optionBase,
-          series: groupSortedSeries,
-          xAxis: visState.xAxis,
-          yAxis: visState.yAxis,
-        } as ECOption;
-      }
-      return {
+  const options = React.useMemo(
+    () =>
+      ({
         ...optionBase,
-        title: [
-          ...(optionBase.title as ECOption['title'][]),
-          {
-            text: 'Invalid data!',
-            left: '50%',
-            top: '50%',
-            textAlign: 'center',
-            name: 'noDataTitle',
-            textStyle: {
-              color: '#7F7F7F',
-              fontFamily: 'Roboto, sans-serif',
-              fontSize: '16px',
-              whiteSpace: 'pre',
-            },
-          },
-        ],
-        series: [],
-      } as ECOption;
-    }
-    return {
-      ...optionBase,
-      title: [
-        ...(optionBase.title as ECOption['title'][]),
-        {
-          text: 'No data to display!',
-          left: '50%',
-          top: '50%',
-          textAlign: 'center',
-          name: 'noDataTitle',
-          textStyle: {
-            color: '#7F7F7F',
-            fontFamily: 'Roboto, sans-serif',
-            fontSize: '16px',
-            whiteSpace: 'pre',
-          },
-        },
-      ],
-      series: [],
-    } as ECOption;
-  }, [groupSortedSeries, optionBase, showChart, visState.xAxis, visState.yAxis]);
+        series: groupSortedSeries,
+        xAxis: visState.xAxis,
+        yAxis: visState.yAxis,
+      }) as ECOption,
+    [groupSortedSeries, optionBase, visState.xAxis, visState.yAxis],
+  );
 
   // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
   React.useEffect(() => {
@@ -848,15 +788,27 @@ function EagerSingleEChartsBarChart({
     }
   }, [axisLabelTooltip.dom, instance]);
 
-  return options ? (
+  return groupSortedSeries.length === 0 ? (
+    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} style={{ display: 'grid', placeContent: 'center' }}>
+      <Alert variant="light" color="yellow" title={<Text fw="bold">No data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+        There is no data to display. Please select a different configuration or datasource.
+      </Alert>
+    </Stack>
+  ) : !(visState.xAxis && visState.yAxis) ? (
+    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} style={{ display: 'grid', placeContent: 'center' }}>
+      <Alert variant="light" color="yellow" title={<Text fw="bold">Invalid data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+        Bar plot cannot be displayed due to invalid data. Please select a different configuration or datasource.
+      </Alert>
+    </Stack>
+  ) : options ? (
     <Box
       component="div"
       pos="relative"
       pr="xs"
       ref={setRef}
       style={{
-        width: showChart ? `${Math.max(containerWidth, chartMinWidth)}px` : '100%',
-        height: showChart ? `${chartHeight + CHART_HEIGHT_MARGIN}px` : DEFAULT_BAR_CHART_HEIGHT,
+        width: `${Math.max(containerWidth, chartMinWidth)}px`,
+        height: `${chartHeight + CHART_HEIGHT_MARGIN}px`,
       }}
     />
   ) : null;
