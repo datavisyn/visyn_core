@@ -63,9 +63,6 @@ export function BarChart({
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
-  const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
-
-  const listRef = React.useRef<VariableSizeList>(null);
 
   const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
     columns,
@@ -74,84 +71,43 @@ export function BarChart({
     config?.facets as ColumnInfo,
     config?.aggregateColumn as ColumnInfo,
   ]);
-
-  const [gridLeft, setGridLeft] = React.useState(containerWidth / 3);
-
-  const truncatedTextRef = React.useRef<{ labels: { [value: string]: string }; longestLabelWidth: number; containerWidth: number }>({
-    labels: {},
-    longestLabelWidth: 0,
-    containerWidth,
-  });
-  const [labelsMap, setLabelsMap] = React.useState<Record<string, string>>({});
-
   const generateDataTableWorker = React.useCallback(async (...args: Parameters<typeof generateDataTable>) => WorkerWrapper.generateDataTable(...args), []);
-  const [dataTable, setDataTable] = React.useState<ReturnType<typeof generateDataTable>>([]);
   const { execute: generateDataTableTrigger } = useAsync(generateDataTableWorker);
-
-  useShallowEffect(() => {
-    if (colsStatus === 'success' && allColumns) {
-      const fetchDataTable = async () => {
-        const table = await generateDataTableTrigger({
-          aggregateColVals: {
-            info: allColumns.aggregateColVals?.info,
-            resolvedValues: allColumns.aggregateColVals?.resolvedValues,
-            type: allColumns.aggregateColVals?.type,
-          },
-          catColVals: {
-            info: allColumns.catColVals?.info,
-            resolvedValues: allColumns.catColVals?.resolvedValues,
-            type: allColumns.catColVals?.type,
-          },
-          facetsColVals: {
-            info: allColumns.facetsColVals?.info,
-            resolvedValues: allColumns.facetsColVals?.resolvedValues,
-            type: allColumns.facetsColVals?.type,
-          },
-          groupColVals: {
-            info: allColumns.groupColVals?.info,
-            resolvedValues: allColumns.groupColVals?.resolvedValues,
-            type: allColumns.groupColVals?.type,
-          },
-        });
-        setDataTable(table);
-      };
-      fetchDataTable();
-    }
-  }, [allColumns, colsStatus, generateDataTableTrigger]);
-
   const generateAggregateDataLookupWorker = React.useCallback(
     async (...args: Parameters<GenerateAggregatedDataLookup['generateAggregatedDataLookup']>) => WorkerWrapper.generateAggregatedDataLookup(...args),
     [],
   );
-  const [aggregatedDataMap, setAggregatedDataMap] = React.useState<Awaited<ReturnType<typeof generateAggregateDataLookupWorker>> | null>(null);
   const { execute: generateAggregatedDataLookupTrigger } = useAsync(generateAggregateDataLookupWorker);
+  const getTruncatedTextMapWorker = React.useCallback(
+    async (...args: Parameters<GenerateAggregatedDataLookup['getTruncatedTextMap']>) => WorkerWrapper.getTruncatedTextMap(...args),
+    [],
+  );
+  const { execute: getTruncatedTextMapTrigger } = useAsync(getTruncatedTextMapWorker);
 
-  useShallowEffect(() => {
-    const fetchLookup = async () => {
-      const lookup = await generateAggregatedDataLookupTrigger(
-        {
-          isFaceted: !!config?.facets?.id,
-          isGrouped: !!config?.group?.id,
-          groupType: config?.groupType as EBarGroupingType,
-          display: config?.display as EBarDisplayType,
-          aggregateType: config?.aggregateType as EAggregateTypes,
-        },
-        dataTable,
-        selectedMap,
-      );
-      setAggregatedDataMap(lookup);
-    };
-    fetchLookup();
-  }, [
-    config?.aggregateType,
-    config?.display,
-    config?.facets?.id,
-    config?.group?.id,
-    config?.groupType,
-    dataTable,
-    generateAggregatedDataLookupTrigger,
-    selectedMap,
-  ]);
+  const [itemData, setItemData] = React.useState<VirtualizedBarChartProps | null>(null);
+  const [dataTable, setDataTable] = React.useState<ReturnType<typeof generateDataTable>>([]);
+  const [aggregatedDataMap, setAggregatedDataMap] = React.useState<Awaited<ReturnType<typeof generateAggregateDataLookupWorker>> | null>(null);
+  const [gridLeft, setGridLeft] = React.useState(containerWidth / 3);
+  const [labelsMap, setLabelsMap] = React.useState<Record<string, string>>({});
+  const [longestLabelWidth, setLongestLabelWidth] = React.useState(0);
+
+  const listRef = React.useRef<VariableSizeList>(null);
+
+  const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
+
+  const allUniqueFacetVals = React.useMemo(() => {
+    const set = new Set();
+    allColumns?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
+    return [...set] as string[];
+  }, [allColumns?.facetsColVals?.resolvedValues]);
+
+  const filteredUniqueFacetVals = React.useMemo(() => {
+    const unsorted =
+      typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
+        ? ([allUniqueFacetVals[config?.focusFacetIndex]] as string[])
+        : allUniqueFacetVals;
+    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
+  }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
   const groupColorScale = React.useMemo(() => {
     if (!allColumns?.groupColVals) {
@@ -200,37 +156,6 @@ export function BarChart({
     return scaleOrdinal<string>().domain(groups).range(range);
   }, [aggregatedDataMap, allColumns, config]);
 
-  const allUniqueFacetVals = React.useMemo(() => {
-    const set = new Set();
-    allColumns?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
-    return [...set] as string[];
-  }, [allColumns?.facetsColVals?.resolvedValues]);
-
-  const filteredUniqueFacetVals = React.useMemo(() => {
-    const unsorted =
-      typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
-        ? ([allUniqueFacetVals[config?.focusFacetIndex]] as string[])
-        : allUniqueFacetVals;
-    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
-  }, [allUniqueFacetVals, config?.focusFacetIndex]);
-
-  const customSelectionCallback = React.useCallback(
-    (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
-      if (selectionCallback) {
-        if (e.ctrlKey) {
-          selectionCallback([...new Set([...(selectedList ?? []), ...ids])]);
-          return;
-        }
-        if ((selectedList ?? []).length === ids.length && (selectedList ?? []).every((value, index) => value === ids[index])) {
-          selectionCallback([]);
-        } else {
-          selectionCallback(ids);
-        }
-      }
-    },
-    [selectedList, selectionCallback],
-  );
-
   const chartHeightMap = React.useMemo(() => {
     const map: Record<string, number> = {};
     Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
@@ -251,50 +176,29 @@ export function BarChart({
     return map;
   }, [aggregatedDataMap?.facets, config]);
 
+  const shouldRenderFacets = React.useMemo(
+    () => Boolean(config?.facets && allColumns?.facetsColVals && filteredUniqueFacetVals.length === Object.keys(chartHeightMap).length),
+    [config?.facets, allColumns?.facetsColVals, filteredUniqueFacetVals.length, chartHeightMap],
+  );
+
   const isGroupedByNumerical = React.useMemo(() => allColumns?.groupColVals?.type === EColumnTypes.NUMERICAL, [allColumns?.groupColVals?.type]);
 
-  const [itemData, setItemData] = React.useState<VirtualizedBarChartProps | null>(null);
-
-  React.useEffect(() => {
-    setItemData({
-      aggregatedDataMap: aggregatedDataMap!,
-      allUniqueFacetVals,
-      chartHeightMap,
-      chartMinWidthMap,
-      config: config!,
-      containerHeight,
-      containerWidth,
-      filteredUniqueFacetVals,
-      groupColorScale: groupColorScale!,
-      isGroupedByNumerical,
-      labelsMap,
-      longestLabelWidth: truncatedTextRef.current.longestLabelWidth,
-      selectedList: selectedList!,
-      selectedMap: selectedMap!,
-      selectionCallback: customSelectionCallback,
-      setConfig: setConfig!,
-    } satisfies VirtualizedBarChartProps);
-  }, [
-    aggregatedDataMap,
-    allUniqueFacetVals,
-    chartHeightMap,
-    chartMinWidthMap,
-    config,
-    containerHeight,
-    containerWidth,
-    customSelectionCallback,
-    filteredUniqueFacetVals,
-    groupColorScale,
-    isGroupedByNumerical,
-    labelsMap,
-    selectedList,
-    selectedMap,
-    setConfig,
-  ]);
-
-  const handleScroll = React.useCallback(({ y }: { y: number }) => {
-    listRef.current?.scrollTo(y);
-  }, []);
+  const customSelectionCallback = React.useCallback(
+    (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
+      if (selectionCallback) {
+        if (e.ctrlKey) {
+          selectionCallback([...new Set([...(selectedList ?? []), ...ids])]);
+          return;
+        }
+        if ((selectedList ?? []).length === ids.length && (selectedList ?? []).every((value, index) => value === ids[index])) {
+          selectionCallback([]);
+        } else {
+          selectionCallback(ids);
+        }
+      }
+    },
+    [selectedList, selectionCallback],
+  );
 
   const Row = React.useCallback((props: ListChildComponentProps<typeof itemData>) => {
     if (!props.data) {
@@ -326,69 +230,167 @@ export function BarChart({
     );
   }, []);
 
-  // NOTE: @dv-usama-ansari: This function is a performance bottleneck.
-  const getTruncatedText = React.useCallback(
-    (value: string) => {
-      // NOTE: @dv-usama-ansari: This might be a performance bottleneck if the number of labels is very high and/or the parentWidth changes frequently (when the viewport is resized).
-      if (containerWidth === truncatedTextRef.current.containerWidth && truncatedTextRef.current.labels[value] !== undefined) {
-        return truncatedTextRef.current.labels[value];
-      }
-
-      const textEl = document.createElement('p');
-      textEl.style.position = 'absolute';
-      textEl.style.visibility = 'hidden';
-      textEl.style.whiteSpace = 'nowrap';
-      textEl.style.maxWidth = config?.direction === EBarDirection.HORIZONTAL ? `${Math.max(gridLeft, containerWidth / 3) - 20}px` : '70px';
-      textEl.innerText = value;
-
-      document.body.appendChild(textEl);
-      const longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, textEl.scrollWidth);
-      truncatedTextRef.current.longestLabelWidth = longestLabelWidth;
-
-      let truncatedText = '';
-      for (let i = 0; i < value.length; i++) {
-        textEl.innerText = `${truncatedText + value[i]}...`;
-        if (textEl.scrollWidth > textEl.clientWidth) {
-          truncatedText += '...';
-          break;
-        }
-        truncatedText += value[i];
-      }
-
-      document.body.removeChild(textEl);
-
-      truncatedTextRef.current.labels[value] = truncatedText;
-      return truncatedText;
-    },
-    [config?.direction, containerWidth, gridLeft],
-  );
-
-  // NOTE: @dv-usama-ansari: We might need an optimization here.
-  React.useEffect(() => {
-    setLabelsMap({});
-    Object.values(aggregatedDataMap?.facets ?? {}).forEach((value) => {
-      (value?.categoriesList ?? []).forEach((category) => {
-        const truncatedText = getTruncatedText(category);
-        truncatedTextRef.current.labels[category] = truncatedText;
-        setLabelsMap((prev) => ({ ...prev, [category]: truncatedText }));
-      });
-    });
-    setGridLeft(Math.min(containerWidth / 3, Math.max(truncatedTextRef.current.longestLabelWidth + 20, 60)));
-  }, [containerWidth, getTruncatedText, config?.catColumnSelected?.id, aggregatedDataMap?.facets]);
-
-  React.useEffect(() => {
-    listRef.current?.resetAfterIndex(0);
-  }, [config, dataTable]);
+  const handleScroll = React.useCallback(({ y }: { y: number }) => {
+    listRef.current?.scrollTo(y);
+  }, []);
 
   const calculateItemHeight = React.useCallback(
     (index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN,
     [chartHeightMap, filteredUniqueFacetVals],
   );
 
-  const shouldRenderFacets = React.useMemo(
-    () => Boolean(config?.facets && allColumns?.facetsColVals && filteredUniqueFacetVals.length === Object.keys(chartHeightMap).length),
-    [config?.facets, allColumns?.facetsColVals, filteredUniqueFacetVals.length, chartHeightMap],
-  );
+  // const getTruncatedText = React.useCallback(
+  //   (value: string) => {
+  //     if (canvasRef.current) {
+  //       const ctx = canvasRef.current.getContext('2d');
+  //       if (ctx) {
+  //         ctx.font = '16px Arial';
+  //         ctx.textAlign = 'left';
+  //         ctx.textBaseline = 'top';
+
+  //         const maxWidth = config?.direction === EBarDirection.HORIZONTAL ? Math.max(gridLeft, containerWidth / 3) - 20 : 70;
+  //         const renderedTextWidth = ctx.measureText(value).width;
+  //         const ellipsisWidth = ctx.measureText('...').width;
+  //         const longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, renderedTextWidth);
+  //         truncatedTextRef.current.longestLabelWidth = longestLabelWidth;
+  //         const truncatedText = value.substring(0, Math.min(renderedTextWidth, maxWidth - ellipsisWidth));
+  //         const finalText = truncatedText.length < value.length ? `${truncatedText}...` : value;
+  //         truncatedTextRef.current.labels[value] = finalText;
+  //         return finalText;
+  //       }
+  //     }
+  //     return '';
+  //   },
+  //   [config?.direction, containerWidth, gridLeft],
+  // );
+
+  // NOTE: @dv-usama-ansari: We might need an optimization here.
+  // React.useEffect(() => {
+  // setLabelsMap({});
+  // Object.values(aggregatedDataMap?.facets ?? {}).forEach((value) => {
+  //   (value?.categoriesList ?? []).forEach((category) => {
+  //     const truncatedText = getTruncatedText(category);
+  //     truncatedTextRef.current.labels[category] = truncatedText ?? '';
+  //     setLabelsMap((prev) => ({ ...prev, [category]: truncatedText ?? '' }));
+  //   });
+  // });
+  // setGridLeft(Math.min(containerWidth / 3, Math.max(truncatedTextRef.current.longestLabelWidth + 20, 60)));
+  // }, [containerWidth, getTruncatedText, config?.catColumnSelected?.id, aggregatedDataMap?.facets]);
+
+  React.useEffect(() => {
+    listRef.current?.resetAfterIndex(0);
+  }, [config, dataTable]);
+
+  useShallowEffect(() => {
+    if (colsStatus === 'success' && allColumns) {
+      const fetchDataTable = async () => {
+        const table = await generateDataTableTrigger({
+          aggregateColVals: {
+            info: allColumns.aggregateColVals?.info,
+            resolvedValues: allColumns.aggregateColVals?.resolvedValues,
+            type: allColumns.aggregateColVals?.type,
+          },
+          catColVals: {
+            info: allColumns.catColVals?.info,
+            resolvedValues: allColumns.catColVals?.resolvedValues,
+            type: allColumns.catColVals?.type,
+          },
+          facetsColVals: {
+            info: allColumns.facetsColVals?.info,
+            resolvedValues: allColumns.facetsColVals?.resolvedValues,
+            type: allColumns.facetsColVals?.type,
+          },
+          groupColVals: {
+            info: allColumns.groupColVals?.info,
+            resolvedValues: allColumns.groupColVals?.resolvedValues,
+            type: allColumns.groupColVals?.type,
+          },
+        });
+        setDataTable(table);
+      };
+      fetchDataTable();
+    }
+  }, [allColumns, colsStatus, generateDataTableTrigger]);
+
+  useShallowEffect(() => {
+    const fetchLookup = async () => {
+      const lookup = await generateAggregatedDataLookupTrigger(
+        {
+          isFaceted: !!config?.facets?.id,
+          isGrouped: !!config?.group?.id,
+          groupType: config?.groupType as EBarGroupingType,
+          display: config?.display as EBarDisplayType,
+          aggregateType: config?.aggregateType as EAggregateTypes,
+        },
+        dataTable,
+        selectedMap,
+      );
+      setAggregatedDataMap(lookup);
+    };
+    fetchLookup();
+  }, [
+    config?.aggregateType,
+    config?.display,
+    config?.facets?.id,
+    config?.group?.id,
+    config?.groupType,
+    dataTable,
+    generateAggregatedDataLookupTrigger,
+    selectedMap,
+  ]);
+
+  useShallowEffect(() => {
+    const fetchTruncatedTextMap = async () => {
+      const truncatedTextMap = await getTruncatedTextMapTrigger(
+        Object.values(aggregatedDataMap?.facets ?? {})
+          .map((value) => value?.categoriesList ?? [])
+          .flat(),
+        config?.direction === EBarDirection.HORIZONTAL ? Math.max(gridLeft, containerWidth / 3) - 20 : 70,
+      );
+      setLabelsMap(truncatedTextMap.map);
+      setLongestLabelWidth(truncatedTextMap.longestLabelWidth);
+      setGridLeft(Math.min(containerWidth / 3, Math.max(longestLabelWidth + 20, 60)));
+    };
+    fetchTruncatedTextMap();
+  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, config?.direction, containerWidth, getTruncatedTextMapTrigger, gridLeft, longestLabelWidth]);
+
+  React.useEffect(() => {
+    setItemData({
+      aggregatedDataMap: aggregatedDataMap!,
+      allUniqueFacetVals,
+      chartHeightMap,
+      chartMinWidthMap,
+      config: config!,
+      containerHeight,
+      containerWidth,
+      filteredUniqueFacetVals,
+      groupColorScale: groupColorScale!,
+      isGroupedByNumerical,
+      labelsMap,
+      longestLabelWidth,
+      selectedList: selectedList!,
+      selectedMap: selectedMap!,
+      selectionCallback: customSelectionCallback,
+      setConfig: setConfig!,
+    } satisfies VirtualizedBarChartProps);
+  }, [
+    aggregatedDataMap,
+    allUniqueFacetVals,
+    chartHeightMap,
+    chartMinWidthMap,
+    config,
+    containerHeight,
+    containerWidth,
+    customSelectionCallback,
+    filteredUniqueFacetVals,
+    groupColorScale,
+    isGroupedByNumerical,
+    labelsMap,
+    longestLabelWidth,
+    selectedList,
+    selectedMap,
+    setConfig,
+  ]);
 
   return (
     <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
@@ -426,7 +428,7 @@ export function BarChart({
                 groupColorScale={groupColorScale!}
                 isGroupedByNumerical={isGroupedByNumerical}
                 labelsMap={labelsMap}
-                longestLabelWidth={truncatedTextRef.current.longestLabelWidth}
+                longestLabelWidth={longestLabelWidth}
                 selectedList={selectedList}
                 setConfig={setConfig}
                 selectionCallback={customSelectionCallback}

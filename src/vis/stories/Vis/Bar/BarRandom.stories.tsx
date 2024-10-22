@@ -53,7 +53,7 @@ function fetchData(numberOfPoints: number): VisColumn[] {
       ),
     twoCategories: Array(numberOfPoints)
       .fill(null)
-      .map((_, i) => `${parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 3 ? 'EVEN' : 'ODD'}_CATEGORY`),
+      .map((_, i) => `${parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 3 ? 'EVEN' : 'ODD'}_CATEGORY_WITH_LONG_LABELS_WHICH_SHOULD_BE_TRUNCATED`),
     categoriesAsNumberOfPoints: Array(numberOfPoints)
       .fill(null)
       .map((_, i) => `DATA_CATEGORY_${i}`),
