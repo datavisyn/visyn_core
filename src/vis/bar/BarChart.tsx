@@ -201,7 +201,9 @@ export function BarChart({
   }, [aggregatedDataMap, allColumns, config]);
 
   const allUniqueFacetVals = React.useMemo(() => {
-    return [...new Set(allColumns?.facetsColVals?.resolvedValues.map((v) => getLabelOrUnknown(v.val)))] as string[];
+    const set = new Set();
+    allColumns?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
+    return [...set] as string[];
   }, [allColumns?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
