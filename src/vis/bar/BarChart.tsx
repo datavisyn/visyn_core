@@ -373,7 +373,9 @@ export function BarChart({
     <BlurredOverlay loading dataTestId="visyn-bar-chart-loading-data-overlay" visible loadingText="Crunching numbers, this may take a moment &hellip;" />
   ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-loading-data-error">
-      <ErrorMessage>Something went wrong while loading and processing the data. Please try again.</ErrorMessage>
+      <ErrorMessage dataTestId="visyn-vis-bar-chart-processing-data-error">
+        Something went wrong while loading and processing the data. Please try again.
+      </ErrorMessage>
     </Stack>
   ) : (
     isSuccess && (

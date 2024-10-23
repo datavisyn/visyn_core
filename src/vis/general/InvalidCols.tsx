@@ -16,7 +16,7 @@ export function InvalidCols({
   return (
     <Stack h="100%" style={style}>
       <Center h="100%">
-        <WarningMessage title={title} alertProps={alertProps}>
+        <WarningMessage title={title} alertProps={alertProps} dataTestId="visyn-vis-missing-column-warning">
           {children}
         </WarningMessage>
       </Center>

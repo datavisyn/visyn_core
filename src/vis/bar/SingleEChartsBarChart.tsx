@@ -807,7 +807,7 @@ function EagerSingleEChartsBarChart({
   ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-config-setup-error">
       {config?.facets && selectedFacetValue ? <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text> : null}
-      <ErrorMessage>Something went wrong setting up your chart.</ErrorMessage>
+      <ErrorMessage dataTestId="visyn-vis-bar-chart-setup-chart-error">Something went wrong setting up your chart.</ErrorMessage>
     </Stack>
   ) : (
     isSuccess &&
@@ -815,11 +815,11 @@ function EagerSingleEChartsBarChart({
       config?.facets && selectedFacetValue ? (
         <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id={`visyn-bar-chart-no-data-error-facet-${selectedFacetValue}`}>
           <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text>
-          <WarningMessage>No data available for this facet.</WarningMessage>
+          <WarningMessage dataTestId={`visyn-vis-bar-chart-no-data-facet-${selectedFacetValue}-warning`}>No data available for this facet.</WarningMessage>
         </Stack>
       ) : (
         <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-no-data-error">
-          <WarningMessage>No data available for this chart. Try a different configuration.</WarningMessage>
+          <WarningMessage dataTestId="visyn-vis-bar-chart-no-data-warning">No data available for this chart. Try a different configuration.</WarningMessage>
         </Stack>
       )
     ) : !(visState.xAxis && visState.yAxis) ? null : (

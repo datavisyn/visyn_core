@@ -7,13 +7,15 @@ export function ErrorMessage({
   title,
   children,
   alertProps,
+  dataTestId,
 }: {
   title?: React.ReactNode;
   children: React.ReactNode;
   alertProps?: React.ComponentProps<typeof Alert>;
+  dataTestId?: string;
 }) {
   return (
-    <Alert title={title} variant="light" color="red" icon={<FontAwesomeIcon icon={faExclamationCircle} />} {...alertProps}>
+    <Alert title={title} variant="light" color="red" icon={<FontAwesomeIcon icon={faExclamationCircle} />} {...alertProps} data-test-id={dataTestId}>
       {children}
     </Alert>
   );
