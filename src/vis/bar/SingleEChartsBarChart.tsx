@@ -24,6 +24,8 @@ import {
   WorkerWrapper,
 } from './interfaces/internal';
 import { BlurredOverlay } from '../../components';
+import { WarningMessage } from '../general/WarningMessage';
+import { ErrorMessage } from '../general/ErrorMessage';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
@@ -805,9 +807,7 @@ function EagerSingleEChartsBarChart({
   ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-config-setup-error">
       {config?.facets && selectedFacetValue ? <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text> : null}
-      <Alert variant="light" color="red" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-        Something went wrong setting up your chart.
-      </Alert>
+      <ErrorMessage>Something went wrong setting up your chart.</ErrorMessage>
     </Stack>
   ) : (
     isSuccess &&
@@ -815,15 +815,11 @@ function EagerSingleEChartsBarChart({
       config?.facets && selectedFacetValue ? (
         <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id={`visyn-bar-chart-no-data-error-facet-${selectedFacetValue}`}>
           <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text>
-          <Alert variant="light" color="yellow" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-            No data available for this facet.
-          </Alert>
+          <WarningMessage>No data available for this facet.</WarningMessage>
         </Stack>
       ) : (
         <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-no-data-error">
-          <Alert variant="light" color="yellow" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-            No data available for this chart. Try a different configuration.
-          </Alert>
+          <WarningMessage>No data available for this chart. Try a different configuration.</WarningMessage>
         </Stack>
       )
     ) : !(visState.xAxis && visState.yAxis) ? null : (
