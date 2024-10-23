@@ -551,8 +551,8 @@ export function ScatterVis({
             style={{
               gridArea: 'plot',
             }}
-            headerMessage={i18n.t('visyn:vis.errorHeader')}
-            bodyMessage={error?.message || i18n.t('visyn:vis.scatterError')}
+            headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')}
+            bodyMessage={error?.message || i18n.t('visyn:vis.missingColumn.scatterError')}
           />
         ) : null}
       </div>

@@ -11,6 +11,7 @@ import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../gen
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
+import { i18n } from '../../i18n';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -252,7 +253,7 @@ export function SankeyVis({
         />
       ) : (
         <Center h="100%">
-          <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a sankey chart, select at least 2 columns." />
+          <InvalidCols headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')} bodyMessage={i18n.t('visyn:vis.missingColumn.sankeyError')} />
         </Center>
       )}
     </Stack>

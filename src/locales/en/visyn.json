@@ -1,11 +1,16 @@
 {
   "vis": {
-    "violinError": "To create a violin plot, please select at least 1 numerical column.",
-    "scatterError": "To create a scatter plot, please select at least 2 numerical columns.",
-    "hexbinError": "To create a hexbin plot, please select at least 2 numerical columns.",
-    "stripError": "To create a strip plot, please select at least 1 numerical column.",
-    "barError": "To create a bar chart, please select 1 categorical column.",
-    "errorHeader": "Invalid settings",
+    "missingColumn": {
+      "errorHeader": "Missing column selection",
+      "violinError": "Select at least one numerical column to display the violin plot.",
+      "scatterError": "Select at least two numerical columns to display the scatter plot.",
+      "hexbinError": "Select at least two numerical columns to display the hexbin plot.",
+      "stripError": "Select at least one numerical column to display the strip plot.",
+      "barError": "Select one categorical column to display the bar chart.",
+      "correlationError": "Select at least two numerical columns to display the correlation chart.",
+      "heatmapError": "Select at least two categorical columns to display the heatmap chart.",
+      "sankeyError": "Select at least two categorical columns to display the sankey chart."
+    },
     "openSettings": "Open settings",
     "closeSettings": "Close settings",
     "hexbinOptions": "Hexbin options",

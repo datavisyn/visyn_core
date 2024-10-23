@@ -9,6 +9,7 @@ import { IHeatmapConfig } from './interfaces';
 import { getHeatmapData } from './utils';
 
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { i18n } from '../../i18n';
 
 export function HeatmapGrid({
   config,
@@ -64,7 +65,7 @@ export function HeatmapGrid({
         </>
       )}
       {status === 'success' && !hasAtLeast2CatCols && (
-        <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a heatmap chart, select at least 2 categorical columns." />
+        <InvalidCols headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')} bodyMessage={i18n.t('visyn:vis.missingColumn.heatmapError')} />
       )}
     </Stack>
   );

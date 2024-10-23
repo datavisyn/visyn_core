@@ -4,6 +4,7 @@ import { InvalidCols } from '../general';
 import { ICommonVisProps } from '../interfaces';
 import { IBarConfig } from './interfaces';
 import { BarChart } from './BarChart';
+import { i18n } from '../../i18n';
 
 export function BarVis({
   config,
@@ -29,7 +30,7 @@ export function BarVis({
           showDownloadScreenshot={showDownloadScreenshot}
         />
       ) : (
-        <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a bar chart, please select at least 1 column." />
+        <InvalidCols headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')} bodyMessage={i18n.t('visyn:vis.missingColumn.barError')} />
       )}
     </Stack>
   );

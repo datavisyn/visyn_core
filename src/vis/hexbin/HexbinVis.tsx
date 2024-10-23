@@ -152,7 +152,7 @@ export function HexbinVis({
           }}
         >
           {config.numColumnsSelected.length < 2 ? (
-            <InvalidCols headerMessage={i18n.t('visyn:vis.errorHeader')} bodyMessage={i18n.t('visyn:vis.hexbinError')} />
+            <InvalidCols headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')} bodyMessage={i18n.t('visyn:vis.missingColumn.hexbinError')} />
           ) : null}
 
           {config.numColumnsSelected.length === 2 && allColumns?.numColVals.length === config.numColumnsSelected.length && colsStatus === 'success' ? (
