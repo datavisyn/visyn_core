@@ -5,15 +5,14 @@ import * as React from 'react';
 import { css } from '@emotion/css';
 import { useAsync } from '../../hooks/useAsync';
 import { i18n } from '../../i18n';
-import { InvalidCols } from '../general';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar';
 import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
 import { LegendItem } from '../general/LegendItem';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { assignColorToNullValues } from '../general/utils';
+import { WarningMessage } from '../general/WarningMessage';
 
 function Legend({
   categories,
@@ -152,7 +151,9 @@ export function HexbinVis({
           }}
         >
           {config.numColumnsSelected.length < 2 ? (
-            <InvalidCols title={i18n.t('visyn:vis.missingColumn.errorHeader')}>{i18n.t('visyn:vis.missingColumn.hexbinError')}</InvalidCols>
+            <WarningMessage centered dataTestId="visyn-vis-missing-column-warning" title={i18n.t('visyn:vis.missingColumn.errorHeader')}>
+              {i18n.t('visyn:vis.missingColumn.hexbinError')}
+            </WarningMessage>
           ) : null}
 
           {config.numColumnsSelected.length === 2 && allColumns?.numColVals.length === config.numColumnsSelected.length && colsStatus === 'success' ? (

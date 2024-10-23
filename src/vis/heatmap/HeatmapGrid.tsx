@@ -2,7 +2,6 @@ import { Center, Loader, Stack } from '@mantine/core';
 import * as React from 'react';
 import { uniqueId } from 'lodash';
 import { useAsync } from '../../hooks/useAsync';
-import { InvalidCols } from '../general/InvalidCols';
 import { VisColumn } from '../interfaces';
 import { Heatmap } from './Heatmap';
 import { IHeatmapConfig } from './interfaces';
@@ -10,6 +9,7 @@ import { getHeatmapData } from './utils';
 
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { i18n } from '../../i18n';
+import { WarningMessage } from '../general/WarningMessage';
 
 export function HeatmapGrid({
   config,
@@ -65,7 +65,9 @@ export function HeatmapGrid({
         </>
       )}
       {status === 'success' && !hasAtLeast2CatCols && (
-        <InvalidCols title={i18n.t('visyn:vis.missingColumn.errorHeader')}>{i18n.t('visyn:vis.missingColumn.heatmapError')}</InvalidCols>
+        <WarningMessage centered dataTestId="visyn-vis-missing-column-warning" title={i18n.t('visyn:vis.missingColumn.errorHeader')}>
+          {i18n.t('visyn:vis.missingColumn.heatmapError')}
+        </WarningMessage>
       )}
     </Stack>
   );

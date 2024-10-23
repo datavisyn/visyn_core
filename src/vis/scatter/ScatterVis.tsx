@@ -16,12 +16,12 @@ import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from '
 import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 import { fitRegressionLine } from './Regression';
 import { useDataPreparation } from './useDataPreparation';
-import { InvalidCols } from '../general/InvalidCols';
 import { i18n } from '../../i18n/I18nextManager';
 import { LegendItem } from '../general/LegendItem';
 import { useLayout } from './useLayout';
 import { useData } from './useData';
 import { categoricalColors, getCssValue } from '../../utils';
+import { WarningMessage } from '../general/WarningMessage';
 
 function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
   return (
@@ -547,14 +547,16 @@ export function ScatterVis({
             config={{ scrollZoom, displayModeBar: false }}
           />
         ) : status !== 'idle' && status !== 'pending' ? (
-          <InvalidCols
+          <WarningMessage
+            centered
+            dataTestId="visyn-vis-missing-column-warning"
+            title={i18n.t('visyn:vis.missingColumn.errorHeader')}
             style={{
               gridArea: 'plot',
             }}
-            title={i18n.t('visyn:vis.missingColumn.errorHeader')}
           >
             {error?.message || i18n.t('visyn:vis.missingColumn.scatterError')}
-          </InvalidCols>
+          </WarningMessage>
         ) : null}
       </div>
 
