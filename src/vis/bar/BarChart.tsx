@@ -75,11 +75,13 @@ export function BarChart({
   ]);
   const generateDataTableWorker = React.useCallback(async (...args: Parameters<typeof generateDataTable>) => WorkerWrapper.generateDataTable(...args), []);
   const { execute: generateDataTableTrigger, status: dataTableStatus } = useAsync(generateDataTableWorker);
+
   const generateAggregateDataLookupWorker = React.useCallback(
     async (...args: Parameters<GenerateAggregatedDataLookup['generateAggregatedDataLookup']>) => WorkerWrapper.generateAggregatedDataLookup(...args),
     [],
   );
   const { execute: generateAggregatedDataLookupTrigger, status: dataLookupStatus } = useAsync(generateAggregateDataLookupWorker);
+
   const getTruncatedTextMapWorker = React.useCallback(
     async (...args: Parameters<GenerateAggregatedDataLookup['getTruncatedTextMap']>) => WorkerWrapper.getTruncatedTextMap(...args),
     [],
@@ -97,20 +99,14 @@ export function BarChart({
 
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
 
-  const isLoading = React.useMemo(
-    () => (dataTable.length > 0 && barDataStatus === 'pending') || dataTableStatus === 'pending' || truncatedTextStatus === 'pending',
-    [barDataStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
-  );
+  const isLoading = React.useMemo(() => barDataStatus === 'pending' || dataTableStatus === 'pending', [barDataStatus, dataTableStatus]);
 
   const isError = React.useMemo(
-    () => dataTableStatus === 'error' || dataLookupStatus === 'error' || truncatedTextStatus === 'error',
-    [dataLookupStatus, dataTableStatus, truncatedTextStatus],
+    () => barDataStatus === 'error' || dataTableStatus === 'error' || dataLookupStatus === 'error' || truncatedTextStatus === 'error',
+    [barDataStatus, dataLookupStatus, dataTableStatus, truncatedTextStatus],
   );
 
-  const isSuccess = React.useMemo(
-    () => dataTable.length > 0 && barDataStatus === 'success' && dataTableStatus === 'success' && truncatedTextStatus === 'success',
-    [barDataStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
-  );
+  const isSuccess = React.useMemo(() => barDataStatus === 'success' && dataTableStatus === 'success', [barDataStatus, dataTableStatus]);
 
   const allUniqueFacetVals = React.useMemo(() => {
     const set = new Set();
