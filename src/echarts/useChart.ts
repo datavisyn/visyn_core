@@ -32,7 +32,7 @@ import type {
 import type { ComposeOption, ECElementEvent, ECharts } from 'echarts/core';
 import { init, use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import { useSetRef } from 'visyn_core/hooks';
+import { useSetRef } from '../hooks/useSetRef';
 
 export type ECSeries = BarSeriesOption | LineSeriesOption | SankeySeriesOption | FunnelSeriesOption | ScatterSeriesOption | PieSeriesOption;
 
