@@ -7,7 +7,7 @@ import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { useAsync } from '../../hooks/useAsync';
-import { categoricalColors as colorScale } from '../../utils/colors';
+import { categoricalColors10 } from '../../utils/colors';
 import { NAN_REPLACEMENT } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { getLabelOrUnknown } from '../general/utils';
@@ -167,7 +167,7 @@ export function BarChart({
           ? (schemeBlues[Math.max(Math.min(groups.length - 1, maxGroupings), 3)] as string[]).slice(0, maxGroupings)
           : (schemeBlues[Math.max(Math.min(groups.length - 1, 9), 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
-            (group, i) => (allColumns?.groupColVals?.color?.[group] || colorScale[i % colorScale.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
+            (group, i) => (allColumns?.groupColVals?.color?.[group] || categoricalColors10[i % categoricalColors10.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
 
     return scaleOrdinal<string>().domain(groups).range(range);
