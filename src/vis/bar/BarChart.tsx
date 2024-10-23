@@ -29,6 +29,7 @@ import {
   WorkerWrapper,
 } from './interfaces/internal';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
+import { BlurredOverlay } from '../../components';
 
 type VirtualizedBarChartProps = {
   aggregatedDataMap: Awaited<ReturnType<typeof generateAggregatedDataLookup>>;
@@ -368,10 +369,7 @@ export function BarChart({
   ]);
 
   return isLoading ? (
-    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
-      <Loader />
-      <Text ta="center">Aggregating</Text>
-    </Stack>
+    <BlurredOverlay loading dataTestId="visyn-bar-chart-loading-overlay" visible loadingText="Crunching numbers, this may take a moment &hellip;" />
   ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
       <Alert variant="light" color="red" title={<Text fw="bold">Error loading data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
