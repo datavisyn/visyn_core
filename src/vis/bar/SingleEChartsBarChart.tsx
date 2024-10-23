@@ -1,6 +1,6 @@
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Box, Loader, Stack, Text } from '@mantine/core';
+import { Alert, Box, Stack, Text } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
@@ -23,6 +23,7 @@ import {
   sortSeries,
   WorkerWrapper,
 } from './interfaces/internal';
+import { BlurredOverlay } from '../../components';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
@@ -547,8 +548,6 @@ function EagerSingleEChartsBarChart({
   const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
   const isSuccess = React.useMemo(() => visState.series.length > 0, [visState.series.length]);
 
-  console.log({ generateBarSeriesStatus, isLoading, isSuccess });
-
   const updateSortSideEffect = React.useCallback(
     ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
       if (barSeries.length > 0 || !aggregatedData) {
@@ -793,24 +792,40 @@ function EagerSingleEChartsBarChart({
   }, [axisLabelTooltip.dom, instance]);
 
   return isLoading ? (
-    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
-      <Loader />
-      <Text ta="center">Generating series</Text>
-    </Stack>
+    <BlurredOverlay
+      loading
+      visible
+      dataTestId="visyn-bar-chart-config-setup-facet-overlay"
+      loadingText={
+        config?.facets && selectedFacetValue
+          ? `Setting up your chart for facet "${selectedFacetValue}", almost ready ...`
+          : 'Setting up your chart, almost ready ...'
+      }
+    />
   ) : isError ? (
-    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
-      <Alert variant="light" color="red" title={<Text fw="bold">No data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-        Error generating series. Please try again.
+    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-config-setup-error">
+      {config?.facets && selectedFacetValue ? <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text> : null}
+      <Alert variant="light" color="red" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+        Something went wrong setting up your chart.
       </Alert>
     </Stack>
   ) : (
     isSuccess &&
     (groupSortedSeries.length === 0 ? (
-      <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
-        <Alert variant="light" color="yellow" title={<Text fw="bold">No data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-          There is no data to display. Please select a different configuration or datasource.
-        </Alert>
-      </Stack>
+      config?.facets && selectedFacetValue ? (
+        <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id={`visyn-bar-chart-no-data-error-facet-${selectedFacetValue}`}>
+          <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text>
+          <Alert variant="light" color="yellow" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+            No data available for this facet.
+          </Alert>
+        </Stack>
+      ) : (
+        <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-no-data-error">
+          <Alert variant="light" color="yellow" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+            No data available for this chart. Try a different configuration.
+          </Alert>
+        </Stack>
+      )
     ) : !(visState.xAxis && visState.yAxis) ? null : (
       options && (
         <Box
