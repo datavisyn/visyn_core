@@ -196,12 +196,6 @@ export function useData({
     }
 
     if (splom && value.validColumns[0]) {
-      // SPLOM case
-      const plotlyDimensions = value.validColumns.map((col) => ({
-        label: col.info.name,
-        values: col.resolvedValues.map((v) => v.val),
-      }));
-
       const traces = [
         {
           ...BASE_DATA,
@@ -212,7 +206,7 @@ export function useData({
           },
           showupperhalf: false,
           // @ts-ignore
-          dimensions: plotlyDimensions,
+          dimensions: splom.dimensions,
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
             `${value.idToLabelMapper(v.id)}
   ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i]?.val)}`)}
