@@ -187,7 +187,7 @@ export function ViolinVis({
           />
         </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
-        <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
+        <InvalidCols title={traces?.errorMessageHeader}>{traceError?.message || traces?.errorMessage}</InvalidCols>
       ) : null}
     </Stack>
   );

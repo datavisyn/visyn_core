@@ -30,7 +30,7 @@ export function BarVis({
           showDownloadScreenshot={showDownloadScreenshot}
         />
       ) : (
-        <InvalidCols headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')} bodyMessage={i18n.t('visyn:vis.missingColumn.barError')} />
+        <InvalidCols title={i18n.t('visyn:vis.missingColumn.errorHeader')}>{i18n.t('visyn:vis.missingColumn.barError')}</InvalidCols>
       )}
     </Stack>
   );

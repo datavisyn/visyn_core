@@ -9,6 +9,6 @@ export function CorrelationVis({ config, columns, showDownloadScreenshot, unique
   return config.numColumnsSelected.length > 1 ? (
     <CorrelationMatrix config={config} columns={columns} uniquePlotId={uniquePlotId} showDownloadScreenshot={showDownloadScreenshot} />
   ) : (
-    <InvalidCols headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')} bodyMessage={i18n.t('visyn:vis.missingColumn.correlationError')} />
+    <InvalidCols title={i18n.t('visyn:vis.missingColumn.errorHeader')}>{i18n.t('visyn:vis.missingColumn.correlationError')}</InvalidCols>
   );
 }

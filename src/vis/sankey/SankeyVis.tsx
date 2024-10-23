@@ -253,7 +253,7 @@ export function SankeyVis({
         />
       ) : (
         <Center h="100%">
-          <InvalidCols headerMessage={i18n.t('visyn:vis.missingColumn.errorHeader')} bodyMessage={i18n.t('visyn:vis.missingColumn.sankeyError')} />
+          <InvalidCols title={i18n.t('visyn:vis.missingColumn.errorHeader')}>{i18n.t('visyn:vis.missingColumn.sankeyError')}</InvalidCols>
         </Center>
       )}
     </Stack>
