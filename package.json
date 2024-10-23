@@ -26,6 +26,7 @@
     "./hooks": "./src/hooks/index.ts",
     "./i18n": "./src/i18n/index.ts",
     "./idtype": "./src/idtype/index.ts",
+    "./echarts": "./src/echarts/index.ts",
     "./plotly/full": "./src/plotly/full/index.ts",
     "./plotly": "./src/plotly/index.tsx",
     "./plugin": "./src/plugin/index.ts",
