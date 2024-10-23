@@ -498,7 +498,7 @@ function EagerSingleEChartsBarChart({
     [generateBarSeriesStatus, visState.series.length],
   );
   const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
-  const isSuccess = React.useMemo(() => visState.series.length > 0 || generateBarSeriesStatus === 'success', [generateBarSeriesStatus, visState.series.length]);
+  const isSuccess = React.useMemo(() => visState.series.length > 0 && generateBarSeriesStatus === 'success', [generateBarSeriesStatus, visState.series.length]);
 
   const updateCategoriesSideEffect = React.useCallback(async () => {
     if (aggregatedData) {

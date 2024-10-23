@@ -1,6 +1,6 @@
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Box, Center, Group, Loader, ScrollArea, Stack, Text } from '@mantine/core';
+import { Alert, Box, Group, Loader, ScrollArea, Stack, Text } from '@mantine/core';
 import { useElementSize, useShallowEffect } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
@@ -66,7 +66,7 @@ export function BarChart({
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
 
-  const { value: allColumns, status: colsStatus } = useAsync(getBarData, [
+  const { value: barData, status: barDataStatus } = useAsync(getBarData, [
     columns,
     config?.catColumnSelected as ColumnInfo,
     config?.group as ColumnInfo,
@@ -98,8 +98,8 @@ export function BarChart({
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
 
   const isLoading = React.useMemo(
-    () => dataTable.length === 0 && (dataTableStatus === 'pending' || dataLookupStatus === 'pending' || truncatedTextStatus === 'pending'),
-    [dataLookupStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
+    () => (dataTable.length > 0 && barDataStatus === 'pending') || dataTableStatus === 'pending' || truncatedTextStatus === 'pending',
+    [barDataStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
   );
 
   const isError = React.useMemo(
@@ -108,15 +108,15 @@ export function BarChart({
   );
 
   const isSuccess = React.useMemo(
-    () => dataTable.length > 0 || (dataTableStatus === 'success' && dataLookupStatus === 'success' && truncatedTextStatus === 'success'),
-    [dataLookupStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
+    () => dataTable.length > 0 && barDataStatus === 'success' && dataTableStatus === 'success' && truncatedTextStatus === 'success',
+    [barDataStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
   );
 
   const allUniqueFacetVals = React.useMemo(() => {
     const set = new Set();
-    allColumns?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
+    barData?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
     return [...set] as string[];
-  }, [allColumns?.facetsColVals?.resolvedValues]);
+  }, [barData?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
     const unsorted =
@@ -127,12 +127,12 @@ export function BarChart({
   }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
   const groupColorScale = React.useMemo(() => {
-    if (!allColumns?.groupColVals) {
+    if (!barData?.groupColVals) {
       return null;
     }
 
     const groups =
-      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+      barData.groupColVals.type === EColumnTypes.NUMERICAL
         ? [
             ...new Set(
               Object.values(aggregatedDataMap?.facets ?? {})
@@ -162,16 +162,16 @@ export function BarChart({
     const maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc: number, facet) => Math.max(acc, facet.groupingsList.length), 0);
 
     const range =
-      allColumns.groupColVals.type === EColumnTypes.NUMERICAL
+      barData.groupColVals.type === EColumnTypes.NUMERICAL
         ? config?.catColumnSelected?.id === config?.facets?.id
           ? (schemeBlues[Math.max(Math.min(groups.length - 1, maxGroupings), 3)] as string[]).slice(0, maxGroupings)
           : (schemeBlues[Math.max(Math.min(groups.length - 1, 9), 3)] as string[]) // use at least 3 colors for numerical values
         : groups.map(
-            (group, i) => (allColumns?.groupColVals?.color?.[group] || categoricalColors10[i % categoricalColors10.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
+            (group, i) => (barData?.groupColVals?.color?.[group] || categoricalColors10[i % categoricalColors10.length]) as string, // use the custom color from the column if available, otherwise use the default color scale
           );
 
     return scaleOrdinal<string>().domain(groups).range(range);
-  }, [aggregatedDataMap, allColumns, config]);
+  }, [aggregatedDataMap, barData, config]);
 
   const chartHeightMap = React.useMemo(() => {
     const map: Record<string, number> = {};
@@ -194,11 +194,11 @@ export function BarChart({
   }, [aggregatedDataMap?.facets, config]);
 
   const shouldRenderFacets = React.useMemo(
-    () => Boolean(config?.facets && allColumns?.facetsColVals && filteredUniqueFacetVals.length === Object.keys(chartHeightMap).length),
-    [config?.facets, allColumns?.facetsColVals, filteredUniqueFacetVals.length, chartHeightMap],
+    () => Boolean(config?.facets && barData?.facetsColVals && filteredUniqueFacetVals.length === Object.keys(chartHeightMap).length),
+    [config?.facets, barData?.facetsColVals, filteredUniqueFacetVals.length, chartHeightMap],
   );
 
-  const isGroupedByNumerical = React.useMemo(() => allColumns?.groupColVals?.type === EColumnTypes.NUMERICAL, [allColumns?.groupColVals?.type]);
+  const isGroupedByNumerical = React.useMemo(() => barData?.groupColVals?.type === EColumnTypes.NUMERICAL, [barData?.groupColVals?.type]);
 
   const customSelectionCallback = React.useCallback(
     (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => {
@@ -261,35 +261,35 @@ export function BarChart({
   }, [config, dataTable]);
 
   useShallowEffect(() => {
-    if (colsStatus === 'success' && allColumns) {
+    if (barDataStatus === 'success' && barData) {
       const fetchDataTable = async () => {
         const table = await generateDataTableTrigger({
           aggregateColVals: {
-            info: allColumns.aggregateColVals?.info,
-            resolvedValues: allColumns.aggregateColVals?.resolvedValues,
-            type: allColumns.aggregateColVals?.type,
+            info: barData.aggregateColVals?.info,
+            resolvedValues: barData.aggregateColVals?.resolvedValues,
+            type: barData.aggregateColVals?.type,
           },
           catColVals: {
-            info: allColumns.catColVals?.info,
-            resolvedValues: allColumns.catColVals?.resolvedValues,
-            type: allColumns.catColVals?.type,
+            info: barData.catColVals?.info,
+            resolvedValues: barData.catColVals?.resolvedValues,
+            type: barData.catColVals?.type,
           },
           facetsColVals: {
-            info: allColumns.facetsColVals?.info,
-            resolvedValues: allColumns.facetsColVals?.resolvedValues,
-            type: allColumns.facetsColVals?.type,
+            info: barData.facetsColVals?.info,
+            resolvedValues: barData.facetsColVals?.resolvedValues,
+            type: barData.facetsColVals?.type,
           },
           groupColVals: {
-            info: allColumns.groupColVals?.info,
-            resolvedValues: allColumns.groupColVals?.resolvedValues,
-            type: allColumns.groupColVals?.type,
+            info: barData.groupColVals?.info,
+            resolvedValues: barData.groupColVals?.resolvedValues,
+            type: barData.groupColVals?.type,
           },
         });
         setDataTable(table);
       };
       fetchDataTable();
     }
-  }, [allColumns, colsStatus, generateDataTableTrigger]);
+  }, [barData, barDataStatus, generateDataTableTrigger]);
 
   useShallowEffect(() => {
     const fetchLookup = async () => {
@@ -392,65 +392,58 @@ export function BarChart({
           </Group>
         ) : null}
         <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>
-          {colsStatus === 'pending' ? (
-            <Center>
-              <Loader />
-            </Center>
-          ) : (
-            colsStatus === 'success' &&
-            (!config?.facets || !allColumns?.facetsColVals ? (
+          {!config?.facets || !barData?.facetsColVals ? (
+            <ScrollArea
+              style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+              scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
+              offsetScrollbars
+            >
+              <SingleEChartsBarChart
+                config={config}
+                aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
+                chartHeight={calculateChartHeight({
+                  config,
+                  aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
+                  containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
+                })}
+                chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
+                containerWidth={containerWidth}
+                globalMin={aggregatedDataMap?.globalDomain.min}
+                globalMax={aggregatedDataMap?.globalDomain.max}
+                groupColorScale={groupColorScale!}
+                isGroupedByNumerical={isGroupedByNumerical}
+                labelsMap={labelsMap}
+                longestLabelWidth={longestLabelWidth}
+                selectedList={selectedList}
+                setConfig={setConfig}
+                selectionCallback={customSelectionCallback}
+                selectedMap={selectedMap}
+              />
+            </ScrollArea>
+          ) : config?.facets && barData?.facetsColVals ? (
+            // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
+            shouldRenderFacets && (
               <ScrollArea
                 style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
-                scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
+                onScrollPositionChange={handleScroll}
+                type="hover"
+                scrollHideDelay={0}
                 offsetScrollbars
               >
-                <SingleEChartsBarChart
-                  config={config}
-                  aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
-                  chartHeight={calculateChartHeight({
-                    config,
-                    aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
-                    containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
-                  })}
-                  chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
-                  containerWidth={containerWidth}
-                  globalMin={aggregatedDataMap?.globalDomain.min}
-                  globalMax={aggregatedDataMap?.globalDomain.max}
-                  groupColorScale={groupColorScale!}
-                  isGroupedByNumerical={isGroupedByNumerical}
-                  labelsMap={labelsMap}
-                  longestLabelWidth={longestLabelWidth}
-                  selectedList={selectedList}
-                  setConfig={setConfig}
-                  selectionCallback={customSelectionCallback}
-                  selectedMap={selectedMap}
-                />
-              </ScrollArea>
-            ) : config?.facets && allColumns?.facetsColVals ? (
-              // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
-              shouldRenderFacets && (
-                <ScrollArea
-                  style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
-                  onScrollPositionChange={handleScroll}
-                  type="hover"
-                  scrollHideDelay={0}
-                  offsetScrollbars
+                <VariableSizeList
+                  height={containerHeight - CHART_HEIGHT_MARGIN / 2}
+                  itemCount={filteredUniqueFacetVals.length}
+                  itemData={itemData}
+                  itemSize={calculateItemHeight}
+                  width="100%"
+                  style={{ overflow: 'visible' }}
+                  ref={listRef}
                 >
-                  <VariableSizeList
-                    height={containerHeight - CHART_HEIGHT_MARGIN / 2}
-                    itemCount={filteredUniqueFacetVals.length}
-                    itemData={itemData}
-                    itemSize={calculateItemHeight}
-                    width="100%"
-                    style={{ overflow: 'visible' }}
-                    ref={listRef}
-                  >
-                    {Row}
-                  </VariableSizeList>
-                </ScrollArea>
-              )
-            ) : null)
-          )}
+                  {Row}
+                </VariableSizeList>
+              </ScrollArea>
+            )
+          ) : null}
         </Stack>
       </Stack>
     )
