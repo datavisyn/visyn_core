@@ -313,9 +313,9 @@ export const dvMouse: IconDefinition = {
 /*
  * Protein structure representation
  */
-export const dvBallAndStick: IconDefinition = {
+export const dvProteinBallAndStick: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'ballAndStick' as IconName,
+  iconName: 'proteinBallAndStick' as IconName,
   icon: [
     23,
     24,
@@ -325,9 +325,9 @@ export const dvBallAndStick: IconDefinition = {
   ],
 };
 
-export const dvCartoon: IconDefinition = {
+export const dvProteinCartoon: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'cartoon' as IconName,
+  iconName: 'proteinCartoon' as IconName,
   icon: [
     20,
     18,
@@ -337,9 +337,9 @@ export const dvCartoon: IconDefinition = {
   ],
 };
 
-export const dvStick: IconDefinition = {
+export const dvProteinStick: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'stick' as IconName,
+  iconName: 'proteinStick' as IconName,
   icon: [
     22,
     24,
@@ -349,9 +349,9 @@ export const dvStick: IconDefinition = {
   ],
 };
 
-export const dvSurface: IconDefinition = {
+export const dvProteinSurface: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'surface' as IconName,
+  iconName: 'proteinSurface' as IconName,
   icon: [
     24,
     22,
@@ -361,9 +361,9 @@ export const dvSurface: IconDefinition = {
   ],
 };
 
-export const dvBackbone: IconDefinition = {
+export const dvProteinBackbone: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'backbone' as IconName,
+  iconName: 'proteinBackbone' as IconName,
   icon: [
     24,
     18,
