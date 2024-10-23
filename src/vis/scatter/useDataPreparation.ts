@@ -116,7 +116,7 @@ export function useDataPreparation({
     }
 
     const plotlyDimensions = value.validColumns.map((col) => ({
-      label: col.info.name,
+      label: columnNameWithDescription(col.info),
       values: col.resolvedValues.map((v) => v.val),
     }));
 
