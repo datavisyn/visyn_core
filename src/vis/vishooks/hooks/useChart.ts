@@ -1,16 +1,27 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
+
 import { useDebouncedCallback, useSetState } from '@mantine/hooks';
-import type { ECElementEvent, ECharts, ComposeOption } from 'echarts/core';
-import { use, init } from 'echarts/core';
-import { BarChart, LineChart } from 'echarts/charts';
-import { DataZoomComponent, GridComponent, LegendComponent, TitleComponent, ToolboxComponent, TooltipComponent } from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
+import { BarChart, FunnelChart, LineChart, PieChart, SankeyChart, ScatterChart } from 'echarts/charts';
 import type {
   // The series option types are defined with the SeriesOption suffix
   BarSeriesOption,
   LineSeriesOption,
+  PieSeriesOption,
+  SankeySeriesOption,
+  FunnelSeriesOption,
+  ScatterSeriesOption,
 } from 'echarts/charts';
+import {
+  DataZoomComponent,
+  GridComponent,
+  LegendComponent,
+  SingleAxisComponent,
+  TitleComponent,
+  ToolboxComponent,
+  TooltipComponent,
+  BrushComponent,
+} from 'echarts/components';
 import type {
   // The component option types are defined with the ComponentOption suffix
   TitleComponentOption,
@@ -18,18 +29,27 @@ import type {
   GridComponentOption,
   DatasetComponentOption,
 } from 'echarts/components';
-import { useSetRef } from '../../../hooks';
+import type { ComposeOption, ECElementEvent, ECharts } from 'echarts/core';
+import { init, use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { useSetRef } from 'visyn_core/hooks';
 
-export type ECOption = ComposeOption<
-  BarSeriesOption | LineSeriesOption | TitleComponentOption | TooltipComponentOption | GridComponentOption | DatasetComponentOption
->;
+export type ECSeries = BarSeriesOption | LineSeriesOption | SankeySeriesOption | FunnelSeriesOption | ScatterSeriesOption | PieSeriesOption;
+
+export type ECOption = ComposeOption<ECSeries | TooltipComponentOption | GridComponentOption | DatasetComponentOption | TitleComponentOption>;
 
 // Original code from https://dev.to/manufac/using-apache-echarts-with-react-and-typescript-optimizing-bundle-size-29l8
 // Register the required components
 use([
+  SingleAxisComponent,
+  BrushComponent,
   LegendComponent,
   LineChart,
   BarChart,
+  PieChart,
+  FunnelChart,
+  SankeyChart,
+  ScatterChart,
   GridComponent,
   TooltipComponent,
   TitleComponent,
@@ -57,8 +77,12 @@ type ElementEventName =
   | 'drop'
   | 'globalout';
 
+type ExoticEventName = 'brush' | 'brushEnd' | 'brushselected' | 'highlight' | 'downplay';
+
 // Type for mouse handlers in function form
 export type CallbackFunction = (event: ECElementEvent) => void;
+
+export type ExoticCallbackFunction = (event: unknown) => void;
 
 // Type for mouse handlers in object form
 export type CallbackObject = {
@@ -66,8 +90,15 @@ export type CallbackObject = {
   handler: CallbackFunction;
 };
 
+export type ExoticCallbackObject = {
+  query?: string | object;
+  handler: ExoticCallbackFunction;
+};
+
 // Array of mouse handlers
 export type CallbackArray = (CallbackFunction | CallbackObject)[];
+
+export type ExoticCallbackArray = (ExoticCallbackFunction | ExoticCallbackObject)[];
 
 export function useChart({
   options,
@@ -76,7 +107,11 @@ export function useChart({
 }: {
   options?: ECOption;
   settings?: Parameters<ECharts['setOption']>[1];
-  mouseEvents?: Partial<{ [K in ElementEventName]: CallbackArray | CallbackFunction | CallbackObject }>;
+  mouseEvents?: Partial<
+    { [K in ElementEventName]: CallbackArray | CallbackFunction | CallbackObject } & {
+      [K in ExoticEventName]: ExoticCallbackArray | ExoticCallbackFunction | ExoticCallbackObject;
+    }
+  >;
 }) {
   const [state, setState] = useSetState({
     width: 0,
