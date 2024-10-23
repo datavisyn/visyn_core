@@ -82,7 +82,6 @@ function EagerSingleEChartsBarChart({
 
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
-  const [isLoading, setIsLoading] = React.useState(true);
 
   const groupSortedSeries = React.useMemo(() => {
     const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
@@ -123,8 +122,6 @@ function EagerSingleEChartsBarChart({
     }
     return [...knownSeries, ...unknownSeries];
   }, [groupColorScale, isGroupedByNumerical, visState.series]);
-
-  const numberOfBars = React.useMemo(() => groupSortedSeries.reduce((acc, s) => acc + (s.data ?? []).length, 0), [groupSortedSeries]);
 
   // NOTE: @dv-usama-ansari: Prepare the base series options for the bar chart.
   const barSeriesBase = React.useMemo(
@@ -490,16 +487,22 @@ function EagerSingleEChartsBarChart({
     visState.series.length,
   ]);
 
-  const aggregator = React.useCallback(
+  const generateBarSeriesWorker = React.useCallback(
     async (...args: Parameters<GenerateAggregatedDataLookup['generateBarSeries']>) => WorkerWrapper.generateBarSeries(...args),
     [],
   );
-  const { execute } = useAsync(aggregator);
+  const { execute: generateBarSeriesTrigger, status: generateBarSeriesStatus } = useAsync(generateBarSeriesWorker);
+
+  const isLoading = React.useMemo(
+    () => visState.series.length === 0 && generateBarSeriesStatus === 'pending',
+    [generateBarSeriesStatus, visState.series.length],
+  );
+  const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
+  const isSuccess = React.useMemo(() => visState.series.length > 0 || generateBarSeriesStatus === 'success', [generateBarSeriesStatus, visState.series.length]);
 
   const updateCategoriesSideEffect = React.useCallback(async () => {
     if (aggregatedData) {
-      setIsLoading(true);
-      const result = await execute(aggregatedData, {
+      const result = await generateBarSeriesTrigger(aggregatedData, {
         aggregateType: config?.aggregateType as EAggregateTypes,
         display: config?.display as EBarDisplayType,
         facets: config?.facets as ColumnInfo,
@@ -544,7 +547,6 @@ function EagerSingleEChartsBarChart({
 
       updateSortSideEffect({ barSeries });
       updateDirectionSideEffect();
-      setIsLoading(false);
     }
   }, [
     aggregatedData,
@@ -554,10 +556,9 @@ function EagerSingleEChartsBarChart({
     config?.facets,
     config?.group,
     config?.groupType,
-    execute,
+    generateBarSeriesTrigger,
     groupColorScale,
     hasSelected,
-    setIsLoading,
     updateDirectionSideEffect,
     updateSortSideEffect,
   ]);
@@ -794,26 +795,37 @@ function EagerSingleEChartsBarChart({
   return isLoading ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
       <Loader />
-      <Text ta="center">Loading</Text>
+      <Text ta="center">Generating series</Text>
     </Stack>
-  ) : groupSortedSeries.length === 0 ? (
+  ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
-      <Alert variant="light" color="yellow" title={<Text fw="bold">No data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-        There is no data to display. Please select a different configuration or datasource.
+      <Alert variant="light" color="red" title={<Text fw="bold">No data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+        Error generating series. Please try again.
       </Alert>
     </Stack>
-  ) : !(visState.xAxis && visState.yAxis) ? null : options ? (
-    <Box
-      component="div"
-      pos="relative"
-      pr="xs"
-      ref={setRef}
-      style={{
-        width: `${Math.max(containerWidth, chartMinWidth)}px`,
-        height: `${chartHeight + CHART_HEIGHT_MARGIN}px`,
-      }}
-    />
-  ) : null;
+  ) : (
+    isSuccess &&
+    (groupSortedSeries.length === 0 ? (
+      <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
+        <Alert variant="light" color="yellow" title={<Text fw="bold">No data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+          There is no data to display. Please select a different configuration or datasource.
+        </Alert>
+      </Stack>
+    ) : !(visState.xAxis && visState.yAxis) ? null : (
+      options && (
+        <Box
+          component="div"
+          pos="relative"
+          pr="xs"
+          ref={setRef}
+          style={{
+            width: `${Math.max(containerWidth, chartMinWidth)}px`,
+            height: `${chartHeight + CHART_HEIGHT_MARGIN}px`,
+          }}
+        />
+      )
+    ))
+  );
 }
 
 export const SingleEChartsBarChart = React.memo(EagerSingleEChartsBarChart);

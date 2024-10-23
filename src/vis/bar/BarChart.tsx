@@ -1,4 +1,6 @@
-import { Box, Center, Group, Loader, ScrollArea, Stack } from '@mantine/core';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Alert, Box, Center, Group, Loader, ScrollArea, Stack, Text } from '@mantine/core';
 import { useElementSize, useShallowEffect } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
@@ -72,17 +74,17 @@ export function BarChart({
     config?.aggregateColumn as ColumnInfo,
   ]);
   const generateDataTableWorker = React.useCallback(async (...args: Parameters<typeof generateDataTable>) => WorkerWrapper.generateDataTable(...args), []);
-  const { execute: generateDataTableTrigger } = useAsync(generateDataTableWorker);
+  const { execute: generateDataTableTrigger, status: dataTableStatus } = useAsync(generateDataTableWorker);
   const generateAggregateDataLookupWorker = React.useCallback(
     async (...args: Parameters<GenerateAggregatedDataLookup['generateAggregatedDataLookup']>) => WorkerWrapper.generateAggregatedDataLookup(...args),
     [],
   );
-  const { execute: generateAggregatedDataLookupTrigger } = useAsync(generateAggregateDataLookupWorker);
+  const { execute: generateAggregatedDataLookupTrigger, status: dataLookupStatus } = useAsync(generateAggregateDataLookupWorker);
   const getTruncatedTextMapWorker = React.useCallback(
     async (...args: Parameters<GenerateAggregatedDataLookup['getTruncatedTextMap']>) => WorkerWrapper.getTruncatedTextMap(...args),
     [],
   );
-  const { execute: getTruncatedTextMapTrigger } = useAsync(getTruncatedTextMapWorker);
+  const { execute: getTruncatedTextMapTrigger, status: truncatedTextStatus } = useAsync(getTruncatedTextMapWorker);
 
   const [itemData, setItemData] = React.useState<VirtualizedBarChartProps | null>(null);
   const [dataTable, setDataTable] = React.useState<ReturnType<typeof generateDataTable>>([]);
@@ -94,6 +96,21 @@ export function BarChart({
   const listRef = React.useRef<VariableSizeList>(null);
 
   const id = React.useMemo(() => uniquePlotId || uniqueId('BarChartVis'), [uniquePlotId]);
+
+  const isLoading = React.useMemo(
+    () => dataTable.length === 0 && (dataTableStatus === 'pending' || dataLookupStatus === 'pending' || truncatedTextStatus === 'pending'),
+    [dataLookupStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
+  );
+
+  const isError = React.useMemo(
+    () => dataTableStatus === 'error' || dataLookupStatus === 'error' || truncatedTextStatus === 'error',
+    [dataLookupStatus, dataTableStatus, truncatedTextStatus],
+  );
+
+  const isSuccess = React.useMemo(
+    () => dataTable.length > 0 || (dataTableStatus === 'success' && dataLookupStatus === 'success' && truncatedTextStatus === 'success'),
+    [dataLookupStatus, dataTable.length, dataTableStatus, truncatedTextStatus],
+  );
 
   const allUniqueFacetVals = React.useMemo(() => {
     const set = new Set();
@@ -239,44 +256,6 @@ export function BarChart({
     [chartHeightMap, filteredUniqueFacetVals],
   );
 
-  // const getTruncatedText = React.useCallback(
-  //   (value: string) => {
-  //     if (canvasRef.current) {
-  //       const ctx = canvasRef.current.getContext('2d');
-  //       if (ctx) {
-  //         ctx.font = '16px Arial';
-  //         ctx.textAlign = 'left';
-  //         ctx.textBaseline = 'top';
-
-  //         const maxWidth = config?.direction === EBarDirection.HORIZONTAL ? Math.max(gridLeft, containerWidth / 3) - 20 : 70;
-  //         const renderedTextWidth = ctx.measureText(value).width;
-  //         const ellipsisWidth = ctx.measureText('...').width;
-  //         const longestLabelWidth = Math.max(truncatedTextRef.current.longestLabelWidth, renderedTextWidth);
-  //         truncatedTextRef.current.longestLabelWidth = longestLabelWidth;
-  //         const truncatedText = value.substring(0, Math.min(renderedTextWidth, maxWidth - ellipsisWidth));
-  //         const finalText = truncatedText.length < value.length ? `${truncatedText}...` : value;
-  //         truncatedTextRef.current.labels[value] = finalText;
-  //         return finalText;
-  //       }
-  //     }
-  //     return '';
-  //   },
-  //   [config?.direction, containerWidth, gridLeft],
-  // );
-
-  // NOTE: @dv-usama-ansari: We might need an optimization here.
-  // React.useEffect(() => {
-  // setLabelsMap({});
-  // Object.values(aggregatedDataMap?.facets ?? {}).forEach((value) => {
-  //   (value?.categoriesList ?? []).forEach((category) => {
-  //     const truncatedText = getTruncatedText(category);
-  //     truncatedTextRef.current.labels[category] = truncatedText ?? '';
-  //     setLabelsMap((prev) => ({ ...prev, [category]: truncatedText ?? '' }));
-  //   });
-  // });
-  // setGridLeft(Math.min(containerWidth / 3, Math.max(truncatedTextRef.current.longestLabelWidth + 20, 60)));
-  // }, [containerWidth, getTruncatedText, config?.catColumnSelected?.id, aggregatedDataMap?.facets]);
-
   React.useEffect(() => {
     listRef.current?.resetAfterIndex(0);
   }, [config, dataTable]);
@@ -392,75 +371,88 @@ export function BarChart({
     setConfig,
   ]);
 
-  return (
-    <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
-      {showDownloadScreenshot || config?.showFocusFacetSelector === true ? (
-        <Group justify="center">
-          {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
-          {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
-        </Group>
-      ) : null}
-      <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>
-        {colsStatus === 'pending' ? (
-          <Center>
-            <Loader />
-          </Center>
-        ) : (
-          colsStatus === 'success' &&
-          (!config?.facets || !allColumns?.facetsColVals ? (
-            <ScrollArea
-              style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
-              scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
-              offsetScrollbars
-            >
-              <SingleEChartsBarChart
-                config={config}
-                aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
-                chartHeight={calculateChartHeight({
-                  config,
-                  aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
-                  containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
-                })}
-                chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
-                containerWidth={containerWidth}
-                globalMin={aggregatedDataMap?.globalDomain.min}
-                globalMax={aggregatedDataMap?.globalDomain.max}
-                groupColorScale={groupColorScale!}
-                isGroupedByNumerical={isGroupedByNumerical}
-                labelsMap={labelsMap}
-                longestLabelWidth={longestLabelWidth}
-                selectedList={selectedList}
-                setConfig={setConfig}
-                selectionCallback={customSelectionCallback}
-                selectedMap={selectedMap}
-              />
-            </ScrollArea>
-          ) : config?.facets && allColumns?.facetsColVals ? (
-            // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
-            shouldRenderFacets && (
+  return isLoading ? (
+    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
+      <Loader />
+      <Text ta="center">Aggregating</Text>
+    </Stack>
+  ) : isError ? (
+    <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center">
+      <Alert variant="light" color="red" title={<Text fw="bold">Error loading data</Text>} icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+        There has been some error loading the data. Please try again later.
+      </Alert>
+    </Stack>
+  ) : (
+    isSuccess && (
+      <Stack data-testid="vis-bar-chart-container" flex={1} style={{ width: '100%', height: '100%' }} ref={resizeObserverRef}>
+        {showDownloadScreenshot || config?.showFocusFacetSelector === true ? (
+          <Group justify="center">
+            {config?.showFocusFacetSelector === true ? <FocusFacetSelector config={config} setConfig={setConfig} facets={allUniqueFacetVals} /> : null}
+            {showDownloadScreenshot ? <DownloadPlotButton uniquePlotId={id} config={config!} /> : null}
+          </Group>
+        ) : null}
+        <Stack gap={0} id={id} style={{ width: '100%', height: containerHeight }}>
+          {colsStatus === 'pending' ? (
+            <Center>
+              <Loader />
+            </Center>
+          ) : (
+            colsStatus === 'success' &&
+            (!config?.facets || !allColumns?.facetsColVals ? (
               <ScrollArea
                 style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
-                onScrollPositionChange={handleScroll}
-                type="hover"
-                scrollHideDelay={0}
+                scrollbars={config?.direction === EBarDirection.HORIZONTAL ? 'y' : 'x'}
                 offsetScrollbars
               >
-                <VariableSizeList
-                  height={containerHeight - CHART_HEIGHT_MARGIN / 2}
-                  itemCount={filteredUniqueFacetVals.length}
-                  itemData={itemData}
-                  itemSize={calculateItemHeight}
-                  width="100%"
-                  style={{ overflow: 'visible' }}
-                  ref={listRef}
-                >
-                  {Row}
-                </VariableSizeList>
+                <SingleEChartsBarChart
+                  config={config}
+                  aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
+                  chartHeight={calculateChartHeight({
+                    config,
+                    aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
+                    containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
+                  })}
+                  chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
+                  containerWidth={containerWidth}
+                  globalMin={aggregatedDataMap?.globalDomain.min}
+                  globalMax={aggregatedDataMap?.globalDomain.max}
+                  groupColorScale={groupColorScale!}
+                  isGroupedByNumerical={isGroupedByNumerical}
+                  labelsMap={labelsMap}
+                  longestLabelWidth={longestLabelWidth}
+                  selectedList={selectedList}
+                  setConfig={setConfig}
+                  selectionCallback={customSelectionCallback}
+                  selectedMap={selectedMap}
+                />
               </ScrollArea>
-            )
-          ) : null)
-        )}
+            ) : config?.facets && allColumns?.facetsColVals ? (
+              // NOTE: @dv-usama-ansari: Referenced from https://codesandbox.io/p/sandbox/react-window-with-scrollarea-g9dg6d?file=%2Fsrc%2FApp.tsx%3A40%2C8
+              shouldRenderFacets && (
+                <ScrollArea
+                  style={{ width: '100%', height: containerHeight - CHART_HEIGHT_MARGIN / 2 }}
+                  onScrollPositionChange={handleScroll}
+                  type="hover"
+                  scrollHideDelay={0}
+                  offsetScrollbars
+                >
+                  <VariableSizeList
+                    height={containerHeight - CHART_HEIGHT_MARGIN / 2}
+                    itemCount={filteredUniqueFacetVals.length}
+                    itemData={itemData}
+                    itemSize={calculateItemHeight}
+                    width="100%"
+                    style={{ overflow: 'visible' }}
+                    ref={listRef}
+                  >
+                    {Row}
+                  </VariableSizeList>
+                </ScrollArea>
+              )
+            ) : null)
+          )}
+        </Stack>
       </Stack>
-    </Stack>
+    )
   );
 }
