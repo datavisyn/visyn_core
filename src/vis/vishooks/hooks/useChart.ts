@@ -1,23 +1,23 @@
 /* eslint-disable react-compiler/react-compiler */
-import * as React from 'react';
-import { useDebouncedCallback, useSetState } from '@mantine/hooks';
-import type { ECElementEvent, ECharts, ComposeOption } from 'echarts/core';
-import { use, init } from 'echarts/core';
-import { BarChart, LineChart } from 'echarts/charts';
-import { DataZoomComponent, GridComponent, LegendComponent, TitleComponent, ToolboxComponent, TooltipComponent } from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
+import { useSetState } from '@mantine/hooks';
 import type {
   // The series option types are defined with the SeriesOption suffix
   BarSeriesOption,
   LineSeriesOption,
 } from 'echarts/charts';
+import { BarChart, LineChart } from 'echarts/charts';
 import type {
+  DatasetComponentOption,
+  GridComponentOption,
   // The component option types are defined with the ComponentOption suffix
   TitleComponentOption,
   TooltipComponentOption,
-  GridComponentOption,
-  DatasetComponentOption,
 } from 'echarts/components';
+import { DataZoomComponent, GridComponent, LegendComponent, TitleComponent, ToolboxComponent, TooltipComponent } from 'echarts/components';
+import type { ComposeOption, ECElementEvent, ECharts } from 'echarts/core';
+import { init, use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import * as React from 'react';
 import { useSetRef } from '../../../hooks';
 
 export type ECOption = ComposeOption<
@@ -85,11 +85,6 @@ export function useChart({
     instance: null as ECharts | null,
   });
 
-  const debouncedResizeObserver = useDebouncedCallback((entries: ResizeObserverEntry[]) => {
-    const newDimensions = entries[0]?.contentRect;
-    setState({ width: newDimensions?.width, height: newDimensions?.height });
-  }, 250);
-
   const mouseEventsRef = React.useRef(mouseEvents);
   mouseEventsRef.current = mouseEvents;
 
@@ -137,7 +132,13 @@ export function useChart({
 
   const { ref, setRef } = useSetRef<HTMLElement>({
     register: (element) => {
-      const observer = new ResizeObserver(debouncedResizeObserver);
+      const observer = new ResizeObserver(
+        // NOTE: @dv-usama-ansari: This callback can be debounced for performance reasons
+        (entries: ResizeObserverEntry[]) => {
+          const newDimensions = entries[0]?.contentRect;
+          setState({ width: newDimensions?.width, height: newDimensions?.height });
+        },
+      );
       // create the instance
       const instance = init(element);
       // Save the mouse events
