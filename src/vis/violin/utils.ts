@@ -451,7 +451,7 @@ export async function createViolinTraces(
     rows,
     cols,
     categoryOrder: categoriesPerPlot,
-    errorMessage: i18n.t('visyn:vis.missingColumn.violinError'),
+    errorMessage: isViolinConfig(config) ? i18n.t('visyn:vis.missingColumn.violinError') : i18n.t('visyn:vis.missingColumn.boxplotError'),
     errorMessageHeader: i18n.t('visyn:vis.missingColumn.errorHeader'),
     violinMode: (numColsAsSubcat || subCatCol) && !hasSplit ? 'group' : 'overlay',
     hasSplit,
