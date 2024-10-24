@@ -70,7 +70,7 @@ export interface IVisCommonValue<Type extends number | string> {
   /**
    * Value of a vis column.
    */
-  val: Type | null;
+  val: Type | null | undefined;
 }
 
 export type VisNumericalValue = IVisCommonValue<number>;

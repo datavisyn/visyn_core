@@ -2,7 +2,7 @@ import groupBy from 'lodash/groupBy';
 import round from 'lodash/round';
 import sort from 'lodash/sortBy';
 import sortedUniq from 'lodash/sortedUniq';
-import { NAN_REPLACEMENT } from '../../../../general';
+import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { EAggregateTypes, ICommonVisProps } from '../../../../interfaces';
 import { EBarDisplayType, EBarGroupingType } from '../../enums';
 import { IBarConfig, IBarDataTableRow } from '../../interfaces';
@@ -30,6 +30,7 @@ export function generateAggregatedDataLookup(
     const groupingsList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.group ?? NAN_REPLACEMENT) ?? []));
     (values ?? []).forEach((item) => {
       const { category = NAN_REPLACEMENT, agg, group = NAN_REPLACEMENT } = item;
+      const aggregate = [null, undefined, Infinity, -Infinity, NaN].includes(agg) ? 0 : agg;
       const selected = selectedMap?.[item.id] || false;
       if (!aggregated.facets[facet]) {
         aggregated.facets[facet] = { categoriesList, groupingsList, categories: {} };
@@ -55,13 +56,13 @@ export function generateAggregatedDataLookup(
       // update group values
       if (selected) {
         aggregated.facets[facet].categories[category].groups[group].selected.count++;
-        aggregated.facets[facet].categories[category].groups[group].selected.sum += agg || 0;
-        aggregated.facets[facet].categories[category].groups[group].selected.nums.push(agg || 0);
+        aggregated.facets[facet].categories[category].groups[group].selected.sum += aggregate || 0;
+        aggregated.facets[facet].categories[category].groups[group].selected.nums.push(aggregate || 0);
         aggregated.facets[facet].categories[category].groups[group].selected.ids.push(item.id);
       } else {
         aggregated.facets[facet].categories[category].groups[group].unselected.count++;
-        aggregated.facets[facet].categories[category].groups[group].unselected.sum += agg || 0;
-        aggregated.facets[facet].categories[category].groups[group].unselected.nums.push(agg || 0);
+        aggregated.facets[facet].categories[category].groups[group].unselected.sum += aggregate || 0;
+        aggregated.facets[facet].categories[category].groups[group].unselected.nums.push(aggregate || 0);
         aggregated.facets[facet].categories[category].groups[group].unselected.ids.push(item.id);
       }
 
@@ -83,20 +84,20 @@ export function generateAggregatedDataLookup(
       if (selected) {
         minMax.facets[facet].categories[category].groups[group].selected.min = Math.min(
           minMax.facets[facet].categories[category].groups[group].selected.min,
-          agg || Infinity,
+          aggregate || Infinity,
         );
         minMax.facets[facet].categories[category].groups[group].selected.max = Math.max(
           minMax.facets[facet].categories[category].groups[group].selected.max,
-          agg || -Infinity,
+          aggregate || -Infinity,
         );
       } else {
         minMax.facets[facet].categories[category].groups[group].unselected.min = Math.min(
           minMax.facets[facet].categories[category].groups[group].unselected.min,
-          agg || Infinity,
+          aggregate || Infinity,
         );
         minMax.facets[facet].categories[category].groups[group].unselected.max = Math.max(
           minMax.facets[facet].categories[category].groups[group].unselected.max,
-          agg || -Infinity,
+          aggregate || -Infinity,
         );
       }
     });

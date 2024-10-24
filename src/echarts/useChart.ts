@@ -120,11 +120,6 @@ export function useChart({
     instance: null as ECharts | null,
   });
 
-  const debouncedResizeObserver = useDebouncedCallback((entries: ResizeObserverEntry[]) => {
-    const newDimensions = entries[0]?.contentRect;
-    setState({ width: newDimensions?.width, height: newDimensions?.height });
-  }, 250);
-
   const mouseEventsRef = React.useRef(mouseEvents);
   mouseEventsRef.current = mouseEvents;
 
@@ -172,7 +167,13 @@ export function useChart({
 
   const { ref, setRef } = useSetRef<HTMLElement>({
     register: (element) => {
-      const observer = new ResizeObserver(debouncedResizeObserver);
+      const observer = new ResizeObserver(
+        // NOTE: @dv-usama-ansari: This callback can be debounced for performance reasons
+        (entries: ResizeObserverEntry[]) => {
+          const newDimensions = entries[0]?.contentRect;
+          setState({ width: newDimensions?.width, height: newDimensions?.height });
+        },
+      );
       // create the instance
       const instance = init(element);
       // Save the mouse events
