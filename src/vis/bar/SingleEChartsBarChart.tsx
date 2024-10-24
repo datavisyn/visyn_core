@@ -6,11 +6,10 @@ import * as React from 'react';
 import { sanitize, selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { useChart } from '../vishooks/hooks/useChart';
-import type { ECOption } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, median, normalizedValue, SERIES_ZERO, sortSeries } from './interfaces/internal';
+import { ECOption, useChart } from '../../echarts/useChart';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
