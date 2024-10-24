@@ -158,13 +158,15 @@ function EagerSingleEChartsBarChart({
 
             const groupString = (() => {
               if (config?.group) {
-                const label = `Group of ${config.group.name}`;
+                const label = `Group of ${config?.group.name}`;
                 const sanitizedSeriesName = sanitize(params.seriesName as string);
                 const name =
                   sanitizedSeriesName === SERIES_ZERO
                     ? config?.group?.id === config?.facets?.id
                       ? (selectedFacetValue as string)
-                      : params.name
+                      : aggregatedData?.groupingsList.length === 1
+                        ? (aggregatedData?.groupingsList[0] as string)
+                        : params.name
                     : sanitizedSeriesName;
                 const color =
                   sanitizedSeriesName === NAN_REPLACEMENT
@@ -196,13 +198,33 @@ function EagerSingleEChartsBarChart({
             })();
 
             const aggregateString = generateHTMLString({
-              label: config?.aggregateType === EAggregateTypes.COUNT ? config?.aggregateType : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`,
-              value: params.value as string,
+              label:
+                config?.aggregateType === EAggregateTypes.COUNT
+                  ? config?.display === EBarDisplayType.NORMALIZED
+                    ? `Normalized ${config?.aggregateType}`
+                    : config?.aggregateType
+                  : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`,
+              value: config?.display === EBarDisplayType.NORMALIZED ? `${params.value}%` : (params.value as string),
             });
+
+            const nonNormalizedString =
+              config?.display === EBarDisplayType.NORMALIZED
+                ? generateHTMLString({
+                    label: config?.aggregateType,
+                    value:
+                      // NOTE: @dv-usama-ansari: Count is undefined for 100% bars, therefore we need to use a different approach
+                      params?.value === 100
+                        ? String(
+                            aggregatedData?.categories[params.name]?.groups[Object.keys(aggregatedData?.categories[params.name]?.groups ?? {})[0] as string]
+                              ?.total,
+                          )
+                        : (String(aggregatedData?.categories[params.name]?.groups[params.seriesName as string]?.total) ?? ''),
+                  })
+                : '';
 
             const categoryString = generateHTMLString({ label: config?.catColumnSelected?.name as string, value: params.name });
 
-            const tooltipGrid = `<div style="display: grid; grid-template-rows: 1fr">${categoryString}${aggregateString}${facetString}${groupString}</div>`;
+            const tooltipGrid = `<div style="display: grid; grid-template-rows: 1fr">${categoryString}${nonNormalizedString}${aggregateString}${facetString}${groupString}</div>`;
             return tooltipGrid;
           },
         },
@@ -237,10 +259,12 @@ function EagerSingleEChartsBarChart({
       config?.facets?.name,
       config?.facets?.id,
       config?.aggregateType,
+      config?.display,
       config?.aggregateColumn?.name,
       config?.groupType,
-      config?.display,
       selectedFacetValue,
+      aggregatedData?.categories,
+      aggregatedData?.groupingsList,
       groupColorScale,
       isGroupedByNumerical,
     ],
