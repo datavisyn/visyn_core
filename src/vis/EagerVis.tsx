@@ -1,10 +1,6 @@
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Group, Stack } from '@mantine/core';
+import { Group, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
-import * as d3v7 from 'd3v7';
 import * as React from 'react';
-import { getCssValue } from '../utils';
 import { createVis, useVisProvider } from './Provider';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
 import {
@@ -16,7 +12,6 @@ import {
   EScatterSelectSettings,
   ESupportedPlotlyVis,
   IPlotStats,
-  Scales,
   VisColumn,
   isESupportedPlotlyVis,
 } from './interfaces';
@@ -28,6 +23,7 @@ import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
 import { CorrelationVisSidebar } from './correlation/CorrelationVisSidebar';
 import { ICorrelationConfig } from './correlation/interfaces';
+import { WarningMessage } from './general/WarningMessage';
 import { HeatmapVis } from './heatmap/HeatmapVis';
 import { HeatmapVisSidebar } from './heatmap/HeatmapVisSidebar';
 import { IHeatmapConfig } from './heatmap/interfaces';
@@ -41,12 +37,12 @@ import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
 import { ISankeyConfig } from './sankey/interfaces';
 import { sankeyMergeDefaultConfig } from './sankey/utils';
 import { scatterMergeDefaultConfig } from './scatter';
+import { ScatterVis } from './scatter/ScatterVis';
 import { ScatterVisSidebar } from './scatter/ScatterVisSidebar';
 import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
-import { ScatterVis } from './scatter/ScatterVis';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -312,13 +308,13 @@ export function EagerVis({
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {visTypeNotSupported ? (
-          <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+          <WarningMessage centered dataTestId="visyn-vis-not-supported" title="Visualization type is not supported" alertProps={{ my: 'auto' }}>
             The visualization type &quot;{visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
-          </Alert>
+          </WarningMessage>
         ) : visHasError || !Renderer ? (
-          <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+          <WarningMessage centered dataTestId="visyn-vis-not-supported" alertProps={{ my: 'auto' }}>
             An error occured in the visualization. Please try to select something different in the sidebar.
-          </Alert>
+          </WarningMessage>
         ) : (
           visConfig?.merged && (
             <Renderer

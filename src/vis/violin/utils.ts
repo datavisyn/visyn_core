@@ -89,8 +89,8 @@ export async function createViolinTraces(
       violinMode: 'overlay',
       hasSplit: false,
       categoryOrder: null,
-      errorMessage: i18n.t('visyn:vis.violinError'),
-      errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
+      errorMessage: i18n.t('visyn:vis.missingColumn.violinError'),
+      errorMessageHeader: i18n.t('visyn:vis.missingColumn.errorHeader'),
     };
   }
 
@@ -451,8 +451,8 @@ export async function createViolinTraces(
     rows,
     cols,
     categoryOrder: categoriesPerPlot,
-    errorMessage: i18n.t('visyn:vis.violinError'),
-    errorMessageHeader: i18n.t('visyn:vis.errorHeader'),
+    errorMessage: isViolinConfig(config) ? i18n.t('visyn:vis.missingColumn.violinError') : i18n.t('visyn:vis.missingColumn.boxplotError'),
+    errorMessageHeader: i18n.t('visyn:vis.missingColumn.errorHeader'),
     violinMode: (numColsAsSubcat || subCatCol) && !hasSplit ? 'group' : 'overlay',
     hasSplit,
   };

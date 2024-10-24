@@ -1,15 +1,15 @@
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Box, Group, Loader, ScrollArea, Stack, Text } from '@mantine/core';
+import { Box, Group, ScrollArea, Stack } from '@mantine/core';
 import { useElementSize, useShallowEffect } from '@mantine/hooks';
 import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
+import { BlurredOverlay } from '../../components';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors10 } from '../../utils/colors';
 import { NAN_REPLACEMENT } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { ErrorMessage } from '../general/ErrorMessage';
 import { getLabelOrUnknown } from '../general/utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps } from '../interfaces';
 import { FocusFacetSelector } from './components';
@@ -29,7 +29,6 @@ import {
   WorkerWrapper,
 } from './interfaces/internal';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
-import { BlurredOverlay } from '../../components';
 
 type VirtualizedBarChartProps = {
   aggregatedDataMap: Awaited<ReturnType<typeof generateAggregatedDataLookup>>;
@@ -372,9 +371,9 @@ export function BarChart({
     <BlurredOverlay loading dataTestId="visyn-bar-chart-loading-data-overlay" visible loadingText="Crunching numbers, this may take a moment &hellip;" />
   ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-loading-data-error">
-      <Alert variant="light" color="red" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+      <ErrorMessage dataTestId="visyn-vis-bar-chart-processing-data-error">
         Something went wrong while loading and processing the data. Please try again.
-      </Alert>
+      </ErrorMessage>
     </Stack>
   ) : (
     isSuccess && (

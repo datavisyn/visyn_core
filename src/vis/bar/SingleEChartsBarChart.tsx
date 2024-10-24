@@ -1,6 +1,4 @@
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Box, Stack, Text } from '@mantine/core';
+import { Box, Stack, Text } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
@@ -10,6 +8,8 @@ import { type ECOption, useChart } from '../../echarts';
 import { useAsync } from '../../hooks';
 import { sanitize, selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
+import { ErrorMessage } from '../general/ErrorMessage';
+import { WarningMessage } from '../general/WarningMessage';
 import { ColumnInfo, EAggregateTypes, ICommonVisProps } from '../interfaces';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
@@ -828,9 +828,7 @@ function EagerSingleEChartsBarChart({
   ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-config-setup-error">
       {config?.facets && selectedFacetValue ? <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text> : null}
-      <Alert variant="light" color="red" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-        Something went wrong setting up your chart.
-      </Alert>
+      <ErrorMessage dataTestId="visyn-vis-bar-chart-setup-chart-error">Something went wrong setting up your chart.</ErrorMessage>
     </Stack>
   ) : (
     isSuccess &&
@@ -838,15 +836,11 @@ function EagerSingleEChartsBarChart({
       config?.facets && selectedFacetValue ? (
         <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id={`visyn-bar-chart-no-data-error-facet-${selectedFacetValue}`}>
           <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text>
-          <Alert variant="light" color="yellow" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-            No data available for this facet.
-          </Alert>
+          <WarningMessage dataTestId={`visyn-vis-bar-chart-no-data-facet-${selectedFacetValue}-warning`}>No data available for this facet.</WarningMessage>
         </Stack>
       ) : (
         <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-no-data-error">
-          <Alert variant="light" color="yellow" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
-            No data available for this chart. Try a different configuration.
-          </Alert>
+          <WarningMessage dataTestId="visyn-vis-bar-chart-no-data-warning">No data available for this chart. Try a different configuration.</WarningMessage>
         </Stack>
       )
     ) : !(visState.xAxis && visState.yAxis) ? null : (
