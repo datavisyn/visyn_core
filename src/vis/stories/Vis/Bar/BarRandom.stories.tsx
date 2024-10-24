@@ -335,6 +335,30 @@ GroupedStack.args = {
   } as BaseVisConfig,
 };
 
+export const GroupedStackNormalized: typeof Template = Template.bind({}) as typeof Template;
+GroupedStackNormalized.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.BAR,
+    catColumnSelected: {
+      description: 'Categories for the data',
+      id: 'categories',
+      name: 'Categories',
+    },
+    facets: null,
+    group: {
+      description: 'Two specific categories for the data',
+      id: 'twoCategories',
+      name: 'Two categories',
+    },
+    groupType: EBarGroupingType.STACK,
+    direction: EBarDirection.HORIZONTAL,
+    display: EBarDisplayType.NORMALIZED,
+    aggregateType: EAggregateTypes.COUNT,
+    aggregateColumn: null,
+    numColumnsSelected: [],
+  } as BaseVisConfig,
+};
+
 export const GroupedNumerical: typeof Template = Template.bind({}) as typeof Template;
 GroupedNumerical.args = {
   externalConfig: {
