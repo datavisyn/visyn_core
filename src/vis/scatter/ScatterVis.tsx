@@ -1,27 +1,27 @@
 /* eslint-disable react-compiler/react-compiler */
+import { css } from '@emotion/css';
+import { Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
 import { useElementSize, useWindowEvent } from '@mantine/hooks';
-import { Center, Group, Stack, Switch, Tooltip, ScrollArea } from '@mantine/core';
-import * as React from 'react';
+import * as d3v7 from 'd3v7';
 import cloneDeep from 'lodash/cloneDeep';
 import uniq from 'lodash/uniq';
-import * as d3v7 from 'd3v7';
-import { css } from '@emotion/css';
+import * as React from 'react';
 import { useAsync } from '../../hooks';
+import { i18n } from '../../i18n/I18nextManager';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
+import { categoricalColors10, getCssValue } from '../../utils';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { LegendItem } from '../general/LegendItem';
+import { WarningMessage } from '../general/WarningMessage';
 import { VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
-import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 import { fitRegressionLine } from './Regression';
-import { useDataPreparation } from './useDataPreparation';
-import { InvalidCols } from '../general/InvalidCols';
-import { i18n } from '../../i18n/I18nextManager';
-import { LegendItem } from '../general/LegendItem';
-import { useLayout } from './useLayout';
+import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
 import { useData } from './useData';
-import { categoricalColors, getCssValue } from '../../utils';
+import { useDataPreparation } from './useDataPreparation';
+import { useLayout } from './useLayout';
+import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 
 function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
   return (
@@ -348,7 +348,7 @@ export function ScatterVis({
       } else {
         // Create d3 color scale
         valuesWithoutUnknown.forEach((v, i) => {
-          mapping[v] = categoricalColors[i % categoricalColors.length]!;
+          mapping[v] = categoricalColors10[i % categoricalColors10.length]!;
         });
         mapping.Unknown = VIS_NEUTRAL_COLOR;
       }
@@ -547,13 +547,16 @@ export function ScatterVis({
             config={{ scrollZoom, displayModeBar: false }}
           />
         ) : status !== 'idle' && status !== 'pending' ? (
-          <InvalidCols
+          <WarningMessage
+            centered
+            dataTestId="visyn-vis-missing-column-warning"
+            title={i18n.t('visyn:vis.missingColumn.errorHeader')}
             style={{
               gridArea: 'plot',
             }}
-            headerMessage={i18n.t('visyn:vis.errorHeader')}
-            bodyMessage={error?.message || i18n.t('visyn:vis.scatterError')}
-          />
+          >
+            {error?.message || i18n.t('visyn:vis.missingColumn.scatterError')}
+          </WarningMessage>
         ) : null}
       </div>
 

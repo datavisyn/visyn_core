@@ -3,7 +3,6 @@ import uniqueId from 'lodash/uniqueId';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
-import { InvalidCols } from '../general';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { ESortStates, createPlotlySortIcon } from '../general/SortIcon';
 import { beautifyLayout } from '../general/layoutUtils';
@@ -11,6 +10,7 @@ import { ESupportedPlotlyVis, ICommonVisProps } from '../interfaces';
 import { EViolinOverlay, EYAxisMode, IViolinConfig } from './interfaces';
 import { createViolinTraces } from './utils';
 import { IBoxplotConfig } from '../boxplot';
+import { WarningMessage } from '../general/WarningMessage';
 
 export function ViolinVis({
   config,
@@ -187,7 +187,9 @@ export function ViolinVis({
           />
         </>
       ) : traceStatus !== 'pending' && traceStatus !== 'idle' && layout ? (
-        <InvalidCols headerMessage={traces?.errorMessageHeader} bodyMessage={traceError?.message || traces?.errorMessage} />
+        <WarningMessage centered dataTestId="visyn-vis-missing-column-warning" title={traces?.errorMessageHeader}>
+          {traceError?.message || traces?.errorMessage}
+        </WarningMessage>
       ) : null}
     </Stack>
   );

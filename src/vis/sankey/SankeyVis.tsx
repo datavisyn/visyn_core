@@ -6,11 +6,12 @@ import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
 import { selectionColorDark } from '../../utils';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { InvalidCols } from '../general/InvalidCols';
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
+import { i18n } from '../../i18n';
+import { WarningMessage } from '../general/WarningMessage';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -252,7 +253,9 @@ export function SankeyVis({
         />
       ) : (
         <Center h="100%">
-          <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a sankey chart, select at least 2 columns." />
+          <WarningMessage centered dataTestId="visyn-vis-missing-column-warning" title={i18n.t('visyn:vis.missingColumn.errorHeader')}>
+            {i18n.t('visyn:vis.missingColumn.sankeyError')}
+          </WarningMessage>
         </Center>
       )}
     </Stack>
