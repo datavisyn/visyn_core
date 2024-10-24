@@ -1,6 +1,6 @@
 import { cloneDeep, groupBy, mean, merge, orderBy, sumBy } from 'lodash';
 import { i18n } from '../../i18n';
-import { categoricalColors } from '../../utils';
+import { categoricalColors10 } from '../../utils';
 import { IBoxplotConfig } from '../boxplot';
 import { ESortStates } from '../general/SortIcon';
 import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
@@ -154,7 +154,7 @@ export async function createViolinTraces(
 
           if (!subCatMap[subCatVal]) {
             subCatMap[subCatVal] = {
-              color: subCatVal === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[Object.keys(subCatMap).length % categoricalColors.length],
+              color: subCatVal === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors10[Object.keys(subCatMap).length % categoricalColors10.length],
               idx: Object.keys(subCatMap).length,
             };
           }
@@ -186,7 +186,7 @@ export async function createViolinTraces(
 
           if (!subCatMap[subCatVal]) {
             subCatMap[subCatVal] = {
-              color: subCatVal === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[Object.keys(subCatMap).length % categoricalColors.length],
+              color: subCatVal === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors10[Object.keys(subCatMap).length % categoricalColors10.length],
               idx: Object.keys(subCatMap).length,
             };
           }
@@ -229,7 +229,7 @@ export async function createViolinTraces(
 
   // Create subcategory map for coloring and legend
   [...subCatOrder].forEach((v, i) => {
-    subCatMap[v] = { color: v === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors[i % categoricalColors.length], idx: i };
+    subCatMap[v] = { color: v === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : categoricalColors10[i % categoricalColors10.length], idx: i };
   });
 
   // Only allow split mode if there are exactly two subcategories and the plot type is violin
