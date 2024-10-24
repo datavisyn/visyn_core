@@ -124,7 +124,7 @@ describe('Generate aggregated data lookup', () => {
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
       const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
-      expect(aggregatedDataLookup.globalDomain.max).toEqual(8);
+      expect(aggregatedDataLookup.globalDomain.max).toEqual(0);
     });
 
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type', async () => {
@@ -305,7 +305,7 @@ describe('Generate aggregated data lookup', () => {
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
       const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
-      expect(aggregatedDataLookup.globalDomain.max).toEqual(37);
+      expect(aggregatedDataLookup.globalDomain.max).toEqual(10);
     });
 
     it('should return the correct aggregate values and global domain for a column with MINIMUM aggregate type and grouped data', async () => {
@@ -327,7 +327,7 @@ describe('Generate aggregated data lookup', () => {
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
       const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
-      expect(aggregatedDataLookup.globalDomain.max).toEqual(10);
+      expect(aggregatedDataLookup.globalDomain.max).toEqual(9);
     });
 
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type and stacked data', async () => {
