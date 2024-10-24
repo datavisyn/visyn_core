@@ -21,7 +21,7 @@ import { i18n } from '../../i18n/I18nextManager';
 import { LegendItem } from '../general/LegendItem';
 import { useLayout } from './useLayout';
 import { useData } from './useData';
-import { categoricalColors, getCssValue } from '../../utils';
+import { categoricalColors10, getCssValue } from '../../utils';
 
 function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
   return (
@@ -348,7 +348,7 @@ export function ScatterVis({
       } else {
         // Create d3 color scale
         valuesWithoutUnknown.forEach((v, i) => {
-          mapping[v] = categoricalColors[i % categoricalColors.length]!;
+          mapping[v] = categoricalColors10[i % categoricalColors10.length]!;
         });
         mapping.Unknown = VIS_NEUTRAL_COLOR;
       }
