@@ -5,12 +5,12 @@ import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 import * as React from 'react';
+import { BlurredOverlay } from '../../components';
+import { type ECOption, useChart } from '../../echarts';
 import { useAsync } from '../../hooks';
 import { sanitize, selectionColorDark } from '../../utils';
 import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
 import { ColumnInfo, EAggregateTypes, ICommonVisProps } from '../interfaces';
-import type { ECOption } from '../vishooks/hooks/useChart';
-import { useChart } from '../vishooks/hooks/useChart';
 import { useBarSortHelper } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import {
@@ -23,7 +23,6 @@ import {
   sortSeries,
   WorkerWrapper,
 } from './interfaces/internal';
-import { BlurredOverlay } from '../../components';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
