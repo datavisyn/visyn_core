@@ -17,6 +17,7 @@ export interface IBarConfig extends BaseVisConfig {
   sortState?: { x: EBarSortState; y: EBarSortState };
   useFullHeight?: boolean;
   useResponsiveBarWidth?: boolean;
+  showColumnDescriptionText?: boolean;
 }
 
 /**

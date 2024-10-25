@@ -620,22 +620,32 @@ function EagerSingleEChartsBarChart({
         : config?.aggregateType === EAggregateTypes.COUNT
           ? config?.aggregateType
           : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`;
+    const aggregationAxisDescription = config?.showColumnDescriptionText
+      ? config?.aggregateColumn?.description && config?.aggregateType !== EAggregateTypes.COUNT
+        ? `: ${config?.aggregateColumn?.description}`
+        : ''
+      : '';
     const aggregationAxisSortText =
       config?.direction === EBarDirection.HORIZONTAL
         ? SortDirectionMap[config?.sortState?.x as EBarSortState]
         : config?.direction === EBarDirection.VERTICAL
           ? SortDirectionMap[config?.sortState?.y as EBarSortState]
           : '';
-    const aggregationAxisName = `${aggregationAxisNameBase} (${aggregationAxisSortText})`;
+    const aggregationAxisName = `${aggregationAxisNameBase}${aggregationAxisDescription} (${aggregationAxisSortText})`;
 
     const categoricalAxisNameBase = config?.catColumnSelected?.name;
+    const categoricalAxisDescription = config?.showColumnDescriptionText
+      ? config?.catColumnSelected?.description
+        ? `: ${config?.catColumnSelected?.description}`
+        : ''
+      : '';
     const categoricalAxisSortText =
       config?.direction === EBarDirection.HORIZONTAL
         ? SortDirectionMap[config?.sortState?.y as EBarSortState]
         : config?.direction === EBarDirection.VERTICAL
           ? SortDirectionMap[config?.sortState?.x as EBarSortState]
           : '';
-    const categoricalAxisName = `${categoricalAxisNameBase} (${categoricalAxisSortText})`;
+    const categoricalAxisName = `${categoricalAxisNameBase}${categoricalAxisDescription} (${categoricalAxisSortText})`;
 
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
@@ -718,12 +728,15 @@ function EagerSingleEChartsBarChart({
     }
   }, [
     aggregatedData,
+    config?.aggregateColumn?.description,
     config?.aggregateColumn?.name,
     config?.aggregateType,
+    config?.catColumnSelected?.description,
     config?.catColumnSelected?.name,
     config?.direction,
     config?.display,
     config?.group,
+    config?.showColumnDescriptionText,
     config?.sortState?.x,
     config?.sortState?.y,
     containerWidth,
