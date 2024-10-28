@@ -89,6 +89,8 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
 
+  const [yAxisLabel, setYAxisLabel] = React.useState<string>('');
+
   const groupSortedSeries = React.useMemo(() => {
     const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
     const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
@@ -398,6 +400,12 @@ function EagerSingleEChartsBarChart({
     return { dom, content };
   }, []);
 
+  React.useEffect(() => {
+    if (yAxisLabel) {
+      customTooltip.content.innerText = yAxisLabel ?? '';
+    }
+  }, [customTooltip.content, yAxisLabel]);
+
   const { setRef, instance } = useChart({
     options,
     settings,
@@ -551,7 +559,7 @@ function EagerSingleEChartsBarChart({
           query: { componentType: 'yAxis' },
           handler: (params) => {
             if (params.targetType === 'axisName') {
-              const fullText = params.name;
+              setYAxisLabel(params.name as string);
               let fullTextWidth = 0;
 
               if (canvasContext) {
@@ -561,12 +569,12 @@ function EagerSingleEChartsBarChart({
                 canvasContext.textBaseline = 'top';
 
                 // NOTE: @dv-usama-ansari: Measure the width of the full text in an offscreen canvas.
-                fullTextWidth = canvasContext.measureText(fullText).width;
+                fullTextWidth = canvasContext.measureText(yAxisLabel).width;
               }
 
               // NOTE: @dv-usama-ansari: Display the tooltip only if it overflows the chart height.
               if (fullTextWidth > chartHeight + CHART_HEIGHT_MARGIN) {
-                customTooltip.content.innerText = fullText as string;
+                customTooltip.content.innerText = yAxisLabel as string;
                 customTooltip.dom.style.opacity = '1';
                 customTooltip.dom.style.visibility = 'visible';
                 customTooltip.dom.style.zIndex = '9999';
@@ -692,6 +700,8 @@ function EagerSingleEChartsBarChart({
           ? SortDirectionMap[config?.sortState?.x as EBarSortState]
           : '';
     const categoricalAxisName = `${categoricalAxisNameBase}${categoricalAxisDescription} (${categoricalAxisSortText})`;
+
+    setYAxisLabel(config?.direction === EBarDirection.HORIZONTAL ? categoricalAxisName : aggregationAxisName);
 
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
