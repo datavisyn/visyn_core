@@ -634,7 +634,6 @@ function EagerSingleEChartsBarChart({
             { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
           );
           setVisState((v) => ({
-            ...v,
             // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
             series: barSeries.map((item, itemIndex) => ({
               ...item,
@@ -654,7 +653,6 @@ function EagerSingleEChartsBarChart({
           );
 
           setVisState((v) => ({
-            ...v,
             series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]?.data })),
             xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
           }));
@@ -705,8 +703,6 @@ function EagerSingleEChartsBarChart({
 
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
-        ...v,
-
         xAxis: {
           type: 'value' as const,
           name: aggregationAxisName,
@@ -744,8 +740,6 @@ function EagerSingleEChartsBarChart({
     }
     if (config?.direction === EBarDirection.VERTICAL) {
       setVisState((v) => ({
-        ...v,
-
         // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
         xAxis: {
           type: 'category' as const,
