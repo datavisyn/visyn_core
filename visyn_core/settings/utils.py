@@ -45,3 +45,22 @@ def get_default_postgres_url(
     Returns a default postgres url, including the default values for `driver`, `user`, `password`, `host`, `port` and `database`.
     """
     return f"{driver}://{user}:{password}@{host or host_fallback}:{port or port_fallback}/{database}"
+
+
+def get_default_redis_url(
+    host: str | None = os.getenv("REDIS_HOSTNAME"),
+    host_fallback: str = "localhost",
+    port: int | str | None = os.getenv("REDIS_PORT"),
+    port_fallback: int = 6379,
+    db: int = 1,
+    timeout: int = 60 * 60 * 24,
+) -> dict:
+    """
+    Returns a default Redis configuration dictionary with `host`, `port`, `db`, and `timeout`.
+    """
+    return {
+        "host": host or host_fallback,
+        "port": int(port) if port else port_fallback,
+        "db": db,
+        "timeout": timeout,
+    }
