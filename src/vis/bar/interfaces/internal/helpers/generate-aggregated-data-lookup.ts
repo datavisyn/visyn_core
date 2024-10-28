@@ -84,20 +84,20 @@ export function generateAggregatedDataLookup(
       if (selected) {
         minMax.facets[facet].categories[category].groups[group].selected.min = Math.min(
           minMax.facets[facet].categories[category].groups[group].selected.min,
-          aggregate || Infinity,
+          aggregate === 0 ? aggregate : aggregate || Infinity,
         );
         minMax.facets[facet].categories[category].groups[group].selected.max = Math.max(
           minMax.facets[facet].categories[category].groups[group].selected.max,
-          aggregate || -Infinity,
+          aggregate === 0 ? aggregate : aggregate || -Infinity,
         );
       } else {
         minMax.facets[facet].categories[category].groups[group].unselected.min = Math.min(
           minMax.facets[facet].categories[category].groups[group].unselected.min,
-          aggregate || Infinity,
+          aggregate === 0 ? aggregate : aggregate || Infinity,
         );
         minMax.facets[facet].categories[category].groups[group].unselected.max = Math.max(
           minMax.facets[facet].categories[category].groups[group].unselected.max,
-          aggregate || -Infinity,
+          aggregate === 0 ? aggregate : aggregate || -Infinity,
         );
       }
     });
