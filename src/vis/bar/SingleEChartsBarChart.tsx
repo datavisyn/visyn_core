@@ -89,6 +89,8 @@ function EagerSingleEChartsBarChart({
   const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
   const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
 
+  const [yAxisLabel, setYAxisLabel] = React.useState<string>('');
+
   const groupSortedSeries = React.useMemo(() => {
     const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
     const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
@@ -371,10 +373,14 @@ function EagerSingleEChartsBarChart({
     [],
   );
 
+  // NOTE: @dv-usama-ansari: Create an offscreen canvas to measure the text width.
+  const canvasContext = React.useMemo(() => new OffscreenCanvas(1, 1).getContext('2d'), []);
+
   // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
-  const axisLabelTooltip = React.useMemo(() => {
+  //  This element should be used to display tooltips which are not provided by echarts out of the box.
+  const customTooltip = React.useMemo(() => {
     const dom = document.createElement('div');
-    dom.id = 'axis-tooltip';
+    dom.id = 'axis-ticks-tooltip';
     dom.style.position = 'absolute';
     dom.style.backgroundColor = 'rgba(50,50,50)';
     dom.style.borderRadius = '4px';
@@ -394,6 +400,12 @@ function EagerSingleEChartsBarChart({
     return { dom, content };
   }, []);
 
+  React.useEffect(() => {
+    if (yAxisLabel) {
+      customTooltip.content.innerText = yAxisLabel ?? '';
+    }
+  }, [customTooltip.content, yAxisLabel]);
+
   const { setRef, instance } = useChart({
     options,
     settings,
@@ -408,38 +420,40 @@ function EagerSingleEChartsBarChart({
         {
           query: { seriesType: 'bar' },
           handler: (params) => {
-            const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-            // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
-            const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
-            const ids: string[] = config?.group
-              ? config.group.id === config?.facets?.id
-                ? [
-                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
-                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
-                  ]
-                : [
-                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
-                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
-                  ]
-              : (aggregatedData?.categories[params.name]?.ids ?? []);
+            if (params.componentType === 'series') {
+              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+              // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
+              const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
+              const ids: string[] = config?.group
+                ? config.group.id === config?.facets?.id
+                  ? [
+                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
+                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
+                    ]
+                  : [
+                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
+                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
+                    ]
+                : (aggregatedData?.categories[params.name]?.ids ?? []);
 
-            if (event.shiftKey) {
-              // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
-              //  Using `Set` to reduce time complexity to O(1).
-              const newSelectedSet = new Set(selectedList);
-              ids.forEach((id) => {
-                if (newSelectedSet.has(id)) {
-                  newSelectedSet.delete(id);
-                } else {
-                  newSelectedSet.add(id);
-                }
-              });
-              const newSelectedList = [...newSelectedSet];
-              selectionCallback(event, [...new Set([...newSelectedList])]);
-            } else {
-              // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
-              const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-              selectionCallback(event, isSameBarClicked ? [] : ids);
+              if (event.shiftKey) {
+                // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
+                //  Using `Set` to reduce time complexity to O(1).
+                const newSelectedSet = new Set(selectedList);
+                ids.forEach((id) => {
+                  if (newSelectedSet.has(id)) {
+                    newSelectedSet.delete(id);
+                  } else {
+                    newSelectedSet.add(id);
+                  }
+                });
+                const newSelectedList = [...newSelectedSet];
+                selectionCallback(event, [...new Set([...newSelectedList])]);
+              } else {
+                // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
+                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
+                selectionCallback(event, isSameBarClicked ? [] : ids);
+              }
             }
           },
         },
@@ -518,27 +532,59 @@ function EagerSingleEChartsBarChart({
               const fullText = params.value;
               const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
               if (config?.direction === EBarDirection.VERTICAL || fullText !== displayText) {
-                axisLabelTooltip.content.innerText = fullText as string;
-                axisLabelTooltip.dom.style.opacity = '1';
-                axisLabelTooltip.dom.style.visibility = 'visible';
-                axisLabelTooltip.dom.style.zIndex = '9999';
+                customTooltip.content.innerText = fullText as string;
+                customTooltip.dom.style.opacity = '1';
+                customTooltip.dom.style.visibility = 'visible';
+                customTooltip.dom.style.zIndex = '9999';
 
                 const topOffset =
                   config?.direction === EBarDirection.HORIZONTAL
-                    ? axisLabelTooltip.dom.offsetHeight * -1.5
+                    ? customTooltip.dom.offsetHeight * -1.5
                     : config?.direction === EBarDirection.VERTICAL
-                      ? axisLabelTooltip.dom.offsetHeight * -1.25
+                      ? customTooltip.dom.offsetHeight * -1.25
                       : 0;
                 const top = (currLabel?.transform[5] ?? 0) + topOffset;
                 const leftOffset =
                   config?.direction === EBarDirection.HORIZONTAL
-                    ? axisLabelTooltip.dom.offsetWidth * -1
+                    ? customTooltip.dom.offsetWidth * -1
                     : config?.direction === EBarDirection.VERTICAL
-                      ? axisLabelTooltip.dom.offsetWidth * -0.5
+                      ? customTooltip.dom.offsetWidth * -0.5
                       : 0;
                 const left = Math.max((currLabel?.transform[4] ?? 0) + leftOffset, 0);
-                axisLabelTooltip.dom.style.top = `${top}px`;
-                axisLabelTooltip.dom.style.left = `${left}px`;
+                customTooltip.dom.style.top = `${top}px`;
+                customTooltip.dom.style.left = `${left}px`;
+              }
+            }
+          },
+        },
+        {
+          query: { componentType: 'yAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName') {
+              setYAxisLabel(params.name as string);
+              let fullTextWidth = 0;
+
+              if (canvasContext) {
+                // NOTE: @dv-usama-ansari: This is the default font for ECharts axis labels.
+                canvasContext.font = 'normal normal 12px sans-serif';
+                canvasContext.textAlign = 'left';
+                canvasContext.textBaseline = 'top';
+
+                // NOTE: @dv-usama-ansari: Measure the width of the full text in an offscreen canvas.
+                fullTextWidth = canvasContext.measureText(yAxisLabel).width;
+              }
+
+              // NOTE: @dv-usama-ansari: Display the tooltip only if it overflows the chart height.
+              if (fullTextWidth > chartHeight + CHART_HEIGHT_MARGIN) {
+                customTooltip.content.innerText = yAxisLabel as string;
+                customTooltip.dom.style.opacity = '1';
+                customTooltip.dom.style.visibility = 'visible';
+                customTooltip.dom.style.zIndex = '9999';
+
+                const top = (chartHeight + CHART_HEIGHT_MARGIN) / 2;
+                const left = 24;
+                customTooltip.dom.style.top = `${top}px`;
+                customTooltip.dom.style.left = `${left}px`;
               }
             }
           },
@@ -554,9 +600,19 @@ function EagerSingleEChartsBarChart({
                 : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
           handler: (params) => {
             if (params.targetType === 'axisLabel') {
-              axisLabelTooltip.dom.style.opacity = '0';
-              axisLabelTooltip.dom.style.visibility = 'hidden';
-              axisLabelTooltip.dom.style.zIndex = '-1';
+              customTooltip.dom.style.opacity = '0';
+              customTooltip.dom.style.visibility = 'hidden';
+              customTooltip.dom.style.zIndex = '-1';
+            }
+          },
+        },
+        {
+          query: { componentType: 'yAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName') {
+              customTooltip.dom.style.opacity = '0';
+              customTooltip.dom.style.visibility = 'hidden';
+              customTooltip.dom.style.zIndex = '-1';
             }
           },
         },
@@ -580,7 +636,6 @@ function EagerSingleEChartsBarChart({
             { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
           );
           setVisState((v) => ({
-            ...v,
             // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
             series: barSeries.map((item, itemIndex) => ({
               ...item,
@@ -600,7 +655,6 @@ function EagerSingleEChartsBarChart({
           );
 
           setVisState((v) => ({
-            ...v,
             series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]?.data })),
             xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
           }));
@@ -620,27 +674,37 @@ function EagerSingleEChartsBarChart({
         : config?.aggregateType === EAggregateTypes.COUNT
           ? config?.aggregateType
           : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`;
+    const aggregationAxisDescription = config?.showColumnDescriptionText
+      ? config?.aggregateColumn?.description && config?.aggregateType !== EAggregateTypes.COUNT
+        ? `: ${config?.aggregateColumn?.description}`
+        : ''
+      : '';
     const aggregationAxisSortText =
       config?.direction === EBarDirection.HORIZONTAL
         ? SortDirectionMap[config?.sortState?.x as EBarSortState]
         : config?.direction === EBarDirection.VERTICAL
           ? SortDirectionMap[config?.sortState?.y as EBarSortState]
           : '';
-    const aggregationAxisName = `${aggregationAxisNameBase} (${aggregationAxisSortText})`;
+    const aggregationAxisName = `${aggregationAxisNameBase}${aggregationAxisDescription} (${aggregationAxisSortText})`;
 
     const categoricalAxisNameBase = config?.catColumnSelected?.name;
+    const categoricalAxisDescription = config?.showColumnDescriptionText
+      ? config?.catColumnSelected?.description
+        ? `: ${config?.catColumnSelected?.description}`
+        : ''
+      : '';
     const categoricalAxisSortText =
       config?.direction === EBarDirection.HORIZONTAL
         ? SortDirectionMap[config?.sortState?.y as EBarSortState]
         : config?.direction === EBarDirection.VERTICAL
           ? SortDirectionMap[config?.sortState?.x as EBarSortState]
           : '';
-    const categoricalAxisName = `${categoricalAxisNameBase} (${categoricalAxisSortText})`;
+    const categoricalAxisName = `${categoricalAxisNameBase}${categoricalAxisDescription} (${categoricalAxisSortText})`;
+
+    setYAxisLabel(config?.direction === EBarDirection.HORIZONTAL ? categoricalAxisName : aggregationAxisName);
 
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
-        ...v,
-
         xAxis: {
           type: 'value' as const,
           name: aggregationAxisName,
@@ -678,8 +742,6 @@ function EagerSingleEChartsBarChart({
     }
     if (config?.direction === EBarDirection.VERTICAL) {
       setVisState((v) => ({
-        ...v,
-
         // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
         xAxis: {
           type: 'category' as const,
@@ -718,12 +780,15 @@ function EagerSingleEChartsBarChart({
     }
   }, [
     aggregatedData,
+    config?.aggregateColumn?.description,
     config?.aggregateColumn?.name,
     config?.aggregateType,
+    config?.catColumnSelected?.description,
     config?.catColumnSelected?.name,
     config?.direction,
     config?.display,
     config?.group,
+    config?.showColumnDescriptionText,
     config?.sortState?.x,
     config?.sortState?.y,
     containerWidth,
@@ -810,9 +875,9 @@ function EagerSingleEChartsBarChart({
 
   React.useEffect(() => {
     if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
-      instance.getDom().appendChild(axisLabelTooltip.dom);
+      instance.getDom().appendChild(customTooltip.dom);
     }
-  }, [axisLabelTooltip.dom, instance]);
+  }, [customTooltip.dom, instance]);
 
   return isLoading ? (
     <BlurredOverlay

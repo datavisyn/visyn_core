@@ -2,6 +2,9 @@ import { EAggregateTypes, ESupportedPlotlyVis } from '../../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from './enums';
 import { IBarConfig } from './interfaces';
 
+/**
+ * Default configuration for the bar plot.
+ */
 export const defaultConfig: IBarConfig = {
   type: ESupportedPlotlyVis.BAR,
   numColumnsSelected: [],
