@@ -185,21 +185,11 @@ export function useDataPreparation({
       return index !== -1 ? index : Infinity;
     });
 
-    let xDomain: [number, number] | [undefined, undefined] = [0, 1];
-    let yDomain: [number, number] | [undefined, undefined] = [0, 1];
-
     // Get shared range for all plots
-    xDomain = d3v7.extent(value.validColumns[0].resolvedValues.map((v) => v.val as number));
-    yDomain = d3v7.extent(value.validColumns[1].resolvedValues.map((v) => v.val as number));
-
-    if (xDomain[0] !== undefined && xDomain[1] !== undefined && yDomain[0] !== undefined && yDomain[1] !== undefined) {
-      const xStretch = xDomain[1] - xDomain[0];
-      const yStretch = yDomain[1] - yDomain[0];
-      console.log(xStretch, yStretch);
-
-      xDomain = [xDomain[0] - xStretch * 0.5, xDomain[1] + xStretch * 0.5];
-      yDomain = [yDomain[0] - yStretch * 0.5, yDomain[1] + yStretch * 0.5];
-    }
+    const { xDomain, yDomain } = getStretchedDomains(
+      value.validColumns[0].resolvedValues.map((v) => v.val as number),
+      value.validColumns[1].resolvedValues.map((v) => v.val as number),
+    );
 
     const resultData = groupedData.map((grouped, index) => {
       const idToIndex = new Map<string, number>();

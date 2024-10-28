@@ -1,5 +1,6 @@
 import * as React from 'react';
 import clamp from 'lodash/clamp';
+import isFinite from 'lodash/isFinite';
 import { PlotlyTypes } from '../../plotly';
 import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
 import { IInternalScatterConfig } from './interfaces';
@@ -55,6 +56,21 @@ function gaps(width: number, height: number, nSubplots: number) {
   };
 }
 
+function toLogRange(axisType: 'linear' | 'log', domain: [number, number] | [undefined, undefined]) {
+  if (axisType === 'linear') {
+    return domain;
+  }
+
+  const e0 = Math.log10(domain[0]);
+  const e1 = Math.log10(domain[1]);
+
+  if (isFinite(e1)) {
+    return [isFinite(e0) ? e0 : 0, e1];
+  }
+
+  return [0, 1];
+}
+
 export function useLayout({
   scatter,
   facet,
@@ -86,7 +102,8 @@ export function useLayout({
       subplots.xyPairs.forEach((pair, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: pair.xDomain,
+          range: toLogRange(config.xAxisType!, pair.xDomain),
+          type: config.xAxisType,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           title: {
@@ -100,7 +117,8 @@ export function useLayout({
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: pair.yDomain,
+          range: toLogRange(config.yAxisType!, pair.yDomain),
+          type: config.yAxisType,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           title: {
@@ -171,8 +189,9 @@ export function useLayout({
         ...BASE_LAYOUT,
         xaxis: {
           ...AXIS_TICK_STYLES,
-          range: scatter.xDomain,
+          range: toLogRange(config.xAxisType!, scatter.xDomain),
           ...internalLayoutRef.current?.xaxis,
+          type: config.xAxisType,
           title: {
             font: {
               size: 12,
@@ -183,8 +202,9 @@ export function useLayout({
         },
         yaxis: {
           ...AXIS_TICK_STYLES,
-          range: scatter.yDomain,
+          range: toLogRange(config.yAxisType!, scatter.yDomain),
           ...internalLayoutRef.current?.yaxis,
+          type: config.yAxisType,
           title: {
             font: {
               size: 12,
@@ -212,7 +232,8 @@ export function useLayout({
       facet.resultData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: facet.xDomain,
+          range: toLogRange(config.xAxisType!, facet.xDomain),
+          type: config.xAxisType,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           ...(plotCounter > 0 ? { matches: 'x' } : {}),
@@ -229,7 +250,8 @@ export function useLayout({
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: facet.yDomain,
+          range: toLogRange(config.yAxisType!, facet.yDomain),
+          type: config.yAxisType,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           ...(plotCounter > 0 ? { matches: 'y' } : {}),
@@ -302,14 +324,14 @@ export function useLayout({
       // SPLOM case
       const axes: Record<string, PlotlyTypes.LayoutAxis> = {};
 
-      const axis = () =>
+      const axis = (which: string) =>
         ({
           ...AXIS_TICK_STYLES,
         }) as PlotlyTypes.LayoutAxis;
 
       for (let i = 0; i < splom.dimensions.length; i++) {
-        axes[`xaxis${i > 0 ? i + 1 : ''}`] = axis();
-        axes[`yaxis${i > 0 ? i + 1 : ''}`] = axis();
+        axes[`xaxis${i > 0 ? i + 1 : ''}`] = axis('x');
+        axes[`yaxis${i > 0 ? i + 1 : ''}`] = axis('y');
       }
 
       const finalLayout: Partial<PlotlyTypes.Layout> = {

@@ -18,6 +18,9 @@ export interface IScatterConfig extends BaseVisConfig {
   regressionLineOptions?: IRegressionLineOptions;
   showLegend?: boolean;
   labelColumns?: ColumnInfo[];
+
+  xAxisType?: 'linear' | 'log';
+  yAxisType?: 'linear' | 'log';
 }
 
 /**
