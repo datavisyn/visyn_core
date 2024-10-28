@@ -374,7 +374,10 @@ function EagerSingleEChartsBarChart({
   // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
   const axisLabelTooltip = React.useMemo(() => {
     const dom = document.createElement('div');
-    dom.id = 'axis-tooltip';
+  // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
+  const axisTicksTooltip = React.useMemo(() => {
+    const dom = document.createElement('div');
+    dom.id = 'axis-ticks-tooltip';
     dom.style.position = 'absolute';
     dom.style.backgroundColor = 'rgba(50,50,50)';
     dom.style.borderRadius = '4px';
@@ -518,27 +521,27 @@ function EagerSingleEChartsBarChart({
               const fullText = params.value;
               const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
               if (config?.direction === EBarDirection.VERTICAL || fullText !== displayText) {
-                axisLabelTooltip.content.innerText = fullText as string;
-                axisLabelTooltip.dom.style.opacity = '1';
-                axisLabelTooltip.dom.style.visibility = 'visible';
-                axisLabelTooltip.dom.style.zIndex = '9999';
+                axisTicksTooltip.content.innerText = fullText as string;
+                axisTicksTooltip.dom.style.opacity = '1';
+                axisTicksTooltip.dom.style.visibility = 'visible';
+                axisTicksTooltip.dom.style.zIndex = '9999';
 
                 const topOffset =
                   config?.direction === EBarDirection.HORIZONTAL
-                    ? axisLabelTooltip.dom.offsetHeight * -1.5
+                    ? axisTicksTooltip.dom.offsetHeight * -1.5
                     : config?.direction === EBarDirection.VERTICAL
-                      ? axisLabelTooltip.dom.offsetHeight * -1.25
+                      ? axisTicksTooltip.dom.offsetHeight * -1.25
                       : 0;
                 const top = (currLabel?.transform[5] ?? 0) + topOffset;
                 const leftOffset =
                   config?.direction === EBarDirection.HORIZONTAL
-                    ? axisLabelTooltip.dom.offsetWidth * -1
+                    ? axisTicksTooltip.dom.offsetWidth * -1
                     : config?.direction === EBarDirection.VERTICAL
-                      ? axisLabelTooltip.dom.offsetWidth * -0.5
+                      ? axisTicksTooltip.dom.offsetWidth * -0.5
                       : 0;
                 const left = Math.max((currLabel?.transform[4] ?? 0) + leftOffset, 0);
-                axisLabelTooltip.dom.style.top = `${top}px`;
-                axisLabelTooltip.dom.style.left = `${left}px`;
+                axisTicksTooltip.dom.style.top = `${top}px`;
+                axisTicksTooltip.dom.style.left = `${left}px`;
               }
             }
           },
@@ -554,9 +557,9 @@ function EagerSingleEChartsBarChart({
                 : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
           handler: (params) => {
             if (params.targetType === 'axisLabel') {
-              axisLabelTooltip.dom.style.opacity = '0';
-              axisLabelTooltip.dom.style.visibility = 'hidden';
-              axisLabelTooltip.dom.style.zIndex = '-1';
+              axisTicksTooltip.dom.style.opacity = '0';
+              axisTicksTooltip.dom.style.visibility = 'hidden';
+              axisTicksTooltip.dom.style.zIndex = '-1';
             }
           },
         },
@@ -823,9 +826,9 @@ function EagerSingleEChartsBarChart({
 
   React.useEffect(() => {
     if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
-      instance.getDom().appendChild(axisLabelTooltip.dom);
+      instance.getDom().appendChild(axisTicksTooltip.dom);
     }
-  }, [axisLabelTooltip.dom, instance]);
+  }, [axisTicksTooltip.dom, instance]);
 
   return isLoading ? (
     <BlurredOverlay
