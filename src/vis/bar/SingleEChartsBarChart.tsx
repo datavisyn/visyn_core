@@ -371,11 +371,12 @@ function EagerSingleEChartsBarChart({
     [],
   );
 
+  // NOTE: @dv-usama-ansari: Create an offscreen canvas to measure the text width.
+  const canvasContext = React.useMemo(() => new OffscreenCanvas(1, 1).getContext('2d'), []);
+
   // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
-  const axisLabelTooltip = React.useMemo(() => {
-    const dom = document.createElement('div');
-  // NOTE: @dv-usama-ansari: Tooltip implementation from: https://codepen.io/plainheart/pen/jOGBrmJ
-  const axisTicksTooltip = React.useMemo(() => {
+  //  This element should be used to display tooltips which are not provided by echarts out of the box.
+  const customTooltip = React.useMemo(() => {
     const dom = document.createElement('div');
     dom.id = 'axis-ticks-tooltip';
     dom.style.position = 'absolute';
@@ -521,27 +522,59 @@ function EagerSingleEChartsBarChart({
               const fullText = params.value;
               const displayText = (currLabel as typeof currLabel & { style: { text: string } }).style.text;
               if (config?.direction === EBarDirection.VERTICAL || fullText !== displayText) {
-                axisTicksTooltip.content.innerText = fullText as string;
-                axisTicksTooltip.dom.style.opacity = '1';
-                axisTicksTooltip.dom.style.visibility = 'visible';
-                axisTicksTooltip.dom.style.zIndex = '9999';
+                customTooltip.content.innerText = fullText as string;
+                customTooltip.dom.style.opacity = '1';
+                customTooltip.dom.style.visibility = 'visible';
+                customTooltip.dom.style.zIndex = '9999';
 
                 const topOffset =
                   config?.direction === EBarDirection.HORIZONTAL
-                    ? axisTicksTooltip.dom.offsetHeight * -1.5
+                    ? customTooltip.dom.offsetHeight * -1.5
                     : config?.direction === EBarDirection.VERTICAL
-                      ? axisTicksTooltip.dom.offsetHeight * -1.25
+                      ? customTooltip.dom.offsetHeight * -1.25
                       : 0;
                 const top = (currLabel?.transform[5] ?? 0) + topOffset;
                 const leftOffset =
                   config?.direction === EBarDirection.HORIZONTAL
-                    ? axisTicksTooltip.dom.offsetWidth * -1
+                    ? customTooltip.dom.offsetWidth * -1
                     : config?.direction === EBarDirection.VERTICAL
-                      ? axisTicksTooltip.dom.offsetWidth * -0.5
+                      ? customTooltip.dom.offsetWidth * -0.5
                       : 0;
                 const left = Math.max((currLabel?.transform[4] ?? 0) + leftOffset, 0);
-                axisTicksTooltip.dom.style.top = `${top}px`;
-                axisTicksTooltip.dom.style.left = `${left}px`;
+                customTooltip.dom.style.top = `${top}px`;
+                customTooltip.dom.style.left = `${left}px`;
+              }
+            }
+          },
+        },
+        {
+          query: { componentType: 'yAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName') {
+              const fullText = params.name;
+              let fullTextWidth = 0;
+
+              if (canvasContext) {
+                // NOTE: @dv-usama-ansari: This is the default font for ECharts axis labels.
+                canvasContext.font = 'normal normal 12px sans-serif';
+                canvasContext.textAlign = 'left';
+                canvasContext.textBaseline = 'top';
+
+                // NOTE: @dv-usama-ansari: Measure the width of the full text in an offscreen canvas.
+                fullTextWidth = canvasContext.measureText(fullText).width;
+              }
+
+              // NOTE: @dv-usama-ansari: Display the tooltip only if it overflows the chart height.
+              if (fullTextWidth > chartHeight + CHART_HEIGHT_MARGIN) {
+                customTooltip.content.innerText = fullText as string;
+                customTooltip.dom.style.opacity = '1';
+                customTooltip.dom.style.visibility = 'visible';
+                customTooltip.dom.style.zIndex = '9999';
+
+                const top = (chartHeight + CHART_HEIGHT_MARGIN) / 2;
+                const left = 24;
+                customTooltip.dom.style.top = `${top}px`;
+                customTooltip.dom.style.left = `${left}px`;
               }
             }
           },
@@ -557,9 +590,19 @@ function EagerSingleEChartsBarChart({
                 : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
           handler: (params) => {
             if (params.targetType === 'axisLabel') {
-              axisTicksTooltip.dom.style.opacity = '0';
-              axisTicksTooltip.dom.style.visibility = 'hidden';
-              axisTicksTooltip.dom.style.zIndex = '-1';
+              customTooltip.dom.style.opacity = '0';
+              customTooltip.dom.style.visibility = 'hidden';
+              customTooltip.dom.style.zIndex = '-1';
+            }
+          },
+        },
+        {
+          query: { componentType: 'yAxis' },
+          handler: (params) => {
+            if (params.targetType === 'axisName') {
+              customTooltip.dom.style.opacity = '0';
+              customTooltip.dom.style.visibility = 'hidden';
+              customTooltip.dom.style.zIndex = '-1';
             }
           },
         },
@@ -826,9 +869,9 @@ function EagerSingleEChartsBarChart({
 
   React.useEffect(() => {
     if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
-      instance.getDom().appendChild(axisTicksTooltip.dom);
+      instance.getDom().appendChild(customTooltip.dom);
     }
-  }, [axisTicksTooltip.dom, instance]);
+  }, [customTooltip.dom, instance]);
 
   return isLoading ? (
     <BlurredOverlay
