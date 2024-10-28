@@ -53,7 +53,7 @@ def get_default_redis_url(
     port: int | str | None = os.getenv("REDIS_PORT"),
     port_fallback: int = 6379,
     db: int = 1,
-    timeout: int = 60 * 60 * 24
+    timeout: int = 60 * 60 * 24,
 ) -> dict:
     """
     Returns a default Redis configuration dictionary with `host`, `port`, `db`, and `timeout`.
