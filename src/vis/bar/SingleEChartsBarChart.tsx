@@ -420,38 +420,40 @@ function EagerSingleEChartsBarChart({
         {
           query: { seriesType: 'bar' },
           handler: (params) => {
-            const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-            // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
-            const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
-            const ids: string[] = config?.group
-              ? config.group.id === config?.facets?.id
-                ? [
-                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
-                    ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
-                  ]
-                : [
-                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
-                    ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
-                  ]
-              : (aggregatedData?.categories[params.name]?.ids ?? []);
+            if (params.componentType === 'series') {
+              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
+              // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
+              const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
+              const ids: string[] = config?.group
+                ? config.group.id === config?.facets?.id
+                  ? [
+                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
+                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
+                    ]
+                  : [
+                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
+                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
+                    ]
+                : (aggregatedData?.categories[params.name]?.ids ?? []);
 
-            if (event.shiftKey) {
-              // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
-              //  Using `Set` to reduce time complexity to O(1).
-              const newSelectedSet = new Set(selectedList);
-              ids.forEach((id) => {
-                if (newSelectedSet.has(id)) {
-                  newSelectedSet.delete(id);
-                } else {
-                  newSelectedSet.add(id);
-                }
-              });
-              const newSelectedList = [...newSelectedSet];
-              selectionCallback(event, [...new Set([...newSelectedList])]);
-            } else {
-              // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
-              const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-              selectionCallback(event, isSameBarClicked ? [] : ids);
+              if (event.shiftKey) {
+                // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
+                //  Using `Set` to reduce time complexity to O(1).
+                const newSelectedSet = new Set(selectedList);
+                ids.forEach((id) => {
+                  if (newSelectedSet.has(id)) {
+                    newSelectedSet.delete(id);
+                  } else {
+                    newSelectedSet.add(id);
+                  }
+                });
+                const newSelectedList = [...newSelectedSet];
+                selectionCallback(event, [...new Set([...newSelectedList])]);
+              } else {
+                // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
+                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
+                selectionCallback(event, isSameBarClicked ? [] : ids);
+              }
             }
           },
         },
@@ -634,7 +636,6 @@ function EagerSingleEChartsBarChart({
             { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
           );
           setVisState((v) => ({
-            ...v,
             // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
             series: barSeries.map((item, itemIndex) => ({
               ...item,
@@ -654,7 +655,6 @@ function EagerSingleEChartsBarChart({
           );
 
           setVisState((v) => ({
-            ...v,
             series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]?.data })),
             xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
           }));
@@ -705,8 +705,6 @@ function EagerSingleEChartsBarChart({
 
     if (config?.direction === EBarDirection.HORIZONTAL) {
       setVisState((v) => ({
-        ...v,
-
         xAxis: {
           type: 'value' as const,
           name: aggregationAxisName,
@@ -744,8 +742,6 @@ function EagerSingleEChartsBarChart({
     }
     if (config?.direction === EBarDirection.VERTICAL) {
       setVisState((v) => ({
-        ...v,
-
         // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
         xAxis: {
           type: 'category' as const,
