@@ -58,6 +58,11 @@ def get_default_redis_url(
     """
     Returns a default Redis configuration dictionary with `host`, `port`, `db`, and `timeout`.
     """
+    print(f"VIKTOR get_default_redis_url called with:")
+    print(f"  REDIS_HOSTNAME: {host}")
+    print(f"  REDIS_PORT: {port}")
+    print(f"  Fallback host: {host_fallback}")
+    print(f"  Fallback port: {port_fallback}")
     return {
         "host": host or host_fallback,
         "port": int(port) if port else port_fallback,
