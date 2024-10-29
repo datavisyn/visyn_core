@@ -12,26 +12,43 @@ export enum ESortStates {
   DESC = 'desc',
 }
 
+export interface ISortIconProps {
+  sortState: ESortStates;
+  setSortState: (sortState: ESortStates, isCtrlKeyPressed: boolean, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  priority?: number;
+  compact?: boolean;
+  sortStateOnFirstClick?: ESortStates.ASC | ESortStates.DESC;
+  hasUnsortedState?: boolean;
+}
+
 export function SortIcon({
   sortState,
   setSortState,
   priority = 0,
   compact = false,
-}: {
-  sortState: ESortStates;
-  setSortState: (sortState: ESortStates, isCtrlKeyPressed: boolean, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-  priority?: number;
-  compact?: boolean;
-}) {
+  sortStateOnFirstClick = ESortStates.ASC,
+  hasUnsortedState = true,
+}: ISortIconProps) {
   const sortIcon = sortState === ESortStates.DESC ? dvSortDesc : sortState === ESortStates.ASC ? dvSortAsc : dvSort;
-  const getNextSortState = (s) => {
-    switch (s) {
-      case ESortStates.ASC:
-        return ESortStates.DESC;
-      case ESortStates.DESC:
-        return ESortStates.NONE;
-      default:
-        return ESortStates.ASC;
+  const getNextSortState = (s: ESortStates) => {
+    if (sortStateOnFirstClick === ESortStates.DESC) {
+      switch (s) {
+        case ESortStates.DESC:
+          return ESortStates.ASC;
+        case ESortStates.ASC:
+          return hasUnsortedState ? ESortStates.NONE : ESortStates.DESC;
+        default:
+          return ESortStates.DESC;
+      }
+    } else {
+      switch (s) {
+        case ESortStates.ASC:
+          return ESortStates.DESC;
+        case ESortStates.DESC:
+          return hasUnsortedState ? ESortStates.NONE : ESortStates.ASC;
+        default:
+          return ESortStates.ASC;
+      }
     }
   };
 
