@@ -324,7 +324,7 @@ export function useLayout({
       // SPLOM case
       const axes: Record<string, PlotlyTypes.LayoutAxis> = {};
 
-      const axis = (which: string) =>
+      const axis = () =>
         ({
           ...AXIS_TICK_STYLES,
         }) as PlotlyTypes.LayoutAxis;
