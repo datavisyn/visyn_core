@@ -133,7 +133,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         : null}
 
       <Select
-        label="X axis type"
+        label="X-axis scale"
         data={[
           { value: 'linear', label: 'Linear' },
           { value: 'log', label: 'Logarithmic' },
@@ -146,7 +146,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
       />
 
       <Select
-        label="Y axis type"
+        label="Y-axis scale"
         data={[
           { value: 'linear', label: 'Linear' },
           { value: 'log', label: 'Logarithmic' },
