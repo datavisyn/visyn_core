@@ -58,7 +58,7 @@ function gaps(width: number, height: number, nSubplots: number) {
 
 function toLogRange(axisType: 'linear' | 'log', domain: [number, number] | [undefined, undefined]) {
   if (axisType === 'linear') {
-    return domain;
+    return [...domain];
   }
 
   const e0 = Math.log10(domain[0]);
