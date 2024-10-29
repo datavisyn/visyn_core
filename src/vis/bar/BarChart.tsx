@@ -7,10 +7,8 @@ import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { BlurredOverlay } from '../../components';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors10 } from '../../utils/colors';
-import { NAN_REPLACEMENT } from '../general';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { ErrorMessage } from '../general/ErrorMessage';
-import { getLabelOrUnknown } from '../general/utils';
+import { DownloadPlotButton, ErrorMessage, getLabelOrUnknown, NAN_REPLACEMENT } from '../general';
+import { FastTextMeasure } from '../general/FastTextMeasure';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps } from '../interfaces';
 import { FocusFacetSelector } from './components';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
@@ -51,6 +49,8 @@ type VirtualizedBarChartProps = {
   setConfig: (config: IBarConfig) => void;
 };
 
+const textMeasure = new FastTextMeasure('16px Arial');
+
 export function BarChart({
   config,
   setConfig,
@@ -73,6 +73,7 @@ export function BarChart({
     config?.facets as ColumnInfo,
     config?.aggregateColumn as ColumnInfo,
   ]);
+
   const generateDataTableWorker = React.useCallback(async (...args: Parameters<typeof generateDataTable>) => WorkerWrapper.generateDataTable(...args), []);
   const { execute: generateDataTableTrigger, status: dataTableStatus } = useAsync(generateDataTableWorker);
 
@@ -81,12 +82,6 @@ export function BarChart({
     [],
   );
   const { execute: generateAggregatedDataLookupTrigger, status: dataLookupStatus } = useAsync(generateAggregateDataLookupWorker);
-
-  const getTruncatedTextMapWorker = React.useCallback(
-    async (...args: Parameters<GenerateAggregatedDataLookup['getTruncatedTextMap']>) => WorkerWrapper.getTruncatedTextMap(...args),
-    [],
-  );
-  const { execute: getTruncatedTextMapTrigger, status: truncatedTextStatus } = useAsync(getTruncatedTextMapWorker);
 
   const [itemData, setItemData] = React.useState<VirtualizedBarChartProps | null>(null);
   const [dataTable, setDataTable] = React.useState<ReturnType<typeof generateDataTable>>([]);
@@ -102,8 +97,8 @@ export function BarChart({
   const isLoading = React.useMemo(() => barDataStatus === 'pending' || dataTableStatus === 'pending', [barDataStatus, dataTableStatus]);
 
   const isError = React.useMemo(
-    () => barDataStatus === 'error' || dataTableStatus === 'error' || dataLookupStatus === 'error' || truncatedTextStatus === 'error',
-    [barDataStatus, dataLookupStatus, dataTableStatus, truncatedTextStatus],
+    () => barDataStatus === 'error' || dataTableStatus === 'error' || dataLookupStatus === 'error',
+    [barDataStatus, dataLookupStatus, dataTableStatus],
   );
 
   const isSuccess = React.useMemo(() => barDataStatus === 'success' && dataTableStatus === 'success', [barDataStatus, dataTableStatus]);
@@ -315,19 +310,16 @@ export function BarChart({
   ]);
 
   useShallowEffect(() => {
-    const fetchTruncatedTextMap = async () => {
-      const truncatedTextMap = await getTruncatedTextMapTrigger(
-        Object.values(aggregatedDataMap?.facets ?? {})
-          .map((value) => value?.categoriesList ?? [])
-          .flat(),
-        config?.direction === EBarDirection.HORIZONTAL ? Math.max(gridLeft, containerWidth / 3) - 20 : 70,
-      );
-      setLabelsMap(truncatedTextMap.map);
-      setLongestLabelWidth(truncatedTextMap.longestLabelWidth);
-      setGridLeft(Math.min(containerWidth / 3, Math.max(longestLabelWidth + 20, 60)));
-    };
-    fetchTruncatedTextMap();
-  }, [aggregatedDataMap?.facets, aggregatedDataMap?.facetsList, config?.direction, containerWidth, getTruncatedTextMapTrigger, gridLeft, longestLabelWidth]);
+    Object.values(aggregatedDataMap?.facets ?? {})
+      .map((value) => value?.categoriesList ?? [])
+      .flat()
+      .forEach((c) => {
+        const text = textMeasure.textEllipsis(c, config?.direction === EBarDirection.HORIZONTAL ? Math.max(gridLeft, containerWidth / 3) - 20 : 70);
+        setLongestLabelWidth((p) => Math.max(p, textMeasure.fastMeasureText(c)));
+        setLabelsMap((prev) => ({ ...prev, [c]: text }));
+      });
+    setGridLeft(Math.min(containerWidth / 3, Math.max(longestLabelWidth + 20, 60)));
+  }, [aggregatedDataMap?.facets, config?.direction, containerWidth, gridLeft, longestLabelWidth]);
 
   React.useEffect(() => {
     setItemData({
