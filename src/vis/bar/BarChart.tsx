@@ -7,7 +7,7 @@ import { ListChildComponentProps, VariableSizeList } from 'react-window';
 import { BlurredOverlay } from '../../components';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors10 } from '../../utils/colors';
-import { DownloadPlotButton, ErrorMessage, getLabelOrUnknown, NAN_REPLACEMENT } from '../general';
+import { DownloadPlotButton, ErrorMessage } from '../general';
 import { FastTextMeasure } from '../general/FastTextMeasure';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps } from '../interfaces';
 import { FocusFacetSelector } from './components';
@@ -27,6 +27,8 @@ import {
   WorkerWrapper,
 } from './interfaces/internal';
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
+import { getLabelOrUnknown } from '../general/utils';
+import { NAN_REPLACEMENT } from '../general/constants';
 
 type VirtualizedBarChartProps = {
   aggregatedDataMap: Awaited<ReturnType<typeof generateAggregatedDataLookup>>;

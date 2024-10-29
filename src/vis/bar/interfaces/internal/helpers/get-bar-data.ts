@@ -1,4 +1,4 @@
-import { resolveSingleColumn } from '../../../../general';
+import { resolveSingleColumn } from '../../../../general/layoutUtils';
 import { ColumnInfo, EColumnTypes, VisCategoricalValue, VisColumn, VisNumericalValue } from '../../../../interfaces';
 import { VisColumnWithResolvedValues } from '../../types';
 

@@ -1,4 +1,4 @@
-import { NAN_REPLACEMENT } from '../../../../general';
+import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { defaultConfig } from '../../constants';
 import { getDataForAggregationType } from './get-data-for-aggregate-type';
 

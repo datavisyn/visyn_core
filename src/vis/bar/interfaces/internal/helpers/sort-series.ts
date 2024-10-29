@@ -1,5 +1,5 @@
 import type { BarSeriesOption } from 'echarts/charts';
-import { NAN_REPLACEMENT } from '../../../../general';
+import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { EBarSortState, EBarDirection } from '../../enums';
 
 /**
