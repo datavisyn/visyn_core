@@ -89,7 +89,7 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
           link.remove();
         }
       } else {
-        const dataUrl = await htmlToImage.toPng(plotElement.querySelector('canvas')!, {
+        const dataUrl = await htmlToImage.toPng(plotElement, {
           backgroundColor: 'white',
           cacheBust: true,
         });

@@ -13,6 +13,7 @@ import { getHexData } from './utils';
 import { LegendItem } from '../general/LegendItem';
 import { assignColorToNullValues } from '../general/utils';
 import { WarningMessage } from '../general/WarningMessage';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 
 function Legend({
   categories,
@@ -115,8 +116,7 @@ export function HexbinVis({
                 dragMode={config.dragMode}
               />
             ) : null}
-            {/* TODO: the download is broken right now because we are rendering an SVG, which is not supported
-            {showDownloadScreenshot && config.numColumnsSelected.length >= 2 ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null} */}
+            {showDownloadScreenshot && config.numColumnsSelected.length >= 2 ? <DownloadPlotButton uniquePlotId={id} config={config} /> : null}
           </Group>
         </Center>
       ) : null}
