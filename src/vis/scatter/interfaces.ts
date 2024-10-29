@@ -19,8 +19,15 @@ export interface IScatterConfig extends BaseVisConfig {
   showLegend?: boolean;
   labelColumns?: ColumnInfo[];
 
-  xAxisType?: 'linear' | 'log';
-  yAxisType?: 'linear' | 'log';
+  /**
+   * Scale type of the x-axis (linear or log)
+   */
+  xAxisScale?: 'linear' | 'log';
+
+  /**
+   * Scale type of the y-axis (linear or log)
+   */
+  yAxisScale?: 'linear' | 'log';
 }
 
 /**

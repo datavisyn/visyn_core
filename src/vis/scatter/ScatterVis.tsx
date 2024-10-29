@@ -119,8 +119,8 @@ export function ScatterVis({
     args?.[1] !== previousArgs.current?.[1] ||
     args?.[6] !== previousArgs.current?.[6] ||
     args?.[3] !== previousArgs.current?.[3] ||
-    config?.xAxisType !== internalLayoutRef.current?.xaxis?.type ||
-    config?.yAxisType !== internalLayoutRef.current?.yaxis?.type
+    config?.xAxisScale !== internalLayoutRef.current?.xaxis?.type ||
+    config?.yAxisScale !== internalLayoutRef.current?.yaxis?.type
   ) {
     internalLayoutRef.current = {};
     previousArgs.current = args;

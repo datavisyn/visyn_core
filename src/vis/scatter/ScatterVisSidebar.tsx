@@ -139,9 +139,9 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
           { value: 'log', label: 'Logarithmic' },
         ]}
         clearable={false}
-        value={config.xAxisType}
+        value={config.xAxisScale}
         onChange={(value) => {
-          setConfig({ ...config, xAxisType: value as 'log' | 'linear' });
+          setConfig({ ...config, xAxisScale: value as 'log' | 'linear' });
         }}
       />
 
@@ -152,9 +152,9 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
           { value: 'log', label: 'Logarithmic' },
         ]}
         clearable={false}
-        value={config.yAxisType}
+        value={config.yAxisScale}
         onChange={(value) => {
-          setConfig({ ...config, yAxisType: value as 'log' | 'linear' });
+          setConfig({ ...config, yAxisScale: value as 'log' | 'linear' });
         }}
       />
 

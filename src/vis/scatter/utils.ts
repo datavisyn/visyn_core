@@ -42,8 +42,8 @@ export const defaultConfig: IScatterConfig = {
     lineStyle: defaultRegressionLineStyle,
     showStats: true,
   },
-  xAxisType: 'linear',
-  yAxisType: 'linear',
+  xAxisScale: 'linear',
+  yAxisScale: 'linear',
 };
 
 export function scatterMergeDefaultConfig(columns: VisColumn[], config: IScatterConfig): IScatterConfig {

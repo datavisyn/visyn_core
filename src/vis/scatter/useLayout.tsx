@@ -102,8 +102,8 @@ export function useLayout({
       subplots.xyPairs.forEach((pair, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: toLogRange(config.xAxisType!, pair.xDomain),
-          type: config.xAxisType,
+          range: toLogRange(config.xAxisScale!, pair.xDomain),
+          type: config.xAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           title: {
@@ -117,8 +117,8 @@ export function useLayout({
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: toLogRange(config.yAxisType!, pair.yDomain),
-          type: config.yAxisType,
+          range: toLogRange(config.yAxisScale!, pair.yDomain),
+          type: config.yAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           title: {
@@ -189,9 +189,9 @@ export function useLayout({
         ...BASE_LAYOUT,
         xaxis: {
           ...AXIS_TICK_STYLES,
-          range: toLogRange(config.xAxisType!, scatter.xDomain),
+          range: toLogRange(config.xAxisScale!, scatter.xDomain),
           ...internalLayoutRef.current?.xaxis,
-          type: config.xAxisType,
+          type: config.xAxisScale,
           title: {
             font: {
               size: 12,
@@ -202,9 +202,9 @@ export function useLayout({
         },
         yaxis: {
           ...AXIS_TICK_STYLES,
-          range: toLogRange(config.yAxisType!, scatter.yDomain),
+          range: toLogRange(config.yAxisScale!, scatter.yDomain),
           ...internalLayoutRef.current?.yaxis,
-          type: config.yAxisType,
+          type: config.yAxisScale,
           title: {
             font: {
               size: 12,
@@ -232,8 +232,8 @@ export function useLayout({
       facet.resultData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: toLogRange(config.xAxisType!, facet.xDomain),
-          type: config.xAxisType,
+          range: toLogRange(config.xAxisScale!, facet.xDomain),
+          type: config.xAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           ...(plotCounter > 0 ? { matches: 'x' } : {}),
@@ -250,8 +250,8 @@ export function useLayout({
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: toLogRange(config.yAxisType!, facet.yDomain),
-          type: config.yAxisType,
+          range: toLogRange(config.yAxisScale!, facet.yDomain),
+          type: config.yAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           ...(plotCounter > 0 ? { matches: 'y' } : {}),
