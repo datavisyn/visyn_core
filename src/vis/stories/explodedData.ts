@@ -1,4 +1,4 @@
-import { NAN_REPLACEMENT } from '../general';
+import { NAN_REPLACEMENT } from '../general/constants';
 import { EColumnTypes, VisColumn } from '../interfaces';
 
 export interface TestItem {

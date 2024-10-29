@@ -7,7 +7,7 @@ import { BlurredOverlay } from '../../components';
 import { type ECOption, useChart } from '../../echarts';
 import { useAsync } from '../../hooks';
 import { sanitize, selectionColorDark } from '../../utils';
-import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general';
+import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
 import { ErrorMessage } from '../general/ErrorMessage';
 import { WarningMessage } from '../general/WarningMessage';
 import { ColumnInfo, EAggregateTypes, ICommonVisProps } from '../interfaces';
