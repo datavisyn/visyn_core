@@ -48,6 +48,7 @@ def get_default_postgres_url(
 
 
 def get_default_redis_url(
+    *,
     host: str | None = os.getenv("REDIS_HOSTNAME"),
     host_fallback: str = "localhost",
     port: int | str | None = os.getenv("REDIS_PORT"),
@@ -58,11 +59,6 @@ def get_default_redis_url(
     """
     Returns a default Redis configuration dictionary with `host`, `port`, `db`, and `timeout`.
     """
-    _log.info(f"VIKTOR get_default_redis_url called with:")
-    _log.info(f"  REDIS_HOSTNAME: {host}")
-    _log.info(f"  REDIS_PORT: {port}")
-    _log.info(f"  Fallback host: {host_fallback}")
-    _log.info(f"  Fallback port: {port_fallback}")
     return {
         "host": host or host_fallback,
         "port": int(port) if port else port_fallback,
