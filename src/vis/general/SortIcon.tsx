@@ -13,11 +13,29 @@ export enum ESortStates {
 }
 
 export interface ISortIconProps {
+  /**
+   * Sort state of the icon
+   */
   sortState: ESortStates;
+  /**
+   * Callback function to update the sort state
+   */
   setSortState: (sortState: ESortStates, isCtrlKeyPressed: boolean, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  /**
+   * Sort priority indicator next to the sort icon.
+   */
   priority?: number;
+  /**
+   * Compact representation of the sort icon. If true, it will use the Mantine size `xs`. Otherwise use the size `sm`.
+   */
   compact?: boolean;
+  /**
+   * Determine the first sort order when coming from an initially unsorted state.
+   */
   sortStateOnFirstClick?: ESortStates.ASC | ESortStates.DESC;
+  /**
+   * If true, the sort order can be unsorted after sorting ascending-descending. If false, the sort state can only switch between ascending and descending.
+   */
   hasUnsortedState?: boolean;
 }
 
