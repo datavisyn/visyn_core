@@ -184,32 +184,34 @@ export function CorrelationMatrix({
   return (
     <Stack pr="40px" style={{ height: '100%', width: '100%' }}>
       {status === 'success' ? (
-        <Stack align="center" gap={0} id={id} style={{ height: '100%', width: '100%' }}>
+        <Stack align="center" gap={0} style={{ height: '100%', width: '100%' }}>
           {showDownloadScreenshot ? (
             <Center>
               <DownloadPlotButton uniquePlotId={id} config={config} />
             </Center>
           ) : null}
-          <Box pl={margin.left} pr={margin.right}>
-            <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
-          </Box>
-          <Box ref={ref} style={{ height: '100%', width: `100%`, overflow: 'hidden' }}>
-            <svg style={{ height, width, overflow: 'hidden' }}>
-              <g transform={`translate(${(width - availableSize - margin.left - margin.right) / 2}, 0)`}>
-                {memoizedCorrelationResults?.map((value) => {
-                  return (
-                    <CorrelationPair
-                      key={`${value.xName}-${value.yName}`}
-                      value={value}
-                      fill={colorScale(value.correlation)}
-                      boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
-                      config={config}
-                    />
-                  );
-                })}
-                {labelsDiagonal}
-              </g>
-            </svg>
+          <Box id={id} style={{ height: '100%', width: '100%' }}>
+            <Box pl={margin.left} pr={margin.right}>
+              <ColorLegendVert format=".3~g" scale={colorScale} width={availableSize} height={20} range={[-1, 1]} title="Correlation" />
+            </Box>
+            <Box ref={ref} style={{ height: '100%', width: `100%`, overflow: 'hidden' }}>
+              <svg style={{ height, width, overflow: 'hidden' }}>
+                <g transform={`translate(${(width - availableSize - margin.left - margin.right) / 2}, 0)`}>
+                  {memoizedCorrelationResults?.map((value) => {
+                    return (
+                      <CorrelationPair
+                        key={`${value.xName}-${value.yName}`}
+                        value={value}
+                        fill={colorScale(value.correlation)}
+                        boundingRect={{ width: xScale.bandwidth(), height: yScale.bandwidth() }}
+                        config={config}
+                      />
+                    );
+                  })}
+                  {labelsDiagonal}
+                </g>
+              </svg>
+            </Box>
           </Box>
         </Stack>
       ) : (
