@@ -184,7 +184,7 @@ export function CorrelationMatrix({
   return (
     <Stack pr="40px" style={{ height: '100%', width: '100%' }}>
       {status === 'success' ? (
-        <Stack align="center" gap={0} id={id} style={{ height: '100%', width: '100%' }}>
+        <Stack align="center" gap={0} style={{ height: '100%', width: '100%' }}>
           {showDownloadScreenshot ? (
             <Center>
               <DownloadPlotButton uniquePlotId={id} config={config} />
