@@ -681,9 +681,9 @@ function EagerSingleEChartsBarChart({
       : '';
     const aggregationAxisSortText =
       config?.direction === EBarDirection.HORIZONTAL
-        ? SortDirectionMap[config?.sortState?.x as EBarSortState]
+        ? SortDirectionMap[config?.sortState?.x ?? EBarSortState.NONE]
         : config?.direction === EBarDirection.VERTICAL
-          ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+          ? SortDirectionMap[config?.sortState?.y ?? EBarSortState.NONE]
           : '';
     const aggregationAxisName = `${aggregationAxisNameBase}${aggregationAxisDescription} (${aggregationAxisSortText})`;
 
@@ -695,9 +695,9 @@ function EagerSingleEChartsBarChart({
       : '';
     const categoricalAxisSortText =
       config?.direction === EBarDirection.HORIZONTAL
-        ? SortDirectionMap[config?.sortState?.y as EBarSortState]
+        ? SortDirectionMap[config?.sortState?.y ?? EBarSortState.NONE]
         : config?.direction === EBarDirection.VERTICAL
-          ? SortDirectionMap[config?.sortState?.x as EBarSortState]
+          ? SortDirectionMap[config?.sortState?.x ?? EBarSortState.NONE]
           : '';
     const categoricalAxisName = `${categoricalAxisNameBase}${categoricalAxisDescription} (${categoricalAxisSortText})`;
 
