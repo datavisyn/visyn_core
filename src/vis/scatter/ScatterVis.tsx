@@ -2,6 +2,7 @@
 import { css } from '@emotion/css';
 import { Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
 import { useElementSize, useWindowEvent } from '@mantine/hooks';
+import uniqueId from 'lodash/uniqueId';
 import * as d3v7 from 'd3v7';
 import cloneDeep from 'lodash/cloneDeep';
 import uniq from 'lodash/uniq';
@@ -71,7 +72,7 @@ export function ScatterVis({
   uniquePlotId,
   showDownloadScreenshot,
 }: ICommonVisProps<IInternalScatterConfig>) {
-  const id = `ScatterVis_${React.useId()}`;
+  const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
@@ -432,7 +433,6 @@ export function ScatterVis({
         grid-template-columns: 1fr fit-content(200px);
         grid-row-gap: 0.5rem;
       `}
-      id={id}
     >
       {showDragModeOptions || showDownloadScreenshot ? (
         <Center>

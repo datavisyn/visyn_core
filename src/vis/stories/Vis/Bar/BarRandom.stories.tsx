@@ -243,6 +243,7 @@ Basic.args = {
     aggregateColumn: null,
     numColumnsSelected: [],
     showSidebar: true,
+    showColumnDescriptionText: true,
   } as BaseVisConfig,
 };
 
