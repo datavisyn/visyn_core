@@ -21,7 +21,7 @@ pyjwt[crypto]==2.9.0
 pytest-postgresql==6.0.1
 python-dateutil==2.9.0.post0
 requests==2.32.3
-sentry-sdk~=2.13.0
+sentry-sdk~=2.18.0
 SQLAlchemy>=1.4.40,<=1.4.53
 starlette-context==0.3.6
 # Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/master/pyproject.toml#L79-L103
