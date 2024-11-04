@@ -330,8 +330,8 @@ export function useLayout({
         }) as PlotlyTypes.LayoutAxis;
 
       for (let i = 0; i < splom.dimensions.length; i++) {
-        axes[`xaxis${i > 0 ? i + 1 : ''}`] = axis('x');
-        axes[`yaxis${i > 0 ? i + 1 : ''}`] = axis('y');
+        axes[`xaxis${i > 0 ? i + 1 : ''}`] = axis();
+        axes[`yaxis${i > 0 ? i + 1 : ''}`] = axis();
       }
 
       const finalLayout: Partial<PlotlyTypes.Layout> = {
