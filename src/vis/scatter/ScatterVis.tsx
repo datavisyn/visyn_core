@@ -116,7 +116,13 @@ export function ScatterVis({
   // If the useAsync arguments change, clear the internal layout state.
   // Why not just use the config to compare things?
   // Because the useAsync takes one render cycle to update the value, and inbetween that, plotly has already updated the internalLayoutRef again with the old one.
-  if (args?.[1] !== previousArgs.current?.[1] || args?.[5] !== previousArgs.current?.[5]) {
+  if (
+    args?.[1] !== previousArgs.current?.[1] ||
+    args?.[6] !== previousArgs.current?.[6] ||
+    args?.[3] !== previousArgs.current?.[3] ||
+    config?.xAxisScale !== internalLayoutRef.current?.xaxis?.type ||
+    config?.yAxisScale !== internalLayoutRef.current?.yaxis?.type
+  ) {
     internalLayoutRef.current = {};
     previousArgs.current = args;
   }

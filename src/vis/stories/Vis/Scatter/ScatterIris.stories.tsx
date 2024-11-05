@@ -48,6 +48,8 @@ Basic.args = {
         name: 'Sepal Width',
       },
     ],
+    xAxisScale: 'log',
+    yAxisScale: 'log',
     color: null,
     facets: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
