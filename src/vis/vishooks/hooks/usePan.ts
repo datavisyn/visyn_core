@@ -1,7 +1,6 @@
-/* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
 import { Direction, ZoomTransform } from '../interfaces';
-import { useInteractions, UseInteractionsProps } from './useInteractions';
+import { useInteractions } from './useInteractions';
 import { useControlledUncontrolled } from './useControlledUncontrolled';
 import { defaultConstraint } from '../transform';
 import { m4 } from '../math';
@@ -21,8 +20,6 @@ interface UsePanProps {
    */
   direction?: Direction;
 
-  onClick?: NonNullable<UseInteractionsProps['onClick']>;
-
   skip?: boolean;
 }
 
@@ -37,9 +34,8 @@ export function usePan(options: UsePanProps = {}) {
   const zoomRef = React.useRef<UsePanProps['value']>(zoom);
   zoomRef.current = zoom;
 
-  const { ref, setRef, state } = useInteractions({
+  const { ref, setRef } = useInteractions({
     skip: options.skip,
-    onClick: options.onClick,
     onDrag: (event) => {
       let newMatrix = m4.clone(zoomRef.current);
 
@@ -63,5 +59,5 @@ export function usePan(options: UsePanProps = {}) {
     },
   });
 
-  return { ref, setRef, value: zoom, setValue: setZoom, state };
+  return { ref, setRef, value: zoom, setValue: setZoom };
 }
