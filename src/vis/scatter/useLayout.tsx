@@ -1,12 +1,12 @@
-import * as React from 'react';
 import clamp from 'lodash/clamp';
 import isFinite from 'lodash/isFinite';
+import * as React from 'react';
 import { PlotlyTypes } from '../../plotly';
 import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
-import { IInternalScatterConfig } from './interfaces';
+import { FastTextMeasure } from '../general/FastTextMeasure';
 import { getLabelOrUnknown } from '../general/utils';
+import { IInternalScatterConfig } from './interfaces';
 import { useDataPreparation } from './useDataPreparation';
-import { FastTextMeasure } from './FastTextMeasure';
 
 const textMeasure = new FastTextMeasure('12px Open Sans');
 
