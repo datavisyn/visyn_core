@@ -1,14 +1,7 @@
+/* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
 import { ZoomTransform } from '../interfaces';
-import { m4 } from '../math';
-import { useControlledUncontrolled } from './useControlledUncontrolled';
 import { useSyncedRef } from '../../../hooks';
-
-interface UseAnimatedTransformProps {
-  value?: ZoomTransform;
-  onChange?: (value: ZoomTransform) => void;
-  defaultValue?: ZoomTransform;
-}
 
 function linearInterpolate(startMatrix: ZoomTransform, endMatrix: ZoomTransform, t: number) {
   return startMatrix.map((startValue, index) => {
@@ -23,12 +16,13 @@ function linearInterpolate(startMatrix: ZoomTransform, endMatrix: ZoomTransform,
   });
 }
 
-export function useAnimatedTransform2({ onIntermediate }: { onIntermediate: (intermediateTransform: ZoomTransform) => void }) {
+export function useAnimatedTransform({ onIntermediate }: { onIntermediate: (intermediateTransform: ZoomTransform) => void }) {
   const stateRef = React.useRef({
     start: undefined as ZoomTransform | undefined,
     end: undefined as ZoomTransform | undefined,
     t0: performance.now(),
   });
+
   const animationFrameRef = React.useRef<number | undefined>(undefined);
   const onIntermediateRef = useSyncedRef(onIntermediate);
 
@@ -61,13 +55,10 @@ export function useAnimatedTransform2({ onIntermediate }: { onIntermediate: (int
         t0: performance.now(),
       };
 
-      // eslint-disable-next-line react-compiler/react-compiler
       if (animationFrameRef.current) {
-        // eslint-disable-next-line react-compiler/react-compiler
         cancelAnimationFrame(animationFrameRef.current);
       }
 
-      // eslint-disable-next-line react-compiler/react-compiler
       requestFrameRef.current();
     },
     [requestFrameRef],
@@ -84,56 +75,4 @@ export function useAnimatedTransform2({ onIntermediate }: { onIntermediate: (int
   return {
     animate,
   };
-}
-
-export function useAnimatedTransform(options: UseAnimatedTransformProps) {
-  const [transform, setTransform] = useControlledUncontrolled({
-    value: options.value,
-    defaultValue: options.defaultValue || m4.identityMatrix4x4(),
-    onChange: options.onChange,
-  });
-
-  const animationFrameRef = React.useRef(null);
-  const previousTransformRef = React.useRef(options.defaultValue || m4.identityMatrix4x4());
-
-  const setAnimatedTransform = React.useCallback(
-    (targetTransform, duration = 0) => {
-      if (duration === 0) {
-        setTransform(targetTransform);
-        return;
-      }
-      let startTime = null; // Set startTime to null initially
-
-      const step = (currentTime) => {
-        // If this is the first frame, initialize startTime to the currentTime
-        if (!startTime) {
-          startTime = currentTime;
-        }
-
-        const timeElapsed = currentTime - startTime;
-        const progress = Math.min(timeElapsed / duration, 1);
-
-        if (progress > 0) {
-          const newMatrix = linearInterpolate(previousTransformRef.current, targetTransform, progress);
-          setTransform(newMatrix);
-        }
-        if (progress < 1) {
-          animationFrameRef.current = requestAnimationFrame(step);
-        } else {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-      };
-
-      requestAnimationFrame(step);
-    },
-    [setTransform],
-  );
-
-  React.useEffect(() => {
-    return () => {
-      cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, []);
-
-  return { transform, setTransform: setAnimatedTransform, previousTransformRef };
 }

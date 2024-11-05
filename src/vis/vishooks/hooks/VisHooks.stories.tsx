@@ -8,7 +8,7 @@ import { SVGBrush } from '../components';
 import { useCanvas } from './useCanvas';
 import { m4 } from '../math';
 import { ZoomTransform } from '../interfaces';
-import { useAnimatedTransform2 } from './useAnimatedTransform';
+import { useAnimatedTransform } from './useAnimatedTransform';
 
 function UseLassoComponent() {
   const { setRef, value } = useLasso();
@@ -70,7 +70,7 @@ function UseAnimatedTransformComponent() {
 
   const [animatedTransform, setAnimatedTransform] = React.useState<ZoomTransform>(m4.identityMatrix4x4());
 
-  const { animate } = useAnimatedTransform2({
+  const { animate } = useAnimatedTransform({
     onIntermediate: (newT) => {
       setAnimatedTransform(newT);
     },
