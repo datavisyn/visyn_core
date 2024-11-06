@@ -1,5 +1,5 @@
-import { PlotlyTypes } from '../../plotly';
-import { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
+import type { PlotlyTypes } from '../../plotly';
+import type { ColumnInfo, PlotlyInfo, VisColumn } from '../interfaces';
 import {
   VIS_AXIS_LABEL_SIZE,
   VIS_AXIS_LABEL_SIZE_SMALL,
