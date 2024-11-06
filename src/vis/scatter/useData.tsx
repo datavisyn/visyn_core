@@ -80,7 +80,7 @@ export function useData({
           yaxis: pair.yref,
           textposition: subplots.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => subplots.idToIndex.get(idx)) }),
-          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+          mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
@@ -118,7 +118,7 @@ export function useData({
           // text: scatter.plotlyData.text,
           textposition: scatter.plotlyData.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
-          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+          mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
@@ -162,7 +162,7 @@ export function useData({
           y: group.data.y,
           xaxis: group.xref,
           yaxis: group.yref,
-          mode: config.showLabels === ELabelingOptions.NEVER ? 'markers' : 'text+markers',
+          mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           textposition: group.data.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}

@@ -1,11 +1,12 @@
-import * as React from 'react';
 import clamp from 'lodash/clamp';
+import isFinite from 'lodash/isFinite';
+import * as React from 'react';
 import { PlotlyTypes } from '../../plotly';
 import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
-import { IInternalScatterConfig } from './interfaces';
+import { FastTextMeasure } from '../general/FastTextMeasure';
 import { getLabelOrUnknown } from '../general/utils';
+import { IInternalScatterConfig } from './interfaces';
 import { useDataPreparation } from './useDataPreparation';
-import { FastTextMeasure } from './FastTextMeasure';
 
 const textMeasure = new FastTextMeasure('12px Open Sans');
 
@@ -55,6 +56,21 @@ function gaps(width: number, height: number, nSubplots: number) {
   };
 }
 
+function toLogRange(axisType: 'linear' | 'log', domain: [number, number] | [undefined, undefined]) {
+  if (axisType === 'linear') {
+    return [...domain];
+  }
+
+  const e0 = Math.log10(domain[0]);
+  const e1 = Math.log10(domain[1]);
+
+  if (isFinite(e1)) {
+    return [isFinite(e0) ? e0 : 0, e1];
+  }
+
+  return [0, 1];
+}
+
 export function useLayout({
   scatter,
   facet,
@@ -86,7 +102,8 @@ export function useLayout({
       subplots.xyPairs.forEach((pair, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: pair.xDomain,
+          range: toLogRange(config.xAxisScale!, pair.xDomain),
+          type: config.xAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           title: {
@@ -100,7 +117,8 @@ export function useLayout({
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: pair.yDomain,
+          range: toLogRange(config.yAxisScale!, pair.yDomain),
+          type: config.yAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           title: {
@@ -171,8 +189,9 @@ export function useLayout({
         ...BASE_LAYOUT,
         xaxis: {
           ...AXIS_TICK_STYLES,
-          range: scatter.xDomain,
+          range: toLogRange(config.xAxisScale!, scatter.xDomain),
           ...internalLayoutRef.current?.xaxis,
+          type: config.xAxisScale,
           title: {
             font: {
               size: 12,
@@ -183,8 +202,9 @@ export function useLayout({
         },
         yaxis: {
           ...AXIS_TICK_STYLES,
-          range: scatter.yDomain,
+          range: toLogRange(config.yAxisScale!, scatter.yDomain),
           ...internalLayoutRef.current?.yaxis,
+          type: config.yAxisScale,
           title: {
             font: {
               size: 12,
@@ -212,7 +232,8 @@ export function useLayout({
       facet.resultData.forEach((group, plotCounter) => {
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: facet.xDomain,
+          range: toLogRange(config.xAxisScale!, facet.xDomain),
+          type: config.xAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
           ...(plotCounter > 0 ? { matches: 'x' } : {}),
@@ -229,7 +250,8 @@ export function useLayout({
         };
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
-          range: facet.yDomain,
+          range: toLogRange(config.yAxisScale!, facet.yDomain),
+          type: config.yAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
           ...(plotCounter > 0 ? { matches: 'y' } : {}),

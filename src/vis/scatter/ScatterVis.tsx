@@ -2,6 +2,7 @@
 import { css } from '@emotion/css';
 import { Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
 import { useElementSize, useWindowEvent } from '@mantine/hooks';
+import uniqueId from 'lodash/uniqueId';
 import * as d3v7 from 'd3v7';
 import cloneDeep from 'lodash/cloneDeep';
 import uniq from 'lodash/uniq';
@@ -71,7 +72,7 @@ export function ScatterVis({
   uniquePlotId,
   showDownloadScreenshot,
 }: ICommonVisProps<IInternalScatterConfig>) {
-  const id = `ScatterVis_${React.useId()}`;
+  const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
@@ -115,7 +116,13 @@ export function ScatterVis({
   // If the useAsync arguments change, clear the internal layout state.
   // Why not just use the config to compare things?
   // Because the useAsync takes one render cycle to update the value, and inbetween that, plotly has already updated the internalLayoutRef again with the old one.
-  if (args?.[1] !== previousArgs.current?.[1] || args?.[5] !== previousArgs.current?.[5]) {
+  if (
+    args?.[1] !== previousArgs.current?.[1] ||
+    args?.[6] !== previousArgs.current?.[6] ||
+    args?.[3] !== previousArgs.current?.[3] ||
+    config?.xAxisScale !== internalLayoutRef.current?.xaxis?.type ||
+    config?.yAxisScale !== internalLayoutRef.current?.yaxis?.type
+  ) {
     internalLayoutRef.current = {};
     previousArgs.current = args;
   }
@@ -432,7 +439,6 @@ export function ScatterVis({
         grid-template-columns: 1fr fit-content(200px);
         grid-row-gap: 0.5rem;
       `}
-      id={id}
     >
       {showDragModeOptions || showDownloadScreenshot ? (
         <Center>

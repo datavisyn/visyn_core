@@ -1,4 +1,4 @@
-import { Divider } from '@mantine/core';
+import { Divider, Select } from '@mantine/core';
 import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -131,6 +131,33 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
             </>
           )
         : null}
+
+      <Select
+        label="X-axis scale"
+        data={[
+          { value: 'linear', label: 'Linear' },
+          { value: 'log', label: 'Logarithmic' },
+        ]}
+        clearable={false}
+        value={config.xAxisScale}
+        onChange={(value) => {
+          setConfig({ ...config, xAxisScale: value as 'log' | 'linear' });
+        }}
+      />
+
+      <Select
+        label="Y-axis scale"
+        data={[
+          { value: 'linear', label: 'Linear' },
+          { value: 'log', label: 'Logarithmic' },
+        ]}
+        clearable={false}
+        value={config.yAxisScale}
+        onChange={(value) => {
+          setConfig({ ...config, yAxisScale: value as 'log' | 'linear' });
+        }}
+      />
+
       {filterCallback && mergedOptionsConfig.filter.enable
         ? mergedOptionsConfig.filter.customComponent || (
             <>
