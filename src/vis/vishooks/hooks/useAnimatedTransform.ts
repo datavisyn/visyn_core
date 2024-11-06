@@ -16,6 +16,11 @@ function linearInterpolate(startMatrix: ZoomTransform, endMatrix: ZoomTransform,
   });
 }
 
+/**
+ * Hook that returns an animate function that can be used to animate between two zoom transforms (keyframes).
+ * After calling animate, the onIntermediate callback will be called with the monitors refresh rate (requestAnimationFrame)
+ * with the intermediate transform values (cosine interpolated).
+ */
 export function useAnimatedTransform({ onIntermediate }: { onIntermediate: (intermediateTransform: ZoomTransform) => void }) {
   const stateRef = React.useRef({
     start: undefined as ZoomTransform | undefined,
