@@ -1,10 +1,10 @@
 import { Stack } from '@mantine/core';
-import React from 'react';
-
-import { InvalidCols } from '../general/InvalidCols';
+import * as React from 'react';
 import { ICommonVisProps } from '../interfaces';
-import { BarChart } from './BarChart';
 import { IBarConfig } from './interfaces';
+import { BarChart } from './BarChart';
+import { i18n } from '../../i18n';
+import { WarningMessage } from '../general/WarningMessage';
 
 export function BarVis({
   config,
@@ -18,7 +18,7 @@ export function BarVis({
 }: ICommonVisProps<IBarConfig>) {
   return (
     <Stack p={0} style={{ height: '100%', overflow: 'hidden', width: '100%', position: 'relative' }}>
-      {config.catColumnSelected ? (
+      {config?.catColumnSelected ? (
         <BarChart
           config={config}
           setConfig={setConfig}
@@ -30,7 +30,9 @@ export function BarVis({
           showDownloadScreenshot={showDownloadScreenshot}
         />
       ) : (
-        <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a bar chart, please select at least 1 column." />
+        <WarningMessage centered dataTestId="visyn-vis-missing-column-warning" title={i18n.t('visyn:vis.missingColumn.errorHeader')}>
+          {i18n.t('visyn:vis.missingColumn.barError')}
+        </WarningMessage>
       )}
     </Stack>
   );

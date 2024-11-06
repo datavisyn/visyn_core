@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "13.2.1-SNAPSHOT",
+  "version": "14.1.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -26,6 +26,7 @@
     "./hooks": "./src/hooks/index.ts",
     "./i18n": "./src/i18n/index.ts",
     "./idtype": "./src/idtype/index.ts",
+    "./echarts": "./src/echarts/index.ts",
     "./plotly/full": "./src/plotly/full/index.ts",
     "./plotly": "./src/plotly/index.tsx",
     "./plugin": "./src/plugin/index.ts",
@@ -103,13 +104,16 @@
     "@types/react-dom": "^18.3.0",
     "@types/react-plotly.js": "^2.6.3",
     "arquero": "5.4.0",
+    "comlink": "^4.4.1",
     "d3-force-boundary": "^0.0.3",
     "d3-hexbin": "^0.2.2",
     "d3v7": "npm:d3@^7.9.0",
+    "echarts": "^5.5.1",
     "fit-curve": "^0.2.0",
     "html-to-image": "^1.11.11",
     "i18next": "^23.14.0",
     "jstat": "^1.9.6",
+    "jszip": "^3.10.1",
     "lineupjs": "4.11.0",
     "lodash": "~4.17.21",
     "plotly.js-dist-min": "~2.12.0",
@@ -118,6 +122,7 @@
     "react-highlight-words": "^0.20.0",
     "react-plotly.js": "^2.6.0",
     "react-spring": "^9.7.4",
+    "react-window": "^1.8.10",
     "use-deep-compare-effect": "^1.8.1",
     "visyn_scripts": "^11.1.0"
   },
@@ -135,6 +140,7 @@
     "@storybook/react": "^7.6.20",
     "@storybook/react-webpack5": "^7.6.20",
     "@storybook/testing-library": "0.2.2",
+    "@types/react-window": "^1.8.8",
     "chromatic": "^11.7.1",
     "storybook": "^7.6.20",
     "storybook-addon-swc": "^1.2.0"
@@ -150,5 +156,5 @@
       }
     }
   },
-  "packageManager": "yarn@4.3.0"
+  "packageManager": "yarn@4.5.0"
 }

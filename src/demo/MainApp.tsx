@@ -34,7 +34,7 @@ export function MainApp() {
       },
     ],
     color: {
-      description: null,
+      description: '',
       id: 'cellularity',
       name: 'Cellularity',
     },
@@ -43,7 +43,6 @@ export function MainApp() {
     shape: null,
     dragMode: EScatterSelectSettings.RECTANGLE,
     alphaSliderVal: 1,
-    sizeSliderVal: 5,
     showLabels: ELabelingOptions.SELECTED,
     showLabelLimit: 20,
     regressionLineOptions: {
@@ -66,6 +65,11 @@ export function MainApp() {
             aboutAppModal: {
               content: <Text>This is the demo app for visyn core.</Text>,
             },
+            center: (
+              <Text c="white" size="sm">
+                {breastCancerData.length} data points / {selection.length} points selected
+              </Text>
+            ),
           }}
         />
       }

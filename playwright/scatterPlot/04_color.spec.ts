@@ -4,7 +4,7 @@ test('no color selected', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByTestId('SingleSelectCloseButton').last().click();
   await expect(page.getByLabel('Legend')).toBeDisabled();
-  await expect(page.locator('g[class="legend"]')).not.toBeVisible();
+  await expect(page.getByTestId('PlotLegend')).not.toBeVisible();
 });
 
 test('color selected', async ({ page }) => {
@@ -12,7 +12,12 @@ test('color selected', async ({ page }) => {
   await page.getByTestId('SingleSelectColor').click();
   await page.getByRole('option', { name: 'Cellularity' }).click();
   await expect(page.getByLabel('Legend')).not.toBeDisabled();
-  await expect(page.locator('g[class="legend"]')).toBeVisible();
+
+  const toggleLegend = await page.getByTestId('ToggleLegend');
+  const parentElement = await toggleLegend.evaluateHandle((node) => node.parentElement);
+  await parentElement.click();
+
+  await expect(page.getByTestId('PlotLegend')).toBeVisible();
 });
 
 test('show color scale', async ({ page }, testInfo) => {

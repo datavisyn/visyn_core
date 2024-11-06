@@ -1,10 +1,6 @@
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Group, Stack } from '@mantine/core';
+import { Group, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
-import * as d3v7 from 'd3v7';
 import * as React from 'react';
-import { getCssValue } from '../utils';
 import { createVis, useVisProvider } from './Provider';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
 import {
@@ -16,21 +12,18 @@ import {
   EScatterSelectSettings,
   ESupportedPlotlyVis,
   IPlotStats,
-  Scales,
   VisColumn,
   isESupportedPlotlyVis,
 } from './interfaces';
 
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
-import { BarVis } from './bar/BarVis';
-import { BarVisSidebar } from './bar/BarVisSidebar';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './bar/interfaces';
-import { barMergeDefaultConfig } from './bar/utils';
+import { BarVis, BarVisSidebar, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './bar';
 import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
 import { CorrelationVisSidebar } from './correlation/CorrelationVisSidebar';
 import { ICorrelationConfig } from './correlation/interfaces';
+import { WarningMessage } from './general/WarningMessage';
 import { HeatmapVis } from './heatmap/HeatmapVis';
 import { HeatmapVisSidebar } from './heatmap/HeatmapVisSidebar';
 import { IHeatmapConfig } from './heatmap/interfaces';
@@ -256,7 +249,7 @@ export function EagerVis({
     if (isSelectedVisTypeRegistered && (!visConfig?.merged || prevVisConfig?.type !== visConfig?.type)) {
       // TODO: I would prefer this to be not in a useEffect, as then we wouldn't have the render-flicker: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
       setPrevVisConfig(visConfig);
-      _setVisConfig?.(getVisByType(visConfig.type)?.mergeConfig(columns, { ...visConfig, merged: true }));
+      _setVisConfig?.(getVisByType(visConfig.type)?.mergeConfig(columns, { ...visConfig, merged: true }) as BaseVisConfig);
     }
   }, [_setVisConfig, columns, getVisByType, isSelectedVisTypeRegistered, prevVisConfig?.type, visConfig]);
 
@@ -282,28 +275,6 @@ export function EagerVis({
 
     return currMap;
   }, [selected]);
-
-  const scales: Scales = React.useMemo(
-    () => ({
-      color: d3v7
-        .scaleOrdinal()
-        .range(
-          colors || [
-            getCssValue('visyn-c1'),
-            getCssValue('visyn-c2'),
-            getCssValue('visyn-c3'),
-            getCssValue('visyn-c4'),
-            getCssValue('visyn-c5'),
-            getCssValue('visyn-c6'),
-            getCssValue('visyn-c7'),
-            getCssValue('visyn-c8'),
-            getCssValue('visyn-c9'),
-            getCssValue('visyn-c10'),
-          ],
-        ),
-    }),
-    [colors],
-  );
 
   const commonProps = {
     showSidebar,
@@ -337,13 +308,13 @@ export function EagerVis({
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {visTypeNotSupported ? (
-          <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+          <WarningMessage centered dataTestId="visyn-vis-not-supported" title="Visualization type is not supported" alertProps={{ my: 'auto' }}>
             The visualization type &quot;{visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
-          </Alert>
+          </WarningMessage>
         ) : visHasError || !Renderer ? (
-          <Alert my="auto" variant="light" color="yellow" title="Visualization type is not supported" icon={<FontAwesomeIcon icon={faExclamationCircle} />}>
+          <WarningMessage centered dataTestId="visyn-vis-not-supported" alertProps={{ my: 'auto' }}>
             An error occured in the visualization. Please try to select something different in the sidebar.
-          </Alert>
+          </WarningMessage>
         ) : (
           visConfig?.merged && (
             <Renderer
@@ -366,7 +337,6 @@ export function EagerVis({
               selectedMap={selectedMap}
               selectedList={selected}
               columns={columns}
-              scales={scales}
               showSidebar={showSidebar}
               showCloseButton={showCloseButton}
               closeButtonCallback={closeCallback}

@@ -1,5 +1,12 @@
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from './constants';
 
+const formatter = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 4,
+  maximumSignificantDigits: 4,
+  notation: 'compact',
+  compactDisplay: 'short',
+});
+
 /**
  *
  * @param label the label to check for undefined, null or empty
@@ -7,7 +14,11 @@ import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from './constants';
  * @returns the label if it is not undefined, null or empty, otherwise NAN_REPLACEMENT (Unknown)
  */
 export function getLabelOrUnknown(label: string | number | null | undefined, unknownLabel: string = NAN_REPLACEMENT): string {
-  return label === null || label === 'null' || label === undefined || label === 'undefined' || label === '' ? unknownLabel : label.toString();
+  return label === null || label === 'null' || label === undefined || label === 'undefined' || label === ''
+    ? unknownLabel
+    : Number(label) && !Number.isInteger(label) // if it is a number, but not an integer, apply NumberFormat
+      ? formatter.format(label as number)
+      : label.toString();
 }
 
 /**

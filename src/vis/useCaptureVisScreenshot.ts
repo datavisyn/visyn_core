@@ -1,8 +1,16 @@
 import * as htmlToImage from 'html-to-image';
+import JSZip from 'jszip';
 import * as React from 'react';
-import { BaseVisConfig, ESupportedPlotlyVis } from './interfaces';
+import { notifications } from '@mantine/notifications';
+import { BaseVisConfig, EAggregateTypes, ESupportedPlotlyVis } from './interfaces';
+import { IBarConfig } from './bar/interfaces';
+import { sanitize } from '../utils';
 
-export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVisConfig) {
+export type DownloadPlotOptions = {
+  fileName?: string;
+};
+
+export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVisConfig, options?: DownloadPlotOptions) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -12,30 +20,99 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
       console.error('Could not find plot div to capture screenshot');
       return;
     }
+
+    setIsLoading(true);
+    setError(null);
+
     try {
-      if ([ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY].includes(visConfig.type as ESupportedPlotlyVis)) {
+      if (
+        [ESupportedPlotlyVis.SCATTER, ESupportedPlotlyVis.VIOLIN, ESupportedPlotlyVis.SANKEY, ESupportedPlotlyVis.BOXPLOT].includes(
+          visConfig.type as ESupportedPlotlyVis,
+        )
+      ) {
         const Plotly = await import('plotly.js-dist-min');
         await Plotly.downloadImage(plotElement, {
           format: 'png',
-          filename: `${visConfig.type}`,
+          filename: `${options?.fileName ?? visConfig.type}`,
           height: plotElement.offsetHeight,
           width: plotElement.offsetWidth,
         });
-      } else {
-        await htmlToImage.toPng(plotElement, { backgroundColor: 'white' }).then((dataUrl) => {
+      } else if (visConfig.type === ESupportedPlotlyVis.BAR) {
+        const config = visConfig as IBarConfig;
+        const viewingSingleBarChart =
+          !config.facets ||
+          (config.facets && typeof config.focusFacetIndex === 'number') ||
+          (config.facets && plotElement.querySelectorAll('[data-in-viewport="true"] canvas').length === 1);
+        if (viewingSingleBarChart) {
+          const dataUrl = await htmlToImage.toPng(plotElement.querySelector('canvas')!, {
+            backgroundColor: 'white',
+            width: plotElement.querySelector('canvas')?.width,
+            height: plotElement.querySelector('canvas')?.height,
+            canvasWidth: plotElement.querySelector('canvas')?.width,
+            canvasHeight: plotElement.querySelector('canvas')?.height,
+            cacheBust: true,
+          });
+
           const link = document.createElement('a');
-          link.download = `${visConfig.type}.png`;
+          link.download = `${options?.fileName ?? visConfig.type}.png`;
           link.href = dataUrl;
           link.click();
+          link.remove();
+        } else {
+          const zip = new JSZip();
+          const boxList = plotElement.querySelectorAll('[data-facet]') as NodeListOf<HTMLDivElement>;
+          const canvasList = plotElement.querySelectorAll('[data-facet] canvas') as NodeListOf<HTMLCanvasElement>;
+          const blobList = await Promise.all(
+            Array.from(canvasList).map(async (canvas) => {
+              const blob = await htmlToImage.toBlob(canvas, {
+                backgroundColor: 'white',
+                width: canvas.width,
+                height: canvas.height,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                cacheBust: true,
+              });
+              return blob;
+            }),
+          );
+          blobList.forEach((blob, i) => {
+            if (blob) {
+              const fileName = `${sanitize(config?.facets?.name as string)} - ${sanitize(boxList[i]?.dataset?.facet as string)} -- ${config?.aggregateType === EAggregateTypes.COUNT ? sanitize(config?.aggregateType as string) : sanitize(`${config?.aggregateType} of ${config?.aggregateColumn?.name}`)} - ${sanitize(config?.catColumnSelected?.name as string)}`;
+              zip.file(`${fileName}.png`, blob);
+            }
+          });
+          const content = await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' });
+          const link = document.createElement('a');
+          link.download = `${options?.fileName ?? visConfig.type}.zip`;
+          link.href = URL.createObjectURL(content);
+          link.click();
+          link.remove();
+        }
+      } else {
+        const dataUrl = await htmlToImage.toPng(plotElement, {
+          backgroundColor: 'white',
+          cacheBust: true,
         });
+        const link = document.createElement('a');
+        link.download = `${options?.fileName ?? visConfig.type}.png`;
+        link.href = dataUrl;
+        link.click();
+        link.remove();
       }
     } catch (e) {
+      console.error(e);
+      const errorMessage = e instanceof Error ? e.message : 'An error occurred while capturing the screenshot';
+      notifications.show({
+        title: 'Error download screenshot',
+        message: errorMessage,
+        color: 'red',
+      });
       setIsLoading(false);
-      setError(e.message);
+      setError(errorMessage);
     }
 
     setIsLoading(false);
-  }, [uniquePlotId, visConfig.type]);
+  }, [options?.fileName, uniquePlotId, visConfig]);
 
   return [{ isLoading, error }, captureScreenshot] as const;
 }

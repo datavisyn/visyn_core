@@ -15,7 +15,7 @@ test('subcategory selected', async ({ page }) => {
 
   await expect(page.locator('g[class="subplot xy"]').locator('g[class="trace boxes"]').nth(1).locator('path[class="box"]')).toHaveCSS(
     'fill',
-    'rgb(236, 104, 54)',
+    'rgb(247, 90, 30)',
   );
 
   await expect(page.locator('g[class="subplot xy"]').locator('g[class="trace boxes"]').nth(2).locator('path[class="box"]')).toHaveCSS(

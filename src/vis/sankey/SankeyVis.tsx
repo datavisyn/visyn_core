@@ -1,16 +1,17 @@
-import { MantineTheme, Stack, lighten, rgba, useMantineTheme, Center } from '@mantine/core';
-import * as React from 'react';
-import { uniqueId } from 'lodash';
 import { css } from '@emotion/react';
+import { Center, Stack } from '@mantine/core';
+import { uniqueId } from 'lodash';
+import * as React from 'react';
 import { useAsync } from '../../hooks/useAsync';
 import { PlotlyComponent } from '../../plotly';
-import { InvalidCols } from '../general/InvalidCols';
+import { selectionColorDark } from '../../utils';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ICommonVisProps, VisCategoricalColumn, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
-import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
-import { selectionColorDark } from '../../utils';
+import { i18n } from '../../i18n';
+import { WarningMessage } from '../general/WarningMessage';
 
 /**
  * Performs the data transformation that maps the fetched data to
@@ -48,16 +49,16 @@ function TransposeData(
   }
 
   const lanes = data.map((lane) => {
-    const values = lane.resolvedValues.map((value) => value.val as string);
+    const values = lane.resolvedValues.map((value) => (value.val === undefined || value.val === null ? NAN_REPLACEMENT : (value.val as string)));
     // const nodes = Array.from(new Set(values)).map((value) => ({id: nodeIndex++, value}))
     const nodes = new Array<{ id: number; value; inverseLookup: string[] }>();
 
     const nodesSet = new Set<string>();
     lane.resolvedValues.forEach((value) => {
       if (nodesSet.has(value.val as string)) {
-        nodes.find((node) => node.value === value.val).inverseLookup.push(value.id);
+        nodes.find((node) => node.value === (value.val ?? NAN_REPLACEMENT)).inverseLookup.push(value.id);
       } else {
-        nodes.push({ id: nodeIndex++, value: value.val, inverseLookup: [value.id] });
+        nodes.push({ id: nodeIndex++, value: value.val ?? NAN_REPLACEMENT, inverseLookup: [value.id] });
         nodesSet.add(value.val as string);
       }
     });
@@ -252,7 +253,9 @@ export function SankeyVis({
         />
       ) : (
         <Center h="100%">
-          <InvalidCols headerMessage="Invalid settings" bodyMessage="To create a sankey chart, select at least 2 columns." />
+          <WarningMessage centered dataTestId="visyn-vis-missing-column-warning" title={i18n.t('visyn:vis.missingColumn.errorHeader')}>
+            {i18n.t('visyn:vis.missingColumn.sankeyError')}
+          </WarningMessage>
         </Center>
       )}
     </Stack>
