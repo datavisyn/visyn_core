@@ -145,6 +145,9 @@
     "storybook": "^7.6.20",
     "storybook-addon-swc": "^1.2.0"
   },
+  "resolutions": {
+    "@swc/core": "1.7.42"
+  },
   "visyn": {
     "entries": {
       "app": {
