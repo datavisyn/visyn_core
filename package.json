@@ -124,7 +124,7 @@
     "react-spring": "^9.7.4",
     "react-window": "^1.8.10",
     "use-deep-compare-effect": "^1.8.1",
-    "visyn_scripts": "^11.1.0"
+    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts.git#thinkh/pin-swc-versions"
   },
   "devDependencies": {
     "@chromatic-com/playwright": "^0.6.18",
@@ -144,6 +144,10 @@
     "chromatic": "^11.7.1",
     "storybook": "^7.6.20",
     "storybook-addon-swc": "^1.2.0"
+  },
+  "resolutions": {
+    "@swc/core": "1.7.23",
+    "@swc/jest": "0.2.36"
   },
   "visyn": {
     "entries": {
