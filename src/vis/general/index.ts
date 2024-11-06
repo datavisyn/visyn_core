@@ -5,3 +5,4 @@ export * from './FastTextMeasure';
 export * from './SortIcon';
 export * from './WarningMessage';
 export * from './constants';
+export * from './layoutUtils';
