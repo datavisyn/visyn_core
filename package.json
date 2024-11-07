@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "14.1.1-SNAPSHOT",
+  "version": "14.2.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -144,6 +144,9 @@
     "chromatic": "^11.7.1",
     "storybook": "^7.6.20",
     "storybook-addon-swc": "^1.2.0"
+  },
+  "resolutions": {
+    "@swc/core": "1.7.42"
   },
   "visyn": {
     "entries": {
