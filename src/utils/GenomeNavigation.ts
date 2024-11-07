@@ -63,7 +63,7 @@ function computeForAssembly(assembly?: 'hg38') {
   throw new Error('Assembly not supported');
 }
 
-type ChromKey =
+export type ChromKey =
   | 'chr1'
   | 'chr2'
   | 'chr3'
