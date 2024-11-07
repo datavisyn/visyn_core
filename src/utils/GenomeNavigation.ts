@@ -91,6 +91,13 @@ type ChromKey =
 
 /**
  * Utility class to convert different types of genomic positions.
+ *
+ * Usage:
+ *
+ * ```ts
+ * const nav = new GenomeNavigation('hg38');
+ * const absolutePosition = nav.relativeToAbsolutePosition('chr1', 100);
+ * ```
  */
 export class GenomeNavigation {
   private chromosomesInOrder = [...Array.from({ length: 22 }, (_, i) => `chr${i + 1}`), 'chrX', 'chrY'] as ChromKey[];
