@@ -134,7 +134,6 @@ export class GenomeNavigation {
   }
 
   relativeToAbsolutePosition(chrom: string, pos: number) {
-    console.log(chrom, pos);
     return this.interval[chrom as ChromKey]![0] + pos;
   }
 
