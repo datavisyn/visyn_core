@@ -91,8 +91,15 @@ export type ChromKey =
 
 /**
  * Utility class to convert different types of genomic positions.
+ * The data is taken from gosling.js for hg38 and works similar to `computeChromSizes` in [gosling.js](https://github.com/gosling-lang/gosling.js).
  *
- * Usage:
+ * ### Use cases
+ * - Drawing genome axis
+ * - Working with tile fetchers in gosling
+ * - Fetching transcripts from our backend
+ * - ...
+ *
+ * ### Usage
  *
  * ```ts
  * const nav = new GenomeNavigation('hg38');
