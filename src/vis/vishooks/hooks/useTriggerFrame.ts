@@ -2,7 +2,6 @@
 import * as React from 'react';
 
 import isEqual from 'lodash/isEqual';
-import { useSyncedRef } from '../../../hooks/useSyncedRef';
 import { useEvent } from '../../../hooks';
 
 /**
