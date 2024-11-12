@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import isEqual from 'lodash/isEqual';
 import { useSyncedRef } from '../../../hooks/useSyncedRef';
+import { useEvent } from '../../../hooks';
 
 /**
  * Hook similar to useEffect that triggers a frame when dependencies change.
@@ -22,7 +23,7 @@ export function useTriggerFrame(frame: () => void, deps: React.DependencyList, p
   const frameRef = React.useRef<number | undefined>(undefined);
   const depsRef = React.useRef(deps);
 
-  const callbackRef = useSyncedRef(frame);
+  const callbackEvent = useEvent(frame);
 
   if (!isEqual(depsRef.current, deps)) {
     depsRef.current = deps;
@@ -37,13 +38,13 @@ export function useTriggerFrame(frame: () => void, deps: React.DependencyList, p
           const t0 = performance.now();
           msg += `Profile: ${profileId}`;
 
-          callbackRef.current();
+          callbackEvent();
 
           const t1 = performance.now();
           msg += ` took ${t1 - t0} milliseconds.`;
           console.log(msg);
         } else {
-          callbackRef.current();
+          callbackEvent();
         }
       });
     }
