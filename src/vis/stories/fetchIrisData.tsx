@@ -2,6 +2,11 @@ import { EColumnTypes, VisColumn } from '../interfaces';
 import { iris as dataPromise } from './irisData';
 
 function randomNumberBetweenRange(min: number, max: number): number | null {
+  // Return null for some random values
+  if (Math.random() < 0.1) {
+    return null;
+  }
+
   return Math.random() * (max - min) + min;
 }
 
