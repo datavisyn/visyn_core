@@ -216,9 +216,9 @@ export const dvNumericCol: IconDefinition = {
   ],
 };
 
-export const dvNumbersCol: IconDefinition = {
+export const dvNumberArrayCol: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'numbersCol' as IconName,
+  iconName: 'numberArrayCol' as IconName,
   icon: [
     512,
     312,
