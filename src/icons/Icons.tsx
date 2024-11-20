@@ -248,9 +248,9 @@ export const dvStringArrayCol: IconDefinition = {
   ],
 };
 
-export const dvBooleansCol: IconDefinition = {
+export const dvBooleanArrayCol: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'stringsCol' as IconName,
+  iconName: 'booleanArrayCol' as IconName,
   icon: [
     512,
     308,
