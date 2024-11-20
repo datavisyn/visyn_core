@@ -232,9 +232,9 @@ export const dvNumberArrayCol: IconDefinition = {
   ],
 };
 
-export const dvStringsCol: IconDefinition = {
+export const dvStringArrayCol: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'stringsCol' as IconName,
+  iconName: 'stringArrayCol' as IconName,
   icon: [
     512,
     307,
