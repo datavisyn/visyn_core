@@ -264,9 +264,9 @@ export const dvBooleanArrayCol: IconDefinition = {
   ],
 };
 
-export const dvCategoricalsCol: IconDefinition = {
+export const dvCategoricalArrayCol: IconDefinition = {
   prefix: 'dv' as IconPrefix,
-  iconName: 'stringsCol' as IconName,
+  iconName: 'categoricalArrayCol' as IconName,
   icon: [
     512,
     307,
