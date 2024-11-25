@@ -61,12 +61,12 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
     contentHeight: state.height,
 
     /**
-     * @deprecated Use pixelContentWidth and pixelContentHeight instead
+     * @deprecated Use `pixelContentWidth` instead
      */
     width: state.pixelContentWidth,
 
     /**
-     * @deprecated Use pixelContentWidth and pixelContentHeight instead
+     * @deprecated Use `pixelContentHeight` instead
      */
     height: state.pixelContentHeight,
 
