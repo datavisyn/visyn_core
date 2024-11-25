@@ -152,6 +152,8 @@ ControlledSubplots.args = {
         title: 'Petal Length vs Petal Width',
       },
     ],
+    xAxisScale: 'log',
+    yAxisScale: 'log',
     facets: null,
     numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
     shape: null,
@@ -163,6 +165,43 @@ ControlledSubplots.args = {
     },
   } as IScatterConfig,
 
+  filterCallback: (option) => {
+    console.log({ option });
+  },
+};
+
+export const ControlledSingleSubplot: typeof Template = Template.bind({}) as typeof Template;
+ControlledSingleSubplot.args = {
+  externalConfig: {
+    type: ESupportedPlotlyVis.SCATTER,
+    color: null,
+    subplots: [
+      {
+        xColumn: {
+          description: '',
+          id: 'incompleteX',
+          name: 'Incomplete X',
+        },
+        yColumn: {
+          description: '',
+          id: 'incompleteY',
+          name: 'Incomplete Y',
+        },
+        title: 'Nicer Title',
+      },
+    ],
+    xAxisScale: 'log',
+    yAxisScale: 'log',
+    facets: null,
+    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    shape: null,
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    alphaSliderVal: 1,
+    showLabels: ELabelingOptions.NEVER,
+    regressionLineOptions: {
+      type: ERegressionLineType.NONE,
+    },
+  } as IScatterConfig,
   filterCallback: (option) => {
     console.log({ option });
   },

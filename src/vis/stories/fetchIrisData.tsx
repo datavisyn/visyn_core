@@ -1,6 +1,15 @@
 import { EColumnTypes, VisColumn } from '../interfaces';
 import { iris as dataPromise } from './irisData';
 
+function randomNumberBetweenRange(min: number, max: number): number | null {
+  // Return null for some random values
+  if (Math.random() < 0.1) {
+    return null;
+  }
+
+  return Math.random() * (max - min) + min;
+}
+
 export function fetchIrisData(): VisColumn[] {
   return [
     {
@@ -72,6 +81,24 @@ export function fetchIrisData(): VisColumn[] {
       },
       type: EColumnTypes.CATEGORICAL,
       values: () => dataPromise.map((r) => r.species).map((val, i) => ({ id: i.toString(), val: val ?? null })),
+    },
+    {
+      info: {
+        description: 'Incomplete X',
+        id: 'incompleteX',
+        name: 'Incomplete X',
+      },
+      type: EColumnTypes.NUMERICAL,
+      values: () => dataPromise.map((val, i) => ({ id: i.toString(), val: randomNumberBetweenRange(0.96499999997, 1.3850000003299998) })),
+    },
+    {
+      info: {
+        description: 'Incomplete Y',
+        id: 'incompleteY',
+        name: 'Incomplete Y',
+      },
+      type: EColumnTypes.NUMERICAL,
+      values: () => dataPromise.map((val, i) => ({ id: i.toString(), val: randomNumberBetweenRange(-1.5419997517300001, 28.96199726903) })),
     },
   ];
 }
