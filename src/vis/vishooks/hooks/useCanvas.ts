@@ -6,6 +6,8 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
   const [state, setState] = useSetState({
     width: 0,
     height: 0,
+    pixelContentWidth: 0,
+    pixelContentHeight: 0,
     context: null as ContextId extends '2d'
       ? CanvasRenderingContext2D
       : ContextId extends 'webgl'
@@ -28,6 +30,8 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
       const observer = new ResizeObserver((entries) => {
         if (entries[0]) {
           const newDimensions = entries[0].contentRect;
+          const entry = entries[0];
+          const { inlineSize, blockSize } = entry.devicePixelContentBoxSize[0]!;
 
           setState((previous) => {
             if (previous.width === newDimensions.width && previous.height === newDimensions.height && previous.context) {
@@ -35,6 +39,8 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
             }
 
             return {
+              pixelContentWidth: inlineSize,
+              pixelContentHeight: blockSize,
               width: newDimensions.width,
               height: newDimensions.height,
               context: previous.context ? previous.context : (element.getContext(props?.contextId ?? '2d') as any),
@@ -54,9 +60,18 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
     contentWidth: state.width,
     contentHeight: state.height,
 
-    // Suggested dimensions for the canvas
-    width: state.width * scaleFactor,
-    height: state.height * scaleFactor,
+    /**
+     * @deprecated Use pixelContentWidth and pixelContentHeight instead
+     */
+    width: state.pixelContentWidth,
+
+    /**
+     * @deprecated Use pixelContentWidth and pixelContentHeight instead
+     */
+    height: state.pixelContentHeight,
+
+    pixelContentWidth: state.pixelContentWidth,
+    pixelContentHeight: state.pixelContentHeight,
 
     context: state.context,
     ratio: scaleFactor,
