@@ -103,12 +103,12 @@ export function useLayout({
         axes[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
           range: toLogRange(config.xAxisScale!, pair.xDomain),
-          type: config.xAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`xaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'xaxis'] || {}),
+          type: config.xAxisScale,
           title: {
-            text: textMeasure.textEllipsis(pair.xTitle, xTitleSize),
-            standoff: 0,
+            text: subplots.xyPairs.length > 1 ? textMeasure.textEllipsis(pair.xTitle, xTitleSize) : pair.xTitle,
+            standoff: subplots.xyPairs.length > 1 ? 0 : undefined,
             font: {
               size: 12,
               color: VIS_NEUTRAL_COLOR,
@@ -118,15 +118,15 @@ export function useLayout({
         axes[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}`] = {
           ...AXIS_TICK_STYLES,
           range: toLogRange(config.yAxisScale!, pair.yDomain),
-          type: config.yAxisScale,
           // Spread the previous layout to keep things like zoom
           ...(internalLayoutRef.current?.[`yaxis${plotCounter > 0 ? plotCounter + 1 : ''}` as 'yaxis'] || {}),
+          type: config.yAxisScale,
           title: {
             font: {
               size: 12,
               color: VIS_NEUTRAL_COLOR,
             },
-            text: textMeasure.textEllipsis(pair.yTitle, yTitleSize),
+            text: subplots.xyPairs.length > 1 ? textMeasure.textEllipsis(pair.yTitle, yTitleSize) : pair.yTitle,
           },
         };
 
@@ -149,37 +149,17 @@ export function useLayout({
       });
 
       // if we only find one facet (e.g., the categorical column only contains one value), we don't facet
-      const finalLayout: Partial<PlotlyTypes.Layout> =
-        subplots.xyPairs.length > 1
-          ? {
-              ...BASE_LAYOUT,
-              ...(internalLayoutRef.current || {}),
-              grid: { rows: nRows, columns: nColumns, xgap: xGap, ygap: yGap, pattern: 'independent' },
-              ...axes,
-              annotations: [...titleAnnotations, ...regressions.annotations],
-              shapes: regressions.shapes,
-              dragmode: config!.dragMode,
-              width,
-              height,
-            }
-          : {
-              ...BASE_LAYOUT,
-              xaxis: {
-                ...AXIS_TICK_STYLES,
-                ...internalLayoutRef.current?.xaxis,
-                title: subplots.xyPairs[0]!.xTitle,
-              },
-              yaxis: {
-                ...AXIS_TICK_STYLES,
-                ...internalLayoutRef.current?.yaxis,
-                title: subplots.xyPairs[0]!.yTitle,
-              },
-              shapes: regressions.shapes,
-              annotations: [...regressions.annotations],
-              dragmode: config.dragMode,
-              width,
-              height,
-            };
+      const finalLayout: Partial<PlotlyTypes.Layout> = {
+        ...BASE_LAYOUT,
+        ...(internalLayoutRef.current || {}),
+        ...(subplots.xyPairs.length > 1 ? { grid: { rows: nRows, columns: nColumns, xgap: xGap, ygap: yGap, pattern: 'independent' } } : {}),
+        ...axes,
+        annotations: [...titleAnnotations, ...regressions.annotations],
+        shapes: regressions.shapes,
+        dragmode: config.dragMode,
+        width,
+        height,
+      };
 
       return finalLayout;
     }

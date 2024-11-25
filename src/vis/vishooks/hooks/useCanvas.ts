@@ -38,7 +38,7 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
 
           if ('devicePixelContentBoxSize' in entry && entry.devicePixelContentBoxSize?.[0]) {
             // Feature is present
-            const { inlineSize, blockSize } = entry.devicePixelContentBoxSize[0]!;
+            const { inlineSize, blockSize } = entry.devicePixelContentBoxSize[0];
 
             pixelContentWidth = inlineSize;
             pixelContentHeight = blockSize;
@@ -76,12 +76,12 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
     contentHeight: state.height,
 
     /**
-     * @deprecated Use pixelContentWidth and pixelContentHeight instead
+     * @deprecated Use `pixelContentWidth` instead
      */
     width: state.pixelContentWidth,
 
     /**
-     * @deprecated Use pixelContentWidth and pixelContentHeight instead
+     * @deprecated Use `pixelContentHeight` instead
      */
     height: state.pixelContentHeight,
 
