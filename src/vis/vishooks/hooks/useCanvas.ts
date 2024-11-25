@@ -20,8 +20,6 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
     internalObserver: undefined as ResizeObserver | undefined,
   });
 
-  const scaleFactor = props?.ratio || window.devicePixelRatio;
-
   const { ref, setRef } = useSetRef<HTMLCanvasElement>({
     cleanup: (element) => {
       state.internalObserver?.unobserve(element);
@@ -74,7 +72,7 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
     pixelContentHeight: state.pixelContentHeight,
 
     context: state.context,
-    ratio: scaleFactor,
+    ratio: props?.ratio || window.devicePixelRatio,
     setRef,
     ref,
   };
