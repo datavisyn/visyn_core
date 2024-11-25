@@ -43,9 +43,9 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
             pixelContentWidth = inlineSize;
             pixelContentHeight = blockSize;
           } else {
-            // Feature is not supported
-            pixelContentWidth = newDimensions.width * scaleFactor;
-            pixelContentHeight = newDimensions.height * scaleFactor;
+            // Feature is not supported, round the canvas pixel buffer to an integer value that most likely snaps to the physical pixels
+            pixelContentWidth = Math.round(newDimensions.width * scaleFactor);
+            pixelContentHeight = Math.round(newDimensions.height * scaleFactor);
           }
 
           setState((previous) => {
