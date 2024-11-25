@@ -28,8 +28,7 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
       const observer = new ResizeObserver((entries) => {
         if (entries[0]) {
           const newDimensions = entries[0].contentRect;
-          const entry = entries[0];
-          const { inlineSize, blockSize } = entry.devicePixelContentBoxSize[0]!;
+          const { inlineSize, blockSize } = entries[0].devicePixelContentBoxSize[0]!;
 
           setState((previous) => {
             if (previous.width === newDimensions.width && previous.height === newDimensions.height && previous.context) {
