@@ -28,10 +28,25 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
     },
     register: (element) => {
       const observer = new ResizeObserver((entries) => {
-        if (entries[0]) {
-          const newDimensions = entries[0].contentRect;
-          const entry = entries[0];
-          const { inlineSize, blockSize } = entry.devicePixelContentBoxSize[0]!;
+        const entry = entries[0];
+
+        if (entry) {
+          const newDimensions = entry.contentRect;
+
+          let pixelContentWidth = 0;
+          let pixelContentHeight = 0;
+
+          if ('devicePixelContentBoxSize' in entry && entry.devicePixelContentBoxSize?.[0]) {
+            // Feature is present
+            const { inlineSize, blockSize } = entry.devicePixelContentBoxSize[0]!;
+
+            pixelContentWidth = inlineSize;
+            pixelContentHeight = blockSize;
+          } else {
+            // Feature is not supported
+            pixelContentWidth = newDimensions.width * scaleFactor;
+            pixelContentHeight = newDimensions.height * scaleFactor;
+          }
 
           setState((previous) => {
             if (previous.width === newDimensions.width && previous.height === newDimensions.height && previous.context) {
@@ -39,8 +54,8 @@ export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 
             }
 
             return {
-              pixelContentWidth: inlineSize,
-              pixelContentHeight: blockSize,
+              pixelContentWidth,
+              pixelContentHeight,
               width: newDimensions.width,
               height: newDimensions.height,
               context: previous.context ? previous.context : (element.getContext(props?.contextId ?? '2d') as any),
