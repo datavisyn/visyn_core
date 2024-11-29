@@ -40,17 +40,17 @@ documentation:
 .PHONY: install  ## Install the requirements
 install:
 	@if [ ! -z "${CI}" ]; then \
-		uv pip install -e . --system; \
+		uv pip install -e . --system --upgrade; \
 	else \
-		uv pip install -e .; \
+		uv pip install -e . --upgrade; \
 	fi
 
 .PHONY: develop  ## Set up the development environment
 develop:
 	@if [ ! -z "${CI}" ]; then \
-		uv pip install -e ".[develop]" --system; \
+		uv pip install -e ".[develop]" --system --upgrade; \
 	else \
-		uv pip install -e ".[develop]"; \
+		uv pip install -e ".[develop]" --upgrade; \
 	fi
 
 .PHONY: env_encrypt ## Encrypts the current ./<app>/.env
