@@ -11,7 +11,7 @@ start:
 
 .PHONY: celery  ## Start the celery worker
 celery:
-	celery -A $(pkg_src).dev_celery worker
+	celery -A $(pkg_src).dev_celery worker --loglevel=INFO --concurrency=8 -O fair -P prefork
 
 .PHONY: all  ## Perform the most common development-time rules
 all: format lint test
