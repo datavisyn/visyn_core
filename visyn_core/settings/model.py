@@ -180,6 +180,10 @@ class VisynCoreSettings(BaseModel):
     """
     sentry: SentrySettings = SentrySettings()
     """
+    Settings for celery. If not set, celery will not be initialized.
+    """
+    celery: dict[str, Any] | None = None
+    """
     Settings for Sentry. DSN will be shared via the client config.
     """
     cypress: bool = False

@@ -9,6 +9,10 @@ ruff = ruff check $(pkg_src) setup.py --line-length 140 --select E,W,F,N,I,C,B,U
 start:
 	python $(pkg_src)
 
+.PHONY: celery  ## Start the celery worker
+celery:
+	celery -A $(pkg_src).dev_celery worker
+
 .PHONY: all  ## Perform the most common development-time rules
 all: format lint test
 
