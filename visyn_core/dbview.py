@@ -118,13 +118,13 @@ class DBView:
         v = self.valid_replacements[key]
         if isinstance(v, list):
             return value in v
-        if v == int:
+        if v is int:
             try:
                 int(value)  # try to cast value to int
                 return True  # successful type cast
             except ValueError:
                 return False
-        if v == float:
+        if v is float:
             try:
                 float(value)  # try to cast value to float
                 return True  # successful type cast

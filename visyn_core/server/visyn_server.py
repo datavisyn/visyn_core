@@ -6,8 +6,8 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
-from pydantic import create_model
-from pydantic.utils import deep_update
+from pydantic.v1 import create_model
+from pydantic.v1.utils import deep_update
 from starlette_context.middleware import RawContextMiddleware
 
 from ..settings.constants import default_logging_dict

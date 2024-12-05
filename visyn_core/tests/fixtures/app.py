@@ -12,7 +12,7 @@ from ...server.visyn_server import create_visyn_server
 from ...settings import client_config
 
 
-@pytest.fixture()
+@pytest.fixture
 def _mock_plugins(monkeypatch):
     def mock_current_user_in_manager(self):
         return permissions.User(id="admin")
@@ -20,14 +20,14 @@ def _mock_plugins(monkeypatch):
     monkeypatch.setattr(SecurityManager, "current_user", property(mock_current_user_in_manager))
 
 
-@pytest.fixture()
+@pytest.fixture
 def workspace_config() -> dict:
     return {
         "visyn_core": {"enabled_plugins": ["visyn_core"]},
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(workspace_config) -> FastAPI:
     # Reset the client config globals
     client_config._has_been_initialized = False
@@ -48,7 +48,7 @@ def app(workspace_config) -> FastAPI:
     return create_visyn_server(workspace_config=workspace_config)
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(app: FastAPI) -> Generator[TestClient, Any, None]:
     with TestClient(app) as client:
         yield client

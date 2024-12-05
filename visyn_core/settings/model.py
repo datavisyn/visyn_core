@@ -1,8 +1,8 @@
 import contextlib
 from typing import Any, Literal
 
-from pydantic import AnyHttpUrl, BaseConfig, BaseModel, BaseSettings, Extra, Field
-from pydantic.env_settings import EnvSettingsSource, SettingsSourceCallable
+from pydantic.v1 import AnyHttpUrl, BaseConfig, BaseModel, BaseSettings, Extra, Field
+from pydantic.v1.env_settings import EnvSettingsSource, SettingsSourceCallable
 
 from .constants import default_logging_dict
 
@@ -12,13 +12,13 @@ class DBMigrationSettings(BaseModel):
 
 
 class DisableSettings(BaseModel):
-    plugins: list[str] = []
-    extensions: list[str] = []
+    plugins: list[str] = []  # NOQA RUF012
+    extensions: list[str] = []  # NOQA RUF012
 
 
 class DummyStoreSettings(BaseModel):
     enable: bool = False
-    users: list[dict[str, Any]] = [
+    users: list[dict[str, Any]] = [  # NOQA RUF012
         {
             "name": "admin",
             "salt": "dcf46ce914154a44b1557eba91c1f50d",
@@ -44,7 +44,7 @@ class AlbSecurityStoreSettings(BaseModel):
     enable: bool = False
     cookie_name: str | None = None
     signout_url: str | None = None
-    email_token_field: str | list[str] = ["email"]
+    email_token_field: str | list[str] = ["email"]  # NOQA RUF012
     """
     Field in the JWT token that contains the email address of the user.
     """
@@ -65,7 +65,7 @@ class AlbSecurityStoreSettings(BaseModel):
     """
     The region of the ALB to fetch the public key from.
     """
-    decode_algorithms: list[str] = ["ES256"]
+    decode_algorithms: list[str] = ["ES256"]  # NOQA RUF012
     """
     The algorithm used to sign the JWT token. See https://pyjwt.readthedocs.io/en/stable/algorithms.html for details.
     """
@@ -76,13 +76,13 @@ class OAuth2SecurityStoreSettings(BaseModel):
     cookie_name: str | None = None
     signout_url: str | None = None
     access_token_header_name: str = "X-Forwarded-Access-Token"
-    email_token_field: str | list[str] = ["email"]
+    email_token_field: str | list[str] = ["email"]  # NOQA RUF012
 
 
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
-    roles: list[str] = []
+    roles: list[str] = []  # NOQA RUF012
 
 
 class SecurityStoreSettings(BaseModel):
@@ -108,7 +108,7 @@ class BaseExporterTelemetrySettings(BaseModel):
     endpoint: AnyHttpUrl  # could be "http://localhost:4318"
     headers: dict[str, str] | None = None
     timeout: int | None = None
-    kwargs: dict[str, Any] = {}
+    kwargs: dict[str, Any] = {}  # NOQA RUF012
 
 
 class MetricsExporterTelemetrySettings(BaseExporterTelemetrySettings):
@@ -163,7 +163,7 @@ class SentrySettings(BaseModel):
     """
     Proxy Sentry envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
     """
-    server_init_options: dict[str, Any] = {}
+    server_init_options: dict[str, Any] = {}  # NOQA RUF012
     """
     Options to be passed to the Sentry SDK during initialization.
     """
@@ -198,7 +198,7 @@ class VisynCoreSettings(BaseModel):
     """
 
     disable: DisableSettings = DisableSettings()
-    enabled_plugins: list[str] = []
+    enabled_plugins: list[str] = []  # NOQA RUF012
 
     # TODO: Proper typing. This is 1:1 passed to the logging.config.dictConfig(...).
     logging: dict = Field(default_logging_dict)
@@ -231,7 +231,7 @@ class GlobalSettings(BaseSettings):
     secret_key: str = "VERY_SECRET_STUFF_T0IB84wlQrdMH8RVT28w"
 
     # JWT options mostly inspired by flask-jwt-extended: https://flask-jwt-extended.readthedocs.io/en/stable/options/#general-options
-    jwt_token_location: list[str] = ["headers", "cookies"]
+    jwt_token_location: list[str] = ["headers", "cookies"]  # NOQA RUF012
     jwt_expire_in_seconds: int = 24 * 60 * 60
     jwt_refresh_if_expiring_in_seconds: int = 30 * 60
     jwt_algorithm: str = "HS256"
