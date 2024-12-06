@@ -23,7 +23,13 @@ def _mock_plugins(monkeypatch):
 @pytest.fixture()
 def workspace_config() -> dict:
     return {
-        "visyn_core": {"enabled_plugins": ["visyn_core"]},
+        "visyn_core": {
+            "enabled_plugins": ["visyn_core"],
+            "celery": {
+                "broker": "memory://localhost/",
+                "task_always_eager": True,
+            },
+        },
     }
 
 
