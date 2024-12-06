@@ -18,7 +18,7 @@ def init_celery_manager(*, plugins: list[EntryPointPlugin]):
         _log.warning("No Celery settings found in configuration, skipping Celery initialization")
         return None
 
-    manager.celery = Celery("visyn", **manager.settings.visyn_core.celery)
+    manager.celery = Celery("visyn", result_extended=True, **manager.settings.visyn_core.celery)
 
     _log.info("Initializing celery app")
 
