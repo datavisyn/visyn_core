@@ -41,7 +41,7 @@ def init_celery_manager(*, plugins: list[EntryPointPlugin]):
             readiness_file.unlink(missing_ok=True)
 
     _log.info("Initializing celery app")
-    manager.celery = Celery("visyn", **manager.settings.visyn_core.celery)
+    manager.celery = Celery("visyn", result_extended=True, **manager.settings.visyn_core.celery)
 
     if manager.settings.visyn_core.celery_liveness_file:
         from celery import bootsteps
