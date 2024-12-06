@@ -417,6 +417,7 @@ export function BarChart({
                 scrollHideDelay={0}
                 offsetScrollbars
               >
+                {/* @ts-ignore */}
                 <VariableSizeList
                   height={containerHeight - CHART_HEIGHT_MARGIN / 2}
                   itemCount={filteredUniqueFacetVals.length}
