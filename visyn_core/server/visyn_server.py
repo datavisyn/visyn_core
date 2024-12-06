@@ -4,21 +4,13 @@ import sys
 import threading
 from typing import Any
 
-from fastapi import FastAPI
-from fastapi.middleware.wsgi import WSGIMiddleware
-from pydantic import create_model
-from pydantic.utils import deep_update
-from starlette_context.middleware import RawContextMiddleware
-
 from ..settings.constants import default_logging_dict
 
 # Initialize the logging very early as otherwise the already created loggers receive a default loglevel WARN, leading to logs not being shown.
 logging.config.dictConfig(default_logging_dict)
 
 
-def create_visyn_server(
-    *, fast_api_args: dict[str, Any] | None = None, start_cmd: str | None = None, workspace_config: dict | None = None
-) -> FastAPI:
+def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cmd: str | None = None, workspace_config: dict | None = None):
     """
     Create a new FastAPI instance while ensuring that the configuration and plugins are loaded, extension points are registered, database migrations are executed, ...
 
@@ -30,48 +22,14 @@ def create_visyn_server(
     if fast_api_args is None:
         fast_api_args = {}
     from .. import manager
-    from ..settings.model import GlobalSettings
-    from ..settings.utils import load_workspace_config
+    from .utils import init_settings_manager
 
-    # Load the workspace config.json and initialize the global settings
-    workspace_config = workspace_config if isinstance(workspace_config, dict) else load_workspace_config()
-    # Temporary backwards compatibility: if no visyn_core config entry is found, copy the one from tdp_core.
-    if "visyn_core" not in workspace_config and "tdp_core" in workspace_config:
-        logging.warn('You are still using "tdp_core" config entries instead of "visyn_core" entries. Please migrate as soon as possible!')
-        workspace_config["visyn_core"] = workspace_config["tdp_core"]
-
-    manager.settings = GlobalSettings(**workspace_config)
-
-    # Initialize the logging
-    logging_config = manager.settings.visyn_core.logging
-
-    if manager.settings.visyn_core.log_level:
-        try:
-            logging_config["root"]["level"] = manager.settings.visyn_core.log_level
-        except KeyError:
-            logging.warn("You have set visyn_core.log_level, but no root logger is defined in visyn_core.logging")
-
-    logging.config.dictConfig(logging_config)
-
-    # Filter out the metrics endpoint from the access log
-    class EndpointFilter(logging.Filter):
-        def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /api/metrics" and "GET /api/health" and "GET /metrics" and "GET /health" not in record.getMessage()
-
-    logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+    plugins = init_settings_manager(workspace_config=workspace_config)
 
     _log = logging.getLogger(__name__)
-    _log.info(f"Starting visyn_server in {manager.settings.env} mode")
+    _log.info(f"Starting in {manager.settings.env} mode")
 
-    # Load the initial plugins
-    from ..plugin.parser import get_config_from_plugins, load_all_plugins
-
-    plugins = load_all_plugins()
-    # With all the plugins, load the corresponding configuration files and create a new model based on the global settings, with all plugin models as sub-models
-    [plugin_config_files, plugin_settings_models] = get_config_from_plugins(plugins)
-    visyn_server_settings = create_model("VisynServerSettings", __base__=GlobalSettings, **plugin_settings_models)  # type: ignore
-    # Patch the global settings by instantiating the new settings model with the global config, all config.json(s), and pydantic models
-    manager.settings = visyn_server_settings(**deep_update(*plugin_config_files, workspace_config))
+    from fastapi import FastAPI
 
     app = FastAPI(
         debug=manager.settings.is_development_mode,
@@ -83,6 +41,13 @@ def create_visyn_server(
         redoc_url="/api/redoc",
         **fast_api_args,
     )
+
+    # Filter out the metrics endpoint from the access log
+    class EndpointFilter(logging.Filter):
+        def filter(self, record: logging.LogRecord) -> bool:
+            return "GET /api/metrics" and "GET /api/health" and "GET /metrics" and "GET /health" not in record.getMessage()
+
+    logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
     from ..middleware.exception_handler_middleware import ExceptionHandlerMiddleware
 
@@ -113,6 +78,10 @@ def create_visyn_server(
         )
 
     # Initialize global managers.
+    from ..celery.app import init_celery_manager
+
+    app.state.celery = init_celery_manager(plugins=plugins)
+
     from ..plugin.registry import Registry
 
     app.state.registry = manager.registry = Registry()
@@ -149,6 +118,8 @@ def create_visyn_server(
         sys.exit(0)
 
     # Load all namespace plugins as WSGIMiddleware plugins
+    from fastapi.middleware.wsgi import WSGIMiddleware
+
     from .utils import init_legacy_app, load_after_server_started_hooks
 
     namespace_plugins = manager.registry.list("namespace")
@@ -202,6 +173,8 @@ def create_visyn_server(
     from ..settings.client_config import init_client_config
 
     init_client_config(app)
+
+    from starlette_context.middleware import RawContextMiddleware
 
     from ..middleware.request_context_plugin import RequestContextPlugin
 

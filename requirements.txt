@@ -1,6 +1,8 @@
 # a2wsgi==1.6.0 # This WSIGMiddleware is not compatible with starlette_context
 alembic==1.13.2
 cachetools==5.3.3
+celery>=5.0.0,<6.0.0
+celery-types~=0.22.0
 fastapi==0.112.2
 json-cfg==0.4.2
 openpyxl==3.1.5
@@ -18,9 +20,10 @@ psycopg==3.2.1
 psycopg2==2.9.9
 pydantic==1.10.17
 pyjwt[crypto]==2.9.0
-pytest-postgresql==6.0.1
+pytest-postgresql==6.1.1
 python-dateutil==2.9.0.post0
 requests==2.32.3
+redis>=5.0.0,<6.0.0
 sentry-sdk~=2.13.0
 SQLAlchemy>=1.4.40,<=1.4.53
 starlette-context==0.3.6

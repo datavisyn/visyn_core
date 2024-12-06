@@ -9,6 +9,10 @@ ruff = ruff check $(pkg_src) setup.py --line-length 140 --select E,W,F,N,I,C,B,U
 start:
 	python $(pkg_src)
 
+.PHONY: celery  ## Start the celery worker
+celery:
+	celery -A $(pkg_src).dev_celery worker --loglevel=INFO --concurrency=8 -O fair -P prefork
+
 .PHONY: all  ## Perform the most common development-time rules
 all: format lint test
 
@@ -40,17 +44,17 @@ documentation:
 .PHONY: install  ## Install the requirements
 install:
 	@if [ ! -z "${CI}" ]; then \
-		uv pip install -e . --system; \
+		uv pip install -e . --system --upgrade; \
 	else \
-		uv pip install -e .; \
+		uv pip install -e . --upgrade; \
 	fi
 
 .PHONY: develop  ## Set up the development environment
 develop:
 	@if [ ! -z "${CI}" ]; then \
-		uv pip install -e ".[develop]" --system; \
+		uv pip install -e ".[develop]" --system --upgrade; \
 	else \
-		uv pip install -e ".[develop]"; \
+		uv pip install -e ".[develop]" --upgrade; \
 	fi
 
 .PHONY: env_encrypt ## Encrypts the current ./<app>/.env
