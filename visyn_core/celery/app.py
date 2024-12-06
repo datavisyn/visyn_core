@@ -1,5 +1,6 @@
 import logging
 import logging.config
+from pathlib import Path
 
 from celery import Celery
 
@@ -18,9 +19,58 @@ def init_celery_manager(*, plugins: list[EntryPointPlugin]):
         _log.warning("No Celery settings found in configuration, skipping Celery initialization")
         return None
 
-    manager.celery = Celery("visyn", **manager.settings.visyn_core.celery)
+    # Celery readiness checks are quite tricky, so we just create a file when the worker is ready and remove it when it shuts down.
+    # https://github.com/celery/celery/issues/4079#issuecomment-1270085680
+    if manager.settings.visyn_core.celery_readiness_file:
+        from celery.signals import (
+            worker_ready,
+            worker_shutdown,
+        )
+
+        _log.info("Setting up Celery readiness file")
+        readiness_file = Path(manager.settings.visyn_core.celery_readiness_file)
+
+        @worker_ready.connect
+        def readiness_on_worker_ready(**_):
+            _log.info("Worker is ready")
+            readiness_file.touch()
+
+        @worker_shutdown.connect
+        def readiness_on_worker_shutdown(**_):
+            _log.info("Worker is shutting down")
+            readiness_file.unlink(missing_ok=True)
 
     _log.info("Initializing celery app")
+    manager.celery = Celery("visyn", **manager.settings.visyn_core.celery)
+
+    if manager.settings.visyn_core.celery_liveness_file:
+        from celery import bootsteps
+
+        _log.info("Setting up Celery liveness file")
+        liveness_file = Path(manager.settings.visyn_core.celery_liveness_file)
+
+        class LivenessProbe(bootsteps.StartStopStep):
+            requires = ("celery.worker.components:Timer",)
+
+            def __init__(self, worker, **kwargs):
+                self.requests = []
+                self.tref = None
+
+            def start(self, worker):
+                self.tref = worker.timer.call_repeatedly(
+                    1.0,
+                    self.update_heartbeat_file,
+                    (worker,),
+                    priority=10,
+                )
+
+            def stop(self, worker):
+                liveness_file.unlink(missing_ok=True)
+
+            def update_heartbeat_file(self, worker):
+                liveness_file.touch()
+
+        manager.celery.steps["worker"].add(LivenessProbe)
 
     # Discover tasks from all plugins, i.e. visyn_core.tasks, visyn_plugin.tasks
     manager.celery.autodiscover_tasks([p.id for p in plugins])
