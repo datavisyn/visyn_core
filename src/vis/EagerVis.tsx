@@ -195,6 +195,12 @@ export function EagerVis({
    */
   showDownloadScreenshot?: boolean;
 }) {
+  const [selectedList, setSelectedList] = useUncontrolled<string[]>({
+    value: selected,
+    defaultValue: [],
+    onChange: selectionCallback,
+  });
+
   const [showSidebar, setShowSidebar] = useUncontrolled<boolean>({
     value: internalShowSidebar,
     defaultValue: showSidebarDefault,
@@ -269,12 +275,12 @@ export function EagerVis({
   const selectedMap: { [key: string]: boolean } = React.useMemo(() => {
     const currMap: { [key: string]: boolean } = {};
 
-    selected.forEach((s) => {
+    selectedList.forEach((s) => {
       currMap[s] = true;
     });
 
     return currMap;
-  }, [selected]);
+  }, [selectedList]);
 
   const commonProps = {
     showSidebar,
@@ -333,9 +339,9 @@ export function EagerVis({
               stats={stats}
               statsCallback={statsCallback}
               filterCallback={filterCallback}
-              selectionCallback={selectionCallback}
+              selectionCallback={setSelectedList}
               selectedMap={selectedMap}
-              selectedList={selected}
+              selectedList={selectedList}
               columns={columns}
               showSidebar={showSidebar}
               showCloseButton={showCloseButton}
@@ -348,7 +354,7 @@ export function EagerVis({
       </Stack>
       {showSidebar && visConfig?.merged ? (
         <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
-          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
+          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} selectedList={selectedList} />
         </VisSidebarWrapper>
       ) : null}
     </Group>

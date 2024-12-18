@@ -144,6 +144,7 @@ export interface ICommonVisSideBarProps<T> {
   style?: React.CSSProperties | undefined;
   className?: string | undefined;
   columns: VisColumn[];
+  selectedList?: string[];
   optionsConfig?: any;
   filterCallback?: (s: EFilterOptions) => void;
   config: T;

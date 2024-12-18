@@ -1,7 +1,7 @@
 import * as React from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { PlotlyTypes } from '../../plotly';
-import { VIS_NEUTRAL_COLOR } from '../general/constants';
+import { DEFAULT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { ELabelingOptions, IInternalScatterConfig } from './interfaces';
 import { FetchColumnDataResult } from './utils';
 import { getLabelOrUnknown } from '../general/utils';
@@ -13,7 +13,7 @@ export function baseData(alpha: number, hasColor: boolean): Partial<PlotlyTypes.
   return {
     selected: {
       textfont: {
-        color: VIS_NEUTRAL_COLOR,
+        color: DEFAULT_COLOR,
       },
       marker: {
         opacity: 1,
@@ -98,6 +98,7 @@ export function useData({
             color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
+            size: 8,
           },
           ...baseData(config.alphaSliderVal, !!value.colorColumn),
         } as PlotlyTypes.Data;
@@ -140,6 +141,7 @@ export function useData({
             textfont: {
               color: VIS_NEUTRAL_COLOR,
             },
+            size: 8,
             color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
@@ -185,6 +187,7 @@ export function useData({
             color: value.colorColumn && mappingFunction ? group.data.color.map((v) => mappingFunction(v!)) : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? group.data.shape.map((shape) => shapeScale(shape as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
+            size: 8,
           },
           ...baseData(config.alphaSliderVal, !!value.colorColumn),
         } as PlotlyTypes.Data;
@@ -213,6 +216,7 @@ export function useData({
           ),
           ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
           marker: {
+            size: 8,
             color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
