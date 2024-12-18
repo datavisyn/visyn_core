@@ -108,7 +108,8 @@ export function BarChart({
   const allUniqueFacetVals = React.useMemo(() => {
     const set = new Set();
     barData?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
-    return [...set] as string[];
+    const uniqueFacetValues = [...set] as string[];
+    return uniqueFacetValues.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
   }, [barData?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
