@@ -141,16 +141,16 @@ export function BarChart({
             ),
           ]
         : aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
-          ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
-          : config?.group?.id === config?.facets?.id
-            ? (aggregatedDataMap?.facetsList ?? [])
-            : [
-                ...new Set(
-                  Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
-                    return facet.groupingsList;
-                  }),
-                ),
-              ];
+        ? aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? []
+        : config?.group?.id === config?.facets?.id
+        ? aggregatedDataMap?.facetsList ?? []
+        : [
+            ...new Set(
+              Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
+                return facet.groupingsList;
+              }),
+            ),
+          ];
 
     const maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc: number, facet) => Math.max(acc, facet.groupingsList.length), 0);
 
@@ -187,8 +187,8 @@ export function BarChart({
   }, [aggregatedDataMap?.facets, config]);
 
   const shouldRenderFacets = React.useMemo(
-    () => Boolean(config?.facets && barData?.facetsColVals && filteredUniqueFacetVals.length === Object.keys(chartHeightMap).length),
-    [config?.facets, barData?.facetsColVals, filteredUniqueFacetVals.length, chartHeightMap],
+    () => Boolean(config?.facets && barData?.facetsColVals && (config?.focusFacetIndex !== undefined || config?.focusFacetIndex !== null)),
+    [config?.facets, barData?.facetsColVals, config?.focusFacetIndex],
   );
 
   const isGroupedByNumerical = React.useMemo(() => barData?.groupColVals?.type === EColumnTypes.NUMERICAL, [barData?.groupColVals?.type]);
