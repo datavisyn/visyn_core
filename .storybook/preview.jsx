@@ -10,7 +10,6 @@ initializeLibrary();
  * @type {import('@storybook/react').Parameters}
  */
 export const parameters = {
-  actions: { argTypesRegex: '^on[A-Z].*' },
   layout: 'fullscreen',
   controls: {
     matchers: {
