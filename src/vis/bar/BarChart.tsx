@@ -109,7 +109,7 @@ export function BarChart({
     const set = new Set();
     barData?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
     const uniqueFacetValues = [...set] as string[];
-    return uniqueFacetValues.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
+    return uniqueFacetValues.sort((a, b) => (a === NAN_REPLACEMENT ? 1 : b === NAN_REPLACEMENT ? -1 : a && b ? a.localeCompare(b) : 0));
   }, [barData?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
@@ -117,7 +117,7 @@ export function BarChart({
       typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
         ? ([allUniqueFacetVals[config?.focusFacetIndex]] as string[])
         : allUniqueFacetVals;
-    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
+    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT ? 1 : b === NAN_REPLACEMENT ? -1 : a && b ? a.localeCompare(b) : 0));
   }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
   const groupColorScale = React.useMemo(() => {
