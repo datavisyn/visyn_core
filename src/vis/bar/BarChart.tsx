@@ -141,16 +141,16 @@ export function BarChart({
             ),
           ]
         : aggregatedDataMap?.facetsList[0] === DEFAULT_FACET_NAME
-        ? aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? []
-        : config?.group?.id === config?.facets?.id
-        ? aggregatedDataMap?.facetsList ?? []
-        : [
-            ...new Set(
-              Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
-                return facet.groupingsList;
-              }),
-            ),
-          ];
+          ? (aggregatedDataMap?.facets[DEFAULT_FACET_NAME]?.groupingsList ?? [])
+          : config?.group?.id === config?.facets?.id
+            ? (aggregatedDataMap?.facetsList ?? [])
+            : [
+                ...new Set(
+                  Object.values(aggregatedDataMap?.facets ?? {}).flatMap((facet) => {
+                    return facet.groupingsList;
+                  }),
+                ),
+              ];
 
     const maxGroupings = Object.values(aggregatedDataMap?.facets ?? {}).reduce((acc: number, facet) => Math.max(acc, facet.groupingsList.length), 0);
 
