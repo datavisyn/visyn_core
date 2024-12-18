@@ -40,11 +40,12 @@ const defaultConfig = {
   },
 };
 
-export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig }: ICommonVisSideBarProps<IInternalScatterConfig>) {
+export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig, selectedList }: ICommonVisSideBarProps<IInternalScatterConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
 
+  const disableOpacitySlider = React.useMemo(() => selectedList && selectedList.length > 0, [selectedList]);
   return (
     <>
       <MultiSelect
@@ -95,6 +96,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
         label="Tooltip labels"
       />
       <OpacitySlider
+        disabled={disableOpacitySlider}
         callback={(e) => {
           if (config.alphaSliderVal !== e) {
             setConfig({ ...config, alphaSliderVal: e });
