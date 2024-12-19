@@ -24,7 +24,7 @@ pytest-postgresql==6.1.1
 python-dateutil==2.9.0.post0
 requests==2.32.3
 redis>=5.0.0,<6.0.0
-sentry-sdk~=2.13.0
+sentry-sdk~=2.19.1
 SQLAlchemy>=1.4.40,<=1.4.53
 starlette-context==0.3.6
 # Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/master/pyproject.toml#L79-L103
