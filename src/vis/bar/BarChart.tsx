@@ -108,7 +108,8 @@ export function BarChart({
   const allUniqueFacetVals = React.useMemo(() => {
     const set = new Set();
     barData?.facetsColVals?.resolvedValues.forEach((v) => set.add(getLabelOrUnknown(v.val)));
-    return [...set] as string[];
+    const uniqueFacetValues = [...set] as string[];
+    return uniqueFacetValues.sort((a, b) => (a === NAN_REPLACEMENT ? 1 : b === NAN_REPLACEMENT ? -1 : a && b ? a.localeCompare(b) : 0));
   }, [barData?.facetsColVals?.resolvedValues]);
 
   const filteredUniqueFacetVals = React.useMemo(() => {
@@ -116,7 +117,7 @@ export function BarChart({
       typeof config?.focusFacetIndex === 'number' && config?.focusFacetIndex < allUniqueFacetVals.length
         ? ([allUniqueFacetVals[config?.focusFacetIndex]] as string[])
         : allUniqueFacetVals;
-    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT || b === NAN_REPLACEMENT ? 1 : a && b ? a.localeCompare(b) : 0));
+    return unsorted.sort((a, b) => (a === NAN_REPLACEMENT ? 1 : b === NAN_REPLACEMENT ? -1 : a && b ? a.localeCompare(b) : 0));
   }, [allUniqueFacetVals, config?.focusFacetIndex]);
 
   const groupColorScale = React.useMemo(() => {
@@ -187,8 +188,8 @@ export function BarChart({
   }, [aggregatedDataMap?.facets, config]);
 
   const shouldRenderFacets = React.useMemo(
-    () => Boolean(config?.facets && barData?.facetsColVals && filteredUniqueFacetVals.length === Object.keys(chartHeightMap).length),
-    [config?.facets, barData?.facetsColVals, filteredUniqueFacetVals.length, chartHeightMap],
+    () => Boolean(config?.facets && barData?.facetsColVals && (config?.focusFacetIndex !== undefined || config?.focusFacetIndex !== null)),
+    [config?.facets, barData?.facetsColVals, config?.focusFacetIndex],
   );
 
   const isGroupedByNumerical = React.useMemo(() => barData?.groupColVals?.type === EColumnTypes.NUMERICAL, [barData?.groupColVals?.type]);
