@@ -159,7 +159,7 @@ export function useData({
 
     if (facet && config && value && value.validColumns[0] && value.validColumns[1]) {
       const plots = facet.resultData.map((group) => {
-        const visibleLabelsSet = new Set(group.data.ids.filter((id) => selectedSet.has(id!)).slice(0, config.showLabelLimit));
+        const visibleLabelsSet = new Set(group.data.ids.filter((id) => selectedSet.has(id)).slice(0, config.showLabelLimit));
         return {
           ...BASE_DATA,
           type: 'scattergl',
@@ -177,7 +177,7 @@ export function useData({
                   // textposition: 'top center',
                 }
               : {
-                  text: group.data.text.map((t, i) => (visibleLabelsSet.has(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: group.data.text.map((t, i) => (visibleLabelsSet.has(group.data.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                   // textposition: 'top center',
                 }),
           name: getLabelOrUnknown(group.data.facet),
