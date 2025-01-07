@@ -62,11 +62,12 @@ export function useData({
   shapeScale: (val: string) => string;
   mappingFunction?: (val: string | number | null | undefined) => string;
 }) {
+  const selectedSet = React.useMemo(() => new Set(selectedList), [selectedList]);
+
   return React.useMemo<PlotlyTypes.Data[]>(() => {
     if (status !== 'success' || !value) {
       return [];
     }
-    const selectedSet = new Set(selectedList);
     const fullOpacityOrAlpha = selectedSet.size > 0 ? 1 : config.alphaSliderVal;
 
     if (subplots) {
@@ -89,7 +90,7 @@ export function useData({
                   text: subplots.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
                 }
               : {
-                  text: subplots.text.map((t, i) => (visibleLabelsSet.has(subplots.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: subplots.text.map((t, i) => (visibleLabelsSet.has(subplots.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                 }),
           hovertext: subplots.ids.map((p_id, index) =>
             `${value.idToLabelMapper(p_id)}
@@ -130,9 +131,7 @@ export function useData({
                   // textposition: 'top center',
                 }
               : {
-                  text: scatter.plotlyData.text.map((t, i) =>
-                    visibleLabelsSet.has(scatter.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '',
-                  ),
+                  text: scatter.plotlyData.text.map((t, i) => (visibleLabelsSet.has(scatter.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                   // textposition: 'top center',
                 }),
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
@@ -177,7 +176,7 @@ export function useData({
                   // textposition: 'top center',
                 }
               : {
-                  text: group.data.text.map((t, i) => (visibleLabelsSet.has(group.data.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: group.data.text.map((t, i) => (visibleLabelsSet.has(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                   // textposition: 'top center',
                 }),
           name: getLabelOrUnknown(group.data.facet),
@@ -234,5 +233,5 @@ export function useData({
     }
 
     return [];
-  }, [status, value, subplots, scatter, config, facet, splom, selectedList, shapeScale, mappingFunction]);
+  }, [status, value, subplots, scatter, config, facet, splom, selectedList, selectedSet, shapeScale, mappingFunction]);
 }
