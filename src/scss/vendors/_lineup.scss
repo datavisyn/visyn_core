@@ -1,8 +1,11 @@
+// With https://github.com/lineupjs/lineupengine/releases/tag/v2.5.3, they changed from @import to @use, forcing us to use the variables before being able to override them.
+@use 'lineupengine/src/styles/vars' as *;
+
 // TODO: Without this, we get "Can't resolve './node_modules/lineupengine/src/styles/lineupengine/src/assets/loading.svg' in '.../workspaces/<repo>'"
 // Why do I need to do this? Probably because lineupjs defines $engine_assets and it is resolving it relatively?
 $engine_assets: '../assets';
-$engine_loading_image: url('#{$engine_assets}/loading.svg') !default;
-$engine_loading_static_image: url('#{$engine_assets}/loading_s.svg') !default;
+$engine_loading_image: url('#{$engine_assets}/loading.svg');
+$engine_loading_static_image: url('#{$engine_assets}/loading_s.svg');
 
 $lu_assets: '../assets' !default;
 $lu_use_font_awesome: true !default;
