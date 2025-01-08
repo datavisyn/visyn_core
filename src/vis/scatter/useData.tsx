@@ -71,7 +71,7 @@ export function useData({
     const fullOpacityOrAlpha = selectedSet.size > 0 ? 1 : config.alphaSliderVal;
 
     if (subplots) {
-      const visibleLabelsSet = new Set(selectedList.slice(0, config.showLabelLimit));
+      const visibleLabelsSet = config.showLabelLimit ? new Set(selectedList.slice(0, config.showLabelLimit)) : selectedSet;
       const plots = subplots.xyPairs.map((pair) => {
         return {
           ...BASE_DATA,
@@ -112,7 +112,7 @@ export function useData({
     }
 
     if (scatter && config && value && value.validColumns[0]) {
-      const visibleLabelsSet = new Set(selectedList.slice(0, config.showLabelLimit));
+      const visibleLabelsSet = config.showLabelLimit ? new Set(selectedList.slice(0, config.showLabelLimit)) : selectedSet;
       const traces = [
         {
           ...BASE_DATA,
@@ -158,7 +158,9 @@ export function useData({
 
     if (facet && config && value && value.validColumns[0] && value.validColumns[1]) {
       const plots = facet.resultData.map((group) => {
-        const visibleLabelsSet = new Set(group.data.ids.filter((id) => selectedSet.has(id)).slice(0, config.showLabelLimit));
+        const visibleLabelsSet = config.showLabelLimit
+          ? new Set(group.data.ids.filter((id) => selectedSet.has(id)).slice(0, config.showLabelLimit))
+          : selectedSet;
         return {
           ...BASE_DATA,
           type: 'scattergl',
