@@ -10,7 +10,7 @@ import { ColorSelect } from './ColorSelect';
 import { LabelingOptions } from './LabelingOptions';
 import { OpacitySlider } from './OpacitySlider';
 import { RegressionLineOptions } from './Regression';
-import { ELabelingOptions, IInternalScatterConfig, IRegressionLineOptions } from './interfaces';
+import { ELabelingOptions, IRegressionLineOptions, IScatterConfig } from './interfaces';
 
 const defaultConfig = {
   facets: {
@@ -40,7 +40,7 @@ const defaultConfig = {
   },
 };
 
-export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig, selectedList }: ICommonVisSideBarProps<IInternalScatterConfig>) {
+export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallback, setConfig, selectedList }: ICommonVisSideBarProps<IScatterConfig>) {
   const mergedOptionsConfig = useMemo(() => {
     return merge({}, defaultConfig, optionsConfig);
   }, [optionsConfig]);
@@ -113,7 +113,7 @@ export function ScatterVisSidebar({ config, optionsConfig, columns, filterCallba
                 }
               }}
               currentSelected={config.showLabels}
-              labelLimit={config.selectedPointsCount > config.showLabelLimit ? config.showLabelLimit : 0}
+              labelLimit={selectedList?.length && config.showLabelLimit && selectedList?.length > config.showLabelLimit ? config.showLabelLimit : 0}
             />
           )
         : null}
