@@ -7,7 +7,7 @@ import { BaseVisConfig, EScaleType, ESupportedPlotlyVis } from '../../../interfa
 import { fetchIrisData } from '../../fetchIrisData';
 
 const meta: Meta<typeof Vis> = {
-  title: 'Vis/Correlation',
+  title: 'Vis/vistypes/Correlation',
   component: Vis,
   parameters: {
     chromatic: { delay: 10000, pauseAnimationAtEnd: true },

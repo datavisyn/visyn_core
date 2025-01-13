@@ -71,7 +71,7 @@ const customerLogo = (
 
 const meta: Meta<typeof VisynHeader> = {
   component: VisynHeader,
-  title: 'Example/Ui/VisynHeader',
+  title: 'Components/VisynHeader',
   args: {
     components: {
       aboutAppModal: {
