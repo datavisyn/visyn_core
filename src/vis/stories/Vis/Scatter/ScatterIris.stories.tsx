@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import React, { useState } from 'react';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
@@ -7,331 +7,338 @@ import { ELabelingOptions, ERegressionLineType, IScatterConfig } from '../../../
 import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
+const meta: Meta<typeof Vis> = {
   title: 'Vis/Scatter',
   component: Vis,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-};
+  render: (args) => {
+    const columns = React.useMemo(() => fetchIrisData(), []);
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-// eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Vis> = (args) => {
-  const columns = React.useMemo(() => fetchIrisData(), []);
-
-  const [selection, setSelection] = useState<string[]>([]);
-  return (
-    <VisProvider>
-      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} selected={selection} selectionCallback={setSelection} columns={columns} />
+    const [selection, setSelection] = useState<string[]>([]);
+    return (
+      <VisProvider>
+        <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ width: '70%', height: '80%' }}>
+            <Vis {...args} selected={selection} selectionCallback={setSelection} columns={columns} />
+          </div>
         </div>
-      </div>
-    </VisProvider>
-  );
+      </VisProvider>
+    );
+  },
 };
+
+export default meta;
+type Story = StoryObj<typeof Vis>;
 
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
-export const Basic: typeof Template = Template.bind({}) as typeof Template;
-Basic.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'sepalLength',
-        name: 'Sepal Length',
+export const Basic: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'sepalLength',
+          name: 'Sepal Length',
+        },
+        {
+          description: '',
+          id: 'sepalWidth',
+          name: 'Sepal Width',
+        },
+      ],
+      xAxisScale: 'log',
+      yAxisScale: 'log',
+      color: null,
+      facets: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 1,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
       },
-      {
-        description: '',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
-      },
-    ],
-    xAxisScale: 'log',
-    yAxisScale: 'log',
-    color: null,
-    facets: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
-    showLabels: ELabelingOptions.NEVER,
-    regressionLineOptions: {
-      type: ERegressionLineType.NONE,
-    },
-  } as IScatterConfig,
+    } as IScatterConfig,
 
-  filterCallback: (option) => {
-    console.log({ option });
+    filterCallback: (option) => {
+      console.log({ option });
+    },
   },
 };
 
-export const ControlledSubplots: typeof Template = Template.bind({}) as typeof Template;
-ControlledSubplots.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    color: null,
-    subplots: [
-      {
-        xColumn: {
-          description: '',
-          id: 'petalLength',
-          name: 'Petal Length',
+export const ControlledSubplots: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      color: null,
+      subplots: [
+        {
+          xColumn: {
+            description: '',
+            id: 'petalLength',
+            name: 'Petal Length',
+          },
+          yColumn: {
+            description: '',
+            id: 'petalWidth',
+            name: 'Petal Width',
+          },
+          title: 'Nicer Title',
         },
-        yColumn: {
-          description: '',
-          id: 'petalWidth',
-          name: 'Petal Width',
+        {
+          yColumn: {
+            description: '',
+            id: 'petalLength',
+            name: 'Petal Length',
+          },
+          xColumn: {
+            description: '',
+            id: 'petalWidth',
+            name: 'Petal Width',
+          },
+          title: 'Petal Length vs Petal Width',
         },
-        title: 'Nicer Title',
+        {
+          yColumn: {
+            description: '',
+            id: 'petalLength',
+            name: 'Petal Length',
+          },
+          xColumn: {
+            description: '',
+            id: 'petalWidth',
+            name: 'Petal Width',
+          },
+          title: 'Petal Length vs Petal Width',
+        },
+        {
+          yColumn: {
+            description: '',
+            id: 'petalLength',
+            name: 'Petal Length',
+          },
+          xColumn: {
+            description: '',
+            id: 'petalWidth',
+            name: 'Petal Width',
+          },
+          title: 'Petal Length vs Petal Width',
+        },
+        {
+          yColumn: {
+            description: '',
+            id: 'petalLength',
+            name: 'Petal Length',
+          },
+          xColumn: {
+            description: '',
+            id: 'petalWidth',
+            name: 'Petal Width',
+          },
+          title: 'Petal Length vs Petal Width',
+        },
+        {
+          xColumn: {
+            description: '',
+            id: 'petalLength',
+            name: 'Petal Length',
+          },
+          yColumn: {
+            description: '',
+            id: 'petalWidth',
+            name: 'Petal Width',
+          },
+          title: 'Petal Length vs Petal Width',
+        },
+      ],
+      xAxisScale: 'log',
+      yAxisScale: 'log',
+      facets: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 1,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
       },
-      {
-        yColumn: {
-          description: '',
-          id: 'petalLength',
-          name: 'Petal Length',
-        },
-        xColumn: {
-          description: '',
-          id: 'petalWidth',
-          name: 'Petal Width',
-        },
-        title: 'Petal Length vs Petal Width',
-      },
-      {
-        yColumn: {
-          description: '',
-          id: 'petalLength',
-          name: 'Petal Length',
-        },
-        xColumn: {
-          description: '',
-          id: 'petalWidth',
-          name: 'Petal Width',
-        },
-        title: 'Petal Length vs Petal Width',
-      },
-      {
-        yColumn: {
-          description: '',
-          id: 'petalLength',
-          name: 'Petal Length',
-        },
-        xColumn: {
-          description: '',
-          id: 'petalWidth',
-          name: 'Petal Width',
-        },
-        title: 'Petal Length vs Petal Width',
-      },
-      {
-        yColumn: {
-          description: '',
-          id: 'petalLength',
-          name: 'Petal Length',
-        },
-        xColumn: {
-          description: '',
-          id: 'petalWidth',
-          name: 'Petal Width',
-        },
-        title: 'Petal Length vs Petal Width',
-      },
-      {
-        xColumn: {
-          description: '',
-          id: 'petalLength',
-          name: 'Petal Length',
-        },
-        yColumn: {
-          description: '',
-          id: 'petalWidth',
-          name: 'Petal Width',
-        },
-        title: 'Petal Length vs Petal Width',
-      },
-    ],
-    xAxisScale: 'log',
-    yAxisScale: 'log',
-    facets: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
-    showLabels: ELabelingOptions.NEVER,
-    regressionLineOptions: {
-      type: ERegressionLineType.NONE,
-    },
-  } as IScatterConfig,
+    } as IScatterConfig,
 
-  filterCallback: (option) => {
-    console.log({ option });
+    filterCallback: (option) => {
+      console.log({ option });
+    },
   },
 };
 
-export const ControlledSingleSubplot: typeof Template = Template.bind({}) as typeof Template;
-ControlledSingleSubplot.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    color: null,
-    subplots: [
-      {
-        xColumn: {
-          description: '',
-          id: 'incompleteX',
-          name: 'Incomplete X',
+export const ControlledSingleSubplot: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      color: null,
+      subplots: [
+        {
+          xColumn: {
+            description: '',
+            id: 'incompleteX',
+            name: 'Incomplete X',
+          },
+          yColumn: {
+            description: '',
+            id: 'incompleteY',
+            name: 'Incomplete Y',
+          },
+          title: 'Nicer Title',
         },
-        yColumn: {
-          description: '',
-          id: 'incompleteY',
-          name: 'Incomplete Y',
-        },
-        title: 'Nicer Title',
+      ],
+      xAxisScale: 'log',
+      yAxisScale: 'log',
+      facets: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 1,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
       },
-    ],
-    xAxisScale: 'log',
-    yAxisScale: 'log',
-    facets: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
-    showLabels: ELabelingOptions.NEVER,
-    regressionLineOptions: {
-      type: ERegressionLineType.NONE,
+    } as IScatterConfig,
+    filterCallback: (option) => {
+      console.log({ option });
     },
-  } as IScatterConfig,
-  filterCallback: (option) => {
-    console.log({ option });
   },
 };
 
-export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
-ColorByCategory.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
+export const ColorByCategory: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'sepalLength',
+          name: 'Sepal Length',
+        },
+        {
+          description: '',
+          id: 'sepalWidth',
+          name: 'Sepal Width',
+        },
+      ],
+      color: {
         description: '',
-        id: 'sepalLength',
-        name: 'Sepal Length',
+        id: 'species',
+        name: 'Species',
       },
-      {
-        description: '',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 0.5,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
       },
-    ],
-    color: {
-      description: '',
-      id: 'species',
-      name: 'Species',
-    },
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.5,
-    showLabels: ELabelingOptions.NEVER,
-    regressionLineOptions: {
-      type: ERegressionLineType.NONE,
-    },
-  } as BaseVisConfig,
+    } as BaseVisConfig,
+  },
 };
 
-export const ColorByNumerical: typeof Template = Template.bind({}) as typeof Template;
-ColorByNumerical.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'sepalLength',
-        name: 'Sepal Length',
-      },
-      {
-        description: '',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
-      },
-    ],
-    color: {
-      description: '',
-      id: 'petalLength',
-      name: 'Petal Length',
-    },
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.5,
-    showLabels: ELabelingOptions.NEVER,
-    regressionLineOptions: {
-      type: ERegressionLineType.NONE,
-    },
-  } as BaseVisConfig,
-};
-
-export const SmallMultiples: typeof Template = Template.bind({}) as typeof Template;
-SmallMultiples.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'sepalLength',
-        name: 'Sepal Length',
-      },
-      {
-        description: '',
-        id: 'sepalWidth',
-        name: 'Sepal Width',
-      },
-      {
+export const ColorByNumerical: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'sepalLength',
+          name: 'Sepal Length',
+        },
+        {
+          description: '',
+          id: 'sepalWidth',
+          name: 'Sepal Width',
+        },
+      ],
+      color: {
         description: '',
         id: 'petalLength',
         name: 'Petal Length',
       },
-    ],
-    color: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.5,
-    showLabels: ELabelingOptions.NEVER,
-    regressionLineOptions: {
-      type: ERegressionLineType.NONE,
-    },
-  } as BaseVisConfig,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 0.5,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
+      },
+    } as BaseVisConfig,
+  },
 };
 
-export const LinearRegression: typeof Template = Template.bind({}) as typeof Template;
-LinearRegression.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'sepalLength',
-        name: 'Sepal Length',
+export const SmallMultiples: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'sepalLength',
+          name: 'Sepal Length',
+        },
+        {
+          description: '',
+          id: 'sepalWidth',
+          name: 'Sepal Width',
+        },
+        {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal Length',
+        },
+      ],
+      color: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 0.5,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.NONE,
       },
-      {
+    } as BaseVisConfig,
+  },
+};
+
+export const LinearRegression: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'sepalLength',
+          name: 'Sepal Length',
+        },
+        {
+          description: '',
+          id: 'petalLength',
+          name: 'Petal length',
+        },
+      ],
+      color: {
         description: '',
         id: 'petalLength',
-        name: 'Petal length',
+        name: 'Petal Length',
       },
-    ],
-    color: {
-      description: '',
-      id: 'petalLength',
-      name: 'Petal Length',
-    },
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.3,
-    showLabels: ELabelingOptions.NEVER,
-    regressionLineOptions: {
-      type: ERegressionLineType.POLYNOMIAL,
-      showStats: true,
-    },
-  } as IScatterConfig,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 0.3,
+      showLabels: ELabelingOptions.NEVER,
+      regressionLineOptions: {
+        type: ERegressionLineType.POLYNOMIAL,
+        showStats: true,
+      },
+    } as IScatterConfig,
+  },
 };

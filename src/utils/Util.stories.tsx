@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { Slider, Stack, Text } from '@mantine/core';
 import { DateTimePicker, DateValue } from '@mantine/dates';
 import { fromNow, getMostRelevantTimeUnitFromNow } from './fromNow';
@@ -77,24 +77,20 @@ function TimeUtil() {
   );
 }
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
+const meta: Meta<typeof TimeUtil> = {
   title: 'Example/Ui/Utils',
   component: TimeUtil,
-  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
 };
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-// eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof TimeUtil> = (args) => {
-  return <TimeUtil />;
-};
+export default meta;
+type Story = StoryObj<typeof TimeUtil>;
 
-export const TimeFromNow: typeof Template = Template.bind({});
-TimeFromNow.args = {
-  components: {
-    aboutAppModal: {
-      content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
+export const TimeFromNow: Story = {
+  args: {
+    components: {
+      aboutAppModal: {
+        content: <Text>You can add some custom content to this about app modal. It should provide some meaningful description about the application.</Text>,
+      },
     },
   },
 };
