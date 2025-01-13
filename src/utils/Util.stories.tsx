@@ -78,7 +78,7 @@ function TimeUtil() {
 }
 
 const meta: Meta<typeof TimeUtil> = {
-  title: 'Example/Ui/Utils',
+  title: 'Components/Utils',
   component: TimeUtil,
 };
 
