@@ -104,7 +104,7 @@ function fetchData(numberOfPoints: number): VisColumn[] {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof Vis> = {
-  title: 'Vis/vistypes/Heatmap',
+  title: 'Vis/vistypes/randomData/Heatmap',
   component: Vis,
   parameters: {
     chromatic: { delay: 3000 },

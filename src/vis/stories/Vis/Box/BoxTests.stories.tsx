@@ -23,7 +23,7 @@ function VisWrapper(args) {
 
 const meta: Meta<typeof VisWrapper> = {
   component: VisWrapper,
-  title: 'BoxTest',
+  title: 'Vis/vistypes/breastCancerData/Box',
 };
 
 export default meta;

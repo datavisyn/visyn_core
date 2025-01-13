@@ -80,7 +80,7 @@ function fetchData(numberOfPoints: number): VisColumn[] {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof Vis> = {
-  title: 'Vis/vistypes/Hexbin',
+  title: 'Vis/vistypes/randomData/Hexbin',
   component: Vis,
   parameters: {
     argTypes: {

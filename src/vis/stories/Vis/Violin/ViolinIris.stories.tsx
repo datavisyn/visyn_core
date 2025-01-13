@@ -8,7 +8,7 @@ import { fetchIrisData } from '../../fetchIrisData';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof Vis> = {
-  title: 'Vis/vistypes/Violin',
+  title: 'Vis/vistypes/randomData/Violin',
   component: Vis,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   render: (args) => {

@@ -89,7 +89,7 @@ function fetchData(numberOfPoints: number): VisColumn[] {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof Vis> = {
-  title: 'Vis/vistypes/Scatter',
+  title: 'Vis/vistypes/randomData/Scatter',
   component: Vis,
   parameters: {
     argTypes: {

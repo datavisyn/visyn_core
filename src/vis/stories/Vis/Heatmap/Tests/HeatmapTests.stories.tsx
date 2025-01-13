@@ -24,7 +24,7 @@ function VisWrapper(args) {
 
 const meta: Meta<typeof VisWrapper> = {
   component: VisWrapper,
-  title: 'HeatmapTest',
+  title: 'Vis/vistypes/breastCancerData/Heatmap',
 };
 
 export default meta;

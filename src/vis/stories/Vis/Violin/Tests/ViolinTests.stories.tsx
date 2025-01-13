@@ -23,7 +23,7 @@ function VisWrapper(args) {
 
 const meta: Meta<typeof VisWrapper> = {
   component: VisWrapper,
-  title: 'ViolinTest',
+  title: 'Vis/vistypes/breastCancerData/Violin',
 };
 
 export default meta;
