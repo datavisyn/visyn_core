@@ -29,7 +29,7 @@ export function useTransformScale({ domain, range, transform, direction, transfo
       };
     }
 
-    switch (transformTarget ?? 'domain') {
+    switch (transformTarget ?? (domain.length === 2 ? 'domain' : 'range')) {
       case 'domain':
         return {
           base: scale,
@@ -51,5 +51,5 @@ export function useTransformScale({ domain, range, transform, direction, transfo
 
     // We dont want to compare with range/domain reference, only the primitive values
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [domain?.[0], domain?.[1], range?.[0], range?.[1], transform, direction]);
+  }, [domain?.[0], domain?.[1], range?.[0], range?.[1], transform, direction, transformTarget]);
 }
