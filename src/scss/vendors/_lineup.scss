@@ -66,3 +66,8 @@
   mask-repeat: no-repeat;
   font-size: inherit;
 }
+
+// hide data mapping icon from toolbar when it is inactive, i.e., linear mapping is selected
+.lu-toolbar > .lu-action-data-mapping:not([data-active]) {
+	display: none;
+}
