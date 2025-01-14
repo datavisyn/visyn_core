@@ -42,7 +42,7 @@ export function useTransformScale({ domain, range, transform, direction, transfo
 
         return {
           base: scale,
-          scaled: scale.copy().range(transformedRange),
+          scaled: scale.range(transformedRange),
         };
       }
       default:
