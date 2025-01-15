@@ -5,13 +5,6 @@ import { IUser } from '../../security/index';
 import { VisynAppContext } from '../VisynAppContext';
 import { VisynHeader } from './VisynHeader';
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-// export default {
-//   title: 'Example/Ui/VisynHeader',
-//   component: VisynHeader,
-//   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-// };
-
 /** TODO: const useStyles = createStyles((theme) => ({
   customComponentGroup: {
     gap: 0,
