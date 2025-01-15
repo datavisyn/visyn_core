@@ -7,7 +7,7 @@ import { EViolinOverlay } from '../violin/interfaces';
 import { fetchIrisData } from './fetchIrisData';
 
 const meta: Meta<typeof Vis> = {
-  title: 'Example/Vis/IrisData',
+  title: 'Vis/vistypes/IrisData/IrisData',
   component: Vis,
   render: (args) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
