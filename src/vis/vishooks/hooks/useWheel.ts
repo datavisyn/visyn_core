@@ -11,6 +11,8 @@ export interface UseWheelProps {
    * Extent to constrain the wheel event within the bounds of the extent.
    */
   extent?: Extent;
+
+  preventDefault?: (event: NormalizedWheelEvent) => boolean;
 }
 
 /**
@@ -42,10 +44,14 @@ export function useWheel(props: UseWheelProps) {
           return;
         }
 
-        event.preventDefault();
+        const normalizedEvent = normalizeWheelEvent(event);
+
+        if (propsRef.current.preventDefault?.(normalizedEvent) ?? true) {
+          event.preventDefault();
+        }
 
         propsRef.current.onWheel?.({
-          ...normalizeWheelEvent(event),
+          ...normalizedEvent,
           x: relativePosition.x,
           y: relativePosition.y,
         });
