@@ -201,6 +201,7 @@ const meta: Meta<typeof Vis> = {
   component: Vis,
   render: (args) => {
     // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
 
     return (

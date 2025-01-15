@@ -13,8 +13,9 @@ const meta: Meta<typeof Vis> = {
     chromatic: { delay: 10000, pauseAnimationAtEnd: true },
   },
   render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const columns = React.useMemo(() => fetchIrisData(), []);
-
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [selection, setSelection] = useState<string[]>([]);
     return (
       <VisProvider>

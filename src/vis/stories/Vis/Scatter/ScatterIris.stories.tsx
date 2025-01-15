@@ -12,8 +12,9 @@ const meta: Meta<typeof Vis> = {
   component: Vis,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const columns = React.useMemo(() => fetchIrisData(), []);
-
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [selection, setSelection] = useState<string[]>([]);
     return (
       <VisProvider>

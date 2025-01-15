@@ -10,8 +10,9 @@ const meta: Meta<typeof Vis> = {
   title: 'Example/Vis/IrisData',
   component: Vis,
   render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const columns = React.useMemo(() => fetchIrisData(), []);
-
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [selection, setSelection] = useState<string[]>([]);
     return (
       <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>

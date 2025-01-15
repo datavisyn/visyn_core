@@ -1,9 +1,9 @@
 import { Button, Menu, Text } from '@mantine/core';
 import React from 'react';
+import { Meta, StoryObj } from '@storybook/react';
 import { IUser } from '../../security/index';
 import { VisynAppContext } from '../VisynAppContext';
 import { VisynHeader } from './VisynHeader';
-import { Meta, StoryObj } from '@storybook/react';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 // export default {
@@ -80,6 +80,7 @@ const meta: Meta<typeof VisynHeader> = {
     },
   },
   render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const visynAppContextValue = React.useMemo(
       () => ({
         user,
