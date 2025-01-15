@@ -9,6 +9,7 @@ export interface NormalizedWheelEvent {
   pixelY: number;
   x: number;
   y: number;
+  nativeEvent: WheelEvent;
 }
 
 export interface Brush {
