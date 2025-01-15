@@ -36,6 +36,8 @@ interface UseZoomProps {
   transformOrigin?: [number, number];
 
   preventDefault?: (event: NormalizedWheelEvent) => boolean;
+
+  skip?: (event: NormalizedWheelEvent) => boolean;
 }
 
 /**
@@ -55,6 +57,10 @@ export function useZoom(options: UseZoomProps = {}) {
   const { ref, setRef } = useWheel({
     extent: options.extent,
     onWheel: (event) => {
+      if (options.skip?.(event) ?? false) {
+        return;
+      }
+
       let newZoom = calculateTransform(
         internalValue,
         event.x - (options.transformOrigin ? options.transformOrigin[0] : 0),
