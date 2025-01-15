@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
 import { ZoomTransform as D3ZoomTransform, scaleLinear } from 'd3v7';
 import { ZoomTransform } from '../interfaces';
 import { rescaleX, rescaleY } from '../transform';
 import { sxi, txi, tyi } from '../math/matrix4x4';
+import { useDeepMemo } from '../../../hooks/useDeepMemo';
 
 interface UseTransformScaleProps {
   domain: number[];
@@ -13,7 +13,7 @@ interface UseTransformScaleProps {
 }
 
 export function useTransformScale({ domain, range, transform, direction, transformTarget }: UseTransformScaleProps) {
-  return useMemo(() => {
+  return useDeepMemo(() => {
     // Invalid data case
     if (!domain || !range) {
       return null;
@@ -50,6 +50,5 @@ export function useTransformScale({ domain, range, transform, direction, transfo
     }
 
     // We dont want to compare with range/domain reference, only the primitive values
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [domain?.[0], domain?.[1], range?.[0], range?.[1], transform, direction, transformTarget]);
+  }, [domain, range, transform, direction, transformTarget]);
 }
