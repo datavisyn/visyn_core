@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import { useWheel } from './useWheel';
 import { calculateTransform, defaultConstraint } from '../transform';
 import { useControlledUncontrolled } from './useControlledUncontrolled';
-import { Direction, Extent, ZoomExtent, ZoomTransform } from '../interfaces';
+import { Direction, Extent, NormalizedWheelEvent, ZoomExtent, ZoomTransform } from '../interfaces';
 import { m4 } from '../math';
 
 interface UseZoomProps {
@@ -34,6 +34,8 @@ interface UseZoomProps {
    * The transform origin.
    */
   transformOrigin?: [number, number];
+
+  preventDefault?: (event: NormalizedWheelEvent) => boolean;
 }
 
 /**
@@ -72,6 +74,7 @@ export function useZoom(options: UseZoomProps = {}) {
 
       setInternalValue(newZoom);
     },
+    preventDefault: options.preventDefault,
   });
 
   return { ref, setRef, transform: internalValue, setTransform: setInternalValue };
