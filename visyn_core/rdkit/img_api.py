@@ -20,7 +20,7 @@ app = APIRouter(prefix="/api/rdkit", tags=["RDKit"])
 def draw_smiles(
     structure: SmilesMolecule, substructure: SmilesMolecule | None = None, align: SmilesMolecule | None = None, size: int = 300
 ):
-    return draw(structure.mol, size=size, substructure=aligned(structure.mol, align and align.mol) or substructure and substructure.mol)
+    return draw(structure.mol, size=size, substructure=aligned(structure.mol, align and align.mol) or (substructure and substructure.mol))
 
 
 @app.post("/")
