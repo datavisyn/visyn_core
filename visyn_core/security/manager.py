@@ -4,6 +4,7 @@ from base64 import b64decode
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from functools import wraps
+from typing import Any
 
 import jwt
 from fastapi import FastAPI, HTTPException, Request, Response, status
@@ -105,7 +106,7 @@ class SecurityManager:
             response_cookies.extend(customizations.cookies or [])
         return response_payload, response_cookies
 
-    def _delegate_stores_until_not_none(self, store_method_name: str, *args):
+    def _delegate_stores_until_not_none(self, store_method_name: str, *args) -> Any:
         """Run a method on ordered stores (if exists) until one doesn't return None"""
         for store in self.user_stores:
             method = getattr(store, store_method_name, None)
