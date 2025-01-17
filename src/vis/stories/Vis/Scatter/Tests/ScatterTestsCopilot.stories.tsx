@@ -24,7 +24,7 @@ function VisWrapper(args) {
 
 const meta: Meta<typeof VisWrapper> = {
   component: VisWrapper,
-  title: 'ScatterTestCopilot',
+  title: 'Vis/vistypes/breastCancerData/ScatterCopilot',
 };
 
 export default meta;

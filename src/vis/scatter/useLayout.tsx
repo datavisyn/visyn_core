@@ -5,8 +5,8 @@ import { PlotlyTypes } from '../../plotly';
 import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
 import { FastTextMeasure } from '../general/FastTextMeasure';
 import { getLabelOrUnknown } from '../general/utils';
-import { IInternalScatterConfig } from './interfaces';
 import { useDataPreparation } from './useDataPreparation';
+import { IScatterConfig } from './interfaces';
 
 const textMeasure = new FastTextMeasure('12px Open Sans');
 
@@ -87,7 +87,7 @@ export function useLayout({
   splom?: ReturnType<typeof useDataPreparation>['splom'];
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
   regressions: { shapes: Partial<PlotlyTypes.Shape>[]; annotations: Partial<PlotlyTypes.Annotations>[] };
-  config: IInternalScatterConfig;
+  config: IScatterConfig;
   width: number;
   height: number;
   internalLayoutRef: React.MutableRefObject<Partial<PlotlyTypes.Layout>>;

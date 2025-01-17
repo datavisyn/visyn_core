@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
@@ -88,86 +88,90 @@ function fetchData(numberOfPoints: number): VisColumn[] {
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
-  title: 'Vis/Scatter',
+const meta: Meta<typeof Vis> = {
+  title: 'Vis/vistypes/randomData/Scatter',
   component: Vis,
-  argTypes: {
-    pointCount: { control: 'number' },
+  parameters: {
+    argTypes: {
+      pointCount: { control: 'number' },
+    },
+    args: {
+      pointCount: 100000,
+    },
   },
-  args: {
-    pointCount: 100000,
-  },
-};
+  render: (args) => {
+    // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [selected, setSelected] = React.useState<string[]>([]);
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-// eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Vis> = (args) => {
-  // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
-
-  const [selected, setSelected] = React.useState<string[]>([]);
-
-  return (
-    <VisProvider>
-      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} selected={selected} selectionCallback={setSelected} columns={columns} />
+    return (
+      <VisProvider>
+        <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ width: '70%', height: '80%' }}>
+            <Vis {...args} selected={selected} selectionCallback={setSelected} columns={columns} />
+          </div>
         </div>
-      </div>
-    </VisProvider>
-  );
-};
-// More on args: https://storybook.js.org/docs/react/writing-stories/args
-
-export const LargeData: typeof Template = Template.bind({}) as typeof Template;
-LargeData.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'pca_x',
-        name: 'pca_x',
-      },
-      {
-        description: '',
-        id: 'pca_y',
-        name: 'pca_y',
-      },
-    ],
-    color: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.2,
-  } as BaseVisConfig,
+      </VisProvider>
+    );
+  },
 };
 
-export const LargeDataMuliples: typeof Template = Template.bind({}) as typeof Template;
-LargeDataMuliples.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'pca_x',
-        name: 'pca_x',
-      },
-      {
-        description: '',
-        id: 'pca_y',
-        name: 'pca_y',
-      },
-      {
-        description: '',
-        id: 'value',
-        name: 'value',
-      },
-    ],
-    color: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 0.2,
-  } as BaseVisConfig,
+export default meta;
+type Story = StoryObj<typeof Vis>;
+
+export const LargeData: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'pca_x',
+          name: 'pca_x',
+        },
+        {
+          description: '',
+          id: 'pca_y',
+          name: 'pca_y',
+        },
+      ],
+      color: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 0.2,
+    } as BaseVisConfig,
+  },
+};
+
+export const LargeDataMuliples: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.SCATTER,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'pca_x',
+          name: 'pca_x',
+        },
+        {
+          description: '',
+          id: 'pca_y',
+          name: 'pca_y',
+        },
+        {
+          description: '',
+          id: 'value',
+          name: 'value',
+        },
+      ],
+      color: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      shape: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      alphaSliderVal: 0.2,
+    } as BaseVisConfig,
+  },
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { Stack, Text, Group } from '@mantine/core';
 import { ESortStates, SortIcon, ISortIconProps } from './SortIcon';
 
@@ -70,17 +70,12 @@ function Docs() {
   );
 }
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
+const meta: Meta<typeof Docs> = {
   title: 'Components/SortIcon',
   component: Docs,
-  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
 };
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-// eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Docs> = (args) => {
-  return <Docs />;
-};
+export default meta;
+type Story = StoryObj<typeof Docs>;
 
-export const Default: typeof Template = Template.bind({});
+export const Default: Story = {};

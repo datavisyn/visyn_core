@@ -6,6 +6,8 @@ import type { ICommonVisProps } from '../../interfaces';
 import { IBarConfig } from '../interfaces';
 
 export function FocusFacetSelector({ config, setConfig, facets }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig'> & { facets: string[] }) {
+  const isFacetFocused: boolean = React.useMemo(() => config?.focusFacetIndex !== null && config?.focusFacetIndex !== undefined, [config?.focusFacetIndex]);
+
   if (!config?.facets && facets.length === 0) {
     return null;
   }
@@ -17,17 +19,17 @@ export function FocusFacetSelector({ config, setConfig, facets }: Pick<ICommonVi
           key={`focusFacetSelect_${config.focusFacetIndex ?? 0}`}
           placeholder="Select a focus facet"
           data={facets}
-          value={facets[config.focusFacetIndex ?? 0] || ''}
+          value={isFacetFocused ? facets[config.focusFacetIndex ?? 0] : ''}
           onChange={(value) => {
             setConfig?.({ ...config, focusFacetIndex: typeof value === 'string' ? facets.indexOf(value) : value });
           }}
           clearable
         />
-        <Tooltip label="Previous facet" position="top" withArrow>
+        <Tooltip label="Previous facet" position="top" hidden={!isFacetFocused} withArrow withinPortal>
           <ActionIcon
             color="dvGray"
             variant="subtle"
-            disabled={(config.focusFacetIndex ?? 0) === null}
+            disabled={!isFacetFocused}
             onClick={() => {
               setConfig?.({ ...config, focusFacetIndex: ((config.focusFacetIndex ?? 0) - 1 + facets.length) % facets.length });
             }}
@@ -35,11 +37,11 @@ export function FocusFacetSelector({ config, setConfig, facets }: Pick<ICommonVi
             <FontAwesomeIcon icon={faChevronLeft} />
           </ActionIcon>
         </Tooltip>
-        <Tooltip label="Next facet" position="top" withArrow>
+        <Tooltip label="Next facet" position="top" hidden={!isFacetFocused} withArrow withinPortal>
           <ActionIcon
             color="dvGray"
             variant="subtle"
-            disabled={(config.focusFacetIndex ?? 0) === null}
+            disabled={!isFacetFocused}
             onClick={() => {
               setConfig?.({ ...config, focusFacetIndex: ((config.focusFacetIndex ?? 0) + 1) % facets.length });
             }}

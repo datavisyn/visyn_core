@@ -18,7 +18,7 @@ import { VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 import { fitRegressionLine } from './Regression';
-import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
+import { ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
 import { useData } from './useData';
 import { useDataPreparation } from './useDataPreparation';
 import { useLayout } from './useLayout';
@@ -71,7 +71,7 @@ export function ScatterVis({
   scrollZoom,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IInternalScatterConfig>) {
+}: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
