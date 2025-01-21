@@ -1,5 +1,7 @@
-import { Container, SegmentedControl, Stack, Tooltip } from '@mantine/core';
 import * as React from 'react';
+
+import { Container, SegmentedControl, Stack, Tooltip } from '@mantine/core';
+
 import { EBarDisplayType } from '../interfaces';
 
 interface BarDisplayProps {

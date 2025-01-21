@@ -1,6 +1,6 @@
+import { getDataForAggregationType } from './get-data-for-aggregate-type';
 import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { defaultConfig } from '../../constants';
-import { getDataForAggregationType } from './get-data-for-aggregate-type';
 
 const config = { ...defaultConfig };
 

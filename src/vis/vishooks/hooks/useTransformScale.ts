@@ -1,8 +1,9 @@
 import { ZoomTransform as D3ZoomTransform, scaleLinear } from 'd3v7';
-import { ZoomTransform } from '../interfaces';
-import { rescaleX, rescaleY } from '../transform';
-import { sxi, txi, tyi } from '../math/matrix4x4';
+
 import { useDeepMemo } from '../../../hooks/useDeepMemo';
+import { ZoomTransform } from '../interfaces';
+import { sxi, txi, tyi } from '../math/matrix4x4';
+import { rescaleX, rescaleY } from '../transform';
 
 interface UseTransformScaleProps {
   domain: number[];

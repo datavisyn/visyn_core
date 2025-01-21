@@ -1,6 +1,6 @@
+import { normalizedValue } from './normalized-value';
 import { defaultConfig } from '../../constants';
 import { EBarDisplayType, EBarGroupingType } from '../../enums';
-import { normalizedValue } from './normalized-value';
 
 const config = { ...defaultConfig };
 describe('normalizedValue', () => {

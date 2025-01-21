@@ -1,13 +1,14 @@
 import * as React from 'react';
+
 import * as d3v7 from 'd3v7';
-import sortBy from 'lodash/sortBy';
 import groupBy from 'lodash/groupBy';
 import isFinite from 'lodash/isFinite';
+import sortBy from 'lodash/sortBy';
+
 import { FetchColumnDataResult } from './utils';
-import { columnNameWithDescription } from '../general/layoutUtils';
 import { PlotlyTypes } from '../../plotly';
-import { getCssValue } from '../../utils/getCssValue';
-import { EColumnTypes, ENumericalColorScaleType } from '../interfaces';
+import { columnNameWithDescription } from '../general/layoutUtils';
+import { ENumericalColorScaleType } from '../interfaces';
 
 function getStretchedDomains(x: number[], y: number[]) {
   let xDomain = d3v7.extent(x);

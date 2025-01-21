@@ -1,14 +1,16 @@
+import * as React from 'react';
+
 import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { Notifications, NotificationsProps } from '@mantine/notifications';
-import merge from 'lodash/merge';
-import * as React from 'react';
 import { BrowserOptions } from '@sentry/react';
+import merge from 'lodash/merge';
+
 import { loadClientConfig } from '../base/clientConfig';
 import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
-import { VisProvider } from '../vis/Provider';
 import { VisynAppContext } from './VisynAppContext';
 import { DEFAULT_MANTINE6_PROVIDER_PROPS, DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
+import { VisProvider } from '../vis/Provider';
 
 import '@mantine/code-highlight/styles.css';
 import '@mantine/core/styles.css';

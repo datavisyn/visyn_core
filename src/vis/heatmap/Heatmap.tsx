@@ -1,18 +1,20 @@
+import * as React from 'react';
+import { useMemo } from 'react';
+
 import { Box, Center, Container, Group, Space, Stack, Text, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import { desc, op, table } from 'arquero';
 import * as d3 from 'd3v7';
-import * as React from 'react';
-import { useMemo } from 'react';
+
 import { rollupByAggregateType } from './utils';
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ENumericalColorScaleType, VisCategoricalValue, VisNumericalValue } from '../interfaces';
-import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { HeatmapRect } from './HeatmapRect';
 import { HeatmapText } from './HeatmapText';
 import { ESortTypes, IHeatmapConfig } from './interfaces';
 import { sequentialBlueColors } from '../../utils/colors';
-import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../general/constants';
 import { ESortStates, SortIcon } from '../general/SortIcon';
+import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../general/constants';
+import { ColorLegendVert } from '../legend/ColorLegendVert';
 
 const interRectDistance = 1;
 

@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
 import { ISankeyConfig } from './interfaces';
 import { MultiSelect } from '../sidebar';

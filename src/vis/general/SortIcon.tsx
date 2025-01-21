@@ -1,10 +1,12 @@
+import * as React from 'react';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Group, Text, Tooltip } from '@mantine/core';
 import * as d3v7 from 'd3v7';
-import * as React from 'react';
+
+import { VIS_LABEL_COLOR } from './constants';
 import { dvSort, dvSortAsc, dvSortDesc } from '../../icons';
 import { selectionColorDark } from '../../utils';
-import { VIS_LABEL_COLOR } from './constants';
 
 export enum ESortStates {
   NONE = 'none',

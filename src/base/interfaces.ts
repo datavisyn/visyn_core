@@ -1,6 +1,7 @@
 import type { ICategory } from 'lineupjs';
-import { IUser } from '../security';
+
 import { IPluginDesc } from '../plugin/interfaces';
+import { IUser } from '../security';
 
 /**
  * common interface for a row as used in LineUp

@@ -1,12 +1,14 @@
-import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
+
+import merge from 'lodash/merge';
+
 import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
+import { BarDirectionButtons, GroupSelect } from './components';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { SingleSelect } from '../sidebar/SingleSelect';
-import { BarDirectionButtons, GroupSelect } from './components';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 
 const defaultConfig = {
   direction: { enable: true, customComponent: null as unknown },

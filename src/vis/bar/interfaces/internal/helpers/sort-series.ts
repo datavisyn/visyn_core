@@ -1,6 +1,7 @@
 import type { BarSeriesOption } from 'echarts/charts';
+
 import { NAN_REPLACEMENT } from '../../../../general/constants';
-import { EBarSortState, EBarDirection } from '../../enums';
+import { EBarDirection, EBarSortState } from '../../enums';
 
 /**
  * Sorts the series data based on the specified order.

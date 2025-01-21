@@ -1,14 +1,16 @@
 import React from 'react';
-import { StoryObj, Meta } from '@storybook/react';
-import { Center, Stack, Paper, Button, Text, Group } from '@mantine/core';
-import { lassoToSvgPath, useLasso } from './useLasso';
-import { SVGLasso } from '../components/SVGLasso';
-import { useBrush } from './useBrush';
+
+import { Button, Center, Group, Paper, Stack, Text } from '@mantine/core';
+import { Meta, StoryObj } from '@storybook/react';
+
+import { useLasso } from './useLasso';
 import { SVGBrush } from '../components';
-import { useCanvas } from './useCanvas';
-import { m4 } from '../math';
-import { ZoomTransform } from '../interfaces';
 import { useAnimatedTransform } from './useAnimatedTransform';
+import { useBrush } from './useBrush';
+import { useCanvas } from './useCanvas';
+import { SVGLasso } from '../components/SVGLasso';
+import { ZoomTransform } from '../interfaces';
+import { m4 } from '../math';
 
 function UseLassoComponent() {
   const { setRef, value } = useLasso();

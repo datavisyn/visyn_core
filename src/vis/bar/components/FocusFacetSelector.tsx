@@ -1,7 +1,9 @@
+import React from 'react';
+
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Group, Select, Tooltip } from '@mantine/core';
-import React from 'react';
+
 import type { ICommonVisProps } from '../../interfaces';
 import { IBarConfig } from '../interfaces';
 

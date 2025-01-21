@@ -1,5 +1,5 @@
-import { EBarDirection, EBarSortState } from '../../enums';
 import { sortSeries } from './sort-series';
+import { EBarDirection, EBarSortState } from '../../enums';
 
 describe('sortSeries', () => {
   // TODO: @dv-usama-ansari: Add tests for sortSeries for different combinations of data:

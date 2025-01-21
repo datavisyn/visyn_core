@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import type { EagerVis } from './EagerVis';
 
 const VisLazy = React.lazy(() => import('./EagerVis').then((m) => ({ default: m.EagerVis })));

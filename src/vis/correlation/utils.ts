@@ -1,4 +1,5 @@
 import merge from 'lodash/merge';
+
 import { resolveColumnValues } from '../general/layoutUtils';
 import { ColumnInfo, EColumnTypes, EScaleType, ESupportedPlotlyVis, VisCategoricalValue, VisColumn, VisNumericalValue } from '../interfaces';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';

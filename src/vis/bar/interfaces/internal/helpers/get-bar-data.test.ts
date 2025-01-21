@@ -1,7 +1,7 @@
+import { getBarData } from './get-bar-data';
 import { ColumnInfo } from '../../../../interfaces';
 import { fetchBreastCancerData } from '../../../../stories/fetchBreastCancerData';
 import { defaultConfig } from '../../constants';
-import { getBarData } from './get-bar-data';
 
 const config = { ...defaultConfig };
 

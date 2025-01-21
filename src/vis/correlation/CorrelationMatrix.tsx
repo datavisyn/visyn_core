@@ -1,19 +1,21 @@
+import * as React from 'react';
+import { useMemo } from 'react';
+
 import { Box, Center, Loader, Stack, Text, Tooltip, rem } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
-import { uniqueId } from 'lodash';
 import { scaleBand } from 'd3v7';
 import { corrcoeff, spearmancoeff, tukeyhsd } from 'jstat';
-import * as React from 'react';
-import { useMemo } from 'react';
+import { uniqueId } from 'lodash';
+
 import { useAsync } from '../../hooks/useAsync';
 import { ColumnInfo, EColumnTypes, EScaleType, ICommonVisProps, VisCategoricalValue, VisNumericalValue } from '../interfaces';
 import { ColorLegendVert } from '../legend/ColorLegendVert';
 import { CorrelationPair, CorrelationPairProps } from './components/CorrelationPair';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
 import { getCorrelationMatrixData } from './utils';
-import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR, VIS_GRID_COLOR } from '../general/constants';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';
+import { VIS_AXIS_LABEL_SIZE, VIS_GRID_COLOR, VIS_LABEL_COLOR } from '../general/constants';
 
 const paddingCircle = { top: 5, right: 5, bottom: 5, left: 5 };
 const CIRCLE_MIN_SIZE = 4;

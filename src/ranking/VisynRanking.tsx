@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import type { EagerVisynRanking } from './EagerVisynRanking';
 
 const LazyVisynRanking = React.lazy(() => import('./EagerVisynRanking').then((m) => ({ default: m.EagerVisynRanking }))) as typeof EagerVisynRanking;

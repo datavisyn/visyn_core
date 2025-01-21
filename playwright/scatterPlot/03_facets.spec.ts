@@ -1,4 +1,4 @@
-import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
+import { expect, takeSnapshot, test } from '@chromatic-com/playwright';
 
 test('select facet', async ({ page }, testInfo) => {
   await page.goto('/');

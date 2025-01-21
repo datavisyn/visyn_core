@@ -1,4 +1,5 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { expect, test } from '@chromatic-com/playwright';
+
 import { selectViolinPlot } from '../extensions/selectPlots';
 
 /*

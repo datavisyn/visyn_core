@@ -1,5 +1,5 @@
-import { userSession, UserSession } from './UserSession';
 import { LoginUtils } from './LoginUtils';
+import { UserSession, userSession } from './UserSession';
 import { Ajax } from '../base/ajax';
 import { globalEventHandler } from '../base/event';
 

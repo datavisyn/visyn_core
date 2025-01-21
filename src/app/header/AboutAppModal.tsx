@@ -1,7 +1,9 @@
-import { Center, Divider, Group, MantineSize, Modal, Space, Text, Title } from '@mantine/core';
 import React from 'react';
-import { useVisynAppContext } from '../VisynAppContext';
+
+import { Center, Divider, Group, MantineSize, Modal, Space, Text, Title } from '@mantine/core';
+
 import { WebpackEnv } from '../../base';
+import { useVisynAppContext } from '../VisynAppContext';
 
 /**
  * Configuration for the about app modal. Can

@@ -1,4 +1,4 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { expect, test } from '@chromatic-com/playwright';
 
 test('polynomial regression line: quadratic', async ({ page }) => {
   await page.goto('/');

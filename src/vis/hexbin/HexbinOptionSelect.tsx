@@ -1,7 +1,9 @@
 import * as React from 'react';
+
 import { Select } from '@mantine/core';
-import { i18n } from '../../i18n';
+
 import { EHexbinOptions } from './interfaces';
+import { i18n } from '../../i18n';
 
 interface HexbinOptionSelectProps {
   callback: (c: EHexbinOptions) => void;

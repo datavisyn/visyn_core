@@ -1,4 +1,4 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { expect, test } from '@chromatic-com/playwright';
 
 test('default regression line color', async ({ page }) => {
   await page.goto('/');

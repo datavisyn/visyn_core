@@ -1,4 +1,5 @@
 import merge from 'lodash/merge';
+
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
   ColumnInfo,

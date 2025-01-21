@@ -1,18 +1,20 @@
+import * as React from 'react';
+
 import { Box, Stack, Text } from '@mantine/core';
 import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
-import * as React from 'react';
+
+import { useBarSortHelper } from './hooks';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import { BlurredOverlay } from '../../components';
 import { type ECOption, useChart } from '../../echarts';
 import { useAsync } from '../../hooks';
 import { sanitize, selectionColorDark } from '../../utils';
-import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
 import { ErrorMessage } from '../general/ErrorMessage';
 import { WarningMessage } from '../general/WarningMessage';
+import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
 import { ColumnInfo, EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { useBarSortHelper } from './hooks';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
 import {
   AggregatedDataType,
   BAR_WIDTH,
@@ -20,8 +22,8 @@ import {
   DEFAULT_BAR_CHART_HEIGHT,
   GenerateAggregatedDataLookup,
   SERIES_ZERO,
-  sortSeries,
   WorkerWrapper,
+  sortSeries,
 } from './interfaces/internal';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
