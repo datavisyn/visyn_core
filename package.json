@@ -145,7 +145,7 @@
     "storybook-react-rsbuild": "^0.1.6"
   },
   "resolutions": {
-    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#mp/storybook_rspack"
+    "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts#develop"
   },
   "visyn": {
     "entries": {
