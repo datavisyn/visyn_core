@@ -108,7 +108,7 @@ export function MainApp() {
                 lineupRef.current?.createScoreColumn(data);
                 setLoading(false);
               }}
-              rightSection={loading ? <Loader /> : null}
+              rightSection={loading ? <Loader size="xs" /> : null}
               data={[
                 { value: 'string', label: 'String' },
                 { value: 'number', label: 'Number' },
