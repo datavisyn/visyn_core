@@ -1,5 +1,7 @@
-import { Input, SegmentedControl, Tooltip, Text } from '@mantine/core';
 import * as React from 'react';
+
+import { Input, SegmentedControl, Text, Tooltip } from '@mantine/core';
+
 import { EViolinOverlay, EYAxisMode } from './interfaces';
 
 interface SegmentedControlProps<T> {

@@ -1,7 +1,9 @@
-import * as d3 from 'd3v7';
 import * as React from 'react';
-import { Text, Tooltip, Center, Stack } from '@mantine/core';
 import { useMemo } from 'react';
+
+import { Center, Stack, Text, Tooltip } from '@mantine/core';
+import * as d3 from 'd3v7';
+
 import { AnimatedLine } from './AnimatedLine';
 import { AnimatedText } from './AnimatedText';
 import { NAN_REPLACEMENT, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE } from '../general/constants';

@@ -1,4 +1,5 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { expect, test } from '@chromatic-com/playwright';
+
 import { selectBoxPlot } from '../extensions/selectPlots';
 
 test('unsynced', async ({ page }) => {
@@ -36,8 +37,8 @@ test('unsynced', async ({ page }) => {
     .locator('text')
     .textContent();
 
-  const buttonMatch = valueRightChartButton != valueLeftChartButton;
-  const topMatch = valueRightChartTop != valueLeftChartTop;
+  const buttonMatch = valueRightChartButton !== valueLeftChartButton;
+  const topMatch = valueRightChartTop !== valueLeftChartTop;
 
   expect(buttonMatch || topMatch).toBeTruthy();
 });
@@ -78,8 +79,8 @@ test('synced', async ({ page }) => {
     .locator('text')
     .textContent();
 
-  const buttonMatch = valueRightChartButton == valueLeftChartButton;
-  const topMatch = valueRightChartTop == valueLeftChartTop;
+  const buttonMatch = valueRightChartButton === valueLeftChartButton;
+  const topMatch = valueRightChartTop === valueLeftChartTop;
 
   expect(buttonMatch && topMatch).toBeTruthy();
 });

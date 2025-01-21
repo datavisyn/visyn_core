@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import type { IClientConfig } from '../base/clientConfig';
 import type { IUser } from '../security';
 

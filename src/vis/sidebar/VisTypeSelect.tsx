@@ -1,8 +1,10 @@
-import { Select, Text } from '@mantine/core';
 import * as React from 'react';
+
+import { Select, Text } from '@mantine/core';
+
+import { HelpHoverCard } from '../../components/HelpHoverCard';
 import { useVisProvider } from '../Provider';
 import { ESupportedPlotlyVis } from '../interfaces';
-import { HelpHoverCard } from '../../components/HelpHoverCard';
 
 interface VisTypeSelectProps {
   callback: (s: ESupportedPlotlyVis) => void;

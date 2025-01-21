@@ -1,7 +1,8 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
-import { ZoomTransform } from '../interfaces';
+
 import { useSyncedRef } from '../../../hooks';
+import { ZoomTransform } from '../interfaces';
 
 function linearInterpolate(startMatrix: ZoomTransform, endMatrix: ZoomTransform, t: number) {
   return startMatrix.map((startValue, index) => {

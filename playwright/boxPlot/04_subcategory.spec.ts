@@ -1,4 +1,5 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { expect, test } from '@chromatic-com/playwright';
+
 import { selectBoxPlot } from '../extensions/selectPlots';
 
 test('subcategory selected', async ({ page }) => {

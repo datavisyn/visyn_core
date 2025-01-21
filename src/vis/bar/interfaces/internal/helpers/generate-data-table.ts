@@ -1,8 +1,9 @@
 import zipWith from 'lodash/zipWith';
-import { getLabelOrUnknown } from '../../../../general/utils';
-import { EColumnTypes, type VisNumericalValue } from '../../../../interfaces';
+
 import { createBinLookup } from './create-bin-lookup';
 import type { getBarData } from './get-bar-data';
+import { getLabelOrUnknown } from '../../../../general/utils';
+import { EColumnTypes, type VisNumericalValue } from '../../../../interfaces';
 
 export function generateDataTable(allColumns: Awaited<ReturnType<typeof getBarData>>) {
   // bin the `group` column values if a numerical column is selected

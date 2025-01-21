@@ -3,12 +3,14 @@ Adopted code for curve fitting from https://github.com/Tom-Alexander/regression-
 Currently we only support linear and polynomial regression.
 */
 
+import * as React from 'react';
+
 import { CheckIcon, ColorSwatch, Group, Input, SegmentedControl, Select, Stack, Text, rem } from '@mantine/core';
 import fitCurve from 'fit-curve';
 import { corrcoeff, ftest, spearmancoeff } from 'jstat';
-import * as React from 'react';
-import { HelpHoverCard } from '../../components/HelpHoverCard';
+
 import { ERegressionLineType, IRegressionFitOptions, IRegressionLineOptions, IRegressionResult } from './interfaces';
+import { HelpHoverCard } from '../../components/HelpHoverCard';
 
 type RegressionData = Array<Array<number>>;
 const DEFAULT_CURVE_FIT_OPTIONS: IRegressionFitOptions = { order: 2, precision: 3 };

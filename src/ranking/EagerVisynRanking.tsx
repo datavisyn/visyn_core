@@ -1,14 +1,16 @@
 import * as React from 'react';
-import LineUp, { buildRanking } from 'lineupjs';
-import isEqual from 'lodash/isEqual';
+
 import { css } from '@emotion/css';
 import { Box, BoxProps } from '@mantine/core';
+import LineUp, { buildRanking } from 'lineupjs';
+import isEqual from 'lodash/isEqual';
+
 import { useSyncedRef } from '../hooks/useSyncedRef';
+import { DatavisynLineUpBuilder } from './overrides/DatavisynLineUpBuilder';
+import { DatavisynTaggle } from './overrides/DatavisynTaggle';
 import { registerSMILESColumn } from './smiles/utils';
 
 import '../scss/vendors/_lineup.scss';
-import { DatavisynTaggle } from './overrides/DatavisynTaggle';
-import { DatavisynLineUpBuilder } from './overrides/DatavisynLineUpBuilder';
 
 export const defaultBuilder = ({
   data,

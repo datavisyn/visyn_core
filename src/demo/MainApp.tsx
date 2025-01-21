@@ -1,5 +1,7 @@
-import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import * as React from 'react';
+
+import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
 import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
 import { defaultBuilder } from '../ranking/EagerVisynRanking';
@@ -13,9 +15,9 @@ import {
   IScatterConfig,
   Vis,
 } from '../vis';
+import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { breastCancerData } from '../vis/stories/breastCancerData';
 import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
-import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -106,7 +108,7 @@ export function MainApp() {
                 lineupRef.current?.createScoreColumn(data);
                 setLoading(false);
               }}
-              rightSection={loading ? <Loader /> : null}
+              rightSection={loading ? <Loader size="xs" /> : null}
               data={[
                 { value: 'string', label: 'String' },
                 { value: 'number', label: 'Number' },

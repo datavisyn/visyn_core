@@ -1,5 +1,6 @@
 // In case of failing tests due to i18next, check if the `esModuleInterop` flag is set to true in the jest config (in "tsConfig" object under "ts-jest" in globals property).
 import i18next, { i18n as i18nType } from 'i18next';
+
 import { pluginRegistry } from '../plugin/PluginRegistry';
 import { EP_PHOVEA_CORE_LOCALE, ILocaleEPDesc } from '../plugin/extensions';
 

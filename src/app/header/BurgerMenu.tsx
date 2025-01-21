@@ -1,6 +1,7 @@
+import React from 'react';
+
 import { Burger, Menu } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
-import React from 'react';
 
 export function BurgerMenu({ menu }: { menu: JSX.Element }) {
   const [opened, setOpened] = React.useState(false);

@@ -1,5 +1,6 @@
-import { Box, LoadingOverlay, Loader, Stack } from '@mantine/core';
 import * as React from 'react';
+
+import { Box, Loader, LoadingOverlay, Stack } from '@mantine/core';
 
 /**
  * A blurred overlay that can be used to show a loading spinner and/or a loading text.

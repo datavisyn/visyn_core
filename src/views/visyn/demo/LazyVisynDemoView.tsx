@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { DemoVisynViewPluginType } from './interfaces';
 
 export function createLazyVisynDemoView(): DemoVisynViewPluginType['definition'] {

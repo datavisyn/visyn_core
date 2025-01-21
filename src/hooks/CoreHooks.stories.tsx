@@ -1,6 +1,8 @@
 import React from 'react';
-import { StoryObj, Meta } from '@storybook/react';
+
 import { Button, Center, Stack } from '@mantine/core';
+import { Meta, StoryObj } from '@storybook/react';
+
 import { useSetRef } from './useSetRef';
 
 function SetRefTest() {

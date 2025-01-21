@@ -1,4 +1,5 @@
 import { test } from '@chromatic-com/playwright';
+
 import { selectHexbin } from '../extensions/selectPlots';
 
 test('minimum size', async ({ page }) => {

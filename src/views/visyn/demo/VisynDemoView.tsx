@@ -1,9 +1,11 @@
 import * as React from 'react';
+
 import uniqueId from 'lodash/uniqueId';
-import { VisColumn, EColumnTypes } from '../../../vis/interfaces';
+
 import { DemoVisynViewPluginType } from './interfaces';
 import { Vis } from '../../../vis';
 import { VisSidebar } from '../../../vis/VisSidebar';
+import { EColumnTypes, VisColumn } from '../../../vis/interfaces';
 
 function fetchData(numberOfPoints: number): VisColumn[] {
   const dataGetter = async () => {

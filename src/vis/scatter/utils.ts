@@ -1,5 +1,6 @@
 import * as d3v7 from 'd3v7';
 import merge from 'lodash/merge';
+
 import { VIS_NEUTRAL_COLOR } from '../general/constants';
 import {
   ColumnInfo,

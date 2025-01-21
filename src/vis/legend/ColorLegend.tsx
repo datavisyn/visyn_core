@@ -1,7 +1,8 @@
 import * as React from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+
 import { Group, Stack, Text } from '@mantine/core';
 import * as d3 from 'd3v7';
-import { useEffect, useMemo, useRef } from 'react';
 
 export function ColorLegend({
   scale,

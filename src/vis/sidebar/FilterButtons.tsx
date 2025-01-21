@@ -1,5 +1,7 @@
-import { Button, Input, Tooltip } from '@mantine/core';
 import * as React from 'react';
+
+import { Button, Input, Tooltip } from '@mantine/core';
+
 import { EFilterOptions } from '../interfaces';
 
 interface FilterButtonsProps {

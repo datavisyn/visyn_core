@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
+
 import { scaleBand } from 'd3-scale';
+
 import { ZoomTransform } from '../interfaces';
 import { m4, v3 } from '../math';
 

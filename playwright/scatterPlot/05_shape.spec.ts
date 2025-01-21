@@ -1,4 +1,4 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { expect, test } from '@chromatic-com/playwright';
 
 test('no shape selected', async ({ page }) => {
   await page.goto('/');

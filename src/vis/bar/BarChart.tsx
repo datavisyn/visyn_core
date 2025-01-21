@@ -1,9 +1,12 @@
-import { Box, Group, ScrollArea, Stack } from '@mantine/core';
-import { useElementSize, useShallowEffect } from '@mantine/hooks';
-import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
-import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
+
+import { Box, Group, ScrollArea, Stack } from '@mantine/core';
+import { useElementSize, useShallowEffect } from '@mantine/hooks';
+import { type ScaleOrdinal, scaleOrdinal, schemeBlues } from 'd3v7';
+import uniqueId from 'lodash/uniqueId';
+
+import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { BlurredOverlay } from '../../components';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors10 } from '../../utils/colors';
@@ -14,21 +17,20 @@ import { FocusFacetSelector } from './components';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
-  calculateChartHeight,
-  calculateChartMinWidth,
   CHART_HEIGHT_MARGIN,
   DEFAULT_BAR_CHART_HEIGHT,
   DEFAULT_BAR_CHART_MIN_WIDTH,
   DEFAULT_FACET_NAME,
-  generateAggregatedDataLookup,
   GenerateAggregatedDataLookup,
+  WorkerWrapper,
+  calculateChartHeight,
+  calculateChartMinWidth,
+  generateAggregatedDataLookup,
   generateDataTable,
   getBarData,
-  WorkerWrapper,
 } from './interfaces/internal';
-import { SingleEChartsBarChart } from './SingleEChartsBarChart';
-import { getLabelOrUnknown } from '../general/utils';
 import { NAN_REPLACEMENT } from '../general/constants';
+import { getLabelOrUnknown } from '../general/utils';
 
 type VirtualizedBarChartProps = {
   aggregatedDataMap: Awaited<ReturnType<typeof generateAggregatedDataLookup>>;

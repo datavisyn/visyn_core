@@ -1,6 +1,8 @@
+import React, { useEffect, useMemo, useState } from 'react';
+
 import { Center, Stack } from '@mantine/core';
 import uniqueId from 'lodash/uniqueId';
-import React, { useEffect, useMemo, useState } from 'react';
+
 import { useAsync } from '../../hooks';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
 import { DownloadPlotButton } from '../general/DownloadPlotButton';

@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { Group, Stack, Text, Center, rem } from '@mantine/core';
-import * as d3 from 'd3v7';
 import { useEffect, useMemo, useRef } from 'react';
+
+import { Center, Group, Stack, Text, rem } from '@mantine/core';
+import * as d3 from 'd3v7';
+
 import { VIS_AXIS_LABEL_SIZE, VIS_LABEL_COLOR } from '../general/constants';
 
 export function ColorLegendVert({

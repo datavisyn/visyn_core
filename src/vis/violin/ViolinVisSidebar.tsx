@@ -1,12 +1,14 @@
-import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
+
+import merge from 'lodash/merge';
+
 import { ColumnInfo, EColumnTypes, ICommonVisSideBarProps } from '../interfaces';
+import { ViolinOverlaySegmentedControl, ViolinSyncYAxisSegmentedControl } from './ViolinSegmentedControl';
+import { EViolinOverlay, EYAxisMode, IViolinConfig, isViolinConfig } from './interfaces';
 import { FilterButtons } from '../sidebar/FilterButtons';
 import { MultiSelect } from '../sidebar/MultiSelect';
 import { SingleSelect } from '../sidebar/SingleSelect';
-import { ViolinOverlaySegmentedControl, ViolinSyncYAxisSegmentedControl } from './ViolinSegmentedControl';
-import { EViolinOverlay, EYAxisMode, IViolinConfig, isViolinConfig } from './interfaces';
 
 const defaultConfig = {
   subCategory: {

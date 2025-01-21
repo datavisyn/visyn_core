@@ -1,6 +1,6 @@
 import { EBarDirection, EBarGroupingType } from '../../enums';
 import { IBarConfig } from '../../interfaces';
-import { BAR_WIDTH, BAR_SPACING, DEFAULT_BAR_CHART_MIN_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT } from '../constants';
+import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, DEFAULT_BAR_CHART_MIN_WIDTH } from '../constants';
 import { AggregatedDataType } from '../types';
 
 export function calculateChartMinWidth({ config, aggregatedData }: { config?: IBarConfig; aggregatedData?: AggregatedDataType }): number {

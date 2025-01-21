@@ -1,9 +1,11 @@
-import { Tooltip } from '@mantine/core';
-import * as d3 from 'd3v7';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSpring, animated, easings } from 'react-spring';
+import { animated, easings, useSpring } from 'react-spring';
+
 import { css } from '@emotion/css';
+import { Tooltip } from '@mantine/core';
+import * as d3 from 'd3v7';
+
 import { selectionColorDark, selectionColorDarkHovered } from '../../utils/colors';
 import { NAN_REPLACEMENT } from '../general/constants';
 

@@ -1,5 +1,7 @@
-import { RefObject, useRef } from 'react';
+import { useRef } from 'react';
+
 import { produce } from 'immer';
+
 import { useInteractions } from './useInteractions';
 import { clamp } from '../util';
 import { useControlledUncontrolled } from './useControlledUncontrolled';
