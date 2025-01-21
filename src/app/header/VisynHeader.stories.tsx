@@ -7,52 +7,6 @@ import { IUser } from '../../security/index';
 import { VisynAppContext } from '../VisynAppContext';
 import { VisynHeader } from './VisynHeader';
 
-/** TODO: const useStyles = createStyles((theme) => ({
-  customComponentGroup: {
-    gap: 0,
-    '> a': {
-      color: theme.white,
-      '&:hover': {
-        color: theme.colors.dark[6],
-      },
-    },
-  },
-  button: {
-    color: theme.white,
-    backgroundColor: 'transparent',
-    '&:hover': {
-      backgroundColor: theme.colors.gray[6],
-    },
-  },
-  link: {
-    display: 'flex',
-    alignItems: 'center',
-    height: '100%',
-    paddingLeft: theme.spacing.md,
-    paddingRight: theme.spacing.md,
-    textDecoration: 'none',
-    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    fontWeight: 500,
-    fontSize: theme.fontSizes.sm,
-
-    [theme.fn.smallerThan('sm')]: {
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-    },
-
-    ...theme.fn.hover({
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-    }),
-  },
-  hiddenMobile: {
-    [theme.fn.smallerThan('sm')]: {
-      display: 'none',
-    },
-  },
-})); */
-
 const user: IUser = {
   name: 'Jaimy Smith',
   roles: [],

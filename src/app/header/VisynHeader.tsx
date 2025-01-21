@@ -10,18 +10,6 @@ import { ConfigurationMenu } from './ConfigurationMenu';
 import { DatavisynLogo } from './DatavisynLogo';
 import { UserMenu } from './UserMenu';
 
-/** TODO: const useStyles = createStyles(() => ({
-  a: {
-    '& > a': {
-      '&:hover': {
-        color: 'currentColor',
-      },
-    },
-  },
-})); */
-
-// const classes = {};
-
 export function VisynHeader({
   color = 'white',
   backgroundColor,
