@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../../../../LazyVis';
 import { VisProvider } from '../../../../Provider';
+import { ESortTypes } from '../../../../heatmap/interfaces';
 import { BaseVisConfig, EAggregateTypes, ENumericalColorScaleType, ESupportedPlotlyVis } from '../../../../interfaces';
 import { fetchBreastCancerData } from '../../../fetchBreastCancerData';
-import { ESortTypes } from '../../../../heatmap/interfaces';
 
 function VisWrapper(args) {
   const columns = React.useMemo(() => fetchBreastCancerData(), []);

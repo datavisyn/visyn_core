@@ -1,8 +1,10 @@
+import * as React from 'react';
+
+import { css } from '@emotion/css';
 import { Box, Center, Group, ScrollArea, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 import { uniqueId } from 'lodash';
-import * as React from 'react';
-import { css } from '@emotion/css';
+
 import { useAsync } from '../../hooks/useAsync';
 import { i18n } from '../../i18n';
 import { EScatterSelectSettings, ICommonVisProps } from '../interfaces';
@@ -11,8 +13,8 @@ import { Hexplot } from './Hexplot';
 import { IHexbinConfig } from './interfaces';
 import { getHexData } from './utils';
 import { LegendItem } from '../general/LegendItem';
-import { assignColorToNullValues } from '../general/utils';
 import { WarningMessage } from '../general/WarningMessage';
+import { assignColorToNullValues } from '../general/utils';
 
 function Legend({
   categories,

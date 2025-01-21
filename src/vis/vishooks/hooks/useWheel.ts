@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { normalizeWheelEvent } from '../normalizeWheelEvent';
-import { Extent, NormalizedWheelEvent } from '../interfaces';
-import { outsideExtent, relativeMousePosition } from '../util';
+
 import { useSetRef } from '../../../hooks';
+import { Extent, NormalizedWheelEvent } from '../interfaces';
+import { normalizeWheelEvent } from '../normalizeWheelEvent';
+import { outsideExtent, relativeMousePosition } from '../util';
 
 export interface UseWheelProps {
   onWheel: (event: NormalizedWheelEvent) => void;

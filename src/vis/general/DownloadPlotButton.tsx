@@ -1,9 +1,11 @@
-import { Tooltip, ActionIcon } from '@mantine/core';
 import * as React from 'react';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ActionIcon, Tooltip } from '@mantine/core';
+
+import { dvDownloadVisualization } from '../../icons';
 import { BaseVisConfig } from '../interfaces';
 import { DownloadPlotOptions, useCaptureVisScreenshot } from '../useCaptureVisScreenshot';
-import { dvDownloadVisualization } from '../../icons';
 
 export function DownloadPlotButton({ uniquePlotId, config, options }: { config: BaseVisConfig; uniquePlotId: string; options?: DownloadPlotOptions }) {
   const [{ isLoading }, captureScreenshot] = useCaptureVisScreenshot(uniquePlotId, config, options);

@@ -1,20 +1,22 @@
-import { Box, Container, Text, Center, rem } from '@mantine/core';
+import * as React from 'react';
+import { useMemo, useState } from 'react';
+
+import { Box, Center, Container, Text, rem } from '@mantine/core';
 import { useElementSize, useMergedRef } from '@mantine/hooks';
 import * as hex from 'd3-hexbin';
 import { HexbinBin } from 'd3-hexbin';
 import * as d3v7 from 'd3v7';
 import uniqueId from 'lodash/uniqueId';
-import * as React from 'react';
-import { useMemo, useState } from 'react';
+
 import { EScatterSelectSettings } from '../interfaces';
 import { SingleHex } from './SingleHex';
 import { XAxis } from './XAxis';
 import { YAxis } from './YAxis';
 import { IHexbinConfig } from './interfaces';
 import { ResolvedHexValues } from './utils';
+import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR } from '../general/constants';
 import { checkForInclusion, lassoToSvgPath, m4, useLasso, useLinearScale, usePan, useTransformScale, useZoom } from '../vishooks';
 import { sxi, txi, tyi } from '../vishooks/math/matrix4x4';
-import { VIS_AXIS_LABEL_SIZE, VIS_AXIS_LABEL_SIZE_SMALL, VIS_LABEL_COLOR } from '../general/constants';
 
 interface HexagonalBinProps {
   config: IHexbinConfig;

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../../../../LazyVis';
 import { VisProvider } from '../../../../Provider';
 import { BaseVisConfig, ESupportedPlotlyVis } from '../../../../interfaces';
-import { fetchBreastCancerData } from '../../../fetchBreastCancerData';
 import { EViolinOverlay, EYAxisMode } from '../../../../violin/interfaces';
+import { fetchBreastCancerData } from '../../../fetchBreastCancerData';
 
 function VisWrapper(args) {
   const columns = React.useMemo(() => fetchBreastCancerData(), []);

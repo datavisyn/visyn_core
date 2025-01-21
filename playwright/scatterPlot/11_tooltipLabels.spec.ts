@@ -1,4 +1,4 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { test } from '@chromatic-com/playwright';
 
 test('tooltip labels', async ({ page }) => {
   await page.goto('/');

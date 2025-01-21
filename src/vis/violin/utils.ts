@@ -1,4 +1,5 @@
 import { cloneDeep, groupBy, mean, merge, orderBy, sumBy } from 'lodash';
+
 import { i18n } from '../../i18n';
 import { categoricalColors10 } from '../../utils';
 import { IBoxplotConfig } from '../boxplot';

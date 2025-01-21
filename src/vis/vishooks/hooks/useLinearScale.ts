@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import { scaleLinear } from 'd3-scale';
 
 interface UseLinearScaleProps {

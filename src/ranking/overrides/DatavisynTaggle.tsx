@@ -1,5 +1,6 @@
 import { Column, DataProvider, IRankingDump, LocalDataProvider, Ranking, Taggle, TaggleRenderer } from 'lineupjs';
 import castArray from 'lodash/castArray';
+
 import { IScoreColumnDesc, IScoreResult } from '../score/interfaces';
 
 export class DatavisynTaggle<T extends DataProvider = LocalDataProvider> extends Taggle {

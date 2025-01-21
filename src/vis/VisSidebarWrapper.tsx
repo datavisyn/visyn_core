@@ -1,8 +1,10 @@
+import * as React from 'react';
+import { ReactNode } from 'react';
+
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Box, Divider, Group, ScrollArea, Stack, Text, Tooltip } from '@mantine/core';
-import * as React from 'react';
-import { ReactNode } from 'react';
+
 import { i18n } from '../i18n';
 import { VisTypeSelect } from './sidebar/VisTypeSelect';
 

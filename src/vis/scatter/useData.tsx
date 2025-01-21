@@ -1,13 +1,15 @@
 import * as React from 'react';
+
 import isEmpty from 'lodash/isEmpty';
-import { PlotlyTypes } from '../../plotly';
-import { DEFAULT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
+
 import { ELabelingOptions, IScatterConfig } from './interfaces';
-import { FetchColumnDataResult } from './utils';
-import { getLabelOrUnknown } from '../general/utils';
-import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
 import { useDataPreparation } from './useDataPreparation';
+import { FetchColumnDataResult } from './utils';
+import { PlotlyTypes } from '../../plotly';
 import { selectionColorDark } from '../../utils/colors';
+import { DEFAULT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
+import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
+import { getLabelOrUnknown } from '../general/utils';
 
 export function baseData(alpha: number, hasColor: boolean): Partial<PlotlyTypes.Data> {
   return {

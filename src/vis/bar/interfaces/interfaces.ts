@@ -1,5 +1,5 @@
-import type { BaseVisConfig, ColumnInfo, EAggregateTypes, ESupportedPlotlyVis } from '../../interfaces';
 import type { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from './enums';
+import type { BaseVisConfig, ColumnInfo, EAggregateTypes, ESupportedPlotlyVis } from '../../interfaces';
 
 export interface IBarConfig extends BaseVisConfig {
   /**

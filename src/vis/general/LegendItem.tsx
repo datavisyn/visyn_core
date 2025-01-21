@@ -1,6 +1,8 @@
-import { css } from '@emotion/css';
-import { Group, ColorSwatch, Text } from '@mantine/core';
 import React from 'react';
+
+import { css } from '@emotion/css';
+import { ColorSwatch, Group, Text } from '@mantine/core';
+
 import { getLabelOrUnknown } from './utils';
 
 /**

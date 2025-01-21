@@ -2,6 +2,7 @@
 import * as React from 'react';
 
 import isEqual from 'lodash/isEqual';
+
 import { useEvent } from '../../../hooks';
 
 /**

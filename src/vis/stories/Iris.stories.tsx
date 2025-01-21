@@ -1,10 +1,12 @@
-import { Meta, StoryObj } from '@storybook/react';
 import React, { useState } from 'react';
-import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../bar/interfaces';
-import { ESupportedPlotlyVis, ENumericalColorScaleType, EScatterSelectSettings, BaseVisConfig, EAggregateTypes } from '../interfaces';
+
+import { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../LazyVis';
-import { EViolinOverlay } from '../violin/interfaces';
+import { EBarDirection, EBarDisplayType, EBarGroupingType } from '../bar/interfaces';
+import { BaseVisConfig, EAggregateTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis } from '../interfaces';
 import { fetchIrisData } from './fetchIrisData';
+import { EViolinOverlay } from '../violin/interfaces';
 
 const meta: Meta<typeof Vis> = {
   title: 'Vis/vistypes/IrisData/IrisData',

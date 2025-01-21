@@ -1,6 +1,8 @@
-import { Button, Menu, Text } from '@mantine/core';
 import React from 'react';
+
+import { Button, Menu, Text } from '@mantine/core';
 import { Meta, StoryObj } from '@storybook/react';
+
 import { IUser } from '../../security/index';
 import { VisynAppContext } from '../VisynAppContext';
 import { VisynHeader } from './VisynHeader';

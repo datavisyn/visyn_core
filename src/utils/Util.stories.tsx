@@ -1,7 +1,9 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+
 import { Slider, Stack, Text } from '@mantine/core';
 import { DateTimePicker, DateValue } from '@mantine/dates';
+import { Meta, StoryObj } from '@storybook/react';
+
 import { fromNow, getMostRelevantTimeUnitFromNow } from './fromNow';
 
 function PickerExample() {

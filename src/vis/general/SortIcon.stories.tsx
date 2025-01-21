@@ -1,7 +1,9 @@
 import React from 'react';
+
+import { Group, Stack, Text } from '@mantine/core';
 import { Meta, StoryObj } from '@storybook/react';
-import { Stack, Text, Group } from '@mantine/core';
-import { ESortStates, SortIcon, ISortIconProps } from './SortIcon';
+
+import { ESortStates, ISortIconProps, SortIcon } from './SortIcon';
 
 function Wrapper({ props, initialState }: { props?: Omit<ISortIconProps, 'sortState' | 'setSortState'>; initialState?: ESortStates }) {
   const [sortState, setSortState] = React.useState<ESortStates>(initialState || ESortStates.NONE);

@@ -1,7 +1,8 @@
 import { buildCategoricalColumn, buildNumberColumn, buildStringColumn } from 'lineupjs';
+
+import { randomSurnames } from './randomSurnames';
 import { IScoreResult } from '../ranking/score/interfaces';
 import { buildSMILESColumn } from '../ranking/smiles/SMILESColumnBuilder';
-import { randomSurnames } from './randomSurnames';
 
 export async function MyCategoricalScore(value: string): Promise<IScoreResult> {
   const data = new Array(5000).fill(0).map(() => (Math.random() * 10).toFixed(0));

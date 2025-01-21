@@ -1,5 +1,5 @@
-import { Ajax } from './ajax';
 import { WebpackEnv } from './WebpackEnv';
+import { Ajax } from './ajax';
 
 type OfflineGenerator = ((data: any, url: string) => Promise<any>) | Promise<any> | any;
 

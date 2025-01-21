@@ -1,6 +1,8 @@
 import * as React from 'react';
+
 import isFunction from 'lodash/isFunction';
-import { VisynViewPluginDesc, VisynSimpleViewPluginType, VisynDataViewPluginType } from './interfaces';
+
+import { VisynDataViewPluginType, VisynSimpleViewPluginType, VisynViewPluginDesc } from './interfaces';
 import { EXTENSION_POINT_VISYN_VIEW } from '../../plugin/extensions';
 
 /**

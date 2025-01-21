@@ -1,6 +1,8 @@
-import { Tooltip, rem, Text, Center } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
+
+import { Center, Text, Tooltip, rem } from '@mantine/core';
+
 import { VIS_GRID_COLOR, VIS_LABEL_COLOR, VIS_TICK_LABEL_SIZE, VIS_TICK_LABEL_SIZE_SMALL } from '../general/constants';
 
 // code taken from https://wattenberger.com/blog/react-and-d3

@@ -1,6 +1,8 @@
-import { CloseButton, Combobox, Input, Pill, PillsInput, Stack, Tooltip, useCombobox, Text, Group, ScrollArea } from '@mantine/core';
 import * as React from 'react';
+
 import { css } from '@emotion/css';
+import { CloseButton, Combobox, Group, Input, Pill, PillsInput, ScrollArea, Stack, Text, Tooltip, useCombobox } from '@mantine/core';
+
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
 export function MultiSelect({

@@ -1,3 +1,3 @@
-import type { VisColumn, VisNumericalValue, VisCategoricalValue } from '../../interfaces';
+import type { VisCategoricalValue, VisColumn, VisNumericalValue } from '../../interfaces';
 
 export type VisColumnWithResolvedValues = VisColumn & { resolvedValues: (VisNumericalValue | VisCategoricalValue)[] };

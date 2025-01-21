@@ -1,6 +1,6 @@
+import { SelectOperation, SelectionUtils } from './SelectionUtils';
 import { appContext } from '../base/AppContext';
 import { EventHandler, IEventHandler } from '../base/event';
-import { SelectOperation, SelectionUtils } from './SelectionUtils';
 
 export interface IPersistedIDType {
   sel: { [key: string]: string[] };

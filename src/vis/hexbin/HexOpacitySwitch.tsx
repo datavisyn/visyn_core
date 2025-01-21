@@ -1,5 +1,6 @@
-import { Switch } from '@mantine/core';
 import * as React from 'react';
+
+import { Switch } from '@mantine/core';
 
 interface HexOpacitySwitchProps {
   callback: (b: boolean) => void;

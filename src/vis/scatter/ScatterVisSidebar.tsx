@@ -1,16 +1,18 @@
-import { Divider, Select } from '@mantine/core';
-import merge from 'lodash/merge';
 import * as React from 'react';
 import { useMemo } from 'react';
+
+import { Divider, Select } from '@mantine/core';
+import merge from 'lodash/merge';
+
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, ICommonVisSideBarProps } from '../interfaces';
-import { FilterButtons } from '../sidebar/FilterButtons';
-import { MultiSelect } from '../sidebar/MultiSelect';
-import { SingleSelect } from '../sidebar/SingleSelect';
 import { ColorSelect } from './ColorSelect';
 import { LabelingOptions } from './LabelingOptions';
 import { OpacitySlider } from './OpacitySlider';
 import { RegressionLineOptions } from './Regression';
 import { ELabelingOptions, IRegressionLineOptions, IScatterConfig } from './interfaces';
+import { FilterButtons } from '../sidebar/FilterButtons';
+import { MultiSelect } from '../sidebar/MultiSelect';
+import { SingleSelect } from '../sidebar/SingleSelect';
 
 const defaultConfig = {
   facets: {

@@ -1,5 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
+
+import { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { BaseVisConfig, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';

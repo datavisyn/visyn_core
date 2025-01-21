@@ -1,9 +1,11 @@
-import { Stack } from '@mantine/core';
 import * as React from 'react';
+
+import { Stack } from '@mantine/core';
+
 import { ColumnInfo, EColumnTypes, ENumericalColorScaleType, VisColumn } from '../interfaces';
 import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
-import { getCol } from '../sidebar/utils';
 import { SingleSelect } from '../sidebar/SingleSelect';
+import { getCol } from '../sidebar/utils';
 
 interface ColorSelectProps {
   callback: (c: ColumnInfo) => void;

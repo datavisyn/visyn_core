@@ -1,6 +1,8 @@
+import React from 'react';
+
 import { Meta, StoryObj } from '@storybook/react';
 import * as d3 from 'd3v7';
-import React from 'react';
+
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { ESortTypes } from '../../../heatmap/interfaces';

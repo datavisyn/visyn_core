@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { ICommonVisProps } from '../interfaces';
 import { CorrelationMatrix } from './CorrelationMatrix';
 import { ICorrelationConfig } from './interfaces';

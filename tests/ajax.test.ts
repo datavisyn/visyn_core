@@ -1,6 +1,6 @@
 /// <reference types="jest" />
-import { Ajax } from '../src/base/ajax';
 import { AppContext } from '../src/base';
+import { Ajax } from '../src/base/ajax';
 
 describe('api2absURL', () => {
   const appContext = new AppContext();

@@ -1,9 +1,11 @@
-import { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from '../../../bar/interfaces';
-import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisCategoricalColumn, VisColumn } from '../../../interfaces';
+
+import { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from '../../../bar/interfaces';
+import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed: number, sign: 'positive' | 'negative' | 'mixed' = 'positive') {
   const m = 2 ** 35 - 31;

@@ -1,7 +1,9 @@
+import React from 'react';
+
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons/faEllipsisVertical';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Menu } from '@mantine/core';
-import React from 'react';
+
 import { useVisynAppContext } from '../VisynAppContext';
 import { AboutAppModal, IAboutAppModalConfig } from './AboutAppModal';
 

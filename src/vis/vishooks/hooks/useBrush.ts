@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+
 import { UseInteractionsProps, useInteractions } from './useInteractions';
 import { Brush, Direction, Extent, PersistMode } from '../interfaces';
 import { clamp } from '../util';

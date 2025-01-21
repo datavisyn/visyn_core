@@ -1,6 +1,8 @@
-import { Avatar, Menu } from '@mantine/core';
 import React from 'react';
+
 import { css } from '@emotion/css';
+import { Avatar, Menu } from '@mantine/core';
+
 import { LoginUtils } from '../../security';
 
 export function UserMenu({ menu, user, color }: { menu?: JSX.Element; user: string; color?: string }) {

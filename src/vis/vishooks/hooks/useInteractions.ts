@@ -1,6 +1,7 @@
 import { useRef } from 'react';
-import { Extent } from '../interfaces';
+
 import { useSetRef } from '../../../hooks/useSetRef';
+import { Extent } from '../interfaces';
 
 interface BaseEvent {
   nativeEvent: MouseEvent;

@@ -1,6 +1,6 @@
+import { calculateChartHeight, calculateChartMinWidth } from './calculate-chart-dimensions';
 import { defaultConfig } from '../../constants';
 import { EBarDirection, EBarGroupingType } from '../../enums';
-import { calculateChartHeight, calculateChartMinWidth } from './calculate-chart-dimensions';
 
 const config = {
   ...defaultConfig,

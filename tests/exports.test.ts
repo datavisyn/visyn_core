@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /// <reference types="jest" />
-import { readdirSync, readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
+
 import packageJson from '../package.json';
 
 const NOT_EXPORTED_PACKAGES = ['assets', 'demo', 'locales', 'scss', 'stories'];

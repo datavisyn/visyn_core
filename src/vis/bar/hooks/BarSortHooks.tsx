@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { dvSort, dvSortAsc, dvSortDesc } from '../../../icons';
 import { selectionColorDark } from '../../../utils';
 import { EBarDirection, EBarSortParameters, EBarSortState, IBarConfig } from '../interfaces';

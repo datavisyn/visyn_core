@@ -1,10 +1,12 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaintbrush } from '@fortawesome/free-solid-svg-icons/faPaintbrush';
-import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
-import { faSearchPlus } from '@fortawesome/free-solid-svg-icons/faSearchPlus';
-import { faArrowsAlt } from '@fortawesome/free-solid-svg-icons/faArrowsAlt';
-import { SegmentedControl, Tooltip } from '@mantine/core';
 import * as React from 'react';
+
+import { faArrowsAlt } from '@fortawesome/free-solid-svg-icons/faArrowsAlt';
+import { faPaintbrush } from '@fortawesome/free-solid-svg-icons/faPaintbrush';
+import { faSearchPlus } from '@fortawesome/free-solid-svg-icons/faSearchPlus';
+import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { SegmentedControl, Tooltip } from '@mantine/core';
+
 import { EScatterSelectSettings } from '../interfaces';
 
 interface BrushOptionProps {

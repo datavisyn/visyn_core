@@ -1,6 +1,8 @@
+import * as React from 'react';
+
 import { Group, MantineColor, Text, Title, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import * as React from 'react';
+
 import { useVisynAppContext } from '../VisynAppContext';
 import { IAboutAppModalConfig } from './AboutAppModal';
 import { BurgerMenu } from './BurgerMenu';

@@ -1,8 +1,10 @@
-import { Stack } from '@mantine/core';
 import * as React from 'react';
+
+import { Stack } from '@mantine/core';
+
 import { ColumnInfo, EAggregateTypes, VisColumn } from '../../interfaces';
 import { SingleSelect } from '../../sidebar/SingleSelect';
-import { EBarGroupingType, EBarDisplayType } from '../interfaces';
+import { EBarDisplayType, EBarGroupingType } from '../interfaces';
 import { BarDisplayButtons } from './BarDisplayTypeButtons';
 import { BarGroupTypeButtons } from './BarGroupTypeButtons';
 
