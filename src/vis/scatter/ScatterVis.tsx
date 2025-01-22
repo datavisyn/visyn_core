@@ -78,6 +78,10 @@ export function ScatterVis({
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
+  const [isDataPrepared, setIsDataPrepared] = React.useState(false);
+  const [isLayoutPrepared, setIsLayoutPrepared] = React.useState(false);
+
+  const hiddenCategoriesSet = React.useMemo(() => new Set<string>(), []);
 
   // const [ref, { width, height }] = useResizeObserver();
   const { ref, width, height } = useElementSize();
@@ -129,12 +133,22 @@ export function ScatterVis({
     previousArgs.current = args;
   }
 
-  const { subplots, scatter, splom, facet, shapeScale } = useDataPreparation({
-    value,
+  const { subplots, scatter, splom, facet, shapeScale, calculateScatter } = useDataPreparation({
+    hiddenCategories: [...hiddenCategoriesSet],
+    numColorScaleType: config.numColorScaleType,
     status,
     uniqueSymbols,
-    numColorScaleType: config.numColorScaleType,
+    value,
   });
+
+  React.useEffect(() => {
+    if (!isDataPrepared) {
+      if (status === 'success' && value) {
+        calculateScatter([...hiddenCategoriesSet]);
+        setIsDataPrepared(true);
+      }
+    }
+  }, [status, value, calculateScatter, hiddenCategoriesSet]);
 
   const regressions = React.useMemo<{
     results: IRegressionResult[];
@@ -278,7 +292,7 @@ export function ScatterVis({
     splom,
   ]);
 
-  const layout = useLayout({
+  const { layout, calculateLayout } = useLayout({
     scatter,
     facet,
     splom,
@@ -289,6 +303,13 @@ export function ScatterVis({
     height,
     internalLayoutRef,
   });
+
+  React.useEffect(() => {
+    if (!isLayoutPrepared || !layout) {
+      calculateLayout();
+      setIsLayoutPrepared(true);
+    }
+  }, [calculateLayout, isLayoutPrepared, layout]);
 
   const legendData = React.useMemo(() => {
     if (!value) {
@@ -570,7 +591,19 @@ export function ScatterVis({
 
       {status === 'success' && layout && legendData?.color.mapping && showLegend ? (
         <div style={{ gridArea: 'legend', overflow: 'hidden' }}>
-          <Legend categories={legendData.color.categories} colorMap={legendData.color.mappingFunction} onClick={() => {}} />
+          <Legend
+            categories={legendData.color.categories}
+            colorMap={legendData.color.mappingFunction}
+            onClick={(e: string) => {
+              if (hiddenCategoriesSet.has(e)) {
+                hiddenCategoriesSet.delete(e);
+              } else {
+                hiddenCategoriesSet.add(e);
+              }
+              calculateScatter([...hiddenCategoriesSet]);
+              calculateLayout();
+            }}
+          />
         </div>
       ) : null}
     </div>

@@ -94,7 +94,8 @@ export function useLayout({
   height: number;
   internalLayoutRef: React.MutableRefObject<Partial<PlotlyTypes.Layout>>;
 }) {
-  return React.useMemo<Partial<PlotlyTypes.Layout> | undefined>(() => {
+  const [layout, setLayout] = React.useState<Partial<PlotlyTypes.Layout> | null>(null);
+  const calculateLayout = React.useCallback(() => {
     if (subplots) {
       const axes: Record<string, Partial<PlotlyTypes.LayoutAxis>> = {};
       const titleAnnotations: Partial<PlotlyTypes.Annotations>[] = [];
@@ -163,6 +164,7 @@ export function useLayout({
         height,
       };
 
+      setLayout(finalLayout);
       return finalLayout;
     }
 
@@ -202,6 +204,7 @@ export function useLayout({
         height,
       };
 
+      setLayout(finalLayout);
       return finalLayout;
     }
 
@@ -299,6 +302,7 @@ export function useLayout({
               height,
             };
 
+      setLayout(finalLayout);
       return finalLayout;
     }
 
@@ -326,9 +330,12 @@ export function useLayout({
         height,
       };
 
+      setLayout(finalLayout);
       return finalLayout;
     }
 
     return undefined;
   }, [subplots, scatter, facet, splom, internalLayoutRef, regressions.annotations, regressions.shapes, config, width, height]);
+
+  return { layout, calculateLayout };
 }

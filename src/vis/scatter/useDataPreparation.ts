@@ -4,11 +4,13 @@ import * as d3v7 from 'd3v7';
 import groupBy from 'lodash/groupBy';
 import isFinite from 'lodash/isFinite';
 import sortBy from 'lodash/sortBy';
+import zipWith from 'lodash/zipWith';
 
 import { FetchColumnDataResult } from './utils';
 import { PlotlyTypes } from '../../plotly';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { ENumericalColorScaleType } from '../interfaces';
+import { NAN_REPLACEMENT } from '../general';
 
 function getStretchedDomains(x: number[], y: number[]) {
   let xDomain = d3v7.extent(x);
@@ -26,16 +28,19 @@ function getStretchedDomains(x: number[], y: number[]) {
 }
 
 export function useDataPreparation({
-  status,
-  value,
-  uniqueSymbols,
+  hiddenCategories = [],
   numColorScaleType,
+  status,
+  uniqueSymbols,
+  value,
 }: {
-  status: string;
-  value: FetchColumnDataResult;
-  uniqueSymbols: string[];
+  hiddenCategories?: string[];
   numColorScaleType: ENumericalColorScaleType;
+  status: string;
+  uniqueSymbols: string[];
+  value: FetchColumnDataResult | null;
 }) {
+  const [scatter, setScatter] = React.useState<unknown>(null);
   const subplots = React.useMemo(() => {
     if (!(status === 'success' && value.subplots && value.subplots.length > 0 && value.subplots[0])) {
       return undefined;
@@ -73,42 +78,57 @@ export function useDataPreparation({
   }, [status, value]);
 
   // Case when we have just a scatterplot
-  const scatter = React.useMemo(() => {
-    if (!(status === 'success' && value && value.validColumns.length === 2 && value.validColumns[0] && value.validColumns[1] && !value.facetColumn)) {
-      return undefined;
-    }
+  const calculateScatter = React.useCallback(
+    (hiddenCategories: string[] = []) => {
+      if (!(status === 'success' && value && value.validColumns.length === 2 && value.validColumns[0] && value.validColumns[1] && !value.facetColumn)) {
+        return undefined;
+      }
+      const dataTable = zipWith(
+        value.validColumns[0].resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
+        value.validColumns[1].resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
+        value.colorColumn?.resolvedValues ?? [], // add array as fallback value to prevent zipWith from dropping the column
+        (x, y, category) => ({
+          id: x.id,
+          x: x.val as number,
+          y: y.val as number,
+          category: (category?.val as string) ?? NAN_REPLACEMENT,
+        }),
+      );
 
-    // Get shared range for all plots
-    const { xDomain, yDomain } = getStretchedDomains(
-      value.validColumns[0].resolvedValues.map((v) => v.val as number),
-      value.validColumns[1].resolvedValues.map((v) => v.val as number),
-    );
+      const filteredDataTable = dataTable.filter((v) => !hiddenCategories.includes(v.category));
 
-    const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
+      // Get shared range for all plots
+      const { xDomain, yDomain } = getStretchedDomains(
+        dataTable.map((v) => v.x),
+        dataTable.map((v) => v.y),
+      );
 
-    const idToIndex = new Map<string, number>();
-    ids.forEach((v, i) => {
-      idToIndex.set(v, i);
-    });
+      const ids = filteredDataTable.map((v) => v.id);
 
-    const x = value.validColumns[0].resolvedValues.map((v) => v.val as number);
-    const y = value.validColumns[1].resolvedValues.map((v) => v.val as number);
+      const idToIndex = new Map<string, number>();
+      ids.forEach((v, i) => {
+        idToIndex.set(v, i);
+      });
 
-    return {
-      plotlyData: {
-        validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
-        x,
-        y,
-        text: value.validColumns[0].resolvedValues.map((v) => v.id),
-      },
-      ids,
-      xDomain,
-      yDomain,
-      xLabel: columnNameWithDescription(value.validColumns[0].info),
-      yLabel: columnNameWithDescription(value.validColumns[1].info),
-      idToIndex,
-    };
-  }, [status, value]);
+      const finalScatter = {
+        plotlyData: {
+          validIndices: filteredDataTable.map((v, i) => (isFinite(v.x) && isFinite(v.y) ? i : null)).filter((i) => i !== null) as number[],
+          x: filteredDataTable.map((v) => v.x),
+          y: filteredDataTable.map((v) => v.y),
+          text: filteredDataTable.map((v) => v.id),
+        },
+        ids,
+        xDomain,
+        yDomain,
+        xLabel: columnNameWithDescription(value.validColumns[0].info),
+        yLabel: columnNameWithDescription(value.validColumns[1].info),
+        idToIndex,
+      };
+      setScatter(finalScatter);
+      return finalScatter;
+    },
+    [status, value],
+  );
 
   // Case when we have a scatterplot matrix
   const splom = React.useMemo(() => {
@@ -254,5 +274,6 @@ export function useDataPreparation({
     facet,
     subplots,
     shapeScale: scales.shape,
+    calculateScatter,
   };
 }
