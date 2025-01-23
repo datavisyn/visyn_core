@@ -69,6 +69,8 @@ export function BarChart({
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
+  const [isChartHeightMapComputed, setIsChartHeightMapComputed] = React.useState(false);
+  const [chartHeightMap, setChartHeightMap] = React.useState<Record<string, number>>({});
 
   const { value: barData, status: barDataStatus } = useAsync(getBarData, [
     columns,
@@ -169,15 +171,19 @@ export function BarChart({
     return scaleOrdinal<string>().domain(groups).range(range);
   }, [aggregatedDataMap, barData, config]);
 
-  const chartHeightMap = React.useMemo(() => {
+  const computeChartHeightMap = React.useCallback(() => {
     const map: Record<string, number> = {};
-    Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
-      if (facet) {
-        map[facet] = calculateChartHeight({ config, aggregatedData: value, containerHeight });
-      }
-    });
+    const facetEntries = Object.entries(aggregatedDataMap?.facets ?? {});
+    if (facetEntries.length > 0 && facetEntries.length === filteredUniqueFacetVals.length) {
+      facetEntries.forEach(([facet, value]) => {
+        if (facet) {
+          map[facet] = calculateChartHeight({ config, aggregatedData: value, containerHeight });
+        }
+      });
+    }
+    setChartHeightMap(map);
     return map;
-  }, [aggregatedDataMap?.facets, config, containerHeight]);
+  }, [aggregatedDataMap?.facets, config, containerHeight, filteredUniqueFacetVals]);
 
   const chartMinWidthMap = React.useMemo(() => {
     const map: Record<string, number> = {};
@@ -255,6 +261,13 @@ export function BarChart({
   React.useEffect(() => {
     listRef.current?.resetAfterIndex(0);
   }, [config, dataTable]);
+
+  React.useEffect(() => {
+    if (!isChartHeightMapComputed) {
+      computeChartHeightMap();
+      setIsChartHeightMapComputed(true);
+    }
+  }, [computeChartHeightMap, isChartHeightMapComputed]);
 
   useShallowEffect(() => {
     if (barDataStatus === 'success' && barData) {
@@ -420,18 +433,19 @@ export function BarChart({
                 scrollHideDelay={0}
                 offsetScrollbars
               >
-                {/* @ts-ignore */}
-                <VariableSizeList
-                  height={containerHeight - CHART_HEIGHT_MARGIN / 2}
-                  itemCount={filteredUniqueFacetVals.length}
-                  itemData={itemData}
-                  itemSize={calculateItemHeight}
-                  width="100%"
-                  style={{ overflow: 'visible' }}
-                  ref={listRef}
-                >
-                  {Row}
-                </VariableSizeList>
+                {isChartHeightMapComputed && (
+                  <VariableSizeList
+                    height={containerHeight - CHART_HEIGHT_MARGIN / 2}
+                    itemCount={filteredUniqueFacetVals.length}
+                    itemData={itemData}
+                    itemSize={calculateItemHeight}
+                    width="100%"
+                    style={{ overflow: 'visible' }}
+                    ref={listRef}
+                  >
+                    {Row}
+                  </VariableSizeList>
+                )}
               </ScrollArea>
             )
           ) : null}
