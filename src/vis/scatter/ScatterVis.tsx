@@ -134,7 +134,6 @@ export function ScatterVis({
   }
 
   const { subplots, scatter, splom, facet, shapeScale, calculateScatter } = useDataPreparation({
-    hiddenCategories: [...hiddenCategoriesSet],
     numColorScaleType: config.numColorScaleType,
     status,
     uniqueSymbols,
@@ -148,7 +147,7 @@ export function ScatterVis({
         setIsDataPrepared(true);
       }
     }
-  }, [status, value, calculateScatter, hiddenCategoriesSet]);
+  }, [status, value, calculateScatter, hiddenCategoriesSet, isDataPrepared]);
 
   const regressions = React.useMemo<{
     results: IRegressionResult[];

@@ -6,11 +6,26 @@ import isFinite from 'lodash/isFinite';
 import sortBy from 'lodash/sortBy';
 import zipWith from 'lodash/zipWith';
 
-import { FetchColumnDataResult } from './utils';
 import { PlotlyTypes } from '../../plotly';
+import { NAN_REPLACEMENT } from '../general';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { ENumericalColorScaleType } from '../interfaces';
-import { NAN_REPLACEMENT } from '../general';
+import { FetchColumnDataResult } from './utils';
+
+type ScatterDataType = {
+  plotlyData: {
+    validIndices: number[];
+    x: number[];
+    y: number[];
+    text: string[];
+  };
+  ids: string[];
+  xDomain: [undefined, undefined] | [number, number];
+  yDomain: [undefined, undefined] | [number, number];
+  xLabel: string;
+  yLabel: string;
+  idToIndex: Map<string, number>;
+};
 
 function getStretchedDomains(x: number[], y: number[]) {
   let xDomain = d3v7.extent(x);
@@ -28,19 +43,18 @@ function getStretchedDomains(x: number[], y: number[]) {
 }
 
 export function useDataPreparation({
-  hiddenCategories = [],
   numColorScaleType,
   status,
   uniqueSymbols,
   value,
 }: {
-  hiddenCategories?: string[];
   numColorScaleType: ENumericalColorScaleType;
   status: string;
   uniqueSymbols: string[];
   value: FetchColumnDataResult | null;
 }) {
-  const [scatter, setScatter] = React.useState<unknown>(null);
+  const [scatter, setScatter] = React.useState<ScatterDataType | null>(null);
+
   const subplots = React.useMemo(() => {
     if (!(status === 'success' && value.subplots && value.subplots.length > 0 && value.subplots[0])) {
       return undefined;
