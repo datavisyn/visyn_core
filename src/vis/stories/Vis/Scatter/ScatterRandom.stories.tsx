@@ -93,13 +93,13 @@ function fetchData(numberOfPoints: number): VisColumn[] {
 const meta: Meta<typeof Vis> = {
   title: 'Vis/vistypes/randomData/Scatter',
   component: Vis,
-  parameters: {
-    argTypes: {
-      pointCount: { control: 'number' },
-    },
-    args: {
-      pointCount: 100000,
-    },
+  argTypes: {
+    // @ts-ignore
+    pointCount: { control: 'number' },
+  },
+  args: {
+    // @ts-ignore
+    pointCount: 100000,
   },
   render: (args) => {
     // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.

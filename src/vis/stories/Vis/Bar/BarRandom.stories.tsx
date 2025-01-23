@@ -216,13 +216,13 @@ const meta: Meta<typeof Vis> = {
       </VisProvider>
     );
   },
-  parameters: {
-    argTypes: {
-      pointCount: { control: 'number' },
-    },
-    args: {
-      pointCount: 10000,
-    },
+  argTypes: {
+    // @ts-ignore
+    pointCount: { control: 'number' },
+  },
+  args: {
+    // @ts-ignore
+    pointCount: 10000,
   },
 };
 

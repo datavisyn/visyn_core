@@ -110,12 +110,14 @@ const meta: Meta<typeof Vis> = {
   component: Vis,
   parameters: {
     chromatic: { delay: 3000 },
-    argTypes: {
-      pointCount: { control: 'number' },
-    },
-    args: {
-      pointCount: 100000,
-    },
+  },
+  argTypes: {
+    // @ts-ignore
+    pointCount: { control: 'number' },
+  },
+  args: {
+    // @ts-ignore
+    pointCount: 100000,
   },
   render: (args) => {
     // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
