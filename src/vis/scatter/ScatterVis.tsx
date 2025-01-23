@@ -26,7 +26,17 @@ import { VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 
-function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
+function Legend({
+  categories,
+  hiddenCategories = [],
+  colorMap,
+  onClick,
+}: {
+  categories: string[];
+  hiddenCategories?: string[];
+  colorMap: (v: number | string) => string;
+  onClick: (category: string) => void;
+}) {
   return (
     <ScrollArea
       data-testid="PlotLegend"
@@ -40,9 +50,9 @@ function Legend({ categories, colorMap, onClick }: { categories: string[]; color
       `}
     >
       <Stack gap={0}>
-        {categories.map((c) => {
-          return <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={false} />;
-        })}
+        {categories.map((c) => (
+          <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={hiddenCategories.some((hc) => hc === c)} />
+        ))}
       </Stack>
     </ScrollArea>
   );
@@ -593,6 +603,7 @@ export function ScatterVis({
           <Legend
             categories={legendData.color.categories}
             colorMap={legendData.color.mappingFunction}
+            hiddenCategories={[...hiddenCategoriesSet]}
             onClick={(e: string) => {
               if (hiddenCategoriesSet.has(e)) {
                 hiddenCategoriesSet.delete(e);
