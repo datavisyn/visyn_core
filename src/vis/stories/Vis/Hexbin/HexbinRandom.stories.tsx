@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
+import { VisProps } from '../../../EagerVis';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { EHexbinOptions } from '../../../hexbin/interfaces';
@@ -80,21 +81,23 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   ];
 }
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
+interface CustomArgs {
+  pointCount: number;
+}
 
-const meta: Meta<typeof Vis> = {
+// Merge the custom args with the component's props
+type MetaArgs = VisProps & CustomArgs;
+
+const meta: Meta<MetaArgs> = {
   title: 'Vis/vistypes/randomData/Hexbin',
   component: Vis,
   argTypes: {
-    // @ts-ignore
     pointCount: { control: 'number' },
   },
   args: {
-    // @ts-ignore
     pointCount: 10000,
   },
   render: (args) => {
-    // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
 

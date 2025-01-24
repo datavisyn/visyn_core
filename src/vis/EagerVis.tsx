@@ -116,29 +116,7 @@ export function useRegisterDefaultVis(visTypes?: string[]) {
   }, [registerVisType, visTypes]);
 }
 
-export function EagerVis({
-  columns,
-  selected = [],
-  stats = undefined,
-  statsCallback = () => null,
-  colors = undefined,
-  shapes = DEFAULT_SHAPES,
-  selectionCallback = () => null,
-  filterCallback,
-  setExternalConfig = undefined,
-  closeCallback = () => null,
-  showCloseButton = false,
-  externalConfig = undefined,
-  enableSidebar = true,
-  showSidebar: internalShowSidebar,
-  showDragModeOptions = true,
-  setShowSidebar: internalSetShowSidebar,
-  showSidebarDefault = false,
-  scrollZoom = true,
-  visTypes,
-  uniquePlotId,
-  showDownloadScreenshot = false,
-}: {
+export interface VisProps {
   /**
    * Required data columns which are displayed.
    */
@@ -195,7 +173,31 @@ export function EagerVis({
    * Optional property to show the download screenshot button in the sidebar.
    */
   showDownloadScreenshot?: boolean;
-}) {
+}
+
+export function EagerVis({
+  columns,
+  selected = [],
+  stats = undefined,
+  statsCallback = () => null,
+  colors = undefined,
+  shapes = DEFAULT_SHAPES,
+  selectionCallback = () => null,
+  filterCallback,
+  setExternalConfig = undefined,
+  closeCallback = () => null,
+  showCloseButton = false,
+  externalConfig = undefined,
+  enableSidebar = true,
+  showSidebar: internalShowSidebar,
+  showDragModeOptions = true,
+  setShowSidebar: internalSetShowSidebar,
+  showSidebarDefault = false,
+  scrollZoom = true,
+  visTypes,
+  uniquePlotId,
+  showDownloadScreenshot = false,
+}: VisProps) {
   const [selectedList, setSelectedList] = useUncontrolled<string[]>({
     value: selected,
     defaultValue: [],
