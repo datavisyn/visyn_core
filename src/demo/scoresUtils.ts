@@ -1,10 +1,9 @@
-import { buildCategoricalColumn, buildNumberColumn, buildStringColumn } from 'lineupjs';
-
 import { randomSurnames } from './randomSurnames';
 import { IScoreResult } from '../ranking/score/interfaces';
 import { buildSMILESColumn } from '../ranking/smiles/SMILESColumnBuilder';
 
 export async function MyCategoricalScore(value: string): Promise<IScoreResult> {
+  const { buildCategoricalColumn } = await import('lineupjs');
   const data = new Array(5000).fill(0).map(() => (Math.random() * 10).toFixed(0));
 
   return {
@@ -14,6 +13,7 @@ export async function MyCategoricalScore(value: string): Promise<IScoreResult> {
 }
 
 export async function MyNumberScore(value: string): Promise<IScoreResult> {
+  const { buildNumberColumn } = await import('lineupjs');
   const data = new Array(5000).fill(0).map(() => Math.random() * 100);
 
   return {
@@ -32,6 +32,7 @@ export async function MySMILESScore(value: string): Promise<IScoreResult> {
 }
 
 export async function MyStringScore(value: string): Promise<IScoreResult> {
+  const { buildStringColumn } = await import('lineupjs');
   const data = new Array(5000).fill(0).map(() => randomSurnames[Math.floor(Math.random() * randomSurnames.length)]);
 
   return {
@@ -41,6 +42,7 @@ export async function MyStringScore(value: string): Promise<IScoreResult> {
 }
 
 export async function MyLinkScore(value: string): Promise<IScoreResult> {
+  const { buildStringColumn } = await import('lineupjs');
   const data = new Array(5000).fill(0).map(() => randomSurnames[Math.floor(Math.random() * randomSurnames.length)]);
 
   return {

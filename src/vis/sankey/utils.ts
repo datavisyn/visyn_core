@@ -1,4 +1,4 @@
-import { merge } from 'lodash';
+import merge from 'lodash/merge';
 
 import { ESupportedPlotlyVis, VisColumn } from '../interfaces';
 import { ISankeyConfig } from './interfaces';

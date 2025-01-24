@@ -4,6 +4,7 @@ import { IconDefinition, IconName, IconPrefix } from '@fortawesome/fontawesome-c
  * Visualization icons
  */
 
+// TODO: Split this into multiple files to allow code splitting
 export const dvAddVisualization: IconDefinition = {
   prefix: 'dv' as IconPrefix,
   iconName: 'addVisualization' as IconName,
