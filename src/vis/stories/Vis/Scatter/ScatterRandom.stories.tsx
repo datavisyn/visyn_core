@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
-import { VisProps } from '../../../EagerVis';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { BaseVisConfig, EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
@@ -95,7 +94,7 @@ interface CustomArgs {
 }
 
 // Merge the custom args with the component's props
-type MetaArgs = VisProps & CustomArgs;
+type MetaArgs = Parameters<typeof Vis>[0] & CustomArgs;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<MetaArgs> = {

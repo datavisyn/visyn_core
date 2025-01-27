@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
-import { VisProps } from '../../../EagerVis';
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from '../../../bar/interfaces';
@@ -203,7 +202,7 @@ interface CustomArgs {
 }
 
 // Merge the custom args with the component's props
-type MetaArgs = VisProps & CustomArgs;
+type MetaArgs = Parameters<typeof Vis>[0] & CustomArgs;
 
 const meta: Meta<MetaArgs> = {
   title: 'Vis/vistypes/randomData/Bar',
