@@ -1,4 +1,5 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { test } from '@chromatic-com/playwright';
+
 import { selectHexbin } from '../extensions/selectPlots';
 
 /*

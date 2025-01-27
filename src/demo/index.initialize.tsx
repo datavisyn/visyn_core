@@ -1,7 +1,9 @@
 import * as React from 'react';
+
 import { createRoot } from 'react-dom/client';
-import { VisynAppProvider } from '../app/VisynAppProvider';
+
 import { MainApp } from './MainApp';
+import { VisynAppProvider } from '../app/VisynAppProvider';
 
 // create a new instance of the app
 createRoot(document.getElementById('main')!).render(

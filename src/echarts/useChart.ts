@@ -1,18 +1,12 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
 
-import { useDebouncedCallback, useSetState } from '@mantine/hooks';
+import { useSetState } from '@mantine/hooks';
 import { BarChart, FunnelChart, LineChart, PieChart, SankeyChart, ScatterChart } from 'echarts/charts';
-import type {
-  // The series option types are defined with the SeriesOption suffix
-  BarSeriesOption,
-  LineSeriesOption,
-  PieSeriesOption,
-  SankeySeriesOption,
-  FunnelSeriesOption,
-  ScatterSeriesOption,
-} from 'echarts/charts';
+// The series option types are defined with the SeriesOption suffix
+import type { BarSeriesOption, FunnelSeriesOption, LineSeriesOption, PieSeriesOption, SankeySeriesOption, ScatterSeriesOption } from 'echarts/charts';
 import {
+  BrushComponent,
   DataZoomComponent,
   GridComponent,
   LegendComponent,
@@ -20,18 +14,13 @@ import {
   TitleComponent,
   ToolboxComponent,
   TooltipComponent,
-  BrushComponent,
 } from 'echarts/components';
-import type {
-  // The component option types are defined with the ComponentOption suffix
-  TitleComponentOption,
-  TooltipComponentOption,
-  GridComponentOption,
-  DatasetComponentOption,
-} from 'echarts/components';
+// The component option types are defined with the ComponentOption suffix
+import type { DatasetComponentOption, GridComponentOption, TitleComponentOption, TooltipComponentOption } from 'echarts/components';
 import type { ComposeOption, ECElementEvent, ECharts } from 'echarts/core';
 import { init, use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+
 import { useSetRef } from '../hooks/useSetRef';
 
 export type ECSeries = BarSeriesOption | LineSeriesOption | SankeySeriesOption | FunnelSeriesOption | ScatterSeriesOption | PieSeriesOption;
@@ -40,6 +29,7 @@ export type ECOption = ComposeOption<ECSeries | TooltipComponentOption | GridCom
 
 // Original code from https://dev.to/manufac/using-apache-echarts-with-react-and-typescript-optimizing-bundle-size-29l8
 // Register the required components
+// eslint-disable-next-line react-hooks/rules-of-hooks
 use([
   SingleAxisComponent,
   BrushComponent,

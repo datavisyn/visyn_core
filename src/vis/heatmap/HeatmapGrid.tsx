@@ -1,14 +1,15 @@
-import { Center, Loader, Stack } from '@mantine/core';
 import * as React from 'react';
+
+import { Center, Loader, Stack } from '@mantine/core';
 import { uniqueId } from 'lodash';
+
 import { useAsync } from '../../hooks/useAsync';
 import { VisColumn } from '../interfaces';
 import { Heatmap } from './Heatmap';
 import { IHeatmapConfig } from './interfaces';
 import { getHeatmapData } from './utils';
-
-import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { i18n } from '../../i18n';
+import { DownloadPlotButton } from '../general/DownloadPlotButton';
 import { WarningMessage } from '../general/WarningMessage';
 
 export function HeatmapGrid({

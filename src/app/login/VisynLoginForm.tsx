@@ -1,9 +1,10 @@
-import { ActionIcon, Button, Group, Stack, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useState } from 'react';
+
 import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 import { faEyeSlash } from '@fortawesome/free-solid-svg-icons/faEyeSlash';
-import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ActionIcon, Button, Group, Stack, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
 
 export function VisynLoginForm({ onLogin }: { onLogin: (username: string, password: string) => Promise<void> }) {
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);

@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import useDeepCompareEffect from 'use-deep-compare-effect';
 
 // https://stackoverflow.com/questions/48011353/how-to-unwrap-type-of-a-promise
@@ -76,7 +77,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
             setError(e);
             setStatus('error');
           }
-          // eslint-disable-next-line @typescript-eslint/no-throw-literal
+          // eslint-disable-next-line @typescript-eslint/only-throw-error
           throw e;
         });
       latestPromiseRef.current = currentPromise;

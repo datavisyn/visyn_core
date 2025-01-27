@@ -1,13 +1,15 @@
 import * as React from 'react';
+
 import isEmpty from 'lodash/isEmpty';
-import { PlotlyTypes } from '../../plotly';
-import { DEFAULT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
-import { ELabelingOptions, IInternalScatterConfig } from './interfaces';
-import { FetchColumnDataResult } from './utils';
-import { getLabelOrUnknown } from '../general/utils';
-import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
+
+import { ELabelingOptions, IScatterConfig } from './interfaces';
 import { useDataPreparation } from './useDataPreparation';
+import { FetchColumnDataResult } from './utils';
+import { PlotlyTypes } from '../../plotly';
 import { selectionColorDark } from '../../utils/colors';
+import { DEFAULT_COLOR, VIS_NEUTRAL_COLOR } from '../general/constants';
+import { columnNameWithDescription, truncateText } from '../general/layoutUtils';
+import { getLabelOrUnknown } from '../general/utils';
 
 export function baseData(alpha: number, hasColor: boolean): Partial<PlotlyTypes.Data> {
   return {
@@ -54,7 +56,7 @@ export function useData({
   status: string;
   value: FetchColumnDataResult | undefined;
   scatter?: ReturnType<typeof useDataPreparation>['scatter'];
-  config: IInternalScatterConfig;
+  config: IScatterConfig;
   facet?: ReturnType<typeof useDataPreparation>['facet'];
   splom?: ReturnType<typeof useDataPreparation>['splom'];
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
@@ -62,12 +64,16 @@ export function useData({
   shapeScale: (val: string) => string;
   mappingFunction?: (val: string | number | null | undefined) => string;
 }) {
+  const selectedSet = React.useMemo(() => new Set(selectedList), [selectedList]);
+
   return React.useMemo<PlotlyTypes.Data[]>(() => {
     if (status !== 'success' || !value) {
       return [];
     }
-    const fullOpacityOrAlpha = selectedList.length > 0 ? 1 : config.alphaSliderVal;
+    const fullOpacityOrAlpha = selectedSet.size > 0 ? 1 : config.alphaSliderVal;
+
     if (subplots) {
+      const visibleLabelsSet = config.showLabelLimit ? new Set(selectedList.slice(0, config.showLabelLimit)) : selectedSet;
       const plots = subplots.xyPairs.map((pair) => {
         return {
           ...BASE_DATA,
@@ -77,7 +83,7 @@ export function useData({
           xaxis: pair.xref,
           yaxis: pair.yref,
           textposition: subplots.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => subplots.idToIndex.get(idx)) }),
+          ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => subplots.idToIndex.get(idx)) }),
           mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
@@ -86,7 +92,7 @@ export function useData({
                   text: subplots.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
                 }
               : {
-                  text: subplots.text.map((t, i) => (selectedList.includes(subplots.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: subplots.text.map((t, i) => (visibleLabelsSet.has(subplots.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                 }),
           hovertext: subplots.ids.map((p_id, index) =>
             `${value.idToLabelMapper(p_id)}
@@ -108,6 +114,7 @@ export function useData({
     }
 
     if (scatter && config && value && value.validColumns[0]) {
+      const visibleLabelsSet = config.showLabelLimit ? new Set(selectedList.slice(0, config.showLabelLimit)) : selectedSet;
       const traces = [
         {
           ...BASE_DATA,
@@ -116,7 +123,7 @@ export function useData({
           y: scatter.plotlyData.y,
           // text: scatter.plotlyData.text,
           textposition: scatter.plotlyData.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
+          ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
@@ -126,9 +133,7 @@ export function useData({
                   // textposition: 'top center',
                 }
               : {
-                  text: scatter.plotlyData.text.map((t, i) =>
-                    selectedList.includes(scatter.ids[i] ?? '') ? truncateText(value.idToLabelMapper(t), true, 10) : '',
-                  ),
+                  text: scatter.plotlyData.text.map((t, i) => (visibleLabelsSet.has(scatter.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                   // textposition: 'top center',
                 }),
           hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
@@ -155,6 +160,9 @@ export function useData({
 
     if (facet && config && value && value.validColumns[0] && value.validColumns[1]) {
       const plots = facet.resultData.map((group) => {
+        const visibleLabelsSet = config.showLabelLimit
+          ? new Set(group.data.ids.filter((id) => selectedSet.has(id)).slice(0, config.showLabelLimit))
+          : selectedSet;
         return {
           ...BASE_DATA,
           type: 'scattergl',
@@ -172,11 +180,11 @@ export function useData({
                   // textposition: 'top center',
                 }
               : {
-                  text: group.data.text.map((t, i) => (selectedList.includes(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: group.data.text.map((t, i) => (visibleLabelsSet.has(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
                   // textposition: 'top center',
                 }),
           name: getLabelOrUnknown(group.data.facet),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => group.idToIndex.get(idx)).filter((v) => v !== undefined) }),
+          ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => group.idToIndex.get(idx)).filter((v) => v !== undefined) }),
           hovertext: group.data.ids.map((p_id, index) =>
             `${value.idToLabelMapper(p_id)}
             ${(value.resolvedLabelColumnsWithMappedValues ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.mappedValues.get(p_id))}`)}
@@ -214,7 +222,7 @@ export function useData({
   ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i]?.val)}` : ''}
   ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}` : ''}`.trim(),
           ),
-          ...(isEmpty(selectedList) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
+          ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
           marker: {
             size: 8,
             color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
@@ -229,5 +237,5 @@ export function useData({
     }
 
     return [];
-  }, [status, value, subplots, scatter, config, facet, splom, selectedList, shapeScale, mappingFunction]);
+  }, [status, value, subplots, scatter, config, facet, splom, selectedList, selectedSet, shapeScale, mappingFunction]);
 }

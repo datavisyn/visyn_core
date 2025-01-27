@@ -1,5 +1,5 @@
-import { BaseVisConfig, ESupportedPlotlyVis } from '../../interfaces';
 import { IBarConfig } from './interfaces';
+import { BaseVisConfig, ESupportedPlotlyVis } from '../../interfaces';
 
 /**
  * Check if the config is a bar config.

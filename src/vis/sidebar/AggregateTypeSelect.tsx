@@ -1,6 +1,8 @@
-import { Select } from '@mantine/core';
 import * as React from 'react';
 import { useMemo } from 'react';
+
+import { Select } from '@mantine/core';
+
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
 import { SingleSelect } from './SingleSelect';
 

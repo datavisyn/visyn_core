@@ -1,5 +1,5 @@
 import { ColumnInfo, EAggregateTypes } from '../../../../interfaces';
-import { EBarGroupingType, EBarDisplayType } from '../../enums';
+import { EBarDisplayType, EBarGroupingType } from '../../enums';
 import { AggregatedDataType } from '../types';
 import { median } from './median';
 import { normalizedValue } from './normalized-value';

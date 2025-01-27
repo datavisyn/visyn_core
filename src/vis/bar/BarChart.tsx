@@ -1,9 +1,12 @@
-import { Box, Group, ScrollArea, Stack } from '@mantine/core';
-import { useElementSize, useShallowEffect } from '@mantine/hooks';
-import { scaleOrdinal, schemeBlues, type ScaleOrdinal } from 'd3v7';
-import uniqueId from 'lodash/uniqueId';
 import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
+
+import { Box, Group, ScrollArea, Stack } from '@mantine/core';
+import { useElementSize, useShallowEffect } from '@mantine/hooks';
+import { type ScaleOrdinal, scaleOrdinal, schemeBlues } from 'd3v7';
+import uniqueId from 'lodash/uniqueId';
+
+import { SingleEChartsBarChart } from './SingleEChartsBarChart';
 import { BlurredOverlay } from '../../components';
 import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors10 } from '../../utils/colors';
@@ -14,27 +17,24 @@ import { FocusFacetSelector } from './components';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
-  calculateChartHeight,
-  calculateChartMinWidth,
   CHART_HEIGHT_MARGIN,
   DEFAULT_BAR_CHART_HEIGHT,
   DEFAULT_BAR_CHART_MIN_WIDTH,
   DEFAULT_FACET_NAME,
-  generateAggregatedDataLookup,
   GenerateAggregatedDataLookup,
+  WorkerWrapper,
+  calculateChartHeight,
+  calculateChartMinWidth,
+  generateAggregatedDataLookup,
   generateDataTable,
   getBarData,
-  WorkerWrapper,
 } from './interfaces/internal';
-import { SingleEChartsBarChart } from './SingleEChartsBarChart';
-import { getLabelOrUnknown } from '../general/utils';
 import { NAN_REPLACEMENT } from '../general/constants';
+import { getLabelOrUnknown } from '../general/utils';
 
 type VirtualizedBarChartProps = {
   aggregatedDataMap: Awaited<ReturnType<typeof generateAggregatedDataLookup>>;
   allUniqueFacetVals: string[];
-  chartHeightMap: Record<string, number>;
-  chartMinWidthMap: Record<string, number>;
   containerHeight: number;
   containerWidth: number;
   config: IBarConfig;
@@ -47,6 +47,8 @@ type VirtualizedBarChartProps = {
   selectedFacetValue?: string;
   selectedList: string[];
   selectedMap: Record<string, boolean>;
+  computeChartHeight: (facet?: AggregatedDataType) => number;
+  computeChartMinWidth: (facet?: AggregatedDataType) => number;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   setConfig: (config: IBarConfig) => void;
 };
@@ -103,7 +105,10 @@ export function BarChart({
     [barDataStatus, dataLookupStatus, dataTableStatus],
   );
 
-  const isSuccess = React.useMemo(() => barDataStatus === 'success' && dataTableStatus === 'success', [barDataStatus, dataTableStatus]);
+  const isSuccess = React.useMemo(
+    () => barDataStatus === 'success' && dataTableStatus === 'success' && dataLookupStatus === 'success',
+    [barDataStatus, dataLookupStatus, dataTableStatus],
+  );
 
   const allUniqueFacetVals = React.useMemo(() => {
     const set = new Set();
@@ -167,25 +172,15 @@ export function BarChart({
     return scaleOrdinal<string>().domain(groups).range(range);
   }, [aggregatedDataMap, barData, config]);
 
-  const chartHeightMap = React.useMemo(() => {
-    const map: Record<string, number> = {};
-    Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
-      if (facet) {
-        map[facet] = calculateChartHeight({ config, aggregatedData: value, containerHeight });
-      }
-    });
-    return map;
-  }, [aggregatedDataMap?.facets, config, containerHeight]);
+  const computeChartHeight = React.useCallback(
+    (facet?: AggregatedDataType) => (!facet ? DEFAULT_BAR_CHART_HEIGHT : calculateChartHeight({ config, aggregatedData: facet, containerHeight })),
+    [config, containerHeight],
+  );
 
-  const chartMinWidthMap = React.useMemo(() => {
-    const map: Record<string, number> = {};
-    Object.entries(aggregatedDataMap?.facets ?? {}).forEach(([facet, value]) => {
-      if (facet) {
-        map[facet] = calculateChartMinWidth({ config, aggregatedData: value });
-      }
-    });
-    return map;
-  }, [aggregatedDataMap?.facets, config]);
+  const computeChartMinWidth = React.useCallback(
+    (facet?: AggregatedDataType) => (!facet ? DEFAULT_BAR_CHART_MIN_WIDTH : calculateChartMinWidth({ config, aggregatedData: facet })),
+    [config],
+  );
 
   const shouldRenderFacets = React.useMemo(
     () => Boolean(config?.facets && barData?.facetsColVals && (config?.focusFacetIndex !== undefined || config?.focusFacetIndex !== null)),
@@ -220,8 +215,8 @@ export function BarChart({
       <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
         <SingleEChartsBarChart
           aggregatedData={props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType}
-          chartHeight={props.data.chartHeightMap[facet as string] ?? DEFAULT_BAR_CHART_HEIGHT}
-          chartMinWidth={props.data.chartMinWidthMap[facet as string] ?? DEFAULT_BAR_CHART_MIN_WIDTH}
+          chartHeight={props.data.computeChartHeight(props.data.aggregatedDataMap?.facets[facet as string])}
+          chartMinWidth={props.data.computeChartMinWidth(props.data.aggregatedDataMap?.facets[facet as string])}
           containerWidth={props.data.containerWidth}
           config={props.data.config}
           globalMax={props.data.aggregatedDataMap?.globalDomain.max}
@@ -246,8 +241,11 @@ export function BarChart({
   }, []);
 
   const calculateItemHeight = React.useCallback(
-    (index: number) => (chartHeightMap[filteredUniqueFacetVals[index] as string] ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN,
-    [chartHeightMap, filteredUniqueFacetVals],
+    (index: number) => {
+      const facetChartHeight = computeChartHeight(aggregatedDataMap?.facets[filteredUniqueFacetVals[index] as string]);
+      return (facetChartHeight ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN;
+    },
+    [aggregatedDataMap?.facets, computeChartHeight, filteredUniqueFacetVals],
   );
 
   React.useEffect(() => {
@@ -328,8 +326,8 @@ export function BarChart({
     setItemData({
       aggregatedDataMap: aggregatedDataMap!,
       allUniqueFacetVals,
-      chartHeightMap,
-      chartMinWidthMap,
+      computeChartHeight,
+      computeChartMinWidth,
       config: config!,
       containerHeight,
       containerWidth,
@@ -346,8 +344,8 @@ export function BarChart({
   }, [
     aggregatedDataMap,
     allUniqueFacetVals,
-    chartHeightMap,
-    chartMinWidthMap,
+    computeChartHeight,
+    computeChartMinWidth,
     config,
     containerHeight,
     containerWidth,
@@ -418,7 +416,6 @@ export function BarChart({
                 scrollHideDelay={0}
                 offsetScrollbars
               >
-                {/* @ts-ignore */}
                 <VariableSizeList
                   height={containerHeight - CHART_HEIGHT_MARGIN / 2}
                   itemCount={filteredUniqueFacetVals.length}

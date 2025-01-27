@@ -1,7 +1,9 @@
-import { Input, Slider } from '@mantine/core';
-import debounce from 'lodash/debounce';
 import * as React from 'react';
 import { useMemo } from 'react';
+
+import { Input, Slider } from '@mantine/core';
+import debounce from 'lodash/debounce';
+
 import { useSyncedRef } from '../../hooks';
 
 interface OpacitySliderProps {

@@ -1,6 +1,6 @@
-import { EAggregateTypes, ESupportedPlotlyVis } from '../../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from './enums';
 import { IBarConfig } from './interfaces';
+import { EAggregateTypes, ESupportedPlotlyVis } from '../../interfaces';
 
 /**
  * Default configuration for the bar plot.

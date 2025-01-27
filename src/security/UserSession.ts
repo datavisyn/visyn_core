@@ -1,9 +1,9 @@
-import type { IUser, ISecureItem } from './interfaces';
+import { Permission } from './Permission';
+import { EEntity, EPermission, UserUtils } from './constants';
+import type { ISecureItem, IUser } from './interfaces';
 import { globalEventHandler } from '../base/event';
 import { pluginRegistry } from '../plugin/PluginRegistry';
-import { ILoginExtensionPointDesc, ILogoutEP, ILogoutEPDesc, ILoginExtensionPoint, EP_PHOVEA_CORE_LOGIN, EP_PHOVEA_CORE_LOGOUT } from '../plugin/extensions';
-import { UserUtils, EPermission, EEntity } from './constants';
-import { Permission } from './Permission';
+import { EP_PHOVEA_CORE_LOGIN, EP_PHOVEA_CORE_LOGOUT, ILoginExtensionPoint, ILoginExtensionPointDesc, ILogoutEP, ILogoutEPDesc } from '../plugin/extensions';
 
 /**
  * Options of a logout action.

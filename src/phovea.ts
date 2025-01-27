@@ -1,4 +1,4 @@
-import { IRegistry, EP_PHOVEA_CORE_LOCALE, ILocaleEPDesc, pluginRegistry } from './plugin';
+import { EP_PHOVEA_CORE_LOCALE, ILocaleEPDesc, IRegistry, pluginRegistry } from './plugin';
 
 export default function (registry: IRegistry) {
   registry.push(

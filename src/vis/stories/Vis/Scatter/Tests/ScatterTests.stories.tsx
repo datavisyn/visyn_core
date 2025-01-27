@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../../../../LazyVis';
 import { VisProvider } from '../../../../Provider';
 import { BaseVisConfig, EScatterSelectSettings, ESupportedPlotlyVis } from '../../../../interfaces';
-import { fetchBreastCancerData } from '../../../fetchBreastCancerData';
 import { ELabelingOptions, ERegressionLineType } from '../../../../scatter/interfaces';
+import { fetchBreastCancerData } from '../../../fetchBreastCancerData';
 
 function VisWrapper(args) {
   const columns = React.useMemo(() => fetchBreastCancerData(), []);
@@ -24,7 +26,7 @@ function VisWrapper(args) {
 
 const meta: Meta<typeof VisWrapper> = {
   component: VisWrapper,
-  title: 'ScatterTest',
+  title: 'Vis/vistypes/breastCancerData/Scatter',
 };
 
 export default meta;

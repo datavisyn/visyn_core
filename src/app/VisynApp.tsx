@@ -1,6 +1,8 @@
-import { AppShell, AppShellProps } from '@mantine/core';
 import * as React from 'react';
 import { JSXElementConstructor, ReactElement } from 'react';
+
+import { AppShell, AppShellProps } from '@mantine/core';
+
 import { useVisynAppContext } from './VisynAppContext';
 import { VisynHeader } from './header/VisynHeader';
 import { VisynLoginMenu } from './login/VisynLoginMenu';

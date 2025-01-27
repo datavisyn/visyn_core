@@ -2,6 +2,7 @@ import groupBy from 'lodash/groupBy';
 import round from 'lodash/round';
 import sort from 'lodash/sortBy';
 import sortedUniq from 'lodash/sortedUniq';
+
 import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { EAggregateTypes, ICommonVisProps } from '../../../../interfaces';
 import { EBarDisplayType, EBarGroupingType } from '../../enums';

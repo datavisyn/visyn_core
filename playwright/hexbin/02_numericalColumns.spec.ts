@@ -1,4 +1,5 @@
-import { test, expect } from '@chromatic-com/playwright';
+import { expect, test } from '@chromatic-com/playwright';
+
 import { selectHexbin } from '../extensions/selectPlots';
 
 test('no and one numerical column selected', async ({ page }) => {

@@ -1,6 +1,7 @@
 import lodashMax from 'lodash/max';
 import lodashMin from 'lodash/min';
 import range from 'lodash/range';
+
 import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { VisNumericalValue } from '../../../../interfaces';
 

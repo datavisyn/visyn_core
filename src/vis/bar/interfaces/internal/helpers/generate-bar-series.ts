@@ -1,4 +1,5 @@
 import { BarSeriesOption } from 'echarts/charts';
+
 import { ColumnInfo, EAggregateTypes } from '../../../../interfaces';
 import { EBarDisplayType, EBarGroupingType } from '../../enums';
 import { AggregatedDataType } from '../types';

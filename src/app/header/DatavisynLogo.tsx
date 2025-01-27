@@ -1,8 +1,10 @@
 import * as React from 'react';
+
 import { Anchor } from '@mantine/core';
-import datavisynLogoWhite from '../../assets/datavisyn_white.svg';
+
 import datavisynLogoBlack from '../../assets/datavisyn_black.svg';
 import datavisynLogoColor from '../../assets/datavisyn_color.svg';
+import datavisynLogoWhite from '../../assets/datavisyn_white.svg';
 
 export function DatavisynLogo({ color }: { color: 'white' | 'black' | 'color' }) {
   const source = color === 'white' ? datavisynLogoWhite : color === 'black' ? datavisynLogoBlack : datavisynLogoColor;

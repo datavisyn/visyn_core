@@ -1,6 +1,7 @@
 import merge from 'lodash/merge';
+
 import { ColumnInfo, EColumnTypes, VisColumn } from '../../interfaces';
-import { defaultConfig, IBarConfig } from '../interfaces';
+import { IBarConfig, defaultConfig } from '../interfaces';
 
 export function barMergeDefaultConfig(columns: VisColumn[], config: IBarConfig): IBarConfig {
   const merged = merge({}, defaultConfig, config);

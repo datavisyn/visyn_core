@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from fastapi import FastAPI
 
@@ -30,7 +31,7 @@ class Extension:
         self._cache = v
         return v
 
-    def factory(self, *args, **kwargs):
+    def factory(self, *args, **kwargs) -> Any:
         return self(*args, **kwargs)
 
 

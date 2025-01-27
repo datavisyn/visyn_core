@@ -1,7 +1,7 @@
+import { IDType, IDTypeLike, IPersistedIDType } from './IDType';
+import { SelectionUtils } from './SelectionUtils';
 import { appContext } from '../base/AppContext';
 import { globalEventHandler } from '../base/event';
-import { SelectionUtils } from './SelectionUtils';
-import { IDType, IDTypeLike, IPersistedIDType } from './IDType';
 import { pluginRegistry } from '../plugin/PluginRegistry';
 import { IPluginDesc } from '../plugin/interfaces';
 

@@ -1,7 +1,8 @@
 import React from 'react';
-import { UserSession } from '../security/UserSession';
+
 import { globalEventHandler } from '../base/event';
 import { IUser, userSession } from '../security';
+import { UserSession } from '../security/UserSession';
 
 export function useVisynUser(): IUser | null {
   const [user, setUser] = React.useState<IUser | null>(userSession.currentUser());

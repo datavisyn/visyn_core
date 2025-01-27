@@ -1,4 +1,5 @@
 import round from 'lodash/round';
+
 import { ColumnInfo } from '../../../../interfaces';
 import { EBarDisplayType, EBarGroupingType } from '../../enums';
 

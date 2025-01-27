@@ -1,4 +1,5 @@
 import { IColumnDesc, IValueColumnDesc } from 'lineupjs';
+
 import { IScoreColumnDesc } from './interfaces';
 
 export function isScoreColumnDesc<T = unknown>(desc: IValueColumnDesc<T> | IColumnDesc): desc is IScoreColumnDesc<T> {

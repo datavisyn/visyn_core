@@ -1,12 +1,20 @@
 /* eslint-disable react-compiler/react-compiler */
+import * as React from 'react';
+
 import { css } from '@emotion/css';
 import { Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
 import { useElementSize, useWindowEvent } from '@mantine/hooks';
-import uniqueId from 'lodash/uniqueId';
 import * as d3v7 from 'd3v7';
 import cloneDeep from 'lodash/cloneDeep';
 import uniq from 'lodash/uniq';
-import * as React from 'react';
+import uniqueId from 'lodash/uniqueId';
+
+import { fitRegressionLine } from './Regression';
+import { ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
+import { useData } from './useData';
+import { useDataPreparation } from './useDataPreparation';
+import { useLayout } from './useLayout';
+import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 import { useAsync } from '../../hooks';
 import { i18n } from '../../i18n/I18nextManager';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
@@ -17,12 +25,6 @@ import { WarningMessage } from '../general/WarningMessage';
 import { VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { fitRegressionLine } from './Regression';
-import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
-import { useData } from './useData';
-import { useDataPreparation } from './useDataPreparation';
-import { useLayout } from './useLayout';
-import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 
 function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
   return (
@@ -71,7 +73,7 @@ export function ScatterVis({
   scrollZoom,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IInternalScatterConfig>) {
+}: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
 
   const [shiftPressed, setShiftPressed] = React.useState(false);

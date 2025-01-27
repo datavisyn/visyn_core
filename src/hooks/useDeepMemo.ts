@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { useDeepComparison } from './useDeepComparison';
 
 export function useDeepMemo<T>(factory: () => T, dependencies: React.DependencyList) {

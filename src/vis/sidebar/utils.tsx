@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Highlighter from 'react-highlight-words';
-import { ColumnInfo, VisNumericalColumn, VisCategoricalColumn, VisColumn } from '../interfaces';
+
+import { ColumnInfo, VisCategoricalColumn, VisColumn, VisNumericalColumn } from '../interfaces';
 
 export const formatOptionLabel = (option, ctx) => {
   return (

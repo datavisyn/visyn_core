@@ -30,16 +30,6 @@ export interface IScatterConfig extends BaseVisConfig {
   yAxisScale?: 'linear' | 'log';
 }
 
-/**
- * @internal
- */
-export interface IInternalScatterConfig extends IScatterConfig {
-  /**
-   * Internal property used to show a message if show labels mode is `Selected`
-   */
-  selectedPointsCount?: number;
-}
-
 export function isScatterConfig(s: BaseVisConfig): s is IScatterConfig {
   return s.type === ESupportedPlotlyVis.SCATTER;
 }

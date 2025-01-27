@@ -1,5 +1,6 @@
 import { ADialog, IDialogContext, IRankingHeaderContext, LocalDataProvider } from 'lineupjs';
 import { debounce } from 'lodash';
+
 import { ISMILESFilter, SMILESColumn } from './SMILESColumn';
 
 // copied from lineupjs

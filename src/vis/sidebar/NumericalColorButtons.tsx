@@ -1,5 +1,7 @@
-import { Group, Input, SegmentedControl } from '@mantine/core';
 import * as React from 'react';
+
+import { Group, Input, SegmentedControl } from '@mantine/core';
+
 import { ENumericalColorScaleType } from '../interfaces';
 
 interface NumericalColorButtonsProps {

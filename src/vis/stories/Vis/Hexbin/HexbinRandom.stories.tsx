@@ -1,5 +1,7 @@
-import { ComponentStory } from '@storybook/react';
 import React from 'react';
+
+import { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { EHexbinOptions } from '../../../hexbin/interfaces';
@@ -79,173 +81,180 @@ function fetchData(numberOfPoints: number): VisColumn[] {
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
-  title: 'Vis/Hexbin',
+const meta: Meta<typeof Vis> = {
+  title: 'Vis/vistypes/randomData/Hexbin',
   component: Vis,
-  argTypes: {
-    pointCount: { control: 'number' },
+  parameters: {
+    argTypes: {
+      pointCount: { control: 'number' },
+    },
+    args: {
+      pointCount: 10000,
+    },
   },
-  args: {
-    pointCount: 10000,
-  },
-};
+  render: (args) => {
+    // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-// eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Vis> = (args) => {
-  // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
-
-  return (
-    <VisProvider>
-      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} columns={columns} />
+    return (
+      <VisProvider>
+        <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ width: '70%', height: '80%' }}>
+            <Vis {...args} columns={columns} />
+          </div>
         </div>
-      </div>
-    </VisProvider>
-  );
-};
-// More on args: https://storybook.js.org/docs/react/writing-stories/args
-
-export const LargeData: typeof Template = Template.bind({}) as typeof Template;
-LargeData.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEXBIN,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'pca_x',
-        name: 'pca_x',
-      },
-      {
-        description: '',
-        id: 'pca_y',
-        name: 'pca_y',
-      },
-    ],
-    color: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    hexRadius: 20,
-    isOpacityScale: true,
-    isSizeScale: false,
-    hexbinOptions: EHexbinOptions.COLOR,
-  } as BaseVisConfig,
+      </VisProvider>
+    );
+  },
 };
 
-export const LargeDataMultiples: typeof Template = Template.bind({}) as typeof Template;
-LargeDataMultiples.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEXBIN,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'pca_x',
-        name: 'pca_x',
-      },
-      {
-        description: '',
-        id: 'pca_y',
-        name: 'pca_y',
-      },
-      {
-        description: '',
-        id: 'value',
-        name: 'value',
-      },
-    ],
-    color: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    hexRadius: 20,
-    isOpacityScale: true,
-    isSizeScale: false,
-    hexbinOptions: EHexbinOptions.COLOR,
-  } as BaseVisConfig,
+export default meta;
+type Story = StoryObj<typeof Vis>;
+
+export const LargeData: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.HEXBIN,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'pca_x',
+          name: 'pca_x',
+        },
+        {
+          description: '',
+          id: 'pca_y',
+          name: 'pca_y',
+        },
+      ],
+      color: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      hexRadius: 20,
+      isOpacityScale: true,
+      isSizeScale: false,
+      hexbinOptions: EHexbinOptions.COLOR,
+    } as BaseVisConfig,
+  },
 };
 
-export const ColorByCategory: typeof Template = Template.bind({}) as typeof Template;
-ColorByCategory.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEXBIN,
-    numColumnsSelected: [
-      {
-        description: '',
-        id: 'pca_x',
-        name: 'pca_x',
-      },
-      {
-        description: '',
-        id: 'pca_y',
-        name: 'pca_y',
-      },
-    ],
-    color: {
-      description: '',
-      id: 'category',
-      name: 'category',
-    },
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    hexRadius: 20,
-    isOpacityScale: true,
-    isSizeScale: false,
-    hexbinOptions: EHexbinOptions.COLOR,
-  } as BaseVisConfig,
+export const LargeDataMultiples: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.HEXBIN,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'pca_x',
+          name: 'pca_x',
+        },
+        {
+          description: '',
+          id: 'pca_y',
+          name: 'pca_y',
+        },
+        {
+          description: '',
+          id: 'value',
+          name: 'value',
+        },
+      ],
+      color: null,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      hexRadius: 20,
+      isOpacityScale: true,
+      isSizeScale: false,
+      hexbinOptions: EHexbinOptions.COLOR,
+    } as BaseVisConfig,
+  },
 };
 
-export const PieCharts: typeof Template = Template.bind({}) as typeof Template;
-PieCharts.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEXBIN,
-    numColumnsSelected: [
-      {
+export const ColorByCategory: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.HEXBIN,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'pca_x',
+          name: 'pca_x',
+        },
+        {
+          description: '',
+          id: 'pca_y',
+          name: 'pca_y',
+        },
+      ],
+      color: {
         description: '',
-        id: 'pca_x',
-        name: 'pca_x',
+        id: 'category',
+        name: 'category',
       },
-      {
-        description: '',
-        id: 'pca_y',
-        name: 'pca_y',
-      },
-    ],
-    color: {
-      description: '',
-      id: 'category',
-      name: 'category',
-    },
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    hexRadius: 20,
-    isOpacityScale: true,
-    isSizeScale: false,
-    hexbinOptions: EHexbinOptions.PIE,
-  } as BaseVisConfig,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      hexRadius: 20,
+      isOpacityScale: true,
+      isSizeScale: false,
+      hexbinOptions: EHexbinOptions.COLOR,
+    } as BaseVisConfig,
+  },
 };
 
-export const ColorBins: typeof Template = Template.bind({}) as typeof Template;
-ColorBins.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEXBIN,
-    numColumnsSelected: [
-      {
+export const PieCharts: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.HEXBIN,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'pca_x',
+          name: 'pca_x',
+        },
+        {
+          description: '',
+          id: 'pca_y',
+          name: 'pca_y',
+        },
+      ],
+      color: {
         description: '',
-        id: 'pca_x',
-        name: 'pca_x',
+        id: 'category',
+        name: 'category',
       },
-      {
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      hexRadius: 20,
+      isOpacityScale: true,
+      isSizeScale: false,
+      hexbinOptions: EHexbinOptions.PIE,
+    } as BaseVisConfig,
+  },
+};
+
+export const ColorBins: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.HEXBIN,
+      numColumnsSelected: [
+        {
+          description: '',
+          id: 'pca_x',
+          name: 'pca_x',
+        },
+        {
+          description: '',
+          id: 'pca_y',
+          name: 'pca_y',
+        },
+      ],
+      color: {
         description: '',
-        id: 'pca_y',
-        name: 'pca_y',
+        id: 'category',
+        name: 'category',
       },
-    ],
-    color: {
-      description: '',
-      id: 'category',
-      name: 'category',
-    },
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    hexRadius: 20,
-    isOpacityScale: true,
-    isSizeScale: false,
-    hexbinOptions: EHexbinOptions.BINS,
-  } as BaseVisConfig,
+      dragMode: EScatterSelectSettings.RECTANGLE,
+      hexRadius: 20,
+      isOpacityScale: true,
+      isSizeScale: false,
+      hexbinOptions: EHexbinOptions.BINS,
+    } as BaseVisConfig,
+  },
 };

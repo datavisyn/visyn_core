@@ -51,5 +51,6 @@ export function normalizeWheelEvent(
     pixelY,
     x: event.clientX,
     y: event.clientY,
+    nativeEvent: event,
   };
 }

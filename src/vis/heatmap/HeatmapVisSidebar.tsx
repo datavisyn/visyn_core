@@ -1,9 +1,10 @@
 import * as React from 'react';
+
 import { ColumnInfo, EAggregateTypes, EColumnTypes, VisColumn } from '../interfaces';
-import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
-import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 import { IHeatmapConfig } from './interfaces';
 import { MultiSelect } from '../sidebar';
+import { AggregateTypeSelect } from '../sidebar/AggregateTypeSelect';
+import { NumericalColorButtons } from '../sidebar/NumericalColorButtons';
 
 export function HeatmapVisSidebar({
   config,
