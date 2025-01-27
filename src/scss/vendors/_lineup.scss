@@ -4,13 +4,16 @@
   // Why do I need to do this? Probably because lineupjs defines $engine_assets and it is resolving it relatively?
   $engine_assets: '../assets',
   $engine_loading_image: url('../assets/loading.svg'),
-  $engine_loading_static_image: url('../assets/loading_s.svg')
+  $engine_loading_static_image: url('../assets/loading_s.svg'),
+  $engine_highlight_mode: 'background',
+  $engine_row_outline_color: #ffe8be,
+  $engine_row_background_color: #ffe8be
 );
 
 @use 'lineupjs/src/styles/vars' as * with (
   $lu_assets: '../assets',
   $lu_use_font_awesome: true,
-  $lu_include_font_awesome: false
+  $lu_include_font_awesome: false,
 );
 
 // Add fontawesome only here to allow lazy loading of this style.
