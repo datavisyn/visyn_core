@@ -28,12 +28,12 @@ import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 
 function Legend({
   categories,
-  hiddenCategories = [],
+  hiddenCategoriesSet,
   colorMap,
   onClick,
 }: {
   categories: string[];
-  hiddenCategories?: string[];
+  hiddenCategoriesSet?: Set<string>;
   colorMap: (v: number | string) => string;
   onClick: (category: string) => void;
 }) {
@@ -51,7 +51,7 @@ function Legend({
     >
       <Stack gap={0}>
         {categories.map((c) => (
-          <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={hiddenCategories.some((hc) => hc === c)} />
+          <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={hiddenCategoriesSet?.has(c) ?? false} />
         ))}
       </Stack>
     </ScrollArea>
@@ -88,10 +88,8 @@ export function ScatterVis({
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
-  const [isDataPrepared, setIsDataPrepared] = React.useState(false);
-  const [isLayoutPrepared, setIsLayoutPrepared] = React.useState(false);
 
-  const hiddenCategoriesSet = React.useMemo(() => new Set<string>(), []);
+  const [hiddenCategoriesSet, setHiddenCategoriesSet] = React.useState<Set<string>>(new Set<string>());
 
   // const [ref, { width, height }] = useResizeObserver();
   const { ref, width, height } = useElementSize();
@@ -143,21 +141,13 @@ export function ScatterVis({
     previousArgs.current = args;
   }
 
-  const { subplots, scatter, splom, facet, shapeScale, calculateScatter } = useDataPreparation({
+  const { subplots, scatter, splom, facet, shapeScale } = useDataPreparation({
+    hiddenCategoriesSet,
     numColorScaleType: config.numColorScaleType,
     status,
     uniqueSymbols,
     value,
   });
-
-  React.useEffect(() => {
-    if (!isDataPrepared) {
-      if (status === 'success' && value) {
-        calculateScatter([...hiddenCategoriesSet]);
-        setIsDataPrepared(true);
-      }
-    }
-  }, [status, value, calculateScatter, hiddenCategoriesSet, isDataPrepared]);
 
   const regressions = React.useMemo<{
     results: IRegressionResult[];
@@ -301,7 +291,7 @@ export function ScatterVis({
     splom,
   ]);
 
-  const { layout, calculateLayout } = useLayout({
+  const layout = useLayout({
     scatter,
     facet,
     splom,
@@ -312,13 +302,6 @@ export function ScatterVis({
     height,
     internalLayoutRef,
   });
-
-  React.useEffect(() => {
-    if (!isLayoutPrepared || !layout) {
-      calculateLayout();
-      setIsLayoutPrepared(true);
-    }
-  }, [calculateLayout, isLayoutPrepared, layout]);
 
   const legendData = React.useMemo(() => {
     if (!value) {
@@ -456,6 +439,18 @@ export function ScatterVis({
     shapeScale,
     mappingFunction: legendData?.color.mappingFunction,
   });
+
+  const legendClickCallback = React.useCallback((category: string) => {
+    setHiddenCategoriesSet((prevSet) => {
+      const newSet = new Set(prevSet);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  }, []);
 
   return (
     <div
@@ -603,16 +598,8 @@ export function ScatterVis({
           <Legend
             categories={legendData.color.categories}
             colorMap={legendData.color.mappingFunction}
-            hiddenCategories={[...hiddenCategoriesSet]}
-            onClick={(e: string) => {
-              if (hiddenCategoriesSet.has(e)) {
-                hiddenCategoriesSet.delete(e);
-              } else {
-                hiddenCategoriesSet.add(e);
-              }
-              calculateScatter([...hiddenCategoriesSet]);
-              calculateLayout();
-            }}
+            hiddenCategoriesSet={hiddenCategoriesSet}
+            onClick={legendClickCallback}
           />
         </div>
       ) : null}
