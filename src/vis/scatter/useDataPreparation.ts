@@ -85,6 +85,7 @@ export function useDataPreparation({
       ? new Set<string>(value.colorColumn.resolvedValues.filter((v) => hiddenCategoriesSet?.has((v.val as string) ?? NAN_REPLACEMENT)).map((v) => v.id))
       : new Set<string>();
 
+    // NOTE: @dv-usama-ansari: This set would hold the indices of the null values in the data
     const nullSet = new Set<number>();
 
     value.validColumns[0].resolvedValues.forEach((v, i) => {
@@ -96,6 +97,7 @@ export function useDataPreparation({
       }
     });
 
+    // NOTE: @dv-usama-ansari: Filter out excluded categories and null values
     const filteredX = value.validColumns[0].resolvedValues.map((v, i) => (!excludedIds.has(v.id as string) && !nullSet.has(i) ? v : null));
     const filteredY = value.validColumns[1].resolvedValues.map((v, i) => (!excludedIds.has(v.id as string) && !nullSet.has(i) ? v : null));
 
