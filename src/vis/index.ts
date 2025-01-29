@@ -5,7 +5,6 @@
 // export * from './violin';
 // export * from './Vis';
 export * from './LazyVis';
-export * from './LineupVisWrapper';
 export * from './VisSidebar';
 export * from './general';
 export * from './interfaces';

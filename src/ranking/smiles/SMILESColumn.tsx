@@ -1,5 +1,5 @@
 import { Column, IDataRow, IValueColumnDesc, StringColumn, ValueColumn, toolbar } from 'lineupjs';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 
 // internal function copied from lineupjs
 function integrateDefaults<T>(desc: T, defaults: Partial<T> = {}) {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Center, Loader, Stack } from '@mantine/core';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
 
 import { useAsync } from '../../hooks/useAsync';
 import { VisColumn } from '../interfaces';

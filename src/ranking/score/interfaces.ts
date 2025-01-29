@@ -1,4 +1,4 @@
-import { ColumnBuilder, IDataRow, IValueColumnDesc } from 'lineupjs';
+import type { ColumnBuilder, IDataRow, IValueColumnDesc } from 'lineupjs';
 
 /**
  * A single score result

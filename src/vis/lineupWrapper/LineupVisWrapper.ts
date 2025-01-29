@@ -3,10 +3,10 @@ import * as React from 'react';
 import { CategoricalColumn, Column, IDataRow, LocalDataProvider, NumberColumn, Ranking, ValueColumn } from 'lineupjs';
 import { createRoot } from 'react-dom/client';
 
-import { Vis } from './LazyVis';
-import { ColumnInfo, EColumnTypes, EFilterOptions, IVisCommonValue, VisColumn } from './interfaces';
-import { IRow } from '../base/interfaces';
-import { i18n } from '../i18n';
+import { IRow } from '../../base/interfaces';
+import { i18n } from '../../i18n';
+import { Vis } from '../LazyVis';
+import { ColumnInfo, EColumnTypes, EFilterOptions, IVisCommonValue, VisColumn } from '../interfaces';
 
 export class LineupVisWrapper {
   /**
