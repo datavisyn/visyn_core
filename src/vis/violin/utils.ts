@@ -1,4 +1,9 @@
-import { cloneDeep, groupBy, mean, merge, orderBy, sumBy } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import groupBy from 'lodash/groupBy';
+import mean from 'lodash/mean';
+import merge from 'lodash/merge';
+import orderBy from 'lodash/orderBy';
+import sumBy from 'lodash/sumBy';
 
 import { i18n } from '../../i18n';
 import { categoricalColors10 } from '../../utils';

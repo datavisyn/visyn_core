@@ -1,5 +1,5 @@
 import { ALineUp, Column, DataBuilder, IRankingHeaderContext, LocalDataProvider, defaultOptions, dialogContext } from 'lineupjs';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
 
 import { SMILESColumn } from './SMILESColumn';
 import { SMILESFilterDialog } from './SMILESFilterDialog';

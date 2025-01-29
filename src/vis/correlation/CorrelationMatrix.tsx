@@ -6,7 +6,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import { scaleBand } from 'd3v7';
 import { corrcoeff, spearmancoeff, tukeyhsd } from 'jstat';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
 
 import { useAsync } from '../../hooks/useAsync';
 import { ColumnInfo, EColumnTypes, EScaleType, ICommonVisProps, VisCategoricalValue, VisNumericalValue } from '../interfaces';

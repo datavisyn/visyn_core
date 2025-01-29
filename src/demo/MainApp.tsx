@@ -3,8 +3,8 @@ import * as React from 'react';
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
-import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
-import { defaultBuilder } from '../ranking/EagerVisynRanking';
+import type { DatavisynTaggle } from '../ranking';
+import { VisynRanking } from '../ranking/VisynRanking';
 import {
   BaseVisConfig,
   ELabelingOptions,
@@ -16,8 +16,9 @@ import {
   Vis,
 } from '../vis';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
-import { breastCancerData } from '../vis/stories/breastCancerData';
-import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
+
+const { breastCancerData } = await import('../vis/stories/breastCancerData');
+const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancerData');
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -122,10 +123,10 @@ export function MainApp() {
               data={breastCancerData}
               selection={selection}
               setSelection={setSelection}
-              getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
+              // getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
               onBuiltLineUp={({ lineup }) => {
                 lineupRef.current = lineup;
-                autosizeWithSMILESColumn({ provider: lineup.data, lineup });
+                // autosizeWithSMILESColumn({ provider: lineup.data, lineup });
               }}
             />
           </Stack>
