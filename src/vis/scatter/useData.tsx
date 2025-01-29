@@ -114,40 +114,52 @@ export function useData({
     }
 
     if (scatter && config && value && value.validColumns[0]) {
+      console.log(
+        value.colorColumn && mappingFunction
+          ? scatter.filter.map((index) => mappingFunction(value.colorColumn.resolvedValues[index]!.val as string))
+          : VIS_NEUTRAL_COLOR,
+        scatter.filter.map((index) => scatter.plotlyData.x[index]),
+      );
+
       const visibleLabelsSet = config.showLabelLimit ? new Set(selectedList.slice(0, config.showLabelLimit)) : selectedSet;
       const traces = [
         {
           ...BASE_DATA,
           type: 'scattergl',
-          x: scatter.plotlyData.x,
-          y: scatter.plotlyData.y,
+          x: scatter.filter.map((index) => scatter.plotlyData.x[index]),
+          y: scatter.filter.map((index) => scatter.plotlyData.y[index]),
           // text: scatter.plotlyData.text,
-          textposition: scatter.plotlyData.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
+          textposition: scatter.filter.map((index) => textPositionOptions[index % textPositionOptions.length]),
           ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
           mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: scatter.plotlyData.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
-                  // textposition: 'top center',
+                  text: scatter.filter.map((index) => truncateText(value.idToLabelMapper(scatter.plotlyData.text[index]!), true, 10)),
                 }
               : {
-                  text: scatter.plotlyData.text.map((t, i) => (visibleLabelsSet.has(scatter.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
-                  // textposition: 'top center',
+                  text: scatter.filter.map((index, i) =>
+                    visibleLabelsSet.has(scatter.ids[index]!)
+                      ? truncateText(value.idToLabelMapper(value.idToLabelMapper(scatter.plotlyData.text[index]!)), true, 10)
+                      : '',
+                  ),
                 }),
-          hovertext: value.validColumns[0].resolvedValues.map((v, i) =>
-            `${value.idToLabelMapper(v.id)}
+          hovertext: scatter.filter.map((i) => {
+            return `
   ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i]?.val)}`)}
   ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i]?.val)}` : ''}
-  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}` : ''}`.trim(),
-          ),
+  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}` : ''}`.trim();
+          }),
           marker: {
             textfont: {
               color: VIS_NEUTRAL_COLOR,
             },
             size: 8,
-            color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
+            color:
+              value.colorColumn && mappingFunction
+                ? scatter.filter.map((index) => mappingFunction(value.colorColumn.resolvedValues[index]!.val as string))
+                : VIS_NEUTRAL_COLOR,
             symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
           },
