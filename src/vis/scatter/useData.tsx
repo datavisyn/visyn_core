@@ -141,10 +141,22 @@ export function useData({
                   ),
                 }),
           hovertext: scatter.filter.map((i) => {
-            return `
-  ${(value.resolvedLabelColumns ?? []).map((l) => `<br />${columnNameWithDescription(l.info)}: ${getLabelOrUnknown(l.resolvedValues[i]?.val)}`)}
-  ${value.colorColumn ? `<br />${columnNameWithDescription(value.colorColumn.info)}: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i]?.val)}` : ''}
-  ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}` : ''}`.trim();
+            const resolvedLabelString =
+              value.resolvedLabelColumns?.length > 0
+                ? value.resolvedLabelColumns.map((l) => `<b>${columnNameWithDescription(l.info)}</b>: ${getLabelOrUnknown(l.resolvedValues[i]?.val)}<br />`)
+                : '';
+            const idString = `<b>${value.idToLabelMapper(scatter.plotlyData.text[i]!)}</b><br />`;
+            const xString = `<b>${columnNameWithDescription(value.validColumns[0]!.info)}</b>: ${getLabelOrUnknown(value.validColumns[0]!.resolvedValues[i]?.val)}<br />`;
+            const yString = `<b>${columnNameWithDescription(value.validColumns[1]!.info)}</b>: ${getLabelOrUnknown(value.validColumns[1]!.resolvedValues[i]?.val)}<br />`;
+            const colorColumnString = value.colorColumn
+              ? `<b>${columnNameWithDescription(value.colorColumn.info)}</b>: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i]?.val)}<br />`
+              : '';
+            const shapeColumnString =
+              value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id
+                ? `<b>${columnNameWithDescription(value.shapeColumn.info)}</b>: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}<br />`
+                : '';
+
+            return `${idString}${xString}${yString}${resolvedLabelString}${colorColumnString}${shapeColumnString}`;
           }),
           marker: {
             textfont: {
