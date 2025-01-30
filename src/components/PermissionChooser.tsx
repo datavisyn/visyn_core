@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { css } from '@emotion/css';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, Button, Collapse, Group, Radio, SegmentedControl, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
 import uniqueId from 'lodash/uniqueId';

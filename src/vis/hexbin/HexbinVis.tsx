@@ -3,7 +3,7 @@ import * as React from 'react';
 import { css } from '@emotion/css';
 import { Box, Center, Group, ScrollArea, Stack } from '@mantine/core';
 import * as d3v7 from 'd3v7';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
 
 import { useAsync } from '../../hooks/useAsync';
 import { i18n } from '../../i18n';

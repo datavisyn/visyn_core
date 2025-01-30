@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { Matrix4x4, Vector3 } from './interfaces';
 
-export { Matrix4x4, Vector3 };
+export type { Matrix4x4, Vector3 };
 
 /**
  * A matrix in javascript notation is a 4x4 array of numbers.
