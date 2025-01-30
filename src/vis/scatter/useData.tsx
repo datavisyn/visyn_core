@@ -114,13 +114,6 @@ export function useData({
     }
 
     if (scatter && config && value && value.validColumns[0]) {
-      console.log(
-        value.colorColumn && mappingFunction
-          ? scatter.filter.map((index) => mappingFunction(value.colorColumn.resolvedValues[index]!.val as string))
-          : VIS_NEUTRAL_COLOR,
-        scatter.filter.map((index) => scatter.plotlyData.x[index]),
-      );
-
       const visibleLabelsSet = config.showLabelLimit ? new Set(selectedList.slice(0, config.showLabelLimit)) : selectedSet;
       const traces = [
         {
@@ -130,7 +123,9 @@ export function useData({
           y: scatter.filter.map((index) => scatter.plotlyData.y[index]),
           // text: scatter.plotlyData.text,
           textposition: scatter.filter.map((index) => textPositionOptions[index % textPositionOptions.length]),
-          ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)) }),
+          ...(isEmpty(selectedSet)
+            ? {}
+            : { selectedpoints: selectedList.map((idx) => scatter.idToIndex.get(idx)).filter((v) => v !== undefined && v !== null) }),
           mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
