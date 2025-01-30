@@ -6,7 +6,7 @@ import isFinite from 'lodash/isFinite';
 import { IScatterConfig } from './interfaces';
 import { useDataPreparation } from './useDataPreparation';
 import { PlotlyTypes } from '../../plotly';
-import { FastTextMeasure } from '../general/FastTextMeasure';
+import { FastTextMeasure } from "../general/FastTextMeasure.1";
 import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
 import { getLabelOrUnknown } from '../general/utils';
 

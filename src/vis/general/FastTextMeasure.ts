@@ -48,7 +48,9 @@ export class FastTextMeasure {
     return width;
   }
 
-  // Cuts off text and adds ellipsis if it exceeds the given width
+  /**
+   * @deprecated Use fastTextEllipsis instead.
+   */
   textEllipsis(text: string, maxWidth: number) {
     let width = this.fastMeasureText(text);
 
@@ -65,5 +67,29 @@ export class FastTextMeasure {
     }
 
     return `${text.slice(0, text.length - ellipsisCount)}...`;
+  }
+
+  fastTextEllipsis(text: string, maxWidth: number) {
+    let width = this.fastMeasureText(text);
+
+    if (width <= maxWidth) {
+      return {
+        truncatedLabel: text,
+        truncatedWidth: width,
+      };
+    }
+
+    const ellipsisWidth = this.fastMeasureText('...');
+    let ellipsisCount = 0;
+
+    while (width + ellipsisWidth > maxWidth) {
+      ellipsisCount++;
+      width -= this.table[text.charCodeAt(text.length - ellipsisCount)]!;
+    }
+
+    return {
+      truncatedLabel: text.length - ellipsisCount > 0 ? `${text.slice(0, text.length - ellipsisCount)}...` : '',
+      truncatedWidth: Number.isNaN(width) ? 0 : width,
+    };
   }
 }

@@ -18,6 +18,7 @@ import {
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { breastCancerData } from '../vis/stories/breastCancerData';
 import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
+import { FlameTree } from './FlameTree';
 
 export function MainApp() {
   const { user } = useVisynAppContext();
@@ -76,77 +77,7 @@ export function MainApp() {
         />
       }
     >
-      {user ? (
-        <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
-          <Stack>
-            <Select
-              placeholder="Add a score column"
-              onChange={async (value) => {
-                setLoading(true);
-                // eslint-disable-next-line no-promise-executor-return
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-
-                const data = await (() => {
-                  if (value === 'string') {
-                    return MyStringScore(value);
-                  }
-                  if (value === 'number') {
-                    return MyNumberScore(value);
-                  }
-                  if (value === 'category') {
-                    return MyCategoricalScore(value);
-                  }
-                  if (value === 'link') {
-                    return MyLinkScore(value);
-                  }
-                  if (value === 'smiles') {
-                    return MySMILESScore(value);
-                  }
-                  throw new Error('Unknown score type');
-                })();
-
-                lineupRef.current?.createScoreColumn(data);
-                setLoading(false);
-              }}
-              rightSection={loading ? <Loader size="xs" /> : null}
-              data={[
-                { value: 'string', label: 'String' },
-                { value: 'number', label: 'Number' },
-                { value: 'category', label: 'Category' },
-                { value: 'smiles', label: 'SMILES' },
-                { value: 'link', label: 'Link' },
-              ]}
-            />
-
-            <VisynRanking
-              data={breastCancerData}
-              selection={selection}
-              setSelection={setSelection}
-              getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
-              onBuiltLineUp={({ lineup }) => {
-                lineupRef.current = lineup;
-                autosizeWithSMILESColumn({ provider: lineup.data, lineup });
-              }}
-            />
-          </Stack>
-          <Vis
-            columns={columns}
-            showSidebarDefault
-            externalConfig={visConfig}
-            showDownloadScreenshot
-            setExternalConfig={setVisConfig}
-            selected={visSelection}
-            selectionCallback={(s) => {
-              if (s) {
-                setSelection(s.map((i) => breastCancerData[+i]!));
-              }
-            }}
-            filterCallback={(f) => {
-              console.log(f);
-            }}
-          />
-        </SimpleGrid>
-      ) : null}
+      <FlameTree />
     </VisynApp>
   );
 }
