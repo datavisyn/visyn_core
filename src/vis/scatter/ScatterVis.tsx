@@ -26,7 +26,17 @@ import { VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
 
-function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
+function Legend({
+  categories,
+  hiddenCategoriesSet,
+  colorMap,
+  onClick,
+}: {
+  categories: string[];
+  hiddenCategoriesSet?: Set<string>;
+  colorMap: (v: number | string) => string;
+  onClick: (category: string) => void;
+}) {
   return (
     <ScrollArea
       data-testid="PlotLegend"
@@ -40,9 +50,9 @@ function Legend({ categories, colorMap, onClick }: { categories: string[]; color
       `}
     >
       <Stack gap={0}>
-        {categories.map((c) => {
-          return <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={false} />;
-        })}
+        {categories.map((c) => (
+          <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={hiddenCategoriesSet?.has(c) ?? false} />
+        ))}
       </Stack>
     </ScrollArea>
   );
@@ -78,6 +88,8 @@ export function ScatterVis({
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
+
+  const [hiddenCategoriesSet, setHiddenCategoriesSet] = React.useState<Set<string>>(new Set<string>());
 
   // const [ref, { width, height }] = useResizeObserver();
   const { ref, width, height } = useElementSize();
@@ -130,10 +142,11 @@ export function ScatterVis({
   }
 
   const { subplots, scatter, splom, facet, shapeScale } = useDataPreparation({
-    value,
+    hiddenCategoriesSet,
+    numColorScaleType: config.numColorScaleType,
     status,
     uniqueSymbols,
-    numColorScaleType: config.numColorScaleType,
+    value,
   });
 
   const regressions = React.useMemo<{
@@ -427,6 +440,18 @@ export function ScatterVis({
     mappingFunction: legendData?.color.mappingFunction,
   });
 
+  const legendClickCallback = React.useCallback((category: string) => {
+    setHiddenCategoriesSet((prevSet) => {
+      const newSet = new Set(prevSet);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  }, []);
+
   return (
     <div
       className={css`
@@ -529,7 +554,7 @@ export function ScatterVis({
                 }
 
                 if (scatter) {
-                  const ids = event.points.map((point) => scatter.ids[point.pointIndex]) as string[];
+                  const ids = event.points.map((point) => scatter.ids[scatter.filter[point.pointIndex]!]) as string[];
                   mergeIntoSelection(ids);
                 }
 
@@ -570,7 +595,12 @@ export function ScatterVis({
 
       {status === 'success' && layout && legendData?.color.mapping && showLegend ? (
         <div style={{ gridArea: 'legend', overflow: 'hidden' }}>
-          <Legend categories={legendData.color.categories} colorMap={legendData.color.mappingFunction} onClick={() => {}} />
+          <Legend
+            categories={legendData.color.categories}
+            colorMap={legendData.color.mappingFunction}
+            hiddenCategoriesSet={hiddenCategoriesSet}
+            onClick={legendClickCallback}
+          />
         </div>
       ) : null}
     </div>
