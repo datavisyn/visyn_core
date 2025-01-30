@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as d3v7 from 'd3v7';
 import groupBy from 'lodash/groupBy';
 import isFinite from 'lodash/isFinite';
+import range from 'lodash/range';
 import sortBy from 'lodash/sortBy';
 
 import { PlotlyTypes } from '../../plotly';
@@ -10,6 +11,7 @@ import { NAN_REPLACEMENT } from '../general';
 import { columnNameWithDescription } from '../general/layoutUtils';
 import { ENumericalColorScaleType } from '../interfaces';
 import { FetchColumnDataResult } from './utils';
+import { indicesOf } from '../../utils/indicesOf';
 
 function getStretchedDomains(x: number[], y: number[]) {
   let xDomain = d3v7.extent(x);
@@ -81,28 +83,42 @@ export function useDataPreparation({
       return undefined;
     }
 
-    const excludedIds = value.colorColumn
+    const filter =
+      value.colorColumn && hiddenCategoriesSet
+        ? indicesOf(
+            value.colorColumn.resolvedValues,
+            (e, index) =>
+              !hiddenCategoriesSet.has((e.val ?? NAN_REPLACEMENT) as string) &&
+              isFinite(value.validColumns[0]!.resolvedValues[index]!.val) &&
+              isFinite(value.validColumns[1]!.resolvedValues[index]!.val),
+          )
+        : range(value.validColumns[0].resolvedValues.length);
+
+    /* const excludedIds = value.colorColumn
       ? new Set<string>(value.colorColumn.resolvedValues.filter((v) => hiddenCategoriesSet?.has((v.val as string) ?? NAN_REPLACEMENT)).map((v) => v.id))
       : new Set<string>();
+    */
 
     // NOTE: @dv-usama-ansari: This set would hold the indices of the null values in the data
-    const nullSet = new Set<number>();
+    // const nullSet = new Set<number>();
 
-    value.validColumns[0].resolvedValues.forEach((v, i) => {
+    /* value.validColumns[0].resolvedValues.forEach((v, i) => {
       if (v.val === null) {
         nullSet.add(i);
       }
       if (value.validColumns[1]?.resolvedValues[i]?.val === null) {
         nullSet.add(i);
       }
-    });
+    }); */
 
     // NOTE: @dv-usama-ansari: Filter out excluded categories and null values
-    const filteredX = value.validColumns[0].resolvedValues.map((v, i) => (!excludedIds.has(v.id as string) && !nullSet.has(i) ? v : null));
+    /* const filteredX = value.validColumns[0].resolvedValues.map((v, i) => (!excludedIds.has(v.id as string) && !nullSet.has(i) ? v : null));
     const filteredY = value.validColumns[1].resolvedValues.map((v, i) => (!excludedIds.has(v.id as string) && !nullSet.has(i) ? v : null));
 
     const x = filteredX.map((v) => v?.val as number);
     const y = filteredY.map((v) => v?.val as number);
+*/
+    const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
 
     // Get shared range for all plots
     const { xDomain, yDomain } = getStretchedDomains(
@@ -110,25 +126,25 @@ export function useDataPreparation({
       value.validColumns[1].resolvedValues.map((v) => v.val as number),
     );
 
-    const ids = filteredX.map((v) => v?.id);
+    const x = value.validColumns[0].resolvedValues.map((v) => v.val as number);
+    const y = value.validColumns[1].resolvedValues.map((v) => v.val as number);
 
     const idToIndex = new Map<string, number>();
-    ids.forEach((v, i) => {
-      if (v) {
-        idToIndex.set(v, i);
-      }
+    filter.forEach((v, i) => {
+      idToIndex.set(ids[v]!, i);
     });
+    /* ids.forEach((v, i) => {
+      idToIndex.set(v, i);
+    }); */
 
     return {
       plotlyData: {
-        validIndices: x
-          .filter((_, i) => x[i] !== null && y[i] !== null)
-          .map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null))
-          .filter((i) => i !== null) as number[],
+        validIndices: filter,
         x,
         y,
         text: ids,
       },
+      filter,
       ids,
       xDomain,
       yDomain,

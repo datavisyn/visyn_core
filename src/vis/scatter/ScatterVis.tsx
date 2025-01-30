@@ -554,7 +554,7 @@ export function ScatterVis({
                 }
 
                 if (scatter) {
-                  const ids = event.points.map((point) => scatter.ids[point.pointIndex]) as string[];
+                  const ids = event.points.map((point) => scatter.ids[scatter.filter[point.pointIndex]!]) as string[];
                   mergeIntoSelection(ids);
                 }
 
