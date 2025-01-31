@@ -25,6 +25,8 @@ def workspace_config() -> dict:
     return {
         "visyn_core": {
             "enabled_plugins": ["visyn_core"],
+            "celery_readiness_file": "./celery_ready",
+            "celery_liveness_file": "./celery_liveness",
             "celery": {
                 "broker": "memory://localhost/",
                 "task_always_eager": True,
