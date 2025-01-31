@@ -80,20 +80,23 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   ];
 }
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-const meta: Meta<typeof Vis> = {
+interface CustomArgs {
+  pointCount: number;
+}
+
+// Merge the custom args with the component's props
+type MetaArgs = Parameters<typeof Vis>[0] & CustomArgs;
+
+const meta: Meta<MetaArgs> = {
   title: 'Vis/vistypes/randomData/Hexbin',
   component: Vis,
-  parameters: {
-    argTypes: {
-      pointCount: { control: 'number' },
-    },
-    args: {
-      pointCount: 10000,
-    },
+  argTypes: {
+    pointCount: { control: 'number' },
+  },
+  args: {
+    pointCount: 10000,
   },
   render: (args) => {
-    // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
 

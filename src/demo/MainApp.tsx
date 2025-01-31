@@ -3,8 +3,8 @@ import * as React from 'react';
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 
 import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
-import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
-import { defaultBuilder } from '../ranking/EagerVisynRanking';
+import type { DatavisynTaggle } from '../ranking';
+import { VisynRanking } from '../ranking/VisynRanking';
 import {
   BaseVisConfig,
   ELabelingOptions,

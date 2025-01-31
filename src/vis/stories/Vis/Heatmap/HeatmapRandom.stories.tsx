@@ -104,18 +104,25 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   ];
 }
 
+interface CustomArgs {
+  pointCount: number;
+}
+
+// Merge the custom args with the component's props
+type MetaArgs = Parameters<typeof Vis>[0] & CustomArgs;
+
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-const meta: Meta<typeof Vis> = {
+const meta: Meta<MetaArgs> = {
   title: 'Vis/vistypes/randomData/Heatmap',
   component: Vis,
   parameters: {
     chromatic: { delay: 3000 },
-    argTypes: {
-      pointCount: { control: 'number' },
-    },
-    args: {
-      pointCount: 100000,
-    },
+  },
+  argTypes: {
+    pointCount: { control: 'number' },
+  },
+  args: {
+    pointCount: 100000,
   },
   render: (args) => {
     // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.

@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { extent, ticks } from 'd3v7';
+import { extent, mean, ticks, max } from 'd3v7';
 import groupBy from 'lodash/groupBy';
 import isNumber from 'lodash/isNumber';
 import map from 'lodash/map';
@@ -61,6 +61,9 @@ export type NumericalBin = {
    * The items in the bin.
    */
   items: Row[];
+
+  // @TODO move this to a key or so
+  value: number;
 };
 
 export type CategoricalBin = {
@@ -108,6 +111,9 @@ export type CategoricalBin = {
    * The items in the bin.
    */
   items: Row[];
+
+  // @TODO move this to a key or so
+  value: number;
 };
 
 export type FlameBin = NumericalBin | CategoricalBin;
@@ -155,7 +161,7 @@ export function binNumerical<T extends Row>(data: T[], accessorKey: string, rang
     bins[binIndex]!.items.push(datum);
   });
 
-  console.log(bins);
+  return bins;
 }
 
 export function binCategorical<T extends Row>(data: T[], accessorKey: string, range: number[], level: number) {
@@ -202,7 +208,7 @@ export function groupStep<T extends Row>(
   }
 
   const values = map(data, levels[currentLevel]!);
-  let bins: Record<string, CategoricalBin | NumericalBin>;
+  let bins: Record<string, FlameBin>;
 
   if (isNumerical(values)) {
     bins = binNumerical(data, levels[currentLevel]!, range, currentLevel);
@@ -231,7 +237,7 @@ export type CategoricalParameterColumn = {
   type: 'categorical';
 };
 
-export function parameterBinCategorical(column: CategoricalParameterColumn, range: number[], level: number, parentId?: string) {
+export function parameterBinCategorical(column: CategoricalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string) {
   const minmax = range[1]! - range[0]!;
   const total = column.domain.length;
 
@@ -240,6 +246,8 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, rang
   for (let i = 0, sum = 0; i < column.domain.length; i++) {
     const key = column.domain[i]!;
     const width = (1 / total) * minmax;
+
+    const items = samples.filter((sample) => sample[column.key] === key);
 
     result[key] = {
       id: nanoid(),
@@ -251,8 +259,11 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, rang
       x0: i === 0 ? range[0]! : range[0]! + sum,
       x1: i === column.domain.length - 1 ? range[1]! : range[0]! + sum + width,
 
-      items: [],
+      items,
       y: level,
+
+      // @TODO move this to a key or so
+      value: max(items.map((entry) => entry.value as number)) ?? 0,
     };
 
     sum += width;
@@ -261,7 +272,7 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, rang
   return result;
 }
 
-export function parameterBinNumerical(column: NumericalParameterColumn, range: number[], level: number, parentId?: string) {
+export function parameterBinNumerical(column: NumericalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string) {
   const steps = ticks(column.domain[0]!, column.domain[1]!, 5);
   const tickStep = steps[1]! - steps[0]!;
 
@@ -298,6 +309,11 @@ export function parameterBinNumerical(column: NumericalParameterColumn, range: n
     (acc, bin, index) => {
       const key = `${bin.min}-${bin.max}`;
 
+      const items = samples.filter((sample) => {
+        const value = sample[column.key] as number;
+        return value >= bin.min && value < bin.max;
+      });
+
       acc[key] = {
         id: nanoid(),
         parent: parentId,
@@ -306,7 +322,9 @@ export function parameterBinNumerical(column: NumericalParameterColumn, range: n
         label: `${bin.min} - ${bin.max}`,
         x0: bin.x0,
         x1: bin.x1,
-        items: [],
+        items,
+        // @TODO move this to a key or so
+        value: max(items.map((entry) => entry.value as number)) ?? 0,
         y: level,
       };
 
@@ -318,8 +336,7 @@ export function parameterBinNumerical(column: NumericalParameterColumn, range: n
   return result;
 }
 
-export function assignSamplesToBins<T extends Row>(bins: Record<string, FlameBin>) {
-}
+export function assignSamplesToBins<T extends Row>(bins: Record<string, FlameBin>) {}
 
 export function parameterGroupStep(
   data: (NumericalParameterColumn | CategoricalParameterColumn)[],
@@ -339,9 +356,9 @@ export function parameterGroupStep(
   let bins: Record<string, FlameBin>;
 
   if (column.type === 'categorical') {
-    bins = parameterBinCategorical(column, range, currentLevel, parent?.id);
+    bins = parameterBinCategorical(column, samples, range, currentLevel, parent?.id);
   } else if (column.type === 'numerical') {
-    bins = parameterBinNumerical(column, range, currentLevel, parent?.id);
+    bins = parameterBinNumerical(column, samples, range, currentLevel, parent?.id);
   } else {
     throw new Error('Unsupported data type');
   }
@@ -353,10 +370,9 @@ export function parameterGroupStep(
   Object.values(bins).forEach((bin) => {
     resultList[bin.id] = bin;
   });
-  // resultList.push(...Object.values(bins));
 
   Object.entries(bins).forEach(([key, bin]) => {
-    parameterGroupStep(data, [bin.x0, bin.x1], levels, currentLevel + 1, resultList, bin);
+    parameterGroupStep(data, bin.items, [bin.x0, bin.x1], levels, currentLevel + 1, resultList, bin);
   });
 }
 

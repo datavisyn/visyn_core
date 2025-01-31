@@ -5,14 +5,15 @@ import { css, cx } from '@emotion/css';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons/faGripVertical';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { Affix, Button, Group, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
+import { Affix, Button, Divider, Group, Paper, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
 import { useListState, useMergedRef } from '@mantine/hooks';
+import { interpolateReds, scaleSequential } from 'd3v7';
 import clamp from 'lodash/clamp';
+import groupBy from 'lodash/groupBy';
 
 import { generateDarkBorderColor, generateDarkHighlightColor, generateDynamicTextColor } from './colorUtils';
 import { CategoricalParameterColumn, NumericalParameterColumn, createParameterHierarchy, estimateTransformForDomain } from './math';
 import { FastTextMeasure, m4, useAnimatedTransform, useCanvas, usePan, useTransformScale, useTriggerFrame, useZoom } from '../../vis';
-import groupBy from 'lodash/groupBy';
 
 const classItem = css`
   display: flex;
@@ -63,6 +64,7 @@ function generateTestData() {
     temperature: -5 + Math.floor(Math.random() * 100) * 1.1,
     ligand: LIGAND[Math.floor(Math.random() * LIGAND.length)]!,
     age: 15 + Math.floor(Math.random() * 55),
+    value: Math.floor(Math.random() * 100),
   }));
 }
 
@@ -97,7 +99,7 @@ export function FlameTree() {
   }, []);
 
   const bins = React.useMemo(() => {
-    const phier = createParameterHierarchy(parameterDefinitions, state, [0, 100]);
+    const phier = createParameterHierarchy(parameterDefinitions, generateTestData(), state, [0, 100]);
     const byLevel = groupBy(phier, 'y');
 
     return {
@@ -106,8 +108,6 @@ export function FlameTree() {
       flat: Object.values(phier),
     };
   }, [state, parameterDefinitions]);
-
-  console.log(bins);
 
   const [hover, setHover] = React.useState<{
     index: number;
@@ -170,6 +170,9 @@ export function FlameTree() {
       return;
     }
 
+    // Gray to yellow
+    const colorScale = scaleSequential().domain([0, 100]).interpolator(interpolateReds);
+
     const itemHeight = 100 * dpr;
 
     ctx.clearRect(0, 0, pixelContentWidth, pixelContentHeight);
@@ -196,7 +199,8 @@ export function FlameTree() {
       const fixedY0 = Math.floor(bin.y * itemHeight) + dpr;
       const fixedY1 = Math.ceil((bin.y + 1) * itemHeight) - dpr;
 
-      const fillColor = hover?.index === index ? generateDarkHighlightColor(NEUTRAL_COLOR) : NEUTRAL_COLOR;
+      const color = colorScale(bin.value);
+      const fillColor = hover?.index === index ? generateDarkHighlightColor(color) : color;
 
       ctx.fillStyle = fillColor;
       ctx.strokeStyle = generateDarkBorderColor(fillColor);
@@ -206,18 +210,24 @@ export function FlameTree() {
       ctx.strokeRect(fixedX0, fixedY0, fixedX1 - fixedX0, fixedY1 - fixedY0);
 
       // Optimization: Do not draw text if the bin is too small
-      if (x1 - x0 > 15 * dpr) {
+      if (x1 - x0 > 30 * dpr) {
         const { truncatedLabel, truncatedWidth } = textMeasure.fastTextEllipsis(bin.label, x1 - x0 - 3 * dpr);
 
-        if (truncatedWidth > 0) {
-          const c = (x0 + x1) / 2;
-          ctx.fillStyle = generateDynamicTextColor(fillColor);
-          ctx.fillText(
-            truncatedLabel,
-            clamp(c, Math.min(x1 - truncatedWidth / 2, truncatedWidth / 2), Math.max(x0 + truncatedWidth / 2, pixelContentWidth - truncatedWidth / 2)),
-            (y0 + y1) / 2,
-          );
-        }
+        const c = (x0 + x1) / 2;
+        ctx.fillStyle = generateDynamicTextColor(fillColor);
+        ctx.fillText(
+          truncatedLabel,
+          clamp(c, Math.min(x1 - truncatedWidth / 2, truncatedWidth / 2), Math.max(x0 + truncatedWidth / 2, pixelContentWidth - truncatedWidth / 2)),
+          (y0 + y1) / 2,
+        );
+      } else if (x1 - x0 > 6 * dpr) {
+        // Draw vertical text instead
+        ctx.save();
+        ctx.translate((x0 + x1) / 2, (y0 + y1) / 2);
+        ctx.rotate(Math.PI / 2);
+        ctx.fillStyle = generateDynamicTextColor(fillColor);
+        ctx.fillText(bin.label, 0, 0);
+        ctx.restore();
       }
     });
   }, [bins, ctx, dpr, hover?.index, pixelContentHeight, pixelContentWidth, textMeasure, xScale]);
@@ -246,21 +256,23 @@ export function FlameTree() {
   ));
 
   return (
-    <div
+    <Paper
+      withBorder
+      m="xs"
+      p="xs"
       style={{
-        margin: rem(16),
         display: 'grid',
         gap: rem(16),
-        gridTemplateRows: 'max-content 1fr',
-        gridTemplateColumns: '300px 1fr',
+        gridTemplateRows: 'max-content max-content 1fr',
+        gridTemplateColumns: '300px max-content 1fr',
         gridTemplateAreas: `
-          'header header'
-          'navbar main'
+          'nothing divider header'
+          'navbar divider main'
         `,
         height: 500,
       }}
     >
-      <Group style={{ gridArea: 'header' }} m="xs">
+      <Group style={{ gridArea: 'header' }} my="xs">
         <Button size="sm" variant="outline" onClick={() => {}}>
           Add attribute
         </Button>
@@ -274,6 +286,8 @@ export function FlameTree() {
           Reset zoom
         </Button>
       </Group>
+
+      <Divider style={{ gridArea: 'divider' }} orientation="vertical" />
 
       <div
         style={{
@@ -328,6 +342,6 @@ export function FlameTree() {
 
         {dragState === 'drag' ? <Affix inset={0} /> : null}
       </div>
-    </div>
+    </Paper>
   );
 }
