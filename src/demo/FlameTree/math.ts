@@ -1,8 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { extent, mean, ticks, max } from 'd3v7';
-import groupBy from 'lodash/groupBy';
+import { max, ticks } from 'd3v7';
 import isNumber from 'lodash/isNumber';
-import map from 'lodash/map';
 
 import { m4 } from '../../vis/vishooks/math';
 
@@ -62,6 +60,11 @@ export type NumericalBin = {
    */
   items: Row[];
 
+  /**
+   * A function that checks if an entry is contained in the bin.
+   */
+  contains: (entry: Row) => boolean;
+
   // @TODO move this to a key or so
   value: number;
 };
@@ -112,13 +115,18 @@ export type CategoricalBin = {
    */
   items: Row[];
 
+  /**
+   * A function that checks if an entry is contained in the bin.
+   */
+  contains: (entry: Row) => boolean;
+
   // @TODO move this to a key or so
   value: number;
 };
 
 export type FlameBin = NumericalBin | CategoricalBin;
 
-export function binNumerical<T extends Row>(data: T[], accessorKey: string, range: number[], level: number) {
+/* export function binNumerical<T extends Row>(data: T[], accessorKey: string, range: number[], level: number) {
   const numbers = map(data, accessorKey) as number[];
   const minmax = extent(numbers);
 
@@ -223,7 +231,7 @@ export function groupStep<T extends Row>(
   Object.entries(bins).forEach(([key, bin]) => {
     groupStep(bin.items, [bin.x0, bin.x1], levels, currentLevel + 1, resultList);
   });
-}
+} */
 
 export type NumericalParameterColumn = {
   key: string;
@@ -237,6 +245,8 @@ export type CategoricalParameterColumn = {
   type: 'categorical';
 };
 
+export type ParameterColumn = NumericalParameterColumn | CategoricalParameterColumn;
+
 export function parameterBinCategorical(column: CategoricalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string) {
   const minmax = range[1]! - range[0]!;
   const total = column.domain.length;
@@ -247,7 +257,9 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, samp
     const key = column.domain[i]!;
     const width = (1 / total) * minmax;
 
-    const items = samples.filter((sample) => sample[column.key] === key);
+    const contains = (entry: Row) => entry[column.key] === key;
+
+    const items = samples.filter(contains);
 
     result[key] = {
       id: nanoid(),
@@ -258,7 +270,7 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, samp
       // Accomodates for rounding error in floats!
       x0: i === 0 ? range[0]! : range[0]! + sum,
       x1: i === column.domain.length - 1 ? range[1]! : range[0]! + sum + width,
-
+      contains,
       items,
       y: level,
 
@@ -306,13 +318,15 @@ export function parameterBinNumerical(column: NumericalParameterColumn, samples:
   }
 
   const result: Record<string, NumericalBin> = bins.reduce(
-    (acc, bin, index) => {
+    (acc, bin) => {
       const key = `${bin.min}-${bin.max}`;
 
-      const items = samples.filter((sample) => {
-        const value = sample[column.key] as number;
+      const contains = (entry: Row) => {
+        const value = entry[column.key] as number;
         return value >= bin.min && value < bin.max;
-      });
+      };
+
+      const items = samples.filter(contains);
 
       acc[key] = {
         id: nanoid(),
@@ -323,6 +337,7 @@ export function parameterBinNumerical(column: NumericalParameterColumn, samples:
         x0: bin.x0,
         x1: bin.x1,
         items,
+        contains,
         // @TODO move this to a key or so
         value: max(items.map((entry) => entry.value as number)) ?? 0,
         y: level,
@@ -336,10 +351,49 @@ export function parameterBinNumerical(column: NumericalParameterColumn, samples:
   return result;
 }
 
-export function assignSamplesToBins<T extends Row>(bins: Record<string, FlameBin>) {}
+function findLeafBinForSample(sample: Row, bins: FlameBin[], allBins: Record<string, FlameBin>) {
+  for (const bin of bins) {
+    if (bin.contains(sample)) {
+      if (bin.children.length === 0) {
+        return bin.id;
+      }
+
+      return findLeafBinForSample(
+        sample,
+        bin.children.map((childId) => allBins[childId]!),
+        allBins,
+      );
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Assigns samples to leaf bins. Returns a record of id to sample array.
+ */
+export function assignSamplesToBins<T extends Row>(samples: Row[], rootBins: FlameBin[], allBins: Record<string, FlameBin>) {
+  const result = {} as Record<string, Row[]>;
+
+  samples.forEach((sample) => {
+    const binId = findLeafBinForSample(sample, rootBins, allBins);
+
+    if (!binId) {
+      throw new Error('Could not find bin for sample');
+    }
+
+    if (!result[binId]) {
+      result[binId] = [];
+    }
+
+    result[binId].push(sample);
+  });
+
+  return result;
+}
 
 export function parameterGroupStep(
-  data: (NumericalParameterColumn | CategoricalParameterColumn)[],
+  data: ParameterColumn[],
   samples: Row[],
   range: number[],
   levels: string[],
@@ -376,7 +430,7 @@ export function parameterGroupStep(
   });
 }
 
-export function createParameterHierarchy(data: (NumericalParameterColumn | CategoricalParameterColumn)[], samples: Row[], levels: string[], range: number[]) {
+export function createParameterHierarchy(data: ParameterColumn[], samples: Row[], levels: string[], range: number[]) {
   const resultList: Record<string, FlameBin> = {};
 
   parameterGroupStep(data, samples, range, levels, 0, resultList, undefined);
@@ -384,13 +438,13 @@ export function createParameterHierarchy(data: (NumericalParameterColumn | Categ
   return resultList;
 }
 
-export function createHierarchy<T extends Record<string, unknown>>(data: T[], levels: string[], range: number[]) {
+/* export function createHierarchy<T extends Record<string, unknown>>(data: T[], levels: string[], range: number[]) {
   const resultList = [] as CategoricalBin[];
 
   groupStep(data, range, levels, 0, resultList);
 
   return resultList;
-}
+} */
 
 export function estimateTransformForDomain({
   originScale,
