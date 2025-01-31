@@ -8,6 +8,7 @@ import { SVGBrush } from '../components';
 import { useAnimatedTransform } from './useAnimatedTransform';
 import { useBrush } from './useBrush';
 import { useCanvas } from './useCanvas';
+import { useChart } from '../../../echarts/useChart';
 import { SVGLasso } from '../components/SVGLasso';
 import { ZoomTransform } from '../interfaces';
 import { m4 } from '../math';
@@ -115,6 +116,61 @@ function UseAnimatedTransformComponent() {
   );
 }
 
+function UseChartComponent() {
+  const { setRef, instance } = useChart({
+    options: {
+      xAxis: {},
+      yAxis: {},
+      visualMap: [
+        {
+          type: 'continuous',
+          min: 0,
+          max: 10,
+          inRange: {
+            color: ['red', 'yellow', 'green'],
+          },
+          dimension: 1,
+        },
+      ],
+      series: [
+        {
+          data: [
+            [10.0, 8.04],
+            [8.07, 6.95],
+            [13.0, 7.58],
+            [9.05, 8.81],
+            [11.0, 8.33],
+            [14.0, 7.66],
+            [13.4, 6.81],
+            [10.0, 6.33],
+            [14.0, 8.96],
+            [12.5, 6.82],
+            [9.15, 7.2],
+            [11.5, 7.2],
+            [3.03, 4.23],
+            [12.2, 7.83],
+            [2.02, 4.47],
+            [1.05, 3.33],
+            [4.05, 4.96],
+            [6.03, 7.24],
+            [12.0, 6.26],
+            [12.0, 8.84],
+            [7.08, 5.82],
+            [5.02, 5.68],
+          ],
+          type: 'scatter',
+        },
+      ],
+    },
+  });
+
+  return (
+    <Center w={600} h={400}>
+      <div ref={setRef} style={{ width: 600, height: 400 }} />
+    </Center>
+  );
+}
+
 function VisHooksComponent() {
   const [element, setElement] = React.useState<HTMLElement>();
 
@@ -148,6 +204,12 @@ export const UseBrush: Story = {
 export const UseCanvas: Story = {
   render: () => {
     return <UseCanvasComponent />;
+  },
+};
+
+export const UseChart: Story = {
+  render: () => {
+    return <UseChartComponent />;
   },
 };
 
