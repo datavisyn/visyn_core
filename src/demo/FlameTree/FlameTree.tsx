@@ -5,22 +5,32 @@ import { css, cx } from '@emotion/css';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons/faGripVertical';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { Affix, Button, Divider, Group, Paper, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
+import { Affix, Button, Divider, Group, Paper, Select, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
 import { useListState, useMergedRef } from '@mantine/hooks';
 import * as d3 from 'd3v7';
-import map from 'lodash/map';
-import max from 'lodash/max';
-import uniq from 'lodash/uniq';
 import clamp from 'lodash/clamp';
 import groupBy from 'lodash/groupBy';
+import map from 'lodash/map';
+import max from 'lodash/max';
 import mean from 'lodash/mean';
+import min from 'lodash/min';
 import range from 'lodash/range';
+import sortBy from 'lodash/sortBy';
+import uniq from 'lodash/uniq';
 import RBush from 'rbush';
 import * as vsup from 'vsup';
 
 import { useCase1 } from './case_study_1';
 import { generateDarkBorderColor, generateDarkHighlightColor, generateDynamicTextColor } from './colorUtils';
-import { CategoricalParameterColumn, NumericalParameterColumn, ParameterColumn, Row, assignSamplesToBins, createParameterHierarchy, estimateTransformForDomain } from './math';
+import {
+  CategoricalParameterColumn,
+  NumericalParameterColumn,
+  ParameterColumn,
+  Row,
+  assignSamplesToBins,
+  createParameterHierarchy,
+  estimateTransformForDomain,
+} from './math';
 import { FastTextMeasure, m4, useAnimatedTransform, useCanvas, usePan, useTransformScale, useTriggerFrame, useZoom } from '../../vis';
 
 console.log(useCase1);
@@ -29,11 +39,12 @@ const classItem = css`
   display: flex;
   align-items: center;
   border-radius: var(--mantine-radius-md);
-  border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  border: 1px solid var(--mantine-color-blue-outline);
   padding: var(--mantine-spacing-sm) var(--mantine-spacing-xl);
   padding-left: calc(var(--mantine-spacing-xl) - var(--mantine-spacing-md));
-  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-5));
-  margin-bottom: 8px;
+  background-color: var(--mantine-color-white);
+  height: 72px;
+  margin-bottom: 28px;
 `;
 
 const classDragging = css`
@@ -46,7 +57,6 @@ const classDragHandle = css`
   justify-content: center;
   height: 100%;
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
-  padding-left: var(--mantine-spacing-md);
   padding-right: var(--mantine-spacing-md);
 `;
 
@@ -65,30 +75,30 @@ const TrackTooltip = Tooltip.withProps({
 
 const NEUTRAL_COLOR = '#DCDCDC';
 
-const layers = ["aryl_halide_file_name_exp_param", "base_file_name_exp_param", "ligand_file_name_exp_param", "additive_file_name_exp_param"];
+const layers = ['aryl_halide_file_name_exp_param', 'base_file_name_exp_param', 'ligand_file_name_exp_param', 'additive_file_name_exp_param'];
 
 const ArylColumn: ParameterColumn = {
-  key: "aryl_halide_file_name_exp_param",
-  domain: uniq(map(useCase1, "aryl_halide_file_name_exp_param")),
-  type: "categorical",
+  key: 'aryl_halide_file_name_exp_param',
+  domain: uniq(map(useCase1, 'aryl_halide_file_name_exp_param')),
+  type: 'categorical',
 };
 
 const AdditiveColumn: ParameterColumn = {
-  key: "additive_file_name_exp_param",
-  domain: uniq(map(useCase1, "additive_file_name_exp_param")),
-  type: "categorical",
+  key: 'additive_file_name_exp_param',
+  domain: uniq(map(useCase1, 'additive_file_name_exp_param')),
+  type: 'categorical',
 };
 
 const LigandColumn: ParameterColumn = {
-  key: "ligand_file_name_exp_param",
-  domain: uniq(map(useCase1, "ligand_file_name_exp_param")),
-  type: "categorical",
+  key: 'ligand_file_name_exp_param',
+  domain: uniq(map(useCase1, 'ligand_file_name_exp_param')),
+  type: 'categorical',
 };
 
 const BaseColumn: ParameterColumn = {
-  key: "base_file_name_exp_param",
-  domain: uniq(map(useCase1, "base_file_name_exp_param")),
-  type: "categorical",
+  key: 'base_file_name_exp_param',
+  domain: uniq(map(useCase1, 'base_file_name_exp_param')),
+  type: 'categorical',
 };
 
 console.log(ArylColumn, AdditiveColumn, LigandColumn);
@@ -96,13 +106,10 @@ console.log(ArylColumn, AdditiveColumn, LigandColumn);
 export function FlameTree() {
   const [state, handlers] = useListState(layers);
 
+  const [aggregation, setAggregation] = React.useState<string | null>('max');
+
   const parameterDefinitions = React.useMemo(() => {
-    return [
-      ArylColumn,
-      BaseColumn,
-      LigandColumn,
-      AdditiveColumn,
-    ] as (CategoricalParameterColumn | NumericalParameterColumn)[];
+    return [ArylColumn, BaseColumn, LigandColumn, AdditiveColumn] as (CategoricalParameterColumn | NumericalParameterColumn)[];
   }, []);
 
   /* const parameterDefinitions = React.useMemo(() => {
@@ -136,10 +143,32 @@ export function FlameTree() {
 
   const bins = React.useMemo(() => {
     const phier = createParameterHierarchy(parameterDefinitions, useCase1, state, [0, 100], (items) => {
-      return {
-        value: max(map(items, "measured_yield")),
-        uncertainty: 0,
+      const values = map(items, 'measured_yield') as number[];
+      let value = 0;
+
+      switch (aggregation) {
+        case 'min':
+          value = min(values) ?? 0;
+          break;
+        case 'max':
+          value = max(values) ?? 0;
+          break;
+        case 'mean':
+          value = mean(values) ?? 0;
+          break;
+        case 'median': {
+          const sorted = sortBy(values);
+          value = sorted[Math.floor(sorted.length / 2)] ?? 0;
+          break;
+        }
+        default:
+          throw new Error('Unknown aggregation');
       }
+
+      return {
+        value,
+        uncertainty: 0,
+      };
     });
     const byLevel = groupBy(phier, 'y');
 
@@ -148,7 +177,7 @@ export function FlameTree() {
       byY: byLevel,
       flat: Object.values(phier),
     };
-  }, [state, parameterDefinitions]);
+  }, [state, parameterDefinitions, aggregation]);
 
   const [hover, setHover] = React.useState<{
     index: number;
@@ -173,8 +202,8 @@ export function FlameTree() {
       return undefined;
     }
 
-    return d3.scaleBand(range(0, parameterDefinitions.length), [0, contentHeight - 100]).padding(0);
-  }, [bins, contentHeight, ctx, parameterDefinitions.length]);
+    return d3.scaleBand(range(0, state.length), [0, contentHeight - 100]).padding(0);
+  }, [bins, contentHeight, ctx, state.length]);
 
   const colorScale = React.useMemo(() => {
     return d3
@@ -264,6 +293,10 @@ export function FlameTree() {
       const invertX = xScale.scaled.invert(event.nativeEvent.offsetX);
       const bin = bins.flat.findIndex((b) => b.y === yIndex && invertX >= b.x0 && invertX <= b.x1);
 
+      if (bin === -1) {
+        return;
+      }
+
       const estimatedTransform = estimateTransformForDomain({
         originScale: xScale.base,
         domain: [bins.flat[bin]!.x0, bins.flat[bin]!.x1],
@@ -310,7 +343,7 @@ export function FlameTree() {
       squareQuantization,
       squareScale,
       heatLegend,
-    }
+    };
   }, []);
 
   useTriggerFrame(() => {
@@ -391,8 +424,7 @@ export function FlameTree() {
         const x = xScale.scaled(scatter.value.x) * dpr;
         const y = scatter.value.yOffset * dpr + sampleYScale(scatter.value.y)! * dpr;
 
-        
-        ctx.fillStyle = scales.squareScale(scatter.value.row["measured_yield"] as number, 0);
+        ctx.fillStyle = scales.squareScale(scatter.value.row.measured_yield as number, 0);
         ctx.strokeStyle = generateDarkBorderColor(NEUTRAL_COLOR);
         ctx.lineWidth = 1;
 
@@ -413,8 +445,12 @@ export function FlameTree() {
               <FontAwesomeIcon icon={faGripVertical} fontWeight={500} />
             </ThemeIcon>
           </div>
-          <div>
-            <Text fw={500}>{item}</Text>
+          <div style={{ flexGrow: 1 }}>
+            <Group>
+              <Text fw={500} truncate style={{ width: 0, flexGrow: 1 }}>
+                {item}
+              </Text>
+            </Group>
             <Text c="dimmed" size="sm">
               {(() => {
                 const definition = parameterDefinitions.find((entry) => entry.key === item)!;
@@ -436,16 +472,15 @@ export function FlameTree() {
         style={{
           display: 'grid',
           gap: rem(16),
-          gridTemplateRows: '48px max-content 1fr',
+          gridTemplateRows: '70px max-content',
           gridTemplateColumns: '300px max-content 1fr',
           gridTemplateAreas: `
           'nothing divider header'
           'navbar divider main'
         `,
-          minHeight: Math.max(400, parameterDefinitions.length * 100 + 100 + 48 + 16 + 16),
         }}
       >
-        <Group style={{ gridArea: 'header' }} my="xs">
+        <Group style={{ gridArea: 'header' }} my="xs" align="flex-end">
           <Button size="sm" variant="outline" onClick={() => {}}>
             Add attribute
           </Button>
@@ -458,6 +493,29 @@ export function FlameTree() {
           >
             Reset zoom
           </Button>
+          <Select
+            label="Aggregate using"
+            value={aggregation}
+            onChange={setAggregation}
+            data={[
+              {
+                label: 'Minimum',
+                value: 'min',
+              },
+              {
+                label: 'Maximum',
+                value: 'max',
+              },
+              {
+                label: 'Mean',
+                value: 'mean',
+              },
+              {
+                label: 'Median',
+                value: 'median',
+              },
+            ]}
+          />
         </Group>
 
         <Divider style={{ gridArea: 'divider' }} orientation="vertical" />
@@ -492,7 +550,7 @@ export function FlameTree() {
             height={pixelContentHeight}
             style={{
               width: '100%',
-              height: '100%',
+              height: state.length * 100 + 100,
               cursor: 'pointer',
             }}
             onMouseLeave={() => setHover(undefined)}
