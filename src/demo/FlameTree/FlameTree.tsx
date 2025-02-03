@@ -235,9 +235,30 @@ export function FlameTree() {
     transform,
   });
 
+  const scales = React.useMemo(() => {
+    const binDomain = [0, max(bins.flat.map((bin) => bin.value.value as number))];
+    const squareQuantization = vsup.squareQuantization().n(10).valueDomain(binDomain).uncertaintyDomain([0, 1]);
+    const squareScale = vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis);
+
+    // console.log(squareQuantization(40, 0.5), squareScale(16, 2.5));
+
+    const heatLegend = vsup.legend.heatmapLegend().scale(squareScale).size(150).x(60).y(160);
+
+    // Add legend to svg
+    const svg = d3.select('#mylegend').append('g').call(heatLegend);
+
+    return {
+      squareQuantization,
+      squareScale,
+      heatLegend,
+    };
+  }, [bins.flat]);
+
   const scatterInput = React.useMemo(() => {
     const scatterData: {
       value: {
+        stroke: string;
+        fill: string;
         x: number;
         y: number;
         yOffset: number;
@@ -254,8 +275,12 @@ export function FlameTree() {
         const experimentBin = bins.byId[key]!;
 
         value.forEach((sample, index) => {
+          const fill = colorScale(sample.measured_yield as number);
+
           scatterData.push({
             value: {
+              fill,
+              stroke: generateDarkBorderColor(fill),
               x: (experimentBin.x0 + experimentBin.x1) / 2,
               y: (index / value.length) * 100,
               yOffset: yScale(experimentBin.y)! + yScale.bandwidth() + 30,
@@ -327,114 +352,101 @@ export function FlameTree() {
     return tree;
   }, [bins.flat]);
 
-  const scales = React.useMemo(() => {
-    const binDomain = [0, max(bins.flat.map((bin) => bin.value.value as number))];
-    const squareQuantization = vsup.squareQuantization().n(10).valueDomain(binDomain).uncertaintyDomain([0, 1]);
-    const squareScale = vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis);
-
-    // console.log(squareQuantization(40, 0.5), squareScale(16, 2.5));
-
-    const heatLegend = vsup.legend.heatmapLegend().scale(squareScale).size(150).x(60).y(160);
-
-    // Add legend to svg
-    const svg = d3.select('#mylegend').append('g').call(heatLegend);
-
-    return {
-      squareQuantization,
-      squareScale,
-      heatLegend,
-    };
-  }, []);
-
-  useTriggerFrame(() => {
-    if (!ctx || !xScale || !yScale) {
-      return;
-    }
-
-    // const itemHeight = 100 * dpr;
-
-    ctx.clearRect(0, 0, pixelContentWidth, pixelContentHeight);
-
-    ctx.font = `${12 * dpr}px Roboto`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    bins.flat.forEach((bin, index) => {
-      const x0 = xScale.scaled(bin.x0) * dpr;
-      const x1 = xScale.scaled(bin.x1) * dpr;
-
-      const y0 = yScale(bin.y)! * dpr;
-      const y1 = y0 + yScale.bandwidth() * dpr;
-
-      // Optimization: Do not draw if the bin is outside the visible area
-      if (x1 < 0 || x0 > pixelContentWidth || y1 < 0 || y0 > pixelContentHeight) {
+  useTriggerFrame(
+    () => {
+      if (!ctx || !xScale || !yScale) {
         return;
       }
 
-      // Optimization: Do not draw if the bin is too small
-      if (x1 - x0 < 1) {
-        return;
-      }
+      // const itemHeight = 100 * dpr;
 
-      const fixedX0 = x0 + 1;
-      const fixedX1 = x1 - 1;
+      ctx.clearRect(0, 0, pixelContentWidth, pixelContentHeight);
 
-      // const fixedY0 = Math.ceil(y0) + dpr;
-      // const fixedY1 = Math.floor(y1) - dpr;
-      const fixedY0 = y0 + 1;
-      const fixedY1 = y1 - 1;
+      ctx.font = `${12 * dpr}px Roboto`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-      const color = scales.squareScale(bin.value.value as number, bin.value.uncertainty as number);
-      const fillColor = hover?.index === index ? generateDarkHighlightColor(color) : color;
+      bins.flat.forEach((bin, index) => {
+        const x0 = xScale.scaled(bin.x0) * dpr;
+        const x1 = xScale.scaled(bin.x1) * dpr;
 
-      ctx.fillStyle = fillColor;
-      ctx.lineWidth = 1;
+        const y0 = yScale(bin.y)! * dpr;
+        const y1 = y0 + yScale.bandwidth() * dpr;
 
-      ctx.fillRect(fixedX0, fixedY0, fixedX1 - fixedX0, fixedY1 - fixedY0);
+        // Optimization: Do not draw if the bin is outside the visible area
+        if (x1 < 0 || x0 > pixelContentWidth || y1 < 0 || y0 > pixelContentHeight) {
+          return;
+        }
 
-      if (x1 - x0 > 30 * dpr) {
-        // If we have more than 30 pixels of width, we can truncate the text
-        const { truncatedLabel, truncatedWidth } = textMeasure.fastTextEllipsis(bin.label, x1 - x0 - 3 * dpr);
+        // Optimization: Do not draw if the bin is too small
+        if (x1 - x0 < 1) {
+          return;
+        }
 
-        const c = (x0 + x1) / 2;
-        ctx.fillStyle = generateDynamicTextColor(fillColor);
-        ctx.fillText(
-          truncatedLabel,
-          clamp(c, Math.min(x1 - truncatedWidth / 2, truncatedWidth / 2), Math.max(x0 + truncatedWidth / 2, pixelContentWidth - truncatedWidth / 2)),
-          (y0 + y1) / 2,
-        );
-      } else if (x1 - x0 > 12 * dpr) {
-        // If we have between 12 and 30 pixels of width, we can rotate the text
-        const { truncatedLabel } = textMeasure.fastTextEllipsis(bin.label, y1 - y0 - 3 * dpr);
+        const fixedX0 = x0 + 1;
+        const fixedX1 = x1 - 1;
 
-        ctx.save();
-        ctx.translate((x0 + x1) / 2, (y0 + y1) / 2);
-        ctx.rotate(Math.PI / 2);
-        ctx.fillStyle = generateDynamicTextColor(fillColor);
-        ctx.fillText(truncatedLabel, 0, 0);
-        ctx.restore();
-      }
-    });
+        // const fixedY0 = Math.ceil(y0) + dpr;
+        // const fixedY1 = Math.floor(y1) - dpr;
+        const fixedY0 = y0 + 1;
+        const fixedY1 = y1 - 1;
 
-    // If we have an experiment assignment, we can draw the samples below the last bins
-    if (experimentAssignment && scatterInput) {
-      const sampleYScale = d3.scaleLinear().domain([0, 100]).range([0, 50]);
+        const color = scales.squareScale(bin.value.value as number, bin.value.uncertainty as number);
+        const fillColor = hover?.index === index ? generateDarkHighlightColor(color) : color;
 
-      scatterInput.data.forEach((scatter) => {
-        const x = xScale.scaled(scatter.value.x) * dpr;
-        const y = scatter.value.yOffset * dpr + sampleYScale(scatter.value.y)! * dpr;
-
-        ctx.fillStyle = scales.squareScale(scatter.value.row.measured_yield as number, 0);
-        ctx.strokeStyle = generateDarkBorderColor(NEUTRAL_COLOR);
+        ctx.fillStyle = fillColor;
         ctx.lineWidth = 1;
 
-        ctx.beginPath();
-        ctx.arc(x, y, 5 * dpr, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        ctx.fillRect(fixedX0, fixedY0, fixedX1 - fixedX0, fixedY1 - fixedY0);
+
+        if (x1 - x0 > 30 * dpr) {
+          // If we have more than 30 pixels of width, we can truncate the text
+          const { truncatedLabel, truncatedWidth } = textMeasure.fastTextEllipsis(bin.label, x1 - x0 - 3 * dpr);
+
+          const c = (x0 + x1) / 2;
+          ctx.fillStyle = generateDynamicTextColor(fillColor);
+          ctx.fillText(
+            truncatedLabel,
+            clamp(c, Math.min(x1 - truncatedWidth / 2, truncatedWidth / 2), Math.max(x0 + truncatedWidth / 2, pixelContentWidth - truncatedWidth / 2)),
+            (y0 + y1) / 2,
+          );
+        } else if (x1 - x0 > 12 * dpr) {
+          // If we have between 12 and 30 pixels of width, we can rotate the text
+          const { truncatedLabel } = textMeasure.fastTextEllipsis(bin.label, y1 - y0 - 3 * dpr);
+
+          ctx.save();
+          ctx.translate((x0 + x1) / 2, (y0 + y1) / 2);
+          ctx.rotate(Math.PI / 2);
+          ctx.fillStyle = generateDynamicTextColor(fillColor);
+          ctx.fillText(truncatedLabel, 0, 0);
+          ctx.restore();
+        }
       });
-    }
-  }, [bins.flat, colorScale, ctx, dpr, experimentAssignment, hover?.index, pixelContentHeight, pixelContentWidth, scatterInput, textMeasure, xScale, yScale]);
+
+      // If we have an experiment assignment, we can draw the samples below the last bins
+      if (experimentAssignment && scatterInput) {
+        const sampleYScale = d3.scaleLinear().domain([0, 100]).range([0, 50]);
+
+        scatterInput.data.forEach((scatter) => {
+          const x = xScale.scaled(scatter.value.x) * dpr;
+          const y = scatter.value.yOffset * dpr + sampleYScale(scatter.value.y)! * dpr;
+
+          // ctx.fillStyle = scales.squareScale(scatter.value.row.measured_yield as number, 0);
+          // ctx.strokeStyle = generateDarkBorderColor(NEUTRAL_COLOR);
+          ctx.strokeStyle = scatter.value.stroke;
+          ctx.lineWidth = 1;
+          ctx.fillStyle = scatter.value.fill;
+
+          ctx.beginPath();
+          ctx.arc(x, y, 5 * dpr, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        });
+      }
+    },
+    [bins.flat, ctx, dpr, experimentAssignment, hover?.index, pixelContentHeight, pixelContentWidth, scales, scatterInput, textMeasure, xScale, yScale],
+    'profile',
+  );
 
   const items = state.map((item, index) => (
     <Draggable key={item} index={index} draggableId={item}>
