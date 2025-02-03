@@ -14,6 +14,7 @@ import {
   TitleComponent,
   ToolboxComponent,
   TooltipComponent,
+  VisualMapComponent,
 } from 'echarts/components';
 // The component option types are defined with the ComponentOption suffix
 import type { DatasetComponentOption, GridComponentOption, TitleComponentOption, TooltipComponentOption } from 'echarts/components';
@@ -46,6 +47,7 @@ use([
   ToolboxComponent, // A group of utility tools, which includes export, data view, dynamic type switching, data area zooming, and reset.
   DataZoomComponent, // Used in Line Graph Charts
   CanvasRenderer, // If you only need to use the canvas rendering mode, the bundle will not include the SVGRenderer module, which is not needed.
+  VisualMapComponent, // Interestingly enough, this component is required if someone wants to map a color channel to a data range.
 ]);
 
 type ElementEventName =
