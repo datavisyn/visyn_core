@@ -14,7 +14,7 @@ export function isCategorical<T>(data: T[]) {
 
 export type Row = Record<string, unknown>;
 
-export type NumericalBin = {
+export type NumericalBin<T extends Record<string, unknown>> = {
   /**
    * The unique identifier for the bin.
    */
@@ -29,11 +29,6 @@ export type NumericalBin = {
    * The children of the bin.
    */
   children: string[];
-
-  /**
-   * The accessor key for the bin.
-   */
-  key: string;
 
   /**
    * The label for the bin which is displayed.
@@ -66,10 +61,10 @@ export type NumericalBin = {
   contains: (entry: Row) => boolean;
 
   // @TODO move this to a key or so
-  value: number;
+  value: T;
 };
 
-export type CategoricalBin = {
+export type CategoricalBin<T extends Record<string, unknown>> = {
   /**
    * The unique identifier for the bin.
    */
@@ -84,11 +79,6 @@ export type CategoricalBin = {
    * The children of the bin.
    */
   children: string[];
-
-  /**
-   * The accessor key for the bin.
-   */
-  key: string;
 
   /**
    * The label for the bin which is displayed.
@@ -121,117 +111,10 @@ export type CategoricalBin = {
   contains: (entry: Row) => boolean;
 
   // @TODO move this to a key or so
-  value: number;
+  value: T;
 };
 
-export type FlameBin = NumericalBin | CategoricalBin;
-
-/* export function binNumerical<T extends Row>(data: T[], accessorKey: string, range: number[], level: number) {
-  const numbers = map(data, accessorKey) as number[];
-  const minmax = extent(numbers);
-
-  // @TODO make the number of ticks dynamic?
-  const steps = ticks(minmax[0]!, minmax[1]!, 5);
-  const tickStep = steps[1]! - steps[0]!;
-
-  if (steps[0]! > minmax[0]!) {
-    steps.unshift(steps[0]! - tickStep);
-  }
-
-  if (steps[steps.length - 1]! < minmax[1]!) {
-    steps.push(steps[steps.length - 1]! + tickStep);
-  }
-
-  const bins: {
-    x0: number;
-    x1: number;
-    min: number;
-    max: number;
-    items: T[];
-  }[] = [];
-
-  for (let i = 0, sum = 0; i < steps.length - 1; i++) {
-    bins.push({
-      min: steps[i]!,
-      max: steps[i + 1]!,
-      // Accomodates for rounding error in floats!
-      x0: i === 0 ? range[0]! : range[0]! + sum,
-      x1: i === entries.length - 1 ? range[1]! : range[0]! + sum + width,
-      items: [],
-    });
-  }
-
-  // Bin the data
-  data.forEach((datum, index) => {
-    const number = numbers[index]!;
-    const binIndex = Math.floor((number - steps[0]!) / tickStep);
-
-    bins[binIndex]!.items.push(datum);
-  });
-
-  return bins;
-}
-
-export function binCategorical<T extends Row>(data: T[], accessorKey: string, range: number[], level: number) {
-  const groups = groupBy(data, accessorKey);
-  const total = data.length;
-  const entries = Object.entries(groups);
-  const minmax = range[1]! - range[0]!;
-
-  const result = {} as Record<string, CategoricalBin>;
-
-  for (let i = 0, sum = 0; i < entries.length; i++) {
-    const [key, value] = entries[i]!;
-
-    const width = (value.length / total) * minmax;
-
-    result[key] = {
-      id: nanoid(),
-      key,
-      label: key,
-      // Accomodates for rounding error in floats!
-      x0: i === 0 ? range[0]! : range[0]! + sum,
-      x1: i === entries.length - 1 ? range[1]! : range[0]! + sum + width,
-
-      items: value,
-      y: level,
-    };
-
-    sum += width;
-  }
-
-  return result;
-}
-
-export function groupStep<T extends Row>(
-  data: T[],
-  range: number[],
-  levels: string[],
-  currentLevel: number,
-  resultList: CategoricalBin[],
-  parent?: CategoricalBin,
-) {
-  if (currentLevel >= levels.length) {
-    return;
-  }
-
-  const values = map(data, levels[currentLevel]!);
-  let bins: Record<string, FlameBin>;
-
-  if (isNumerical(values)) {
-    bins = binNumerical(data, levels[currentLevel]!, range, currentLevel);
-  } else if (isCategorical(values)) {
-    bins = binCategorical(data, levels[currentLevel]!, range, currentLevel);
-  } else {
-    throw new Error('Unsupported data type');
-  }
-
-  resultList.push(...Object.values(bins));
-
-  Object.entries(bins).forEach(([key, bin]) => {
-    groupStep(bin.items, [bin.x0, bin.x1], levels, currentLevel + 1, resultList);
-  });
-} */
+export type FlameBin<T extends Record<string, unknown>> = NumericalBin<T> | CategoricalBin<T>;
 
 export type NumericalParameterColumn = {
   key: string;
@@ -247,11 +130,11 @@ export type CategoricalParameterColumn = {
 
 export type ParameterColumn = NumericalParameterColumn | CategoricalParameterColumn;
 
-export function parameterBinCategorical(column: CategoricalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string) {
+export function parameterBinCategorical<V extends Record<string, unknown>>(column: CategoricalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string, calculcateBinValue?: (items: Row[]) => V) {
   const minmax = range[1]! - range[0]!;
   const total = column.domain.length;
 
-  const result = {} as Record<string, CategoricalBin>;
+  const result = {} as Record<string, CategoricalBin<V>>;
 
   for (let i = 0, sum = 0; i < column.domain.length; i++) {
     const key = column.domain[i]!;
@@ -265,7 +148,6 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, samp
       id: nanoid(),
       parent: parentId,
       children: [],
-      key,
       label: key,
       // Accomodates for rounding error in floats!
       x0: i === 0 ? range[0]! : range[0]! + sum,
@@ -275,7 +157,8 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, samp
       y: level,
 
       // @TODO move this to a key or so
-      value: max(items.map((entry) => entry.value as number)) ?? 0,
+      // value: max(items.map((entry) => entry.value as number)) ?? 0,
+      value: calculcateBinValue ? calculcateBinValue(items) : ({} as V),
     };
 
     sum += width;
@@ -284,7 +167,7 @@ export function parameterBinCategorical(column: CategoricalParameterColumn, samp
   return result;
 }
 
-export function parameterBinNumerical(column: NumericalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string) {
+export function parameterBinNumerical<V extends Record<string, unknown>>(column: NumericalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string, calculcateBinValue?: (items: Row[]) => V) {
   const steps = ticks(column.domain[0]!, column.domain[1]!, 5);
   const tickStep = steps[1]! - steps[0]!;
 
@@ -317,7 +200,7 @@ export function parameterBinNumerical(column: NumericalParameterColumn, samples:
     sum += width;
   }
 
-  const result: Record<string, NumericalBin> = bins.reduce(
+  const result: Record<string, NumericalBin<V>> = bins.reduce(
     (acc, bin) => {
       const key = `${bin.min}-${bin.max}`;
 
@@ -332,26 +215,26 @@ export function parameterBinNumerical(column: NumericalParameterColumn, samples:
         id: nanoid(),
         parent: parentId,
         children: [],
-        key,
         label: `${bin.min} - ${bin.max}`,
         x0: bin.x0,
         x1: bin.x1,
         items,
         contains,
         // @TODO move this to a key or so
-        value: max(items.map((entry) => entry.value as number)) ?? 0,
+        // value: max(items.map((entry) => entry.value as number)) ?? 0,
+        value: calculcateBinValue ? calculcateBinValue(items) : ({} as V),
         y: level,
       };
 
       return acc;
     },
-    {} as Record<string, NumericalBin>,
+    {} as Record<string, NumericalBin<V>>,
   );
 
   return result;
 }
 
-function findLeafBinForSample(sample: Row, bins: FlameBin[], allBins: Record<string, FlameBin>) {
+function findLeafBinForSample<V extends Record<string, unknown>, B extends FlameBin<V>>(sample: Row, bins: B[], allBins: Record<string, B>) {
   for (const bin of bins) {
     if (bin.contains(sample)) {
       if (bin.children.length === 0) {
@@ -372,7 +255,7 @@ function findLeafBinForSample(sample: Row, bins: FlameBin[], allBins: Record<str
 /**
  * Assigns samples to leaf bins. Returns a record of id to sample array.
  */
-export function assignSamplesToBins<T extends Row>(samples: Row[], rootBins: FlameBin[], allBins: Record<string, FlameBin>) {
+export function assignSamplesToBins<V extends Record<string, unknown>, B extends FlameBin<V>>(samples: Row[], rootBins: B[], allBins: Record<string, B>) {
   const result = {} as Record<string, Row[]>;
 
   samples.forEach((sample) => {
@@ -392,14 +275,15 @@ export function assignSamplesToBins<T extends Row>(samples: Row[], rootBins: Fla
   return result;
 }
 
-export function parameterGroupStep(
+export function parameterGroupStep<V extends Record<string, unknown>>(
   data: ParameterColumn[],
   samples: Row[],
   range: number[],
   levels: string[],
   currentLevel: number,
-  resultList: Record<string, FlameBin>,
-  parent?: FlameBin,
+  resultList: Record<string, FlameBin<V>>,
+  parent?: FlameBin<V>,
+  calculcateBinValue?: (items: Row[]) => V,
 ) {
   if (currentLevel >= levels.length) {
     return;
@@ -407,12 +291,12 @@ export function parameterGroupStep(
 
   const column = data.find((entry) => entry.key === levels[currentLevel]!)!;
 
-  let bins: Record<string, FlameBin>;
+  let bins: Record<string, FlameBin<V>>;
 
   if (column.type === 'categorical') {
-    bins = parameterBinCategorical(column, samples, range, currentLevel, parent?.id);
+    bins = parameterBinCategorical(column, samples, range, currentLevel, parent?.id, calculcateBinValue);
   } else if (column.type === 'numerical') {
-    bins = parameterBinNumerical(column, samples, range, currentLevel, parent?.id);
+    bins = parameterBinNumerical(column, samples, range, currentLevel, parent?.id, calculcateBinValue);
   } else {
     throw new Error('Unsupported data type');
   }
@@ -426,14 +310,13 @@ export function parameterGroupStep(
   });
 
   Object.entries(bins).forEach(([key, bin]) => {
-    parameterGroupStep(data, bin.items, [bin.x0, bin.x1], levels, currentLevel + 1, resultList, bin);
+    parameterGroupStep(data, bin.items, [bin.x0, bin.x1], levels, currentLevel + 1, resultList, bin, calculcateBinValue);
   });
 }
 
-export function createParameterHierarchy(data: ParameterColumn[], samples: Row[], levels: string[], range: number[]) {
-  const resultList: Record<string, FlameBin> = {};
-
-  parameterGroupStep(data, samples, range, levels, 0, resultList, undefined);
+export function createParameterHierarchy<V extends Record<string, unknown>>(data: ParameterColumn[], samples: Row[], levels: string[], range: number[], calculcateBinValue: (items: Row[]) => V) {
+  const resultList: Record<string, FlameBin<V>> = {};
+  parameterGroupStep(data, samples, range, levels, 0, resultList, undefined, calculcateBinValue);
 
   return resultList;
 }

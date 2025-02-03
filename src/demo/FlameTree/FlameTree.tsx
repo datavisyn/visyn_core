@@ -7,14 +7,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { Affix, Button, Divider, Group, Paper, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
 import { useListState, useMergedRef } from '@mantine/hooks';
-import { hsl, scaleBand, scaleLinear, scaleSequential } from 'd3v7';
+import * as d3 from 'd3v7';
+import map from 'lodash/map';
+import max from 'lodash/max';
+import uniq from 'lodash/uniq';
 import clamp from 'lodash/clamp';
 import groupBy from 'lodash/groupBy';
+import mean from 'lodash/mean';
 import range from 'lodash/range';
+import RBush from 'rbush';
+import * as vsup from 'vsup';
 
+import { useCase1 } from './case_study_1';
 import { generateDarkBorderColor, generateDarkHighlightColor, generateDynamicTextColor } from './colorUtils';
-import { CategoricalParameterColumn, NumericalParameterColumn, assignSamplesToBins, createParameterHierarchy, estimateTransformForDomain } from './math';
+import { CategoricalParameterColumn, NumericalParameterColumn, ParameterColumn, Row, assignSamplesToBins, createParameterHierarchy, estimateTransformForDomain } from './math';
 import { FastTextMeasure, m4, useAnimatedTransform, useCanvas, usePan, useTransformScale, useTriggerFrame, useZoom } from '../../vis';
+
+console.log(useCase1);
 
 const classItem = css`
   display: flex;
@@ -56,25 +65,47 @@ const TrackTooltip = Tooltip.withProps({
 
 const NEUTRAL_COLOR = '#DCDCDC';
 
-const BASES = ['Aspirin', 'Ibuprofen', 'Paracetamol'];
-const LIGAND = ['Axon', 'Benzene', 'Cyclohexane', 'Ethanol', 'Methanol', 'Water', 'Xylene', 'Toluene', 'Acetone', 'Acetonitrile'];
+const layers = ["aryl_halide_file_name_exp_param", "base_file_name_exp_param", "ligand_file_name_exp_param", "additive_file_name_exp_param"];
 
-function generateTestData(n: number = 1000) {
-  return Array.from({ length: n }, (_, i) => i).map((i) => ({
-    base: BASES[Math.floor(Math.random() * BASES.length)]!,
-    temperature: -5 + Math.floor(Math.random() * 100) * 1.1,
-    ligand: LIGAND[Math.floor(Math.random() * LIGAND.length)]!,
-    age: 15 + Math.floor(Math.random() * 55),
-    value: Math.floor(Math.random() * 100),
-  }));
-}
+const ArylColumn: ParameterColumn = {
+  key: "aryl_halide_file_name_exp_param",
+  domain: uniq(map(useCase1, "aryl_halide_file_name_exp_param")),
+  type: "categorical",
+};
 
-const layers = ['temperature', 'ligand', 'base', 'age'];
+const AdditiveColumn: ParameterColumn = {
+  key: "additive_file_name_exp_param",
+  domain: uniq(map(useCase1, "additive_file_name_exp_param")),
+  type: "categorical",
+};
+
+const LigandColumn: ParameterColumn = {
+  key: "ligand_file_name_exp_param",
+  domain: uniq(map(useCase1, "ligand_file_name_exp_param")),
+  type: "categorical",
+};
+
+const BaseColumn: ParameterColumn = {
+  key: "base_file_name_exp_param",
+  domain: uniq(map(useCase1, "base_file_name_exp_param")),
+  type: "categorical",
+};
+
+console.log(ArylColumn, AdditiveColumn, LigandColumn);
 
 export function FlameTree() {
   const [state, handlers] = useListState(layers);
 
   const parameterDefinitions = React.useMemo(() => {
+    return [
+      ArylColumn,
+      BaseColumn,
+      LigandColumn,
+      AdditiveColumn,
+    ] as (CategoricalParameterColumn | NumericalParameterColumn)[];
+  }, []);
+
+  /* const parameterDefinitions = React.useMemo(() => {
     return [
       {
         key: 'base',
@@ -97,14 +128,19 @@ export function FlameTree() {
         type: 'numerical',
       },
     ] as (CategoricalParameterColumn | NumericalParameterColumn)[];
-  }, []);
+  }, []); */
 
   const experiments = React.useMemo(() => {
-    return generateTestData(1000);
+    return useCase1;
   }, []);
 
   const bins = React.useMemo(() => {
-    const phier = createParameterHierarchy(parameterDefinitions, generateTestData(), state, [0, 100]);
+    const phier = createParameterHierarchy(parameterDefinitions, useCase1, state, [0, 100], (items) => {
+      return {
+        value: max(map(items, "measured_yield")),
+        uncertainty: 0,
+      }
+    });
     const byLevel = groupBy(phier, 'y');
 
     return {
@@ -137,13 +173,14 @@ export function FlameTree() {
       return undefined;
     }
 
-    return scaleBand(range(0, parameterDefinitions.length), [0, contentHeight - 100]).padding(0);
+    return d3.scaleBand(range(0, parameterDefinitions.length), [0, contentHeight - 100]).padding(0);
   }, [bins, contentHeight, ctx, parameterDefinitions.length]);
 
   const colorScale = React.useMemo(() => {
-    return scaleSequential()
+    return d3
+      .scaleSequential()
       .domain([0, 100])
-      .interpolator((t) => hsl(45, t * 0.9, 0.5).toString());
+      .interpolator((t) => d3.hsl(45, t * 0.9, 0.5).toString());
   }, []);
 
   const [transform, setTransform] = React.useState(m4.identityMatrix4x4());
@@ -169,6 +206,52 @@ export function FlameTree() {
     transform,
   });
 
+  const scatterInput = React.useMemo(() => {
+    const scatterData: {
+      value: {
+        x: number;
+        y: number;
+        yOffset: number;
+        row: Row;
+      };
+      minX: number;
+      minY: number;
+      maxX: number;
+      maxY: number;
+    }[] = [];
+
+    if (experimentAssignment && yScale) {
+      Object.entries(experimentAssignment).forEach(([key, value]) => {
+        const experimentBin = bins.byId[key]!;
+
+        value.forEach((sample, index) => {
+          scatterData.push({
+            value: {
+              x: (experimentBin.x0 + experimentBin.x1) / 2,
+              y: (index / value.length) * 100,
+              yOffset: yScale(experimentBin.y)! + yScale.bandwidth() + 30,
+              row: sample,
+            },
+            minX: experimentBin.x0,
+            maxX: experimentBin.x1,
+            minY: (index / value.length) * 100,
+            maxY: (index / value.length) * 100,
+          });
+        });
+      });
+
+      const scatterTree = new RBush();
+      scatterTree.load(scatterData);
+
+      return {
+        tree: scatterTree,
+        data: scatterData,
+      };
+    }
+
+    return undefined;
+  }, [bins.byId, experimentAssignment, yScale]);
+
   const { setRef: setPanRef, state: dragState } = usePan({
     value: transform,
     onChange: setTransform,
@@ -193,6 +276,42 @@ export function FlameTree() {
   });
 
   const setRef = useMergedRef(setCanvasRef, setZoomRef, setPanRef);
+
+  const rbushTree = React.useMemo(() => {
+    const items = bins.flat.map((item, index) => {
+      return {
+        value: item,
+        index,
+        minX: item.x0,
+        maxX: item.x1,
+        minY: item.y,
+        maxY: item.y + 1,
+      };
+    });
+
+    const tree = new RBush<(typeof items)[0]>();
+    tree.load(items);
+    return tree;
+  }, [bins.flat]);
+
+  const scales = React.useMemo(() => {
+    const binDomain = [0, max(bins.flat.map((bin) => bin.value.value as number))];
+    const squareQuantization = vsup.squareQuantization().n(10).valueDomain(binDomain).uncertaintyDomain([0, 1]);
+    const squareScale = vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis);
+
+    // console.log(squareQuantization(40, 0.5), squareScale(16, 2.5));
+
+    const heatLegend = vsup.legend.heatmapLegend().scale(squareScale).size(150).x(60).y(160);
+
+    // Add legend to svg
+    const svg = d3.select('#mylegend').append('g').call(heatLegend);
+
+    return {
+      squareQuantization,
+      squareScale,
+      heatLegend,
+    }
+  }, []);
 
   useTriggerFrame(() => {
     if (!ctx || !xScale || !yScale) {
@@ -232,7 +351,7 @@ export function FlameTree() {
       const fixedY0 = y0 + 1;
       const fixedY1 = y1 - 1;
 
-      const color = colorScale(bin.value);
+      const color = scales.squareScale(bin.value.value as number, bin.value.uncertainty as number);
       const fillColor = hover?.index === index ? generateDarkHighlightColor(color) : color;
 
       ctx.fillStyle = fillColor;
@@ -265,33 +384,25 @@ export function FlameTree() {
     });
 
     // If we have an experiment assignment, we can draw the samples below the last bins
-    if (experimentAssignment) {
-      Object.entries(experimentAssignment).forEach(([key, value]) => {
-        const experimentBin = bins.byId[key]!;
+    if (experimentAssignment && scatterInput) {
+      const sampleYScale = d3.scaleLinear().domain([0, 100]).range([0, 50]);
 
-        const binx0 = xScale.scaled(experimentBin.x0) * dpr;
-        const binx1 = xScale.scaled(experimentBin.x1) * dpr;
+      scatterInput.data.forEach((scatter) => {
+        const x = xScale.scaled(scatter.value.x) * dpr;
+        const y = scatter.value.yOffset * dpr + sampleYScale(scatter.value.y)! * dpr;
 
-        const biny0 = (yScale(experimentBin.y)! + yScale.bandwidth() + 30) * dpr;
+        
+        ctx.fillStyle = scales.squareScale(scatter.value.row["measured_yield"] as number, 0);
+        ctx.strokeStyle = generateDarkBorderColor(NEUTRAL_COLOR);
+        ctx.lineWidth = 1;
 
-        const sampleYScale = scaleLinear().domain([0, value.length]).range([0, 50]);
-
-        value.forEach((sample, index) => {
-          const x = (binx0 + binx1) / 2;
-          const y = biny0 + sampleYScale(index) * dpr;
-
-          ctx.fillStyle = colorScale(sample.value as number);
-          ctx.strokeStyle = generateDarkBorderColor(NEUTRAL_COLOR);
-          ctx.lineWidth = 1;
-
-          ctx.beginPath();
-          ctx.arc(x, y, 5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        });
+        ctx.beginPath();
+        ctx.arc(x, y, 5 * dpr, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
       });
     }
-  }, [bins.byId, bins.flat, colorScale, ctx, dpr, experimentAssignment, hover?.index, pixelContentHeight, pixelContentWidth, textMeasure, xScale, yScale]);
+  }, [bins.flat, colorScale, ctx, dpr, experimentAssignment, hover?.index, pixelContentHeight, pixelContentWidth, scatterInput, textMeasure, xScale, yScale]);
 
   const items = state.map((item, index) => (
     <Draggable key={item} index={index} draggableId={item}>
@@ -317,92 +428,109 @@ export function FlameTree() {
   ));
 
   return (
-    <Paper
-      withBorder
-      m="xs"
-      p="xs"
-      style={{
-        display: 'grid',
-        gap: rem(16),
-        gridTemplateRows: '48px max-content 1fr',
-        gridTemplateColumns: '300px max-content 1fr',
-        gridTemplateAreas: `
+    <div>
+      <Paper
+        withBorder
+        m="xs"
+        p="xs"
+        style={{
+          display: 'grid',
+          gap: rem(16),
+          gridTemplateRows: '48px max-content 1fr',
+          gridTemplateColumns: '300px max-content 1fr',
+          gridTemplateAreas: `
           'nothing divider header'
           'navbar divider main'
         `,
-        minHeight: Math.max(400, parameterDefinitions.length * 100 + 100 + 48 + 16 + 16),
-      }}
-    >
-      <Group style={{ gridArea: 'header' }} my="xs">
-        <Button size="sm" variant="outline" onClick={() => {}}>
-          Add attribute
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            animate(transform, m4.identityMatrix4x4());
-          }}
-        >
-          Reset zoom
-        </Button>
-      </Group>
-
-      <Divider style={{ gridArea: 'divider' }} orientation="vertical" />
-
-      <div
-        style={{
-          gridArea: 'navbar',
-          paddingTop: rem(16),
+          minHeight: Math.max(400, parameterDefinitions.length * 100 + 100 + 48 + 16 + 16),
         }}
       >
-        <DragDropContext onDragEnd={({ destination, source }) => handlers.reorder({ from: source.index, to: destination?.index || 0 })}>
-          <Droppable droppableId="dnd-list" direction="vertical">
-            {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                {items}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+        <Group style={{ gridArea: 'header' }} my="xs">
+          <Button size="sm" variant="outline" onClick={() => {}}>
+            Add attribute
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              animate(transform, m4.identityMatrix4x4());
+            }}
+          >
+            Reset zoom
+          </Button>
+        </Group>
 
-      <div style={{ position: 'relative', display: 'flex', gridArea: 'main' }}>
-        {hover ? (
-          <TrackTooltip label={bins.flat[hover.index]!.key} opened>
-            <div style={{ position: 'absolute', top: hover.y, left: hover.x }} />
-          </TrackTooltip>
-        ) : null}
-        <canvas
-          ref={setRef}
-          width={pixelContentWidth}
-          height={pixelContentHeight}
+        <Divider style={{ gridArea: 'divider' }} orientation="vertical" />
+
+        <div
           style={{
-            width: '100%',
-            height: '100%',
-            cursor: 'pointer',
+            gridArea: 'navbar',
+            paddingTop: rem(16),
           }}
-          onMouseLeave={() => setHover(undefined)}
-          onMouseMove={(event) => {
-            if (!xScale || !yScale) {
-              return;
-            }
+        >
+          <DragDropContext onDragEnd={({ destination, source }) => handlers.reorder({ from: source.index, to: destination?.index || 0 })}>
+            <Droppable droppableId="dnd-list" direction="vertical">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {items}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
 
-            const yIndex = Math.floor(event.nativeEvent.offsetY / yScale.bandwidth());
-            const invertX = xScale.scaled.invert(event.nativeEvent.offsetX);
-            const bin = bins.flat.findIndex((b) => b.y === yIndex && invertX >= b.x0 && invertX <= b.x1);
+        <div style={{ position: 'relative', display: 'flex', gridArea: 'main' }}>
+          {hover ? (
+            <TrackTooltip label={bins.flat[hover.index]!.label} opened>
+              <div style={{ position: 'absolute', top: hover.y, left: hover.x }} />
+            </TrackTooltip>
+          ) : null}
+          <canvas
+            ref={setRef}
+            width={pixelContentWidth}
+            height={pixelContentHeight}
+            style={{
+              width: '100%',
+              height: '100%',
+              cursor: 'pointer',
+            }}
+            onMouseLeave={() => setHover(undefined)}
+            onMouseMove={(event) => {
+              if (!xScale || !yScale || !scatterInput) {
+                return;
+              }
 
-            if (bin !== -1) {
-              setHover({ index: bin, x: event.nativeEvent.offsetX, y: yIndex * 100 });
-            } else if (bin === -1 && hover) {
-              setHover(undefined);
-            }
-          }}
-        />
+              const yIndex = Math.floor(event.nativeEvent.offsetY / yScale.bandwidth());
+              const invertX = xScale.scaled.invert(event.nativeEvent.offsetX);
 
-        {dragState === 'drag' ? <Affix inset={0} /> : null}
-      </div>
-    </Paper>
+              const treeBin = rbushTree.search({
+                minX: invertX,
+                maxX: invertX,
+                minY: yIndex + 0.5,
+                maxY: yIndex + 0.5,
+              });
+
+              const icicleMark = treeBin[0]?.index;
+
+              if (icicleMark !== undefined) {
+                setHover({ index: icicleMark, x: event.nativeEvent.offsetX, y: yIndex * yScale.bandwidth() });
+                return;
+              }
+
+              const scatterMark = scatterInput.tree.search({
+                minX: invertX,
+                maxX: invertX,
+                minY: yIndex,
+                maxY: yIndex,
+              });
+            }}
+          />
+
+          {dragState === 'drag' ? <Affix inset={0} /> : null}
+        </div>
+      </Paper>
+      <svg id="mylegend" style={{ height: 400 }} />
+    </div>
   );
 }
