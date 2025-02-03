@@ -5,7 +5,7 @@ import { css, cx } from '@emotion/css';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons/faGripVertical';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { Affix, Button, Divider, Group, Paper, Select, Switch, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
+import { Affix, Button, Divider, Group, Paper, Select, Slider, Switch, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
 import { useListState, useMergedRef } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import clamp from 'lodash/clamp';
@@ -101,42 +101,17 @@ const BaseColumn: ParameterColumn = {
   type: 'categorical',
 };
 
-console.log(ArylColumn, AdditiveColumn, LigandColumn);
-
 export function FlameTree() {
   const [state, handlers] = useListState(layers);
 
   const [aggregation, setAggregation] = React.useState<string | null>('max');
   const [synchronizeHover, setSynchronizeHover] = React.useState<boolean>(true);
+  const [cutoff, setCutoff] = React.useState<number>(10);
+  const [lastBins, setLastBins] = React.useState<Record<string, any> | null>(null);
 
   const parameterDefinitions = React.useMemo(() => {
     return [ArylColumn, BaseColumn, LigandColumn, AdditiveColumn] as (CategoricalParameterColumn | NumericalParameterColumn)[];
   }, []);
-
-  /* const parameterDefinitions = React.useMemo(() => {
-    return [
-      {
-        key: 'base',
-        domain: BASES,
-        type: 'categorical',
-      },
-      {
-        key: 'ligand',
-        domain: LIGAND,
-        type: 'categorical',
-      },
-      {
-        key: 'temperature',
-        domain: [-10, 110],
-        type: 'numerical',
-      },
-      {
-        key: 'age',
-        domain: [15, 70],
-        type: 'numerical',
-      },
-    ] as (CategoricalParameterColumn | NumericalParameterColumn)[];
-  }, []); */
 
   const experiments = React.useMemo(() => {
     return useCase1;
@@ -171,14 +146,22 @@ export function FlameTree() {
         uncertainty: 0,
       };
     });
+
+    if (lastBins !== bins && bins) {
+      setLastBins(bins);
+      setCutoff(bins.valueDomain[1]!);
+    }
+
     const byLevel = groupBy(phier, 'y');
+    const flat = Object.values(phier);
 
     return {
       byId: phier,
       byY: byLevel,
-      flat: Object.values(phier),
+      flat,
+      valueDomain: d3.extent(flat.map((bin) => bin.value.value as number)) as number[],
     };
-  }, [state, parameterDefinitions, aggregation]);
+  }, [parameterDefinitions, state, lastBins, aggregation]);
 
   const [hover, setHover] = React.useState<{
     index: number;
@@ -383,6 +366,11 @@ export function FlameTree() {
         return;
       }
 
+      // Dont draw bins that are below the cutoff
+      if (bin.value.value < cutoff) {
+        return;
+      }
+
       const fixedX0 = x0 + 1;
       const fixedX1 = x1 - 1;
 
@@ -433,6 +421,11 @@ export function FlameTree() {
       const sampleYScale = d3.scaleLinear().domain([0, 100]).range([0, 50]);
 
       scatterInput.data.forEach((scatter) => {
+        // Check yield cutoff
+        if ((scatter.value.row.measured_yield as number) < cutoff) {
+          return;
+        }
+
         const x = xScale.scaled(scatter.value.x) * dpr;
         const y = scatter.value.yOffset * dpr + sampleYScale(scatter.value.y)! * dpr;
 
@@ -451,6 +444,7 @@ export function FlameTree() {
   }, [
     bins.flat,
     ctx,
+    cutoff,
     dpr,
     experimentAssignment,
     hover,
@@ -552,6 +546,22 @@ export function FlameTree() {
               },
             ]}
           />
+          <Group mb={8}>
+            <Text size="sm">Yield cutoff</Text>
+            <Slider
+              value={cutoff}
+              onChange={(value) => {
+                setCutoff(value);
+              }}
+              min={bins.valueDomain[0]}
+              max={bins.valueDomain[1]}
+              step={0.1}
+              defaultValue={1}
+              style={{
+                width: 300,
+              }}
+            />
+          </Group>
         </Group>
 
         <Divider style={{ gridArea: 'divider' }} orientation="vertical" />

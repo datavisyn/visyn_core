@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { max, ticks } from 'd3v7';
+import { ticks } from 'd3v7';
 import isNumber from 'lodash/isNumber';
 
 import { m4 } from '../../vis/vishooks/math';
@@ -130,7 +130,14 @@ export type CategoricalParameterColumn = {
 
 export type ParameterColumn = NumericalParameterColumn | CategoricalParameterColumn;
 
-export function parameterBinCategorical<V extends Record<string, unknown>>(column: CategoricalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string, calculcateBinValue?: (items: Row[]) => V) {
+export function parameterBinCategorical<V extends Record<string, unknown>>(
+  column: CategoricalParameterColumn,
+  samples: Row[],
+  range: number[],
+  level: number,
+  parentId?: string,
+  calculcateBinValue?: (items: Row[]) => V,
+) {
   const minmax = range[1]! - range[0]!;
   const total = column.domain.length;
 
@@ -167,7 +174,14 @@ export function parameterBinCategorical<V extends Record<string, unknown>>(colum
   return result;
 }
 
-export function parameterBinNumerical<V extends Record<string, unknown>>(column: NumericalParameterColumn, samples: Row[], range: number[], level: number, parentId?: string, calculcateBinValue?: (items: Row[]) => V) {
+export function parameterBinNumerical<V extends Record<string, unknown>>(
+  column: NumericalParameterColumn,
+  samples: Row[],
+  range: number[],
+  level: number,
+  parentId?: string,
+  calculcateBinValue?: (items: Row[]) => V,
+) {
   const steps = ticks(column.domain[0]!, column.domain[1]!, 5);
   const tickStep = steps[1]! - steps[0]!;
 
@@ -314,8 +328,15 @@ export function parameterGroupStep<V extends Record<string, unknown>>(
   });
 }
 
-export function createParameterHierarchy<V extends Record<string, unknown>>(data: ParameterColumn[], samples: Row[], levels: string[], range: number[], calculcateBinValue: (items: Row[]) => V) {
+export function createParameterHierarchy<V extends Record<string, unknown>>(
+  data: ParameterColumn[],
+  samples: Row[],
+  levels: string[],
+  range: number[],
+  calculcateBinValue: (items: Row[]) => V,
+) {
   const resultList: Record<string, FlameBin<V>> = {};
+
   parameterGroupStep(data, samples, range, levels, 0, resultList, undefined, calculcateBinValue);
 
   return resultList;
