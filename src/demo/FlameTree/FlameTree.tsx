@@ -220,17 +220,17 @@ export function FlameTree() {
       }
 
       // Optimization: Do not draw if the bin is too small
-      if (x1 - x0 < 2 * dpr) {
+      if (x1 - x0 < 1) {
         return;
       }
 
-      const fixedX0 = x0 + dpr;
-      const fixedX1 = x1 - dpr;
+      const fixedX0 = x0 + 1;
+      const fixedX1 = x1 - 1;
 
       // const fixedY0 = Math.ceil(y0) + dpr;
       // const fixedY1 = Math.floor(y1) - dpr;
-      const fixedY0 = y0 + dpr;
-      const fixedY1 = y1 - dpr;
+      const fixedY0 = y0 + 1;
+      const fixedY1 = y1 - 1;
 
       const color = colorScale(bin.value);
       const fillColor = hover?.index === index ? generateDarkHighlightColor(color) : color;

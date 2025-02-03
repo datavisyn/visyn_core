@@ -133,7 +133,8 @@
     "react-spring": "^9.7.5",
     "react-window": "^1.8.11",
     "use-deep-compare-effect": "^1.8.1",
-    "visyn_scripts": "^12.0.1"
+    "visyn_scripts": "^12.0.1",
+    "vsup": "^1.1.0"
   },
   "devDependencies": {
     "@chromatic-com/playwright": "^0.10.2",
