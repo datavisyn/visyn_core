@@ -180,11 +180,19 @@ class VisynCoreSettings(BaseModel):
     """
     sentry: SentrySettings = SentrySettings()
     """
-    Settings for celery. If not set, celery will not be initialized.
+    Settings for Sentry. DSN will be shared via the client config.
     """
     celery: dict[str, Any] | None = None
     """
-    Settings for Sentry. DSN will be shared via the client config.
+    Settings for celery. If not set, celery will not be initialized.
+    """
+    celery_readiness_file: str | None = None
+    """
+    Readiness file for Celery. If set, a file will be created when the worker is ready and removed when it shuts down.
+    """
+    celery_liveness_file: str | None = None
+    """
+    Heartbeat file for Celery. If set, a file will be created at an interval when the worker is ready.
     """
     cypress: bool = False
     """
