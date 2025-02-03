@@ -371,13 +371,15 @@ export function FlameTree() {
         return;
       }
 
-      const fixedX0 = x0 + 1;
-      const fixedX1 = x1 - 1;
+      const border = x1 - x0 < 8 * dpr ? 0 : 1;
+
+      const fixedX0 = x0 + border;
+      const fixedX1 = x1 - border;
 
       // const fixedY0 = Math.ceil(y0) + dpr;
       // const fixedY1 = Math.floor(y1) - dpr;
-      const fixedY0 = y0 + 1;
-      const fixedY1 = y1 - 1;
+      const fixedY0 = y0 + border;
+      const fixedY1 = y1 - border;
 
       const color = scales.squareScale(bin.value.value as number, bin.value.uncertainty as number);
       const isHovered = synchronizeHover ? hover && bins.flat[hover.index]?.label === bin.label : hover && hover.index === index;
