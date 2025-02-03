@@ -308,49 +308,6 @@ export function ScatterVis({
       return undefined;
     }
 
-    /* const legendPlots: PlotlyTypes.Data[] = [];
-
-    if (value.shapeColumn) {
-      legendPlots.push({
-        x: [null],
-        y: [null],
-        type: 'scatter',
-        mode: 'markers',
-        showlegend: true,
-        legendgroup: 'shape',
-        hoverinfo: 'all',
-
-        hoverlabel: {
-          namelength: 10,
-          bgcolor: 'black',
-          align: 'left',
-          bordercolor: 'black',
-        },
-        // @ts-ignore
-        legendgrouptitle: {
-          text: truncateText(value.shapeColumn.info.name, true, 20),
-        },
-        marker: {
-          line: {
-            width: 0,
-          },
-          symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-          color: VIS_NEUTRAL_COLOR,
-        },
-        transforms: [
-          {
-            type: 'groupby',
-            groups: value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
-            styles: [
-              ...[...new Set<string>(value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
-                return { target: c, value: { name: c } };
-              }),
-            ],
-          },
-        ],
-      });
-    }
-*/
     if (value.colorColumn && value.colorColumn.type === EColumnTypes.CATEGORICAL) {
       // Get distinct values
       const colorValues = uniq(value.colorColumn.resolvedValues.map((v) => v.val ?? 'Unknown') as string[]);
@@ -439,18 +396,6 @@ export function ScatterVis({
     shapeScale,
     mappingFunction: legendData?.color.mappingFunction,
   });
-
-  const legendClickCallback = React.useCallback((category: string) => {
-    setHiddenCategoriesSet((prevSet) => {
-      const newSet = new Set(prevSet);
-      if (newSet.has(category)) {
-        newSet.delete(category);
-      } else {
-        newSet.add(category);
-      }
-      return newSet;
-    });
-  }, []);
 
   return (
     <div
@@ -599,7 +544,17 @@ export function ScatterVis({
             categories={legendData.color.categories}
             colorMap={legendData.color.mappingFunction}
             hiddenCategoriesSet={hiddenCategoriesSet}
-            onClick={legendClickCallback}
+            onClick={(category: string) => {
+              setHiddenCategoriesSet((prevSet) => {
+                const newSet = new Set(prevSet);
+                if (newSet.has(category)) {
+                  newSet.delete(category);
+                } else {
+                  newSet.add(category);
+                }
+                return newSet;
+              });
+            }}
           />
         </div>
       ) : null}
