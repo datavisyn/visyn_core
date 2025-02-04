@@ -9,19 +9,13 @@ import { Affix, Button, Divider, Group, Paper, Select, Slider, Switch, Text, The
 import { useMergedRef } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import clamp from 'lodash/clamp';
-import groupBy from 'lodash/groupBy';
-import map from 'lodash/map';
-import max from 'lodash/max';
-import mean from 'lodash/mean';
-import min from 'lodash/min';
 import range from 'lodash/range';
-import sortBy from 'lodash/sortBy';
 import RBush from 'rbush';
 import * as vsup from 'vsup';
 
 import { UseCase1 } from './case_study_1';
 import { generateDarkBorderColor, generateDarkHighlightColor, generateDynamicTextColor } from './colorUtils';
-import { ParameterColumn, Row, assignSamplesToBins, createParameterHierarchy, estimateTransformForDomain } from './math';
+import { FlameBin, ParameterColumn, Row, assignSamplesToBins, estimateTransformForDomain } from './math';
 import { FastTextMeasure, m4, useAnimatedTransform, useCanvas, usePan, useTransformScale, useTriggerFrame, useZoom } from '../../vis';
 
 console.log(UseCase1);
@@ -69,8 +63,10 @@ export type FlameTreeProps<V extends Record<string, unknown>> = {
   setLayering: (value: string[]) => void;
   definitions: ParameterColumn[];
   experiments: Row[];
+  experimentsColorScale: (experiment: Row) => string;
   calculateBinValues: (items: Row[]) => V;
   colorScale: (bin: V) => string;
+  bins: Record<string, FlameBin<V>>;
 };
 
 export function FlameTree<V extends Record<string, unknown>>({
@@ -78,58 +74,23 @@ export function FlameTree<V extends Record<string, unknown>>({
   layering,
   setLayering,
   experiments,
+  bins,
+  colorScale,
+  experimentsColorScale,
   calculateBinValues,
 }: FlameTreeProps<V>) {
-  const [aggregation, setAggregation] = React.useState<string | null>('max');
   const [synchronizeHover, setSynchronizeHover] = React.useState<boolean>(true);
-  const [cutoff, setCutoff] = React.useState<number>(10);
+  const [cutoff, setCutoff] = React.useState<number>(-1);
   const [lastBins, setLastBins] = React.useState<Record<string, any> | null>(null);
 
-  const bins = React.useMemo(() => {
-    const phier = createParameterHierarchy(definitions, UseCase1, layering, [0, 100], (items) => {
-      const values = map(items, 'measured_yield') as number[];
-      let value = 0;
+  // if (lastBins !== bins && bins) {
+  //  setLastBins(bins);
+  //  setCutoff(bins.valueDomain[0]!);
+  // }
 
-      switch (aggregation) {
-        case 'min':
-          value = min(values) ?? 0;
-          break;
-        case 'max':
-          value = max(values) ?? 0;
-          break;
-        case 'mean':
-          value = mean(values) ?? 0;
-          break;
-        case 'median': {
-          const sorted = sortBy(values);
-          value = sorted[Math.floor(sorted.length / 2)] ?? 0;
-          break;
-        }
-        default:
-          throw new Error('Unknown aggregation');
-      }
-
-      return {
-        value,
-        uncertainty: 0,
-      };
-    });
-
-    const byLevel = groupBy(phier, 'y');
-    const flat = Object.values(phier);
-
-    return {
-      byId: phier,
-      byY: byLevel,
-      flat,
-      valueDomain: d3.extent(flat.map((bin) => bin.value.value as number)) as number[],
-    };
-  }, [definitions, layering, aggregation]);
-
-  if (lastBins !== bins && bins) {
-    setLastBins(bins);
-    setCutoff(bins.valueDomain[0]!);
-  }
+  const flatBins = React.useMemo(() => {
+    return Object.values(bins);
+  }, [bins]);
 
   const [hover, setHover] = React.useState<{
     index: number;
@@ -142,7 +103,9 @@ export function FlameTree<V extends Record<string, unknown>>({
       return undefined;
     }
 
-    const assignment = assignSamplesToBins(experiments, bins.byY['0']!, bins.byId);
+    const rootBins = Object.values(bins).filter((bin) => bin.y === 0);
+
+    const assignment = assignSamplesToBins(experiments, rootBins, bins);
 
     return assignment;
   }, [bins, experiments]);
@@ -181,26 +144,16 @@ export function FlameTree<V extends Record<string, unknown>>({
   });
 
   const scales = React.useMemo(() => {
-    const binDomain = d3.extent(bins.flat.map((bin) => bin.value.value as number)) as number[];
+    const binDomain = d3.extent(Object.values(bins).map((bin) => bin.value.value as number)) as number[];
     const experimentDomain = d3.extent(experiments.map((sample) => sample.measured_yield as number)) as number[];
 
     // Combined extent
     const domain = d3.extent([...binDomain, ...experimentDomain]) as number[];
 
-    const squareQuantization = vsup.squareQuantization().n(10).valueDomain(domain).uncertaintyDomain([0, 1]);
-    const squareScale = vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis);
-
-    const heatLegend = vsup.legend.heatmapLegend().scale(squareScale).size(150).x(60).y(160);
-
-    // Add legend to svg
-    const svg = d3.select('#mylegend').append('g').call(heatLegend);
-
     return {
-      squareQuantization,
-      squareScale,
-      heatLegend,
+      domain,
     };
-  }, [bins.flat]);
+  }, [bins, experiments]);
 
   const scatterInput = React.useMemo(() => {
     const scatterData: {
@@ -220,10 +173,10 @@ export function FlameTree<V extends Record<string, unknown>>({
 
     if (experimentAssignment && yScale) {
       Object.entries(experimentAssignment).forEach(([key, value]) => {
-        const experimentBin = bins.byId[key]!;
+        const experimentBin = bins[key]!;
 
         value.forEach((sample, index) => {
-          const fill = scales.squareScale(sample.measured_yield as number, 0);
+          const fill = experimentsColorScale(sample);
 
           scatterData.push({
             value: {
@@ -252,7 +205,7 @@ export function FlameTree<V extends Record<string, unknown>>({
     }
 
     return undefined;
-  }, [bins.byId, experimentAssignment, yScale]);
+  }, [bins, experimentAssignment, experimentsColorScale, yScale]);
 
   const { setRef: setPanRef, state: dragState } = usePan({
     value: transform,
@@ -264,7 +217,7 @@ export function FlameTree<V extends Record<string, unknown>>({
 
       const yIndex = Math.floor(event.nativeEvent.offsetY / yScale.bandwidth());
       const invertX = xScale.scaled.invert(event.nativeEvent.offsetX);
-      const bin = bins.flat.findIndex((b) => b.y === yIndex && invertX >= b.x0 && invertX <= b.x1);
+      const bin = flatBins.findIndex((b) => b.y === yIndex && invertX >= b.x0 && invertX <= b.x1);
 
       if (bin === -1) {
         return;
@@ -272,7 +225,7 @@ export function FlameTree<V extends Record<string, unknown>>({
 
       const estimatedTransform = estimateTransformForDomain({
         originScale: xScale.base,
-        domain: [bins.flat[bin]!.x0, bins.flat[bin]!.x1],
+        domain: [flatBins[bin]!.x0, flatBins[bin]!.x1],
         containerWidth: contentWidth,
       });
 
@@ -284,7 +237,7 @@ export function FlameTree<V extends Record<string, unknown>>({
   const setRef = useMergedRef(setCanvasRef, setZoomRef, setPanRef);
 
   const rbushTree = React.useMemo(() => {
-    const items = bins.flat.map((item, index) => {
+    const items = flatBins.map((item, index) => {
       return {
         value: item,
         index,
@@ -298,7 +251,7 @@ export function FlameTree<V extends Record<string, unknown>>({
     const tree = new RBush<(typeof items)[0]>();
     tree.load(items);
     return tree;
-  }, [bins.flat]);
+  }, [flatBins]);
 
   useTriggerFrame(() => {
     if (!ctx || !xScale || !yScale) {
@@ -313,7 +266,7 @@ export function FlameTree<V extends Record<string, unknown>>({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    bins.flat.forEach((bin, index) => {
+    flatBins.forEach((bin, index) => {
       const x0 = xScale.scaled(bin.x0) * dpr;
       const x1 = xScale.scaled(bin.x1) * dpr;
 
@@ -345,8 +298,9 @@ export function FlameTree<V extends Record<string, unknown>>({
       const fixedY0 = y0 + border;
       const fixedY1 = y1 - border;
 
-      const color = scales.squareScale(bin.value.value as number, bin.value.uncertainty as number);
-      const isHovered = synchronizeHover ? hover && bins.flat[hover.index]?.label === bin.label : hover && hover.index === index;
+      const color = colorScale(bin.value);
+      // const color = scales.squareScale(bin.value.value as number, bin.value.uncertainty as number);
+      const isHovered = synchronizeHover ? hover && flatBins[hover.index]?.label === bin.label : hover && hover.index === index;
       const fillColor = isHovered ? generateDarkHighlightColor(color) : color;
 
       ctx.fillStyle = fillColor;
@@ -408,20 +362,20 @@ export function FlameTree<V extends Record<string, unknown>>({
       });
     }
   }, [
-    bins.flat,
     ctx,
-    cutoff,
-    dpr,
-    experimentAssignment,
-    hover,
-    pixelContentHeight,
-    pixelContentWidth,
-    scales,
-    scatterInput,
-    synchronizeHover,
-    textMeasure,
     xScale,
     yScale,
+    pixelContentWidth,
+    pixelContentHeight,
+    dpr,
+    flatBins,
+    experimentAssignment,
+    scatterInput,
+    cutoff,
+    colorScale,
+    synchronizeHover,
+    hover,
+    textMeasure,
   ]);
 
   const items = layering.map((item, index) => (
@@ -486,29 +440,6 @@ export function FlameTree<V extends Record<string, unknown>>({
               setSynchronizeHover(event.currentTarget.checked);
             }}
           />
-          <Select
-            label="Aggregate using"
-            value={aggregation}
-            onChange={setAggregation}
-            data={[
-              {
-                label: 'Minimum',
-                value: 'min',
-              },
-              {
-                label: 'Maximum',
-                value: 'max',
-              },
-              {
-                label: 'Mean',
-                value: 'mean',
-              },
-              {
-                label: 'Median',
-                value: 'median',
-              },
-            ]}
-          />
           <Group mb={8}>
             <Text size="sm">Yield cutoff</Text>
             <Slider
@@ -516,8 +447,8 @@ export function FlameTree<V extends Record<string, unknown>>({
               onChange={(value) => {
                 setCutoff(value);
               }}
-              min={bins.valueDomain[0]}
-              max={bins.valueDomain[1]}
+              min={scales.domain[0]}
+              max={scales.domain[1]}
               style={{
                 width: 300,
               }}
@@ -559,7 +490,7 @@ export function FlameTree<V extends Record<string, unknown>>({
 
         <div style={{ position: 'relative', display: 'flex', gridArea: 'main' }}>
           {hover ? (
-            <TrackTooltip label={bins.flat[hover.index]!.label} opened>
+            <TrackTooltip label={flatBins[hover.index]!.label} opened>
               <div style={{ position: 'absolute', top: hover.y, left: hover.x }} />
             </TrackTooltip>
           ) : null}
@@ -607,7 +538,7 @@ export function FlameTree<V extends Record<string, unknown>>({
           {dragState === 'drag' ? <Affix inset={0} /> : null}
         </div>
       </Paper>
-      <svg id="mylegend" style={{ height: 400 }} />
+      <svg id="mylegend" style={{ height: 400, marginTop: -100 }} />
     </div>
   );
 }

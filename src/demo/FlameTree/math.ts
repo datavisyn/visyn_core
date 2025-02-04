@@ -342,14 +342,6 @@ export function createParameterHierarchy<V extends Record<string, unknown>>(
   return resultList;
 }
 
-/* export function createHierarchy<T extends Record<string, unknown>>(data: T[], levels: string[], range: number[]) {
-  const resultList = [] as CategoricalBin[];
-
-  groupStep(data, range, levels, 0, resultList);
-
-  return resultList;
-} */
-
 export function estimateTransformForDomain({
   originScale,
   domain,
