@@ -11,14 +11,10 @@ import * as d3 from 'd3v7';
 import clamp from 'lodash/clamp';
 import range from 'lodash/range';
 import RBush from 'rbush';
-import * as vsup from 'vsup';
 
-import { UseCase1 } from './case_study_1';
 import { generateDarkBorderColor, generateDarkHighlightColor, generateDynamicTextColor } from './colorUtils';
 import { FlameBin, ParameterColumn, Row, assignSamplesToBins, estimateTransformForDomain } from './math';
 import { FastTextMeasure, m4, useAnimatedTransform, useCanvas, usePan, useTransformScale, useTriggerFrame, useZoom } from '../../vis';
-
-console.log(UseCase1);
 
 const classItem = css`
   display: flex;
