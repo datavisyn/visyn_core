@@ -233,7 +233,7 @@ function FlameCase2() {
     const heatLegend = vsup.legend.heatmapLegend().scale(squareScale).size(150).x(60).y(160);
 
     // Add legend to svg
-    d3.select('#mylegend').selectAll('> *').remove();
+    // d3.select('#mylegend').selectAll('> *').remove();
     const svg = d3.select('#mylegend').append('g').call(heatLegend);
 
     return {
