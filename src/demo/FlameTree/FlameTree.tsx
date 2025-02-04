@@ -6,7 +6,7 @@ import { faGripVertical } from '@fortawesome/free-solid-svg-icons/faGripVertical
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { Affix, Button, Divider, Group, Paper, Select, Slider, Switch, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
-import { useListState, useMergedRef } from '@mantine/hooks';
+import { useMergedRef } from '@mantine/hooks';
 import * as d3 from 'd3v7';
 import clamp from 'lodash/clamp';
 import groupBy from 'lodash/groupBy';
@@ -16,24 +16,15 @@ import mean from 'lodash/mean';
 import min from 'lodash/min';
 import range from 'lodash/range';
 import sortBy from 'lodash/sortBy';
-import uniq from 'lodash/uniq';
 import RBush from 'rbush';
 import * as vsup from 'vsup';
 
-import { useCase1 } from './case_study_1';
+import { UseCase1 } from './case_study_1';
 import { generateDarkBorderColor, generateDarkHighlightColor, generateDynamicTextColor } from './colorUtils';
-import {
-  CategoricalParameterColumn,
-  NumericalParameterColumn,
-  ParameterColumn,
-  Row,
-  assignSamplesToBins,
-  createParameterHierarchy,
-  estimateTransformForDomain,
-} from './math';
+import { ParameterColumn, Row, assignSamplesToBins, createParameterHierarchy, estimateTransformForDomain } from './math';
 import { FastTextMeasure, m4, useAnimatedTransform, useCanvas, usePan, useTransformScale, useTriggerFrame, useZoom } from '../../vis';
 
-console.log(useCase1);
+console.log(UseCase1);
 
 const classItem = css`
   display: flex;
@@ -73,52 +64,29 @@ const TrackTooltip = Tooltip.withProps({
   label: undefined,
 });
 
-const NEUTRAL_COLOR = '#DCDCDC';
-
-const layers = ['aryl_halide_file_name_exp_param', 'base_file_name_exp_param', 'ligand_file_name_exp_param', 'additive_file_name_exp_param'];
-
-const ArylColumn: ParameterColumn = {
-  key: 'aryl_halide_file_name_exp_param',
-  domain: uniq(map(useCase1, 'aryl_halide_file_name_exp_param')),
-  type: 'categorical',
+export type FlameTreeProps<V extends Record<string, unknown>> = {
+  layering: string[];
+  setLayering: (value: string[]) => void;
+  definitions: ParameterColumn[];
+  experiments: Row[];
+  calculateBinValues: (items: Row[]) => V;
+  colorScale: (bin: V) => string;
 };
 
-const AdditiveColumn: ParameterColumn = {
-  key: 'additive_file_name_exp_param',
-  domain: uniq(map(useCase1, 'additive_file_name_exp_param')),
-  type: 'categorical',
-};
-
-const LigandColumn: ParameterColumn = {
-  key: 'ligand_file_name_exp_param',
-  domain: uniq(map(useCase1, 'ligand_file_name_exp_param')),
-  type: 'categorical',
-};
-
-const BaseColumn: ParameterColumn = {
-  key: 'base_file_name_exp_param',
-  domain: uniq(map(useCase1, 'base_file_name_exp_param')),
-  type: 'categorical',
-};
-
-export function FlameTree() {
-  const [state, handlers] = useListState(layers);
-
+export function FlameTree<V extends Record<string, unknown>>({
+  definitions,
+  layering,
+  setLayering,
+  experiments,
+  calculateBinValues,
+}: FlameTreeProps<V>) {
   const [aggregation, setAggregation] = React.useState<string | null>('max');
   const [synchronizeHover, setSynchronizeHover] = React.useState<boolean>(true);
   const [cutoff, setCutoff] = React.useState<number>(10);
   const [lastBins, setLastBins] = React.useState<Record<string, any> | null>(null);
 
-  const parameterDefinitions = React.useMemo(() => {
-    return [ArylColumn, BaseColumn, LigandColumn, AdditiveColumn] as (CategoricalParameterColumn | NumericalParameterColumn)[];
-  }, []);
-
-  const experiments = React.useMemo(() => {
-    return useCase1;
-  }, []);
-
   const bins = React.useMemo(() => {
-    const phier = createParameterHierarchy(parameterDefinitions, useCase1, state, [0, 100], (items) => {
+    const phier = createParameterHierarchy(definitions, UseCase1, layering, [0, 100], (items) => {
       const values = map(items, 'measured_yield') as number[];
       let value = 0;
 
@@ -147,11 +115,6 @@ export function FlameTree() {
       };
     });
 
-    if (lastBins !== bins && bins) {
-      setLastBins(bins);
-      setCutoff(bins.valueDomain[1]!);
-    }
-
     const byLevel = groupBy(phier, 'y');
     const flat = Object.values(phier);
 
@@ -161,7 +124,12 @@ export function FlameTree() {
       flat,
       valueDomain: d3.extent(flat.map((bin) => bin.value.value as number)) as number[],
     };
-  }, [parameterDefinitions, state, lastBins, aggregation]);
+  }, [definitions, layering, aggregation]);
+
+  if (lastBins !== bins && bins) {
+    setLastBins(bins);
+    setCutoff(bins.valueDomain[0]!);
+  }
 
   const [hover, setHover] = React.useState<{
     index: number;
@@ -186,15 +154,8 @@ export function FlameTree() {
       return undefined;
     }
 
-    return d3.scaleBand(range(0, state.length), [0, contentHeight - 100]).padding(0);
-  }, [bins, contentHeight, ctx, state.length]);
-
-  const colorScale = React.useMemo(() => {
-    return d3
-      .scaleSequential()
-      .domain([0, 100])
-      .interpolator((t) => d3.hsl(45, t * 0.9, 0.5).toString());
-  }, []);
+    return d3.scaleBand(range(0, layering.length), [0, contentHeight - 100]).padding(0);
+  }, [bins, contentHeight, ctx, layering.length]);
 
   const [transform, setTransform] = React.useState(m4.identityMatrix4x4());
 
@@ -220,11 +181,14 @@ export function FlameTree() {
   });
 
   const scales = React.useMemo(() => {
-    const binDomain = [0, max(bins.flat.map((bin) => bin.value.value as number))];
-    const squareQuantization = vsup.squareQuantization().n(10).valueDomain(binDomain).uncertaintyDomain([0, 1]);
-    const squareScale = vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis);
+    const binDomain = d3.extent(bins.flat.map((bin) => bin.value.value as number)) as number[];
+    const experimentDomain = d3.extent(experiments.map((sample) => sample.measured_yield as number)) as number[];
 
-    // console.log(squareQuantization(40, 0.5), squareScale(16, 2.5));
+    // Combined extent
+    const domain = d3.extent([...binDomain, ...experimentDomain]) as number[];
+
+    const squareQuantization = vsup.squareQuantization().n(10).valueDomain(domain).uncertaintyDomain([0, 1]);
+    const squareScale = vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis);
 
     const heatLegend = vsup.legend.heatmapLegend().scale(squareScale).size(150).x(60).y(160);
 
@@ -259,7 +223,7 @@ export function FlameTree() {
         const experimentBin = bins.byId[key]!;
 
         value.forEach((sample, index) => {
-          const fill = colorScale(sample.measured_yield as number);
+          const fill = scales.squareScale(sample.measured_yield as number, 0);
 
           scatterData.push({
             value: {
@@ -460,7 +424,7 @@ export function FlameTree() {
     yScale,
   ]);
 
-  const items = state.map((item, index) => (
+  const items = layering.map((item, index) => (
     <Draggable key={item} index={index} draggableId={item}>
       {(provided, snapshot) => (
         <div className={cx(classItem, { [classDragging]: snapshot.isDragging })} ref={provided.innerRef} {...provided.draggableProps}>
@@ -477,7 +441,7 @@ export function FlameTree() {
             </Group>
             <Text c="dimmed" size="sm">
               {(() => {
-                const definition = parameterDefinitions.find((entry) => entry.key === item)!;
+                const definition = definitions.find((entry) => entry.key === item)!;
                 return `${definition.type}`;
               })()}
             </Text>
@@ -505,9 +469,6 @@ export function FlameTree() {
         }}
       >
         <Group style={{ gridArea: 'header' }} my="xs" align="flex-end">
-          <Button size="sm" variant="outline" onClick={() => {}}>
-            Add attribute
-          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -557,8 +518,6 @@ export function FlameTree() {
               }}
               min={bins.valueDomain[0]}
               max={bins.valueDomain[1]}
-              step={0.1}
-              defaultValue={1}
               style={{
                 width: 300,
               }}
@@ -574,7 +533,19 @@ export function FlameTree() {
             paddingTop: rem(16),
           }}
         >
-          <DragDropContext onDragEnd={({ destination, source }) => handlers.reorder({ from: source.index, to: destination?.index || 0 })}>
+          <DragDropContext
+            onDragEnd={({ destination, source }) => {
+              if (!destination || !source) {
+                return;
+              }
+
+              const newLayering = [...layering];
+              const temp = newLayering[source.index]!;
+              newLayering[source.index] = newLayering[destination.index]!;
+              newLayering[destination.index] = temp;
+              setLayering(newLayering);
+            }}
+          >
             <Droppable droppableId="dnd-list" direction="vertical">
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
@@ -598,7 +569,7 @@ export function FlameTree() {
             height={pixelContentHeight}
             style={{
               width: '100%',
-              height: state.length * 100 + 100,
+              height: layering.length * 100 + 100,
               cursor: 'pointer',
             }}
             onMouseLeave={() => setHover(undefined)}

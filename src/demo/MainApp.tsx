@@ -1,64 +1,49 @@
 import * as React from 'react';
 
-import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
+import map from 'lodash/map';
+import uniq from 'lodash/uniq';
 
-import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
-import type { DatavisynTaggle } from '../ranking';
-import { VisynRanking } from '../ranking/VisynRanking';
-import {
-  BaseVisConfig,
-  ELabelingOptions,
-  ENumericalColorScaleType,
-  ERegressionLineType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  IScatterConfig,
-  Vis,
-} from '../vis';
-import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
-import { breastCancerData } from '../vis/stories/breastCancerData';
-import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
+import { VisynApp, VisynHeader } from '../app';
 import { FlameTree } from './FlameTree';
+import { UseCase1 } from './FlameTree/case_study_1';
+import { ParameterColumn } from './FlameTree/math';
+
+const ArylColumn: ParameterColumn = {
+  key: 'aryl_halide_file_name_exp_param',
+  domain: uniq(map(UseCase1, 'aryl_halide_file_name_exp_param')),
+  type: 'categorical',
+};
+
+const AdditiveColumn: ParameterColumn = {
+  key: 'additive_file_name_exp_param',
+  domain: uniq(map(UseCase1, 'additive_file_name_exp_param')),
+  type: 'categorical',
+};
+
+const LigandColumn: ParameterColumn = {
+  key: 'ligand_file_name_exp_param',
+  domain: uniq(map(UseCase1, 'ligand_file_name_exp_param')),
+  type: 'categorical',
+};
+
+const BaseColumn: ParameterColumn = {
+  key: 'base_file_name_exp_param',
+  domain: uniq(map(UseCase1, 'base_file_name_exp_param')),
+  type: 'categorical',
+};
 
 export function MainApp() {
-  const { user } = useVisynAppContext();
-  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
-    type: ESupportedPlotlyVis.SCATTER,
-    numColumnsSelected: [
-      {
-        description: 'Gene expression',
-        id: 'stat2GeneExpression',
-        name: 'STAT2',
-      },
-      {
-        description: 'Gene expression',
-        id: 'brca1GeneExpression',
-        name: 'BRCA1',
-      },
-    ],
-    color: {
-      description: '',
-      id: 'cellularity',
-      name: 'Cellularity',
-    },
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    facets: null,
-    shape: null,
-    dragMode: EScatterSelectSettings.RECTANGLE,
-    alphaSliderVal: 1,
-    showLabels: ELabelingOptions.SELECTED,
-    showLabelLimit: 20,
-    regressionLineOptions: {
-      type: ERegressionLineType.LINEAR,
-      showStats: true,
-    },
-  } as IScatterConfig);
-  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
-  const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
+  const definitions = React.useMemo(() => {
+    return [ArylColumn, BaseColumn, LigandColumn, AdditiveColumn];
+  }, []);
 
-  const visSelection = React.useMemo(() => selection.map((s) => `${breastCancerData.indexOf(s)}`), [selection]);
-  const [loading, setLoading] = React.useState(false);
-  const lineupRef = React.useRef<DatavisynTaggle>();
+  const [layering, setLayering] = React.useState<string[]>([
+    'aryl_halide_file_name_exp_param',
+    'base_file_name_exp_param',
+    'ligand_file_name_exp_param',
+    'additive_file_name_exp_param',
+  ]);
 
   return (
     <VisynApp
@@ -70,14 +55,14 @@ export function MainApp() {
             },
             center: (
               <Text c="white" size="sm">
-                {breastCancerData.length} data points / {selection.length} points selected
+                Waffle Plot Demo
               </Text>
             ),
           }}
         />
       }
     >
-      <FlameTree />
+      <FlameTree definitions={definitions} layering={layering} setLayering={setLayering} experiments={UseCase1} />
     </VisynApp>
   );
 }
