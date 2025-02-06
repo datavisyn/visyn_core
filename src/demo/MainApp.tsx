@@ -12,10 +12,12 @@ import * as vsup from 'vsup';
 
 import { VisynApp, VisynHeader } from '../app';
 import { FlameTree } from './FlameTree';
-import { UseCase1 } from './FlameTree/case_study_1';
-import { UseCase2 } from './FlameTree/case_study_2';
 import { ParameterColumn, createParameterHierarchy } from './FlameTree/math';
 
+const { UseCase1 } = await import('./FlameTree/case_study_1');
+const { UseCase2 } = await import('./FlameTree/case_study_2');
+
+// TODO: React lazy and suspense to only load active tab
 function FlameCase1() {
   const [aggregation, setAggregation] = React.useState<string | null>('max');
 
