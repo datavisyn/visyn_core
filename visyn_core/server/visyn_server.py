@@ -63,10 +63,34 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
         init_telemetry(app, settings=manager.settings.visyn_core.telemetry)
 
     if manager.settings.visyn_core.sentry.dsn:
+        _log.info("Initializing Sentry")
         import sentry_sdk
 
+        dsn = manager.settings.visyn_core.sentry.dsn
+
+        # The sentry DSN usually contains the "public" URL of the sentry server, i.e. https://sentry.app-internal.datavisyn.io/...
+        # which is sometimes not accessible due to authentication. Therefore, we allow to proxy the sentry requests to a different URL,
+        # i.e. a cluster internal one without authentication. The same is happening for the frontend with the Sentry proxy router.
+        proxy_to = manager.settings.visyn_core.sentry.proxy_to
+
+        if proxy_to:
+            from urllib.parse import urlparse
+
+            parsed_dsn = urlparse(dsn)
+            parsed_tunnel = urlparse(proxy_to)
+
+            # Replace the scheme and hostname of the dsn with the proxy_to URL, while keeping the rest intact.
+            # I.e. <scheme>://<token>@<url>/<project> becomes <scheme of proxy_to>://<token>:<url of proxy_to>/<project>
+            dsn = dsn.replace(parsed_dsn.scheme, parsed_tunnel.scheme)
+            if parsed_dsn.hostname and parsed_tunnel.hostname:
+                dsn = dsn.replace(parsed_dsn.hostname, parsed_tunnel.hostname)
+
+            _log.info(
+                f"Proxying Sentry from {parsed_dsn.scheme}://{parsed_dsn.hostname} to {parsed_tunnel.scheme}://{parsed_tunnel.hostname}"
+            )
+
         sentry_sdk.init(
-            dsn=manager.settings.visyn_core.sentry.dsn,
+            dsn=dsn,
             # Set traces_sample_rate to 1.0 to capture 100%
             # of transactions for tracing.
             traces_sample_rate=1.0,
