@@ -121,6 +121,7 @@
     "d3v7": "npm:d3@^7.9.0",
     "echarts": "^5.6.0",
     "fit-curve": "^0.2.0",
+    "flatbush": "^4.4.0",
     "html-to-image": "^1.11.11",
     "i18next": "^23.16.8",
     "jstat": "^1.9.6",

@@ -3,6 +3,10 @@ import { ticks } from 'd3v7';
 import isNumber from 'lodash/isNumber';
 
 import { m4 } from '../../vis/vishooks/math';
+import mean from 'lodash/mean';
+import max from 'lodash/max';
+import min from 'lodash/min';
+import sortBy from 'lodash/sortBy';
 
 export function isNumerical<T>(data: T[]) {
   return !data.some((datum) => !isNumber(datum) && datum !== null && datum !== undefined);
@@ -124,7 +128,7 @@ export type NumericalParameterColumn = {
 
 export type CategoricalParameterColumn = {
   key: string;
-  domain: string[];
+  domain: string[] | number[];
   type: 'categorical';
 };
 
@@ -155,7 +159,7 @@ export function parameterBinCategorical<V extends Record<string, unknown>>(
       id: nanoid(),
       parent: parentId,
       children: [],
-      label: key,
+      label: String(key),
       // Accomodates for rounding error in floats!
       x0: i === 0 ? range[0]! : range[0]! + sum,
       x1: i === column.domain.length - 1 ? range[1]! : range[0]! + sum + width,
@@ -385,4 +389,29 @@ export function estimateTransformForDomain({
   }
 
   return newTransform;
+}
+
+export type AggregationType = 'min' | 'max' | 'mean' | 'median';
+
+export function aggregateBy(aggregation: AggregationType, values: number[]) {
+  switch (aggregation) {
+    case 'min':
+      return min(values) ?? 0;
+    case 'max':
+      return max(values) ?? 0;
+    case 'mean':
+      return mean(values) ?? 0;
+    case 'median': {
+      const sorted = sortBy(values);
+      return sorted[Math.floor(sorted.length / 2)] ?? 0;
+    }
+    default:
+      throw new Error('Unknown aggregation');
+  }
+}
+
+export function adjustDomain(domain: number[]) {
+  const newLower = Math.floor(domain[0]! * 100) / 100;
+  const newUpper = Math.ceil(domain[1]! * 100) / 100;
+  return [newLower, newUpper];
 }

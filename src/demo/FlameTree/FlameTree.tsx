@@ -1,51 +1,27 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
 
-import { css, cx } from '@emotion/css';
-import { faGripVertical } from '@fortawesome/free-solid-svg-icons/faGripVertical';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { Affix, Button, Divider, Group, Paper, Select, Slider, Switch, Text, ThemeIcon, Tooltip, rem } from '@mantine/core';
+import { Affix, Button, Divider, Group, Paper, Tooltip, rem } from '@mantine/core';
 import { useMergedRef } from '@mantine/hooks';
+import { nanoid } from '@reduxjs/toolkit';
 import * as d3 from 'd3v7';
+import Flatbush from 'flatbush';
 import clamp from 'lodash/clamp';
+import groupBy from 'lodash/groupBy';
 import range from 'lodash/range';
-import RBush from 'rbush';
 
+import { DraggableHierarchy } from './DraggableHierarchy';
+import { TooltipContent, TooltipContentBin } from './TooltipContent';
 import { generateDarkBorderColor, generateDarkHighlightColor, generateDynamicTextColor } from './colorUtils';
 import { FlameBin, ParameterColumn, Row, assignSamplesToBins, estimateTransformForDomain } from './math';
 import { FastTextMeasure, m4, useAnimatedTransform, useCanvas, usePan, useTransformScale, useTriggerFrame, useZoom } from '../../vis';
-
-const classItem = css`
-  display: flex;
-  align-items: center;
-  border-radius: var(--mantine-radius-md);
-  border: 1px solid var(--mantine-color-blue-outline);
-  padding: var(--mantine-spacing-sm) var(--mantine-spacing-xl);
-  padding-left: calc(var(--mantine-spacing-xl) - var(--mantine-spacing-md));
-  background-color: var(--mantine-color-white);
-  height: 72px;
-  margin-bottom: 28px;
-`;
-
-const classDragging = css`
-  box-shadow: var(--mantine-shadow-sm);
-`;
-
-const classDragHandle = css`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
-  padding-right: var(--mantine-spacing-md);
-`;
 
 // @TODO use from aevidence
 const TrackTooltip = Tooltip.withProps({
   withArrow: true,
   multiline: true,
-  maw: rem(320),
+  maw: rem(500),
   openDelay: 0,
   closeDelay: 0,
   opacity: 0.8,
@@ -59,40 +35,88 @@ export type FlameTreeProps<V extends Record<string, unknown>> = {
   setLayering: (value: string[]) => void;
   definitions: ParameterColumn[];
   experiments: Row[];
+  renderExperimentTooltip?: (experiment: Row) => React.ReactNode;
   experimentsColorScale: (experiment: Row) => string;
-  calculateBinValues: (items: Row[]) => V;
   colorScale: (bin: V) => string;
   bins: Record<string, FlameBin<V>>;
+
+  itemHeight?: number;
+
+  renderTooltip?: (bin: FlameBin<V>) => React.ReactNode;
+
+  /**
+   * If true, the hover state of the bins across all bins with the
+   * same attribute value will be synchronized.
+   */
+  synchronizeHover?: boolean;
+
+  /**
+   * Filter that selectively hides bins. Can be used to hide bins based
+   * on a cutoff yield for instance.
+   */
+  filter?: Record<string, boolean>;
 };
+
+/**
+ * Assigns the named slots to the children of the FlameTree component.
+ */
+function assignSlots(children: React.ReactNode) {
+  let hierarchy: React.ReactNode;
+  let toolbar: React.ReactNode;
+
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement(child)) {
+      if (child.type === FlameTree.Hierarchy) {
+        hierarchy = child;
+      }
+
+      if (child.type === FlameTree.Toolbar) {
+        toolbar = child;
+      }
+    }
+  });
+
+  return {
+    hierarchy,
+    toolbar,
+  };
+}
 
 export function FlameTree<V extends Record<string, unknown>>({
   definitions,
   layering,
   setLayering,
   experiments,
+  renderExperimentTooltip,
   bins,
+  renderTooltip,
   colorScale,
   experimentsColorScale,
-  calculateBinValues,
-}: FlameTreeProps<V>) {
-  const [synchronizeHover, setSynchronizeHover] = React.useState<boolean>(true);
-  const [cutoff, setCutoff] = React.useState<number>(-1);
-  const [lastBins, setLastBins] = React.useState<Record<string, any> | null>(null);
-
-  // if (lastBins !== bins && bins) {
-  //  setLastBins(bins);
-  //  setCutoff(bins.valueDomain[0]!);
-  // }
+  filter,
+  itemHeight = 80,
+  synchronizeHover,
+  children,
+}: React.PropsWithChildren<FlameTreeProps<V>>) {
+  const slots = assignSlots(children);
 
   const flatBins = React.useMemo(() => {
     return Object.values(bins);
   }, [bins]);
 
-  const [hover, setHover] = React.useState<{
-    index: number;
-    x: number;
-    y: number;
-  }>();
+  const [hover, setHover] = React.useState<
+    | {
+        type: 'bin';
+        id: string;
+        x: number;
+        y: number;
+      }
+    | {
+        type: 'scatter';
+        x: number;
+        y: number;
+        id: number;
+      }
+  >();
 
   const experimentAssignment = React.useMemo(() => {
     if (!bins) {
@@ -113,8 +137,8 @@ export function FlameTree<V extends Record<string, unknown>>({
       return undefined;
     }
 
-    return d3.scaleBand(range(0, layering.length), [0, contentHeight - 100]).padding(0);
-  }, [bins, contentHeight, ctx, layering.length]);
+    return d3.scaleBand(range(0, layering.length), [0, itemHeight * layering.length]).padding(0);
+  }, [bins, contentHeight, ctx, itemHeight, layering.length]);
 
   const [transform, setTransform] = React.useState(m4.identityMatrix4x4());
 
@@ -128,6 +152,11 @@ export function FlameTree<V extends Record<string, unknown>>({
     return new FastTextMeasure(`${12 * dpr}px Roboto`);
   }, [dpr]);
 
+  const fetchRect = (invertX: number, yIndex: number) => {
+    const treeBin = rbushTree.search(invertX, yIndex + 0.5, invertX, yIndex + 0.5);
+    return treeBin[0] !== undefined ? flatBins[treeBin[0]]!.id : undefined;
+  };
+
   const { animate } = useAnimatedTransform({
     onIntermediate: setTransform,
   });
@@ -139,32 +168,20 @@ export function FlameTree<V extends Record<string, unknown>>({
     transform,
   });
 
-  const scales = React.useMemo(() => {
-    const binDomain = d3.extent(Object.values(bins).map((bin) => bin.value.value as number)) as number[];
-    const experimentDomain = d3.extent(experiments.map((sample) => sample.measured_yield as number)) as number[];
-
-    // Combined extent
-    const domain = d3.extent([...binDomain, ...experimentDomain]) as number[];
-
-    return {
-      domain,
-    };
-  }, [bins, experiments]);
-
   const scatterInput = React.useMemo(() => {
     const scatterData: {
       value: {
         stroke: string;
         fill: string;
-        x: number;
-        y: number;
         yOffset: number;
         row: Row;
       };
-      minX: number;
-      minY: number;
-      maxX: number;
-      maxY: number;
+      id: string;
+      bin: string;
+      x0: number;
+      x1: number;
+      x: number;
+      y: number;
     }[] = [];
 
     if (experimentAssignment && yScale) {
@@ -175,33 +192,59 @@ export function FlameTree<V extends Record<string, unknown>>({
           const fill = experimentsColorScale(sample);
 
           scatterData.push({
+            id: nanoid(),
             value: {
               fill,
               stroke: generateDarkBorderColor(fill),
-              x: (experimentBin.x0 + experimentBin.x1) / 2,
-              y: (index / value.length) * 100,
               yOffset: yScale(experimentBin.y)! + yScale.bandwidth() + 30,
               row: sample,
             },
-            minX: experimentBin.x0,
-            maxX: experimentBin.x1,
-            minY: (index / value.length) * 100,
-            maxY: (index / value.length) * 100,
+            bin: key,
+            x0: experimentBin.x0,
+            x1: experimentBin.x1,
+            // x and y are in percent of the bin
+            x: (experimentBin.x0 + experimentBin.x1) / 2,
+            y: 30 + (index / value.length) * 70,
           });
         });
       });
 
-      const scatterTree = new RBush();
-      scatterTree.load(scatterData);
-
       return {
-        tree: scatterTree,
-        data: scatterData,
+        flat: scatterData,
+        byBin: groupBy(scatterData, 'bin'),
       };
     }
 
     return undefined;
   }, [bins, experimentAssignment, experimentsColorScale, yScale]);
+
+  const hoveredBin = hover && hover.type === 'bin' ? bins[hover.id] : undefined;
+  const hoveredScatter = hover && hover.type === 'scatter' && scatterInput ? scatterInput.flat[hover.id] : undefined;
+
+  const scatterSpatialIndex = React.useMemo(() => {
+    if (!scatterInput) {
+      return undefined;
+    }
+
+    const index = new Flatbush(scatterInput.flat.length);
+
+    scatterInput.flat.forEach((scatter) => {
+      index.add(scatter.x, scatter.y);
+    });
+
+    index.finish();
+
+    return index;
+  }, [scatterInput]);
+
+  const fetchScatter = (invertX: number, invertY: number) => {
+    if (!scatterSpatialIndex || !scatterInput) {
+      return undefined;
+    }
+
+    const scatterMark = scatterSpatialIndex.neighbors(invertX, invertY, 1);
+    return scatterMark[0] !== undefined ? scatterMark[0] : undefined;
+  };
 
   const { setRef: setPanRef, state: dragState } = usePan({
     value: transform,
@@ -213,15 +256,15 @@ export function FlameTree<V extends Record<string, unknown>>({
 
       const yIndex = Math.floor(event.nativeEvent.offsetY / yScale.bandwidth());
       const invertX = xScale.scaled.invert(event.nativeEvent.offsetX);
-      const bin = flatBins.findIndex((b) => b.y === yIndex && invertX >= b.x0 && invertX <= b.x1);
+      const bin = fetchRect(invertX, yIndex);
 
-      if (bin === -1) {
+      if (!bin) {
         return;
       }
 
       const estimatedTransform = estimateTransformForDomain({
         originScale: xScale.base,
-        domain: [flatBins[bin]!.x0, flatBins[bin]!.x1],
+        domain: [bins[bin]!.x0, bins[bin]!.x1],
         containerWidth: contentWidth,
       });
 
@@ -233,10 +276,17 @@ export function FlameTree<V extends Record<string, unknown>>({
   const setRef = useMergedRef(setCanvasRef, setZoomRef, setPanRef);
 
   const rbushTree = React.useMemo(() => {
-    const items = flatBins.map((item, index) => {
+    const binSpatialIndex = new Flatbush(flatBins.length);
+
+    flatBins.forEach((bin) => {
+      binSpatialIndex.add(bin.x0, bin.y, bin.x1, bin.y + 1);
+    });
+
+    binSpatialIndex.finish();
+
+    /* const items = flatBins.map((item, index) => {
       return {
         value: item,
-        index,
         minX: item.x0,
         maxX: item.x1,
         minY: item.y,
@@ -246,7 +296,8 @@ export function FlameTree<V extends Record<string, unknown>>({
 
     const tree = new RBush<(typeof items)[0]>();
     tree.load(items);
-    return tree;
+    return tree; */
+    return binSpatialIndex;
   }, [flatBins]);
 
   useTriggerFrame(() => {
@@ -262,7 +313,7 @@ export function FlameTree<V extends Record<string, unknown>>({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    flatBins.forEach((bin, index) => {
+    flatBins.forEach((bin) => {
       const x0 = xScale.scaled(bin.x0) * dpr;
       const x1 = xScale.scaled(bin.x1) * dpr;
 
@@ -280,7 +331,7 @@ export function FlameTree<V extends Record<string, unknown>>({
       }
 
       // Dont draw bins that are below the cutoff
-      if (bin.value.value < cutoff) {
+      if (filter?.[bin.id] === true) {
         return;
       }
 
@@ -295,8 +346,8 @@ export function FlameTree<V extends Record<string, unknown>>({
       const fixedY1 = y1 - border;
 
       const color = colorScale(bin.value);
-      // const color = scales.squareScale(bin.value.value as number, bin.value.uncertainty as number);
-      const isHovered = synchronizeHover ? hover && flatBins[hover.index]?.label === bin.label : hover && hover.index === index;
+
+      const isHovered = synchronizeHover ? hoveredBin && hoveredBin?.label === bin.label : hover && hover.id === bin.id;
       const fillColor = isHovered ? generateDarkHighlightColor(color) : color;
 
       ctx.fillStyle = fillColor;
@@ -332,29 +383,31 @@ export function FlameTree<V extends Record<string, unknown>>({
       }
     });
 
-    // If we have an experiment assignment, we can draw the samples below the last bins
-    if (experimentAssignment && scatterInput) {
-      const sampleYScale = d3.scaleLinear().domain([0, 100]).range([0, 50]);
+    if (scatterInput) {
+      // If we have an experiment assignment, we can draw the samples below the last bins
+      Object.entries(scatterInput?.byBin ?? {}).forEach(([key, samples]) => {
+        const sampleYScale = d3.scaleLinear([0, 100], [0, 100]);
 
-      scatterInput.data.forEach((scatter) => {
-        // Check yield cutoff
-        if ((scatter.value.row.measured_yield as number) < cutoff) {
-          return;
-        }
+        samples.forEach((sample) => {
+          const x = xScale.scaled(sample.x)! * dpr;
+          const y = (itemHeight * layering.length + sampleYScale(sample.y)!) * dpr;
 
-        const x = xScale.scaled(scatter.value.x) * dpr;
-        const y = scatter.value.yOffset * dpr + sampleYScale(scatter.value.y)! * dpr;
+          if (hover?.type === 'scatter' && sample === scatterInput.flat[hover.id]!) {
+            ctx.fillStyle = generateDarkHighlightColor(sample.value.fill);
+            ctx.strokeStyle = generateDarkBorderColor(sample.value.fill);
 
-        // ctx.fillStyle = scales.squareScale(scatter.value.row.measured_yield as number, 0);
-        // ctx.strokeStyle = generateDarkBorderColor(NEUTRAL_COLOR);
-        ctx.strokeStyle = scatter.value.stroke;
-        ctx.lineWidth = 1;
-        ctx.fillStyle = scatter.value.fill;
+            ctx.beginPath();
+            ctx.arc(x, y, 5 * dpr, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = sample.value.fill;
 
-        ctx.beginPath();
-        ctx.arc(x, y, 5 * dpr, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x, y, 5 * dpr, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
       });
     }
   }, [
@@ -365,41 +418,16 @@ export function FlameTree<V extends Record<string, unknown>>({
     pixelContentHeight,
     dpr,
     flatBins,
-    experimentAssignment,
     scatterInput,
-    cutoff,
+    filter,
     colorScale,
     synchronizeHover,
+    hoveredBin,
     hover,
     textMeasure,
+    itemHeight,
+    layering.length,
   ]);
-
-  const items = layering.map((item, index) => (
-    <Draggable key={item} index={index} draggableId={item}>
-      {(provided, snapshot) => (
-        <div className={cx(classItem, { [classDragging]: snapshot.isDragging })} ref={provided.innerRef} {...provided.draggableProps}>
-          <div {...provided.dragHandleProps} className={classDragHandle}>
-            <ThemeIcon variant="white" c="gray.6">
-              <FontAwesomeIcon icon={faGripVertical} fontWeight={500} />
-            </ThemeIcon>
-          </div>
-          <div style={{ flexGrow: 1 }}>
-            <Group>
-              <Text fw={500} truncate style={{ width: 0, flexGrow: 1 }}>
-                {item}
-              </Text>
-            </Group>
-            <Text c="dimmed" size="sm">
-              {(() => {
-                const definition = definitions.find((entry) => entry.key === item)!;
-                return `${definition.type}`;
-              })()}
-            </Text>
-          </div>
-        </div>
-      )}
-    </Draggable>
-  ));
 
   return (
     <div>
@@ -409,84 +437,56 @@ export function FlameTree<V extends Record<string, unknown>>({
         p="xs"
         style={{
           display: 'grid',
-          gap: rem(16),
-          gridTemplateRows: '70px max-content',
+          gap: 'var(--mantine-spacing-xs)',
+          gridTemplateRows: 'max-content max-content max-content',
           gridTemplateColumns: '300px max-content 1fr',
           gridTemplateAreas: `
-          'nothing divider header'
-          'navbar divider main'
+          'header header header'
+          'hline hline hline'
+          'navbar vline main'
         `,
         }}
       >
-        <Group style={{ gridArea: 'header' }} my="xs" align="flex-end">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              animate(transform, m4.identityMatrix4x4());
-            }}
-          >
-            Reset zoom
-          </Button>
-          <Switch
-            label="Synchronize hover"
-            mb={8}
-            checked={synchronizeHover}
-            onChange={(event) => {
-              setSynchronizeHover(event.currentTarget.checked);
-            }}
-          />
-          <Group mb={8}>
-            <Text size="sm">Yield cutoff</Text>
-            <Slider
-              value={cutoff}
-              onChange={(value) => {
-                setCutoff(value);
+        {slots.toolbar ?? (
+          <Group style={{ gridArea: 'header' }} my="xs" align="flex-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                animate(transform, m4.identityMatrix4x4());
               }}
-              min={scales.domain[0]}
-              max={scales.domain[1]}
-              style={{
-                width: 300,
-              }}
-            />
+            >
+              Reset zoom
+            </Button>
           </Group>
-        </Group>
+        )}
 
-        <Divider style={{ gridArea: 'divider' }} orientation="vertical" />
+        <Divider style={{ gridArea: 'vline' }} my={-10} orientation="vertical" />
+        <Divider style={{ gridArea: 'hline' }} mx={-10} orientation="horizontal" />
 
-        <div
-          style={{
-            gridArea: 'navbar',
-            paddingTop: rem(16),
-          }}
-        >
-          <DragDropContext
-            onDragEnd={({ destination, source }) => {
-              if (!destination || !source) {
-                return;
-              }
-
-              const newLayering = [...layering];
-              const temp = newLayering[source.index]!;
-              newLayering[source.index] = newLayering[destination.index]!;
-              newLayering[destination.index] = temp;
-              setLayering(newLayering);
-            }}
-          >
-            <Droppable droppableId="dnd-list" direction="vertical">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {items}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
+        {slots.hierarchy ?? (
+          <Hierarchy>
+            <DraggableHierarchy itemHeight={itemHeight} layering={layering} setLayering={setLayering} definitions={definitions} />
+          </Hierarchy>
+        )}
 
         <div style={{ position: 'relative', display: 'flex', gridArea: 'main' }}>
-          {hover ? (
-            <TrackTooltip label={flatBins[hover.index]!.label} opened>
+          {hover && hoveredBin ? (
+            <TrackTooltip label={renderTooltip ? renderTooltip(hoveredBin) : <TooltipContentBin bin={hoveredBin} />} opened>
+              <div style={{ position: 'absolute', top: hover.y, left: hover.x }} />
+            </TrackTooltip>
+          ) : null}
+          {hover && hoveredScatter ? (
+            <TrackTooltip
+              label={
+                renderExperimentTooltip ? (
+                  renderExperimentTooltip(hoveredScatter.value.row)
+                ) : (
+                  <TooltipContent layering={layering} row={hoveredScatter.value.row} />
+                )
+              }
+              opened
+            >
               <div style={{ position: 'absolute', top: hover.y, left: hover.x }} />
             </TrackTooltip>
           ) : null}
@@ -496,45 +496,87 @@ export function FlameTree<V extends Record<string, unknown>>({
             height={pixelContentHeight}
             style={{
               width: '100%',
-              height: layering.length * 100 + 100,
+              height: layering.length * itemHeight + 100,
               cursor: 'pointer',
             }}
             onMouseLeave={() => setHover(undefined)}
             onMouseMove={(event) => {
-              if (!xScale || !yScale || !scatterInput) {
+              if (!xScale || !yScale || !scatterInput || !scatterSpatialIndex) {
                 return;
               }
 
-              const yIndex = Math.floor(event.nativeEvent.offsetY / yScale.bandwidth());
-              const invertX = xScale.scaled.invert(event.nativeEvent.offsetX);
+              const clientX = event.nativeEvent.offsetX;
+              const clientY = event.nativeEvent.offsetY;
 
-              const treeBin = rbushTree.search({
-                minX: invertX,
-                maxX: invertX,
-                minY: yIndex + 0.5,
-                maxY: yIndex + 0.5,
-              });
+              const invertX = xScale.scaled.invert(clientX);
 
-              const icicleMark = treeBin[0]?.index;
+              if (clientY < itemHeight * layering.length) {
+                // Icicle plot
+                const invertY = Math.floor(clientY / yScale.bandwidth());
 
-              if (icicleMark !== undefined) {
-                setHover({ index: icicleMark, x: event.nativeEvent.offsetX, y: yIndex * yScale.bandwidth() });
-                return;
+                const icicleMark = fetchRect(invertX, invertY);
+
+                if (icicleMark !== undefined) {
+                  if (filter?.[icicleMark] === true) {
+                    setHover(undefined);
+                  } else {
+                    setHover({ id: icicleMark, x: clientX, y: invertY * yScale.bandwidth(), type: 'bin' });
+                  }
+                }
+              } else {
+                // Scatter plot
+                const sampleYScale = d3.scaleLinear([0, 100], [0, 100]);
+                const invertY = sampleYScale.invert(clientY - itemHeight * layering.length);
+
+                const scatterMark = fetchScatter(invertX, invertY);
+
+                if (scatterMark !== undefined) {
+                  const sample = scatterInput.flat[scatterMark]!;
+                  setHover({ id: scatterMark, x: xScale.scaled(sample.x), y: itemHeight * layering.length + sampleYScale(sample.y), type: 'scatter' });
+                } else {
+                  setHover(undefined);
+                }
               }
-
-              const scatterMark = scatterInput.tree.search({
-                minX: invertX,
-                maxX: invertX,
-                minY: yIndex,
-                maxY: yIndex,
-              });
             }}
           />
 
           {dragState === 'drag' ? <Affix inset={0} /> : null}
         </div>
       </Paper>
-      <svg id="mylegend" style={{ height: 400, marginTop: -100 }} />
     </div>
   );
 }
+
+function Hierarchy({ children }: React.PropsWithChildren<object>) {
+  return (
+    <div
+      style={{
+        gridArea: 'navbar',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Toolbar({ children }: React.PropsWithChildren<object>) {
+  return (
+    <div
+      style={{
+        gridArea: 'header',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Can be overridden to provide a custom hierarchy component.
+ */
+FlameTree.Hierarchy = Hierarchy;
+
+/**
+ * Can be overridden to provide a custom toolbar component.
+ */
+FlameTree.Toolbar = Toolbar;
