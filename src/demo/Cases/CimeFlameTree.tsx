@@ -59,23 +59,20 @@ export default function CimeFlameTree({
   const scales = React.useMemo(() => {
     const binDomain = d3.extent(Object.values(bins).map((bin) => bin.value.value as number)) as number[];
     const binVariance = d3.extent(Object.values(bins).map((bin) => bin.value.uncertainty as number)) as number[];
-    // const dataDomain = d3.extent(dataset.map((entry) => entry[dataKey] as number)) as number[];
-    const dataDomain = [0, 100];
+    const dataDomain = d3.extent(dataset.map((entry) => entry[dataKey] as number)) as number[];
+    const yieldDomain = d3.extent([...binDomain, ...dataDomain]) as number[];
 
-    let squareQuantization: any;
-
-    if (mode === 'experiment') {
-      squareQuantization = vsup.squareQuantization().n(5).valueDomain(binDomain).uncertaintyDomain([0, 1]);
-    } else if (mode === 'prediction') {
-      const yieldDomain = d3.extent([...binDomain, ...dataDomain]) as number[];
-      squareQuantization = vsup.squareQuantization().n(10).valueDomain(yieldDomain).uncertaintyDomain(binVariance);
-    }
+    const squareQuantization = vsup
+      .squareQuantization()
+      .n(20)
+      .valueDomain(yieldDomain)
+      .uncertaintyDomain(mode === 'experiment' ? [0, 1] : binVariance);
 
     return {
       squareScale: vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis),
       cutoffDomain: adjustDomain(binDomain),
     };
-  }, [bins, mode]);
+  }, [bins, dataKey, dataset, mode]);
 
   const [cutoff, setCutoff] = React.useState<number>(scales.cutoffDomain[0]!);
 
@@ -89,6 +86,26 @@ export default function CimeFlameTree({
 
   const apiRef = React.useRef<FlameTreeAPI>();
 
+  const colorScale = React.useMemo(() => {
+    return (item: { value: number; uncertainty: number }) => {
+      if (coloring === 'yield') {
+        return scales.squareScale(item.value as number, 0);
+      }
+
+      if (coloring === 'yield+uncertainty') {
+        return scales.squareScale(item.value as number, item.uncertainty as number);
+      }
+
+      return 'black';
+    };
+  }, [coloring, scales]);
+
+  const experimentsColorScale = React.useMemo(() => {
+    return (item: Record<string, unknown>) => {
+      return mode === 'experiment' ? scales.squareScale(item[dataKey] as number, 0) : scales.squareScale(item[dataKey] as number, 0);
+    };
+  }, [dataKey, mode, scales]);
+
   return (
     <div>
       <FlameTree
@@ -101,20 +118,8 @@ export default function CimeFlameTree({
         itemHeight={90}
         apiRef={apiRef}
         synchronizeHover={synchronizeHover}
-        colorScale={(item) => {
-          if (coloring === 'yield') {
-            return scales.squareScale(item.value as number, 0);
-          }
-
-          if (coloring === 'yield+uncertainty') {
-            return scales.squareScale(item.value as number, item.uncertainty as number);
-          }
-
-          return 'black';
-        }}
-        experimentsColorScale={(item) => {
-          return mode === 'experiment' ? scales.squareScale(item[dataKey], 0) : scales.squareScale(item[dataKey], 0);
-        }}
+        colorScale={colorScale}
+        experimentsColorScale={experimentsColorScale}
       >
         <FlameTree.Toolbar>
           <Group align="flex-end" gap="xl">
