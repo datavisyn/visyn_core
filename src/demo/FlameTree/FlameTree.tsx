@@ -30,6 +30,8 @@ const TrackTooltip = Tooltip.withProps({
   label: undefined,
 });
 
+export type FlameTreeAPI = { resetZoom: () => void };
+
 export type FlameTreeProps<V extends Record<string, unknown>> = {
   layering: string[];
   setLayering: (value: string[]) => void;
@@ -55,6 +57,8 @@ export type FlameTreeProps<V extends Record<string, unknown>> = {
    * on a cutoff yield for instance.
    */
   filter?: Record<string, boolean>;
+
+  apiRef?: React.MutableRefObject<FlameTreeAPI | undefined>;
 };
 
 /**
@@ -96,6 +100,7 @@ export function FlameTree<V extends Record<string, unknown>>({
   itemHeight = 80,
   synchronizeHover,
   children,
+  apiRef,
 }: React.PropsWithChildren<FlameTreeProps<V>>) {
   const slots = assignSlots(children);
 
@@ -124,7 +129,6 @@ export function FlameTree<V extends Record<string, unknown>>({
     }
 
     const rootBins = Object.values(bins).filter((bin) => bin.y === 0);
-
     const assignment = assignSamplesToBins(experiments, rootBins, bins);
 
     return assignment;
@@ -160,6 +164,14 @@ export function FlameTree<V extends Record<string, unknown>>({
   const { animate } = useAnimatedTransform({
     onIntermediate: setTransform,
   });
+
+  if (apiRef) {
+    apiRef.current = {
+      resetZoom: () => {
+        animate(transform, m4.identityMatrix4x4());
+      },
+    };
+  }
 
   const xScale = useTransformScale({
     domain: [0, 100],
@@ -482,7 +494,7 @@ export function FlameTree<V extends Record<string, unknown>>({
                 renderExperimentTooltip ? (
                   renderExperimentTooltip(hoveredScatter.value.row)
                 ) : (
-                  <TooltipContent layering={layering} row={hoveredScatter.value.row} />
+                  <TooltipContent layering={layering} row={hoveredScatter.value.row} yieldKey="meas_yield" />
                 )
               }
               opened

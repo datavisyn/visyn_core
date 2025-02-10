@@ -26,7 +26,7 @@ export function MainApp() {
         />
       }
     >
-      <Tabs defaultValue="gallery" keepMounted={false} variant="pills">
+      <Tabs defaultValue="gallery" keepMounted={false} variant="pills" p="xs">
         <Tabs.List>
           <Tabs.Tab value="gallery">Case Study 1</Tabs.Tab>
           <Tabs.Tab value="messages">Case Study 2</Tabs.Tab>

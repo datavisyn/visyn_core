@@ -34,7 +34,7 @@ export function TooltipContentBin<V extends Record<string, unknown>>({ bin }: { 
   );
 }
 
-export function TooltipContent({ row, layering }: { row: Record<string, unknown>; layering: string[] }) {
+export function TooltipContent({ row, layering, yieldKey }: { row: Record<string, unknown>; layering: string[]; yieldKey: string }) {
   return (
     <div
       style={{
@@ -59,6 +59,14 @@ export function TooltipContent({ row, layering }: { row: Record<string, unknown>
           </React.Fragment>
         );
       })}
+      {yieldKey in row ? (
+        <>
+          <Text inherit>Yield</Text>
+          <Text truncate inherit>
+            {row[yieldKey] as string}
+          </Text>
+        </>
+      ) : null}
     </div>
   );
 }
