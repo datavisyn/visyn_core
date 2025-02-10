@@ -8,7 +8,7 @@ import { VisynAppProvider } from '../app/VisynAppProvider';
 // create a new instance of the app
 createRoot(document.getElementById('main')!).render(
   <React.StrictMode>
-    <VisynAppProvider appName="Demo App" disableMantine6>
+    <VisynAppProvider appName="Demo App" disableMantine6 waitForClientConfig={false}>
       <MainApp />
     </VisynAppProvider>
   </React.StrictMode>,
