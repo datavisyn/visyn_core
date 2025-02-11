@@ -10,6 +10,7 @@ import { loadClientConfig } from '../base/clientConfig';
 import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
 import { VisynAppContext } from './VisynAppContext';
 import { DEFAULT_MANTINE6_PROVIDER_PROPS, DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
+import type { IUser } from '../security/interfaces';
 import { VisProvider } from '../vis/Provider';
 
 import '@mantine/code-highlight/styles.css';
@@ -30,6 +31,7 @@ export function VisynAppProvider({
   mantineNotificationsProviderProps,
   sentryInitOptions = {},
   sentryOptions = {},
+  waitForClientConfig = true,
 }: {
   /**
    * Set this to true to disable the MantineProvider of Mantine 6. Use only if no Mantine 6 components are used.
@@ -56,25 +58,24 @@ export function VisynAppProvider({
      */
     setUser?: boolean;
   };
+  /**
+   * Set this to false to skip the wait for the client config. This is useful if the app works even without the client config.
+   * @default `true`
+   */
+  waitForClientConfig?: boolean;
 }) {
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
 
-  const { value: clientConfig, status: clientConfigStatus, execute } = useAsync(loadClientConfig);
+  // Add the user as argument such that whenever the user changes, we want to reload the client config to get the latest permissions.
+  const loadClientConfigCallback = React.useCallback((_: IUser | null) => loadClientConfig(), []);
+  const { value: clientConfig, status: clientConfigStatus } = useAsync(loadClientConfigCallback, [user]);
+  // Once the client config is loaded, we can set the successful client config init.
+  // This is required as when the user changes, we reload the client config but don't want to trigger a complete unmount.
   const [successfulClientConfigInit, setSuccessfulClientConfigInit] = React.useState<boolean>(false);
-
-  React.useEffect(() => {
-    // Once the client config is loaded, we can set the successful client config init.
-    // This is required as when the user changes, we reload the client config but don't want to trigger a complete unmount.
-    if (clientConfigStatus === 'success') {
-      setSuccessfulClientConfigInit(true);
-    }
-  }, [clientConfigStatus]);
-
-  React.useEffect(() => {
-    // Whenever the user changes, we want to reload the client config to get the latest permissions.
-    execute();
-  }, [user, execute]);
+  if (clientConfigStatus === 'success' && !successfulClientConfigInit) {
+    setSuccessfulClientConfigInit(true);
+  }
 
   const context = React.useMemo(
     () => ({
@@ -139,7 +140,9 @@ export function VisynAppProvider({
 
   // Extract as variable to more easily make LazyMantine6Provider optional
   const visynAppContext = (
-    <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
+    <VisynAppContext.Provider value={context}>
+      {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) ? children : null}
+    </VisynAppContext.Provider>
   );
 
   return (
