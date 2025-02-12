@@ -10,7 +10,7 @@ export const categoricalColors = ['#337AB7', '#ec6836', '#75c4c2', '#24b466', '#
 export const categoricalColors10 = ['#337ab7', '#f75a1e', '#75c4c2', '#15a154', '#e891ae', '#db933c', '#a380c4', '#a4c255', '#8c574b', '#f0d034'];
 
 /**
- * categorical color map with 10 decent colors
+ * categorical color map with 10 muted colors, matching categoricalColors10 in their order
  */
 export const categoricalColors10Muted = ['#73c1e9', '#ffa087', '#c1e8f6', '#97c7ac', '#fabed4', '#facea2', '#dcbeff', '#c7da95', '#bf9890', '#fff3b8'];
 
