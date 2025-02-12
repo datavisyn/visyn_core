@@ -10,6 +10,7 @@ import { AggregateSelect } from '../FlameTree/AggregateSelect';
 import { CutoffSlider } from '../FlameTree/CutoffSlider';
 import { useCutoffFilter, useStateReset } from '../FlameTree/hooks';
 import { AggregationType, ParameterColumn, adjustDomain, aggregateBy, createParameterHierarchy } from '../FlameTree/math';
+import { HeatmapLegend } from './HeatmapLegend';
 
 export default function CimeFlameTree({
   dataset,
@@ -64,15 +65,23 @@ export default function CimeFlameTree({
 
     const squareQuantization = vsup
       .squareQuantization()
-      .n(20)
+      .n(5)
       .valueDomain(yieldDomain)
       .uncertaintyDomain(mode === 'experiment' ? [0, 1] : binVariance);
 
+    const squareScale = vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis);
+
     return {
-      squareScale: vsup.scale().quantize(squareQuantization).range(d3.interpolateCividis),
+      squareScale,
       cutoffDomain: adjustDomain(binDomain),
     };
   }, [bins, dataKey, dataset, mode]);
+
+  // @TODO comment in to verify custom scale against this one
+  /* React.useEffect(() => {
+    d3.select('#legend').selectAll('*').remove();
+    d3.select('#legend').append('g').call(scales.heatLegend);
+  }, [scales, scales.heatLegend]); */
 
   const [cutoff, setCutoff] = React.useState<number>(scales.cutoffDomain[0]!);
 
@@ -108,6 +117,8 @@ export default function CimeFlameTree({
 
   return (
     <div>
+      <HeatmapLegend n={5} scale={scales.squareScale} />
+
       <FlameTree
         bins={bins}
         definitions={definitions}
