@@ -6,34 +6,24 @@ import { map, uniq } from 'lodash';
 import * as vsup from 'vsup';
 
 import { FlameTree, FlameTreeAPI } from '../FlameTree';
+import { HeatmapLegend } from './HeatmapLegend';
 import { AggregateSelect } from '../FlameTree/AggregateSelect';
 import { CutoffSlider } from '../FlameTree/CutoffSlider';
 import { useCutoffFilter, useStateReset } from '../FlameTree/hooks';
 import { AggregationType, ParameterColumn, adjustDomain, aggregateBy, createParameterHierarchy } from '../FlameTree/math';
-import { HeatmapLegend } from './HeatmapLegend';
 
 export default function CimeFlameTree({
   dataset,
-  columnKeys,
+  definitions,
   mode,
   maxIterations,
 }: {
   dataset: Record<string, unknown>[];
-  columnKeys: string[];
+  definitions: ParameterColumn[];
   mode: 'experiment' | 'prediction';
   maxIterations?: number;
 }) {
   const dataKey = mode === 'experiment' ? 'measured_yield' : 'meas_yield';
-
-  const definitions = React.useMemo(() => {
-    return columnKeys.map((key) => {
-      return {
-        key,
-        domain: uniq(map(dataset, key)),
-        type: 'categorical',
-      } as ParameterColumn;
-    });
-  }, [columnKeys, dataset]);
 
   const [iteration, setIteration] = React.useState<number>(0);
   const [layering, setLayering] = React.useState<string[]>(definitions.map((column) => column.key));

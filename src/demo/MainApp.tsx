@@ -7,6 +7,7 @@ import { VisynApp, VisynHeader } from '../app';
 const LazyFlameCase1 = React.lazy(() => import('./Cases/FlameCase1'));
 const LazyFlameCase2 = React.lazy(() => import('./Cases/FlameCase2'));
 const LazyFlameCase3 = React.lazy(() => import('./Cases/FlameCase3'));
+const TestCase = React.lazy(() => import('./Cases/ExampleCase'));
 
 export function MainApp() {
   return (
@@ -31,6 +32,7 @@ export function MainApp() {
           <Tabs.Tab value="gallery">Case Study 1</Tabs.Tab>
           <Tabs.Tab value="messages">Case Study 2</Tabs.Tab>
           <Tabs.Tab value="settings">Case Study 3</Tabs.Tab>
+          <Tabs.Tab value="test">Case Study 4</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="gallery">
@@ -48,6 +50,12 @@ export function MainApp() {
         <Tabs.Panel value="settings">
           <React.Suspense fallback={<Loader />}>
             <LazyFlameCase3 />
+          </React.Suspense>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="test">
+          <React.Suspense fallback={<Loader />}>
+            <TestCase />
           </React.Suspense>
         </Tabs.Panel>
       </Tabs>
