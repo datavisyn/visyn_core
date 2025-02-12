@@ -2,12 +2,17 @@
 /**
  * @deprecated Use `categoricalColors10` instead.
  */
-export const categoricalColors = ['#337AB7', '#ec6836', '#75c4c2', '#e9d36c', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044'];
+export const categoricalColors = ['#337AB7', '#ec6836', '#75c4c2', '#24b466', '#e891ae', '#db933c', '#b08aa6', '#8a6044', '#e9d36c'];
 
 /**
  * categorical color map with 10 colors
  */
-export const categoricalColors10 = ['#337ab7', '#f75a1e', '#75c4c2', '#f0d034', '#15a154', '#e891ae', '#db933c', '#a380c4', '#a4c255', '#8c574b'];
+export const categoricalColors10 = ['#337ab7', '#f75a1e', '#75c4c2', '#15a154', '#e891ae', '#db933c', '#a380c4', '#a4c255', '#8c574b', '#f0d034'];
+
+/**
+ * categorical color map with 10 decent colors
+ */
+export const categoricalColorsDecent10 = ['#73c1e9', '#ffa087', '#c1e8f6', '#97c7ac', '#fabed4', '#facea2', '#dcbeff', '#c7da95', '#bf9890', '#fff3b8'];
 
 /**
  * categorical color map with 20 colors
@@ -16,21 +21,21 @@ export const categoricalColors20 = [
   '#337ab7',
   '#f75a1e',
   '#75c4c2',
-  '#f0d034',
   '#15a154',
   '#e891ae',
   '#db933c',
   '#a380c4',
   '#a4c255',
   '#8c574b',
+  '#f0d034',
   '#73c1e9',
   '#ffa087',
   '#c1e8f6',
-  '#c0ffd2',
+  '#97c7ac',
   '#fabed4',
   '#facea2',
   '#dcbeff',
-  '#b2c8a8',
+  '#c7da95',
   '#bf9890',
   '#fff3b8',
 ];
