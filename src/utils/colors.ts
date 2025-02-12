@@ -12,7 +12,7 @@ export const categoricalColors10 = ['#337ab7', '#f75a1e', '#75c4c2', '#15a154', 
 /**
  * categorical color map with 10 decent colors
  */
-export const categoricalColorsDecent10 = ['#73c1e9', '#ffa087', '#c1e8f6', '#97c7ac', '#fabed4', '#facea2', '#dcbeff', '#c7da95', '#bf9890', '#fff3b8'];
+export const categoricalColors10Muted = ['#73c1e9', '#ffa087', '#c1e8f6', '#97c7ac', '#fabed4', '#facea2', '#dcbeff', '#c7da95', '#bf9890', '#fff3b8'];
 
 /**
  * categorical color map with 20 colors
