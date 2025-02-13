@@ -83,7 +83,7 @@ def load_all_plugins() -> list[EntryPointPlugin]:
     plugins: list[EntryPointPlugin] = [p for p in _find_entry_point_plugins() if not is_disabled_plugin(p)]
     plugins.sort(key=lambda p: p.id)
 
-    _log.info(f"Discovered {len(plugins)} plugin(s): {', '.join([d.id for d in plugins])}")
+    _log.info(f"Discovered {len(plugins)} plugin(s): {', '.join([f'{d.id}@{d.version}' for d in plugins])}")
 
     return plugins
 
