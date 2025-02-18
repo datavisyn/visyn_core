@@ -137,8 +137,10 @@ export function useGetBarVisState({
           // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
           series: barSeries.map((item, itemIndex) => ({
             ...item,
+            type: 'bar' as const,
             data: sortedSeries[itemIndex]?.data ? [...(sortedSeries[itemIndex]?.data as NonNullable<BarSeriesOption['data']>)].reverse() : [],
           })),
+
           yAxis: {
             ...v.yAxis,
             type: 'category' as const,
@@ -152,7 +154,7 @@ export function useGetBarVisState({
           { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.VERTICAL },
         );
         setVisState((v) => ({
-          series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]?.data ?? [] })),
+          series: barSeries.map((item, itemIndex) => ({ ...item, type: 'bar' as const, data: sortedSeries[itemIndex]?.data ?? [] })),
           xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories ?? [] },
         }));
       }
