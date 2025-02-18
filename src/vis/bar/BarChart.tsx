@@ -170,9 +170,10 @@ export function BarChart({
         config?.facets &&
           barData?.facetsColVals &&
           (config?.focusFacetIndex !== undefined || config?.focusFacetIndex !== null) &&
+          dataLookupStatus === 'success' &&
           aggregatedDataMap?.facetsList.length === filteredUniqueFacetVals.length,
       ),
-    [config?.facets, config?.focusFacetIndex, barData?.facetsColVals, aggregatedDataMap?.facetsList, filteredUniqueFacetVals],
+    [config?.facets, config?.focusFacetIndex, barData?.facetsColVals, dataLookupStatus, aggregatedDataMap?.facetsList.length, filteredUniqueFacetVals.length],
   );
 
   const isGroupedByNumerical = React.useMemo(() => barData?.groupColVals?.type === EColumnTypes.NUMERICAL, [barData?.groupColVals?.type]);
