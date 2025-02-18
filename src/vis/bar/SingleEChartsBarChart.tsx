@@ -348,7 +348,7 @@ function EagerSingleEChartsBarChart({
     }
   }, [customTooltip.content, yAxisLabel]);
 
-  const { ref, setRef, instance } = useChart({
+  const { setRef, instance } = useChart({
     options,
     settings,
     mouseEvents: {
