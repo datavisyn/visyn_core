@@ -109,8 +109,6 @@ export function useGetBarVisState({
     });
   }, [config?.group, groupColorScale, hasSelected, seriesBase, workerResult]);
 
-  console.log({ barSeries });
-
   React.useEffect(() => {
     const fetchWorkerResult = async () => {
       const result = await generateBarSeriesTrigger(aggregatedData, {

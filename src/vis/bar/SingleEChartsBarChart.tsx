@@ -568,8 +568,6 @@ function EagerSingleEChartsBarChart({
     }
   }, [customTooltip.dom, instance]);
 
-  console.log({ setRef });
-
   return isLoading ? (
     <BlurredOverlay
       loading
