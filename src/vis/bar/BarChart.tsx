@@ -12,25 +12,22 @@ import { useAsync } from '../../hooks/useAsync';
 import { categoricalColors10 } from '../../utils/colors';
 import { DownloadPlotButton, ErrorMessage } from '../general';
 import { FastTextMeasure } from '../general/FastTextMeasure';
-import { ColumnInfo, EAggregateTypes, EColumnTypes, ICommonVisProps } from '../interfaces';
+import { NAN_REPLACEMENT } from '../general/constants';
+import { getLabelOrUnknown } from '../general/utils';
+import { ColumnInfo, EColumnTypes, ICommonVisProps } from '../interfaces';
 import { FocusFacetSelector } from './components';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
+import { EBarDirection, IBarConfig } from './interfaces';
 import {
   AggregatedDataType,
   CHART_HEIGHT_MARGIN,
   DEFAULT_BAR_CHART_HEIGHT,
-  DEFAULT_BAR_CHART_MIN_WIDTH,
   DEFAULT_FACET_NAME,
   GenerateAggregatedDataLookup,
   WorkerWrapper,
-  calculateChartHeight,
-  calculateChartMinWidth,
   generateAggregatedDataLookup,
   generateDataTable,
   getBarData,
 } from './interfaces/internal';
-import { NAN_REPLACEMENT } from '../general/constants';
-import { getLabelOrUnknown } from '../general/utils';
 
 type VirtualizedBarChartProps = {
   aggregatedDataMap: Awaited<ReturnType<typeof generateAggregatedDataLookup>>;
@@ -47,8 +44,6 @@ type VirtualizedBarChartProps = {
   selectedFacetValue?: string;
   selectedList: string[];
   selectedMap: Record<string, boolean>;
-  computeChartHeight: (facet?: AggregatedDataType) => number;
-  computeChartMinWidth: (facet?: AggregatedDataType) => number;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
   setConfig: (config: IBarConfig) => void;
 };
@@ -105,10 +100,7 @@ export function BarChart({
     [barDataStatus, dataLookupStatus, dataTableStatus],
   );
 
-  const isSuccess = React.useMemo(
-    () => barDataStatus === 'success' && dataTableStatus === 'success' && dataLookupStatus === 'success',
-    [barDataStatus, dataLookupStatus, dataTableStatus],
-  );
+  const isSuccess = React.useMemo(() => barDataStatus === 'success' && dataTableStatus === 'success', [barDataStatus, dataTableStatus]);
 
   const allUniqueFacetVals = React.useMemo(() => {
     const set = new Set();
@@ -172,19 +164,15 @@ export function BarChart({
     return scaleOrdinal<string>().domain(groups).range(range);
   }, [aggregatedDataMap, barData, config]);
 
-  const computeChartHeight = React.useCallback(
-    (facet?: AggregatedDataType) => (!facet ? DEFAULT_BAR_CHART_HEIGHT : calculateChartHeight({ config, aggregatedData: facet, containerHeight })),
-    [config, containerHeight],
-  );
-
-  const computeChartMinWidth = React.useCallback(
-    (facet?: AggregatedDataType) => (!facet ? DEFAULT_BAR_CHART_MIN_WIDTH : calculateChartMinWidth({ config, aggregatedData: facet })),
-    [config],
-  );
-
   const shouldRenderFacets = React.useMemo(
-    () => Boolean(config?.facets && barData?.facetsColVals && (config?.focusFacetIndex !== undefined || config?.focusFacetIndex !== null)),
-    [config?.facets, barData?.facetsColVals, config?.focusFacetIndex],
+    () =>
+      Boolean(
+        config?.facets &&
+          barData?.facetsColVals &&
+          (config?.focusFacetIndex !== undefined || config?.focusFacetIndex !== null) &&
+          aggregatedDataMap?.facetsList.length === filteredUniqueFacetVals.length,
+      ),
+    [config?.facets, config?.focusFacetIndex, barData?.facetsColVals, aggregatedDataMap?.facetsList, filteredUniqueFacetVals],
   );
 
   const isGroupedByNumerical = React.useMemo(() => barData?.groupColVals?.type === EColumnTypes.NUMERICAL, [barData?.groupColVals?.type]);
@@ -211,28 +199,30 @@ export function BarChart({
       return null;
     }
     const facet = props.data.filteredUniqueFacetVals?.[props.index] as string;
+    const data = props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType;
+
     return (
-      <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
-        <SingleEChartsBarChart
-          aggregatedData={props.data.aggregatedDataMap?.facets[facet as string] as AggregatedDataType}
-          chartHeight={props.data.computeChartHeight(props.data.aggregatedDataMap?.facets[facet as string])}
-          chartMinWidth={props.data.computeChartMinWidth(props.data.aggregatedDataMap?.facets[facet as string])}
-          containerWidth={props.data.containerWidth}
-          config={props.data.config}
-          globalMax={props.data.aggregatedDataMap?.globalDomain.max}
-          globalMin={props.data.aggregatedDataMap?.globalDomain.min}
-          groupColorScale={props.data.groupColorScale!}
-          isGroupedByNumerical={props.data.isGroupedByNumerical}
-          labelsMap={props.data.labelsMap}
-          longestLabelWidth={props.data.longestLabelWidth}
-          selectedFacetIndex={facet ? props.data.allUniqueFacetVals.indexOf(facet) : undefined} // use the index of the original list to return back to the grid
-          selectedFacetValue={facet}
-          selectedList={props.data.selectedList}
-          selectedMap={props.data.selectedMap}
-          selectionCallback={props.data.selectionCallback}
-          setConfig={props.data.setConfig}
-        />
-      </Box>
+      data && (
+        <Box component="div" data-facet={facet} style={{ ...props.style, padding: '10px 0px' }}>
+          <SingleEChartsBarChart
+            aggregatedData={data}
+            containerWidth={props.data.containerWidth}
+            config={props.data.config}
+            globalMax={props.data.aggregatedDataMap?.globalDomain.max}
+            globalMin={props.data.aggregatedDataMap?.globalDomain.min}
+            groupColorScale={props.data.groupColorScale!}
+            isGroupedByNumerical={props.data.isGroupedByNumerical}
+            labelsMap={props.data.labelsMap}
+            longestLabelWidth={props.data.longestLabelWidth}
+            selectedFacetIndex={facet ? props.data.allUniqueFacetVals.indexOf(facet) : undefined} // use the index of the original list to return back to the grid
+            selectedFacetValue={facet}
+            selectedList={props.data.selectedList}
+            selectedMap={props.data.selectedMap}
+            selectionCallback={props.data.selectionCallback}
+            setConfig={props.data.setConfig}
+          />
+        </Box>
+      )
     );
   }, []);
 
@@ -242,10 +232,13 @@ export function BarChart({
 
   const calculateItemHeight = React.useCallback(
     (index: number) => {
-      const facetChartHeight = computeChartHeight(aggregatedDataMap?.facets[filteredUniqueFacetVals[index] as string]);
-      return (facetChartHeight ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN;
+      const currentFacetValue = filteredUniqueFacetVals[index] as string;
+      const currentFacetData = aggregatedDataMap?.facets[currentFacetValue];
+      const computedFacetHeight = currentFacetData?.facetHeight;
+      const calculatedItemHeight = (computedFacetHeight ?? DEFAULT_BAR_CHART_HEIGHT) + CHART_HEIGHT_MARGIN;
+      return calculatedItemHeight;
     },
-    [aggregatedDataMap?.facets, computeChartHeight, filteredUniqueFacetVals],
+    [aggregatedDataMap?.facets, filteredUniqueFacetVals],
   );
 
   React.useEffect(() => {
@@ -285,30 +278,13 @@ export function BarChart({
 
   useShallowEffect(() => {
     const fetchLookup = async () => {
-      const lookup = await generateAggregatedDataLookupTrigger(
-        {
-          isFaceted: !!config?.facets?.id,
-          isGrouped: !!config?.group?.id,
-          groupType: config?.groupType as EBarGroupingType,
-          display: config?.display as EBarDisplayType,
-          aggregateType: config?.aggregateType as EAggregateTypes,
-        },
-        dataTable,
-        selectedMap,
-      );
-      setAggregatedDataMap(lookup);
+      if (config) {
+        const lookup = await generateAggregatedDataLookupTrigger(config, dataTable, selectedMap, containerHeight);
+        setAggregatedDataMap(lookup);
+      }
     };
     fetchLookup();
-  }, [
-    config?.aggregateType,
-    config?.display,
-    config?.facets?.id,
-    config?.group?.id,
-    config?.groupType,
-    dataTable,
-    generateAggregatedDataLookupTrigger,
-    selectedMap,
-  ]);
+  }, [config, dataTable, generateAggregatedDataLookupTrigger, selectedMap]);
 
   useShallowEffect(() => {
     Object.values(aggregatedDataMap?.facets ?? {})
@@ -326,8 +302,6 @@ export function BarChart({
     setItemData({
       aggregatedDataMap: aggregatedDataMap!,
       allUniqueFacetVals,
-      computeChartHeight,
-      computeChartMinWidth,
       config: config!,
       containerHeight,
       containerWidth,
@@ -344,8 +318,6 @@ export function BarChart({
   }, [
     aggregatedDataMap,
     allUniqueFacetVals,
-    computeChartHeight,
-    computeChartMinWidth,
     config,
     containerHeight,
     containerWidth,
@@ -387,12 +359,6 @@ export function BarChart({
               <SingleEChartsBarChart
                 config={config}
                 aggregatedData={aggregatedDataMap?.facets[DEFAULT_FACET_NAME] as AggregatedDataType}
-                chartHeight={calculateChartHeight({
-                  config,
-                  aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME],
-                  containerHeight: containerHeight - CHART_HEIGHT_MARGIN / 2,
-                })}
-                chartMinWidth={calculateChartMinWidth({ config, aggregatedData: aggregatedDataMap?.facets[DEFAULT_FACET_NAME] })}
                 containerWidth={containerWidth}
                 globalMin={aggregatedDataMap?.globalDomain.min}
                 globalMax={aggregatedDataMap?.globalDomain.max}
