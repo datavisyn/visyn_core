@@ -2,8 +2,9 @@ import * as React from 'react';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
 
 import { Box, Group, ScrollArea, Stack } from '@mantine/core';
-import { useElementSize, useShallowEffect } from '@mantine/hooks';
+import { useElementSize, usePrevious, useShallowEffect } from '@mantine/hooks';
 import { type ScaleOrdinal, scaleOrdinal, schemeBlues } from 'd3v7';
+import isEqual from 'lodash/isEqual';
 import uniqueId from 'lodash/uniqueId';
 
 import { SingleEChartsBarChart } from './SingleEChartsBarChart';
@@ -64,7 +65,7 @@ export function BarChart({
   'config' | 'setConfig' | 'columns' | 'selectedMap' | 'selectedList' | 'selectionCallback' | 'uniquePlotId' | 'showDownloadScreenshot'
 >) {
   const { ref: resizeObserverRef, width: containerWidth, height: containerHeight } = useElementSize();
-
+  const previousSelectedList = usePrevious(selectedList);
   const { value: barData, status: barDataStatus } = useAsync(getBarData, [
     columns,
     config?.catColumnSelected as ColumnInfo,
@@ -164,16 +165,26 @@ export function BarChart({
     return scaleOrdinal<string>().domain(groups).range(range);
   }, [aggregatedDataMap, barData, config]);
 
+  const isSelectionChanged = React.useMemo(() => !isEqual(selectedList, previousSelectedList), [previousSelectedList, selectedList]);
+
   const shouldRenderFacets = React.useMemo(
     () =>
       Boolean(
         config?.facets &&
           barData?.facetsColVals &&
           (config?.focusFacetIndex !== undefined || config?.focusFacetIndex !== null) &&
-          dataLookupStatus === 'success' &&
+          (isSelectionChanged ? true : dataLookupStatus === 'success') &&
           aggregatedDataMap?.facetsList.length === filteredUniqueFacetVals.length,
       ),
-    [config?.facets, config?.focusFacetIndex, barData?.facetsColVals, dataLookupStatus, aggregatedDataMap?.facetsList.length, filteredUniqueFacetVals.length],
+    [
+      config?.facets,
+      config?.focusFacetIndex,
+      barData?.facetsColVals,
+      isSelectionChanged,
+      dataLookupStatus,
+      aggregatedDataMap?.facetsList.length,
+      filteredUniqueFacetVals.length,
+    ],
   );
 
   const isGroupedByNumerical = React.useMemo(() => barData?.groupColVals?.type === EColumnTypes.NUMERICAL, [barData?.groupColVals?.type]);
