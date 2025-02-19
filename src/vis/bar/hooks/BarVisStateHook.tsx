@@ -12,13 +12,7 @@ import { NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACIT
 import { ColumnInfo, EAggregateTypes } from '../../interfaces';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState, IBarConfig, SortDirectionMap } from '../interfaces';
 import { AggregatedDataType, GenerateAggregatedDataLookup, WorkerWrapper, sortSeries } from '../interfaces/internal';
-
-export const numberFormatter = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 4,
-  maximumSignificantDigits: 4,
-  notation: 'compact',
-  compactDisplay: 'short',
-});
+import { numberFormatter } from '../utils';
 
 export function useGetBarVisState({
   aggregatedData,

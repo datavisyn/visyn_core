@@ -11,9 +11,10 @@ import { ErrorMessage } from '../general/ErrorMessage';
 import { WarningMessage } from '../general/WarningMessage';
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { numberFormatter, useBarSortHelper, useGetBarVisState } from './hooks';
+import { useBarSortHelper, useGetBarVisState } from './hooks';
 import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, SERIES_ZERO } from './interfaces/internal';
+import { numberFormatter } from './utils';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
