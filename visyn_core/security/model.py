@@ -27,6 +27,10 @@ class User(BaseModel):
     OAuth2 access token as many security stores (like ALB or OAuth2) only parse an already existing access token from an IdP.
     This token can then be used for downstream tasks like requests to other services.
     """
+    properties: dict[str, Any] = {}
+    """
+    Arbitary properties that are mapped to the user, i.e. from the JWT token to the user object.
+    """
 
     @property
     def name(self):

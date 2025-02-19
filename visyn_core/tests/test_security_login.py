@@ -119,6 +119,7 @@ def test_alb_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.alb_security_store.enable = True
     manager.settings.visyn_core.security.store.alb_security_store.email_token_field = ["field1", "field2", "email"]
+    manager.settings.visyn_core.security.store.alb_security_store.properties_fields = ["sub", "exp"]
     manager.settings.visyn_core.security.store.alb_security_store.decode_options = {"verify_signature": False}
     manager.settings.visyn_core.security.store.alb_security_store.cookie_name = "TestCookie"
     manager.settings.visyn_core.security.store.alb_security_store.signout_url = "http://localhost/api/logout"
@@ -143,6 +144,7 @@ def test_alb_security_store(client: TestClient):
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
+    assert response.json()["properties"] == {"sub": "admin", "exp": 1657188138.494586}
 
     # Logout and check if we get the correct redirect url
     response = client.post("/api/logout", headers=headers)
@@ -159,6 +161,8 @@ def test_oauth2_security_store(client: TestClient):
     manager.settings.visyn_core.security.store.oauth2_security_store.enable = True
     manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name = "TestCookie"
     manager.settings.visyn_core.security.store.oauth2_security_store.signout_url = "http://localhost/api/logout"
+    manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field = ["field1", "field2", "email"]
+    manager.settings.visyn_core.security.store.oauth2_security_store.properties_fields = ["sub"]
 
     store = create_oauth2_security_store()
     assert store is not None
@@ -178,6 +182,7 @@ def test_oauth2_security_store(client: TestClient):
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
+    assert response.json()["properties"] == {"sub": "admin"}
 
     # Logout and check if we get the correct redirect url
     response = client.post("/api/logout", headers=headers)
@@ -200,6 +205,7 @@ def test_no_security_store(client: TestClient):
     assert user_info != '"not_yet_logged_in"'
     assert user_info["name"] == "test_name"
     assert user_info["roles"] == ["test_role"]
+    assert user_info["properties"] == {}
 
 
 def test_user_login_hooks(client: TestClient):
