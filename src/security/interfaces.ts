@@ -26,6 +26,10 @@ export interface IUser {
    * list of roles the user is associated with
    */
   readonly roles: string[];
+  /**
+   * arbitrary properties mapped to the user, i.e. from a JWT token payload
+   */
+  properties: Record<string, unknown>;
 }
 
 export interface IUserStore<T extends Record<string, any> = Record<string, any>> {

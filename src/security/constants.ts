@@ -1,7 +1,7 @@
 import { IUser } from './interfaces';
 
 export class UserUtils {
-  static ANONYMOUS_USER: IUser = { name: 'anonymous', roles: ['anonymous'] };
+  static ANONYMOUS_USER: IUser = { name: 'anonymous', roles: ['anonymous'], properties: {} };
 }
 
 export enum EPermission {

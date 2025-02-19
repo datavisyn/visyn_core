@@ -48,6 +48,10 @@ class AlbSecurityStoreSettings(BaseModel):
     """
     Field in the JWT token that contains the email address of the user.
     """
+    properties_fields: list[str] = []
+    """
+    Fields in the JWT token payload that should be mapped to the properties of the user.
+    """
     audience: str | list[str] | None = None
     """
     Audience of the JWT token.
@@ -77,12 +81,20 @@ class OAuth2SecurityStoreSettings(BaseModel):
     signout_url: str | None = None
     access_token_header_name: str = "X-Forwarded-Access-Token"
     email_token_field: str | list[str] = ["email"]
+    """
+    Field in the JWT token that contains the email address of the user.
+    """
+    properties_fields: list[str] = []
+    """
+    Fields in the JWT token payload that should be mapped to the properties of the user.
+    """
 
 
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
     roles: list[str] = []
+    properties: dict[str, Any] = {}
 
 
 class SecurityStoreSettings(BaseModel):
