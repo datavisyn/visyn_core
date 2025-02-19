@@ -94,6 +94,7 @@ class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
     roles: list[str] = []
+    properties: dict[str, Any] = {}
 
 
 class SecurityStoreSettings(BaseModel):

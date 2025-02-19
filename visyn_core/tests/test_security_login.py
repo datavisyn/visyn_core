@@ -195,6 +195,7 @@ def test_no_security_store(client: TestClient):
     manager.settings.visyn_core.security.store.no_security_store.enable = True
     manager.settings.visyn_core.security.store.no_security_store.user = "test_name"
     manager.settings.visyn_core.security.store.no_security_store.roles = ["test_role"]
+    manager.settings.visyn_core.security.store.no_security_store.properties = {"id": 123, "name": "test"}
 
     store = create_no_security_store()
     assert store is not None
@@ -205,7 +206,7 @@ def test_no_security_store(client: TestClient):
     assert user_info != '"not_yet_logged_in"'
     assert user_info["name"] == "test_name"
     assert user_info["roles"] == ["test_role"]
-    assert user_info["properties"] == {}
+    assert user_info["properties"] == {"id": 123, "name": "test"}
 
 
 def test_user_login_hooks(client: TestClient):
