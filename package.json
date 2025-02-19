@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "16.2.0",
+  "version": "16.3.0",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -104,7 +104,7 @@
     "@mantine/styles": "~6.0.22",
     "@mantine/tiptap": "~7.16.1",
     "@mantine6/core": "npm:@mantine/core@~6.0.22",
-    "@sentry/react": "^8.50.0",
+    "@sentry/react": "^9.1.0",
     "@types/d3-hexbin": "^0.2.5",
     "@types/d3v7": "npm:@types/d3@^7.4.3",
     "@types/plotly.js-dist-min": "^2.3.4",

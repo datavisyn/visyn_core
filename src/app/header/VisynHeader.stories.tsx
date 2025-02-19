@@ -10,6 +10,7 @@ import { VisynHeader } from './VisynHeader';
 const user: IUser = {
   name: 'Jaimy Smith',
   roles: [],
+  properties: {},
 };
 
 const customerLogo = (
