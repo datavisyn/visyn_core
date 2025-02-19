@@ -41,8 +41,10 @@ def visyn_client_config(callback: Callable[[], type[BaseModel]] | type[BaseModel
 @visyn_client_config
 class VisynCoreClientConfigModel(BaseModel):
     env: Literal["development", "production"] = Field(default_factory=lambda: manager.settings.env)
-    sentry_dsn: str | None = Field(default_factory=lambda: manager.settings.visyn_core.sentry.dsn)
-    sentry_proxy_to: str | None = Field(default_factory=lambda: "/api/sentry/" if manager.settings.visyn_core.sentry.proxy_to else None)
+    sentry_dsn: str | None = Field(default_factory=lambda: manager.settings.visyn_core.sentry.get_frontend_dsn())
+    sentry_proxy_to: str | None = Field(
+        default_factory=lambda: "/api/sentry/" if manager.settings.visyn_core.sentry.get_frontend_proxy_to() else None
+    )
 
 
 def init_client_config(app: FastAPI):
