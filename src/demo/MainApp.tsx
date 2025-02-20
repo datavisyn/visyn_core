@@ -12,56 +12,48 @@ import {
   ERegressionLineType,
   EScatterSelectSettings,
   ESupportedPlotlyVis,
-  IBarConfig,
   IScatterConfig,
   Vis,
 } from '../vis';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 
-// const { breastCancerData } = await import('../vis/stories/breastCancerData');
-// const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancerData');
-const { fetchTestData, generateTestData } = await import('../vis/stories/explodedData');
+const { breastCancerData } = await import('../vis/stories/breastCancerData');
+const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancerData');
 
 export function MainApp() {
   const { user } = useVisynAppContext();
-  // const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
-  //   type: ESupportedPlotlyVis.SCATTER,
-  //   numColumnsSelected: [
-  //     {
-  //       description: 'Gene expression',
-  //       id: 'stat2GeneExpression',
-  //       name: 'STAT2',
-  //     },
-  //     {
-  //       description: 'Gene expression',
-  //       id: 'brca1GeneExpression',
-  //       name: 'BRCA1',
-  //     },
-  //   ],
-  //   color: {
-  //     description: '',
-  //     id: 'cellularity',
-  //     name: 'Cellularity',
-  //   },
-  //   numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-  //   facets: null,
-  //   shape: null,
-  //   dragMode: EScatterSelectSettings.RECTANGLE,
-  //   alphaSliderVal: 1,
-  //   showLabels: ELabelingOptions.SELECTED,
-  //   showLabelLimit: 20,
-  //   regressionLineOptions: {
-  //     type: ERegressionLineType.LINEAR,
-  //     showStats: true,
-  //   },
-  // } as IScatterConfig);
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
-    type: ESupportedPlotlyVis.BAR,
-  } as IBarConfig);
-  const breastCancerData = React.useMemo(() => generateTestData(100000), []);
-  const columns = React.useMemo(() => fetchTestData(breastCancerData), []);
-  // const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
-  // const columns = React.useMemo(() => (user ? fetchTestData(testData) : []), [user]);
+    type: ESupportedPlotlyVis.SCATTER,
+    numColumnsSelected: [
+      {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      {
+        description: 'Gene expression',
+        id: 'brca1GeneExpression',
+        name: 'BRCA1',
+      },
+    ],
+    color: {
+      description: '',
+      id: 'cellularity',
+      name: 'Cellularity',
+    },
+    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    facets: null,
+    shape: null,
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    alphaSliderVal: 1,
+    showLabels: ELabelingOptions.SELECTED,
+    showLabelLimit: 20,
+    regressionLineOptions: {
+      type: ERegressionLineType.LINEAR,
+      showStats: true,
+    },
+  } as IScatterConfig);
+  const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
 
   const visSelection = React.useMemo(() => selection.map((s) => `${breastCancerData.indexOf(s)}`), [selection]);
