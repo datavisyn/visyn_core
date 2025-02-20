@@ -5,7 +5,7 @@ import { getLabelOrUnknown } from '../../../../general/utils';
 import { EAggregateTypes, EColumnTypes, VisNumericalValue } from '../../../../interfaces';
 import { fetchBreastCancerData } from '../../../../stories/fetchBreastCancerData';
 import { defaultConfig } from '../../constants';
-import { EBarGroupingType } from '../../enums';
+import { EBarDisplayType, EBarGroupingType } from '../../enums';
 import { IBarConfig } from '../../interfaces';
 import { DEFAULT_FACET_NAME } from '../constants';
 import { createBinLookup } from './create-bin-lookup';
@@ -33,8 +33,6 @@ async function fetchMockDataTable(config: IBarConfig) {
   );
 }
 
-const config = { ...defaultConfig };
-
 describe('Generate aggregated data lookup', () => {
   // TODO: @dv-usama-ansari: Add tests for generateAggregatedDataLookup:
   //  - dataTable: non-faceted data
@@ -44,25 +42,18 @@ describe('Generate aggregated data lookup', () => {
   //  - data: sum, count, nums and ids are populated correctly
   //  - **Good to have** check if the function uses multiple threads
   it('should return an instance of object', async () => {
-    const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+    const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
       ...defaultConfig,
-      aggregateType: config.aggregateType,
-      display: config.display,
-      groupType: config.groupType,
     };
     const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = [];
     const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-    const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-    const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+    const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
     expect(aggregatedDataLookup).toBeInstanceOf(Object);
   });
 
   it('should return aggregated lookup of breast cancer data', async () => {
-    const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+    const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
       ...defaultConfig,
-      aggregateType: config.aggregateType,
-      display: config.display,
-      groupType: config.groupType,
     };
     const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
       ...config,
@@ -70,8 +61,7 @@ describe('Generate aggregated data lookup', () => {
       aggregateType: EAggregateTypes.COUNT,
     });
     const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-    const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-    const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+    const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
     expect(Object.keys(aggregatedDataLookup.facets)[0]).toBe(DEFAULT_FACET_NAME);
     expect(aggregatedDataLookup.facetsList).toEqual([DEFAULT_FACET_NAME]);
     expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
@@ -89,11 +79,9 @@ describe('Generate aggregated data lookup', () => {
 
   describe('Global Domain based on Aggregate Types', () => {
     it('should return the correct aggregate values and global domain for a column with AVERAGE aggregate type', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.AVG,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -102,18 +90,15 @@ describe('Generate aggregated data lookup', () => {
         aggregateColumn: { id: 'tumorSize', name: 'Tumor size', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(28.7782);
     });
 
     it('should return the correct aggregate values and global domain for a column with MINIMUM aggregate type', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MIN,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -122,18 +107,15 @@ describe('Generate aggregated data lookup', () => {
         aggregateColumn: { id: 'tumorSize', name: 'Tumor size', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(0);
     });
 
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MAX,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -142,18 +124,15 @@ describe('Generate aggregated data lookup', () => {
         aggregateColumn: { id: 'tumorSize', name: 'Tumor size', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(182);
     });
 
     it('should return the correct aggregate values and global domain for a column with MEDIAN aggregate type', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MED,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -162,8 +141,7 @@ describe('Generate aggregated data lookup', () => {
         aggregateColumn: { id: 'tumorSize', name: 'Tumor size', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(25);
     });
@@ -171,11 +149,8 @@ describe('Generate aggregated data lookup', () => {
 
   describe('Grouped data', () => {
     it('should return the correct aggregate values and global domain for a column with COUNT aggregate type and stacked data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
-        aggregateType: config.aggregateType,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -183,8 +158,7 @@ describe('Generate aggregated data lookup', () => {
         group: { id: 'cellularity', name: 'Cellularity', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(1010);
       expect(aggregatedDataLookup.facetsList).toEqual([DEFAULT_FACET_NAME]);
@@ -208,11 +182,8 @@ describe('Generate aggregated data lookup', () => {
     });
 
     it('should return the correct aggregate values and global domain for a column with COUNT aggregate type and grouped data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
-        aggregateType: config.aggregateType,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -221,8 +192,7 @@ describe('Generate aggregated data lookup', () => {
         groupType: EBarGroupingType.GROUP,
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(1010);
       expect(aggregatedDataLookup.facetsList).toEqual([DEFAULT_FACET_NAME]);
@@ -246,11 +216,9 @@ describe('Generate aggregated data lookup', () => {
     });
 
     it('should return the correct aggregate values and global domain for a column with AVERAGE aggregate type and stacked data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.AVG,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -260,17 +228,15 @@ describe('Generate aggregated data lookup', () => {
         group: { id: 'cellularity', name: 'Cellularity', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(106.8865);
     });
 
     it('should return the correct aggregate values and global domain for a column with AVERAGE aggregate type and grouped data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.AVG,
-        display: config.display,
         groupType: EBarGroupingType.GROUP,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
@@ -282,18 +248,15 @@ describe('Generate aggregated data lookup', () => {
         groupType: EBarGroupingType.GROUP,
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(30.3023);
     });
 
     it('should return the correct aggregate values and global domain for a column with MINIMUM aggregate type and stacked data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MIN,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -303,17 +266,15 @@ describe('Generate aggregated data lookup', () => {
         group: { id: 'cellularity', name: 'Cellularity', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(10);
     });
 
     it('should return the correct aggregate values and global domain for a column with MINIMUM aggregate type and grouped data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MIN,
-        display: config.display,
         groupType: EBarGroupingType.GROUP,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
@@ -325,18 +286,15 @@ describe('Generate aggregated data lookup', () => {
         groupType: EBarGroupingType.GROUP,
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(9);
     });
 
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type and stacked data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MAX,
-        display: config.display,
-        groupType: config.groupType,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -346,17 +304,15 @@ describe('Generate aggregated data lookup', () => {
         group: { id: 'cellularity', name: 'Cellularity', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(466);
     });
 
     it('should return the correct aggregate values and global domain for a column with MAXIMUM aggregate type and grouped data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MAX,
-        display: config.display,
         groupType: EBarGroupingType.GROUP,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
@@ -368,38 +324,39 @@ describe('Generate aggregated data lookup', () => {
         groupType: EBarGroupingType.GROUP,
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(182);
     });
 
     it('should return the correct aggregate values and global domain for a column with MEDIAN aggregate type and stacked data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
+        catColumnSelected: { id: 'breastSurgeryType', name: 'Breast surgery type', description: '' },
+        group: { id: 'cellularity', name: 'Cellularity', description: '' },
+        display: EBarDisplayType.ABSOLUTE,
+        groupType: EBarGroupingType.STACK,
         aggregateType: EAggregateTypes.MED,
-        display: config.display,
-        groupType: config.groupType,
+        aggregateColumn: { id: 'tumorSize', name: 'Tumor size', description: '' },
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
+        facets: { id: 'deathFromCancer', name: 'Death from cancer', description: '' },
         catColumnSelected: { id: 'breastSurgeryType', name: 'Breast surgery type', description: '' },
         aggregateType: EAggregateTypes.MED,
         aggregateColumn: { id: 'tumorSize', name: 'Tumor size', description: '' },
         group: { id: 'cellularity', name: 'Cellularity', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(97.5);
     });
 
     it('should return the correct aggregate values and global domain for a column with MEDIAN aggregate type and grouped data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
         aggregateType: EAggregateTypes.MED,
-        display: config.display,
         groupType: EBarGroupingType.GROUP,
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
@@ -411,18 +368,17 @@ describe('Generate aggregated data lookup', () => {
         groupType: EBarGroupingType.GROUP,
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(25.5);
     });
 
     it('should return the correct aggregate values and global domain for SAME group and facet columns', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
-        aggregateType: config.aggregateType,
-        display: config.display,
+        catColumnSelected: { id: 'breastSurgeryType', name: 'Breast surgery type', description: '' },
         groupType: EBarGroupingType.GROUP,
+        group: { id: 'cellularity', name: 'Cellularity', description: '' },
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -431,23 +387,23 @@ describe('Generate aggregated data lookup', () => {
         group: { id: 'cellularity', name: 'Cellularity', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(484);
-      expect(aggregatedDataLookup.facetsList).toEqual(['Unknown']);
-      expect(aggregatedDataLookup.facets['Unknown']?.categoriesList).toEqual(['BREAST CONSERVING', 'MASTECTOMY', 'Unknown']);
-      expect(aggregatedDataLookup.facets['Unknown']?.groupingsList).toEqual(['High', 'Low', 'Moderate', 'Unknown']);
+      expect(aggregatedDataLookup.facetsList).toEqual(['$default$']);
+      expect(aggregatedDataLookup.facets['$default$']?.categoriesList).toEqual(['BREAST CONSERVING', 'MASTECTOMY', 'Unknown']);
+      expect(aggregatedDataLookup.facets['$default$']?.groupingsList).toEqual(['High', 'Low', 'Moderate', 'Unknown']);
     });
   });
 
   describe('Faceted data', () => {
     it('should return the correct aggregate values and global domain for grouped and faceted data', async () => {
-      const lookupParams: Parameters<typeof generateAggregatedDataLookup>['0'] = {
+      const config: Parameters<typeof generateAggregatedDataLookup>['0'] = {
         ...defaultConfig,
-        aggregateType: config.aggregateType,
-        display: config.display,
-        groupType: config.groupType,
+        catColumnSelected: { id: 'breastSurgeryType', name: 'Breast surgery type', description: '' },
+        aggregateType: EAggregateTypes.COUNT,
+        group: { id: 'cellularity', name: 'Cellularity', description: '' },
+        facets: { id: 'deathFromCancer', name: 'Death from cancer', description: '' },
       };
       const dataTable: Parameters<typeof generateAggregatedDataLookup>['1'] = await fetchMockDataTable({
         ...config,
@@ -457,8 +413,7 @@ describe('Generate aggregated data lookup', () => {
         facets: { id: 'deathFromCancer', name: 'Death from cancer', description: '' },
       });
       const selectedMap: Parameters<typeof generateAggregatedDataLookup>['2'] = {};
-      const containerHeight: Parameters<typeof generateAggregatedDataLookup>['3'] = 150;
-      const aggregatedDataLookup = generateAggregatedDataLookup(lookupParams, dataTable, selectedMap, containerHeight);
+      const aggregatedDataLookup = generateAggregatedDataLookup(config, dataTable, selectedMap);
       expect(aggregatedDataLookup.globalDomain.min).toEqual(0);
       expect(aggregatedDataLookup.globalDomain.max).toEqual(372);
       expect(aggregatedDataLookup.facetsList).toEqual(['Living', 'Died of Disease', 'Died of Other Causes', 'Unknown']);
