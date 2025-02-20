@@ -11,8 +11,8 @@ import { ErrorMessage } from '../general/ErrorMessage';
 import { WarningMessage } from '../general/WarningMessage';
 import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { useBarSortHelper, useGetBarVisState } from './hooks';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, IBarConfig } from './interfaces';
+import { useGetBarChartMouseEvents, useGetBarVisState } from './hooks';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
 import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, SERIES_ZERO } from './interfaces/internal';
 import { numberFormatter } from './utils';
 
@@ -57,8 +57,6 @@ function EagerSingleEChartsBarChart({
   selectedFacetValue?: string;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
 }) {
-  const [getSortMetadata] = useBarSortHelper({ config: config! });
-
   // NOTE: @dv-usama-ansari: Prepare the base series options for the bar chart.
   const seriesBase = React.useMemo(
     () =>
@@ -351,118 +349,13 @@ function EagerSingleEChartsBarChart({
     }
   }, [customTooltip.content, yAxisLabel]);
 
+  const { click } = useGetBarChartMouseEvents({ aggregatedData, config, selectedFacetIndex, selectedFacetValue, selectedList, selectionCallback, setConfig });
+
   const { setRef, instance } = useChart({
     options,
     settings,
     mouseEvents: {
-      click: [
-        {
-          query: { titleIndex: 0 },
-          handler: () => {
-            setConfig?.({ ...config!, focusFacetIndex: config?.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
-          },
-        },
-        {
-          query: { seriesType: 'bar' },
-          handler: (params) => {
-            if (params.componentType === 'series') {
-              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-              // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
-              const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
-              const ids: string[] = config?.group
-                ? config.group.id === config?.facets?.id
-                  ? [
-                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
-                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
-                    ]
-                  : [
-                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
-                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
-                    ]
-                : (aggregatedData?.categories[params.name]?.ids ?? []);
-
-              if (event.shiftKey) {
-                // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
-                //  Using `Set` to reduce time complexity to O(1).
-                const newSelectedSet = new Set(selectedList);
-                ids.forEach((id) => {
-                  if (newSelectedSet.has(id)) {
-                    newSelectedSet.delete(id);
-                  } else {
-                    newSelectedSet.add(id);
-                  }
-                });
-                const newSelectedList = [...newSelectedSet];
-                selectionCallback(event, [...new Set([...newSelectedList])]);
-              } else {
-                // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
-                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-                selectionCallback(event, isSameBarClicked ? [] : ids);
-              }
-            }
-          },
-        },
-        {
-          query:
-            config?.direction === EBarDirection.HORIZONTAL
-              ? { componentType: 'yAxis' }
-              : config?.direction === EBarDirection.VERTICAL
-                ? { componentType: 'xAxis' }
-                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
-
-          handler: (params) => {
-            if (params.targetType === 'axisLabel') {
-              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-              const ids = aggregatedData?.categories[params.value as string]?.ids ?? [];
-              if (event.shiftKey) {
-                const newSelectedSet = new Set(selectedList);
-                ids.forEach((id) => {
-                  if (newSelectedSet.has(id)) {
-                    newSelectedSet.delete(id);
-                  } else {
-                    newSelectedSet.add(id);
-                  }
-                });
-                const newSelectedList = [...newSelectedSet];
-                selectionCallback(event, [...new Set([...newSelectedList])]);
-              } else {
-                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-                selectionCallback(event, isSameBarClicked ? [] : ids);
-              }
-            }
-          },
-        },
-        {
-          query: { componentType: 'yAxis' },
-          handler: (params) => {
-            if (params.targetType === 'axisName' && params.componentType === 'yAxis') {
-              if (config?.direction === EBarDirection.HORIZONTAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-              if (config?.direction === EBarDirection.VERTICAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-            }
-          },
-        },
-        {
-          query: { componentType: 'xAxis' },
-          handler: (params) => {
-            if (params.targetType === 'axisName' && params.componentType === 'xAxis') {
-              if (config?.direction === EBarDirection.HORIZONTAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-              if (config?.direction === EBarDirection.VERTICAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-            }
-          },
-        },
-      ],
+      click,
       mouseover: [
         {
           query:
