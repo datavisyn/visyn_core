@@ -1,8 +1,6 @@
 export type AggregatedDataType = {
   categoriesList: string[];
   groupingsList: string[];
-  facetHeight: number;
-  facetMinWidth: number;
   categories: {
     [category: string]: {
       total: number;

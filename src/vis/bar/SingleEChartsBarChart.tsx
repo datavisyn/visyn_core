@@ -30,6 +30,7 @@ function EagerSingleEChartsBarChart({
   aggregatedData,
   config,
   containerWidth,
+  dimensions,
   globalMax,
   globalMin,
   groupColorScale,
@@ -45,6 +46,7 @@ function EagerSingleEChartsBarChart({
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   aggregatedData: AggregatedDataType;
   containerWidth: number;
+  dimensions: { height: number; minWidth: number };
   globalMax?: number;
   globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
@@ -518,13 +520,13 @@ function EagerSingleEChartsBarChart({
               }
 
               // NOTE: @dv-usama-ansari: Display the tooltip only if it overflows the chart height.
-              if (fullTextWidth > aggregatedData.facetHeight + CHART_HEIGHT_MARGIN) {
+              if (fullTextWidth > dimensions.height + CHART_HEIGHT_MARGIN) {
                 customTooltip.content.innerText = yAxisLabel as string;
                 customTooltip.dom.style.opacity = '1';
                 customTooltip.dom.style.visibility = 'visible';
                 customTooltip.dom.style.zIndex = '9999';
 
-                const top = (aggregatedData.facetHeight + CHART_HEIGHT_MARGIN) / 2;
+                const top = (dimensions.height + CHART_HEIGHT_MARGIN) / 2;
                 const left = 24;
                 customTooltip.dom.style.top = `${top}px`;
                 customTooltip.dom.style.left = `${left}px`;
@@ -600,15 +602,15 @@ function EagerSingleEChartsBarChart({
       )
     ) : !(visState?.xAxis && visState?.yAxis) ? null : (
       options &&
-      aggregatedData.facetHeight > 0 && (
+      dimensions.height > 0 && (
         <Box
           component="div"
           pos="relative"
           pr="xs"
           ref={setRef}
           style={{
-            width: `${Math.max(containerWidth, aggregatedData.facetMinWidth)}px`,
-            height: `${aggregatedData.facetHeight + CHART_HEIGHT_MARGIN}px`,
+            width: `${Math.max(containerWidth, dimensions.minWidth)}px`,
+            height: `${dimensions.height + CHART_HEIGHT_MARGIN}px`,
           }}
         />
       )

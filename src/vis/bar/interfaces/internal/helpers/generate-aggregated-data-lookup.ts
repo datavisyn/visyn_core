@@ -3,7 +3,6 @@ import round from 'lodash/round';
 import sort from 'lodash/sortBy';
 import sortedUniq from 'lodash/sortedUniq';
 
-import { calculateChartHeight, calculateChartMinWidth } from './calculate-chart-dimensions';
 import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { EAggregateTypes, ICommonVisProps } from '../../../../interfaces';
 import { EBarDisplayType, EBarGroupingType } from '../../enums';
@@ -12,12 +11,7 @@ import { DEFAULT_FACET_NAME } from '../constants';
 import { AggregatedDataType } from '../types';
 import { median } from './median';
 
-export function generateAggregatedDataLookup(
-  config: IBarConfig,
-  dataTable: IBarDataTableRow[],
-  selectedMap: ICommonVisProps<IBarConfig>['selectedMap'],
-  containerHeight: number,
-) {
+export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBarDataTableRow[], selectedMap: ICommonVisProps<IBarConfig>['selectedMap']) {
   const facetGrouped = config.facets?.id ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
   const aggregated: { facets: { [facet: string]: AggregatedDataType }; globalDomain: { min: number; max: number }; facetsList: string[] } = {
     facets: {},
@@ -31,24 +25,13 @@ export function generateAggregatedDataLookup(
     const facetSensitiveDataTable = facet === DEFAULT_FACET_NAME ? dataTable : dataTable.filter((item) => item.facet === facet);
     const categoriesList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.category) ?? []));
     const groupingsList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.group ?? NAN_REPLACEMENT) ?? []));
-    const facetHeight = calculateChartHeight({
-      config,
-      containerHeight,
-      categoryCount: categoriesList.length,
-      groupCount: groupingsList.length,
-    });
-    const facetMinWidth = calculateChartMinWidth({
-      config,
-      categoryCount: categoriesList.length,
-      groupCount: groupingsList.length,
-    });
 
     (values ?? []).forEach((item) => {
       const { category = NAN_REPLACEMENT, agg, group = NAN_REPLACEMENT } = item;
       const aggregate = [null, undefined, Infinity, -Infinity, NaN].includes(agg) ? 0 : agg;
       const selected = selectedMap?.[item.id] || false;
       if (!aggregated.facets[facet]) {
-        aggregated.facets[facet] = { categoriesList, groupingsList, categories: {}, facetHeight, facetMinWidth };
+        aggregated.facets[facet] = { categoriesList, groupingsList, categories: {} };
       }
       if (!aggregated.facets[facet].categories[category]) {
         aggregated.facets[facet].categories[category] = { total: 0, ids: [], groups: {} };
@@ -82,7 +65,7 @@ export function generateAggregatedDataLookup(
       }
 
       if (!minMax.facets[facet]) {
-        minMax.facets[facet] = { categoriesList: [], groupingsList: [], categories: {}, facetHeight, facetMinWidth };
+        minMax.facets[facet] = { categoriesList: [], groupingsList: [], categories: {} };
       }
       if (!minMax.facets[facet].categories[category]) {
         minMax.facets[facet].categories[category] = { total: 0, ids: [], groups: {} };
