@@ -305,47 +305,45 @@ export function useGetBarVisState({
     setVisState,
   ]);
 
-  React.useEffect(() => {
-    setVisState((v) => {
-      const filteredVisStateSeries = (v?.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
-      const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
-        (acc, series) => {
-          if ((series as typeof series & { group: string }).group === NAN_REPLACEMENT) {
-            acc[1].push(series);
-          } else {
-            acc[0].push(series);
-          }
-          return acc;
-        },
-        [[] as BarSeriesOption[], [] as BarSeriesOption[]],
-      );
-      if (isGroupedByNumerical) {
-        if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
-          const namedKnownSeries = knownSeries.map((series) => {
-            const name = String((series as typeof series).data?.[0]);
-            const color = groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR;
-            return {
-              ...series,
-              name,
-              itemStyle: { color },
-            };
-          });
-          return { series: [...namedKnownSeries, ...unknownSeries] };
+  const groupedSeries = React.useMemo(() => {
+    const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
+    const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
+      (acc, series) => {
+        if ((series as typeof series & { group: string }).group === NAN_REPLACEMENT) {
+          acc[1].push(series);
+        } else {
+          acc[0].push(series);
         }
-
-        const sortedSeries = knownSeries.sort((a, b) => {
-          if (!(a as typeof a & { group: string }).group.includes(' to ')) {
-            return 0;
-          }
-          const [aMin, aMax] = (a as typeof a & { group: string }).group.split(' to ').map(Number);
-          const [bMin, bMax] = (b as typeof b & { group: string }).group.split(' to ').map(Number);
-          return (aMin as number) - (bMin as number) || (aMax as number) - (bMax as number);
+        return acc;
+      },
+      [[] as BarSeriesOption[], [] as BarSeriesOption[]],
+    );
+    if (isGroupedByNumerical) {
+      if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
+        const namedKnownSeries = knownSeries.map((series) => {
+          const name = String((series as typeof series).data?.[0]);
+          const color = groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR;
+          return {
+            ...series,
+            name,
+            itemStyle: { color },
+          };
         });
-        return { series: [...sortedSeries, ...unknownSeries] };
+        return [...namedKnownSeries, ...unknownSeries];
       }
-      return { series: [...knownSeries, ...unknownSeries] };
-    });
-  }, [groupColorScale, isGroupedByNumerical, setVisState]);
 
-  return { isError, isLoading, isSuccess, visState, yAxisLabel, setYAxisLabel };
+      const sortedSeries = knownSeries.sort((a, b) => {
+        if (!(a as typeof a & { group: string }).group.includes(' to ')) {
+          return 0;
+        }
+        const [aMin, aMax] = (a as typeof a & { group: string }).group.split(' to ').map(Number);
+        const [bMin, bMax] = (b as typeof b & { group: string }).group.split(' to ').map(Number);
+        return (aMin as number) - (bMin as number) || (aMax as number) - (bMax as number);
+      });
+      return [...sortedSeries, ...unknownSeries];
+    }
+    return [...knownSeries, ...unknownSeries];
+  }, [groupColorScale, isGroupedByNumerical, visState.series]);
+
+  return { isError, isLoading, isSuccess, visState: { ...visState, series: groupedSeries } as typeof visState, yAxisLabel, setYAxisLabel };
 }
