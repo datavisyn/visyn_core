@@ -1,1 +1,3 @@
-export * from './BarSortHooks';
+export * from './BarSortHook';
+export * from './BarVisStateHook';
+export * from './BarChartMouseEvents';
