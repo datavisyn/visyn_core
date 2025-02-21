@@ -28,6 +28,7 @@ class ALBSecurityStore(BaseStore):
         cookie_name: str | None,
         signout_url: str | None,
         email_token_field: str | list[str],
+        properties_fields: list[str],
         audience: str | list[str] | None,
         issuer: str | None,
         decode_options: dict[str, Any] | None,
@@ -37,6 +38,7 @@ class ALBSecurityStore(BaseStore):
         self.cookie_name = cookie_name
         self.signout_url = signout_url
         self.email_token_fields = [email_token_field] if isinstance(email_token_field, str) else email_token_field
+        self.properties_fields = properties_fields
         self.audience = audience
         self.issuer = issuer
         self.decode_options = decode_options
@@ -80,6 +82,7 @@ class ALBSecurityStore(BaseStore):
                     id=id,
                     roles=user.get("roles", []),
                     oauth2_access_token=access_token,
+                    properties={key: user.get(key) for key in self.properties_fields},
                 )
             except Exception:
                 _log.exception("Error in load_from_request")
@@ -111,6 +114,7 @@ def create():
             cookie_name=manager.settings.visyn_core.security.store.alb_security_store.cookie_name,
             signout_url=manager.settings.visyn_core.security.store.alb_security_store.signout_url,
             email_token_field=manager.settings.visyn_core.security.store.alb_security_store.email_token_field,
+            properties_fields=manager.settings.visyn_core.security.store.alb_security_store.properties_fields,
             audience=manager.settings.visyn_core.security.store.alb_security_store.audience,
             decode_options=manager.settings.visyn_core.security.store.alb_security_store.decode_options,
             region=manager.settings.visyn_core.security.store.alb_security_store.region,
