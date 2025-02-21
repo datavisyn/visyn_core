@@ -64,6 +64,7 @@ def user_to_dict(user: User, access_token: str | None = None, payload: dict | No
         "payload": payload,
         "access_token": access_token,
         "token_type": "bearer" if access_token else None,
+        "properties": user.properties,
     }
 
 

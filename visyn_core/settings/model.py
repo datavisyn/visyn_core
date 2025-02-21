@@ -48,6 +48,10 @@ class AlbSecurityStoreSettings(BaseModel):
     """
     Field in the JWT token that contains the email address of the user.
     """
+    properties_fields: list[str] = []
+    """
+    Fields in the JWT token payload that should be mapped to the properties of the user.
+    """
     audience: str | list[str] | None = None
     """
     Audience of the JWT token.
@@ -77,12 +81,20 @@ class OAuth2SecurityStoreSettings(BaseModel):
     signout_url: str | None = None
     access_token_header_name: str = "X-Forwarded-Access-Token"
     email_token_field: str | list[str] = ["email"]
+    """
+    Field in the JWT token that contains the email address of the user.
+    """
+    properties_fields: list[str] = []
+    """
+    Fields in the JWT token payload that should be mapped to the properties of the user.
+    """
 
 
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
     roles: list[str] = []
+    properties: dict[str, Any] = {}
 
 
 class SecurityStoreSettings(BaseModel):
@@ -159,14 +171,42 @@ class SentrySettings(BaseModel):
     """
     Public DSN of the Sentry project.
     """
+    frontend_dsn: str | None = None
+    """
+    Public DSN of the Sentry frontend project.
+    """
+    backend_dsn: str | None = None
+    """
+    Public DSN of the Sentry backend project.
+    """
+    backend_init_options: dict[str, Any] = {}
+    """
+    Options to be passed to the Sentry SDK during initialization.
+    """
     proxy_to: str | None = None
     """
     Proxy Sentry envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
     """
-    server_init_options: dict[str, Any] = {}
+    frontend_proxy_to: str | None = None
     """
-    Options to be passed to the Sentry SDK during initialization.
+    Proxy Sentry frontend envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
     """
+    backend_proxy_to: str | None = None
+    """
+    Proxy Sentry backend envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
+    """
+
+    def get_frontend_dsn(self) -> str | None:
+        return self.frontend_dsn or self.dsn
+
+    def get_backend_dsn(self) -> str | None:
+        return self.backend_dsn or self.dsn
+
+    def get_frontend_proxy_to(self) -> str | None:
+        return self.frontend_proxy_to or self.proxy_to
+
+    def get_backend_proxy_to(self) -> str | None:
+        return self.backend_proxy_to or self.proxy_to
 
 
 class VisynCoreSettings(BaseModel):
