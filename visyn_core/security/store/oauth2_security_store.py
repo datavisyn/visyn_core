@@ -13,10 +13,11 @@ _log = logging.getLogger(__name__)
 class OAuth2SecurityStore(BaseStore):
     ui = "AutoLoginForm"
 
-    def __init__(self, cookie_name: str | None, signout_url: str | None, email_token_field: str | list[str]):
+    def __init__(self, cookie_name: str | None, signout_url: str | None, email_token_field: str | list[str], properties_fields: list[str]):
         self.cookie_name = cookie_name
         self.signout_url: str | None = signout_url
         self.email_token_fields = [email_token_field] if isinstance(email_token_field, str) else email_token_field
+        self.properties_fields = properties_fields
 
     def load_from_request(self, req: Request):
         token_field = manager.settings.visyn_core.security.store.oauth2_security_store.access_token_header_name
@@ -38,6 +39,7 @@ class OAuth2SecurityStore(BaseStore):
                     id=id,
                     roles=[],
                     oauth2_access_token=access_token,
+                    properties={key: user.get(key) for key in self.properties_fields},
                 )
         except Exception:
             _log.exception("Error in load_from_request")
@@ -65,9 +67,10 @@ def create():
     if manager.settings.visyn_core.security.store.oauth2_security_store.enable:
         _log.info("Adding OAuth2SecurityStore")
         return OAuth2SecurityStore(
-            manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name,
-            manager.settings.visyn_core.security.store.oauth2_security_store.signout_url,
-            manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field,
+            cookie_name=manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name,
+            signout_url=manager.settings.visyn_core.security.store.oauth2_security_store.signout_url,
+            email_token_field=manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field,
+            properties_fields=manager.settings.visyn_core.security.store.oauth2_security_store.properties_fields,
         )
 
     return None
