@@ -59,12 +59,12 @@ export function useGetBarVisState({
 
   const [workerResult, setWorkerResult] = React.useState<Awaited<ReturnType<typeof generateBarSeriesWorker>>>([]);
 
-  const isLoading = React.useMemo(
-    () => (visState?.series.length === 0 ? generateBarSeriesStatus === 'pending' : false),
+  const isLoading = React.useMemo(() => generateBarSeriesStatus === 'pending', [generateBarSeriesStatus]);
+  const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
+  const isSuccess = React.useMemo(
+    () => generateBarSeriesStatus === 'success' && (visState?.series.length ?? 0) > 0,
     [generateBarSeriesStatus, visState?.series.length],
   );
-  const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
-  const isSuccess = React.useMemo(() => (visState?.series.length ?? 0) > 0, [visState?.series.length]);
 
   const barSeries = React.useMemo(() => {
     return workerResult.map((series) => {
@@ -129,7 +129,6 @@ export function useGetBarVisState({
           // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
           series: barSeries.map((item, itemIndex) => ({
             ...item,
-            type: 'bar' as const,
             data: sortedSeries[itemIndex]?.data ? [...(sortedSeries[itemIndex]?.data as NonNullable<BarSeriesOption['data']>)].reverse() : [],
           })),
 
@@ -146,7 +145,7 @@ export function useGetBarVisState({
           { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.VERTICAL },
         );
         setVisState((v) => ({
-          series: barSeries.map((item, itemIndex) => ({ ...item, type: 'bar' as const, data: sortedSeries[itemIndex]?.data ?? [] })),
+          series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]?.data ?? [] })),
           xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories ?? [] },
         }));
       }
@@ -212,97 +211,116 @@ export function useGetBarVisState({
     visState.series.length,
   ]);
 
-  React.useEffect(() => {
-    if (aggregatedData) {
-      if (config?.direction === EBarDirection.HORIZONTAL) {
-        setVisState((v) => ({
-          xAxis: {
-            type: 'value' as const,
-            name: aggregationAxisName,
-            nameLocation: 'middle',
-            nameGap: 32,
-            min: globalMin ?? 'dataMin',
-            max: globalMax ?? 'dataMax',
-            axisLabel: {
-              hideOverlap: true,
-              formatter: (value: number) => numberFormatter.format(value),
-            },
-            nameTextStyle: {
-              color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-            },
-            triggerEvent: true,
-          },
-
-          yAxis: {
-            type: 'category' as const,
-            name: categoricalAxisName,
-            nameLocation: 'middle',
-            nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
-            data: (v.yAxis as { data: number[] })?.data ?? [],
-            axisLabel: {
-              show: true,
-              width: gridLeft - 20,
-              formatter: (value: string) => labelsMap[value],
-            },
-            nameTextStyle: {
-              color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-            },
-            triggerEvent: true,
-          },
-        }));
-      }
-      if (config?.direction === EBarDirection.VERTICAL) {
-        setVisState((v) => ({
-          // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
-          xAxis: {
-            type: 'category' as const,
-            name: categoricalAxisName,
-            nameLocation: 'middle',
-            nameGap: 60,
-            data: (v.xAxis as { data: number[] })?.data ?? [],
-            axisLabel: {
-              show: true,
-              formatter: (value: string) => labelsMap[value],
-              rotate: 45,
-            },
-            nameTextStyle: {
-              color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-            },
-            triggerEvent: true,
-          },
-
-          yAxis: {
-            type: 'value' as const,
-            name: aggregationAxisName,
-            nameLocation: 'middle',
-            nameGap: 40,
-            min: globalMin ?? 'dataMin',
-            max: globalMax ?? 'dataMax',
-            axisLabel: {
-              hideOverlap: true,
-              formatter: (value: number) => numberFormatter.format(value),
-            },
-            nameTextStyle: {
-              color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-            },
-            triggerEvent: true,
-          },
-        }));
-      }
+  const xAxis = React.useMemo(() => {
+    if (!aggregatedData || !aggregationAxisName || !categoricalAxisName || visState.series.length === 0) {
+      return null;
     }
+    if (config?.direction === EBarDirection.HORIZONTAL) {
+      return {
+        type: 'value' as const,
+        name: aggregationAxisName,
+        nameLocation: 'middle' as const,
+        nameGap: 32,
+        min: globalMin ?? 'dataMin',
+        max: globalMax ?? 'dataMax',
+        axisLabel: {
+          hideOverlap: true,
+          formatter: (value: number) => numberFormatter.format(value),
+        },
+        nameTextStyle: {
+          color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+        },
+        triggerEvent: true,
+      };
+    }
+    if (config?.direction === EBarDirection.VERTICAL) {
+      return {
+        type: 'category' as const,
+        name: categoricalAxisName,
+        nameLocation: 'middle' as const,
+        nameGap: 60,
+        data: (visState.xAxis as { data: number[] })?.data ?? [],
+        axisLabel: {
+          show: true,
+          formatter: (value: string) => labelsMap[value],
+          rotate: 45,
+        },
+        nameTextStyle: {
+          color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+        },
+        triggerEvent: true,
+      };
+    }
+    return null;
   }, [
     aggregatedData,
     aggregationAxisName,
-    aggregationAxisSortText,
     categoricalAxisName,
-    categoricalAxisSortText,
+    visState.series.length,
+    visState.xAxis,
     config?.direction,
-    containerWidth,
-    globalMax,
     globalMin,
-    gridLeft,
+    globalMax,
+    aggregationAxisSortText,
+    categoricalAxisSortText,
     labelsMap,
-    setVisState,
+  ]);
+
+  const yAxis = React.useMemo(() => {
+    if (!aggregatedData || !aggregationAxisName || !categoricalAxisName || visState.series.length === 0) {
+      return null;
+    }
+    if (config?.direction === EBarDirection.HORIZONTAL) {
+      return {
+        type: 'category' as const,
+        name: categoricalAxisName,
+        nameLocation: 'middle' as const,
+        nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
+        data: (visState.yAxis as { data: number[] })?.data ?? [],
+        axisLabel: {
+          show: true,
+          width: gridLeft - 20,
+          formatter: (value: string) => labelsMap[value],
+        },
+        nameTextStyle: {
+          color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+        },
+        triggerEvent: true,
+      };
+    }
+    if (config?.direction === EBarDirection.VERTICAL) {
+      return {
+        type: 'value' as const,
+        name: aggregationAxisName,
+        nameLocation: 'middle' as const,
+        nameGap: 40,
+        min: globalMin ?? 'dataMin',
+        max: globalMax ?? 'dataMax',
+        axisLabel: {
+          hideOverlap: true,
+          formatter: (value: number) => numberFormatter.format(value),
+        },
+        nameTextStyle: {
+          color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
+        },
+        triggerEvent: true,
+      };
+    }
+    return null;
+  }, [
+    aggregatedData,
+    aggregationAxisName,
+    categoricalAxisName,
+    visState.series.length,
+    visState.yAxis,
+    config?.direction,
+    gridLeft,
+    containerWidth,
+    categoricalAxisSortText,
+    labelsMap,
+    globalMin,
+    globalMax,
+    aggregationAxisSortText,
   ]);
 
   const groupedSeries = React.useMemo(() => {
@@ -345,5 +363,5 @@ export function useGetBarVisState({
     return [...knownSeries, ...unknownSeries];
   }, [groupColorScale, isGroupedByNumerical, visState.series]);
 
-  return { isError, isLoading, isSuccess, visState: { ...visState, series: groupedSeries } as typeof visState, yAxisLabel, setYAxisLabel };
+  return { isError, isLoading, isSuccess, visState: { ...visState, series: groupedSeries, xAxis, yAxis } as typeof visState, yAxisLabel, setYAxisLabel };
 }
