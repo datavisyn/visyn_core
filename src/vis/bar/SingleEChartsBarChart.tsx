@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Box, Stack, Text } from '@mantine/core';
+import { usePrevious } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
 
@@ -35,6 +36,7 @@ function EagerSingleEChartsBarChart({
   globalMin,
   groupColorScale,
   isGroupedByNumerical,
+  isParentLoading,
   labelsMap,
   longestLabelWidth,
   selectedFacetIndex,
@@ -51,12 +53,17 @@ function EagerSingleEChartsBarChart({
   globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
   isGroupedByNumerical: boolean;
+  isParentLoading: boolean;
   labelsMap: Record<string, string>;
   longestLabelWidth: number;
   selectedFacetIndex?: number;
   selectedFacetValue?: string;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
 }) {
+  // const catColumnSelectedRef = React.useRef<string | null>(config?.catColumnSelected?.id ?? null);
+  const previousCatColumn = usePrevious(config?.catColumnSelected?.id);
+  const isCatColumnChanged = React.useMemo(() => previousCatColumn !== config?.catColumnSelected?.id, [config?.catColumnSelected?.id, previousCatColumn]);
+
   // NOTE: @dv-usama-ansari: Prepare the base series options for the bar chart.
   const seriesBase = React.useMemo(
     () =>
@@ -464,17 +471,19 @@ function EagerSingleEChartsBarChart({
     }
   }, [customTooltip.dom, instance]);
 
-  return isLoading ? (
-    <BlurredOverlay
-      loading
-      visible
-      dataTestId="visyn-bar-chart-config-setup-facet-overlay"
-      loadingText={
-        config?.facets && selectedFacetValue
-          ? `Setting up your chart for facet "${selectedFacetValue}", almost ready ...`
-          : 'Setting up your chart, almost ready ...'
-      }
-    />
+  return !isCatColumnChanged ? (
+    isLoading || isParentLoading ? (
+      <BlurredOverlay
+        loading
+        visible
+        dataTestId="visyn-bar-chart-config-setup-facet-overlay"
+        loadingText={
+          config?.facets && selectedFacetValue
+            ? `Setting up your chart for facet "${selectedFacetValue}", almost ready ...`
+            : 'Setting up your chart, almost ready ...'
+        }
+      />
+    ) : null
   ) : isError ? (
     <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id="visyn-bar-chart-config-setup-error">
       {config?.facets && selectedFacetValue ? <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text> : null}

@@ -225,7 +225,7 @@ const meta: Meta<MetaArgs> = {
     pointCount: { control: 'number' },
   },
   args: {
-    pointCount: 10000,
+    pointCount: 500000,
   },
   parameters: {
     controls: { expanded: true },
