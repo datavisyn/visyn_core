@@ -69,7 +69,7 @@ export function useGetBarVisState({
   const barSeries = React.useMemo(() => {
     return workerResult.map((series) => {
       if (!series) {
-        return series;
+        return seriesBase;
       }
       const r = series as typeof series & { selected: 'selected' | 'unselected'; group: string };
       const isGrouped = config?.group && groupColorScale != null;
@@ -122,7 +122,7 @@ export function useGetBarVisState({
     if (barSeries.length > 0 || !aggregatedData || generateBarSeriesStatus !== 'success') {
       if (config?.direction === EBarDirection.HORIZONTAL) {
         const sortedSeries = sortSeries(
-          barSeries.map((item) => (item ? { categories: item.categories, data: item.data } : null)),
+          barSeries.map((item) => (item ? { categories: (item as BarSeriesOption & { categories: string[] }).categories, data: item.data } : null)),
           { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
         );
         setVisState((v) => ({
@@ -142,7 +142,7 @@ export function useGetBarVisState({
       }
       if (config?.direction === EBarDirection.VERTICAL) {
         const sortedSeries = sortSeries(
-          barSeries.map((item) => (item ? { categories: item.categories, data: item.data } : null)),
+          barSeries.map((item) => (item ? { categories: (item as BarSeriesOption & { categories: string[] }).categories, data: item.data } : null)),
           { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.VERTICAL },
         );
         setVisState((v) => ({
@@ -307,7 +307,7 @@ export function useGetBarVisState({
 
   const groupedSeries = React.useMemo(() => {
     const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
-    const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
+    const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce<[BarSeriesOption[], BarSeriesOption[]]>(
       (acc, series) => {
         if ((series as typeof series & { group: string }).group === NAN_REPLACEMENT) {
           acc[1].push(series);
@@ -316,7 +316,7 @@ export function useGetBarVisState({
         }
         return acc;
       },
-      [[] as BarSeriesOption[], [] as BarSeriesOption[]],
+      [[], []],
     );
     if (isGroupedByNumerical) {
       if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
