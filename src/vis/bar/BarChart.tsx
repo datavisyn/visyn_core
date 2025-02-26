@@ -40,7 +40,6 @@ type VirtualizedBarChartProps = {
   filteredUniqueFacetVals: string[];
   groupColorScale: ScaleOrdinal<string, string>;
   isGroupedByNumerical: boolean;
-  isLoading: boolean;
   labelsMap: Record<string, string>;
   longestLabelWidth: number;
   selectedFacetIndex?: number;
@@ -222,7 +221,6 @@ export function BarChart({
             globalMin={props.data.aggregatedDataLookup?.globalDomain.min}
             groupColorScale={props.data.groupColorScale!}
             isGroupedByNumerical={props.data.isGroupedByNumerical}
-            isParentLoading={props.data.isLoading}
             labelsMap={props.data.labelsMap}
             longestLabelWidth={props.data.longestLabelWidth}
             selectedFacetIndex={facet ? props.data.allUniqueFacetVals.indexOf(facet) : undefined} // use the index of the original list to return back to the grid
@@ -330,7 +328,6 @@ export function BarChart({
       filteredUniqueFacetVals,
       groupColorScale: groupColorScale!,
       isGroupedByNumerical,
-      isLoading: dataLookupStatus === 'pending',
       labelsMap,
       longestLabelWidth,
       selectedList: selectedList!,
@@ -345,7 +342,6 @@ export function BarChart({
     containerHeight,
     containerWidth,
     customSelectionCallback,
-    dataLookupStatus,
     facetDimensionLookup,
     filteredUniqueFacetVals,
     groupColorScale,
@@ -390,7 +386,6 @@ export function BarChart({
                 globalMax={aggregatedDataLookup?.globalDomain.max}
                 groupColorScale={groupColorScale!}
                 isGroupedByNumerical={isGroupedByNumerical}
-                isParentLoading={dataLookupStatus === 'pending'}
                 labelsMap={labelsMap}
                 longestLabelWidth={longestLabelWidth}
                 selectedList={selectedList}
