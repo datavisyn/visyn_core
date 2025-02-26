@@ -59,12 +59,12 @@ export function useGetBarVisState({
 
   const [workerResult, setWorkerResult] = React.useState<Awaited<ReturnType<typeof generateBarSeriesWorker>>>([]);
 
-  const isLoading = React.useMemo(() => generateBarSeriesStatus === 'pending', [generateBarSeriesStatus]);
-  const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
-  const isSuccess = React.useMemo(
-    () => generateBarSeriesStatus === 'success' && (visState?.series.length ?? 0) > 0,
+  const isLoading = React.useMemo(
+    () => (visState?.series.length === 0 ? generateBarSeriesStatus === 'pending' : false),
     [generateBarSeriesStatus, visState?.series.length],
   );
+  const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
+  const isSuccess = React.useMemo(() => (visState?.series.length ?? 0) > 0, [visState?.series.length]);
 
   const barSeries = React.useMemo(() => {
     return workerResult.map((series) => {
