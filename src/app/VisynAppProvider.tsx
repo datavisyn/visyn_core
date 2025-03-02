@@ -3,7 +3,7 @@ import * as React from 'react';
 import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { Notifications, NotificationsProps } from '@mantine/notifications';
-import { BrowserOptions } from '@sentry/react';
+import type { BrowserOptions } from '@sentry/react';
 import merge from 'lodash/merge';
 
 import { loadClientConfig } from '../base/clientConfig';
@@ -92,8 +92,8 @@ export function VisynAppProvider({
       import('@sentry/react').then((Sentry) => {
         if (!Sentry.isInitialized()) {
           Sentry.init({
-            dsn: clientConfig.sentry_dsn,
-            tunnel: clientConfig.sentry_proxy_to,
+            /*
+            Do not instantiate integrations here, as the apps should do this instead.
             integrations: [
               // Capture all console.error calls
               Sentry.captureConsoleIntegration({ levels: ['error'] }),
@@ -102,17 +102,19 @@ export function VisynAppProvider({
               // Enable replay integration
               Sentry.replayIntegration(),
             ],
-
-            // Set tracesSampleRate to 1.0 to capture 100%
-            // of transactions for performance monitoring.
+            */
+            // We want to avoid having [object Object] in the Sentry breadcrumbs, so we increase the depth.
+            normalizeDepth: 5,
+            // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
             tracesSampleRate: 1.0,
-
-            // Capture Replay for 10% of all sessions,
-            // plus for 100% of sessions with an error
-            replaysSessionSampleRate: 0.1,
-            replaysOnErrorSampleRate: 1.0,
-
+            // Disable replays by default
+            replaysSessionSampleRate: 0,
+            replaysOnErrorSampleRate: 0,
+            // Add our own options
             ...(sentryInitOptions || {}),
+            // And finally set the DSN and tunnel
+            dsn: clientConfig.sentry_dsn,
+            tunnel: clientConfig.sentry_proxy_to,
           });
         }
       });
@@ -125,7 +127,7 @@ export function VisynAppProvider({
       import('@sentry/react').then((Sentry) => {
         if (Sentry.isInitialized()) {
           Sentry.setUser({
-            username: user.name,
+            id: user.name,
           });
         }
       });
