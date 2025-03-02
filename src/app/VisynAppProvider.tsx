@@ -32,6 +32,7 @@ export function VisynAppProvider({
   sentryInitOptions = {},
   sentryOptions = {},
   waitForClientConfig = true,
+  waitForSentry = true,
 }: {
   /**
    * Set this to true to disable the MantineProvider of Mantine 6. Use only if no Mantine 6 components are used.
@@ -63,6 +64,11 @@ export function VisynAppProvider({
    * @default `true`
    */
   waitForClientConfig?: boolean;
+  /**
+   * Set this to true to wait for the Sentry initialization before rendering the children.
+   * @default `true`
+   */
+  waitForSentry?: boolean;
 }) {
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
@@ -86,6 +92,7 @@ export function VisynAppProvider({
     [user, appName, clientConfig],
   );
 
+  const [successfulSentryInit, setSuccessfulSentryInit] = React.useState<boolean>(false);
   React.useEffect(() => {
     // Hook to initialize Sentry if a DSN is provided.
     if (clientConfig?.sentry_dsn) {
@@ -117,9 +124,13 @@ export function VisynAppProvider({
             tunnel: clientConfig.sentry_proxy_to,
           });
         }
+        setSuccessfulSentryInit(true);
       });
+    } else if (clientConfig) {
+      // If the client config is loaded but no DSN is provided, we can set the successful Sentry init.
+      setSuccessfulSentryInit(true);
     }
-  }, [clientConfig?.sentry_dsn, clientConfig?.sentry_proxy_to, sentryInitOptions]);
+  }, [clientConfig, sentryInitOptions]);
 
   React.useEffect(() => {
     // Hook to set the user in Sentry if a DSN is provided and the user is set.
@@ -143,7 +154,7 @@ export function VisynAppProvider({
   // Extract as variable to more easily make LazyMantine6Provider optional
   const visynAppContext = (
     <VisynAppContext.Provider value={context}>
-      {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) ? children : null}
+      {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) && (!waitForSentry || successfulSentryInit) ? children : null}
     </VisynAppContext.Provider>
   );
 
