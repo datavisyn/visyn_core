@@ -133,8 +133,6 @@ class SecurityManager:
                 # If there is no user, try to load it from the request and store it in the request
                 user = r.state.user = self.load_from_request(r)
                 return user
-        except HTTPException:
-            return None
         except Exception:
             _log.exception("Error loading user from request")
             return None
@@ -170,12 +168,7 @@ class SecurityManager:
                 if user:
                     return self._postload_user(user)
 
-        # Raise an exception is no user could be loaded
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return None
 
     def _load_from_key(self, request: Request) -> User | None:
         # try to login using the api_key url arg

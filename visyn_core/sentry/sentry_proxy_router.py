@@ -29,6 +29,6 @@ async def proxy_sentry_envelope(request: Request):  # pyright: ignore[reportUnus
                 content=envelope,
                 headers={"Content-Type": "application/x-sentry-envelope"},
             )
-            return Response(status_code=res.status_code, content=res.content)
+            return Response(status_code=res.status_code, content=res.content, headers=res.headers)
     else:
         return Response(status_code=500, content="Sentry is not configured")

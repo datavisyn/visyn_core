@@ -110,6 +110,13 @@ class SecurityStoreSettings(BaseModel):
 
 class SecuritySettings(BaseModel):
     store: SecurityStoreSettings = SecurityStoreSettings()
+    """
+    Settings for the security store.
+    """
+    paths_without_authentication: list[str] = []
+    """
+    Paths that are not protected by the security store.
+    """
 
 
 class BaseTelemetrySettings(BaseModel):

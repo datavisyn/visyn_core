@@ -6,18 +6,8 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
-from ...security import permissions
-from ...security.manager import SecurityManager
 from ...server.visyn_server import create_visyn_server
 from ...settings import client_config
-
-
-@pytest.fixture
-def _mock_plugins(monkeypatch):
-    def mock_current_user_in_manager(self):
-        return permissions.User(id="admin")
-
-    monkeypatch.setattr(SecurityManager, "current_user", property(mock_current_user_in_manager))
 
 
 @pytest.fixture
@@ -25,6 +15,13 @@ def workspace_config() -> dict:
     return {
         "visyn_core": {
             "enabled_plugins": ["visyn_core"],
+            "security": {
+                "store": {
+                    "no_security_store": {
+                        "enable": True,
+                    }
+                }
+            },
             "celery": {
                 "broker": "memory://localhost/",
                 "task_always_eager": True,
