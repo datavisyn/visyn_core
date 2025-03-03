@@ -126,11 +126,11 @@ export function VisynAppProvider({
         }
         setSuccessfulSentryInit(true);
       });
-    } else if (clientConfig) {
+    } else if (successfulClientConfigInit) {
       // If the client config is loaded but no DSN is provided, we can set the successful Sentry init.
       setSuccessfulSentryInit(true);
     }
-  }, [clientConfig, sentryInitOptions]);
+  }, [clientConfig, successfulClientConfigInit, sentryInitOptions]);
 
   React.useEffect(() => {
     // Hook to set the user in Sentry if a DSN is provided and the user is set.
