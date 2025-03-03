@@ -128,7 +128,7 @@
     "react-plotly.js": "^2.6.0",
     "react-spring": "^9.7.5",
     "react-window": "^1.8.11",
-    "visyn_scripts": "^13.0.0"
+    "visyn_scripts": "^13.1.0"
   },
   "devDependencies": {
     "@chromatic-com/playwright": "^0.10.2",
