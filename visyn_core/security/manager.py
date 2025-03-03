@@ -59,7 +59,6 @@ def user_to_dict(user: User, access_token: str | None = None, payload: dict | No
         payload = access_token_to_payload(access_token)
 
     return {
-        "id": user.id,
         "name": user.name,
         "roles": user.roles,
         "payload": payload,

@@ -57,7 +57,16 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /api/metrics" and "GET /api/health" and "GET /metrics" and "GET /health" not in record.getMessage()
+            excluded_endpoints = (
+                '"POST /api/sentry/ HTTP/1.1" 200',
+                '"POST /api/loggedinas HTTP/1.1" 200',
+                '"GET /api/loggedinas HTTP/1.1" 200',
+                '"GET /api/metrics HTTP/1.1" 200',
+                '"GET /api/health HTTP/1.1" 200',
+                '"GET /metrics HTTP/1.1" 200',
+                '"GET /health HTTP/1.1" 200',
+            )
+            return not any(endpoint in record.getMessage() for endpoint in excluded_endpoints)
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
@@ -74,9 +83,15 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
 
         init_telemetry(app, settings=manager.settings.visyn_core.telemetry)
 
+    frontend_dsn = manager.settings.visyn_core.sentry.get_frontend_dsn()
+    frontend_proxy_to = manager.settings.visyn_core.sentry.get_frontend_proxy_to()
+    if frontend_dsn:
+        _log.info(
+            f"Initializing Sentry frontend with DSN {frontend_dsn}" + (f" and proxying to {frontend_proxy_to}" if frontend_proxy_to else "")
+        )
+
     backend_dsn = manager.settings.visyn_core.sentry.get_backend_dsn()
     if backend_dsn:
-        _log.info(f"Initializing Sentry with DSN {backend_dsn}")
         import sentry_sdk
         import sentry_sdk.integrations.asyncio
         import sentry_sdk.integrations.fastapi
@@ -87,6 +102,7 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
         # i.e. a cluster internal one without authentication. The same is happening for the frontend with the Sentry proxy router.
         proxy_to = manager.settings.visyn_core.sentry.get_backend_proxy_to()
 
+        _log.info(f"Initializing Sentry backend with DSN {backend_dsn}" + (f" and proxying to {proxy_to}" if proxy_to else ""))
         if proxy_to:
             from urllib.parse import urlparse
 
@@ -98,10 +114,6 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
             backend_dsn = backend_dsn.replace(parsed_dsn.scheme, parsed_tunnel.scheme)
             if parsed_dsn.hostname and parsed_tunnel.hostname:
                 backend_dsn = backend_dsn.replace(parsed_dsn.hostname, parsed_tunnel.hostname)
-
-            _log.info(
-                f"Proxying Sentry from {parsed_dsn.scheme}://{parsed_dsn.hostname} to {parsed_tunnel.scheme}://{parsed_tunnel.hostname}"
-            )
 
         sentry_sdk.init(
             sample_rate=1.0,

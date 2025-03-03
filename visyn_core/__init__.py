@@ -76,7 +76,7 @@ class VisynPlugin(AVisynPlugin):
             "/api/logout",
             "/api/health",
             "/api/metrics",
-            "/metrics",
             "/health",
+            "/metrics",
             *manager.settings.visyn_core.security.paths_without_authentication,
         )
