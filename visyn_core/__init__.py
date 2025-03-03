@@ -74,6 +74,8 @@ class VisynPlugin(AVisynPlugin):
             "/api/sentry",
             "/api/login",
             "/api/logout",
+            "/api/security/stores",
+            "/api/v1/visyn/clientConfig",
             "/api/health",
             "/api/metrics",
             "/health",
