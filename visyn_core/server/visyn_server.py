@@ -29,7 +29,18 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
     _log = logging.getLogger(__name__)
     _log.info(f"Starting in {manager.settings.env} mode")
 
-    from fastapi import FastAPI
+    from fastapi import Depends, FastAPI, Request
+
+    from ..security.dependencies import get_current_user
+
+    # Protect all routes, except for a few without authentication ones like /api/login
+    def protect_all_routes(request: Request):
+        all_paths_without_authentication_from_plugins = tuple(
+            path for p in manager.registry.plugins for path in p.plugin.paths_without_authentication()
+        )
+        if request.url.path in all_paths_without_authentication_from_plugins:
+            return None
+        return get_current_user(request)
 
     app = FastAPI(
         debug=manager.settings.is_development_mode,
@@ -39,13 +50,23 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
         docs_url="/api/docs",
         openapi_url="/api/openapi.json",
         redoc_url="/api/redoc",
+        dependencies=[Depends(protect_all_routes)],
         **fast_api_args,
     )
 
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /api/metrics" and "GET /api/health" and "GET /metrics" and "GET /health" not in record.getMessage()
+            excluded_endpoints = (
+                '"POST /api/sentry/ HTTP/1.1" 200',
+                '"POST /api/loggedinas HTTP/1.1" 200',
+                '"GET /api/loggedinas HTTP/1.1" 200',
+                '"GET /api/metrics HTTP/1.1" 200',
+                '"GET /api/health HTTP/1.1" 200',
+                '"GET /metrics HTTP/1.1" 200',
+                '"GET /health HTTP/1.1" 200',
+            )
+            return not any(endpoint in record.getMessage() for endpoint in excluded_endpoints)
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
@@ -62,16 +83,26 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
 
         init_telemetry(app, settings=manager.settings.visyn_core.telemetry)
 
+    frontend_dsn = manager.settings.visyn_core.sentry.get_frontend_dsn()
+    frontend_proxy_to = manager.settings.visyn_core.sentry.get_frontend_proxy_to()
+    if frontend_dsn:
+        _log.info(
+            f"Initializing Sentry frontend with DSN {frontend_dsn}" + (f" and proxying to {frontend_proxy_to}" if frontend_proxy_to else "")
+        )
+
     backend_dsn = manager.settings.visyn_core.sentry.get_backend_dsn()
     if backend_dsn:
-        _log.info(f"Initializing Sentry with DSN {backend_dsn}")
         import sentry_sdk
+        import sentry_sdk.integrations.asyncio
+        import sentry_sdk.integrations.fastapi
+        import sentry_sdk.integrations.starlette
 
         # The sentry DSN usually contains the "public" URL of the sentry server, i.e. https://sentry.app-internal.datavisyn.io/...
         # which is sometimes not accessible due to authentication. Therefore, we allow to proxy the sentry requests to a different URL,
         # i.e. a cluster internal one without authentication. The same is happening for the frontend with the Sentry proxy router.
         proxy_to = manager.settings.visyn_core.sentry.get_backend_proxy_to()
 
+        _log.info(f"Initializing Sentry backend with DSN {backend_dsn}" + (f" and proxying to {proxy_to}" if proxy_to else ""))
         if proxy_to:
             from urllib.parse import urlparse
 
@@ -84,21 +115,37 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
             if parsed_dsn.hostname and parsed_tunnel.hostname:
                 backend_dsn = backend_dsn.replace(parsed_dsn.hostname, parsed_tunnel.hostname)
 
-            _log.info(
-                f"Proxying Sentry from {parsed_dsn.scheme}://{parsed_dsn.hostname} to {parsed_tunnel.scheme}://{parsed_tunnel.hostname}"
-            )
-
         sentry_sdk.init(
-            dsn=backend_dsn,
-            # Set traces_sample_rate to 1.0 to capture 100%
-            # of transactions for tracing.
+            sample_rate=1.0,
+            # Set traces_sample_rate to 1.0 to capture 100% of transactions for tracing.
             traces_sample_rate=1.0,
-            # Set profiles_sample_rate to 1.0 to profile 100%
-            # of sampled transactions.
-            # We recommend adjusting this value in production.
+            # Set profiles_sample_rate to 1.0 to profile 100% of sampled transactions.
             profiles_sample_rate=1.0,
+            # Set send_default_pii to True to send PII like the user's IP address.
+            send_default_pii=True,
+            # Set integrations to enable integrations for asyncio, starlette and fastapi
+            integrations=[
+                sentry_sdk.integrations.asyncio.AsyncioIntegration(),
+                sentry_sdk.integrations.starlette.StarletteIntegration(middleware_spans=False),
+                sentry_sdk.integrations.fastapi.FastApiIntegration(middleware_spans=False),
+            ],
+            # Add custom options to the backend
             **manager.settings.visyn_core.sentry.backend_init_options,
+            # Finally set the DSN
+            dsn=backend_dsn,
         )
+
+        # Add a before each request to call set_user on the sentry_sdk
+        @app.middleware("http")
+        async def sentry_add_user_middleware(request: Request, call_next):
+            user = manager.security.current_user
+            if user and sentry_sdk.is_initialized():
+                sentry_sdk.set_user(
+                    {
+                        "id": user.id,
+                    }
+                )
+            return await call_next(request)
 
     # Initialize global managers.
     from ..celery.app import init_celery_manager

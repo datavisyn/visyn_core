@@ -3,7 +3,7 @@ import * as React from 'react';
 import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { Notifications, NotificationsProps } from '@mantine/notifications';
-import { BrowserOptions } from '@sentry/react';
+import type { BrowserOptions } from '@sentry/react';
 import merge from 'lodash/merge';
 
 import { loadClientConfig } from '../base/clientConfig';
@@ -32,6 +32,7 @@ export function VisynAppProvider({
   sentryInitOptions = {},
   sentryOptions = {},
   waitForClientConfig = true,
+  waitForSentry = true,
 }: {
   /**
    * Set this to true to disable the MantineProvider of Mantine 6. Use only if no Mantine 6 components are used.
@@ -63,6 +64,11 @@ export function VisynAppProvider({
    * @default `true`
    */
   waitForClientConfig?: boolean;
+  /**
+   * Set this to true to wait for the Sentry initialization before rendering the children.
+   * @default `true`
+   */
+  waitForSentry?: boolean;
 }) {
   const user = useVisynUser();
   const { status: initStatus } = useInitVisynApp();
@@ -86,14 +92,15 @@ export function VisynAppProvider({
     [user, appName, clientConfig],
   );
 
+  const [successfulSentryInit, setSuccessfulSentryInit] = React.useState<boolean>(false);
   React.useEffect(() => {
     // Hook to initialize Sentry if a DSN is provided.
     if (clientConfig?.sentry_dsn) {
       import('@sentry/react').then((Sentry) => {
         if (!Sentry.isInitialized()) {
           Sentry.init({
-            dsn: clientConfig.sentry_dsn,
-            tunnel: clientConfig.sentry_proxy_to,
+            /*
+            Do not instantiate integrations here, as the apps should do this instead.
             integrations: [
               // Capture all console.error calls
               Sentry.captureConsoleIntegration({ levels: ['error'] }),
@@ -102,22 +109,28 @@ export function VisynAppProvider({
               // Enable replay integration
               Sentry.replayIntegration(),
             ],
-
-            // Set tracesSampleRate to 1.0 to capture 100%
-            // of transactions for performance monitoring.
+            */
+            // We want to avoid having [object Object] in the Sentry breadcrumbs, so we increase the depth.
+            normalizeDepth: 5,
+            // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
             tracesSampleRate: 1.0,
-
-            // Capture Replay for 10% of all sessions,
-            // plus for 100% of sessions with an error
-            replaysSessionSampleRate: 0.1,
-            replaysOnErrorSampleRate: 1.0,
-
+            // Disable replays by default
+            replaysSessionSampleRate: 0,
+            replaysOnErrorSampleRate: 0,
+            // Add our own options
             ...(sentryInitOptions || {}),
+            // And finally set the DSN and tunnel
+            dsn: clientConfig.sentry_dsn,
+            tunnel: clientConfig.sentry_proxy_to,
           });
         }
+        setSuccessfulSentryInit(true);
       });
+    } else if (successfulClientConfigInit) {
+      // If the client config is loaded but no DSN is provided, we can set the successful Sentry init.
+      setSuccessfulSentryInit(true);
     }
-  }, [clientConfig?.sentry_dsn, clientConfig?.sentry_proxy_to, sentryInitOptions]);
+  }, [clientConfig, successfulClientConfigInit, sentryInitOptions]);
 
   React.useEffect(() => {
     // Hook to set the user in Sentry if a DSN is provided and the user is set.
@@ -125,7 +138,7 @@ export function VisynAppProvider({
       import('@sentry/react').then((Sentry) => {
         if (Sentry.isInitialized()) {
           Sentry.setUser({
-            username: user.name,
+            id: user.name,
           });
         }
       });
@@ -141,7 +154,7 @@ export function VisynAppProvider({
   // Extract as variable to more easily make LazyMantine6Provider optional
   const visynAppContext = (
     <VisynAppContext.Provider value={context}>
-      {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) ? children : null}
+      {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) && (!waitForSentry || successfulSentryInit) ? children : null}
     </VisynAppContext.Provider>
   );
 

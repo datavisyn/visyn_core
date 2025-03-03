@@ -1,4 +1,3 @@
-import contextlib
 import time
 
 import opentelemetry.metrics as metrics
@@ -53,10 +52,9 @@ class FastAPIMetricsMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
 
-            with contextlib.suppress(BaseException):
-                user = manager.security.load_from_request(request)
-                if user:
-                    users_counter.add(1, {"user_id": user.id})
+            user = manager.security.current_user
+            if user:
+                users_counter.add(1, {"user_id": user.id})
         except BaseException as e:
             status_code = HTTP_500_INTERNAL_SERVER_ERROR
             exceptions_counter.add(1, {"method": method, "path": path, "exception_type": type(e).__name__, "app_name": self.app_name})

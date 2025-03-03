@@ -66,3 +66,19 @@ class VisynPlugin(AVisynPlugin):
             "visyn_core.security.store.oauth2_security_store",
             {},
         )
+
+    def paths_without_authentication(self):
+        from . import manager
+
+        return (
+            "/api/health",
+            "/api/login",
+            "/api/logout",
+            "/api/metrics",
+            "/api/security/stores",
+            "/api/sentry",
+            "/api/v1/visyn/clientConfig",
+            "/health",
+            "/metrics",
+            *manager.settings.visyn_core.security.paths_without_authentication,
+        )
