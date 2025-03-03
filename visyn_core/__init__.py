@@ -71,13 +71,13 @@ class VisynPlugin(AVisynPlugin):
         from . import manager
 
         return (
-            "/api/sentry",
+            "/api/health",
             "/api/login",
             "/api/logout",
-            "/api/security/stores",
-            "/api/v1/visyn/clientConfig",
-            "/api/health",
             "/api/metrics",
+            "/api/security/stores",
+            "/api/sentry",
+            "/api/v1/visyn/clientConfig",
             "/health",
             "/metrics",
             *manager.settings.visyn_core.security.paths_without_authentication,
