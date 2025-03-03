@@ -1,6 +1,6 @@
 # a2wsgi==1.6.0 # This WSIGMiddleware is not compatible with starlette_context
 alembic==1.13.2
-cachetools==5.3.3
+cachetools==5.5.2
 celery>=5.0.0,<6.0.0
 celery-types~=0.22.0
 fastapi==0.115.6
