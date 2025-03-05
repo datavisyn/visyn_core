@@ -198,6 +198,14 @@ class SentrySettings(BaseModel):
     """
     Proxy Sentry frontend envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
     """
+    frontend_proxy_verify: bool = True
+    """
+    Verify the SSL certificate of the frontend proxy.
+    """
+    frontend_proxy_timeout: int = 10
+    """
+    Timeout in seconds for the frontend proxy.
+    """
     backend_proxy_to: str | None = None
     """
     Proxy Sentry backend envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
