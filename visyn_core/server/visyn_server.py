@@ -54,19 +54,21 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
         **fast_api_args,
     )
 
+    # Filter out the verbose paths from the access log
+    verbose_paths = (
+        "/api/sentry/",
+        "/api/loggedinas",
+        "/api/health",
+        "/api/metrics",
+        "/health",
+        "/metrics",
+    )
+    ignored_paths_for_logging_filter = tuple(f'{path} HTTP/1.1" 200' for path in verbose_paths)
+
     # Filter out the metrics endpoint from the access log
     class EndpointFilter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
-            excluded_endpoints = (
-                '"POST /api/sentry/ HTTP/1.1" 200',
-                '"POST /api/loggedinas HTTP/1.1" 200',
-                '"GET /api/loggedinas HTTP/1.1" 200',
-                '"GET /api/metrics HTTP/1.1" 200',
-                '"GET /api/health HTTP/1.1" 200',
-                '"GET /metrics HTTP/1.1" 200',
-                '"GET /health HTTP/1.1" 200',
-            )
-            return not any(endpoint in record.getMessage() for endpoint in excluded_endpoints)
+            return not any(endpoint in record.getMessage() for endpoint in ignored_paths_for_logging_filter)
 
     logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
@@ -96,6 +98,7 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
         import sentry_sdk.integrations.asyncio
         import sentry_sdk.integrations.fastapi
         import sentry_sdk.integrations.starlette
+        import sentry_sdk.scope
 
         # The sentry DSN usually contains the "public" URL of the sentry server, i.e. https://sentry.app-internal.datavisyn.io/...
         # which is sometimes not accessible due to authentication. Therefore, we allow to proxy the sentry requests to a different URL,
@@ -115,10 +118,19 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
             if parsed_dsn.hostname and parsed_tunnel.hostname:
                 backend_dsn = backend_dsn.replace(parsed_dsn.hostname, parsed_tunnel.hostname)
 
+        def traces_sampler(sampling_context):
+            # Ignore certain paths from being sampled as they only pollute the traces
+            if sampling_context and sampling_context.get("transaction_context", {}).get("op") == "http.server":
+                path = sampling_context.get("asgi_scope", {}).get("path")
+                if path and path in verbose_paths:
+                    return 0
+            # By default, sample all transactions
+            return 1
+
         sentry_sdk.init(
             sample_rate=1.0,
-            # Set traces_sample_rate to 1.0 to capture 100% of transactions for tracing.
-            traces_sample_rate=1.0,
+            # Set traces_sampler to ignore certain paths from being sampled
+            traces_sampler=traces_sampler,
             # Set profiles_sample_rate to 1.0 to profile 100% of sampled transactions.
             profiles_sample_rate=1.0,
             # Set send_default_pii to True to send PII like the user's IP address.
@@ -138,13 +150,15 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
         # Add a before each request to call set_user on the sentry_sdk
         @app.middleware("http")
         async def sentry_add_user_middleware(request: Request, call_next):
-            user = manager.security.current_user
-            if user and sentry_sdk.is_initialized():
-                sentry_sdk.set_user(
-                    {
-                        "id": user.id,
-                    }
-                )
+            if sentry_sdk.is_initialized() and sentry_sdk.scope.should_send_default_pii():
+                user = manager.security.current_user
+                if user:
+                    sentry_sdk.set_user(
+                        {
+                            "id": user.id,
+                            "username": user.name,
+                        }
+                    )
             return await call_next(request)
 
     # Initialize global managers.
