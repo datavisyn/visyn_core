@@ -34,11 +34,11 @@ async def proxy_sentry_envelope(request: Request):  # pyright: ignore[reportUnus
             )
 
             # Only proxy the headers we care about
-            headers_to_proxy = ["Content-Type", "X-Sentry-Error"]
+            headers = {k: res.headers.get(k) for k in ["Content-Type", "X-Sentry-Error"] if res.headers.get(k)}
             return Response(
                 status_code=res.status_code,
                 content=res.content,
-                headers={k: v for k, v in res.headers.items() if k in headers_to_proxy and v},
+                headers=headers,
             )
     else:
         return Response(status_code=500, content="Sentry is not configured")
