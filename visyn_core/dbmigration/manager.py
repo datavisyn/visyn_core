@@ -226,7 +226,10 @@ class DBMigrationManager:
             )
 
             # Store migration
-            self._migrations[migration.id] = migration
+            self.add_migration(migration)
+
+    def add_migration(self, migration: DBMigration):
+        self._migrations[migration.id] = migration
 
     def __contains__(self, item):
         return item in self._migrations
