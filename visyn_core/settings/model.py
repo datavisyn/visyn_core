@@ -202,7 +202,7 @@ class SentrySettings(BaseModel):
     """
     Verify the SSL certificate of the frontend proxy.
     """
-    frontend_proxy_timeout: int = 10
+    frontend_proxy_timeout: int = 30
     """
     Timeout in seconds for the frontend proxy.
     """
