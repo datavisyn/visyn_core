@@ -7,9 +7,12 @@ import type { BrowserOptions } from '@sentry/react';
 import merge from 'lodash/merge';
 
 import { loadClientConfig } from '../base/clientConfig';
-import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
+import { useAsync, useInitVisynApp } from '../hooks';
 import { VisynAppContext } from './VisynAppContext';
+import { dispatchVisynEvent } from './VisynEvents';
 import { DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
+import { useVisynEventCallback } from '../hooks/useVisynEventCallback';
+import { userSession } from '../security/UserSession';
 import type { IUser } from '../security/interfaces';
 import { VisProvider } from '../vis/Provider';
 
@@ -63,7 +66,10 @@ export function VisynAppProvider({
    */
   waitForSentry?: boolean;
 }) {
-  const user = useVisynUser();
+  const [user, setUser] = React.useState<IUser | null>(userSession.currentUser());
+  useVisynEventCallback('userLoggedIn', ({ detail }) => setUser(detail.user));
+  useVisynEventCallback('userLoggedOut', () => setUser(null));
+
   const { status: initStatus } = useInitVisynApp();
 
   // Add the user as argument such that whenever the user changes, we want to reload the client config to get the latest permissions.
@@ -91,7 +97,7 @@ export function VisynAppProvider({
     if (clientConfig?.sentry_dsn) {
       import('@sentry/react').then((Sentry) => {
         if (!Sentry.isInitialized()) {
-          Sentry.init({
+          const client = Sentry.init({
             /*
             Do not instantiate integrations here, as the apps should do this instead.
             integrations: [
@@ -116,6 +122,7 @@ export function VisynAppProvider({
             dsn: clientConfig.sentry_dsn,
             tunnel: clientConfig.sentry_proxy_to,
           });
+          dispatchVisynEvent('sentryInitialized', { client });
         }
         setSuccessfulSentryInit(true);
       });

@@ -7,3 +7,5 @@ export * from './useSetRef';
 export * from './useDeepComparison';
 export * from './useDeepEffect';
 export * from './useDeepMemo';
+export * from './useVisynEventCallback';
+export * from './useVisynEventValue';

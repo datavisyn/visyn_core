@@ -1,6 +1,7 @@
 import { Permission } from './Permission';
 import { EEntity, EPermission, UserUtils } from './constants';
 import type { ISecureItem, IUser } from './interfaces';
+import { dispatchVisynEvent } from '../app/VisynEvents';
 import { globalEventHandler } from '../base/event';
 import { pluginRegistry } from '../plugin/PluginRegistry';
 import { EP_PHOVEA_CORE_LOGIN, EP_PHOVEA_CORE_LOGOUT, ILoginExtensionPoint, ILoginExtensionPointDesc, ILogoutEP, ILogoutEPDesc } from '../plugin/extensions';
@@ -20,8 +21,10 @@ export interface ILogoutOptions {
 }
 
 export class UserSession {
+  // TODO: Remove legacy event handling
   public static GLOBAL_EVENT_USER_LOGGED_IN = 'USER_LOGGED_IN';
 
+  // TODO: Remove legacy event handling
   public static GLOBAL_EVENT_USER_LOGGED_OUT = 'USER_LOGGED_OUT';
 
   /**
@@ -84,6 +87,8 @@ export class UserSession {
       desc.load().then((plugin: ILoginExtensionPoint) => plugin.factory(user));
     });
 
+    dispatchVisynEvent('userLoggedIn', { user });
+    // TODO: Remove legacy event handling
     globalEventHandler.fire(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, user);
   };
 
@@ -99,6 +104,8 @@ export class UserSession {
       });
 
       // Notify all listeners
+      dispatchVisynEvent('userLoggedOut', { options });
+      // TODO: Remove legacy event handling
       globalEventHandler.fire(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, options);
 
       // Handle different logout options
