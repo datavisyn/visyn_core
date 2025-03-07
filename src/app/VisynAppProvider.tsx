@@ -82,16 +82,7 @@ export function VisynAppProvider({
     setSuccessfulClientConfigInit(true);
   }
 
-  const context = React.useMemo(
-    () => ({
-      user,
-      appName,
-      clientConfig,
-    }),
-    [user, appName, clientConfig],
-  );
-
-  const [successfulSentryInit, setSuccessfulSentryInit] = React.useState<boolean>(false);
+  const [successfulSentryInit, setSuccessfulSentryInit] = React.useState<boolean | 'skipped'>(false);
   React.useEffect(() => {
     // Hook to initialize Sentry if a DSN is provided.
     if (clientConfig?.sentry_dsn) {
@@ -129,7 +120,7 @@ export function VisynAppProvider({
       });
     } else if (successfulClientConfigInit) {
       // If the client config is loaded but no DSN is provided, we can set the successful Sentry init.
-      setSuccessfulSentryInit(true);
+      setSuccessfulSentryInit('skipped');
     }
   }, [clientConfig, successfulClientConfigInit, sentryInitOptions]);
 
@@ -147,6 +138,17 @@ export function VisynAppProvider({
   }, [clientConfig?.sentry_dsn, sentryOptions?.setUser, user]);
 
   const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
+
+  const context = React.useMemo<Parameters<typeof VisynAppContext.Provider>[0]['value']>(
+    () => ({
+      user,
+      appName,
+      clientConfig,
+      successfulClientConfigInit,
+      successfulSentryInit,
+    }),
+    [user, appName, clientConfig, successfulClientConfigInit, successfulSentryInit],
+  );
 
   return (
     <VisProvider>
