@@ -45,7 +45,7 @@ export function VisynAppProvider({
   /**
    * Options to pass to Sentry.init. The DSN is automatically set from the client config.
    */
-  sentryInitOptions?: Omit<BrowserOptions, 'dsn'>;
+  sentryInitOptions?: Omit<BrowserOptions, 'dsn'> | (() => Promise<Omit<BrowserOptions, 'dsn'>>);
   /**
    * Additional options for the Sentry integration.
    */
@@ -95,8 +95,9 @@ export function VisynAppProvider({
   React.useEffect(() => {
     // Hook to initialize Sentry if a DSN is provided.
     if (clientConfig?.sentry_dsn) {
-      import('@sentry/react').then((Sentry) => {
+      import('@sentry/react').then(async (Sentry) => {
         if (!Sentry.isInitialized()) {
+          const resolvedSentryInitOptions = typeof sentryInitOptions === 'function' ? await sentryInitOptions() : sentryInitOptions;
           const client = Sentry.init({
             /*
             Do not instantiate integrations here, as the apps should do this instead.
@@ -117,7 +118,7 @@ export function VisynAppProvider({
             replaysSessionSampleRate: 0,
             replaysOnErrorSampleRate: 0,
             // Add our own options
-            ...(sentryInitOptions || {}),
+            ...(resolvedSentryInitOptions || {}),
             // And finally set the DSN and tunnel
             dsn: clientConfig.sentry_dsn,
             tunnel: clientConfig.sentry_proxy_to,
