@@ -1,5 +1,9 @@
-export class WebpackEnv {
+export class VisynEnv {
   public static NODE_ENV = process.env.NODE_ENV;
+
+  public static __APP_NAME__ = process.env.__APP_NAME__;
+
+  public static __APP_DISPLAY_NAME__ = process.env.__APP_DISPLAY_NAME__;
 
   public static __VERSION__ = process.env.__VERSION__;
 
@@ -10,9 +14,9 @@ export class WebpackEnv {
   public static __APP_CONTEXT__ = process.env.__APP_CONTEXT__;
 
   public static __DEBUG__ = process.env.__DEBUG__;
-
-  /**
-   * enables features that used in reprovisyn
-   */
-  public static ENABLE_EXPERIMENTAL_REPROVISYN_FEATURES = process.env.ENABLE_EXPERIMENTAL_REPROVISYN_FEATURES === 'true';
 }
+
+/**
+ * @deprecated Use `VisynEnv` instead.
+ */
+export class WebpackEnv extends VisynEnv {}

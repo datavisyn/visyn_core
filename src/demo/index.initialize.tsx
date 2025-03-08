@@ -4,6 +4,12 @@ import * as Sentry from '@sentry/react';
 import { createRoot } from 'react-dom/client';
 
 import { VisynAppProvider } from '../app/VisynAppProvider';
+import { addVisynEventListener } from '../app/VisynEvents';
+
+addVisynEventListener('sentryInitialized', ({ detail }) => {
+  // Demo of the visyn event listeners
+  console.log('Sentry initialized', detail.client);
+});
 
 const MainApp = React.lazy(() => import('./MainApp').then((module) => ({ default: module.MainApp })));
 

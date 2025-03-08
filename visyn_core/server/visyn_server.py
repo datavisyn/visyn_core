@@ -10,11 +10,18 @@ from ..settings.constants import default_logging_dict
 logging.config.dictConfig(default_logging_dict)
 
 
-def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cmd: str | None = None, workspace_config: dict | None = None):
+def create_visyn_server(
+    *,
+    main_app: str = "visyn_core",
+    fast_api_args: dict[str, Any] | None = None,
+    start_cmd: str | None = None,
+    workspace_config: dict | None = None,
+):
     """
     Create a new FastAPI instance while ensuring that the configuration and plugins are loaded, extension points are registered, database migrations are executed, ...
 
     Keyword arguments:
+    main_app: The main application starting the server, i.e. "visyn_core". Used to infer the app name and version from the plugin.
     fast_api_args: Optional dictionary of arguments directly passed to the FastAPI constructor.
     start_cmd: Optional start command for the server, i.e. db-migration exposes commands like `db-migration exec <..> upgrade head`.
     workspace_config: Optional override for the workspace configuration. If nothing is provided `load_workspace_config()` is used instead.
@@ -25,9 +32,10 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
     from .utils import init_settings_manager
 
     plugins = init_settings_manager(workspace_config=workspace_config)
+    main_plugin = next(p for p in plugins if p.id == main_app)
 
     _log = logging.getLogger(__name__)
-    _log.info(f"Starting in {manager.settings.env} mode")
+    _log.info(f"Starting {main_plugin.id}@{main_plugin.version} in {manager.settings.env} mode")
 
     from fastapi import Depends, FastAPI, Request
 
@@ -128,6 +136,7 @@ def create_visyn_server(*, fast_api_args: dict[str, Any] | None = None, start_cm
             return 1
 
         sentry_sdk.init(
+            release=f"{main_plugin.id}@{main_plugin.version}",
             sample_rate=1.0,
             # Set traces_sampler to ignore certain paths from being sampled
             traces_sampler=traces_sampler,

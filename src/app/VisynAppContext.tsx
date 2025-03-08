@@ -7,10 +7,14 @@ export const VisynAppContext = React.createContext<{
   user: IUser | null;
   appName: JSX.Element | string;
   clientConfig: IClientConfig | null;
+  successfulClientConfigInit: boolean;
+  successfulSentryInit: boolean | 'skipped';
 }>({
   user: null,
   appName: '',
   clientConfig: null,
+  successfulClientConfigInit: false,
+  successfulSentryInit: false,
 });
 
 export function useVisynAppContext() {

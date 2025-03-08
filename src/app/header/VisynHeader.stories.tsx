@@ -38,6 +38,8 @@ const meta: Meta<typeof VisynHeader> = {
         clientConfig: {
           env: 'development' as const,
         },
+        successfulClientConfigInit: true,
+        successfulSentryInit: true,
       }),
       [],
     );
