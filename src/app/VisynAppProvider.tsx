@@ -52,6 +52,7 @@ export function VisynAppProvider({
   sentryOptions?: {
     /**
      * Set the user in Sentry. Defaults to true.
+     * @deprecated Uses the `sendDefaultPii` from now on.
      */
     setUser?: boolean;
   };
@@ -125,17 +126,17 @@ export function VisynAppProvider({
   }, [clientConfig, successfulClientConfigInit, sentryInitOptions]);
 
   React.useEffect(() => {
-    // Hook to set the user in Sentry if a DSN is provided and the user is set.
-    if (clientConfig?.sentry_dsn && user && sentryOptions?.setUser !== false) {
+    // Hook to set the user in Sentry if it is initialized and the user is set.
+    if (successfulSentryInit === true && user) {
       import('@sentry/react').then((Sentry) => {
-        if (Sentry.isInitialized()) {
+        if (Sentry.isInitialized() && Sentry.getClient()?.getOptions()?.sendDefaultPii) {
           Sentry.setUser({
             id: user.name,
           });
         }
       });
     }
-  }, [clientConfig?.sentry_dsn, sentryOptions?.setUser, user]);
+  }, [successfulSentryInit, user]);
 
   const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
 
