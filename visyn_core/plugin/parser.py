@@ -110,7 +110,7 @@ def get_config_from_plugins(plugins: list[EntryPointPlugin]) -> tuple[list[dict[
     for plugin in plugins:
         plugin_settings_model = plugin.plugin.setting_class
         if plugin_settings_model:
-            _log.info(f"Plugin {plugin.id} has a settings model")
+            _log.debug(f"Plugin {plugin.id} has a settings model")
             # Load the class of the config and wrap it in a tuple like (<clazz>, ...),
             # such that pydantic can use it as type-hint in the create_model class.
             # Otherwise, it would except <clazz> to be the default value...
