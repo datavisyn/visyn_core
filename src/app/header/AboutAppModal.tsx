@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Center, Divider, Group, MantineSize, Modal, Space, Text, Title } from '@mantine/core';
 
-import { WebpackEnv } from '../../base';
+import { VisynEnv } from '../../base/VisynEnv';
 import { useVisynAppContext } from '../VisynAppContext';
 
 /**
@@ -61,14 +61,14 @@ export function AboutAppModal({
       size={size}
     >
       <Group my="md">{content}</Group>
-      {WebpackEnv.__VERSION__ ? (
+      {VisynEnv.__VERSION__ ? (
         <>
-          <Group style={{ gap: '4px' }}>
+          <Group gap="xs" wrap="nowrap">
             <Text fw={700} c="dimmed">
               Version:
             </Text>
             <Text>
-              {WebpackEnv.__VERSION__} {WebpackEnv.__BUILD_ID__ ? ` (${WebpackEnv.__BUILD_ID__})` : ''}
+              {VisynEnv.__VERSION__} {VisynEnv.__BUILD_ID__ ? ` (${VisynEnv.__BUILD_ID__})` : ''}
             </Text>
           </Group>
           <Space h="md" />

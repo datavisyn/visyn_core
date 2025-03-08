@@ -11,6 +11,7 @@ import { useAsync, useInitVisynApp } from '../hooks';
 import { VisynAppContext } from './VisynAppContext';
 import { dispatchVisynEvent } from './VisynEvents';
 import { DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
+import { VisynEnv } from '../base/VisynEnv';
 import { useVisynEventCallback } from '../hooks/useVisynEventCallback';
 import { userSession } from '../security/UserSession';
 import type { IUser } from '../security/interfaces';
@@ -91,6 +92,7 @@ export function VisynAppProvider({
         if (!Sentry.isInitialized()) {
           const resolvedSentryInitOptions = typeof sentryInitOptions === 'function' ? await sentryInitOptions() : sentryInitOptions;
           const client = Sentry.init({
+            release: `${VisynEnv.__APP_NAME__}@${VisynEnv.__VERSION__}`,
             /*
             Do not instantiate integrations here, as the apps should do this instead.
             integrations: [
