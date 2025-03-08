@@ -8,6 +8,7 @@ export enum ESupportedPlotlyVis {
   HEXBIN = 'Hexbin plot',
   HEATMAP = 'Heatmap plot',
   SANKEY = 'Sankey',
+  LINE = 'Line plot',
   CORRELATION = 'Correlation plot',
 }
 
