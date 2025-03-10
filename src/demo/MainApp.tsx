@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 
-import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
+import { VisynApp, VisynHeader } from '../app';
 import type { DatavisynTaggle } from '../ranking';
 import { VisynRanking } from '../ranking/VisynRanking';
 import {
@@ -16,12 +16,13 @@ import {
   Vis,
 } from '../vis';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { useVisynUser } from '../hooks';
 
 const { breastCancerData } = await import('../vis/stories/breastCancerData');
 const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancerData');
 
 export function MainApp() {
-  const { user } = useVisynAppContext();
+  const user = useVisynUser();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
