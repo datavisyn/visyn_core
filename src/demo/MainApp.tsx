@@ -25,6 +25,7 @@ export function MainApp() {
   const user = useVisynUser();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
+    showChooser: true,
     numColumnsSelected: [
       {
         description: 'Gene expression',

@@ -44,6 +44,8 @@ import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
+import { config } from 'process';
+import { VisTypeChooser } from './VisTypeChooser';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -294,6 +296,10 @@ export function EagerVis({
     () => !visConfig || !Renderer || !isSelectedVisTypeRegistered || !isESupportedPlotlyVis(visConfig?.type),
     [Renderer, visConfig, isSelectedVisTypeRegistered],
   );
+
+  if (visConfig.showChooser) {
+    return <VisTypeChooser />;
+  }
 
   return (
     <Group
