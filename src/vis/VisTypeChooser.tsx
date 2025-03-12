@@ -1,18 +1,35 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { Container, ScrollArea, SimpleGrid } from '@mantine/core';
-import { ESupportedPlotlyVis } from './interfaces';
+import { useElementSize } from '@mantine/hooks';
+
+import { GeneralVis } from './Provider';
 import { VisTypeChooserCard } from './VisTypeChooserCard';
 
-const avalableVisTypes = Object.values(ESupportedPlotlyVis);
+export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; onClick?: (plotType: string) => void }) {
+  const { ref, width } = useElementSize();
 
-export function VisTypeChooser() {
+  function getCols(w: number): number {
+    if (w < 400) {
+      return 1;
+    }
+    if (w < 800) {
+      return 2;
+    }
+    if (w < 1400) {
+      return 3;
+    }
+    return 4;
+  }
+
+  const cols = useMemo(() => getCols(width), [width]);
+
   return (
-    <Container fluid p={'sm'} h={'95vh'} w={'100%'} pos={'relative'}>
-      <ScrollArea h={'100%'} w={'100%'}>
-        <SimpleGrid cols={{ xs: 2, sm: 2, lg: 3, xl: 4 }} spacing="xl" verticalSpacing="xl">
-          {avalableVisTypes.map((plotType, index) => (
-            <VisTypeChooserCard key={index} onClick={() => {}} plotType={plotType}></VisTypeChooserCard>
+    <Container fluid p="sm" h="95vh" pos="relative" w="100%">
+      <ScrollArea h="calc(100% - 2 * var(--mantine-spacing-sm))" w="100%">
+        <SimpleGrid ref={ref} cols={cols} spacing="xl" verticalSpacing="xl">
+          {visTypes.map((plotType) => (
+            <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} />
           ))}
         </SimpleGrid>
       </ScrollArea>

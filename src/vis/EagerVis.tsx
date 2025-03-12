@@ -140,6 +140,7 @@ export function EagerVis({
   visTypes,
   uniquePlotId,
   showDownloadScreenshot = false,
+  showVisTypeChooser = false,
 }: {
   /**
    * Required data columns which are displayed.
@@ -180,6 +181,7 @@ export function EagerVis({
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showDragModeOptions?: boolean;
+  showVisTypeChooser?: boolean;
   setShowSidebar?(show: boolean): void;
   showSidebarDefault?: boolean;
   scrollZoom?: boolean;
@@ -215,7 +217,7 @@ export function EagerVis({
 
   useRegisterDefaultVis(visTypes);
 
-  const { getVisByType } = useVisProvider();
+  const { visTypes: visTypesProvided, getVisByType } = useVisProvider();
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [visConfig, _setVisConfig] = useUncontrolled({
@@ -223,29 +225,30 @@ export function EagerVis({
     value: setExternalConfig && externalConfig ? externalConfig : undefined,
     defaultValue:
       // If we have an external value, use that as the default. Otherwise use some inferred config.
-      externalConfig ||
-      (columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-        ? ({
-            type: ESupportedPlotlyVis.SCATTER,
-            numColumnsSelected: [],
-            color: null,
-            numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-            shape: null,
-            dragMode: EScatterSelectSettings.RECTANGLE,
-            alphaSliderVal: 0.5,
-          } as BaseVisConfig)
-        : ({
-            type: ESupportedPlotlyVis.BAR,
-            facets: null,
-            group: null,
-            direction: EBarDirection.HORIZONTAL,
-            display: EBarDisplayType.ABSOLUTE,
-            groupType: EBarGroupingType.STACK,
-            numColumnsSelected: [],
-            catColumnSelected: null,
-            aggregateColumn: null,
-            aggregateType: EAggregateTypes.COUNT,
-          } as BaseVisConfig)),
+      externalConfig || !showVisTypeChooser
+        ? columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
+          ? ({
+              type: ESupportedPlotlyVis.SCATTER,
+              numColumnsSelected: [],
+              color: null,
+              numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+              shape: null,
+              dragMode: EScatterSelectSettings.RECTANGLE,
+              alphaSliderVal: 0.5,
+            } as BaseVisConfig)
+          : ({
+              type: ESupportedPlotlyVis.BAR,
+              facets: null,
+              group: null,
+              direction: EBarDirection.HORIZONTAL,
+              display: EBarDisplayType.ABSOLUTE,
+              groupType: EBarGroupingType.STACK,
+              numColumnsSelected: [],
+              catColumnSelected: null,
+              aggregateColumn: null,
+              aggregateType: EAggregateTypes.COUNT,
+            } as BaseVisConfig)
+        : undefined,
     onChange: setExternalConfig,
   });
 
@@ -297,8 +300,15 @@ export function EagerVis({
     [Renderer, visConfig, isSelectedVisTypeRegistered],
   );
 
-  if (visConfig.showChooser) {
-    return <VisTypeChooser />;
+  if (showVisTypeChooser && visConfig?.type == null) {
+    return (
+      <VisTypeChooser
+        visTypes={visTypesProvided}
+        onClick={(plotType: string) => {
+          setVisConfig({ ...visConfig, type: plotType });
+        }}
+      />
+    );
   }
 
   return (

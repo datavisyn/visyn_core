@@ -16,7 +16,6 @@ export function isESupportedPlotlyVis(value: string): value is ESupportedPlotlyV
 }
 
 export interface BaseVisConfig {
-  showChooser?: boolean;
   type: string;
   /**
    * Merge the config with the default values once or if the vis type changes.
