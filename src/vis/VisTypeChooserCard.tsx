@@ -8,6 +8,7 @@ import { useElementSize, useHover } from '@mantine/hooks';
 import { dvBoxplot, dvCorrelationplot, dvHeatmap, dvHexbinplot, dvSankey, dvScatterplot, dvViolin } from '../icons';
 import { GeneralVis } from './Provider';
 import { ESupportedPlotlyVis } from './interfaces';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 const iconMap = {
   [ESupportedPlotlyVis.SCATTER]: dvScatterplot,
@@ -59,7 +60,7 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
                   transition: background-color 0.3s;
                 `}
               >
-                {React.isValidElement(cardIcon) ? cardIcon : <FontAwesomeIcon icon={cardIcon} />}
+                {React.isValidElement(cardIcon) ? cardIcon : <FontAwesomeIcon icon={cardIcon as IconDefinition} />}
               </ThemeIcon>
               <Text
                 fw={700}
