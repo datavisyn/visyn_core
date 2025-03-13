@@ -46,6 +46,7 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
           viewTransitionName: `todo`,
         },
       }}
+      data-testid={`vis-type-chooser-card-${plotType.type}`}
       role="button"
     >
       <Stack gap="xs">
@@ -59,7 +60,6 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
                 className={css`
                   transition: background-color 0.3s;
                 `}
-                data-testid={`vis-type-chooser-card-${plotType.type}`}
               >
                 {React.isValidElement(cardIcon) ? cardIcon : <FontAwesomeIcon icon={cardIcon as IconDefinition} />}
               </ThemeIcon>
