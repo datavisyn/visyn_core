@@ -13,7 +13,7 @@ const iconMap = {
   [ESupportedPlotlyVis.SCATTER]: dvScatterplot,
   [ESupportedPlotlyVis.VIOLIN]: dvViolin,
   [ESupportedPlotlyVis.BOXPLOT]: dvBoxplot,
-  [ESupportedPlotlyVis.BAR]: undefined,
+  [ESupportedPlotlyVis.BAR]: <i className="fa-solid fa-chart-bar" />,
   [ESupportedPlotlyVis.HEXBIN]: dvHexbinplot,
   [ESupportedPlotlyVis.HEATMAP]: dvHeatmap,
   [ESupportedPlotlyVis.SANKEY]: dvSankey,
@@ -59,7 +59,7 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
                   transition: background-color 0.3s;
                 `}
               >
-                {cardIcon ? <FontAwesomeIcon icon={cardIcon} /> : null}
+                {React.isValidElement(cardIcon) ? cardIcon : <FontAwesomeIcon icon={cardIcon} />}
               </ThemeIcon>
               <Text
                 fw={700}
