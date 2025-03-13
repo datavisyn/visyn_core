@@ -153,9 +153,6 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
                 <Stack gap="xs" style={{ height: '100%' }} ref={collapsedStackRef}>
                   <Divider orientation="horizontal" />
                   <Text p="sm" pt={0} flex={1} size="sm">
-                    {/* <tabIndex={0}Text fw={700} size="sm">
-                    Title
-                  </Text> */}
                     <Text inherit lineClamp={10} span>
                       {plotType.description}
                     </Text>
