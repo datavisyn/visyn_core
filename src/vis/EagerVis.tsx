@@ -326,6 +326,7 @@ export function EagerVis({
           cursor: 'pointer !important',
         },
       }}
+      data-testid={`vis-plot-container-${visConfig.type}`}
     >
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
