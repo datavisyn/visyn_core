@@ -7,6 +7,7 @@ import { createVis, useVisProvider } from './Provider';
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
+import { VisTypeChooser } from './VisTypeChooser';
 import { BarVis, BarVisSidebar, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './bar';
 import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
@@ -44,8 +45,6 @@ import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
-import { config } from 'process';
-import { VisTypeChooser } from './VisTypeChooser';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 

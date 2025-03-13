@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { Container, ScrollArea, SimpleGrid } from '@mantine/core';
+import { Container, SimpleGrid } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 
 import { GeneralVis } from './Provider';
