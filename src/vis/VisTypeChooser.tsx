@@ -26,13 +26,11 @@ export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; 
 
   return (
     <Container fluid p="sm" h="95vh" pos="relative" w="100%">
-      <ScrollArea h="calc(100% - 2 * var(--mantine-spacing-sm))" w="100%">
-        <SimpleGrid ref={ref} cols={cols} spacing="xl" verticalSpacing="xl">
-          {visTypes.map((plotType) => (
-            <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} />
-          ))}
-        </SimpleGrid>
-      </ScrollArea>
+      <SimpleGrid ref={ref} cols={cols} spacing="xl" verticalSpacing="xl">
+        {visTypes.map((plotType) => (
+          <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} />
+        ))}
+      </SimpleGrid>
     </Container>
   );
 }
