@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { css, cx } from '@emotion/css';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, Card, Divider, Group, Image, Paper, Stack, Text, ThemeIcon, useMantineColorScheme, useMantineTheme } from '@mantine/core';
 import { useElementSize, useHover } from '@mantine/hooks';
@@ -8,7 +9,6 @@ import { useElementSize, useHover } from '@mantine/hooks';
 import { dvBoxplot, dvCorrelationplot, dvHeatmap, dvHexbinplot, dvSankey, dvScatterplot, dvViolin } from '../icons';
 import { GeneralVis } from './Provider';
 import { ESupportedPlotlyVis } from './interfaces';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 const iconMap = {
   [ESupportedPlotlyVis.SCATTER]: dvScatterplot,
