@@ -1,0 +1,4 @@
+- [ ] Do not include cards for disabled vis types
+- [ ] We need to make the cols of the grid depending on the size of the comntainer
+- [ ] check vertical scrollbar
+-

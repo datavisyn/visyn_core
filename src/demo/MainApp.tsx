@@ -23,7 +23,37 @@ const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancer
 
 export function MainApp() {
   const user = useVisynUser();
-  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>();
+  const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
+    type: ESupportedPlotlyVis.SCATTER,
+    numColumnsSelected: [
+      {
+        description: 'Gene expression',
+        id: 'stat2GeneExpression',
+        name: 'STAT2',
+      },
+      {
+        description: 'Gene expression',
+        id: 'brca1GeneExpression',
+        name: 'BRCA1',
+      },
+    ],
+    color: {
+      description: '',
+      id: 'cellularity',
+      name: 'Cellularity',
+    },
+    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+    facets: null,
+    shape: null,
+    dragMode: EScatterSelectSettings.RECTANGLE,
+    alphaSliderVal: 1,
+    showLabels: ELabelingOptions.SELECTED,
+    showLabelLimit: 20,
+    regressionLineOptions: {
+      type: ERegressionLineType.LINEAR,
+      showStats: true,
+    },
+  } as IScatterConfig);
   const columns = React.useMemo(() => (user ? fetchBreastCancerData() : []), [user]);
   const [selection, setSelection] = React.useState<typeof breastCancerData>([]);
 
@@ -105,7 +135,6 @@ export function MainApp() {
             columns={columns}
             showSidebarDefault
             externalConfig={visConfig}
-            showVisTypeChooser={true}
             showDownloadScreenshot
             setExternalConfig={setVisConfig}
             selected={visSelection}
