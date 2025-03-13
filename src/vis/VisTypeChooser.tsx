@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { Container, SimpleGrid } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
@@ -9,7 +9,7 @@ import { VisTypeChooserCard } from './VisTypeChooserCard';
 export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; onClick?: (plotType: string) => void }) {
   const { ref, width } = useElementSize();
 
-  function getCols(w: number): number {
+  const getCols = useCallback((w: number): number => {
     if (w < 400) {
       return 1;
     }
@@ -20,9 +20,9 @@ export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; 
       return 3;
     }
     return 4;
-  }
+  }, []);
 
-  const cols = useMemo(() => getCols(width), [width]);
+  const cols = useMemo(() => getCols(width), [width, getCols]);
 
   return (
     <Container fluid p="sm" h="95vh" pos="relative" w="100%">
