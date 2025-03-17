@@ -52,10 +52,10 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
         styles={{
           root: {
             cursor: 'pointer',
-            viewTransitionName: `vis-type-chooser-card-${plotType.type}`,
+            viewTransitionName: `vis-type-chooser-card-${(plotType.type ?? '').toLowerCase().replace(/\s/g, '-')}`,
           },
         }}
-        data-testid={`vis-type-chooser-card-${plotType.type}`}
+        data-testid={`vis-type-chooser-card-${(plotType.type ?? '').toLowerCase().replace(/\s/g, '-')}`}
         role="button"
       >
         <Stack gap="xs">
