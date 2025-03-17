@@ -10,7 +10,7 @@ export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; 
   const { ref, width } = useElementSize();
 
   const getCols = useCallback((w: number): number => {
-    if (w < 400) {
+    if (w < 500) {
       return 1;
     }
     if (w < 800) {
