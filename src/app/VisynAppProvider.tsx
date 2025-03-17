@@ -100,17 +100,14 @@ export function VisynAppProvider({
               Sentry.captureConsoleIntegration({ levels: ['error'] }),
               // Instrument browser pageload/navigation performance
               Sentry.browserTracingIntegration(),
-              // Enable replay integration
-              Sentry.replayIntegration(),
             ],
             */
             // We want to avoid having [object Object] in the Sentry breadcrumbs, so we increase the depth.
             normalizeDepth: 5,
             // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
             tracesSampleRate: 1.0,
-            // Disable replays by default
-            replaysSessionSampleRate: 0,
-            replaysOnErrorSampleRate: 0,
+            // Set send_default_pii to True to send PII like the user's IP address.
+            sendDefaultPii: true,
             // Add our own options
             ...(resolvedSentryInitOptions || {}),
             // And finally set the DSN and tunnel
@@ -131,9 +128,10 @@ export function VisynAppProvider({
     // Hook to set the user in Sentry if it is initialized and the user is set.
     if (successfulSentryInit === true && user) {
       import('@sentry/react').then((Sentry) => {
-        if (Sentry.isInitialized()) {
+        if (Sentry.isInitialized() && Sentry.getClient()?.getOptions()?.sendDefaultPii) {
           Sentry.setUser({
             id: user.name,
+            username: user.name,
           });
         }
       });
