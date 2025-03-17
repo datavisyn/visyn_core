@@ -131,7 +131,7 @@ export function VisynAppProvider({
     // Hook to set the user in Sentry if it is initialized and the user is set.
     if (successfulSentryInit === true && user) {
       import('@sentry/react').then((Sentry) => {
-        if (Sentry.isInitialized() && Sentry.getClient()?.getOptions()?.sendDefaultPii) {
+        if (Sentry.isInitialized()) {
           Sentry.setUser({
             id: user.name,
           });
