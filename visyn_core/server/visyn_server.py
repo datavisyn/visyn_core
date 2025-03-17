@@ -128,17 +128,6 @@ def create_visyn_server(
 
     app.state.id_mapping = manager.id_mapping = create_id_mapping_manager()
 
-    # TODO: Allow custom command routine (i.e. for db-migrations)
-    from .cmd import parse_command_string
-
-    alternative_start_command = parse_command_string(start_cmd)
-    if alternative_start_command:
-        _log.info(f"Received start command: {start_cmd}")
-        alternative_start_command()
-        _log.info("Successfully executed command, exiting server...")
-        # TODO: How to properly exit here? Should a command support the "continuation" of the server, i.e. by returning True?
-        sys.exit(0)
-
     # Load all namespace plugins as WSGIMiddleware plugins
     from fastapi.middleware.wsgi import WSGIMiddleware
 
@@ -177,12 +166,23 @@ def create_visyn_server(
                 f"Could not set the total number of anyio tokens to {manager.settings.visyn_core.total_anyio_tokens}. Error: {e}"
             )
 
-    if manager.settings.visyn_core.cypress:
-        _log.info("Cypress mode is enabled. This should only be used in a Cypress testing environment or CI.")
+    if manager.settings.is_e2e_testing:
+        _log.info("E2E mode is enabled. This should only be used in a E2E testing environment or CI.")
 
     # As a last step, call init_app callback for every plugin. This is last to ensure everything we need is already initialized.
     for p in plugins:
         p.plugin.init_app(app)
+
+    # TODO: Allow custom command routine (i.e. for db-migrations)
+    from .cmd import parse_command_string
+
+    alternative_start_command = parse_command_string(start_cmd)
+    if alternative_start_command:
+        _log.info(f"Received start command: {start_cmd}")
+        alternative_start_command()
+        _log.info("Successfully executed command, exiting server...")
+        # TODO: How to properly exit here? Should a command support the "continuation" of the server, i.e. by returning True?
+        sys.exit(0)
 
     # Load `after_server_started` extension points which are run immediately after server started,
     # so all plugins should have been loaded at this point of time
