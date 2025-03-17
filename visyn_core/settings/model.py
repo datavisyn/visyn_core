@@ -235,23 +235,27 @@ class VisynCoreSettings(BaseModel):
     """
     sentry: SentrySettings = SentrySettings()
     """
-    Settings for celery. If not set, celery will not be initialized.
+    Settings for Sentry. DSN will be shared via the client config.
     """
     celery: dict[str, Any] | None = None
     """
-    Settings for Sentry. DSN will be shared via the client config.
+    Settings for celery. If not set, celery will not be initialized.
     """
     cypress: bool = False
     """
-    True if the application is running in Cypress testing environment. Enables application to return special responses for example.
+    @deprecated: Use `e2e` instead.
+    """
+    e2e: bool = False
+    """
+    True if the application is running in E2E testing environment. Enables application to return special responses for example.
 
-    To enable this flag in applications, simply add `VISYN_CORE__CYPRESS=true` to your `.env` file.
+    To enable this flag in applications, simply add `VISYN_CORE__E2E=true` to your `.env` file.
 
     Example usage in a route:
     ```
     from visyn_core import manager
     ...
-    if manager.settings.visyn_core.cypress:
+    if manager.settings.visyn_core.e2e:
         # Do something
     ```
     """
@@ -306,6 +310,10 @@ class GlobalSettings(BaseSettings):
     @property
     def is_development_mode(self) -> bool:
         return self.env.startswith("dev")
+
+    @property
+    def is_e2e_testing(self) -> bool:
+        return self.visyn_core.cypress or self.visyn_core.e2e
 
     def get_nested(self, key: str, default: Any = None) -> Any | None:
         """
