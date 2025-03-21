@@ -96,7 +96,30 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
               }}
             >
               <Image
-                src={VisTypeChooserImage({ chartName: plotType.type, color: colorScheme.colorScheme === 'dark' ? 'white' : 'gray' })}
+                src={VisTypeChooserImage({ chartName: plotType.type, color: 'highlight' })}
+                alt={`${plotType.type ?? ''} image`}
+                px="md"
+                pos="absolute"
+                loading="lazy"
+                w="100%"
+                h="150px"
+                fit="contain"
+                className={css`
+                  opacity: 0.1;
+                  &[data-invalid='true'] {
+                    opacity: 0.7;
+                  }
+                  // If hovered
+                  &[data-hovered='true'] {
+                    opacity: 1;
+                  }
+                  // Animate the transition
+                  transition: opacity 0.3s;
+                `}
+                data-hovered={hovered}
+              />
+              <Image
+                src={VisTypeChooserImage({ chartName: plotType.type, color: 'gray' })}
                 alt={`${plotType.type ?? ''} image`}
                 px="md"
                 pos="absolute"
@@ -111,10 +134,10 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
                   }
                   // If hovered
                   &[data-hovered='true'] {
-                    opacity: 1;
+                    opacity: 0.3;
                   }
                   // Animate the transition
-                  transition: opacity 0.3s;
+                  transition: opacity 0.5s;
                 `}
                 data-hovered={hovered}
               />

@@ -1,50 +1,56 @@
 import { ESupportedPlotlyVis } from './interfaces';
-import barchartGray from '../assets/visualization_icons/barchart_gray_1.svg';
-import boxPlotGray from '../assets/visualization_icons/boxplot_gray_1.svg';
-import boxPlotWhite from '../assets/visualization_icons/boxplot_white.svg';
-import correlationplotGray from '../assets/visualization_icons/correlationplot_gray_1.svg';
-import heatmapGray from '../assets/visualization_icons/heatmap_gray_1.svg';
-import hexbinplotGray from '../assets/visualization_icons/hexbinplot_gray_1.svg';
-import sankeyGray from '../assets/visualization_icons/sankey_gray_1.svg';
-import scatterplotGray from '../assets/visualization_icons/scatterplot_gray_1.svg';
-import scatterplotWhite from '../assets/visualization_icons/scatterplot_white.svg';
-import violinplotGray from '../assets/visualization_icons/violinplot_gray_1.svg';
+import barchartGray from '../assets/visualization_icons/barchart_gray.svg';
+import barchartGrayHighlight from '../assets/visualization_icons/barchart_gray_highlight.svg';
+import boxPlotGray from '../assets/visualization_icons/boxplot_gray.svg';
+import boxPlotGrayHighlight from '../assets/visualization_icons/boxplot_gray_highlight.svg';
+import correlationplotGray from '../assets/visualization_icons/correlationplot_gray.svg';
+import correlationplotGrayHighlight from '../assets/visualization_icons/correlationplot_gray_highlight.svg';
+import heatmapGray from '../assets/visualization_icons/heatmap_gray.svg';
+import heatmapGrayHighlight from '../assets/visualization_icons/heatmap_gray_highlight.svg';
+import hexbinplotGray from '../assets/visualization_icons/hexbinplot_gray.svg';
+import hexbinplotGrayHighlight from '../assets/visualization_icons/hexbinplot_gray_highlight.svg';
+import sankeyGray from '../assets/visualization_icons/sankey_gray.svg';
+import sankeyGrayHighlight from '../assets/visualization_icons/sankey_gray_highlight.svg';
+import scatterplotGray from '../assets/visualization_icons/scatterplot_gray.svg';
+import scatterplotGrayHighlight from '../assets/visualization_icons/scatterplot_gray_highlight.svg';
+import violinplotGray from '../assets/visualization_icons/violinplot_gray.svg';
+import violinplotGrayHighlight from '../assets/visualization_icons/violinplot_gray_highlight.svg';
 
-const imageMap: Record<ESupportedPlotlyVis, { white: string; gray: string }> = {
+const imageMap: Record<ESupportedPlotlyVis, { highlight: string; gray: string }> = {
   [ESupportedPlotlyVis.BOXPLOT]: {
-    white: boxPlotWhite,
     gray: boxPlotGray,
+    highlight: boxPlotGrayHighlight,
   },
   [ESupportedPlotlyVis.SCATTER]: {
-    white: scatterplotWhite,
     gray: scatterplotGray,
+    highlight: scatterplotGrayHighlight,
   },
   [ESupportedPlotlyVis.VIOLIN]: {
-    white: '',
     gray: violinplotGray,
+    highlight: violinplotGrayHighlight,
   },
   [ESupportedPlotlyVis.BAR]: {
-    white: '',
     gray: barchartGray,
+    highlight: barchartGrayHighlight,
   },
   [ESupportedPlotlyVis.HEXBIN]: {
-    white: '',
     gray: hexbinplotGray,
+    highlight: hexbinplotGrayHighlight,
   },
   [ESupportedPlotlyVis.HEATMAP]: {
-    white: '',
     gray: heatmapGray,
+    highlight: heatmapGrayHighlight,
   },
   [ESupportedPlotlyVis.SANKEY]: {
-    white: '',
     gray: sankeyGray,
+    highlight: sankeyGrayHighlight,
   },
   [ESupportedPlotlyVis.CORRELATION]: {
-    white: '',
     gray: correlationplotGray,
+    highlight: correlationplotGrayHighlight,
   },
 };
 
-export function VisTypeChooserImage({ chartName, color }: { chartName: string; color: 'white' | 'gray' }) {
+export function VisTypeChooserImage({ chartName, color }: { chartName: string; color: 'highlight' | 'gray' }) {
   return imageMap[chartName as keyof typeof imageMap]?.[color] || null;
 }
