@@ -80,7 +80,6 @@ export type VisCategoricalValue = IVisCommonValue<string>;
 export interface VisCommonColumn {
   info: ColumnInfo;
   values: ValueGetter<(VisNumericalValue | VisCategoricalValue)[]>;
-  isLabel?: boolean;
 }
 
 export interface VisNumericalColumn extends VisCommonColumn {
@@ -123,6 +122,7 @@ export type ColumnInfo = {
   name: string;
   id: string;
   description: string;
+  isLabel?: boolean;
 };
 
 export type Scales = {
