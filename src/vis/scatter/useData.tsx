@@ -131,12 +131,12 @@ export function useData({
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: scatter.filter.map((index) => truncateText(value.idToLabelMapper(scatter.plotlyData.text[index]!), true, 10)),
+                  text: scatter.filter.map((index) => truncateText(value.idToLabelMapper(scatter.plotlyData.text[index]!), true, 25)),
                 }
               : {
                   text: scatter.filter.map((index, i) =>
                     visibleLabelsSet.has(scatter.ids[index]!)
-                      ? truncateText(value.idToLabelMapper(value.idToLabelMapper(scatter.plotlyData.text[index]!)), true, 10)
+                      ? truncateText(value.idToLabelMapper(value.idToLabelMapper(scatter.plotlyData.text[index]!)), true, 25)
                       : '',
                   ),
                 }),
