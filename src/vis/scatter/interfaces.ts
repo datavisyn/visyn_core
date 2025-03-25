@@ -14,6 +14,7 @@ export interface IScatterConfig extends BaseVisConfig {
   dragMode: EScatterSelectSettings;
   alphaSliderVal: number;
   showLabels: ELabelingOptions;
+  truncateLabelCharacterLimit?: number;
   showLabelLimit?: number;
   regressionLineOptions?: IRegressionLineOptions;
   showLegend?: boolean;

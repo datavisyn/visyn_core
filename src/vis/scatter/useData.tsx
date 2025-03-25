@@ -89,10 +89,12 @@ export function useData({
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: subplots.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
+                  text: subplots.text.map((t) => truncateText(value.idToLabelMapper(t), true, config.truncateLabelCharacterLimit)),
                 }
               : {
-                  text: subplots.text.map((t, i) => (visibleLabelsSet.has(subplots.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: subplots.text.map((t, i) =>
+                    visibleLabelsSet.has(subplots.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, config.truncateLabelCharacterLimit) : '',
+                  ),
                 }),
           hovertext: subplots.ids.map((p_id, index) =>
             `${value.idToLabelMapper(p_id)}
@@ -131,12 +133,14 @@ export function useData({
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: scatter.filter.map((index) => truncateText(value.idToLabelMapper(scatter.plotlyData.text[index]!), true, 25)),
+                  text: scatter.filter.map((index) =>
+                    truncateText(value.idToLabelMapper(scatter.plotlyData.text[index]!), true, config.truncateLabelCharacterLimit),
+                  ),
                 }
               : {
                   text: scatter.filter.map((index, i) =>
                     visibleLabelsSet.has(scatter.ids[index]!)
-                      ? truncateText(value.idToLabelMapper(value.idToLabelMapper(scatter.plotlyData.text[index]!)), true, 25)
+                      ? truncateText(value.idToLabelMapper(value.idToLabelMapper(scatter.plotlyData.text[index]!)), true, config.truncateLabelCharacterLimit)
                       : '',
                   ),
                 }),
@@ -195,11 +199,13 @@ export function useData({
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: group.data.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
+                  text: group.data.text.map((t) => truncateText(value.idToLabelMapper(t), true, config.truncateLabelCharacterLimit)),
                   // textposition: 'top center',
                 }
               : {
-                  text: group.data.text.map((t, i) => (visibleLabelsSet.has(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: group.data.text.map((t, i) =>
+                    visibleLabelsSet.has(group.data.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, config.truncateLabelCharacterLimit) : '',
+                  ),
                   // textposition: 'top center',
                 }),
           name: getLabelOrUnknown(group.data.facet),
