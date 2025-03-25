@@ -180,12 +180,16 @@ export async function resolveSingleColumn(column: VisColumn | null) {
  * @returns {Function} Function mapping ID to label or ID itself.
  */
 export async function createIdToLabelMapper(columns: VisColumn[]): Promise<(id: string) => string> {
-  const labelColumns = (await resolveColumnValues(columns.filter((c) => c.isLabel))).map((c) => c.resolvedValues);
-  const labelsMap = labelColumns.reduce(
+  const labelColumns = columns.filter((c) => c.info.isLabel);
+  const resolvedLabelColumnValues = (await resolveColumnValues(labelColumns)).map((c) => c.resolvedValues);
+  const labelsMap = resolvedLabelColumnValues.reduce(
     (acc, curr) => {
       curr.forEach((obj) => {
+        const labelInfoString = `${obj.val as string}`;
         if (acc[obj.id as string] == null) {
-          acc[obj.id as string] = obj.val as string;
+          acc[obj.id as string] = labelInfoString;
+        } else {
+          acc[obj.id as string] = `${acc[obj.id as string]}, ${labelInfoString}`;
         }
       });
       return acc;
