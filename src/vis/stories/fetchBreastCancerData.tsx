@@ -137,7 +137,7 @@ export function fetchBreastCancerData(): VisColumn[] {
         description: null,
         id: 'mutationCount',
         name: 'Mutation Count',
-        islabel: true,
+        isLabel: true,
       },
       type: EColumnTypes.NUMERICAL,
       values: () => dataPromise.map((r) => r.mutationCount).map((val, i) => ({ id: i.toString(), val })),
