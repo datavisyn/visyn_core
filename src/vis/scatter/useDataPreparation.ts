@@ -184,7 +184,7 @@ export function useDataPreparation({
 
         xyPairs.push({
           data: {
-            validIndices: matrixItemFilter,
+            validIndices: matrixItemFilter, // TODO: check if matrixItemFilter is the same as filter
             x,
             y,
           },
