@@ -35,26 +35,30 @@ function Legend({
   categories: string[];
   hiddenCategoriesSet?: Set<string>;
   colorMap: (v: number | string) => string;
-  onClick: (category: string) => void;
+  onClick: (categories: string[]) => void;
 }) {
   return (
-    <ScrollArea
-      data-testid="PlotLegend"
-      style={{ height: '100%' }}
-      scrollbars="y"
-      className={css`
-        .mantine-ScrollArea-viewport > div {
-          display: flex !important;
-          flex-direction: column !important;
-        }
-      `}
-    >
-      <Stack gap={0}>
-        {categories.map((c) => (
-          <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={hiddenCategoriesSet?.has(c) ?? false} />
-        ))}
-      </Stack>
-    </ScrollArea>
+    <Stack gap={0}>
+      <LegendItem color="transparent" label="Show All" onClick={() => onClick([])} filtered={hiddenCategoriesSet?.size === 0} />
+      <LegendItem color="transparent" label="Hide All" onClick={() => onClick(categories)} filtered={(hiddenCategoriesSet?.size ?? 0) >= categories.length} />
+      <ScrollArea
+        data-testid="PlotLegend"
+        style={{ height: '100%' }}
+        scrollbars="y"
+        className={css`
+          .mantine-ScrollArea-viewport > div {
+            display: flex !important;
+            flex-direction: column !important;
+          }
+        `}
+      >
+        <Stack gap={0}>
+          {categories.map((c) => (
+            <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick([c])} filtered={hiddenCategoriesSet?.has(c) ?? false} />
+          ))}
+        </Stack>
+      </ScrollArea>
+    </Stack>
   );
 }
 
@@ -544,13 +548,19 @@ export function ScatterVis({
             categories={legendData.color.categories}
             colorMap={legendData.color.mappingFunction}
             hiddenCategoriesSet={hiddenCategoriesSet}
-            onClick={(category: string) => {
+            onClick={(categories: string[]) => {
               setHiddenCategoriesSet((prevSet) => {
                 const newSet = new Set(prevSet);
-                if (newSet.has(category)) {
-                  newSet.delete(category);
+                if (categories.length === 0) {
+                  return new Set<string>();
+                }
+                if (categories.length === legendData.color.categories.length) {
+                  return new Set<string>(legendData.color.categories);
+                }
+                if (newSet.has(categories[0] as string)) {
+                  newSet.delete(categories[0] as string);
                 } else {
-                  newSet.add(category);
+                  newSet.add(categories[0] as string);
                 }
                 return newSet;
               });
