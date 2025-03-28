@@ -30,7 +30,7 @@ export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; 
   const cols = useMemo(() => getCols(width), [width]);
 
   return (
-    <Container fluid p="sm" h="95vh" pos="relative" w="100%" data-testid="vis-type-chooser">
+    <Container fluid p="sm" pos="relative" w="100%" data-testid="vis-type-chooser">
       <SimpleGrid ref={ref} cols={cols} spacing="xl" verticalSpacing="xl">
         {visTypes.map((plotType) => (
           <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} />
