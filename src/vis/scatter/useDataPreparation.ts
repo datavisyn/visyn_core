@@ -242,9 +242,13 @@ export function useDataPreparation({
     );
 
     const resultData = groupedData.map((grouped, index) => {
+      const filter =
+        value.colorColumn && hiddenCategoriesSet
+          ? indicesOf(grouped, (e) => !hiddenCategoriesSet.has((e.color ?? NAN_REPLACEMENT) as string) && isFinite(e.x) && isFinite(e.y))
+          : range(grouped.map((v) => v.x).length);
       const idToIndex = new Map<string, number>();
-      grouped.forEach((v, vi) => {
-        idToIndex.set(v.ids, vi);
+      filter.forEach((i) => {
+        idToIndex.set(grouped[i]?.ids as string, i);
       });
 
       const x = grouped.map((v) => v.x as number);
@@ -252,7 +256,7 @@ export function useDataPreparation({
 
       return {
         data: {
-          validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
+          validIndices: filter,
           x,
           y,
           text: grouped.map((v) => v.ids),
@@ -262,6 +266,7 @@ export function useDataPreparation({
           shape: grouped.map((v) => v.shape),
         },
         idToIndex,
+        filter,
         xref: `x${index > 0 ? index + 1 : ''}` as PlotlyTypes.XAxisName,
         yref: `y${index > 0 ? index + 1 : ''}` as PlotlyTypes.YAxisName,
       };
@@ -275,7 +280,7 @@ export function useDataPreparation({
       yDomain,
       ids: value.validColumns[0].resolvedValues.map((v) => v.id),
     };
-  }, [status, value]);
+  }, [hiddenCategoriesSet, status, value]);
 
   const scales = React.useMemo(() => {
     if (!value) {

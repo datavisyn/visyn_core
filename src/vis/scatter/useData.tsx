@@ -190,8 +190,8 @@ export function useData({
         return {
           ...BASE_DATA,
           type: 'scattergl',
-          x: group.data.x,
-          y: group.data.y,
+          x: group.filter.map((index) => group.data.x[index]),
+          y: group.filter.map((index) => group.data.y[index]),
           xaxis: group.xref,
           yaxis: group.yref,
           mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
@@ -216,8 +216,8 @@ export function useData({
             ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(group.data.shape[index])}` : ''}`.trim(),
           ),
           marker: {
-            color: value.colorColumn && mappingFunction ? group.data.color.map((v) => mappingFunction(v!)) : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? group.data.shape.map((shape) => shapeScale(shape as string)) : 'circle',
+            color: value.colorColumn && mappingFunction ? group.filter.map((index) => mappingFunction(group.data.color[index])) : VIS_NEUTRAL_COLOR,
+            symbol: value.shapeColumn ? group.filter.map((index) => shapeScale(group.data.shape[index] as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
             size: 8,
           },
