@@ -142,9 +142,20 @@ export function useDataPreparation({
       return undefined;
     }
 
+    const filter =
+      value?.colorColumn && hiddenCategoriesSet
+        ? indicesOf(
+            value.colorColumn.resolvedValues,
+            (e, index) =>
+              !hiddenCategoriesSet.has((e.val ?? NAN_REPLACEMENT) as string) &&
+              isFinite(value.validColumns?.[0]!.resolvedValues[index]!.val) &&
+              isFinite(value.validColumns?.[0]!.resolvedValues[index]!.val),
+          )
+        : range(value.validColumns?.[0]!.resolvedValues.length);
+
     const plotlyDimensions = value.validColumns.map((col) => ({
       label: columnNameWithDescription(col.info),
-      values: col.resolvedValues.map((v) => v.val),
+      values: filter.map((v) => col.resolvedValues[v]?.val as number),
     }));
 
     // Split up data to xy plot pairs (for regression and subplots)
@@ -157,12 +168,23 @@ export function useDataPreparation({
           continue;
         }
 
-        const x = value.validColumns[c].resolvedValues.map((v) => v.val as number);
-        const y = value.validColumns[r].resolvedValues.map((v) => v.val as number);
+        const matrixItemFilter =
+          value?.colorColumn && hiddenCategoriesSet
+            ? indicesOf(
+                value.colorColumn.resolvedValues,
+                (e, index) =>
+                  !hiddenCategoriesSet.has((e.val ?? NAN_REPLACEMENT) as string) &&
+                  isFinite(value.validColumns?.[c]!.resolvedValues[index]!.val) &&
+                  isFinite(value.validColumns?.[r]!.resolvedValues[index]!.val),
+              )
+            : range(value.validColumns?.[c]!.resolvedValues.length);
+
+        const x = value.validColumns?.[c]!.resolvedValues.map((v) => v.val as number);
+        const y = value.validColumns?.[r]!.resolvedValues.map((v) => v.val as number);
 
         xyPairs.push({
           data: {
-            validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
+            validIndices: matrixItemFilter,
             x,
             y,
           },
@@ -174,8 +196,8 @@ export function useDataPreparation({
 
     const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
     const idToIndex = new Map<string, number>();
-    ids.forEach((v, i) => {
-      idToIndex.set(v, i);
+    filter.forEach((v, i) => {
+      idToIndex.set(ids[v]!, i);
     });
 
     return {
@@ -183,9 +205,10 @@ export function useDataPreparation({
       idToIndex,
       xyPairs,
       ids,
-      text: value.validColumns[0].resolvedValues.map((v) => v.id),
+      text: ids,
+      filter,
     };
-  }, [status, value]);
+  }, [hiddenCategoriesSet, status, value]);
 
   // Case when we have faceting
   const facet = React.useMemo(() => {
@@ -195,11 +218,11 @@ export function useDataPreparation({
 
     const plotlyData = value.validColumns[0].resolvedValues.map((v, i) => ({
       x: v.val,
-      y: value.validColumns[1].resolvedValues[i].val,
+      y: value.validColumns[1]?.resolvedValues[i]?.val,
       ids: v.id?.toString(),
-      facet: value.facetColumn.resolvedValues[i].val?.toString(),
-      color: value.colorColumn ? value.colorColumn.resolvedValues[i].val : undefined,
-      shape: value.shapeColumn ? value.shapeColumn.resolvedValues[i].val : undefined,
+      facet: value.facetColumn.resolvedValues[i]?.val?.toString(),
+      color: value.colorColumn ? value.colorColumn.resolvedValues[i]?.val : undefined,
+      shape: value.shapeColumn ? value.shapeColumn.resolvedValues[i]?.val : undefined,
     }));
 
     const sortOrder =
@@ -207,8 +230,8 @@ export function useDataPreparation({
       [...new Set(value.facetColumn.resolvedValues.map((v) => v.val as string))].sort((a, b) => a?.localeCompare(b, undefined, { sensitivity: 'base' }));
 
     const groupedData = sortBy(groupBy(plotlyData, 'facet'), (group) => {
-      const facetValue = group[0].facet;
-      const index = sortOrder.indexOf(facetValue);
+      const facetValue = group[0]?.facet;
+      const index = sortOrder.indexOf(facetValue as string);
       return index !== -1 ? index : Infinity;
     });
 
@@ -233,7 +256,7 @@ export function useDataPreparation({
           x,
           y,
           text: grouped.map((v) => v.ids),
-          facet: grouped[0].facet,
+          facet: grouped[0]?.facet,
           ids: grouped.map((v) => v.ids),
           color: grouped.map((v) => v.color),
           shape: grouped.map((v) => v.shape),
