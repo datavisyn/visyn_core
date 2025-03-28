@@ -42,21 +42,31 @@ export function useDataPreparation({
   value: FetchColumnDataResult | null;
 }) {
   const subplots = React.useMemo(() => {
-    if (!(status === 'success' && value.subplots && value.subplots.length > 0 && value.subplots[0])) {
+    if (!(status === 'success' && value && value.subplots && value.subplots.length > 0 && value.subplots[0])) {
       return undefined;
     }
 
+    const filter =
+      value?.colorColumn && hiddenCategoriesSet
+        ? indicesOf(
+            value.colorColumn.resolvedValues,
+            (e, index) =>
+              !hiddenCategoriesSet.has((e.val ?? NAN_REPLACEMENT) as string) &&
+              isFinite(value.subplots?.[0]!.xColumn.resolvedValues[index]!.val) &&
+              isFinite(value.subplots?.[0]!.yColumn.resolvedValues[index]!.val),
+          )
+        : range(value.subplots[0].xColumn.resolvedValues.length);
+
     const ids = value.subplots[0].xColumn.resolvedValues.map((v) => v.id);
+
     const idToIndex = new Map<string, number>();
-    ids.forEach((v, i) => {
-      idToIndex.set(v, i);
+    filter.forEach((v, i) => {
+      idToIndex.set(ids[v]!, i);
     });
 
     const xyPairs = value.subplots.map((subplot, index) => {
       const x = subplot.xColumn.resolvedValues.map((v) => v.val as number);
       const y = subplot.yColumn.resolvedValues.map((v) => v.val as number);
-
-      const validIndices = x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[];
 
       const { xDomain, yDomain } = getStretchedDomains(x, y);
 
@@ -67,15 +77,15 @@ export function useDataPreparation({
         yDomain,
         xTitle: columnNameWithDescription(subplot.xColumn.info),
         yTitle: columnNameWithDescription(subplot.yColumn.info),
-        validIndices,
+        validIndices: filter,
         title: subplot.title,
         xref: `x${index > 0 ? index + 1 : ''}` as PlotlyTypes.XAxisName,
         yref: `y${index > 0 ? index + 1 : ''}` as PlotlyTypes.YAxisName,
       };
     });
 
-    return { xyPairs, ids, text: ids, idToIndex };
-  }, [status, value]);
+    return { xyPairs, ids, text: ids, idToIndex, filter };
+  }, [hiddenCategoriesSet, status, value]);
 
   // Case when we have just a scatterplot
   const scatter = React.useMemo(() => {
@@ -124,7 +134,7 @@ export function useDataPreparation({
       yLabel: columnNameWithDescription(value.validColumns[1].info),
       idToIndex,
     };
-  }, [status, value, hiddenCategoriesSet]);
+  }, [hiddenCategoriesSet, status, value]);
 
   // Case when we have a scatterplot matrix
   const splom = React.useMemo(() => {
