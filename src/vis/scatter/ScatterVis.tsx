@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 import { css } from '@emotion/css';
-import { Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
+import { Button, Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
 import { useElementSize, useWindowEvent } from '@mantine/hooks';
 import * as d3v7 from 'd3v7';
 import cloneDeep from 'lodash/cloneDeep';
@@ -39,8 +39,14 @@ function Legend({
 }) {
   return (
     <Stack gap={0}>
-      <LegendItem color="transparent" label="Show All" onClick={() => onClick([])} filtered={hiddenCategoriesSet?.size === 0} />
-      <LegendItem color="transparent" label="Hide All" onClick={() => onClick(categories)} filtered={(hiddenCategoriesSet?.size ?? 0) >= categories.length} />
+      <Button.Group pb="sm">
+        <Button variant="default" size="compact-xs" onClick={() => onClick([])}>
+          Show all
+        </Button>
+        <Button variant="default" size="compact-xs" onClick={() => onClick(categories)}>
+          Hide all
+        </Button>
+      </Button.Group>
       <ScrollArea
         data-testid="PlotLegend"
         style={{ height: '100%' }}
