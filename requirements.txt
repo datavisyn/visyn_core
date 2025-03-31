@@ -3,7 +3,7 @@ alembic==1.13.2
 cachetools==5.3.3
 celery>=5.0.0,<6.0.0
 celery-types~=0.22.0
-fastapi==0.115.6
+fastapi==0.115.12
 json-cfg==0.4.2
 openpyxl==3.1.5
 opentelemetry-api==1.29.0
