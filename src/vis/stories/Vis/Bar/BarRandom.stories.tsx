@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
@@ -62,6 +62,9 @@ function fetchData(numberOfPoints: number): VisColumn[] {
     singleCategory: Array(numberOfPoints)
       .fill(null)
       .map(() => `ONE_CATEGORY`),
+    oneBadCategory: Array(numberOfPoints)
+      .filter((_, i) => parseInt((RNG(i)() * numberOfPoints).toString(), 10) % 3 !== 0)
+      .map(() => 'GOOD_CATEGORY'),
   });
 
   const dataPromise = dataGetter();
@@ -194,6 +197,18 @@ function fetchData(numberOfPoints: number): VisColumn[] {
         return data.singleCategory.map((val, i) => ({ id: i.toString(), val }));
       },
     },
+    {
+      info: {
+        description: 'One bad category value which does not contain any data point one good category with data points',
+        id: 'oneBadCategory',
+        name: 'One bad category',
+      },
+      type: EColumnTypes.CATEGORICAL,
+      values: async () => {
+        const data = await dataPromise;
+        return data.oneBadCategory.map((val, i) => ({ id: i.toString(), val }));
+      },
+    },
   ];
 }
 
@@ -204,28 +219,30 @@ interface CustomArgs {
 // Merge the custom args with the component's props
 type MetaArgs = Parameters<typeof Vis>[0] & CustomArgs;
 
+function VisWrapper(args: Parameters<NonNullable<typeof meta.render>>[0]) {
+  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+  const [selection, setSelection] = React.useState<string[]>([]);
+
+  return (
+    <VisProvider>
+      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ width: '70%', height: '80%' }}>
+          <Vis {...args} columns={columns} selected={selection} selectionCallback={setSelection} />
+        </div>
+      </div>
+    </VisProvider>
+  );
+}
+
 const meta: Meta<MetaArgs> = {
   title: 'Vis/vistypes/randomData/Bar',
   component: Vis,
-  render: (args) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
-
-    return (
-      <VisProvider>
-        <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-          <div style={{ width: '70%', height: '80%' }}>
-            <Vis {...args} columns={columns} />
-          </div>
-        </div>
-      </VisProvider>
-    );
-  },
+  render: VisWrapper,
   argTypes: {
     pointCount: { control: 'number' },
   },
   args: {
-    pointCount: 10000,
+    pointCount: 100,
   },
   parameters: {
     controls: { expanded: true },
