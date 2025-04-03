@@ -138,9 +138,9 @@ export function useData({
                   ),
                 }
               : {
-                  text: scatter.filter.map((index, i) =>
+                  text: scatter.filter.map((index) =>
                     visibleLabelsSet.has(scatter.ids[index]!)
-                      ? truncateText(value.idToLabelMapper(value.idToLabelMapper(scatter.plotlyData.text[index]!)), true, config.truncateLabelCharacterLimit)
+                      ? truncateText(value.idToLabelMapper(scatter.plotlyData.text[index]!), true, config.truncateLabelCharacterLimit)
                       : '',
                   ),
                 }),
