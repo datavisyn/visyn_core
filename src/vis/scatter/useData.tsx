@@ -93,7 +93,9 @@ export function useData({
                 }
               : {
                   text: subplots.filter.map((i) =>
-                    visibleLabelsSet.has(subplots.ids[i]!) ? truncateText(value.idToLabelMapper(subplots.text[i]!), true, config.truncateLabelCharacterLimit) : '',
+                    visibleLabelsSet.has(subplots.ids[i]!)
+                      ? truncateText(value.idToLabelMapper(subplots.text[i]!), true, config.truncateLabelCharacterLimit)
+                      : '',
                   ),
                 }),
           hovertext: subplots.ids.map((p_id, index) =>
