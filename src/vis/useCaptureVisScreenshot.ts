@@ -1,9 +1,9 @@
-import * as htmlToImage from 'html-to-image';
-import JSZip from 'jszip';
 import * as React from 'react';
+
 import { notifications } from '@mantine/notifications';
-import { BaseVisConfig, EAggregateTypes, ESupportedPlotlyVis } from './interfaces';
+
 import { IBarConfig } from './bar/interfaces';
+import { BaseVisConfig, EAggregateTypes, ESupportedPlotlyVis } from './interfaces';
 import { sanitize } from '../utils';
 
 export type DownloadPlotOptions = {
@@ -20,6 +20,9 @@ export function useCaptureVisScreenshot(uniquePlotId: string, visConfig: BaseVis
       console.error('Could not find plot div to capture screenshot');
       return;
     }
+
+    const htmlToImage = await import('html-to-image');
+    const { default: JSZip } = await import('jszip');
 
     setIsLoading(true);
     setError(null);

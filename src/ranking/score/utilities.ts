@@ -1,5 +1,6 @@
-import { IColumnDesc, IValueColumnDesc } from 'lineupjs';
-import { IScoreColumnDesc } from './interfaces';
+import type { IColumnDesc, IValueColumnDesc } from 'lineupjs';
+
+import type { IScoreColumnDesc } from './interfaces';
 
 export function isScoreColumnDesc<T = unknown>(desc: IValueColumnDesc<T> | IColumnDesc): desc is IScoreColumnDesc<T> {
   return !!(desc as any)?.scoreData;

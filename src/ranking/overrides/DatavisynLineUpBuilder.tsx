@@ -1,4 +1,5 @@
 import { DataBuilder } from 'lineupjs';
+
 import { DatavisynTaggle } from './DatavisynTaggle';
 import { createFromDescRefWithScoreColumns, createToDescRefWithScoreColumns } from '../score/utilities';
 

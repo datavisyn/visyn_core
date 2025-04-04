@@ -1,4 +1,5 @@
-import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
+import { expect, takeSnapshot, test } from '@chromatic-com/playwright';
+
 import { selectHeatmap } from '../extensions/selectPlots';
 
 test('blue color scale', async ({ page }, testInfo) => {

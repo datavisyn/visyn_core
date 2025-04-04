@@ -5,6 +5,7 @@ export interface IEventHandler {
 
 /**
  * basic interface of an event
+ * @deprecated Use `VisynEvents` instead.
  */
 export interface IEvent {
   /**
@@ -29,6 +30,9 @@ export interface IEvent {
   stopImmediatePropagation(): void;
 }
 
+/**
+ * @deprecated Use `VisynEvents` instead.
+ */
 export interface IEventListener {
   (event: IEvent, ...args: any[]): void;
 }
@@ -122,6 +126,7 @@ function propagateEvent(event: IEvent, target: IEventHandler) {
 
 /**
  * EventHandler base class
+ * @deprecated Use `VisynEvents` instead.
  */
 export class EventHandler implements IEventHandler {
   public static readonly MULTI_EVENT_SEPARATOR = ',';
@@ -228,6 +233,9 @@ export class EventHandler implements IEventHandler {
   };
 }
 
+/**
+ * @deprecated Use `VisynEvents` instead.
+ */
 export class GlobalEventHandler extends EventHandler {
   /**
    * @deprecated Use `globalEventHandler` instead.
@@ -238,4 +246,7 @@ export class GlobalEventHandler extends EventHandler {
   }
 }
 
+/**
+ * @deprecated Use `VisynEvents` instead.
+ */
 export const globalEventHandler = new EventHandler();

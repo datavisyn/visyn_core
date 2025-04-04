@@ -1,4 +1,5 @@
 import jwt
+import pytest
 from fastapi.testclient import TestClient
 
 from visyn_core import manager
@@ -7,17 +8,42 @@ from visyn_core.security.store.alb_security_store import create as create_alb_se
 from visyn_core.security.store.no_security_store import create as create_no_security_store
 from visyn_core.security.store.oauth2_security_store import create as create_oauth2_security_store
 
+AUTH_PARAMS = (
+    "workspace_config",
+    [
+        {
+            "visyn_core": {
+                "enabled_plugins": ["visyn_core"],
+            },
+        }
+    ],
+)
 
+
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_api_key(client: TestClient):
     assert client.get("/api/loggedinas", headers={"apiKey": "invalid_user:password"}).status_code == 401
     assert client.get("/api/loggedinas", headers={"apiKey": "admin:admin"}).json()["name"] == "admin"
 
 
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_basic_authorization(client: TestClient):
     assert client.get("/api/loggedinas", auth=("invalid_user", "password")).status_code == 401
     assert client.get("/api/loggedinas", auth=("admin", "admin")).json()["name"] == "admin"
 
 
+@pytest.mark.parametrize(*AUTH_PARAMS)
+def test_paths_without_authentication(client: TestClient):
+    # Test paths without authentication
+    assert client.get("/api/health").status_code == 200
+    assert client.get("/api/login").status_code == 200
+
+    # Test path with authentication
+    assert client.get("/api/loggedinas").status_code == 401
+    assert client.get("/api/loggedinas", auth=("admin", "admin")).status_code == 200
+
+
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_jwt_login(client: TestClient):
     # Add additional claims loaders
     @manager.security.jwt_claims_loader
@@ -27,9 +53,6 @@ def test_jwt_login(client: TestClient):
     @manager.security.jwt_claims_loader
     def claims_loader_2(user: User):
         return {"username": user.name}
-
-    stores = client.get("/api/security/stores").json()
-    assert stores == [{"id": "DummyStore", "ui": "DefaultLoginForm", "configuration": {}}]
 
     # Check if we are actually not logged in
     response = client.get("/api/loggedinas")
@@ -43,6 +66,9 @@ def test_jwt_login(client: TestClient):
     assert user["roles"] == ["admin"]
     assert user["payload"]["hello"] == "world"
     assert user["payload"]["username"] == "admin"
+
+    stores = client.get("/api/security/stores").json()
+    assert stores == [{"id": "DummyStore", "ui": "DefaultLoginForm", "configuration": {}}]
 
     # Check if we are logged in and get the same response as from the login
     response = client.get("/api/loggedinas")
@@ -83,6 +109,7 @@ def test_jwt_login(client: TestClient):
     assert response.status_code == 401
 
 
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_jwt_token_location(client: TestClient):
     # Login to set a cookie
     response = client.post("/api/login", data={"username": "admin", "password": "admin"})
@@ -115,10 +142,12 @@ def test_jwt_token_location(client: TestClient):
     assert response.json() != '"not_yet_logged_in"'
 
 
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_alb_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.alb_security_store.enable = True
     manager.settings.visyn_core.security.store.alb_security_store.email_token_field = ["field1", "field2", "email"]
+    manager.settings.visyn_core.security.store.alb_security_store.properties_fields = ["sub", "exp"]
     manager.settings.visyn_core.security.store.alb_security_store.decode_options = {"verify_signature": False}
     manager.settings.visyn_core.security.store.alb_security_store.cookie_name = "TestCookie"
     manager.settings.visyn_core.security.store.alb_security_store.signout_url = "http://localhost/api/logout"
@@ -128,9 +157,6 @@ def test_alb_security_store(client: TestClient):
 
     manager.security.user_stores = [store]
 
-    stores = client.get("/api/security/stores").json()
-    assert stores == [{"id": "ALBSecurityStore", "ui": "AutoLoginForm", "configuration": {}}]
-
     # Header created with a random token containing "email"
     headers = {
         "X-Amzn-Oidc-Identity": "",
@@ -138,11 +164,15 @@ def test_alb_security_store(client: TestClient):
         "X-Amzn-Oidc-Accesstoken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJlbWFpbCI6ImFkbWluQGxvY2FsaG9zdCIsInN1YiI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiZXhwIjoxNjU3MTg4MTM4LjQ5NDU4Nn0.-Ye9j9z37gJdoKgrbeYbI8buSw_c6bLBShXt4XxwQHI",
     }
 
+    stores = client.get("/api/security/stores", headers=headers).json()
+    assert stores == [{"id": "ALBSecurityStore", "ui": "AutoLoginForm", "configuration": {}}]
+
     # Check loggedinas with a JWT
     response = client.get("/api/loggedinas", headers=headers)
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
+    assert response.json()["properties"] == {"sub": "admin", "exp": 1657188138.494586}
 
     # Logout and check if we get the correct redirect url
     response = client.post("/api/logout", headers=headers)
@@ -154,30 +184,34 @@ def test_alb_security_store(client: TestClient):
     assert client.get("/api/loggedinas", headers=headers).status_code == 401
 
 
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_oauth2_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.oauth2_security_store.enable = True
     manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name = "TestCookie"
     manager.settings.visyn_core.security.store.oauth2_security_store.signout_url = "http://localhost/api/logout"
+    manager.settings.visyn_core.security.store.oauth2_security_store.email_token_field = ["field1", "field2", "email"]
+    manager.settings.visyn_core.security.store.oauth2_security_store.properties_fields = ["sub"]
 
     store = create_oauth2_security_store()
     assert store is not None
 
     manager.security.user_stores = [store]
 
-    stores = client.get("/api/security/stores").json()
-    assert stores == [{"id": "OAuth2SecurityStore", "ui": "AutoLoginForm", "configuration": {}}]
-
     # Header created with a random token containing "email"
     headers = {
         "X-Forwarded-Access-Token": jwt.encode({"email": "admin@localhost", "sub": "admin"}, "secret", algorithm="HS256"),
     }
+
+    stores = client.get("/api/security/stores", headers=headers).json()
+    assert stores == [{"id": "OAuth2SecurityStore", "ui": "AutoLoginForm", "configuration": {}}]
 
     # Check loggedinas with a JWT
     response = client.get("/api/loggedinas", headers=headers)
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
+    assert response.json()["properties"] == {"sub": "admin"}
 
     # Logout and check if we get the correct redirect url
     response = client.post("/api/logout", headers=headers)
@@ -185,11 +219,13 @@ def test_oauth2_security_store(client: TestClient):
     assert response.json()["redirect"] == "http://localhost/api/logout"
 
 
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_no_security_store(client: TestClient):
     # Add some basic configuration
     manager.settings.visyn_core.security.store.no_security_store.enable = True
     manager.settings.visyn_core.security.store.no_security_store.user = "test_name"
     manager.settings.visyn_core.security.store.no_security_store.roles = ["test_role"]
+    manager.settings.visyn_core.security.store.no_security_store.properties = {"id": 123, "name": "test"}
 
     store = create_no_security_store()
     assert store is not None
@@ -200,8 +236,10 @@ def test_no_security_store(client: TestClient):
     assert user_info != '"not_yet_logged_in"'
     assert user_info["name"] == "test_name"
     assert user_info["roles"] == ["test_role"]
+    assert user_info["properties"] == {"id": 123, "name": "test"}
 
 
+@pytest.mark.parametrize(*AUTH_PARAMS)
 def test_user_login_hooks(client: TestClient):
     counter = 0
 

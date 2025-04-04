@@ -1,8 +1,9 @@
 import { ALineUp, Column, DataBuilder, IRankingHeaderContext, LocalDataProvider, defaultOptions, dialogContext } from 'lineupjs';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
+
 import { SMILESColumn } from './SMILESColumn';
-import { SMILESRenderer } from './SMILESRenderer';
 import { SMILESFilterDialog } from './SMILESFilterDialog';
+import { SMILESRenderer } from './SMILESRenderer';
 
 export function registerSMILESColumn(builder: DataBuilder, { setDynamicHeight = false }: { setDynamicHeight?: boolean } = {}) {
   builder.registerColumnType('smiles', SMILESColumn);

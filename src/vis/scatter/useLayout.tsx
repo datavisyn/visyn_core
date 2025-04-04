@@ -1,12 +1,14 @@
+import * as React from 'react';
+
 import clamp from 'lodash/clamp';
 import isFinite from 'lodash/isFinite';
-import * as React from 'react';
-import { PlotlyTypes } from '../../plotly';
-import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
-import { FastTextMeasure } from '../general/FastTextMeasure';
-import { getLabelOrUnknown } from '../general/utils';
-import { IInternalScatterConfig } from './interfaces';
+
+import { IScatterConfig } from './interfaces';
 import { useDataPreparation } from './useDataPreparation';
+import { PlotlyTypes } from '../../plotly';
+import { FastTextMeasure } from '../general/FastTextMeasure';
+import { VIS_NEUTRAL_COLOR, VIS_TRACES_COLOR } from '../general/constants';
+import { getLabelOrUnknown } from '../general/utils';
 
 const textMeasure = new FastTextMeasure('12px Open Sans');
 
@@ -87,7 +89,7 @@ export function useLayout({
   splom?: ReturnType<typeof useDataPreparation>['splom'];
   subplots?: ReturnType<typeof useDataPreparation>['subplots'];
   regressions: { shapes: Partial<PlotlyTypes.Shape>[]; annotations: Partial<PlotlyTypes.Annotations>[] };
-  config: IInternalScatterConfig;
+  config: IScatterConfig;
   width: number;
   height: number;
   internalLayoutRef: React.MutableRefObject<Partial<PlotlyTypes.Layout>>;

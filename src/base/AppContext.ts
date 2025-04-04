@@ -1,5 +1,5 @@
+import { VisynEnv } from './VisynEnv';
 import { Ajax } from './ajax';
-import { WebpackEnv } from './WebpackEnv';
 
 type OfflineGenerator = ((data: any, url: string) => Promise<any>) | Promise<any> | any;
 
@@ -10,19 +10,19 @@ export class AppContext {
    */
   public offline = false;
 
-  public static context = WebpackEnv.__APP_CONTEXT__;
+  public static context = VisynEnv.__APP_CONTEXT__;
 
   /**
    * version of the core
    */
-  public static version = WebpackEnv.__VERSION__;
+  public static version = VisynEnv.__VERSION__;
 
   // eslint-disable @typescript-eslint/naming-convention disable
   /**
    * server prefix of api calls
    * @type {string}
    */
-  public server_url = `${WebpackEnv.__APP_CONTEXT__ || '/'}api`;
+  public server_url = `${VisynEnv.__APP_CONTEXT__ || '/'}api`;
 
   /**
    * server suffix for api calls

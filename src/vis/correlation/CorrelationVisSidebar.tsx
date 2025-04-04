@@ -1,10 +1,12 @@
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import * as React from 'react';
+
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Group, Input, NumberInput, SegmentedControl, Text, Tooltip } from '@mantine/core';
-import * as React from 'react';
+
 import { ColumnInfo, EColumnTypes, EScaleType, ICommonVisSideBarProps, VisColumn } from '../interfaces';
-import { MultiSelect } from '../sidebar/MultiSelect';
 import { ECorrelationType, ICorrelationConfig } from './interfaces';
+import { MultiSelect } from '../sidebar/MultiSelect';
 
 export function CorrelationVisSidebar({
   config,

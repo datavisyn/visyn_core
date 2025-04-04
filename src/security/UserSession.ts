@@ -1,9 +1,10 @@
-import type { IUser, ISecureItem } from './interfaces';
+import { Permission } from './Permission';
+import { EEntity, EPermission, UserUtils } from './constants';
+import type { ISecureItem, IUser } from './interfaces';
+import { dispatchVisynEvent } from '../app/VisynEvents';
 import { globalEventHandler } from '../base/event';
 import { pluginRegistry } from '../plugin/PluginRegistry';
-import { ILoginExtensionPointDesc, ILogoutEP, ILogoutEPDesc, ILoginExtensionPoint, EP_PHOVEA_CORE_LOGIN, EP_PHOVEA_CORE_LOGOUT } from '../plugin/extensions';
-import { UserUtils, EPermission, EEntity } from './constants';
-import { Permission } from './Permission';
+import { EP_PHOVEA_CORE_LOGIN, EP_PHOVEA_CORE_LOGOUT, ILoginExtensionPoint, ILoginExtensionPointDesc, ILogoutEP, ILogoutEPDesc } from '../plugin/extensions';
 
 /**
  * Options of a logout action.
@@ -20,47 +21,22 @@ export interface ILogoutOptions {
 }
 
 export class UserSession {
+  // TODO: Remove legacy event handling
   public static GLOBAL_EVENT_USER_LOGGED_IN = 'USER_LOGGED_IN';
 
+  // TODO: Remove legacy event handling
   public static GLOBAL_EVENT_USER_LOGGED_OUT = 'USER_LOGGED_OUT';
 
   /**
-   * Use the browser's sessionStorage
-   * @type {Storage}
+   * Simply store the current user as variable instead of any browser storage
    */
-  private context: Storage = window.sessionStorage;
-
-  /**
-   * Store any value for a given key and returns the previous stored value.
-   * Returns `null` if no previous value was found.
-   * @param key
-   * @param value
-   * @returns {any}
-   */
-  public store = (key: string, value: any) => {
-    const bak = this.context.getItem(key);
-    this.context.setItem(key, JSON.stringify(value));
-    return bak;
-  };
-
-  /**
-   * Returns the value for the given key if it exists in the session.
-   * Otherwise returns the `default_` parameter, which is by default `null`.
-   * @param key
-   * @param defaultValue
-   * @returns {T}
-   */
-  public retrieve = <T>(key: string, defaultValue: T | null = null): T => {
-    return typeof this.context.getItem(key) === 'string' ? JSON.parse(this.context.getItem(key)!) : defaultValue;
-  };
+  private loggedInUser: IUser | null = null;
 
   /**
    * resets the stored session data that will be automatically filled during login
    */
   public reset = () => {
-    this.context.removeItem('logged_in');
-    this.context.removeItem('username');
-    this.context.removeItem('user');
+    this.loggedInUser = null;
   };
 
   /**
@@ -68,7 +44,7 @@ export class UserSession {
    * @returns {boolean}
    */
   public isLoggedIn = () => {
-    return this.retrieve('logged_in') === true;
+    return this.loggedInUser !== null;
   };
 
   /**
@@ -76,14 +52,14 @@ export class UserSession {
    * @param user
    */
   public login = (user: IUser) => {
-    this.store('logged_in', true);
-    this.store('username', user.name);
-    this.store('user', user);
+    this.loggedInUser = user;
 
     pluginRegistry.listPlugins(EP_PHOVEA_CORE_LOGIN).forEach((desc: ILoginExtensionPointDesc) => {
       desc.load().then((plugin: ILoginExtensionPoint) => plugin.factory(user));
     });
 
+    dispatchVisynEvent('userLoggedIn', { user });
+    // TODO: Remove legacy event handling
     globalEventHandler.fire(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, user);
   };
 
@@ -99,6 +75,8 @@ export class UserSession {
       });
 
       // Notify all listeners
+      dispatchVisynEvent('userLoggedOut', { options });
+      // TODO: Remove legacy event handling
       globalEventHandler.fire(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, options);
 
       // Handle different logout options
@@ -111,13 +89,10 @@ export class UserSession {
 
   /**
    * returns the current user or null
-   * @returns {any}
+   * @returns {IUser | null}
    */
   public currentUser = (): IUser | null => {
-    if (!this.isLoggedIn()) {
-      return null;
-    }
-    return this.retrieve('user', UserUtils.ANONYMOUS_USER);
+    return this.loggedInUser;
   };
 
   /**

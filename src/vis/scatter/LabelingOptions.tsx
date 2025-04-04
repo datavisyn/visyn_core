@@ -1,7 +1,9 @@
-import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+import * as React from 'react';
+
+import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Group, Input, SegmentedControl, Stack, Text, ThemeIcon } from '@mantine/core';
-import * as React from 'react';
+
 import { ELabelingOptions } from './interfaces';
 
 interface LabelingOptionsProps {

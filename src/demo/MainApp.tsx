@@ -1,8 +1,10 @@
-import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import * as React from 'react';
-import { VisynApp, VisynHeader, useVisynAppContext } from '../app';
-import { DatavisynTaggle, VisynRanking, autosizeWithSMILESColumn } from '../ranking';
-import { defaultBuilder } from '../ranking/EagerVisynRanking';
+
+import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
+
+import { VisynApp, VisynHeader } from '../app';
+import type { DatavisynTaggle } from '../ranking';
+import { VisynRanking } from '../ranking/VisynRanking';
 import {
   BaseVisConfig,
   ELabelingOptions,
@@ -13,12 +15,14 @@ import {
   IScatterConfig,
   Vis,
 } from '../vis';
-import { breastCancerData } from '../vis/stories/breastCancerData';
-import { fetchBreastCancerData } from '../vis/stories/fetchBreastCancerData';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
+import { useVisynUser } from '../hooks';
+
+const { breastCancerData } = await import('../vis/stories/breastCancerData');
+const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancerData');
 
 export function MainApp() {
-  const { user } = useVisynAppContext();
+  const user = useVisynUser();
   const [visConfig, setVisConfig] = React.useState<BaseVisConfig>({
     type: ESupportedPlotlyVis.SCATTER,
     numColumnsSelected: [
@@ -106,7 +110,7 @@ export function MainApp() {
                 lineupRef.current?.createScoreColumn(data);
                 setLoading(false);
               }}
-              rightSection={loading ? <Loader /> : null}
+              rightSection={loading ? <Loader size="xs" /> : null}
               data={[
                 { value: 'string', label: 'String' },
                 { value: 'number', label: 'Number' },
@@ -120,10 +124,10 @@ export function MainApp() {
               data={breastCancerData}
               selection={selection}
               setSelection={setSelection}
-              getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
+              // getBuilder={({ data }) => defaultBuilder({ data, smilesOptions: { setDynamicHeight: true } })}
               onBuiltLineUp={({ lineup }) => {
                 lineupRef.current = lineup;
-                autosizeWithSMILESColumn({ provider: lineup.data, lineup });
+                // autosizeWithSMILESColumn({ provider: lineup.data, lineup });
               }}
             />
           </Stack>

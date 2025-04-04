@@ -1,28 +1,20 @@
+import * as React from 'react';
+
 import { Box, Stack, Text } from '@mantine/core';
-import { useSetState } from '@mantine/hooks';
 import type { ScaleOrdinal } from 'd3v7';
 import type { BarSeriesOption } from 'echarts/charts';
-import * as React from 'react';
+
 import { BlurredOverlay } from '../../components';
 import { type ECOption, useChart } from '../../echarts';
-import { useAsync } from '../../hooks';
-import { sanitize, selectionColorDark } from '../../utils';
-import { DEFAULT_COLOR, NAN_REPLACEMENT, SELECT_COLOR, VIS_NEUTRAL_COLOR, VIS_UNSELECTED_OPACITY } from '../general/constants';
+import { sanitize } from '../../utils';
 import { ErrorMessage } from '../general/ErrorMessage';
 import { WarningMessage } from '../general/WarningMessage';
-import { ColumnInfo, EAggregateTypes, ICommonVisProps } from '../interfaces';
-import { useBarSortHelper } from './hooks';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortParameters, EBarSortState, IBarConfig, SortDirectionMap } from './interfaces';
-import {
-  AggregatedDataType,
-  BAR_WIDTH,
-  CHART_HEIGHT_MARGIN,
-  DEFAULT_BAR_CHART_HEIGHT,
-  GenerateAggregatedDataLookup,
-  SERIES_ZERO,
-  sortSeries,
-  WorkerWrapper,
-} from './interfaces/internal';
+import { NAN_REPLACEMENT, VIS_NEUTRAL_COLOR } from '../general/constants';
+import { EAggregateTypes, ICommonVisProps } from '../interfaces';
+import { useGetBarChartMouseEvents, useGetBarVisState } from './hooks';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig } from './interfaces';
+import { AggregatedDataType, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, SERIES_ZERO } from './interfaces/internal';
+import { numberFormatter } from './utils';
 
 function generateHTMLString({ label, value, color }: { label: string; value: string; color?: string }): string {
   return `<div style="display: flex; gap: 8px">
@@ -34,19 +26,11 @@ function generateHTMLString({ label, value, color }: { label: string; value: str
 </div>`;
 }
 
-const numberFormatter = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 4,
-  maximumSignificantDigits: 4,
-  notation: 'compact',
-  compactDisplay: 'short',
-});
-
 function EagerSingleEChartsBarChart({
   aggregatedData,
-  chartHeight,
-  chartMinWidth,
   config,
   containerWidth,
+  dimensions,
   globalMax,
   globalMin,
   groupColorScale,
@@ -61,9 +45,8 @@ function EagerSingleEChartsBarChart({
   setConfig,
 }: Pick<ICommonVisProps<IBarConfig>, 'config' | 'setConfig' | 'selectedMap' | 'selectedList'> & {
   aggregatedData: AggregatedDataType;
-  chartHeight: number;
-  chartMinWidth: number;
   containerWidth: number;
+  dimensions: { height: number; minWidth: number };
   globalMax?: number;
   globalMin?: number;
   groupColorScale: ScaleOrdinal<string, string, never>;
@@ -74,63 +57,6 @@ function EagerSingleEChartsBarChart({
   selectedFacetValue?: string;
   selectionCallback: (e: React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>, ids: string[]) => void;
 }) {
-  const generateBarSeriesWorker = React.useCallback(
-    async (...args: Parameters<GenerateAggregatedDataLookup['generateBarSeries']>) => WorkerWrapper.generateBarSeries(...args),
-    [],
-  );
-  const { execute: generateBarSeriesTrigger, status: generateBarSeriesStatus } = useAsync(generateBarSeriesWorker);
-  const [getSortMetadata] = useBarSortHelper({ config: config! });
-  const [visState, setVisState] = useSetState({
-    series: [] as BarSeriesOption[],
-    xAxis: null as ECOption['xAxis'] | null,
-    yAxis: null as ECOption['yAxis'] | null,
-  });
-
-  const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
-  const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
-
-  const [yAxisLabel, setYAxisLabel] = React.useState<string>('');
-
-  const groupSortedSeries = React.useMemo(() => {
-    const filteredVisStateSeries = (visState.series ?? []).filter((series) => series.data?.some((d) => d !== null && d !== undefined));
-    const [knownSeries, unknownSeries] = filteredVisStateSeries.reduce(
-      (acc, series) => {
-        if ((series as typeof series & { group: string }).group === NAN_REPLACEMENT) {
-          acc[1].push(series);
-        } else {
-          acc[0].push(series);
-        }
-        return acc;
-      },
-      [[] as BarSeriesOption[], [] as BarSeriesOption[]],
-    );
-    if (isGroupedByNumerical) {
-      if (!knownSeries.some((series) => (series as typeof series & { group: string })?.group.includes(' to '))) {
-        const namedKnownSeries = knownSeries.map((series) => {
-          const name = String((series as typeof series).data?.[0]);
-          const color = groupColorScale?.(name as string) ?? VIS_NEUTRAL_COLOR;
-          return {
-            ...series,
-            name,
-            itemStyle: { color },
-          };
-        });
-        return [...namedKnownSeries, ...unknownSeries];
-      }
-
-      const sortedSeries = knownSeries.sort((a, b) => {
-        if (!(a as typeof a & { group: string }).group.includes(' to ')) {
-          return 0;
-        }
-        const [aMin, aMax] = (a as typeof a & { group: string }).group.split(' to ').map(Number);
-        const [bMin, bMax] = (b as typeof b & { group: string }).group.split(' to ').map(Number);
-        return (aMin as number) - (bMin as number) || (aMax as number) - (bMax as number);
-      });
-      return [...sortedSeries, ...unknownSeries];
-    }
-    return [...knownSeries, ...unknownSeries];
-  }, [groupColorScale, isGroupedByNumerical, visState.series]);
-
   // NOTE: @dv-usama-ansari: Prepare the base series options for the bar chart.
   const seriesBase = React.useMemo(
     () =>
@@ -271,6 +197,23 @@ function EagerSingleEChartsBarChart({
     ],
   );
 
+  const hasSelected = React.useMemo(() => (selectedMap ? Object.values(selectedMap).some((selected) => selected) : false), [selectedMap]);
+  const gridLeft = React.useMemo(() => Math.min(longestLabelWidth + 20, containerWidth / 3), [containerWidth, longestLabelWidth]);
+
+  const { isError, isLoading, isSuccess, visState, yAxisLabel, setYAxisLabel } = useGetBarVisState({
+    aggregatedData,
+    config: config!,
+    containerWidth,
+    globalMax,
+    globalMin,
+    gridLeft,
+    groupColorScale,
+    hasSelected,
+    isGroupedByNumerical,
+    labelsMap,
+    seriesBase,
+  });
+
   const optionBase = React.useMemo(
     () =>
       ({
@@ -305,7 +248,7 @@ function EagerSingleEChartsBarChart({
           containLabel: false,
           left: config?.direction === EBarDirection.HORIZONTAL ? Math.min(gridLeft, containerWidth / 3) : 60, // NOTE: @dv-usama-ansari: Arbitrary fallback value!
           top: config?.direction === EBarDirection.HORIZONTAL ? 55 : 70, // NOTE: @dv-usama-ansari: Arbitrary value!
-          bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 85, // NOTE: @dv-usama-ansari: Arbitrary value!
+          bottom: config?.direction === EBarDirection.HORIZONTAL ? 55 : 125, // NOTE: @dv-usama-ansari: Arbitrary value!
           right: 20, // NOTE: @dv-usama-ansari: Arbitrary value!
         },
 
@@ -316,7 +259,7 @@ function EagerSingleEChartsBarChart({
           icon: 'circle',
           show: !!config?.group,
           data: config?.group
-            ? groupSortedSeries.map((seriesItem) => ({
+            ? visState.series.map((seriesItem) => ({
                 name: seriesItem.name,
                 itemStyle: { color: seriesItem.name === NAN_REPLACEMENT ? VIS_NEUTRAL_COLOR : groupColorScale?.(seriesItem.name as string) },
               }))
@@ -349,9 +292,9 @@ function EagerSingleEChartsBarChart({
       containerWidth,
       gridLeft,
       groupColorScale,
-      groupSortedSeries,
       isGroupedByNumerical,
       selectedFacetValue,
+      visState.series,
     ],
   );
 
@@ -359,11 +302,11 @@ function EagerSingleEChartsBarChart({
     () =>
       ({
         ...optionBase,
-        series: groupSortedSeries,
+        series: visState.series,
         xAxis: visState.xAxis,
         yAxis: visState.yAxis,
       }) as ECOption,
-    [groupSortedSeries, optionBase, visState.xAxis, visState.yAxis],
+    [optionBase, visState.series, visState.xAxis, visState.yAxis],
   );
 
   const settings = React.useMemo(
@@ -406,118 +349,13 @@ function EagerSingleEChartsBarChart({
     }
   }, [customTooltip.content, yAxisLabel]);
 
+  const { click } = useGetBarChartMouseEvents({ aggregatedData, config, selectedFacetIndex, selectedFacetValue, selectedList, selectionCallback, setConfig });
+
   const { setRef, instance } = useChart({
     options,
     settings,
     mouseEvents: {
-      click: [
-        {
-          query: { titleIndex: 0 },
-          handler: () => {
-            setConfig?.({ ...config!, focusFacetIndex: config?.focusFacetIndex === selectedFacetIndex ? null : selectedFacetIndex });
-          },
-        },
-        {
-          query: { seriesType: 'bar' },
-          handler: (params) => {
-            if (params.componentType === 'series') {
-              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-              // NOTE: @dv-usama-ansari: Sanitization is required here since the seriesName contains \u000 which make github confused.
-              const seriesName = sanitize(params.seriesName ?? '') === SERIES_ZERO ? params.name : params.seriesName;
-              const ids: string[] = config?.group
-                ? config.group.id === config?.facets?.id
-                  ? [
-                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.unselected.ids ?? []),
-                      ...(aggregatedData?.categories[params.name]?.groups[selectedFacetValue!]?.selected.ids ?? []),
-                    ]
-                  : [
-                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.unselected.ids ?? []),
-                      ...(aggregatedData?.categories[params.name]?.groups[seriesName as string]?.selected.ids ?? []),
-                    ]
-                : (aggregatedData?.categories[params.name]?.ids ?? []);
-
-              if (event.shiftKey) {
-                // NOTE: @dv-usama-ansari: `shift + click` on a bar which is already selected will deselect it.
-                //  Using `Set` to reduce time complexity to O(1).
-                const newSelectedSet = new Set(selectedList);
-                ids.forEach((id) => {
-                  if (newSelectedSet.has(id)) {
-                    newSelectedSet.delete(id);
-                  } else {
-                    newSelectedSet.add(id);
-                  }
-                });
-                const newSelectedList = [...newSelectedSet];
-                selectionCallback(event, [...new Set([...newSelectedList])]);
-              } else {
-                // NOTE: @dv-usama-ansari: Early return if the bar is clicked and it is already selected?
-                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-                selectionCallback(event, isSameBarClicked ? [] : ids);
-              }
-            }
-          },
-        },
-        {
-          query:
-            config?.direction === EBarDirection.HORIZONTAL
-              ? { componentType: 'yAxis' }
-              : config?.direction === EBarDirection.VERTICAL
-                ? { componentType: 'xAxis' }
-                : { componentType: 'unknown' }, // No event should be triggered when the direction is not set.
-
-          handler: (params) => {
-            if (params.targetType === 'axisLabel') {
-              const event = params.event?.event as unknown as React.MouseEvent<SVGGElement | HTMLDivElement, MouseEvent>;
-              const ids = aggregatedData?.categories[params.value as string]?.ids ?? [];
-              if (event.shiftKey) {
-                const newSelectedSet = new Set(selectedList);
-                ids.forEach((id) => {
-                  if (newSelectedSet.has(id)) {
-                    newSelectedSet.delete(id);
-                  } else {
-                    newSelectedSet.add(id);
-                  }
-                });
-                const newSelectedList = [...newSelectedSet];
-                selectionCallback(event, [...new Set([...newSelectedList])]);
-              } else {
-                const isSameBarClicked = (selectedList ?? []).length > 0 && (selectedList ?? []).every((id) => ids.includes(id));
-                selectionCallback(event, isSameBarClicked ? [] : ids);
-              }
-            }
-          },
-        },
-        {
-          query: { componentType: 'yAxis' },
-          handler: (params) => {
-            if (params.targetType === 'axisName' && params.componentType === 'yAxis') {
-              if (config?.direction === EBarDirection.HORIZONTAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-              if (config?.direction === EBarDirection.VERTICAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-            }
-          },
-        },
-        {
-          query: { componentType: 'xAxis' },
-          handler: (params) => {
-            if (params.targetType === 'axisName' && params.componentType === 'xAxis') {
-              if (config?.direction === EBarDirection.HORIZONTAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.AGGREGATION);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-              if (config?.direction === EBarDirection.VERTICAL) {
-                const sortMetadata = getSortMetadata(EBarSortParameters.CATEGORIES);
-                setConfig?.({ ...config!, sortState: sortMetadata.nextSortState });
-              }
-            }
-          },
-        },
-      ],
+      click,
       mouseover: [
         {
           query:
@@ -575,13 +413,13 @@ function EagerSingleEChartsBarChart({
               }
 
               // NOTE: @dv-usama-ansari: Display the tooltip only if it overflows the chart height.
-              if (fullTextWidth > chartHeight + CHART_HEIGHT_MARGIN) {
+              if (fullTextWidth > dimensions.height + CHART_HEIGHT_MARGIN) {
                 customTooltip.content.innerText = yAxisLabel as string;
                 customTooltip.dom.style.opacity = '1';
                 customTooltip.dom.style.visibility = 'visible';
                 customTooltip.dom.style.zIndex = '9999';
 
-                const top = (chartHeight + CHART_HEIGHT_MARGIN) / 2;
+                const top = (dimensions.height + CHART_HEIGHT_MARGIN) / 2;
                 const left = 24;
                 customTooltip.dom.style.top = `${top}px`;
                 customTooltip.dom.style.left = `${left}px`;
@@ -620,259 +458,6 @@ function EagerSingleEChartsBarChart({
     },
   });
 
-  const isLoading = React.useMemo(
-    () => (visState.series.length === 0 ? generateBarSeriesStatus === 'pending' : false),
-    [generateBarSeriesStatus, visState.series.length],
-  );
-  const isError = React.useMemo(() => generateBarSeriesStatus === 'error', [generateBarSeriesStatus]);
-  const isSuccess = React.useMemo(() => visState.series.length > 0, [visState.series.length]);
-
-  const updateSortSideEffect = React.useCallback(
-    ({ barSeries = [] }: { barSeries: (BarSeriesOption & { categories: string[] })[] }) => {
-      if (barSeries.length > 0 || !aggregatedData) {
-        if (config?.direction === EBarDirection.HORIZONTAL) {
-          const sortedSeries = sortSeries(
-            barSeries.map((item) => (item ? { categories: item.categories, data: item.data } : null)),
-            { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.HORIZONTAL },
-          );
-          setVisState((v) => ({
-            // NOTE: @dv-usama-ansari: Reverse the data for horizontal bars to show the largest value on top for descending order and vice versa.
-            series: barSeries.map((item, itemIndex) => ({
-              ...item,
-              data: [...(sortedSeries[itemIndex]?.data as NonNullable<BarSeriesOption['data']>)].reverse(),
-            })),
-            yAxis: {
-              ...v.yAxis,
-              type: 'category' as const,
-              data: [...(sortedSeries[0]?.categories as string[])].reverse(),
-            },
-          }));
-        }
-        if (config?.direction === EBarDirection.VERTICAL) {
-          const sortedSeries = sortSeries(
-            barSeries.map((item) => (item ? { categories: item.categories, data: item.data } : null)),
-            { sortState: config?.sortState as { x: EBarSortState; y: EBarSortState }, direction: EBarDirection.VERTICAL },
-          );
-
-          setVisState((v) => ({
-            series: barSeries.map((item, itemIndex) => ({ ...item, data: sortedSeries[itemIndex]?.data })),
-            xAxis: { ...v.xAxis, type: 'category' as const, data: sortedSeries[0]?.categories },
-          }));
-        }
-      }
-    },
-    [aggregatedData, config?.direction, config?.sortState, setVisState],
-  );
-
-  const updateDirectionSideEffect = React.useCallback(() => {
-    if (visState.series.length === 0 || !aggregatedData) {
-      return;
-    }
-    const aggregationAxisNameBase =
-      config?.group && config?.display === EBarDisplayType.NORMALIZED
-        ? `Normalized ${config?.aggregateType} (%)`
-        : config?.aggregateType === EAggregateTypes.COUNT
-          ? config?.aggregateType
-          : `${config?.aggregateType} of ${config?.aggregateColumn?.name}`;
-    const aggregationAxisDescription = config?.showColumnDescriptionText
-      ? config?.aggregateColumn?.description && config?.aggregateType !== EAggregateTypes.COUNT
-        ? `: ${config?.aggregateColumn?.description}`
-        : ''
-      : '';
-    const aggregationAxisSortText =
-      config?.direction === EBarDirection.HORIZONTAL
-        ? SortDirectionMap[config?.sortState?.x ?? EBarSortState.NONE]
-        : config?.direction === EBarDirection.VERTICAL
-          ? SortDirectionMap[config?.sortState?.y ?? EBarSortState.NONE]
-          : '';
-    const aggregationAxisName = `${aggregationAxisNameBase}${aggregationAxisDescription} (${aggregationAxisSortText})`;
-
-    const categoricalAxisNameBase = config?.catColumnSelected?.name;
-    const categoricalAxisDescription = config?.showColumnDescriptionText
-      ? config?.catColumnSelected?.description
-        ? `: ${config?.catColumnSelected?.description}`
-        : ''
-      : '';
-    const categoricalAxisSortText =
-      config?.direction === EBarDirection.HORIZONTAL
-        ? SortDirectionMap[config?.sortState?.y ?? EBarSortState.NONE]
-        : config?.direction === EBarDirection.VERTICAL
-          ? SortDirectionMap[config?.sortState?.x ?? EBarSortState.NONE]
-          : '';
-    const categoricalAxisName = `${categoricalAxisNameBase}${categoricalAxisDescription} (${categoricalAxisSortText})`;
-
-    setYAxisLabel(config?.direction === EBarDirection.HORIZONTAL ? categoricalAxisName : aggregationAxisName);
-
-    if (config?.direction === EBarDirection.HORIZONTAL) {
-      setVisState((v) => ({
-        xAxis: {
-          type: 'value' as const,
-          name: aggregationAxisName,
-          nameLocation: 'middle',
-          nameGap: 32,
-          min: globalMin ?? 'dataMin',
-          max: globalMax ?? 'dataMax',
-          axisLabel: {
-            hideOverlap: true,
-            formatter: (value: number) => numberFormatter.format(value),
-          },
-          nameTextStyle: {
-            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-          },
-          triggerEvent: true,
-        },
-
-        yAxis: {
-          type: 'category' as const,
-          name: categoricalAxisName,
-          nameLocation: 'middle',
-          nameGap: Math.min(gridLeft, containerWidth / 3) - 20,
-          data: (v.yAxis as { data: number[] })?.data ?? [],
-          axisLabel: {
-            show: true,
-            width: gridLeft - 20,
-            formatter: (value: string) => labelsMap[value],
-          },
-          nameTextStyle: {
-            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-          },
-          triggerEvent: true,
-        },
-      }));
-    }
-    if (config?.direction === EBarDirection.VERTICAL) {
-      setVisState((v) => ({
-        // NOTE: @dv-usama-ansari: xAxis is not showing labels as expected for the vertical bar chart.
-        xAxis: {
-          type: 'category' as const,
-          name: categoricalAxisName,
-          nameLocation: 'middle',
-          nameGap: 60,
-          data: (v.xAxis as { data: number[] })?.data ?? [],
-          axisLabel: {
-            show: true,
-            formatter: (value: string) => labelsMap[value],
-            rotate: 45,
-          },
-          nameTextStyle: {
-            color: categoricalAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-          },
-          triggerEvent: true,
-        },
-
-        yAxis: {
-          type: 'value' as const,
-          name: aggregationAxisName,
-          nameLocation: 'middle',
-          nameGap: 40,
-          min: globalMin ?? 'dataMin',
-          max: globalMax ?? 'dataMax',
-          axisLabel: {
-            hideOverlap: true,
-            formatter: (value: number) => numberFormatter.format(value),
-          },
-          nameTextStyle: {
-            color: aggregationAxisSortText !== SortDirectionMap[EBarSortState.NONE] ? selectionColorDark : VIS_NEUTRAL_COLOR,
-          },
-          triggerEvent: true,
-        },
-      }));
-    }
-  }, [
-    aggregatedData,
-    config?.aggregateColumn?.description,
-    config?.aggregateColumn?.name,
-    config?.aggregateType,
-    config?.catColumnSelected?.description,
-    config?.catColumnSelected?.name,
-    config?.direction,
-    config?.display,
-    config?.group,
-    config?.showColumnDescriptionText,
-    config?.sortState?.x,
-    config?.sortState?.y,
-    containerWidth,
-    globalMax,
-    globalMin,
-    gridLeft,
-    labelsMap,
-    setVisState,
-    visState.series.length,
-  ]);
-
-  const updateCategoriesSideEffect = React.useCallback(async () => {
-    if (aggregatedData) {
-      const result = await generateBarSeriesTrigger(aggregatedData, {
-        aggregateType: config?.aggregateType as EAggregateTypes,
-        display: config?.display as EBarDisplayType,
-        facets: config?.facets as ColumnInfo,
-        group: config?.group as ColumnInfo,
-        groupType: config?.groupType as EBarGroupingType,
-      });
-
-      const barSeries = result.map((series) => {
-        if (!series) {
-          return series;
-        }
-        const r = series as typeof series & { selected: 'selected' | 'unselected'; group: string };
-        const isGrouped = config?.group && groupColorScale != null;
-        const isSelected = r.selected === 'selected';
-        const shouldLowerOpacity = hasSelected && isGrouped && !isSelected;
-        const lowerBarOpacity = shouldLowerOpacity ? { opacity: VIS_UNSELECTED_OPACITY } : {};
-        const fixLabelColor = shouldLowerOpacity ? { opacity: 0.5, color: DEFAULT_COLOR } : {};
-        return {
-          ...seriesBase,
-          ...r,
-          label: {
-            ...seriesBase.label,
-            ...r.label,
-            ...fixLabelColor,
-          },
-          large: true,
-          itemStyle: {
-            ...seriesBase.itemStyle,
-            ...r.itemStyle,
-            ...lowerBarOpacity,
-            color:
-              r.group === NAN_REPLACEMENT
-                ? isSelected
-                  ? SELECT_COLOR
-                  : VIS_NEUTRAL_COLOR
-                : isGrouped
-                  ? groupColorScale(r.group) || VIS_NEUTRAL_COLOR
-                  : VIS_NEUTRAL_COLOR,
-          },
-        };
-      });
-
-      updateSortSideEffect({ barSeries });
-      updateDirectionSideEffect();
-    }
-  }, [
-    aggregatedData,
-    seriesBase,
-    config?.aggregateType,
-    config?.display,
-    config?.facets,
-    config?.group,
-    config?.groupType,
-    generateBarSeriesTrigger,
-    groupColorScale,
-    hasSelected,
-    updateDirectionSideEffect,
-    updateSortSideEffect,
-  ]);
-
-  // NOTE: @dv-usama-ansari: This effect is used to update the series data when the direction of the bar chart changes.
-  React.useEffect(() => {
-    updateDirectionSideEffect();
-  }, [config?.direction, updateDirectionSideEffect]);
-
-  // NOTE: @dv-usama-ansari: This effect is used to update the series data when the selected categorical column changes.
-  React.useEffect(() => {
-    updateCategoriesSideEffect();
-  }, [config?.catColumnSelected?.id, selectedMap, updateCategoriesSideEffect]);
-
   React.useEffect(() => {
     if (instance && instance.getDom() && !instance?.getDom()?.querySelector('#axis-tooltip')) {
       instance.getDom().appendChild(customTooltip.dom);
@@ -897,7 +482,7 @@ function EagerSingleEChartsBarChart({
     </Stack>
   ) : (
     isSuccess &&
-    (groupSortedSeries.length === 0 ? (
+    (visState.series.length === 0 ? (
       config?.facets && selectedFacetValue ? (
         <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id={`visyn-bar-chart-no-data-error-facet-${selectedFacetValue}`}>
           <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text>
@@ -908,16 +493,19 @@ function EagerSingleEChartsBarChart({
           <WarningMessage dataTestId="visyn-vis-bar-chart-no-data-warning">No data available for this chart. Try a different configuration.</WarningMessage>
         </Stack>
       )
-    ) : !(visState.xAxis && visState.yAxis) ? null : (
-      options && (
+    ) : (
+      visState?.xAxis &&
+      visState?.yAxis &&
+      options &&
+      dimensions.height > 0 && (
         <Box
           component="div"
           pos="relative"
           pr="xs"
           ref={setRef}
           style={{
-            width: `${Math.max(containerWidth, chartMinWidth)}px`,
-            height: `${chartHeight + CHART_HEIGHT_MARGIN}px`,
+            width: `${Math.max(containerWidth, dimensions.minWidth)}px`,
+            height: `${dimensions.height + CHART_HEIGHT_MARGIN}px`,
           }}
         />
       )

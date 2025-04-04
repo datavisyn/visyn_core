@@ -1,6 +1,8 @@
-import { ComponentStory } from '@storybook/react';
-import * as d3 from 'd3v7';
 import React from 'react';
+
+import { Meta, StoryObj } from '@storybook/react';
+import * as d3 from 'd3v7';
+
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
 import { ESortTypes } from '../../../heatmap/interfaces';
@@ -102,92 +104,101 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   ];
 }
 
+interface CustomArgs {
+  pointCount: number;
+}
+
+// Merge the custom args with the component's props
+type MetaArgs = Parameters<typeof Vis>[0] & CustomArgs;
+
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
-  title: 'Vis/Heatmap',
+const meta: Meta<MetaArgs> = {
+  title: 'Vis/vistypes/randomData/Heatmap',
   component: Vis,
+  parameters: {
+    chromatic: { delay: 3000 },
+  },
   argTypes: {
     pointCount: { control: 'number' },
   },
   args: {
     pointCount: 100000,
   },
-  parameters: {
-    chromatic: { delay: 3000 },
+  render: (args) => {
+    // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [selected, setSelected] = React.useState<string[]>([]);
+
+    return (
+      <VisProvider>
+        <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ width: '70%', height: '80%' }}>
+            <Vis {...args} selected={selected} selectionCallback={setSelected} columns={columns} />
+          </div>
+        </div>
+      </VisProvider>
+    );
   },
 };
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-// eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Vis> = (args) => {
-  // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+export default meta;
+type Story = StoryObj<typeof Vis>;
 
-  const [selected, setSelected] = React.useState<string[]>([]);
-
-  return (
-    <VisProvider>
-      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} selected={selected} selectionCallback={setSelected} columns={columns} />
-        </div>
-      </div>
-    </VisProvider>
-  );
-};
-// More on args: https://storybook.js.org/docs/react/writing-stories/args
-
-export const Basic: typeof Template = Template.bind({}) as typeof Template;
-Basic.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEATMAP,
-    catColumnsSelected: [
-      {
-        description: '',
-        id: 'category',
-        name: 'category',
-      },
-      {
-        description: '',
-        id: 'category2',
-        name: 'category2',
-      },
-    ],
-    xSortedBy: ESortTypes.NONE,
-    ySortedBy: ESortTypes.NONE,
-    color: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    aggregateColumn: null,
-    aggregateType: EAggregateTypes.COUNT,
-  } as BaseVisConfig,
+export const Basic: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.HEATMAP,
+      catColumnsSelected: [
+        {
+          description: '',
+          id: 'category',
+          name: 'category',
+        },
+        {
+          description: '',
+          id: 'category2',
+          name: 'category2',
+        },
+      ],
+      xSortedBy: ESortTypes.NONE,
+      ySortedBy: ESortTypes.NONE,
+      color: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      aggregateColumn: null,
+      aggregateType: EAggregateTypes.COUNT,
+    } as BaseVisConfig,
+  },
 };
 
-export const Multiples: typeof Template = Template.bind({}) as typeof Template;
-Multiples.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.HEATMAP,
-    catColumnsSelected: [
-      {
-        description: '',
-        id: 'category',
-        name: 'category',
-      },
-      {
-        description: '',
-        id: 'category2',
-        name: 'category2',
-      },
-      {
-        description: '',
-        id: 'category3',
-        name: 'category3',
-      },
-    ],
-    xSortedBy: ESortTypes.NONE,
-    ySortedBy: ESortTypes.NONE,
-    color: null,
-    numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-    aggregateColumn: null,
-    aggregateType: EAggregateTypes.COUNT,
-  } as BaseVisConfig,
+export const Multiples: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.HEATMAP,
+      catColumnsSelected: [
+        {
+          description: '',
+          id: 'category',
+          name: 'category',
+        },
+        {
+          description: '',
+          id: 'category2',
+          name: 'category2',
+        },
+        {
+          description: '',
+          id: 'category3',
+          name: 'category3',
+        },
+      ],
+      xSortedBy: ESortTypes.NONE,
+      ySortedBy: ESortTypes.NONE,
+      color: null,
+      numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+      aggregateColumn: null,
+      aggregateType: EAggregateTypes.COUNT,
+    } as BaseVisConfig,
+  },
 };

@@ -1,12 +1,14 @@
 import * as React from 'react';
+import { useMemo } from 'react';
+
 import * as hex from 'd3-hexbin';
 import * as d3v7 from 'd3v7';
-import { useMemo } from 'react';
+
 import { PieChart } from './PieChart';
-import { cutHex } from './utils';
 import { EHexbinOptions } from './interfaces';
-import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
+import { cutHex } from './utils';
 import { selectionColorDark } from '../../utils';
+import { VIS_NEUTRAL_COLOR, VIS_UNSELECTED_COLOR } from '../general/constants';
 
 export interface SingleHexProps {
   hexbinOption: EHexbinOptions;

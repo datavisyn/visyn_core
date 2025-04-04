@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { normalizeWheelEvent } from '../normalizeWheelEvent';
-import { Extent, NormalizedWheelEvent } from '../interfaces';
-import { outsideExtent, relativeMousePosition } from '../util';
+
 import { useSetRef } from '../../../hooks';
+import { Extent, NormalizedWheelEvent } from '../interfaces';
+import { normalizeWheelEvent } from '../normalizeWheelEvent';
+import { outsideExtent, relativeMousePosition } from '../util';
 
 export interface UseWheelProps {
   onWheel: (event: NormalizedWheelEvent) => void;
@@ -11,6 +12,8 @@ export interface UseWheelProps {
    * Extent to constrain the wheel event within the bounds of the extent.
    */
   extent?: Extent;
+
+  preventDefault?: (event: NormalizedWheelEvent) => boolean;
 }
 
 /**
@@ -42,10 +45,14 @@ export function useWheel(props: UseWheelProps) {
           return;
         }
 
-        event.preventDefault();
+        const normalizedEvent = normalizeWheelEvent(event);
+
+        if (propsRef.current.preventDefault?.(normalizedEvent) ?? true) {
+          event.preventDefault();
+        }
 
         propsRef.current.onWheel?.({
-          ...normalizeWheelEvent(event),
+          ...normalizedEvent,
           x: relativePosition.x,
           y: relativePosition.y,
         });

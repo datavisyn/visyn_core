@@ -1,23 +1,12 @@
+import * as React from 'react';
+
 import { Group, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
-import * as React from 'react';
-import { createVis, useVisProvider } from './Provider';
-import { VisSidebarWrapper } from './VisSidebarWrapper';
-import {
-  BaseVisConfig,
-  EAggregateTypes,
-  EColumnTypes,
-  EFilterOptions,
-  ENumericalColorScaleType,
-  EScatterSelectSettings,
-  ESupportedPlotlyVis,
-  IPlotStats,
-  VisColumn,
-  isESupportedPlotlyVis,
-} from './interfaces';
 
+import { createVis, useVisProvider } from './Provider';
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
+import { VisSidebarWrapper } from './VisSidebarWrapper';
 import { BarVis, BarVisSidebar, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './bar';
 import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
@@ -32,6 +21,18 @@ import { HexbinVis } from './hexbin/HexbinVis';
 import { HexbinVisSidebar } from './hexbin/HexbinVisSidebar';
 import { IHexbinConfig } from './hexbin/interfaces';
 import { hexinbMergeDefaultConfig } from './hexbin/utils';
+import {
+  BaseVisConfig,
+  EAggregateTypes,
+  EColumnTypes,
+  EFilterOptions,
+  ENumericalColorScaleType,
+  EScatterSelectSettings,
+  ESupportedPlotlyVis,
+  IPlotStats,
+  VisColumn,
+  isESupportedPlotlyVis,
+} from './interfaces';
 import { SankeyVis } from './sankey/SankeyVis';
 import { SankeyVisSidebar } from './sankey/SankeyVisSidebar';
 import { ISankeyConfig } from './sankey/interfaces';
@@ -195,6 +196,12 @@ export function EagerVis({
    */
   showDownloadScreenshot?: boolean;
 }) {
+  const [selectedList, setSelectedList] = useUncontrolled<string[]>({
+    value: selected,
+    defaultValue: [],
+    onChange: selectionCallback,
+  });
+
   const [showSidebar, setShowSidebar] = useUncontrolled<boolean>({
     value: internalShowSidebar,
     defaultValue: showSidebarDefault,
@@ -269,12 +276,12 @@ export function EagerVis({
   const selectedMap: { [key: string]: boolean } = React.useMemo(() => {
     const currMap: { [key: string]: boolean } = {};
 
-    selected.forEach((s) => {
+    selectedList.forEach((s) => {
       currMap[s] = true;
     });
 
     return currMap;
-  }, [selected]);
+  }, [selectedList]);
 
   const commonProps = {
     showSidebar,
@@ -333,9 +340,9 @@ export function EagerVis({
               stats={stats}
               statsCallback={statsCallback}
               filterCallback={filterCallback}
-              selectionCallback={selectionCallback}
+              selectionCallback={setSelectedList}
               selectedMap={selectedMap}
-              selectedList={selected}
+              selectedList={selectedList}
               columns={columns}
               showSidebar={showSidebar}
               showCloseButton={showCloseButton}
@@ -348,7 +355,7 @@ export function EagerVis({
       </Stack>
       {showSidebar && visConfig?.merged ? (
         <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
-          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} />
+          <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} selectedList={selectedList} />
         </VisSidebarWrapper>
       ) : null}
     </Group>

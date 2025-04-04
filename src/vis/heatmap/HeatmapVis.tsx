@@ -1,5 +1,7 @@
-import { Group } from '@mantine/core';
 import * as React from 'react';
+
+import { Group } from '@mantine/core';
+
 import { ICommonVisProps } from '../interfaces';
 import { HeatmapGrid } from './HeatmapGrid';
 import { IHeatmapConfig } from './interfaces';

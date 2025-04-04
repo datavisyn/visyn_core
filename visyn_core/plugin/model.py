@@ -34,6 +34,13 @@ class AVisynPlugin(ABC):
     def init_app(self, app: FastAPI):  # noqa: B027
         pass
 
+    def paths_without_authentication(self) -> tuple[str]:
+        """
+        Called for every request to determine if the request should be allowed without authentication.
+        All paths returned here will be accessible without authentication.
+        """
+        return tuple()  # noqa: C408
+
     @property
     def setting_class(self) -> type[BaseModel] | None:
         return None

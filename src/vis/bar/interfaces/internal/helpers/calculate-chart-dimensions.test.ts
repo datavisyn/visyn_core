@@ -1,6 +1,6 @@
+import { calculateChartHeight, calculateChartMinWidth } from './calculate-chart-dimensions';
 import { defaultConfig } from '../../constants';
 import { EBarDirection, EBarGroupingType } from '../../enums';
-import { calculateChartHeight, calculateChartMinWidth } from './calculate-chart-dimensions';
 
 const config = {
   ...defaultConfig,
@@ -24,7 +24,8 @@ describe('Calculate chart height', () => {
           calculateChartHeight({
             config,
             containerHeight: 150,
-            aggregatedData: { categories: {}, categoriesList: [], groupingsList: [] },
+            categoryCount: 1,
+            groupCount: 0,
           }),
         ),
       ),
@@ -36,11 +37,8 @@ describe('Calculate chart height', () => {
       calculateChartHeight({
         config: { ...config, useFullHeight: false, direction: EBarDirection.VERTICAL },
         containerHeight: 150,
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 1,
       }),
     ).toBe(300);
   });
@@ -50,11 +48,8 @@ describe('Calculate chart height', () => {
       calculateChartHeight({
         config: { ...config, useFullHeight: true, direction: EBarDirection.VERTICAL },
         containerHeight: 700,
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 1,
       }),
     ).toBe(600);
   });
@@ -64,11 +59,8 @@ describe('Calculate chart height', () => {
       calculateChartHeight({
         config,
         containerHeight: 150,
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 1,
       }),
     ).toBe(125);
   });
@@ -78,13 +70,10 @@ describe('Calculate chart height', () => {
       calculateChartHeight({
         config,
         containerHeight: 150,
-        aggregatedData: {
-          categoriesList: Array.from({ length: 100 }, (_, i) => `Category ${i + 1}`).concat(['Unknown']),
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 100,
+        groupCount: 1,
       }),
-    ).toBe(3555);
+    ).toBe(3520);
   });
 
   it('should return calculated height for stacked bars', () => {
@@ -92,11 +81,8 @@ describe('Calculate chart height', () => {
       calculateChartHeight({
         config: { ...config, group: { id: 'group', name: 'Group column', description: '' } },
         containerHeight: 150,
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Group 1', 'Group 2', 'Group 3', 'Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 4,
       }),
     ).toBe(125);
   });
@@ -106,11 +92,8 @@ describe('Calculate chart height', () => {
       calculateChartHeight({
         config: { ...config, group: { id: 'group', name: 'Group column', description: '' }, groupType: EBarGroupingType.GROUP },
         containerHeight: 150,
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Group 1', 'Group 2', 'Group 3', 'Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 4,
       }),
     ).toBe(440);
   });
@@ -123,11 +106,8 @@ describe('Calculate chart min width', () => {
         Number(
           calculateChartMinWidth({
             config,
-            aggregatedData: {
-              categories: {},
-              categoriesList: [],
-              groupingsList: [],
-            },
+            categoryCount: 1,
+            groupCount: 0,
           }),
         ),
       ),
@@ -138,11 +118,8 @@ describe('Calculate chart min width', () => {
     expect(
       calculateChartMinWidth({
         config: { ...config, useResponsiveBarWidth: false, direction: EBarDirection.VERTICAL },
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 1,
       }),
     ).toBe(125);
   });
@@ -151,11 +128,8 @@ describe('Calculate chart min width', () => {
     expect(
       calculateChartMinWidth({
         config: { ...config, useFullHeight: true, direction: EBarDirection.VERTICAL },
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 1,
       }),
     ).toBe(125);
   });
@@ -164,11 +138,8 @@ describe('Calculate chart min width', () => {
     expect(
       calculateChartMinWidth({
         config,
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 1,
       }),
     ).toBe(300);
   });
@@ -177,11 +148,8 @@ describe('Calculate chart min width', () => {
     expect(
       calculateChartMinWidth({
         config,
-        aggregatedData: {
-          categoriesList: Array.from({ length: 100 }, (_, i) => `Category ${i + 1}`).concat(['Unknown']),
-          groupingsList: ['Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 100,
+        groupCount: 1,
       }),
     ).toBe(300);
   });
@@ -190,11 +158,8 @@ describe('Calculate chart min width', () => {
     expect(
       calculateChartMinWidth({
         config: { ...config, group: { id: 'group', name: 'Group column', description: '' } },
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Group 1', 'Group 2', 'Group 3', 'Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 4,
       }),
     ).toBe(300);
   });
@@ -203,11 +168,8 @@ describe('Calculate chart min width', () => {
     expect(
       calculateChartMinWidth({
         config: { ...config, group: { id: 'group', name: 'Group column', description: '' }, groupType: EBarGroupingType.GROUP },
-        aggregatedData: {
-          categoriesList: ['Category 1', 'Category 2', 'Unknown'],
-          groupingsList: ['Group 1', 'Group 2', 'Group 3', 'Unknown'],
-          categories: {}, // data not needed for this test
-        },
+        categoryCount: 3,
+        groupCount: 4,
       }),
     ).toBe(300);
   });

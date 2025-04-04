@@ -2,6 +2,7 @@ import groupBy from 'lodash/groupBy';
 import round from 'lodash/round';
 import sort from 'lodash/sortBy';
 import sortedUniq from 'lodash/sortedUniq';
+
 import { NAN_REPLACEMENT } from '../../../../general/constants';
 import { EAggregateTypes, ICommonVisProps } from '../../../../interfaces';
 import { EBarDisplayType, EBarGroupingType } from '../../enums';
@@ -10,12 +11,8 @@ import { DEFAULT_FACET_NAME } from '../constants';
 import { AggregatedDataType } from '../types';
 import { median } from './median';
 
-export function generateAggregatedDataLookup(
-  config: { isFaceted: boolean; isGrouped: boolean; groupType: EBarGroupingType; display: EBarDisplayType; aggregateType: EAggregateTypes },
-  dataTable: IBarDataTableRow[],
-  selectedMap: ICommonVisProps<IBarConfig>['selectedMap'],
-) {
-  const facetGrouped = config.isFaceted ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
+export function generateAggregatedDataLookup(config: IBarConfig, dataTable: IBarDataTableRow[], selectedMap: ICommonVisProps<IBarConfig>['selectedMap']) {
+  const facetGrouped = config.facets?.id ? groupBy(dataTable, 'facet') : { [DEFAULT_FACET_NAME]: dataTable };
   const aggregated: { facets: { [facet: string]: AggregatedDataType }; globalDomain: { min: number; max: number }; facetsList: string[] } = {
     facets: {},
     globalDomain: { min: Infinity, max: -Infinity },
@@ -28,6 +25,7 @@ export function generateAggregatedDataLookup(
     const facetSensitiveDataTable = facet === DEFAULT_FACET_NAME ? dataTable : dataTable.filter((item) => item.facet === facet);
     const categoriesList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.category) ?? []));
     const groupingsList = sortedUniq(sort(facetSensitiveDataTable.map((item) => item.group ?? NAN_REPLACEMENT) ?? []));
+
     (values ?? []).forEach((item) => {
       const { category = NAN_REPLACEMENT, agg, group = NAN_REPLACEMENT } = item;
       const aggregate = [null, undefined, Infinity, -Infinity, NaN].includes(agg) ? 0 : agg;
@@ -266,7 +264,7 @@ export function generateAggregatedDataLookup(
             case EAggregateTypes.MED: {
               const selectedMedian = median(group?.selected.nums ?? []) ?? 0;
               const unselectedMedian = median(group?.unselected.nums ?? []) ?? 0;
-              if (config.isGrouped) {
+              if (config.group?.id) {
                 if (config.groupType === EBarGroupingType.STACK) {
                   const { max, min } = Object.values(category?.groups ?? {}).reduce(
                     (acc, g) => {

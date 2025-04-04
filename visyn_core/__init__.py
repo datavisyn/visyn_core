@@ -21,10 +21,6 @@ class VisynPlugin(AVisynPlugin):
 
         app.include_router(create_settings_router())
 
-        from .sentry.sentry_proxy_router import sentry_router
-
-        app.include_router(sentry_router)
-
     def register(self, registry: RegHelper):
         # phovea_server
         registry.append_router("caleydo-idtype", "visyn_core.id_mapping.idtype_api", {})
@@ -65,4 +61,20 @@ class VisynPlugin(AVisynPlugin):
             "oauth2_security_store",
             "visyn_core.security.store.oauth2_security_store",
             {},
+        )
+
+    def paths_without_authentication(self):
+        from . import manager
+
+        return (
+            "/api/health",
+            "/api/login",
+            "/api/logout",
+            "/api/metrics",
+            "/api/security/stores",
+            "/api/sentry/",
+            "/api/v1/visyn/clientConfig",
+            "/health",
+            "/metrics",
+            *manager.settings.visyn_core.security.paths_without_authentication,
         )

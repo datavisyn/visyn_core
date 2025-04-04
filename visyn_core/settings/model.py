@@ -44,9 +44,13 @@ class AlbSecurityStoreSettings(BaseModel):
     enable: bool = False
     cookie_name: str | None = None
     signout_url: str | None = None
-    email_token_field: str | list[str] = ["email"]  # NOQA RUF012
+    email_token_field: str | list[str] = Field(default_factory=lambda: ["email"])
     """
     Field in the JWT token that contains the email address of the user.
+    """
+    properties_fields: list[str] = Field(default=lambda: [])
+    """
+    Fields in the JWT token payload that should be mapped to the properties of the user.
     """
     audience: str | list[str] | None = None
     """
@@ -76,13 +80,21 @@ class OAuth2SecurityStoreSettings(BaseModel):
     cookie_name: str | None = None
     signout_url: str | None = None
     access_token_header_name: str = "X-Forwarded-Access-Token"
-    email_token_field: str | list[str] = ["email"]  # NOQA RUF012
+    email_token_field: str | list[str] = Field(default_factory=lambda: ["email"])
+    """
+    Field in the JWT token that contains the email address of the user.
+    """
+    properties_fields: list[str] = Field(default_factory=lambda: [])
+    """
+    Fields in the JWT token payload that should be mapped to the properties of the user.
+    """
 
 
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
-    roles: list[str] = []  # NOQA RUF012
+    roles: list[str] = Field(default_factory=lambda: [])
+    properties: dict[str, Any] = Field(default_factory=lambda: {})
 
 
 class SecurityStoreSettings(BaseModel):
@@ -98,6 +110,13 @@ class SecurityStoreSettings(BaseModel):
 
 class SecuritySettings(BaseModel):
     store: SecurityStoreSettings = SecurityStoreSettings()
+    """
+    Settings for the security store.
+    """
+    paths_without_authentication: list[str] = Field(default_factory=lambda: [])
+    """
+    Paths that are not protected by the security store.
+    """
 
 
 class BaseTelemetrySettings(BaseModel):
@@ -159,14 +178,50 @@ class SentrySettings(BaseModel):
     """
     Public DSN of the Sentry project.
     """
+    frontend_dsn: str | None = None
+    """
+    Public DSN of the Sentry frontend project.
+    """
+    backend_dsn: str | None = None
+    """
+    Public DSN of the Sentry backend project.
+    """
+    backend_init_options: dict[str, Any] = Field(default_factory=lambda: {})
+    """
+    Options to be passed to the Sentry SDK during initialization.
+    """
     proxy_to: str | None = None
     """
     Proxy Sentry envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
     """
-    server_init_options: dict[str, Any] = {}  # NOQA RUF012
+    frontend_proxy_to: str | None = None
     """
-    Options to be passed to the Sentry SDK during initialization.
+    Proxy Sentry frontend envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
     """
+    frontend_proxy_verify: bool = True
+    """
+    Verify the SSL certificate of the frontend proxy.
+    """
+    frontend_proxy_timeout: int = 30
+    """
+    Timeout in seconds for the frontend proxy.
+    """
+    backend_proxy_to: str | None = None
+    """
+    Proxy Sentry backend envelopes to this URL. Used if an internal Sentry server is used, otherwise the original DSN is used.
+    """
+
+    def get_frontend_dsn(self) -> str | None:
+        return self.frontend_dsn or self.dsn
+
+    def get_backend_dsn(self) -> str | None:
+        return self.backend_dsn or self.dsn
+
+    def get_frontend_proxy_to(self) -> str | None:
+        return self.frontend_proxy_to or self.proxy_to
+
+    def get_backend_proxy_to(self) -> str | None:
+        return self.backend_proxy_to or self.proxy_to
 
 
 class VisynCoreSettings(BaseModel):
@@ -182,17 +237,25 @@ class VisynCoreSettings(BaseModel):
     """
     Settings for Sentry. DSN will be shared via the client config.
     """
+    celery: dict[str, Any] | None = None
+    """
+    Settings for celery. If not set, celery will not be initialized.
+    """
     cypress: bool = False
     """
-    True if the application is running in Cypress testing environment. Enables application to return special responses for example.
+    @deprecated: Use `e2e` instead.
+    """
+    e2e: bool = False
+    """
+    True if the application is running in E2E testing environment. Enables application to return special responses for example.
 
-    To enable this flag in applications, simply add `VISYN_CORE__CYPRESS=true` to your `.env` file.
+    To enable this flag in applications, simply add `VISYN_CORE__E2E=true` to your `.env` file.
 
     Example usage in a route:
     ```
     from visyn_core import manager
     ...
-    if manager.settings.visyn_core.cypress:
+    if manager.settings.visyn_core.e2e:
         # Do something
     ```
     """
@@ -247,6 +310,10 @@ class GlobalSettings(BaseSettings):
     @property
     def is_development_mode(self) -> bool:
         return self.env.startswith("dev")
+
+    @property
+    def is_e2e_testing(self) -> bool:
+        return self.visyn_core.cypress or self.visyn_core.e2e
 
     def get_nested(self, key: str, default: Any = None) -> Any | None:
         """

@@ -1,24 +1,14 @@
+import * as React from 'react';
+
 import { Group, MantineColor, Text, Title, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import * as React from 'react';
+
 import { useVisynAppContext } from '../VisynAppContext';
 import { IAboutAppModalConfig } from './AboutAppModal';
 import { BurgerMenu } from './BurgerMenu';
 import { ConfigurationMenu } from './ConfigurationMenu';
 import { DatavisynLogo } from './DatavisynLogo';
 import { UserMenu } from './UserMenu';
-
-/** TODO: const useStyles = createStyles(() => ({
-  a: {
-    '& > a': {
-      '&:hover': {
-        color: 'currentColor',
-      },
-    },
-  },
-})); */
-
-// const classes = {};
 
 export function VisynHeader({
   color = 'white',

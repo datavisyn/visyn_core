@@ -1,14 +1,21 @@
 import { EBarDirection, EBarGroupingType } from '../../enums';
 import { IBarConfig } from '../../interfaces';
-import { BAR_WIDTH, BAR_SPACING, DEFAULT_BAR_CHART_MIN_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT } from '../constants';
-import { AggregatedDataType } from '../types';
+import { BAR_SPACING, BAR_WIDTH, CHART_HEIGHT_MARGIN, DEFAULT_BAR_CHART_HEIGHT, DEFAULT_BAR_CHART_MIN_WIDTH } from '../constants';
 
-export function calculateChartMinWidth({ config, aggregatedData }: { config?: IBarConfig; aggregatedData?: AggregatedDataType }): number {
+export function calculateChartMinWidth({
+  config,
+  categoryCount = 1,
+  groupCount = 0,
+}: {
+  config?: IBarConfig;
+  categoryCount: number;
+  groupCount: number;
+}): number {
   if (config?.direction === EBarDirection.VERTICAL) {
     // calculate height for horizontal bars
-    const multiplicationFactor = !config?.group ? 1 : config?.groupType === EBarGroupingType.STACK ? 1 : (aggregatedData?.groupingsList ?? []).length;
+    const multiplicationFactor = !config?.group ? 1 : config?.groupType === EBarGroupingType.STACK ? 1 : groupCount;
     const categoryWidth = ((config?.useResponsiveBarWidth ? 1 : BAR_WIDTH) + BAR_SPACING) * multiplicationFactor;
-    return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING;
+    return categoryCount * categoryWidth + 2 * BAR_SPACING;
   }
   if (config?.direction === EBarDirection.HORIZONTAL) {
     // use fixed height for vertical bars
@@ -20,18 +27,20 @@ export function calculateChartMinWidth({ config, aggregatedData }: { config?: IB
 
 export function calculateChartHeight({
   config,
-  aggregatedData,
+  categoryCount = 1,
+  groupCount = 0,
   containerHeight,
 }: {
   config?: IBarConfig;
-  aggregatedData?: AggregatedDataType;
+  categoryCount: number;
+  groupCount: number;
   containerHeight: number;
 }): number {
   if (config?.direction === EBarDirection.HORIZONTAL) {
     // calculate height for horizontal bars
-    const multiplicationFactor = !config?.group ? 1 : config?.groupType === EBarGroupingType.STACK ? 1 : (aggregatedData?.groupingsList ?? []).length;
+    const multiplicationFactor = !config?.group ? 1 : config?.groupType === EBarGroupingType.STACK ? 1 : groupCount;
     const categoryWidth = (BAR_WIDTH + BAR_SPACING) * multiplicationFactor;
-    return (aggregatedData?.categoriesList ?? []).length * categoryWidth + 2 * BAR_SPACING;
+    return categoryCount * categoryWidth + 2 * BAR_SPACING;
   }
   if (config?.direction === EBarDirection.VERTICAL) {
     // use fixed height for vertical bars

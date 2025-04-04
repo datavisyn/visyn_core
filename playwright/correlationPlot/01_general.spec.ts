@@ -1,4 +1,6 @@
-import { test, expect } from '@chromatic-com/playwright';
+/* eslint-disable no-await-in-loop */
+import { test } from '@chromatic-com/playwright';
+
 import { selectCorrelationPlot } from '../extensions/selectPlots';
 
 test('download', async ({ page }) => {

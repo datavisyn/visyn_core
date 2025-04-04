@@ -1,8 +1,10 @@
-import { Stack } from '@mantine/core';
 import * as React from 'react';
+
+import { Stack } from '@mantine/core';
+
 import { ICommonVisProps } from '../interfaces';
-import { IBarConfig } from './interfaces';
 import { BarChart } from './BarChart';
+import { IBarConfig } from './interfaces';
 import { i18n } from '../../i18n';
 import { WarningMessage } from '../general/WarningMessage';
 

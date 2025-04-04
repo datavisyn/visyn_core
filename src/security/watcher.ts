@@ -1,5 +1,6 @@
-import { userSession, UserSession } from './UserSession';
 import { LoginUtils } from './LoginUtils';
+import { userSession } from './UserSession';
+import { addVisynEventListener } from '../app/VisynEvents';
 import { Ajax } from '../base/ajax';
 import { globalEventHandler } from '../base/event';
 
@@ -13,11 +14,12 @@ export class SessionWatcher {
   private lastChecked = 0;
 
   constructor(private readonly logout: () => any = LoginUtils.logout) {
-    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_IN, () => this.reset());
+    addVisynEventListener('userLoggedIn', () => this.reset());
     if (userSession.isLoggedIn()) {
       this.reset();
     }
-    globalEventHandler.on(UserSession.GLOBAL_EVENT_USER_LOGGED_OUT, () => this.stop());
+    addVisynEventListener('userLoggedOut', () => this.stop());
+    // TODO: Remove legacy event handling
     globalEventHandler.on(Ajax.GLOBAL_EVENT_AJAX_POST_SEND, () => this.reset());
     document.addEventListener('visibilitychange', () => {
       window.clearInterval(this.hiddenTimeout);

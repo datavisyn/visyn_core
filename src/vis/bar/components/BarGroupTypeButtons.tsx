@@ -1,5 +1,7 @@
-import { Container, SegmentedControl, Stack } from '@mantine/core';
 import * as React from 'react';
+
+import { Container, SegmentedControl, Stack } from '@mantine/core';
+
 import { EBarGroupingType } from '../interfaces';
 
 interface BarGroupTypeProps {

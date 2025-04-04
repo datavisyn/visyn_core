@@ -1,4 +1,4 @@
-import type { IPluginDesc, IPlugin } from './interfaces';
+import type { IPlugin, IPluginDesc } from './interfaces';
 import type { IUser } from '../security';
 
 export const EP_PHOVEA_CORE_LOGIN = 'epPhoveaCoreLogin';

@@ -1,8 +1,10 @@
-import { Anchor, Text } from '@mantine/core';
 import React from 'react';
+
+import { Anchor, Text } from '@mantine/core';
+
+import { VisynLoginForm } from './VisynLoginForm';
 import { IUserStore, userSession } from '../../security';
 import { LoginUtils } from '../../security/LoginUtils';
-import { VisynLoginForm } from './VisynLoginForm';
 
 interface IUserStoreRenderProps<T extends IUserStore = IUserStore> {
   setError(error: string | null): void;

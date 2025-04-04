@@ -1,9 +1,10 @@
-import merge from 'lodash/merge';
 import isObject from 'lodash/isObject';
+import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
-import type { IPluginDesc, IRegistry, IPlugin } from './interfaces';
-import type { VisynViewPluginDesc, VisynViewPluginType } from '../views/visyn/interfaces';
+
 import { EXTENSION_POINT_VISYN_VIEW } from './extensions';
+import type { IPlugin, IPluginDesc, IRegistry } from './interfaces';
+import type { VisynViewPluginDesc, VisynViewPluginType } from '../views/visyn/interfaces';
 
 export class PluginRegistry implements IRegistry {
   private registry: IPluginDesc[] = [];

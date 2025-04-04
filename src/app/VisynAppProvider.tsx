@@ -1,14 +1,21 @@
+import * as React from 'react';
+
 import { MantineProvider, MantineProviderProps } from '@mantine/core';
 import { ModalsProvider, ModalsProviderProps } from '@mantine/modals';
 import { Notifications, NotificationsProps } from '@mantine/notifications';
+import type { BrowserOptions } from '@sentry/react';
 import merge from 'lodash/merge';
-import * as React from 'react';
-import { BrowserOptions } from '@sentry/react';
+
 import { loadClientConfig } from '../base/clientConfig';
-import { useAsync, useInitVisynApp, useVisynUser } from '../hooks';
-import { VisProvider } from '../vis/Provider';
+import { useAsync, useInitVisynApp } from '../hooks';
 import { VisynAppContext } from './VisynAppContext';
-import { DEFAULT_MANTINE6_PROVIDER_PROPS, DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
+import { dispatchVisynEvent } from './VisynEvents';
+import { DEFAULT_MANTINE_PROVIDER_PROPS } from './constants';
+import { VisynEnv } from '../base/VisynEnv';
+import { useVisynEventCallback } from '../hooks/useVisynEventCallback';
+import { userSession } from '../security/UserSession';
+import type { IUser } from '../security/interfaces';
+import { VisProvider } from '../vis/Provider';
 
 import '@mantine/code-highlight/styles.css';
 import '@mantine/core/styles.css';
@@ -17,10 +24,7 @@ import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/tiptap/styles.css';
 
-const LazyMantine6Provider = React.lazy(() => import('@mantine6/core').then((module) => ({ default: module.MantineProvider })));
-
 export function VisynAppProvider({
-  disableMantine6 = false,
   children,
   appName,
   mantineProviderProps,
@@ -28,11 +32,9 @@ export function VisynAppProvider({
   mantineNotificationsProviderProps,
   sentryInitOptions = {},
   sentryOptions = {},
+  waitForClientConfig = true,
+  waitForSentry = true,
 }: {
-  /**
-   * Set this to true to disable the MantineProvider of Mantine 6. Use only if no Mantine 6 components are used.
-   */
-  disableMantine6?: boolean;
   children?: React.ReactNode;
   appName: JSX.Element | string;
   /**
@@ -44,100 +46,109 @@ export function VisynAppProvider({
   /**
    * Options to pass to Sentry.init. The DSN is automatically set from the client config.
    */
-  sentryInitOptions?: Omit<BrowserOptions, 'dsn'>;
+  sentryInitOptions?: Omit<BrowserOptions, 'dsn'> | (() => Promise<Omit<BrowserOptions, 'dsn'>>);
   /**
    * Additional options for the Sentry integration.
    */
   sentryOptions?: {
     /**
      * Set the user in Sentry. Defaults to true.
+     * @deprecated Uses the `sendDefaultPii` from now on.
      */
     setUser?: boolean;
   };
+  /**
+   * Set this to false to skip the wait for the client config. This is useful if the app works even without the client config.
+   * @default `true`
+   */
+  waitForClientConfig?: boolean;
+  /**
+   * Set this to true to wait for the Sentry initialization before rendering the children.
+   * @default `true`
+   */
+  waitForSentry?: boolean;
 }) {
-  const user = useVisynUser();
+  const [user, setUser] = React.useState<IUser | null>(userSession.currentUser());
+  useVisynEventCallback('userLoggedIn', ({ detail }) => setUser(detail.user));
+  useVisynEventCallback('userLoggedOut', () => setUser(null));
+
   const { status: initStatus } = useInitVisynApp();
 
-  const { value: clientConfig, status: clientConfigStatus, execute } = useAsync(loadClientConfig);
+  // Add the user as argument such that whenever the user changes, we want to reload the client config to get the latest permissions.
+  const loadClientConfigCallback = React.useCallback((_: IUser | null) => loadClientConfig(), []);
+  const { value: clientConfig, status: clientConfigStatus } = useAsync(loadClientConfigCallback, [user]);
+  // Once the client config is loaded, we can set the successful client config init.
+  // This is required as when the user changes, we reload the client config but don't want to trigger a complete unmount.
   const [successfulClientConfigInit, setSuccessfulClientConfigInit] = React.useState<boolean>(false);
+  if (clientConfigStatus === 'success' && !successfulClientConfigInit) {
+    setSuccessfulClientConfigInit(true);
+  }
 
-  React.useEffect(() => {
-    // Once the client config is loaded, we can set the successful client config init.
-    // This is required as when the user changes, we reload the client config but don't want to trigger a complete unmount.
-    if (clientConfigStatus === 'success') {
-      setSuccessfulClientConfigInit(true);
-    }
-  }, [clientConfigStatus]);
-
-  React.useEffect(() => {
-    // Whenever the user changes, we want to reload the client config to get the latest permissions.
-    execute();
-  }, [user, execute]);
-
-  const context = React.useMemo(
-    () => ({
-      user,
-      appName,
-      clientConfig,
-    }),
-    [user, appName, clientConfig],
-  );
-
+  const [successfulSentryInit, setSuccessfulSentryInit] = React.useState<boolean | 'skipped'>(false);
   React.useEffect(() => {
     // Hook to initialize Sentry if a DSN is provided.
     if (clientConfig?.sentry_dsn) {
-      import('@sentry/react').then((Sentry) => {
+      import('@sentry/react').then(async (Sentry) => {
         if (!Sentry.isInitialized()) {
-          Sentry.init({
-            dsn: clientConfig.sentry_dsn,
-            tunnel: clientConfig.sentry_proxy_to,
+          const resolvedSentryInitOptions = typeof sentryInitOptions === 'function' ? await sentryInitOptions() : sentryInitOptions;
+          const client = Sentry.init({
+            release: `${VisynEnv.__APP_NAME__}@${VisynEnv.__VERSION__}`,
+            /*
+            Do not instantiate integrations here, as the apps should do this instead.
             integrations: [
               // Capture all console.error calls
               Sentry.captureConsoleIntegration({ levels: ['error'] }),
               // Instrument browser pageload/navigation performance
               Sentry.browserTracingIntegration(),
-              // Enable replay integration
-              Sentry.replayIntegration(),
             ],
-
-            // Set tracesSampleRate to 1.0 to capture 100%
-            // of transactions for performance monitoring.
+            */
+            // We want to avoid having [object Object] in the Sentry breadcrumbs, so we increase the depth.
+            normalizeDepth: 5,
+            // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
             tracesSampleRate: 1.0,
-
-            // Capture Replay for 10% of all sessions,
-            // plus for 100% of sessions with an error
-            replaysSessionSampleRate: 0.1,
-            replaysOnErrorSampleRate: 1.0,
-
-            ...(sentryInitOptions || {}),
+            // Set send_default_pii to True to send PII like the user's IP address.
+            sendDefaultPii: true,
+            // Add our own options
+            ...(resolvedSentryInitOptions || {}),
+            // And finally set the DSN and tunnel
+            dsn: clientConfig.sentry_dsn,
+            tunnel: clientConfig.sentry_proxy_to,
           });
+          dispatchVisynEvent('sentryInitialized', { client });
         }
+        setSuccessfulSentryInit(true);
       });
+    } else if (successfulClientConfigInit) {
+      // If the client config is loaded but no DSN is provided, we can set the successful Sentry init.
+      setSuccessfulSentryInit('skipped');
     }
-  }, [clientConfig?.sentry_dsn, clientConfig?.sentry_proxy_to, sentryInitOptions]);
+  }, [clientConfig, successfulClientConfigInit, sentryInitOptions]);
 
   React.useEffect(() => {
-    // Hook to set the user in Sentry if a DSN is provided and the user is set.
-    if (clientConfig?.sentry_dsn && user && sentryOptions?.setUser !== false) {
+    // Hook to set the user in Sentry if it is initialized and the user is set.
+    if (successfulSentryInit === true && user) {
       import('@sentry/react').then((Sentry) => {
-        if (Sentry.isInitialized()) {
+        if (Sentry.isInitialized() && Sentry.getClient()?.getOptions()?.sendDefaultPii) {
           Sentry.setUser({
+            id: user.name,
             username: user.name,
           });
         }
       });
     }
-  }, [clientConfig?.sentry_dsn, sentryOptions?.setUser, user]);
+  }, [successfulSentryInit, user]);
 
   const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
-  const mergedMantine6ProviderProps = React.useMemo(
-    () => merge(merge({}, DEFAULT_MANTINE6_PROVIDER_PROPS), mantineProviderProps || {}),
-    [mantineProviderProps],
-  );
 
-  // Extract as variable to more easily make LazyMantine6Provider optional
-  const visynAppContext = (
-    <VisynAppContext.Provider value={context}>{initStatus === 'success' && successfulClientConfigInit ? children : null}</VisynAppContext.Provider>
+  const context = React.useMemo<Parameters<typeof VisynAppContext.Provider>[0]['value']>(
+    () => ({
+      user,
+      appName,
+      clientConfig,
+      successfulClientConfigInit,
+      successfulSentryInit,
+    }),
+    [user, appName, clientConfig, successfulClientConfigInit, successfulSentryInit],
   );
 
   return (
@@ -145,13 +156,9 @@ export function VisynAppProvider({
       <MantineProvider {...mergedMantineProviderProps}>
         <Notifications {...(mantineNotificationsProviderProps || {})} />
         <ModalsProvider {...(mantineModalsProviderProps || {})}>
-          {disableMantine6 ? (
-            visynAppContext
-          ) : (
-            <React.Suspense fallback={null}>
-              <LazyMantine6Provider {...mergedMantine6ProviderProps}>{visynAppContext}</LazyMantine6Provider>
-            </React.Suspense>
-          )}
+          <VisynAppContext.Provider value={context}>
+            {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) && (!waitForSentry || successfulSentryInit) ? children : null}
+          </VisynAppContext.Provider>
         </ModalsProvider>
       </MantineProvider>
     </VisProvider>

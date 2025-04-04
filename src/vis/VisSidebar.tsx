@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { useVisProvider } from './Provider';
 import { ICommonVisSideBarProps } from './interfaces';
 
@@ -8,6 +9,7 @@ export function VisSidebar({
   optionsConfig,
   config = null,
   setConfig = null,
+  selectedList,
   className,
   style,
 }: ICommonVisSideBarProps<typeof config>) {
@@ -27,6 +29,7 @@ export function VisSidebar({
       filterCallback={filterCallback}
       columns={columns}
       className={className}
+      selectedList={selectedList}
       style={style}
     />
   ) : null;

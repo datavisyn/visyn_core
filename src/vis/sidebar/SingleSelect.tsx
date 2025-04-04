@@ -1,6 +1,7 @@
-import { CheckIcon, CloseButton, Combobox, Group, Stack, Input, InputBase, ScrollArea, Text, Tooltip, useCombobox } from '@mantine/core';
 import * as React from 'react';
-import { css } from '@emotion/css';
+
+import { CheckIcon, CloseButton, Combobox, Group, Input, InputBase, ScrollArea, Stack, Text, Tooltip, useCombobox } from '@mantine/core';
+
 import { ColumnInfo, EColumnTypes, VisColumn } from '../interfaces';
 
 export function SingleSelect({

@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { useSetState } from '@mantine/hooks';
+
 import { useSetRef } from '../../../hooks/useSetRef';
 
 export function useCanvas<ContextId extends '2d' | 'webgl' | 'bitmaprenderer' | 'webgl2' = '2d'>(props?: { ratio?: number; contextId?: ContextId }) {

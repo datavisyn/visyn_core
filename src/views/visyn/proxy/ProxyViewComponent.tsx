@@ -1,6 +1,7 @@
 // Gets into the phovea.ts
 import * as React from 'react';
 import { useRef, useState } from 'react';
+
 import { BlurredOverlay } from '../../../components/BlurredOverlay';
 
 export interface IProxyViewProps {

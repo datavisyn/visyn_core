@@ -1,12 +1,20 @@
 /* eslint-disable react-compiler/react-compiler */
+import * as React from 'react';
+
 import { css } from '@emotion/css';
-import { Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
+import { Button, Center, Group, ScrollArea, Stack, Switch, Tooltip } from '@mantine/core';
 import { useElementSize, useWindowEvent } from '@mantine/hooks';
-import uniqueId from 'lodash/uniqueId';
 import * as d3v7 from 'd3v7';
 import cloneDeep from 'lodash/cloneDeep';
 import uniq from 'lodash/uniq';
-import * as React from 'react';
+import uniqueId from 'lodash/uniqueId';
+
+import { fitRegressionLine } from './Regression';
+import { ERegressionLineType, IRegressionResult, IScatterConfig } from './interfaces';
+import { useData } from './useData';
+import { useDataPreparation } from './useDataPreparation';
+import { useLayout } from './useLayout';
+import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 import { useAsync } from '../../hooks';
 import { i18n } from '../../i18n/I18nextManager';
 import { PlotlyComponent, PlotlyTypes } from '../../plotly';
@@ -17,32 +25,46 @@ import { WarningMessage } from '../general/WarningMessage';
 import { VIS_NEUTRAL_COLOR } from '../general/constants';
 import { EColumnTypes, ENumericalColorScaleType, EScatterSelectSettings, ICommonVisProps } from '../interfaces';
 import { BrushOptionButtons } from '../sidebar/BrushOptionButtons';
-import { fitRegressionLine } from './Regression';
-import { ERegressionLineType, IInternalScatterConfig, IRegressionResult } from './interfaces';
-import { useData } from './useData';
-import { useDataPreparation } from './useDataPreparation';
-import { useLayout } from './useLayout';
-import { defaultRegressionLineStyle, fetchColumnData, regressionToAnnotation } from './utils';
 
-function Legend({ categories, colorMap, onClick }: { categories: string[]; colorMap: (v: number | string) => string; onClick: (string) => void }) {
+function Legend({
+  categories,
+  hiddenCategoriesSet,
+  colorMap,
+  onClick,
+}: {
+  categories: string[];
+  hiddenCategoriesSet?: Set<string>;
+  colorMap: (v: number | string) => string;
+  onClick: (categories: string[]) => void;
+}) {
   return (
-    <ScrollArea
-      data-testid="PlotLegend"
-      style={{ height: '100%' }}
-      scrollbars="y"
-      className={css`
-        .mantine-ScrollArea-viewport > div {
-          display: flex !important;
-          flex-direction: column !important;
-        }
-      `}
-    >
-      <Stack gap={0}>
-        {categories.map((c) => {
-          return <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick(c)} filtered={false} />;
-        })}
-      </Stack>
-    </ScrollArea>
+    <Stack gap={0}>
+      <Button.Group pb="sm">
+        <Button variant="default" size="compact-xs" onClick={() => onClick([])}>
+          Show all
+        </Button>
+        <Button variant="default" size="compact-xs" onClick={() => onClick(categories)}>
+          Hide all
+        </Button>
+      </Button.Group>
+      <ScrollArea
+        data-testid="PlotLegend"
+        style={{ height: '100%' }}
+        scrollbars="y"
+        className={css`
+          .mantine-ScrollArea-viewport > div {
+            display: flex !important;
+            flex-direction: column !important;
+          }
+        `}
+      >
+        <Stack gap={0}>
+          {categories.map((c) => (
+            <LegendItem key={c} color={colorMap(c)} label={c} onClick={() => onClick([c])} filtered={hiddenCategoriesSet?.has(c) ?? false} />
+          ))}
+        </Stack>
+      </ScrollArea>
+    </Stack>
   );
 }
 
@@ -71,11 +93,13 @@ export function ScatterVis({
   scrollZoom,
   uniquePlotId,
   showDownloadScreenshot,
-}: ICommonVisProps<IInternalScatterConfig>) {
+}: ICommonVisProps<IScatterConfig>) {
   const id = React.useMemo(() => uniquePlotId || uniqueId('ScatterVis'), [uniquePlotId]);
 
   const [shiftPressed, setShiftPressed] = React.useState(false);
   const [showLegend, setShowLegend] = React.useState(false);
+
+  const [hiddenCategoriesSet, setHiddenCategoriesSet] = React.useState<Set<string>>(new Set<string>());
 
   // const [ref, { width, height }] = useResizeObserver();
   const { ref, width, height } = useElementSize();
@@ -128,10 +152,11 @@ export function ScatterVis({
   }
 
   const { subplots, scatter, splom, facet, shapeScale } = useDataPreparation({
-    value,
+    hiddenCategoriesSet,
+    numColorScaleType: config.numColorScaleType,
     status,
     uniqueSymbols,
-    numColorScaleType: config.numColorScaleType,
+    value,
   });
 
   const regressions = React.useMemo<{
@@ -293,49 +318,6 @@ export function ScatterVis({
       return undefined;
     }
 
-    /* const legendPlots: PlotlyTypes.Data[] = [];
-
-    if (value.shapeColumn) {
-      legendPlots.push({
-        x: [null],
-        y: [null],
-        type: 'scatter',
-        mode: 'markers',
-        showlegend: true,
-        legendgroup: 'shape',
-        hoverinfo: 'all',
-
-        hoverlabel: {
-          namelength: 10,
-          bgcolor: 'black',
-          align: 'left',
-          bordercolor: 'black',
-        },
-        // @ts-ignore
-        legendgrouptitle: {
-          text: truncateText(value.shapeColumn.info.name, true, 20),
-        },
-        marker: {
-          line: {
-            width: 0,
-          },
-          symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
-          color: VIS_NEUTRAL_COLOR,
-        },
-        transforms: [
-          {
-            type: 'groupby',
-            groups: value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)),
-            styles: [
-              ...[...new Set<string>(value.shapeColumn.resolvedValues.map((v) => getLabelOrUnknown(v.val)))].map((c) => {
-                return { target: c, value: { name: c } };
-              }),
-            ],
-          },
-        ],
-      });
-    }
-*/
     if (value.colorColumn && value.colorColumn.type === EColumnTypes.CATEGORICAL) {
       // Get distinct values
       const colorValues = uniq(value.colorColumn.resolvedValues.map((v) => v.val ?? 'Unknown') as string[]);
@@ -527,7 +509,7 @@ export function ScatterVis({
                 }
 
                 if (scatter) {
-                  const ids = event.points.map((point) => scatter.ids[point.pointIndex]) as string[];
+                  const ids = event.points.map((point) => scatter.ids[scatter.filter[point.pointIndex]!]) as string[];
                   mergeIntoSelection(ids);
                 }
 
@@ -568,7 +550,28 @@ export function ScatterVis({
 
       {status === 'success' && layout && legendData?.color.mapping && showLegend ? (
         <div style={{ gridArea: 'legend', overflow: 'hidden' }}>
-          <Legend categories={legendData.color.categories} colorMap={legendData.color.mappingFunction} onClick={() => {}} />
+          <Legend
+            categories={legendData.color.categories}
+            colorMap={legendData.color.mappingFunction}
+            hiddenCategoriesSet={hiddenCategoriesSet}
+            onClick={(categories: string[]) => {
+              setHiddenCategoriesSet((prevSet) => {
+                const newSet = new Set(prevSet);
+                if (categories.length === 0) {
+                  return new Set<string>();
+                }
+                if (categories.length === legendData.color.categories.length) {
+                  return new Set<string>(legendData.color.categories);
+                }
+                if (newSet.has(categories[0] as string)) {
+                  newSet.delete(categories[0] as string);
+                } else {
+                  newSet.add(categories[0] as string);
+                }
+                return newSet;
+              });
+            }}
+          />
         </div>
       ) : null}
     </div>

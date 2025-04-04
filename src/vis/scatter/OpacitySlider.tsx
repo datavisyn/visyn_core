@@ -1,16 +1,18 @@
+import { useMemo } from 'react';
+import * as React from 'react';
+
 import { Input, Slider } from '@mantine/core';
 import debounce from 'lodash/debounce';
-import { useMemo } from 'react';
 
-import * as React from 'react';
 import { useSyncedRef } from '../../hooks';
 
 interface OpacitySliderProps {
   callback: (n: number) => void;
   currentValue: number;
+  disabled?: boolean;
 }
 
-export function OpacitySlider({ callback, currentValue }: OpacitySliderProps) {
+export function OpacitySlider({ callback, currentValue, disabled }: OpacitySliderProps) {
   const syncedCallback = useSyncedRef(callback);
 
   const debouncedCallback = useMemo(() => {
@@ -20,6 +22,7 @@ export function OpacitySlider({ callback, currentValue }: OpacitySliderProps) {
   return (
     <Input.Wrapper label="Opacity" mb="md">
       <Slider
+        disabled={disabled}
         data-testid="OpacitySlider"
         step={0.05}
         value={+currentValue.toFixed(2)}

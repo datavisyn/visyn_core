@@ -1,4 +1,4 @@
-import { EPermission, EEntity } from './constants';
+import { EEntity, EPermission } from './constants';
 
 export class Permission {
   /**

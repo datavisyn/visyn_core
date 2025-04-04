@@ -1,5 +1,7 @@
-import { Input, SegmentedControl } from '@mantine/core';
 import * as React from 'react';
+
+import { Input, SegmentedControl } from '@mantine/core';
+
 import { EBarDirection } from '../interfaces';
 
 interface BarDirectionProps {

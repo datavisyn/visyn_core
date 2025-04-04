@@ -1,10 +1,11 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
+
 import { Direction, ZoomTransform } from '../interfaces';
-import { useInteractions, UseInteractionsProps } from './useInteractions';
 import { useControlledUncontrolled } from './useControlledUncontrolled';
-import { defaultConstraint } from '../transform';
+import { UseInteractionsProps, useInteractions } from './useInteractions';
 import { m4 } from '../math';
+import { defaultConstraint } from '../transform';
 
 interface UsePanProps {
   value?: ZoomTransform;

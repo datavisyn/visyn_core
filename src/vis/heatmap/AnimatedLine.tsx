@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useMemo, useRef } from 'react';
-import { useSpring, animated, easings } from 'react-spring';
+import { animated, easings, useSpring } from 'react-spring';
 
 export function AnimatedLine({
   x1,

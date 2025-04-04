@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { createRoot } from 'react-dom/client';
+
 import { CategoricalColumn, Column, IDataRow, LocalDataProvider, NumberColumn, Ranking, ValueColumn } from 'lineupjs';
-import { Vis } from './LazyVis';
-import { EColumnTypes, ColumnInfo, VisColumn, EFilterOptions, IVisCommonValue } from './interfaces';
-import { i18n } from '../i18n';
-import { IRow } from '../base/interfaces';
+import { createRoot } from 'react-dom/client';
+
+import { IRow } from '../../base/interfaces';
+import { i18n } from '../../i18n';
+import { Vis } from '../LazyVis';
+import { ColumnInfo, EColumnTypes, EFilterOptions, IVisCommonValue, VisColumn } from '../interfaces';
 
 export class LineupVisWrapper {
   /**

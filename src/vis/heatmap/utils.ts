@@ -1,6 +1,7 @@
 import { op } from 'arquero';
 import ColumnTable from 'arquero/dist/types/table/column-table';
 import merge from 'lodash/merge';
+
 import { resolveColumnValues, resolveSingleColumn } from '../general/layoutUtils';
 import {
   ColumnInfo,

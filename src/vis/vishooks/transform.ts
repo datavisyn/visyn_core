@@ -1,7 +1,8 @@
 import { ScaleLinear } from 'd3-scale';
+
 import { ZoomExtent, ZoomTransform } from './interfaces';
-import { clamp } from './util';
 import { m4, v3 } from './math';
+import { clamp } from './util';
 
 export function identityZoom(): ZoomTransform {
   return m4.identityMatrix4x4();

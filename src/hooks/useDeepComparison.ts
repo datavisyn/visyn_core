@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import isEqual from 'lodash/isEqual';
 
 // Inspired by https://github.com/kentcdodds/use-deep-compare-effect/blob/main/src/index.ts

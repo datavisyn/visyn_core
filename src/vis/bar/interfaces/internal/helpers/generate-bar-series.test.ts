@@ -1,5 +1,5 @@
-import { defaultConfig } from '../../constants';
 import { generateBarSeries } from './generate-bar-series';
+import { defaultConfig } from '../../constants';
 
 const config = { ...defaultConfig };
 

@@ -4,6 +4,7 @@ from base64 import b64decode
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from functools import wraps
+from typing import Any
 
 import jwt
 from fastapi import FastAPI, HTTPException, Request, Response, status
@@ -63,6 +64,7 @@ def user_to_dict(user: User, access_token: str | None = None, payload: dict | No
         "payload": payload,
         "access_token": access_token,
         "token_type": "bearer" if access_token else None,
+        "properties": user.properties,
     }
 
 
@@ -105,7 +107,7 @@ class SecurityManager:
             response_cookies.extend(customizations.cookies or [])
         return response_payload, response_cookies
 
-    def _delegate_stores_until_not_none(self, store_method_name: str, *args):
+    def _delegate_stores_until_not_none(self, store_method_name: str, *args) -> Any:
         """Run a method on ordered stores (if exists) until one doesn't return None"""
         for store in self.user_stores:
             method = getattr(store, store_method_name, None)
@@ -131,8 +133,6 @@ class SecurityManager:
                 # If there is no user, try to load it from the request and store it in the request
                 user = r.state.user = self.load_from_request(r)
                 return user
-        except HTTPException:
-            return None
         except Exception:
             _log.exception("Error loading user from request")
             return None
@@ -168,12 +168,7 @@ class SecurityManager:
                 if user:
                     return self._postload_user(user)
 
-        # Raise an exception is no user could be loaded
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return None
 
     def _load_from_key(self, request: Request) -> User | None:
         # try to login using the api_key url arg

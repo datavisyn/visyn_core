@@ -1,9 +1,11 @@
-import { ComponentStory } from '@storybook/react';
 import React from 'react';
-import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from '../../../bar/interfaces';
-import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisCategoricalColumn, VisColumn } from '../../../interfaces';
+
+import { Meta, StoryObj } from '@storybook/react';
+
 import { Vis } from '../../../LazyVis';
 import { VisProvider } from '../../../Provider';
+import { EBarDirection, EBarDisplayType, EBarGroupingType, EBarSortState } from '../../../bar/interfaces';
+import { BaseVisConfig, EAggregateTypes, EColumnTypes, ESupportedPlotlyVis, VisColumn } from '../../../interfaces';
 
 function RNG(seed: number, sign: 'positive' | 'negative' | 'mixed' = 'positive') {
   const m = 2 ** 35 - 31;
@@ -195,452 +197,477 @@ function fetchData(numberOfPoints: number): VisColumn[] {
   ];
 }
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
-  title: 'Vis/Bar',
+interface CustomArgs {
+  pointCount: number;
+}
+
+// Merge the custom args with the component's props
+type MetaArgs = Parameters<typeof Vis>[0] & CustomArgs;
+
+const meta: Meta<MetaArgs> = {
+  title: 'Vis/vistypes/randomData/Bar',
   component: Vis,
+  render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+
+    return (
+      <VisProvider>
+        <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ width: '70%', height: '80%' }}>
+            <Vis {...args} columns={columns} />
+          </div>
+        </div>
+      </VisProvider>
+    );
+  },
   argTypes: {
     pointCount: { control: 'number' },
   },
   args: {
     pointCount: 10000,
   },
+  parameters: {
+    controls: { expanded: true },
+  },
 };
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-// eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Vis> = (args) => {
-  // @ts-ignore TODO: The pointCount is an injected property, but we are using typeof Vis such that this prop does not exist.
-  const columns = React.useMemo(() => fetchData(args.pointCount), [args.pointCount]);
+export default meta;
+type Story = StoryObj<typeof Vis>;
 
-  return (
-    <VisProvider>
-      <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: '70%', height: '80%' }}>
-          <Vis {...args} columns={columns} />
-        </div>
-      </div>
-    </VisProvider>
-  );
-};
-// More on args: https://storybook.js.org/docs/react/writing-stories/args
-
-export const Basic: typeof Template = Template.bind({}) as typeof Template;
-Basic.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: null,
-    groupType: EBarGroupingType.STACK,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-    showSidebar: true,
-    showColumnDescriptionText: true,
-  } as BaseVisConfig,
+export const Basic: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: null,
+      groupType: EBarGroupingType.STACK,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+      showSidebar: true,
+      showColumnDescriptionText: true,
+    } as BaseVisConfig,
+  },
 };
 
-export const Vertical: typeof Template = Template.bind({}) as typeof Template;
-Vertical.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: null,
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.VERTICAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-    useFullHeight: false,
-  } as BaseVisConfig,
+export const Vertical: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: null,
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.VERTICAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+      useFullHeight: false,
+    } as BaseVisConfig,
+  },
 };
 
-export const VerticalFullHeight: typeof Template = Template.bind({}) as typeof Template;
-VerticalFullHeight.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: null,
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.VERTICAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const VerticalFullHeight: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: null,
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.VERTICAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const Grouped: typeof Template = Template.bind({}) as typeof Template;
-Grouped.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Many categories for the data having some bad values',
-      id: 'manyCategoriesWithBadValues',
-      name: 'Many categories with bad values',
-    },
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const Grouped: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Many categories for the data having some bad values',
+        id: 'manyCategoriesWithBadValues',
+        name: 'Many categories with bad values',
+      },
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const GroupedStack: typeof Template = Template.bind({}) as typeof Template;
-GroupedStack.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Many categories for the data having some bad values',
-      id: 'manyCategoriesWithBadValues',
-      name: 'Many categories with bad values',
-    },
-    groupType: EBarGroupingType.STACK,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const GroupedStack: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Many categories for the data having some bad values',
+        id: 'manyCategoriesWithBadValues',
+        name: 'Many categories with bad values',
+      },
+      groupType: EBarGroupingType.STACK,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const GroupedStackNormalized: typeof Template = Template.bind({}) as typeof Template;
-GroupedStackNormalized.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Two specific categories for the data',
-      id: 'twoCategories',
-      name: 'Two categories',
-    },
-    groupType: EBarGroupingType.STACK,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.NORMALIZED,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const GroupedStackNormalized: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Two specific categories for the data',
+        id: 'twoCategories',
+        name: 'Two categories',
+      },
+      groupType: EBarGroupingType.STACK,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.NORMALIZED,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const GroupedNumerical: typeof Template = Template.bind({}) as typeof Template;
-GroupedNumerical.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Positive numerical value of a data point',
-      id: 'positiveNumbers',
-      name: 'Positive numbers',
-    },
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const GroupedNumerical: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Positive numerical value of a data point',
+        id: 'positiveNumbers',
+        name: 'Positive numbers',
+      },
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const GroupedNumericalStack: typeof Template = Template.bind({}) as typeof Template;
-GroupedNumericalStack.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Positive numerical value of a data point',
-      id: 'positiveNumbers',
-      name: 'Positive numbers',
-    },
-    groupType: EBarGroupingType.STACK,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const GroupedNumericalStack: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Positive numerical value of a data point',
+        id: 'positiveNumbers',
+        name: 'Positive numbers',
+      },
+      groupType: EBarGroupingType.STACK,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const GroupedNumericalStackNormalized: typeof Template = Template.bind({}) as typeof Template;
-GroupedNumericalStackNormalized.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Positive numerical value of a data point',
-      id: 'positiveNumbers',
-      name: 'Positive numbers',
-    },
-    groupType: EBarGroupingType.STACK,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.NORMALIZED,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const GroupedNumericalStackNormalized: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Positive numerical value of a data point',
+        id: 'positiveNumbers',
+        name: 'Positive numbers',
+      },
+      groupType: EBarGroupingType.STACK,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.NORMALIZED,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const facets: typeof Template = Template.bind({}) as typeof Template;
-facets.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: {
-      description: 'Many categories for the data having some bad values',
-      id: 'manyCategoriesWithBadValues',
-      name: 'Many categories with bad values',
-    },
-    group: null,
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const facets: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: {
+        description: 'Many categories for the data having some bad values',
+        id: 'manyCategoriesWithBadValues',
+        name: 'Many categories with bad values',
+      },
+      group: null,
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const facetsAndGrouped: typeof Template = Template.bind({}) as typeof Template;
-facetsAndGrouped.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: {
-      description: 'Many categories for the data having some bad values',
-      id: 'manyCategoriesWithBadValues',
-      name: 'Many categories with bad values',
-    },
-    group: {
-      description: 'Random numbers generated for the data point. May be positive or negative or zero',
-      id: 'randomNumbers',
-      name: 'Random numbers',
-    },
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const facetsAndGrouped: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: {
+        description: 'Many categories for the data having some bad values',
+        id: 'manyCategoriesWithBadValues',
+        name: 'Many categories with bad values',
+      },
+      group: {
+        description: 'Random numbers generated for the data point. May be positive or negative or zero',
+        id: 'randomNumbers',
+        name: 'Random numbers',
+      },
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const facetsAndGroupedStack: typeof Template = Template.bind({}) as typeof Template;
-facetsAndGroupedStack.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: {
-      description: 'Many categories for the data having some bad values',
-      id: 'manyCategoriesWithBadValues',
-      name: 'Many categories with bad values',
-    },
-    group: {
-      description: 'Random numbers generated for the data point. May be positive or negative or zero',
-      id: 'randomNumbers',
-      name: 'Random numbers',
-    },
-    groupType: EBarGroupingType.STACK,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const facetsAndGroupedStack: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: {
+        description: 'Many categories for the data having some bad values',
+        id: 'manyCategoriesWithBadValues',
+        name: 'Many categories with bad values',
+      },
+      group: {
+        description: 'Random numbers generated for the data point. May be positive or negative or zero',
+        id: 'randomNumbers',
+        name: 'Random numbers',
+      },
+      groupType: EBarGroupingType.STACK,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const AggregateAverage: typeof Template = Template.bind({}) as typeof Template;
-AggregateAverage.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: null,
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.AVG,
-    aggregateColumn: {
-      description: 'Positive numerical value of a data point',
-      id: 'positiveNumbers',
-      name: 'Positive numbers',
-    },
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const AggregateAverage: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: null,
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.AVG,
+      aggregateColumn: {
+        description: 'Positive numerical value of a data point',
+        id: 'positiveNumbers',
+        name: 'Positive numbers',
+      },
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const AggregateMedianWithMixedValues: typeof Template = Template.bind({}) as typeof Template;
-AggregateMedianWithMixedValues.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: null,
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.MED,
-    aggregateColumn: {
-      description: 'Random numbers generated for the data point. May be positive or negative or zero',
-      id: 'randomNumbers',
-      name: 'Random numbers',
-    },
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const AggregateMedianWithMixedValues: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: null,
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.MED,
+      aggregateColumn: {
+        description: 'Random numbers generated for the data point. May be positive or negative or zero',
+        id: 'randomNumbers',
+        name: 'Random numbers',
+      },
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const AggregateMedianWithGroupedMixedValues: typeof Template = Template.bind({}) as typeof Template;
-AggregateMedianWithGroupedMixedValues.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Random numbers generated for the data point. May be positive or negative or zero',
-      id: 'randomNumbers',
-      name: 'Random numbers',
-    },
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.MED,
-    aggregateColumn: {
-      description: 'Random numbers generated for the data point. May be positive or negative or zero',
-      id: 'randomNumbers',
-      name: 'Random numbers',
-    },
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const AggregateMedianWithGroupedMixedValues: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Random numbers generated for the data point. May be positive or negative or zero',
+        id: 'randomNumbers',
+        name: 'Random numbers',
+      },
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.MED,
+      aggregateColumn: {
+        description: 'Random numbers generated for the data point. May be positive or negative or zero',
+        id: 'randomNumbers',
+        name: 'Random numbers',
+      },
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const AggregateMedianWithGroupedAndFacetedMixedValues: typeof Template = Template.bind({}) as typeof Template;
-AggregateMedianWithGroupedAndFacetedMixedValues.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: {
-      description: 'Many categories for the data having some bad values',
-      id: 'manyCategoriesWithBadValues',
-      name: 'Many categories with bad values',
-    },
-    group: {
-      description: 'Random numbers generated for the data point. May be positive or negative or zero',
-      id: 'randomNumbers',
-      name: 'Random numbers',
-    },
-    groupType: EBarGroupingType.GROUP,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.MED,
-    aggregateColumn: {
-      description: 'Random numbers generated for the data point. May be positive or negative or zero',
-      id: 'randomNumbers',
-      name: 'Random numbers',
-    },
-    numColumnsSelected: [],
-  } as BaseVisConfig,
+export const AggregateMedianWithGroupedAndFacetedMixedValues: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: {
+        description: 'Many categories for the data having some bad values',
+        id: 'manyCategoriesWithBadValues',
+        name: 'Many categories with bad values',
+      },
+      group: {
+        description: 'Random numbers generated for the data point. May be positive or negative or zero',
+        id: 'randomNumbers',
+        name: 'Random numbers',
+      },
+      groupType: EBarGroupingType.GROUP,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.MED,
+      aggregateColumn: {
+        description: 'Random numbers generated for the data point. May be positive or negative or zero',
+        id: 'randomNumbers',
+        name: 'Random numbers',
+      },
+      numColumnsSelected: [],
+    } as BaseVisConfig,
+  },
 };
 
-export const PreconfiguredSorted: typeof Template = Template.bind({}) as typeof Template;
-PreconfiguredSorted.args = {
-  externalConfig: {
-    type: ESupportedPlotlyVis.BAR,
-    catColumnSelected: {
-      description: 'Categories for the data',
-      id: 'categories',
-      name: 'Categories',
-    },
-    facets: null,
-    group: {
-      description: 'Two specific categories for the data',
-      id: 'twoCategories',
-      name: 'Two categories',
-    },
-    groupType: EBarGroupingType.STACK,
-    direction: EBarDirection.HORIZONTAL,
-    display: EBarDisplayType.ABSOLUTE,
-    aggregateType: EAggregateTypes.COUNT,
-    aggregateColumn: null,
-    numColumnsSelected: [],
-    sortState: { x: EBarSortState.DESCENDING, y: EBarSortState.NONE },
-  } as BaseVisConfig,
+export const PreconfiguredSorted: Story = {
+  args: {
+    externalConfig: {
+      type: ESupportedPlotlyVis.BAR,
+      catColumnSelected: {
+        description: 'Categories for the data',
+        id: 'categories',
+        name: 'Categories',
+      },
+      facets: null,
+      group: {
+        description: 'Two specific categories for the data',
+        id: 'twoCategories',
+        name: 'Two categories',
+      },
+      groupType: EBarGroupingType.STACK,
+      direction: EBarDirection.HORIZONTAL,
+      display: EBarDisplayType.ABSOLUTE,
+      aggregateType: EAggregateTypes.COUNT,
+      aggregateColumn: null,
+      numColumnsSelected: [],
+      sortState: { x: EBarSortState.DESCENDING, y: EBarSortState.NONE },
+    } as BaseVisConfig,
+  },
 };

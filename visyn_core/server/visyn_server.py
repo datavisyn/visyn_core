@@ -6,8 +6,6 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
-from pydantic.v1 import create_model
-from pydantic.v1.utils import deep_update
 from starlette_context.middleware import RawContextMiddleware
 
 from ..settings.constants import default_logging_dict
@@ -17,12 +15,17 @@ logging.config.dictConfig(default_logging_dict)
 
 
 def create_visyn_server(
-    *, fast_api_args: dict[str, Any] | None = None, start_cmd: str | None = None, workspace_config: dict | None = None
-) -> FastAPI:
+    *,
+    main_app: str = "visyn_core",
+    fast_api_args: dict[str, Any] | None = None,
+    start_cmd: str | None = None,
+    workspace_config: dict | None = None,
+):
     """
     Create a new FastAPI instance while ensuring that the configuration and plugins are loaded, extension points are registered, database migrations are executed, ...
 
     Keyword arguments:
+    main_app: The main application starting the server, i.e. "visyn_core". Used to infer the app name and version from the plugin.
     fast_api_args: Optional dictionary of arguments directly passed to the FastAPI constructor.
     start_cmd: Optional start command for the server, i.e. db-migration exposes commands like `db-migration exec <..> upgrade head`.
     workspace_config: Optional override for the workspace configuration. If nothing is provided `load_workspace_config()` is used instead.
@@ -30,48 +33,26 @@ def create_visyn_server(
     if fast_api_args is None:
         fast_api_args = {}
     from .. import manager
-    from ..settings.model import GlobalSettings
-    from ..settings.utils import load_workspace_config
+    from .utils import init_settings_manager
 
-    # Load the workspace config.json and initialize the global settings
-    workspace_config = workspace_config if isinstance(workspace_config, dict) else load_workspace_config()
-    # Temporary backwards compatibility: if no visyn_core config entry is found, copy the one from tdp_core.
-    if "visyn_core" not in workspace_config and "tdp_core" in workspace_config:
-        logging.warn('You are still using "tdp_core" config entries instead of "visyn_core" entries. Please migrate as soon as possible!')
-        workspace_config["visyn_core"] = workspace_config["tdp_core"]
-
-    manager.settings = GlobalSettings(**workspace_config)
-
-    # Initialize the logging
-    logging_config = manager.settings.visyn_core.logging
-
-    if manager.settings.visyn_core.log_level:
-        try:
-            logging_config["root"]["level"] = manager.settings.visyn_core.log_level
-        except KeyError:
-            logging.warn("You have set visyn_core.log_level, but no root logger is defined in visyn_core.logging")
-
-    logging.config.dictConfig(logging_config)
-
-    # Filter out the metrics endpoint from the access log
-    class EndpointFilter(logging.Filter):
-        def filter(self, record: logging.LogRecord) -> bool:
-            return "GET /api/metrics" and "GET /api/health" and "GET /metrics" and "GET /health" not in record.getMessage()
-
-    logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+    plugins = init_settings_manager(workspace_config=workspace_config)
+    main_plugin = next(p for p in plugins if p.id == main_app)
 
     _log = logging.getLogger(__name__)
-    _log.info(f"Starting visyn_server in {manager.settings.env} mode")
+    _log.info(f"Starting {main_plugin.id}@{main_plugin.version} in {manager.settings.env} mode")
 
-    # Load the initial plugins
-    from ..plugin.parser import get_config_from_plugins, load_all_plugins
+    from fastapi import Depends, Request
 
-    plugins = load_all_plugins()
-    # With all the plugins, load the corresponding configuration files and create a new model based on the global settings, with all plugin models as sub-models
-    [plugin_config_files, plugin_settings_models] = get_config_from_plugins(plugins)
-    visyn_server_settings = create_model("VisynServerSettings", __base__=GlobalSettings, **plugin_settings_models)  # type: ignore
-    # Patch the global settings by instantiating the new settings model with the global config, all config.json(s), and pydantic models
-    manager.settings = visyn_server_settings(**deep_update(*plugin_config_files, workspace_config))
+    from ..security.dependencies import get_current_user
+
+    # Protect all routes, except for a few without authentication ones like /api/login
+    def protect_all_routes(request: Request):
+        all_paths_without_authentication_from_plugins = tuple(
+            path for p in manager.registry.plugins for path in p.plugin.paths_without_authentication()
+        )
+        if request.url.path in all_paths_without_authentication_from_plugins:
+            return None
+        return get_current_user(request)
 
     app = FastAPI(
         debug=manager.settings.is_development_mode,
@@ -81,8 +62,27 @@ def create_visyn_server(
         docs_url="/api/docs",
         openapi_url="/api/openapi.json",
         redoc_url="/api/redoc",
+        dependencies=[Depends(protect_all_routes)],
         **fast_api_args,
     )
+
+    # Filter out the verbose paths from the access log
+    verbose_paths = (
+        "/api/sentry/",
+        "/api/loggedinas",
+        "/api/health",
+        "/api/metrics",
+        "/health",
+        "/metrics",
+    )
+    ignored_paths_for_logging_filter = tuple(f'{path} HTTP/1.1" 200' for path in verbose_paths)
+
+    # Filter out the metrics endpoint from the access log
+    class EndpointFilter(logging.Filter):
+        def filter(self, record: logging.LogRecord) -> bool:
+            return not any(endpoint in record.getMessage() for endpoint in ignored_paths_for_logging_filter)
+
+    logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
     from ..middleware.exception_handler_middleware import ExceptionHandlerMiddleware
 
@@ -97,22 +97,17 @@ def create_visyn_server(
 
         init_telemetry(app, settings=manager.settings.visyn_core.telemetry)
 
-    if manager.settings.visyn_core.sentry.dsn:
-        import sentry_sdk
+    from ..sentry.sentry_integration import init_sentry_integration
 
-        sentry_sdk.init(
-            dsn=manager.settings.visyn_core.sentry.dsn,
-            # Set traces_sample_rate to 1.0 to capture 100%
-            # of transactions for tracing.
-            traces_sample_rate=1.0,
-            # Set profiles_sample_rate to 1.0 to profile 100%
-            # of sampled transactions.
-            # We recommend adjusting this value in production.
-            profiles_sample_rate=1.0,
-            **manager.settings.visyn_core.sentry.server_init_options,
-        )
+    init_sentry_integration(
+        app=app, settings=manager.settings.visyn_core.sentry, verbose_paths=verbose_paths, release=f"{main_plugin.id}@{main_plugin.version}"
+    )
 
     # Initialize global managers.
+    from ..celery.app import init_celery_manager
+
+    app.state.celery = init_celery_manager(plugins=plugins)
+
     from ..plugin.registry import Registry
 
     app.state.registry = manager.registry = Registry()
@@ -137,18 +132,8 @@ def create_visyn_server(
 
     app.state.id_mapping = manager.id_mapping = create_id_mapping_manager()
 
-    # TODO: Allow custom command routine (i.e. for db-migrations)
-    from .cmd import parse_command_string
-
-    alternative_start_command = parse_command_string(start_cmd)
-    if alternative_start_command:
-        _log.info(f"Received start command: {start_cmd}")
-        alternative_start_command()
-        _log.info("Successfully executed command, exiting server...")
-        # TODO: How to properly exit here? Should a command support the "continuation" of the server, i.e. by returning True?
-        sys.exit(0)
-
     # Load all namespace plugins as WSGIMiddleware plugins
+
     from .utils import init_legacy_app, load_after_server_started_hooks
 
     namespace_plugins = manager.registry.list("namespace")
@@ -184,12 +169,23 @@ def create_visyn_server(
                 f"Could not set the total number of anyio tokens to {manager.settings.visyn_core.total_anyio_tokens}. Error: {e}"
             )
 
-    if manager.settings.visyn_core.cypress:
-        _log.info("Cypress mode is enabled. This should only be used in a Cypress testing environment or CI.")
+    if manager.settings.is_e2e_testing:
+        _log.info("E2E mode is enabled. This should only be used in a E2E testing environment or CI.")
 
     # As a last step, call init_app callback for every plugin. This is last to ensure everything we need is already initialized.
     for p in plugins:
         p.plugin.init_app(app)
+
+    # TODO: Allow custom command routine (i.e. for db-migrations)
+    from .cmd import parse_command_string
+
+    alternative_start_command = parse_command_string(start_cmd)
+    if alternative_start_command:
+        _log.info(f"Received start command: {start_cmd}")
+        alternative_start_command()
+        _log.info("Successfully executed command, exiting server...")
+        # TODO: How to properly exit here? Should a command support the "continuation" of the server, i.e. by returning True?
+        sys.exit(0)
 
     # Load `after_server_started` extension points which are run immediately after server started,
     # so all plugins should have been loaded at this point of time

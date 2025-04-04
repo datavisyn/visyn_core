@@ -1,4 +1,4 @@
-import { test, expect, takeSnapshot } from '@chromatic-com/playwright';
+import { test } from '@chromatic-com/playwright';
 
 test('rectangle brush', async ({ page }, testInfo) => {
   await page.goto('/');
