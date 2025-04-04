@@ -28,7 +28,7 @@ def init_celery_manager(*, plugins: list[EntryPointPlugin]):
     return manager.celery
 
 
-def create_celery_worker_app(*, main_app: str = "visyn_core", workspace_config: dict | None = None):
+def create_celery_worker_app(*, main_app: str | None = None, workspace_config: dict | None = None):
     """
     Create a new Celery app in standalone mode, i.e. without a FastAPI instance.
     """

@@ -225,6 +225,10 @@ class SentrySettings(BaseModel):
 
 
 class VisynCoreSettings(BaseModel):
+    main_app: str | None = None
+    """
+    The main application starting the server, i.e. "visyn_core". Used to infer the app name and version from the plugin for telemetry/Sentry/...
+    """
     total_anyio_tokens: int = 100
     """
     The total number of threads to use for anyio. FastAPI uses these threads to run sync routes concurrently.
