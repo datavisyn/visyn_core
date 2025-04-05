@@ -44,6 +44,9 @@ import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
+import { LineVis } from './line/LineVis';
+import { LineVisSidebar } from './line/LineVisSidebar';
+import { lineMergeDefaultConfig } from './line/utils';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -75,6 +78,13 @@ function registerAllVis(visTypes?: string[]) {
       renderer: SankeyVis,
       sidebarRenderer: SankeyVisSidebar,
       mergeConfig: sankeyMergeDefaultConfig,
+      description: 'Visualizes the flow of data between different categories',
+    }),
+    createVis({
+      type: ESupportedPlotlyVis.LINE,
+      renderer: LineVis,
+      sidebarRenderer: LineVisSidebar,
+      mergeConfig: lineMergeDefaultConfig,
       description: 'Visualizes the flow of data between different categories',
     }),
     createVis({
