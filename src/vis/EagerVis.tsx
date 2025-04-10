@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Group, Stack } from '@mantine/core';
+import { Group, Overlay, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 
 import { createVis, useVisProvider } from './Provider';
@@ -140,7 +140,9 @@ export function EagerVis({
   visTypes,
   uniquePlotId,
   showDownloadScreenshot = false,
-  showVisTypeChooser = false,
+  showVisTypeChooser: internalShowVisTypeChooser,
+  setShowVisTypeChooser: internalSetShowVisTypeChooser,
+  enableVisTypeChooser = false,
 }: {
   /**
    * Required data columns which are displayed.
@@ -181,7 +183,9 @@ export function EagerVis({
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showDragModeOptions?: boolean;
+  enableVisTypeChooser?: boolean;
   showVisTypeChooser?: boolean;
+  setShowVisTypeChooser?: (show: boolean) => void;
   setShowSidebar?(show: boolean): void;
   showSidebarDefault?: boolean;
   scrollZoom?: boolean;
@@ -225,7 +229,7 @@ export function EagerVis({
     value: setExternalConfig && externalConfig ? externalConfig : undefined,
     defaultValue:
       // If we have an external value, use that as the default. Otherwise use some inferred config.
-      externalConfig || !showVisTypeChooser
+      externalConfig || !enableVisTypeChooser
         ? columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
           ? ({
               type: ESupportedPlotlyVis.SCATTER,
@@ -277,6 +281,14 @@ export function EagerVis({
     [_setVisConfig, visConfig?.type, statsCallback],
   );
 
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const [showVisTypeChooser, setShowVisTypeChooser] = useUncontrolled<boolean>({
+    value: internalShowVisTypeChooser,
+    defaultValue: visConfig?.type == null,
+    finalValue: false,
+    onChange: internalSetShowVisTypeChooser,
+  });
+
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
   const selectedMap: { [key: string]: boolean } = React.useMemo(() => {
     const currMap: { [key: string]: boolean } = {};
@@ -300,17 +312,6 @@ export function EagerVis({
     [Renderer, visConfig, isSelectedVisTypeRegistered],
   );
 
-  if (showVisTypeChooser && visConfig?.type == null) {
-    return (
-      <VisTypeChooser
-        visTypes={visTypesProvided}
-        onClick={(plotType: string) => {
-          setVisConfig({ ...visConfig, type: plotType });
-        }}
-      />
-    );
-  }
-
   return (
     <Group
       wrap="nowrap"
@@ -329,6 +330,17 @@ export function EagerVis({
       }}
       data-testid={`vis-plot-container-${(visConfig.type ?? '').toLowerCase().replace(/\s/g, '-')}`}
     >
+      {enableVisTypeChooser && showVisTypeChooser ? (
+        <Overlay bg="white">
+          <VisTypeChooser
+            visTypes={visTypesProvided}
+            onClick={(plotType: string) => {
+              setVisConfig({ ...visConfig, type: plotType });
+              setShowVisTypeChooser(false);
+            }}
+          />
+        </Overlay>
+      ) : null}
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {visTypeNotSupported ? (
@@ -361,7 +373,6 @@ export function EagerVis({
               selectedMap={selectedMap}
               selectedList={selectedList}
               columns={columns}
-              showSidebar={showSidebar}
               showCloseButton={showCloseButton}
               closeButtonCallback={closeCallback}
               scrollZoom={scrollZoom}
@@ -371,7 +382,7 @@ export function EagerVis({
         )}
       </Stack>
       {showSidebar && visConfig?.merged ? (
-        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
+        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)} disableVisTypeSelect={enableVisTypeChooser}>
           <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} selectedList={selectedList} />
         </VisSidebarWrapper>
       ) : null}

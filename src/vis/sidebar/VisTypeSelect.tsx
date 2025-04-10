@@ -9,9 +9,10 @@ import { ESupportedPlotlyVis } from '../interfaces';
 interface VisTypeSelectProps {
   callback: (s: ESupportedPlotlyVis) => void;
   currentSelected: ESupportedPlotlyVis;
+  disabled?: boolean;
 }
 
-export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps) {
+export function VisTypeSelect({ callback, currentSelected, disabled = false }: VisTypeSelectProps) {
   const { visTypes, getVisByType } = useVisProvider();
 
   const currentVis = getVisByType(currentSelected);
@@ -20,6 +21,7 @@ export function VisTypeSelect({ callback, currentSelected }: VisTypeSelectProps)
     <Select
       data-testid="SelectVisualizationType"
       searchable
+      disabled={disabled}
       label={
         <HelpHoverCard
           title={

@@ -10,7 +10,19 @@ import { VisTypeSelect } from './sidebar/VisTypeSelect';
 
 const sidebarSize = 200;
 
-export function VisSidebarWrapper({ children, config, setConfig, onClick }: { children: ReactNode; config; setConfig; onClick }) {
+export function VisSidebarWrapper({
+  children,
+  config,
+  setConfig,
+  onClick,
+  disableVisTypeSelect = false,
+}: {
+  children: ReactNode;
+  config;
+  setConfig;
+  onClick;
+  disableVisTypeSelect?: boolean;
+}) {
   return (
     <Box pt="sm" style={{ height: '100%', boxShadow: '2px 0px 15px 0px lightgray', zIndex: 5 }}>
       <Group gap={0} style={{ width: '100%', height: '100%' }} wrap="nowrap">
@@ -25,7 +37,7 @@ export function VisSidebarWrapper({ children, config, setConfig, onClick }: { ch
                   </ActionIcon>
                 </Tooltip>
               </Group>
-              <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} />
+              <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} disabled={disableVisTypeSelect} />
               <Divider mt="xs" />
               {children}
             </Stack>
