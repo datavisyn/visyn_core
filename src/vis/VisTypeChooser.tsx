@@ -11,7 +11,10 @@ import { VisTypeChooserCard } from './VisTypeChooserCard';
  * @param width container width
  * @returns number of columns based on width
  */
-function getCols(width: number): number {
+function getCols(width: number): number | undefined {
+  if (!width) {
+    return undefined;
+  }
   if (width < 500) {
     return 1;
   }
@@ -30,12 +33,14 @@ export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; 
   const cols = useMemo(() => getCols(width), [width]);
 
   return (
-    <Container fluid p="sm" pos="relative" w="100%" data-testid="vis-type-chooser">
-      <SimpleGrid ref={ref} cols={cols} spacing="xl" verticalSpacing="xl">
-        {visTypes.map((plotType) => (
-          <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} />
-        ))}
-      </SimpleGrid>
+    <Container fluid p="sm" ref={ref} pos="relative" w="100%" h="100%" data-testid="vis-type-chooser" style={{ overflow: 'auto' }}>
+      {cols ? (
+        <SimpleGrid cols={cols} spacing="xl" verticalSpacing="xl">
+          {visTypes.map((plotType) => (
+            <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} />
+          ))}
+        </SimpleGrid>
+      ) : null}
     </Container>
   );
 }

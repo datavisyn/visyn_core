@@ -328,10 +328,10 @@ export function EagerVis({
           cursor: 'pointer !important',
         },
       }}
-      data-testid={`vis-plot-container-${(visConfig.type ?? '').toLowerCase().replace(/\s/g, '-')}`}
+      data-testid={`vis-plot-container-${(visConfig?.type ?? '').toLowerCase().replace(/\s/g, '-')}`}
     >
       {enableVisTypeChooser && showVisTypeChooser ? (
-        <Overlay bg="white">
+        <Overlay bg="white" h="100%">
           <VisTypeChooser
             visTypes={visTypesProvided}
             onClick={(plotType: string) => {
