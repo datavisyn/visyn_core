@@ -60,6 +60,7 @@ export function MainApp() {
   const visSelection = React.useMemo(() => selection.map((s) => `${breastCancerData.indexOf(s)}`), [selection]);
   const [loading, setLoading] = React.useState(false);
   const lineupRef = React.useRef<DatavisynTaggle>();
+  const [showVisTypeChooser, setShowVisTypeChooser] = React.useState(true);
 
   return (
     <VisynApp
@@ -136,6 +137,9 @@ export function MainApp() {
             showSidebarDefault
             externalConfig={visConfig}
             showDownloadScreenshot
+            enableVisTypeChooser
+            showVisTypeChooser={showVisTypeChooser}
+            setShowVisTypeChooser={setShowVisTypeChooser}
             setExternalConfig={setVisConfig}
             selected={visSelection}
             selectionCallback={(s) => {
