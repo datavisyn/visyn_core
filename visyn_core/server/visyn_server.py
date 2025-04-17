@@ -4,6 +4,10 @@ import sys
 import threading
 from typing import Any
 
+from fastapi import FastAPI
+from fastapi.middleware.wsgi import WSGIMiddleware
+from starlette_context.middleware import RawContextMiddleware
+
 from ..settings.constants import default_logging_dict
 
 # Initialize the logging very early as otherwise the already created loggers receive a default loglevel WARN, leading to logs not being shown.
@@ -38,7 +42,7 @@ def create_visyn_server(
     _log = logging.getLogger(__name__)
     _log.info(f"Starting {main_plugin.id}@{main_plugin.version} in {manager.settings.env} mode")
 
-    from fastapi import Depends, FastAPI, Request
+    from fastapi import Depends, Request
 
     from ..security.dependencies import get_current_user
 
@@ -130,7 +134,6 @@ def create_visyn_server(
     app.state.id_mapping = manager.id_mapping = create_id_mapping_manager()
 
     # Load all namespace plugins as WSGIMiddleware plugins
-    from fastapi.middleware.wsgi import WSGIMiddleware
 
     from .utils import init_legacy_app, load_after_server_started_hooks
 
@@ -196,8 +199,6 @@ def create_visyn_server(
     from ..settings.client_config import init_client_config
 
     init_client_config(app)
-
-    from starlette_context.middleware import RawContextMiddleware
 
     from ..middleware.request_context_plugin import RequestContextPlugin
 

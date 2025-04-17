@@ -57,9 +57,9 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                     exporter=OTLPMetricExporter(
                         # If we are using the global exporter settings, append the metrics path
                         endpoint=(
-                            _append_metrics_path(exporter_settings.endpoint)
+                            _append_metrics_path(str(exporter_settings.endpoint))
                             if exporter_settings == global_exporter_settings
-                            else exporter_settings.endpoint
+                            else str(exporter_settings.endpoint)
                         ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
@@ -123,9 +123,9 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                     OTLPSpanExporter(
                         # If we are using the global exporter settings, append the traces path
                         endpoint=(
-                            _append_trace_path(exporter_settings.endpoint)
+                            _append_trace_path(str(exporter_settings.endpoint))
                             if exporter_settings == global_exporter_settings
-                            else exporter_settings.endpoint
+                            else str(exporter_settings.endpoint)
                         ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,
@@ -168,9 +168,9 @@ def init_telemetry(app: FastAPI, settings: TelemetrySettings) -> None:
                     OTLPLogExporter(
                         # If we are using the global exporter settings, append the logs path
                         endpoint=(
-                            _append_logs_path(exporter_settings.endpoint)
+                            _append_logs_path(str(exporter_settings.endpoint))
                             if exporter_settings == global_exporter_settings
-                            else exporter_settings.endpoint
+                            else str(exporter_settings.endpoint)
                         ),
                         headers=exporter_settings.headers,
                         timeout=exporter_settings.timeout,

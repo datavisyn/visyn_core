@@ -3,7 +3,7 @@ import logging
 from functools import cached_property, lru_cache
 from importlib.metadata import EntryPoint, entry_points
 
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 from .. import manager
 from .model import AVisynPlugin, RegHelper
