@@ -26,7 +26,10 @@ requests==2.32.3
 # Redis versions according to https://github.com/celery/celery/blob/main/requirements/extras/redis.txt
 redis>=4.5.2,<6.0.0,!=4.5.5
 sentry-sdk~=2.22.0
-SQLAlchemy>=1.4.40,<=1.4.53
+SQLAlchemy>=1.4.40,<=1.4.54
+# Install sqlalchemy2-stubs for better type hinting: https://docs.sqlalchemy.org/en/20/orm/extensions/mypy.html
+# Remove as soon as we migrate SQLAlchemy 2, as native support is available then
+sqlalchemy2-stubs==0.0.2a38
 starlette-context==0.3.6
 # Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/master/pyproject.toml#L79-L103
 fastapi-cli[standard]>=0.0.5
