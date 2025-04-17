@@ -1,7 +1,8 @@
 import logging
 from typing import TYPE_CHECKING
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from starlette.types import ASGIApp
 
 if TYPE_CHECKING:
     from ..settings.model import SentrySettings
@@ -10,15 +11,40 @@ _log = logging.getLogger(__name__)
 
 
 def get_default_integrations():
-    import sentry_sdk.integrations.asyncio
-    import sentry_sdk.integrations.fastapi
-    import sentry_sdk.integrations.starlette
-
     return [
-        sentry_sdk.integrations.asyncio.AsyncioIntegration(),
-        sentry_sdk.integrations.starlette.StarletteIntegration(middleware_spans=False),
-        sentry_sdk.integrations.fastapi.FastApiIntegration(middleware_spans=False),
+        # Do not enable the AsyncioIntegration, as it breaks the user middleware, i.e. causing no user information to be set in the FastAPI transaction.
+        # sentry_sdk.integrations.asyncio.AsyncioIntegration(),
     ]
+
+
+# Use basic ASGI middleware instead of BaseHTTPMiddleware as it is significantly faster: https://github.com/tiangolo/fastapi/issues/2696#issuecomment-768224643
+# Raw middlewares are actually quite complex: https://github.com/encode/starlette/blob/048643adc21e75b668567fc6bcdd3650b89044ea/starlette/middleware/errors.py#L147
+class SentryUserMiddleware:
+    def __init__(self, app: ASGIApp):
+        self.app: ASGIApp = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        try:
+            from .. import manager
+
+            user = manager.security.current_user
+            if user:
+                import sentry_sdk
+
+                sentry_sdk.set_user(
+                    {
+                        "id": user.id,
+                        "username": user.name,
+                    }
+                )
+        except Exception as e:
+            _log.exception(f"Failed to set Sentry user: {e}")
+
+        await self.app(scope, receive, send)
 
 
 def init_sentry_integration(*, app: FastAPI, settings: "SentrySettings", verbose_paths: tuple, release: str):
@@ -65,35 +91,28 @@ def init_sentry_integration(*, app: FastAPI, settings: "SentrySettings", verbose
             # By default, sample all transactions
             return 1
 
-        sentry_sdk.init(
-            release=release,
-            sample_rate=1.0,
-            # Set traces_sampler to ignore certain paths from being sampled
-            traces_sampler=traces_sampler,
+        # Create a merged settings dictionary to pass to the sentry_sdk.init function to avoid any duplicate keyword arguments
+        merged_settings = {
+            # Set sample_rate to 1.0 to sample 100% of transactions.
+            "sample_rate": 1.0,
             # Set profiles_sample_rate to 1.0 to profile 100% of sampled transactions.
-            profiles_sample_rate=1.0,
+            "profiles_sample_rate": 1.0,
             # Set send_default_pii to True to send PII like the user's IP address.
-            send_default_pii=True,
-            # Add some default integrations
-            integrations=get_default_integrations() if "integrations" not in settings.backend_init_options else [],
-            # Add custom options to the backend
+            "send_default_pii": True,
+            # Add some default integrations, but only if they are not set in the settings
+            "integrations": get_default_integrations() if "integrations" not in settings.backend_init_options else [],
+            # Add the custom options to the backend
             **settings.backend_init_options,
-            # Finally set the DSN
-            dsn=backend_dsn,
-        )
+            # Set traces_sampler to ignore certain paths from being sampled
+            "traces_sampler": traces_sampler,
+            # Set the DSN last to make sure it is not overwritten
+            "dsn": backend_dsn,
+            # Set the release name and version last to make sure it is not overwritten
+            "release": release,
+        }
 
-        # Add a before each request to call set_user on the sentry_sdk
-        @app.middleware("http")
-        async def sentry_add_user_middleware(request: Request, call_next):
-            from .. import manager
+        sentry_sdk.init(**merged_settings)
 
-            if sentry_sdk.is_initialized() and sentry_sdk.scope.should_send_default_pii():
-                user = manager.security.current_user
-                if user:
-                    sentry_sdk.set_user(
-                        {
-                            "id": user.id,
-                            "username": user.name,
-                        }
-                    )
-            return await call_next(request)
+        if sentry_sdk.scope.should_send_default_pii():
+            # Add a before each request to call set_user on the sentry_sdk
+            app.add_middleware(SentryUserMiddleware)
