@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 import { useSetState } from '@mantine/hooks';
-import { BarChart, FunnelChart, LineChart, PieChart, SankeyChart, ScatterChart } from 'echarts/charts';
+import { BarChart, CustomChart, FunnelChart, LineChart, PieChart, SankeyChart, ScatterChart } from 'echarts/charts';
 // The series option types are defined with the SeriesOption suffix
 import type { BarSeriesOption, FunnelSeriesOption, LineSeriesOption, PieSeriesOption, SankeySeriesOption, ScatterSeriesOption } from 'echarts/charts';
 import {
@@ -32,6 +32,7 @@ export type ECOption = ComposeOption<ECSeries | TooltipComponentOption | GridCom
 // Register the required components
 // eslint-disable-next-line react-hooks/rules-of-hooks
 use([
+  CustomChart,
   SingleAxisComponent,
   BrushComponent,
   LegendComponent,
