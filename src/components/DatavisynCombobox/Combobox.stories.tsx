@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
-import { Center, Combobox, Input, InputBase, useCombobox } from '@mantine/core';
+import { Center, Combobox, Input, useCombobox } from '@mantine/core';
 import { Meta, StoryObj } from '@storybook/react';
 
-import { DVSelectTarget } from './DVSelectTarget';
 import { DatavisynOptionsDropdown } from './DatavisynOptionsDropdown';
+import { DatavisynComboboxTarget } from './SelectTarget';
 
 const meta: Meta<typeof Combobox> = {
   component: Combobox,
@@ -40,23 +40,11 @@ function Select() {
         combobox.closeDropdown();
       }}
     >
-      <Combobox.Target>
-        <InputBase
-          component="button"
-          type="button"
-          pointer
-          rightSection={<Combobox.Chevron />}
-          onClick={() => combobox.toggleDropdown()}
-          rightSectionPointerEvents="none"
-          w={200}
-        >
-          {value || <Input.Placeholder>Pick value</Input.Placeholder>}
-        </InputBase>
-      </Combobox.Target>
+      <DatavisynComboboxTarget clearable value={value} setValue={setValue} combobox={combobox}>
+        {value || <Input.Placeholder>Placeholder</Input.Placeholder>}
+      </DatavisynComboboxTarget>
 
-      <DatavisynOptionsDropdown data={options}
-      withSearch
-      />
+      <DatavisynOptionsDropdown data={options} />
     </Combobox>
   );
 }
