@@ -334,6 +334,7 @@ export function EagerVis({
         <Overlay bg="white" h="100%">
           <VisTypeChooser
             visTypes={visTypesProvided}
+            selectedVisType={isSelectedVisTypeRegistered?.type ?? null}
             onClick={(plotType: string) => {
               setVisConfig({ ...visConfig, type: plotType });
               setShowVisTypeChooser(false);

@@ -27,7 +27,15 @@ function getCols(width: number): number | undefined {
   return 4;
 }
 
-export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; onClick?: (plotType: string) => void }) {
+export function VisTypeChooser({
+  visTypes,
+  selectedVisType,
+  onClick,
+}: {
+  visTypes: GeneralVis[];
+  selectedVisType: string | null;
+  onClick?: (plotType: string) => void;
+}) {
   const { ref, width } = useElementSize();
 
   const cols = useMemo(() => getCols(width), [width]);
@@ -37,7 +45,7 @@ export function VisTypeChooser({ visTypes, onClick }: { visTypes: GeneralVis[]; 
       {cols ? (
         <SimpleGrid cols={cols} spacing="xl" verticalSpacing="xl">
           {visTypes.map((plotType) => (
-            <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} />
+            <VisTypeChooserCard key={plotType.type} onClick={onClick} plotType={plotType} isSelected={!!selectedVisType && selectedVisType === plotType.type} />
           ))}
         </SimpleGrid>
       ) : null}

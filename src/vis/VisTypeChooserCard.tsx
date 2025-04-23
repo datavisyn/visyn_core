@@ -3,13 +3,14 @@ import React, { useCallback } from 'react';
 import { css, cx } from '@emotion/css';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, Card, Divider, Group, Image, Paper, Stack, Text, ThemeIcon, useMantineColorScheme, useMantineTheme } from '@mantine/core';
+import { Badge, Box, Card, Divider, Group, Image, Paper, Stack, Text, ThemeIcon, useMantineColorScheme, useMantineTheme } from '@mantine/core';
 import { useElementSize, useHover } from '@mantine/hooks';
 
 import { dvBoxplot, dvCorrelationplot, dvHeatmap, dvHexbinplot, dvSankey, dvScatterplot, dvViolin } from '../icons';
 import { GeneralVis } from './Provider';
 import { VisTypeChooserImage } from './VisTypeChooserImage';
 import { ESupportedPlotlyVis } from './interfaces';
+import { i18n } from '../i18n';
 
 const iconMap = {
   [ESupportedPlotlyVis.SCATTER]: dvScatterplot,
@@ -22,7 +23,7 @@ const iconMap = {
   [ESupportedPlotlyVis.CORRELATION]: dvCorrelationplot,
 };
 
-function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: GeneralVis; onClick?: (plotType: string) => void }) {
+function VisTypeChooserCardUnmemoized({ plotType, isSelected, onClick }: { plotType: GeneralVis; isSelected: boolean; onClick?: (plotType: string) => void }) {
   const { hovered, ref: hoverRef } = useHover<HTMLDivElement>();
   const colorScheme = useMantineColorScheme();
   const theme = useMantineTheme();
@@ -83,6 +84,11 @@ function VisTypeChooserCardUnmemoized({ plotType, onClick }: { plotType: General
                 >
                   {plotType.type}
                 </Text>
+                {isSelected ? (
+                  <Badge size="md" variant="light" data-testid={`snapshot-${(plotType.type ?? '').toLowerCase().replace(/\s/g, '-')}-selected-badge`}>
+                    {i18n.t('visyn:vis.selectedBadge')}
+                  </Badge>
+                ) : null}
               </Group>
             </Group>
           </Card.Section>
