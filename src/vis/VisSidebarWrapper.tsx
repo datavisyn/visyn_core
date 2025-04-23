@@ -29,16 +29,18 @@ export function VisSidebarWrapper({
         <ScrollArea p={0} w={`${sidebarSize}px`} h="100%">
           <Box pb="xl" style={{ height: '100%', width: `${sidebarSize}px` }}>
             <Stack gap="xs" px="xs">
-              <Group justify="space-between">
-                <Text>Settings</Text>
-                <Tooltip label={i18n.t('visyn:vis.closeSettings')} withArrow>
-                  <ActionIcon onClick={onClick} variant="transparent" color="gray">
-                    <FontAwesomeIcon icon={faClose} />
-                  </ActionIcon>
-                </Tooltip>
-              </Group>
-              <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} disabled={disableVisTypeSelect} />
-              <Divider mt="xs" />
+              <Stack gap={0}>
+                <Group justify="space-between">
+                  <Text>Settings</Text>
+                  <Tooltip label={i18n.t('visyn:vis.closeSettings')} withArrow>
+                    <ActionIcon onClick={onClick} variant="transparent" color="gray">
+                      <FontAwesomeIcon icon={faClose} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+                <Divider mt="xs" />
+              </Stack>
+              {/* <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} disabled={disableVisTypeSelect} /> */}
               {children}
             </Stack>
           </Box>
