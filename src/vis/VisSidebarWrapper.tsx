@@ -39,7 +39,6 @@ export function VisSidebarWrapper({
                 </Group>
                 <Divider mt="xs" />
               </Stack>
-              {/* <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} disabled={disableVisTypeSelect} /> */}
               {children}
             </Stack>
           </Box>
