@@ -58,5 +58,5 @@ def init_client_config(app: FastAPI):
 
     # Create an endpoint that returns the client config
     @app.get("/api/v1/visyn/clientConfig", tags=["Configuration"])
-    def _get_client_config() -> client_config_model:  # type: ignore
+    async def _get_client_config() -> client_config_model:  # type: ignore
         return client_config_model(**(manager.settings.visyn_core.client_config or {}))

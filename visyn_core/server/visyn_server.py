@@ -12,7 +12,7 @@ logging.config.dictConfig(default_logging_dict)
 
 def create_visyn_server(
     *,
-    main_app: str = "visyn_core",
+    main_app: str | None = None,
     fast_api_args: dict[str, Any] | None = None,
     start_cmd: str | None = None,
     workspace_config: dict | None = None,
@@ -32,6 +32,7 @@ def create_visyn_server(
     from .utils import init_settings_manager
 
     plugins = init_settings_manager(workspace_config=workspace_config)
+    main_app = manager.settings.visyn_core.main_app or main_app or "visyn_core"
     main_plugin = next(p for p in plugins if p.id == main_app)
 
     _log = logging.getLogger(__name__)
