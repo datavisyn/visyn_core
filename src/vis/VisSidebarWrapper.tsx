@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Box, Divider, Group, ScrollArea, Stack, Text, Tooltip } from '@mantine/core';
 
 import { i18n } from '../i18n';
-import { VisTypeSelect } from './sidebar/VisTypeSelect';
 
 const sidebarSize = 200;
 
