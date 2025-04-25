@@ -24,12 +24,12 @@ import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/tiptap/styles.css';
 
-export function VisynAppProvider({
+/**
+ * The main provider for the visyn app context.
+ */
+export function VisynAppContextProvider({
   children,
   appName,
-  mantineProviderProps,
-  mantineModalsProviderProps,
-  mantineNotificationsProviderProps,
   sentryInitOptions = {},
   sentryOptions = {},
   waitForClientConfig = true,
@@ -38,17 +38,12 @@ export function VisynAppProvider({
   children?: React.ReactNode;
   appName: JSX.Element | string;
   /**
-   * Props to merge with the `DEFAULT_MANTINE_PROVIDER_PROPS`.
-   */
-  mantineProviderProps?: Omit<MantineProviderProps, 'children'>;
-  mantineModalsProviderProps?: Omit<ModalsProviderProps, 'children'>;
-  mantineNotificationsProviderProps?: Omit<NotificationsProps, 'children'>;
-  /**
    * Options to pass to Sentry.init. The DSN is automatically set from the client config.
    */
   sentryInitOptions?: Omit<BrowserOptions, 'dsn'> | (() => Promise<Omit<BrowserOptions, 'dsn'>>);
   /**
    * Additional options for the Sentry integration.
+   * @deprecated Is not used anymore.
    */
   sentryOptions?: {
     /**
@@ -138,8 +133,6 @@ export function VisynAppProvider({
     }
   }, [successfulSentryInit, user]);
 
-  const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
-
   const context = React.useMemo<Parameters<typeof VisynAppContext.Provider>[0]['value']>(
     () => ({
       user,
@@ -147,20 +140,55 @@ export function VisynAppProvider({
       clientConfig,
       successfulClientConfigInit,
       successfulSentryInit,
+      initStatus,
     }),
-    [user, appName, clientConfig, successfulClientConfigInit, successfulSentryInit],
+    [user, appName, clientConfig, successfulClientConfigInit, successfulSentryInit, initStatus],
   );
 
   return (
-    <VisProvider>
-      <MantineProvider {...mergedMantineProviderProps}>
-        <Notifications {...(mantineNotificationsProviderProps || {})} />
-        <ModalsProvider {...(mantineModalsProviderProps || {})}>
-          <VisynAppContext.Provider value={context}>
-            {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) && (!waitForSentry || successfulSentryInit) ? children : null}
-          </VisynAppContext.Provider>
-        </ModalsProvider>
-      </MantineProvider>
-    </VisProvider>
+    <VisynAppContext.Provider value={context}>
+      {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) && (!waitForSentry || successfulSentryInit) ? (
+        <VisProvider>{children}</VisProvider>
+      ) : null}
+    </VisynAppContext.Provider>
+  );
+}
+
+/**
+ * The main provider for Mantine in the visyn app.
+ */
+export function VisynAppMantineProvider({
+  children,
+  mantineProviderProps,
+  mantineModalsProviderProps,
+  mantineNotificationsProviderProps,
+}: {
+  children?: React.ReactNode;
+  /**
+   * Props to merge with the `DEFAULT_MANTINE_PROVIDER_PROPS`.
+   */
+  mantineProviderProps?: Omit<MantineProviderProps, 'children'>;
+  mantineModalsProviderProps?: Omit<ModalsProviderProps, 'children'>;
+  mantineNotificationsProviderProps?: Omit<NotificationsProps, 'children'>;
+}) {
+  const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
+
+  return (
+    <MantineProvider {...mergedMantineProviderProps}>
+      <Notifications {...(mantineNotificationsProviderProps || {})} />
+      <ModalsProvider {...(mantineModalsProviderProps || {})}>{children}</ModalsProvider>
+    </MantineProvider>
+  );
+}
+
+/**
+ * The main provider for the visyn app. This provider is responsible for loading the client config, initializing Sentry and providing the user context.
+ * It mounts both the `VisynAppContextProvider` and the `VisynAppMantineProvider`.
+ */
+export function VisynAppProvider(props: Parameters<typeof VisynAppContextProvider>[0] & Parameters<typeof VisynAppMantineProvider>[0]) {
+  return (
+    <VisynAppContextProvider {...props}>
+      <VisynAppMantineProvider {...props}>{props.children}</VisynAppMantineProvider>
+    </VisynAppContextProvider>
   );
 }

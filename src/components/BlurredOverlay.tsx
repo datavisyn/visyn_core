@@ -32,6 +32,11 @@ export function BlurredOverlay({
       overlayProps={{
         blur: 2,
       }}
+      styles={{
+        root: {
+          padding: 'inherit',
+        },
+      }}
       // Set the zIndex explicitly to 200 (default 400) as it otherwise covers tooltips, popovers, ... (even within portals)
       zIndex={200}
       visible={visible || loading}
