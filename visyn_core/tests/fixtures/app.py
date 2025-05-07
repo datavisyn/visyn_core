@@ -32,21 +32,19 @@ def workspace_config() -> dict:
 
 @pytest.fixture
 def app(workspace_config) -> FastAPI:
-    # Reset the client config globals
-    client_config._has_been_initialized = False
-    client_config._configs = []
+    # Only initialize the client config once
+    if not client_config._has_been_initialized:
+        # Example client config used in tests
+        @client_config.visyn_client_config
+        def _get_model():
+            class MyFunctionAppConfigModel(BaseModel):
+                demo_from_function: bool = False
 
-    # Example client config used in tests
-    @client_config.visyn_client_config
-    def _get_model():
-        class MyFunctionAppConfigModel(BaseModel):
-            demo_from_function: bool = False
+            return MyFunctionAppConfigModel
 
-        return MyFunctionAppConfigModel
-
-    @client_config.visyn_client_config
-    class MyClassAppConfigModel(BaseModel):
-        demo_from_class: bool = False
+        @client_config.visyn_client_config
+        class MyClassAppConfigModel(BaseModel):
+            demo_from_class: bool = False
 
     return create_visyn_server(workspace_config=workspace_config)
 

@@ -28,7 +28,7 @@ def init_celery_manager(*, plugins: list[EntryPointPlugin]):
     return manager.celery
 
 
-def create_celery_worker_app(*, workspace_config: dict | None = None):
+def create_celery_worker_app(*, main_app: str | None = None, workspace_config: dict | None = None):
     """
     Create a new Celery app in standalone mode, i.e. without a FastAPI instance.
     """
@@ -36,7 +36,7 @@ def create_celery_worker_app(*, workspace_config: dict | None = None):
     from ..server.visyn_server import create_visyn_server
 
     # Create the whole FastAPI instance to ensure that the configuration and plugins are loaded, extension points are registered, database migrations are executed, ...
-    create_visyn_server(workspace_config=workspace_config)
+    create_visyn_server(main_app=main_app, workspace_config=workspace_config)
 
     _log = logging.getLogger(__name__)
     _log.info("Starting celery worker")
