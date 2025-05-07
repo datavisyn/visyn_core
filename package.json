@@ -108,7 +108,6 @@
     "@types/plotly.js-dist-min": "npm:@types/plotly.js@^2.3.4",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
-    "@types/react-plotly.js": "^2.6.3",
     "arquero": "5.4.0",
     "comlink": "^4.4.2",
     "d3-force-boundary": "^0.0.3",
