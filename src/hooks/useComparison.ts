@@ -1,11 +1,10 @@
 import * as React from 'react';
 
 import isEqual from 'lodash/isEqual';
-
-import { shallowEqualArrays } from './shallow-equal-arrays';
+import { shallowEqualArrays } from 'shallow-equal';
 
 // Inspired by https://github.com/kentcdodds/use-deep-compare-effect/blob/main/src/index.ts
-export function useComparison<T>(value: T, comparisonType: 'deep' | 'shallow' = 'deep') {
+export function useComparison<T extends unknown[]>(value: T, comparisonType: 'deep' | 'shallow' = 'deep') {
   const ref = React.useRef<T>(value);
   const signalRef = React.useRef<number>(0);
 

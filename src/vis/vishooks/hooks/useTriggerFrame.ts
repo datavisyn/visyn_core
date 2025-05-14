@@ -1,8 +1,9 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
 
+import { shallowEqualArrays } from 'shallow-equal';
+
 import { useEvent } from '../../../hooks';
-import { shallowEqualArrays } from '../../../hooks/shallow-equal-arrays';
 
 /**
  * Hook similar to useEffect that triggers a frame when dependencies change.
@@ -24,7 +25,7 @@ export function useTriggerFrame(frame: () => void, deps: React.DependencyList, p
 
   const callbackEvent = useEvent(frame);
 
-  if (!shallowEqualArrays(depsRef.current, deps)) {
+  if (!shallowEqualArrays(depsRef.current as unknown[], deps as unknown[])) {
     depsRef.current = deps;
 
     // Request new frame
