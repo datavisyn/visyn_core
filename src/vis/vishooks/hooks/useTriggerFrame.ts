@@ -1,8 +1,6 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
 
-import { shallowEqualArrays } from 'shallow-equal';
-
 import { useEvent } from '../../../hooks';
 import { useComparison } from '../../../hooks/useComparison';
 
