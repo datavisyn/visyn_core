@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { useDeepEffect } from './useDeepEffect';
+import { useComparison } from './useComparison';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
@@ -32,7 +33,17 @@ export type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
 export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Awaited<ReturnType<F>>>(
   asyncFunction: F,
   immediate: Parameters<F> | null = null,
+  options?: {
+    // Comparison strategy for the immediate parameter
+    comparison: 'deep' | 'shallow';
+
+    // If specified, instead of using the parameter to trigger the async function the deps are used
+    deps?: React.DependencyList;
+  },
 ) => {
+  // Store this comparison so the order of hooks stays the same
+  const comparisonType = options?.comparison ?? 'deep';
+
   const [state, setState] = React.useState<{
     status: useAsyncStatus;
     value: T | null;
@@ -87,7 +98,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
   // Call execute if we want to fire it right away.
   // Otherwise execute can be called later, such as
   // in an onClick handler.
-  useDeepEffect(() => {
+  React.useEffect(() => {
     if (immediate) {
       try {
         execute(...immediate);
@@ -95,7 +106,8 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
         // ignore any immediate error
       }
     }
-  }, [execute, immediate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [execute, useComparison(immediate, comparisonType)]);
 
   return { execute, status: state.status, value: state.value, error: state.error, args: state.args };
 };
