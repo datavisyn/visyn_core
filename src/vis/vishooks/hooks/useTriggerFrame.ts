@@ -4,6 +4,7 @@ import * as React from 'react';
 import { shallowEqualArrays } from 'shallow-equal';
 
 import { useEvent } from '../../../hooks';
+import { useComparison } from '../../../hooks/useComparison';
 
 /**
  * Hook similar to useEffect that triggers a frame when dependencies change.
@@ -19,24 +20,29 @@ import { useEvent } from '../../../hooks';
  * }, [dependencies]);
  * ```
  */
-export function useTriggerFrame(frame: () => void, deps: React.DependencyList, profileId?: string) {
+export function useTriggerFrame(frame: () => void, deps: React.DependencyList, options?: {
+  profileId?: string;
+  comparison?: 'deep' | 'shallow';
+}) {
   const frameRef = React.useRef<number | undefined>(undefined);
-  const depsRef = React.useRef(deps);
+  const oldSignal = React.useRef<unknown[]>();
 
   const callbackEvent = useEvent(frame);
 
-  if (!shallowEqualArrays(depsRef.current as unknown[], deps as unknown[])) {
-    depsRef.current = deps;
+  const signal = useComparison(deps as unknown[], { comparison: options?.comparison ?? 'shallow' });
+
+  if (oldSignal.current !== signal) {
+    oldSignal.current = signal;
 
     // Request new frame
     if (frameRef.current === undefined) {
       frameRef.current = requestAnimationFrame(() => {
         frameRef.current = undefined;
 
-        if (profileId) {
+        if (options?.profileId) {
           let msg = '';
           const t0 = performance.now();
-          msg += `Profile: ${profileId}`;
+          msg += `Profile: ${options?.profileId}`;
 
           callbackEvent();
 

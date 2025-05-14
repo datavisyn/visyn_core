@@ -34,13 +34,12 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
   params: Parameters<F> | null = null,
   options?: {
     // Comparison strategy for the immediate parameter
-    comparison: 'deep' | 'shallow';
+    comparison?: 'deep' | 'shallow';
 
     // If specified, instead of using the parameter to trigger the async function the deps are used
     deps?: React.DependencyList;
   },
 ) => {
-  // Store this comparison so the order of hooks stays the same
   const comparisonType = options?.comparison ?? 'deep';
 
   const [state, setState] = React.useState<{
