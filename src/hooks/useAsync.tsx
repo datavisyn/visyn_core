@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import { useDeepEffect } from './useDeepEffect';
 import { useComparison } from './useComparison';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -28,11 +27,11 @@ export type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
  * ```
  *
  * @param asyncFunction Async function to be wrapped.
- * @param immediate Null if function should not be triggered immediately, or the initial parameter array if immediate.
+ * @param params Null if function should not be triggered immediately, or the initial parameter array if immediate.
  */
 export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Awaited<ReturnType<F>>>(
   asyncFunction: F,
-  immediate: Parameters<F> | null = null,
+  params: Parameters<F> | null = null,
   options?: {
     // Comparison strategy for the immediate parameter
     comparison: 'deep' | 'shallow';
@@ -99,15 +98,15 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
   // Otherwise execute can be called later, such as
   // in an onClick handler.
   React.useEffect(() => {
-    if (immediate) {
+    if (params) {
       try {
-        execute(...immediate);
+        execute(...params);
       } catch (e) {
         // ignore any immediate error
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [execute, useComparison(immediate, comparisonType)]);
+  }, [execute, useComparison(options?.deps ?? params, comparisonType)]);
 
   return { execute, status: state.status, value: state.value, error: state.error, args: state.args };
 };
