@@ -106,7 +106,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [execute, useComparison((options?.deps ?? params ?? []) as unknown[], comparisonType)]);
+  }, [execute, useComparison((options?.deps ?? params ?? []) as unknown[], { comparison: comparisonType })]);
 
   return { execute, status: state.status, value: state.value, error: state.error, args: state.args };
 };
