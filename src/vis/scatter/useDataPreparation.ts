@@ -184,7 +184,7 @@ export function useDataPreparation({
 
         xyPairs.push({
           data: {
-            validIndices: matrixItemFilter, // TODO: check if matrixItemFilter is the same as filter
+            validIndices: matrixItemFilter,
             x,
             y,
           },
@@ -197,16 +197,15 @@ export function useDataPreparation({
     const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
     const idToIndex = new Map<string, number>();
     filter.forEach((v, i) => {
-      idToIndex.set(ids[v]!, i);
+      idToIndex.set(String(ids[v]!), i);
     });
 
     return {
       dimensions: plotlyDimensions,
       idToIndex,
-      xyPairs,
-      ids,
-      text: ids,
       filter,
+      ids,
+      text: value.validColumns[0].resolvedValues.map((v) => v.id),
     };
   }, [hiddenCategoriesSet, status, value]);
 
