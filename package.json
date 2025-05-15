@@ -127,6 +127,7 @@
     "react-plotly.js": "^2.6.0",
     "react-spring": "^9.7.5",
     "react-window": "^1.8.11",
+    "shallow-equal": "^3.1.0",
     "visyn_scripts": "^13.1.0"
   },
   "devDependencies": {

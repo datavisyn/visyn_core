@@ -1,9 +1,8 @@
 /* eslint-disable react-compiler/react-compiler */
 import * as React from 'react';
 
-import isEqual from 'lodash/isEqual';
-
 import { useEvent } from '../../../hooks';
+import { useDepsStabilizer } from '../../../hooks/useDepsStabilizer';
 
 /**
  * Hook similar to useEffect that triggers a frame when dependencies change.
@@ -19,24 +18,40 @@ import { useEvent } from '../../../hooks';
  * }, [dependencies]);
  * ```
  */
-export function useTriggerFrame(frame: () => void, deps: React.DependencyList, profileId?: string) {
+export function useTriggerFrame(
+  frame: () => void,
+  deps: React.DependencyList,
+  optionsFromOutside?:
+    | {
+        profileId?: string;
+        /**
+         * Comparison strategy for the deps parameter
+         * @default 'deep'
+         */
+        comparison?: 'deep' | 'shallow';
+      }
+    // Added the string (=profileId) for backwards compatibility
+    | string,
+) {
+  const options = React.useMemo(() => (typeof optionsFromOutside === 'string' ? { profileId: optionsFromOutside } : optionsFromOutside), [optionsFromOutside]);
   const frameRef = React.useRef<number | undefined>(undefined);
-  const depsRef = React.useRef(deps);
+  const lastRenderedDeps = React.useRef<unknown[] | readonly unknown[]>();
+  const stableDeps = useDepsStabilizer(deps, { comparison: options?.comparison ?? 'deep' });
 
   const callbackEvent = useEvent(frame);
 
-  if (!isEqual(depsRef.current, deps)) {
-    depsRef.current = deps;
+  if (lastRenderedDeps.current !== stableDeps) {
+    lastRenderedDeps.current = stableDeps;
 
     // Request new frame
     if (frameRef.current === undefined) {
       frameRef.current = requestAnimationFrame(() => {
         frameRef.current = undefined;
 
-        if (profileId) {
+        if (options?.profileId) {
           let msg = '';
           const t0 = performance.now();
-          msg += `Profile: ${profileId}`;
+          msg += `Profile: ${options?.profileId}`;
 
           callbackEvent();
 
