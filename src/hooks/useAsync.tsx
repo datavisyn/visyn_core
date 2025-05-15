@@ -33,15 +33,17 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
   asyncFunction: F,
   params: Parameters<F> | null = null,
   options?: {
-    // Comparison strategy for the immediate parameter
+    /**
+     * Comparison strategy for the params or deps parameter
+     * @default 'deep'
+     */
     comparison?: 'deep' | 'shallow';
-
-    // If specified, instead of using the parameter to trigger the async function the deps are used
+    /**
+     * Use these as deps instead of the params to trigger the async function
+     */
     deps?: React.DependencyList;
   },
 ) => {
-  const comparisonType = options?.comparison ?? 'deep';
-
   const [state, setState] = React.useState<{
     status: useAsyncStatus;
     value: T | null;
@@ -94,7 +96,7 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
     [asyncFunction],
   );
 
-  const stableParams = useDepsStabilizer(params, { deps: options?.deps, comparison: comparisonType });
+  const stableParams = useDepsStabilizer(params, { deps: options?.deps, comparison: options?.comparison ?? 'deep' });
 
   // Call execute if we want to fire it right away.
   // Otherwise execute can be called later, such as

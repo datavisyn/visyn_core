@@ -24,6 +24,10 @@ export function useTriggerFrame(
   optionsFromOutside?:
     | {
         profileId?: string;
+        /**
+         * Comparison strategy for the deps parameter
+         * @default 'deep'
+         */
         comparison?: 'deep' | 'shallow';
       }
     // Added the string (=profileId) for backwards compatibility
@@ -31,14 +35,13 @@ export function useTriggerFrame(
 ) {
   const options = React.useMemo(() => (typeof optionsFromOutside === 'string' ? { profileId: optionsFromOutside } : optionsFromOutside), [optionsFromOutside]);
   const frameRef = React.useRef<number | undefined>(undefined);
-  const oldSignal = React.useRef<unknown[] | readonly unknown[]>();
+  const lastRenderedDeps = React.useRef<unknown[] | readonly unknown[]>();
+  const stableDeps = useDepsStabilizer(deps, { comparison: options?.comparison ?? 'deep' });
 
   const callbackEvent = useEvent(frame);
 
-  const signal = useDepsStabilizer(deps, { comparison: options?.comparison ?? 'shallow' });
-
-  if (oldSignal.current !== signal) {
-    oldSignal.current = signal;
+  if (lastRenderedDeps.current !== stableDeps) {
+    lastRenderedDeps.current = stableDeps;
 
     // Request new frame
     if (frameRef.current === undefined) {
