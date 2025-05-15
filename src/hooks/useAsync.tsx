@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { useComparison } from './useComparison';
+import { useDepsStabilizer } from './useDepsStabilizer';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
@@ -93,19 +93,21 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
     },
     [asyncFunction],
   );
+
+  const stableParams = useDepsStabilizer(params, { deps: options?.deps, comparison: comparisonType });
+
   // Call execute if we want to fire it right away.
   // Otherwise execute can be called later, such as
   // in an onClick handler.
   React.useEffect(() => {
-    if (params) {
+    if (stableParams) {
       try {
-        execute(...params);
+        execute(...stableParams);
       } catch (e) {
         // ignore any immediate error
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [execute, useComparison((options?.deps ?? params ?? []) as unknown[], { comparison: comparisonType })]);
+  }, [execute, stableParams]);
 
   return { execute, status: state.status, value: state.value, error: state.error, args: state.args };
 };

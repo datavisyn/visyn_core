@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 import { useEvent } from '../../../hooks';
-import { useComparison } from '../../../hooks/useComparison';
+import { useDepsStabilizer } from '../../../hooks/useDepsStabilizer';
 
 /**
  * Hook similar to useEffect that triggers a frame when dependencies change.
@@ -18,16 +18,24 @@ import { useComparison } from '../../../hooks/useComparison';
  * }, [dependencies]);
  * ```
  */
-export function useTriggerFrame(frame: () => void, deps: React.DependencyList, options?: {
-  profileId?: string;
-  comparison?: 'deep' | 'shallow';
-}) {
+export function useTriggerFrame(
+  frame: () => void,
+  deps: React.DependencyList,
+  optionsFromOutside?:
+    | {
+        profileId?: string;
+        comparison?: 'deep' | 'shallow';
+      }
+    // Added the string (=profileId) for backwards compatibility
+    | string,
+) {
+  const options = React.useMemo(() => (typeof optionsFromOutside === 'string' ? { profileId: optionsFromOutside } : optionsFromOutside), [optionsFromOutside]);
   const frameRef = React.useRef<number | undefined>(undefined);
-  const oldSignal = React.useRef<unknown[]>();
+  const oldSignal = React.useRef<unknown[] | readonly unknown[]>();
 
   const callbackEvent = useEvent(frame);
 
-  const signal = useComparison(deps as unknown[], { comparison: options?.comparison ?? 'shallow' });
+  const signal = useDepsStabilizer(deps, { comparison: options?.comparison ?? 'shallow' });
 
   if (oldSignal.current !== signal) {
     oldSignal.current = signal;
