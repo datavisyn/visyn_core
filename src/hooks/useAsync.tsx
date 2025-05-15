@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { useDeepEffect } from './useDeepEffect';
+import { useDepsStabilizer } from './useDepsStabilizer';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
@@ -27,11 +27,22 @@ export type useAsyncStatus = 'idle' | 'pending' | 'success' | 'error';
  * ```
  *
  * @param asyncFunction Async function to be wrapped.
- * @param immediate Null if function should not be triggered immediately, or the initial parameter array if immediate.
+ * @param params Null if function should not be triggered immediately, or the initial parameter array if immediate.
  */
 export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Awaited<ReturnType<F>>>(
   asyncFunction: F,
-  immediate: Parameters<F> | null = null,
+  params: Parameters<F> | null = null,
+  options?: {
+    /**
+     * Comparison strategy for the params or deps parameter
+     * @default 'deep'
+     */
+    comparison?: 'deep' | 'shallow';
+    /**
+     * Use these as deps instead of the params to trigger the async function
+     */
+    deps?: React.DependencyList;
+  },
 ) => {
   const [state, setState] = React.useState<{
     status: useAsyncStatus;
@@ -84,18 +95,21 @@ export const useAsync = <F extends (...args: any[]) => any, E = Error, T = Await
     },
     [asyncFunction],
   );
+
+  const stableParams = useDepsStabilizer(params, { deps: options?.deps, comparison: options?.comparison ?? 'deep' });
+
   // Call execute if we want to fire it right away.
   // Otherwise execute can be called later, such as
   // in an onClick handler.
-  useDeepEffect(() => {
-    if (immediate) {
+  React.useEffect(() => {
+    if (stableParams) {
       try {
-        execute(...immediate);
+        execute(...stableParams);
       } catch (e) {
         // ignore any immediate error
       }
     }
-  }, [execute, immediate]);
+  }, [execute, stableParams]);
 
   return { execute, status: state.status, value: state.value, error: state.error, args: state.args };
 };
