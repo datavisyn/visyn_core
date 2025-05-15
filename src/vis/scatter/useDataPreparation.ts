@@ -203,9 +203,10 @@ export function useDataPreparation({
     return {
       dimensions: plotlyDimensions,
       idToIndex,
-      filter,
+      xyPairs,
       ids,
-      text: value.validColumns[0].resolvedValues.map((v) => v.id),
+      text: ids,
+      filter,
     };
   }, [hiddenCategoriesSet, status, value]);
 
