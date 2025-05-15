@@ -197,7 +197,7 @@ export function useDataPreparation({
     const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
     const idToIndex = new Map<string, number>();
     filter.forEach((v, i) => {
-      idToIndex.set(String(ids[v]!), i);
+      idToIndex.set(ids[v]!, i);
     });
 
     return {
