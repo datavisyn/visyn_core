@@ -7,7 +7,6 @@ from rdkit.Chem.Scaffolds import MurckoScaffold  # type: ignore
 from starlette.responses import Response
 from starlette.status import HTTP_204_NO_CONTENT
 
-from ..settings.constants import default_logging_dict
 from .models import (
     SmilesMolecule,
     SmilesSmartsMolecule,
@@ -25,9 +24,9 @@ rdBase.LogToPythonLogger()
 
 # RDKit comes with its own log config that we do not want: https://github.com/rdkit/rdkit/blob/master/rdkit/__init__.py#L28-L33
 # Undo the config RDKit does by default and use the root logger instead
-rdkit_logger = logging.getLogger('rdkit')
+rdkit_logger = logging.getLogger("rdkit")
 # Unset rdkit's log level to use our configured log level
-rdkit_logger.setLevel(logging.NOTSET) 
+rdkit_logger.setLevel(logging.NOTSET)
 # Enable propagation so messages go through our log handlers (so they use the same format)
 rdkit_logger.propagate = True
 
