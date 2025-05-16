@@ -6,7 +6,6 @@ from rdkit.Chem import Mol  # type: ignore
 from rdkit.Chem.Scaffolds import MurckoScaffold  # type: ignore
 from starlette.responses import Response
 from starlette.status import HTTP_204_NO_CONTENT
-from uvicorn.logging import DefaultFormatter
 
 from ..settings.constants import default_logging_dict
 from .models import (
@@ -21,21 +20,24 @@ from .util.molecule import aligned, maximum_common_substructure_query_mol
 app = APIRouter(prefix="/api/rdkit", tags=["RDKit"])
 
 
-# Send RDKit's C++ logs to python logger
-# see https://greglandrum.github.io/rdkit-blog/posts/2024-02-23-custom-transformations-and-logging.html#connecting-the-rdkit-logs-to-the-python-logger
-logger = logging.getLogger("rdkit")  # defined here: https://github.com/rdkit/rdkit/blob/Release_2023_09_6/rdkit/__init__.py#L14
-# set the log level for the default log handler (the one which sends output to the console/notebook):
-# default is WARNING, see https://github.com/rdkit/rdkit/blob/Release_2023_09_6/rdkit/__init__.py#L32
-logger.handlers[0].setLevel(logging.INFO)
-# Set formatter to match the uvicorn logger we use:
-logger.handlers[0].setFormatter(
-    DefaultFormatter(
-        default_logging_dict["formatters"]["default"]["format"], datefmt=default_logging_dict["formatters"]["default"]["datefmt"]
-    )
-)
-
 # Tell the RDKit's C++ backend to use the python logger:
 rdBase.LogToPythonLogger()
+
+# RDKit comes with its own log config that we do not want: https://github.com/rdkit/rdkit/blob/master/rdkit/__init__.py#L28-L33
+# Undo the config RDKit does by default and use the root logger instead
+rdkit_logger = logging.getLogger('rdkit')
+# Unset rdkit's log level to use our configured log level
+rdkit_logger.setLevel(logging.NOTSET) 
+# Enable propagation so messages go through our log handlers (so they use the same format)
+rdkit_logger.propagate = True
+
+# Remove RDKit's default handler to avoid duplicate messages
+rdkit_logger.handlers = []
+# Test:
+# rdkit's default level is warning, while our root logger defaults to info --> next message should now be visible
+# rdkit_logger.info("RDKit logger: INFO message (should now be visible via root handler)")
+# from rdkit import Chem
+# Chem.MolFromSmiles("invalid_smiles_string_for_rdkit") # This should trigger a C++ ERROR log
 
 
 @app.get("/", response_class=SvgResponse)
