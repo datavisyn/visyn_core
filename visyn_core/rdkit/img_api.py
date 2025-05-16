@@ -36,7 +36,7 @@ rdkit_logger.handlers = []
 # rdkit's default level is warning, while our root logger defaults to info --> next message should now be visible
 # rdkit_logger.info("RDKit logger: INFO message (should now be visible via root handler)")
 # from rdkit import Chem
-# Chem.MolFromSmiles("invalid_smiles_string_for_rdkit") # This should trigger a C++ ERROR log
+# Chem.MolFromSmiles("invalid_smiles_string_for_rdkit") # This will cause an error log in rdkit
 
 
 @app.get("/", response_class=SvgResponse)
