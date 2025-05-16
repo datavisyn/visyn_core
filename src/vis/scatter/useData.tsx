@@ -249,8 +249,11 @@ export function useData({
           ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
           marker: {
             size: 8,
-            color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+            color:
+              value.colorColumn && mappingFunction
+                ? splom.filter.map((index) => mappingFunction(value.colorColumn.resolvedValues[index]!.val))
+                : VIS_NEUTRAL_COLOR,
+            symbol: value.shapeColumn ? splom.filter.map((index) => shapeScale(value.shapeColumn.resolvedValues[index]!.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
           },
           ...baseData(config.alphaSliderVal, !!value.colorColumn),
