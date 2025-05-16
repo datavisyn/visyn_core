@@ -21,7 +21,6 @@ app = APIRouter(prefix="/api/rdkit", tags=["RDKit"])
 
 # Tell the RDKit's C++ backend to use the python logger:
 rdBase.LogToPythonLogger()
-
 # RDKit comes with its own log config that we do not want: https://github.com/rdkit/rdkit/blob/master/rdkit/__init__.py#L28-L33
 # Undo the config RDKit does by default and use the root logger instead
 rdkit_logger = logging.getLogger("rdkit")
@@ -29,7 +28,6 @@ rdkit_logger = logging.getLogger("rdkit")
 rdkit_logger.setLevel(logging.NOTSET)
 # Enable propagation so messages go through our log handlers (so they use the same format)
 rdkit_logger.propagate = True
-
 # Remove RDKit's default handler to avoid duplicate messages
 rdkit_logger.handlers = []
 # Test:
