@@ -41,6 +41,7 @@ def visyn_client_config(callback: Callable[[], type[BaseModel]] | type[BaseModel
 @visyn_client_config
 class VisynCoreClientConfigModel(BaseModel):
     env: Literal["development", "production"] = Field(default_factory=lambda: manager.settings.env)
+    e2e: bool = Field(default_factory=lambda: manager.settings.is_e2e_testing)
     sentry_dsn: str | None = Field(default_factory=lambda: manager.settings.visyn_core.sentry.get_frontend_dsn())
     sentry_proxy_to: str | None = Field(
         default_factory=lambda: "/api/sentry/" if manager.settings.visyn_core.sentry.get_frontend_proxy_to() else None
@@ -57,5 +58,5 @@ def init_client_config(app: FastAPI):
 
     # Create an endpoint that returns the client config
     @app.get("/api/v1/visyn/clientConfig", tags=["Configuration"])
-    def _get_client_config() -> client_config_model:  # type: ignore
+    async def _get_client_config() -> client_config_model:  # type: ignore
         return client_config_model(**(manager.settings.visyn_core.client_config or {}))

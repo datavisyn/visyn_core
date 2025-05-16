@@ -21,10 +21,6 @@ class VisynPlugin(AVisynPlugin):
 
         app.include_router(create_settings_router())
 
-        from .sentry.sentry_proxy_router import sentry_router
-
-        app.include_router(sentry_router)
-
     def register(self, registry: RegHelper):
         # phovea_server
         registry.append_router("caleydo-idtype", "visyn_core.id_mapping.idtype_api", {})
