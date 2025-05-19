@@ -1,4 +1,7 @@
+import logging
+
 from fastapi import APIRouter
+from rdkit import rdBase
 from rdkit.Chem import Mol  # type: ignore
 from rdkit.Chem.Scaffolds import MurckoScaffold  # type: ignore
 from starlette.responses import Response
@@ -14,6 +17,24 @@ from .util.draw import draw, draw_similarity
 from .util.molecule import aligned, maximum_common_substructure_query_mol
 
 app = APIRouter(prefix="/api/rdkit", tags=["RDKit"])
+
+
+# Tell the RDKit's C++ backend to use the python logger:
+rdBase.LogToPythonLogger()
+# RDKit comes with its own log config that we do not want: https://github.com/rdkit/rdkit/blob/master/rdkit/__init__.py#L28-L33
+# Undo the config RDKit does by default and use the root logger instead
+rdkit_logger = logging.getLogger("rdkit")
+# Unset rdkit's log level to use our configured log level
+rdkit_logger.setLevel(logging.NOTSET)
+# Enable propagation so messages go through our log handlers (so they use the same format)
+rdkit_logger.propagate = True
+# Remove RDKit's default handler to avoid duplicate messages
+rdkit_logger.handlers = []
+# Test:
+# rdkit's default level is warning, while our root logger defaults to info --> next message should now be visible
+# rdkit_logger.info("RDKit logger: INFO message (should now be visible via root handler)")
+# from rdkit import Chem
+# Chem.MolFromSmiles("invalid_smiles_string_for_rdkit") # This will cause an error log in rdkit
 
 
 @app.get("/", response_class=SvgResponse)
