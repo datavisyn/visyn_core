@@ -1,63 +1,86 @@
-import React, { useState } from 'react';
+import * as React from 'react';
 
-import { Box, Button, Combobox, Text, useCombobox } from '@mantine/core';
+import { Combobox, ScrollArea, TextInput, useCombobox } from '@mantine/core';
 
-const groceries = ['🍎 Apples', '🍌 Bananas', '🥦 Broccoli', '🥕 Carrots', '🍫 Chocolate', '🍇 Grapes'];
+const groceries = [
+  '🍎 Apples',
+  '🍌 Bananas',
+  '🥦 Broccoli',
+  '🥕 Carrots',
+  '🍫 Chocolate',
+  '🍇 Grapes',
+  '🍋 Lemon',
+  '🥬 Lettuce',
+  '🍄 Mushrooms',
+  '🍊 Oranges',
+  '🥔 Potatoes',
+  '🍅 Tomatoes',
+  '🥚 Eggs',
+  '🥛 Milk',
+  '🍞 Bread',
+  '🍗 Chicken',
+  '🍔 Hamburger',
+  '🧀 Cheese',
+  '🥩 Steak',
+  '🍟 French Fries',
+  '🍕 Pizza',
+  '🥦 Cauliflower',
+  '🥜 Peanuts',
+  '🍦 Ice Cream',
+  '🍯 Honey',
+  '🥖 Baguette',
+  '🍣 Sushi',
+  '🥝 Kiwi',
+  '🍓 Strawberries',
+];
 
 export function Example2() {
-  const [search, setSearch] = useState('');
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const combobox = useCombobox({
-    onDropdownClose: () => {
-      combobox.resetSelectedOption();
-      combobox.focusTarget();
-      setSearch('');
-    },
-
-    onDropdownOpen: () => {
-      combobox.focusSearchInput();
-    },
+    onDropdownClose: () => combobox.resetSelectedOption(),
   });
 
-  const options = groceries
-    .filter((item) => item.toLowerCase().includes(search.toLowerCase().trim()))
-    .map((item) => (
-      <Combobox.Option value={item} key={item}>
-        {item}
-      </Combobox.Option>
-    ));
+  const [value, setValue] = React.useState('');
+  const shouldFilterOptions = !groceries.some((item) => item === value);
+  const filteredOptions = shouldFilterOptions ? groceries.filter((item) => item.toLowerCase().includes(value.toLowerCase().trim())) : groceries;
+
+  const options = filteredOptions.map((item) => (
+    <Combobox.Option value={item} key={item}>
+      {item}
+    </Combobox.Option>
+  ));
 
   return (
-    <>
-      <Combobox
-        store={combobox}
-        width={250}
-        position="bottom-start"
-        withArrow
-        withinPortal={false}
-        onOptionSubmit={(val) => {
-          setSelectedItem(val);
-          combobox.closeDropdown();
-        }}
-      >
-        <Combobox.Target withAriaAttributes={false}>
-          <Button onClick={() => combobox.toggleDropdown()}>Pick item</Button>
-        </Combobox.Target>
+    <Combobox
+      onOptionSubmit={(optionValue) => {
+        setValue(optionValue);
+        combobox.closeDropdown();
+      }}
+      store={combobox}
+      withinPortal={false}
+    >
+      <Combobox.Target>
+        <TextInput
+          label="Pick value or type anything"
+          placeholder="Pick value or type anything"
+          value={value}
+          onChange={(event) => {
+            setValue(event.currentTarget.value);
+            combobox.openDropdown();
+            combobox.updateSelectedOptionIndex();
+          }}
+          onClick={() => combobox.openDropdown()}
+          onFocus={() => combobox.openDropdown()}
+          onBlur={() => combobox.closeDropdown()}
+        />
+      </Combobox.Target>
 
-        <Combobox.Dropdown>
-          <Combobox.Options>{options.length > 0 ? options : <Combobox.Empty>Nothing found</Combobox.Empty>}</Combobox.Options>
-        </Combobox.Dropdown>
-      </Combobox>
-
-      <Box mt="xs">
-        <Text span size="sm" c="dimmed">
-          Selected item:{' '}
-        </Text>
-
-        <Text span size="sm">
-          {selectedItem || 'Nothing selected'}
-        </Text>
-      </Box>
-    </>
+      <Combobox.Dropdown>
+        <Combobox.Options>
+          <ScrollArea.Autosize mah={200} type="scroll">
+            {options.length === 0 ? <Combobox.Empty>Nothing found</Combobox.Empty> : options}
+          </ScrollArea.Autosize>
+        </Combobox.Options>
+      </Combobox.Dropdown>
+    </Combobox>
   );
 }

@@ -39,7 +39,6 @@ export function Example() {
           setSelectedItem(val);
           combobox.closeDropdown();
         }}
-        size="xs"
       >
         <VisynSelectTarget selectFirstOptionOnChange size="xs" combobox={combobox} data={data} value={selectedItem} onChange={setSelectedItem} clearable />
 
