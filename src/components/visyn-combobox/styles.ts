@@ -15,8 +15,14 @@ export const optionsDropdownOptions = css`
   display: flex;
   align-items: center;
   gap: 8px;
+  border: 1px solid transparent;
 
   &:where([data-reverse]) {
     justify-content: space-between;
+  }
+  &:where([data-combobox-selected]) {
+    border-color: #337ab7;
+    background-color: transparent;
+    color: black;
   }
 `;
