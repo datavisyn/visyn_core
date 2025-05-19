@@ -96,7 +96,7 @@ def init_sentry_integration(*, app: FastAPI, settings: "SentrySettings", verbose
             # Set sample_rate to 1.0 to sample 100% of transactions.
             "sample_rate": 1.0,
             # Set profiles_sample_rate to 1.0 to profile 100% of sampled transactions.
-            "profiles_sample_rate": 1.0,
+            "profiles_sample_rate": 0.0,
             # Set send_default_pii to True to send PII like the user's IP address.
             "send_default_pii": True,
             # Add some default integrations, but only if they are not set in the settings
