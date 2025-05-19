@@ -1,26 +1,22 @@
 import { css } from '@emotion/css';
 
 export const optionsDropdownCheckIcon = css`
-  .optionsDropdownCheckIcon {
-    opacity: 0.4;
-    width: 0.8em;
-    min-width: 0.8em;
-    height: 0.8em;
+  opacity: 0.4;
+  width: 0.8em;
+  min-width: 0.8em;
+  height: 0.8em;
 
-    :where([data-combobox-selected]) & {
-      opacity: 1;
-    }
+  :where([data-combobox-selected]) & {
+    opacity: 1;
   }
 `;
 
 export const optionsDropdownOptions = css`
-  .optionsDropdownOption {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-    &:where([data-reverse]) {
-      justify-content: space-between;
-    }
+  &:where([data-reverse]) {
+    justify-content: space-between;
   }
 `;
