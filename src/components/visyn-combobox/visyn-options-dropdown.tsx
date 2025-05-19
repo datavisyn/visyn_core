@@ -104,7 +104,7 @@ export interface OptionsDropdownProps {
   scrollAreaProps: ScrollAreaProps | undefined;
 }
 
-export function OptionsDropdown({
+export function VisynOptionsDropdown({
   data,
   hidden,
   hiddenWhenEmpty,
