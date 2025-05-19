@@ -6,12 +6,13 @@ import {
   ComboboxItem,
   ComboboxLikeRenderOptionInput,
   ComboboxParsedItem,
+  ComboboxSearchProps,
+  MantineSize,
   ScrollArea,
   ScrollAreaProps,
   defaultOptionsFilter,
   isOptionsGroup,
 } from '@mantine/core';
-import cx from 'clsx';
 
 import { FilterOptionsInput } from './default-options-filter';
 import { isEmptyComboboxData } from './is-empty-combobox-data';
@@ -77,7 +78,6 @@ function Option({ data, withCheckIcon, value, checkIconPosition, renderOption }:
 export interface OptionsDropdownProps {
   data: OptionsData;
   filter?: OptionsFilter;
-  search?: string;
   limit?: number;
   withScrollArea?: boolean;
   maxDropdownHeight: number | string | undefined;
@@ -91,6 +91,10 @@ export interface OptionsDropdownProps {
   labelId?: string;
   renderOption?: (input: ComboboxLikeRenderOptionInput<any>) => React.ReactNode;
   scrollAreaProps?: ScrollAreaProps;
+  search?: string;
+  onSearchChange?: (search: string) => void;
+  comboboxSearchProps?: ComboboxSearchProps;
+  size?: MantineSize;
 }
 
 export function VisynOptionsDropdown({
@@ -98,7 +102,6 @@ export function VisynOptionsDropdown({
   hidden,
   hiddenWhenEmpty,
   filter,
-  search,
   limit,
   maxDropdownHeight,
   withScrollArea = true,
@@ -110,6 +113,10 @@ export function VisynOptionsDropdown({
   labelId,
   renderOption,
   scrollAreaProps,
+  search,
+  onSearchChange,
+  comboboxSearchProps,
+  size,
 }: OptionsDropdownProps) {
   validateOptions(data);
 
@@ -136,6 +143,16 @@ export function VisynOptionsDropdown({
 
   return (
     <Combobox.Dropdown hidden={hidden || (hiddenWhenEmpty && isEmpty)} data-composed>
+      {search !== undefined || onSearchChange ? (
+        <Combobox.Search
+          size={size}
+          value={search}
+          onChange={(event) => onSearchChange?.(event.currentTarget.value)}
+          placeholder="Search items"
+          {...comboboxSearchProps}
+        />
+      ) : null}
+
       <Combobox.Options labelledBy={labelId}>
         {withScrollArea ? (
           <ScrollArea.Autosize mah={maxDropdownHeight ?? 220} type="scroll" scrollbarSize="var(--combobox-padding)" offsetScrollbars="y" {...scrollAreaProps}>
@@ -144,7 +161,8 @@ export function VisynOptionsDropdown({
         ) : (
           options
         )}
-        {isEmpty && nothingFoundMessage && <Combobox.Empty>{nothingFoundMessage}</Combobox.Empty>}
+
+        {isEmpty && nothingFoundMessage ? <Combobox.Empty>{nothingFoundMessage}</Combobox.Empty> : null}
       </Combobox.Options>
     </Combobox.Dropdown>
   );
