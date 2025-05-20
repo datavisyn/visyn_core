@@ -19,11 +19,11 @@ interface Item {
 }
 
 const groceries: Item[] = [
-  { emoji: <FontAwesomeIcon icon={faAppleWhole} />, value: 'Apples', description: 'Crisp and refreshing fruit' },
-  { emoji: <FontAwesomeIcon icon={faFish} />, value: 'Fish', description: 'Naturally sweet and potassium-rich fruit' },
-  { emoji: <FontAwesomeIcon icon={faKiwiBird} />, value: 'Kiwi', description: 'Nutrient-packed green vegetable' },
-  { emoji: <FontAwesomeIcon icon={faShrimp} />, value: 'Shrimp', description: 'Crunchy and vitamin-rich root vegetable' },
+  { emoji: <FontAwesomeIcon icon={faFish} />, value: 'Fish', description: 'Natural and omega3-rich' },
+  { emoji: <FontAwesomeIcon icon={faKiwiBird} />, value: 'Kiwi', description: 'Nutrient-packed green fruit' },
+  { emoji: <FontAwesomeIcon icon={faShrimp} />, value: 'Shrimp', description: 'Crunchy and vitamin-rich sea food' },
   { emoji: <FontAwesomeIcon icon={faWorm} />, value: 'Worm', description: 'Indulgent and decadent treat' },
+  { emoji: <FontAwesomeIcon icon={faAppleWhole} />, value: 'Apples', description: 'Crisp and refreshing fruit' },
 ];
 
 export function SingleSelect() {
@@ -48,11 +48,10 @@ export function SingleSelect() {
   return (
     <Stack mt="xl">
       <Combobox
-        size="md"
+        size="sm"
         store={combobox}
-        width={250}
         position="bottom-start"
-        withArrow
+        // withArrow
         withinPortal={false}
         onOptionSubmit={(val) => {
           setSelectedItem(val);
@@ -60,8 +59,9 @@ export function SingleSelect() {
         }}
       >
         <VisynSelectTarget
-          label="Select some food"
-          placeholder="Select some food"
+          size="sm"
+          label="Snacks"
+          placeholder="Select a snack"
           selectFirstOptionOnChange
           combobox={combobox}
           data={data}
@@ -75,7 +75,7 @@ export function SingleSelect() {
           // limit={4}
           onSearchChange={setSearch}
           comboboxSearchProps={{
-            placeholder: 'Search for food',
+            placeholder: 'Search for snacks',
           }}
           filter={({ search: localSearch, options, limit }) => {
             const searchLower = localSearch.toLowerCase();
