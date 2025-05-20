@@ -95,6 +95,7 @@ export function SingleSelect() {
                 label={option.label}
                 value={option.value}
                 checked={checked}
+                search={search}
                 // TODO: this is a workaround and needs to be fixed in the typings of the component
                 icon={groceries.find((g) => g.value === option.value)?.emoji}
                 description={groceries.find((g) => g.value === option.value)?.description}
