@@ -1,14 +1,10 @@
 import { css } from '@emotion/css';
 
 export const optionsDropdownCheckIcon = css`
-  opacity: 0.4;
+  opacity: 1;
   width: 0.8em;
   min-width: 0.8em;
   height: 0.8em;
-
-  :where([data-combobox-selected]) & {
-    opacity: 1;
-  }
 `;
 
 export const optionsDropdownOptions = css`

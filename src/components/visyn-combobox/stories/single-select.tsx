@@ -6,7 +6,7 @@ import { faKiwiBird } from '@fortawesome/free-solid-svg-icons/faKiwiBird';
 import { faShrimp } from '@fortawesome/free-solid-svg-icons/faShrimp';
 import { faWorm } from '@fortawesome/free-solid-svg-icons/faWorm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, Combobox, OptionsData, Stack, Text, useCombobox } from '@mantine/core';
+import { Combobox, OptionsData, Stack, useCombobox } from '@mantine/core';
 
 import { VisynOption } from '../visyn-option';
 import { VisynOptionsDropdown } from '../visyn-options-dropdown';
@@ -86,7 +86,7 @@ export function SingleSelect() {
             );
           }}
           data={groceries.map((g) => ({ label: g.value, value: g.value })) as OptionsData}
-          maxDropdownHeight={undefined}
+          maxDropdownHeight={200}
           value={selectedItem}
         />
       </Combobox>

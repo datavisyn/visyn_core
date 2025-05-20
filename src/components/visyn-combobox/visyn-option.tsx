@@ -9,12 +9,13 @@ export interface VisynOptionProps extends ComboboxItem {
   icon?: React.ReactNode;
   checked?: boolean;
 }
-
+// TODO: implement withCheckIcon
 // TODO: implement disabled state
 export function VisynOption({ label, description, disabled, icon, checked }: React.PropsWithChildren<VisynOptionProps>) {
-  const check = checked && <CheckIcon className={optionsDropdownCheckIcon} />;
+  const check = <CheckIcon className={optionsDropdownCheckIcon} style={{ visibility: checked ? 'visible' : 'hidden' }} />;
   return (
-    <Group gap="sm" wrap="nowrap">
+    <Group gap="xs" wrap="nowrap">
+      {/* TODO: icon does not scale with mantine size */}
       {check}
       <Text>{icon}</Text>
       <div>
