@@ -109,7 +109,7 @@ export function VisynOptionsDropdown({
   withCheckIcon = false,
   value,
   checkIconPosition,
-  nothingFoundMessage,
+  nothingFoundMessage = 'No items match your search',
   labelId,
   renderOption,
   scrollAreaProps,

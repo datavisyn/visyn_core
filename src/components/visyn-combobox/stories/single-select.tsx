@@ -59,12 +59,10 @@ export function SingleSelect() {
           combobox.closeDropdown();
         }}
       >
-        {/* TODO: add label, placeholder, and indicate selected option in dropdown */}
         <VisynSelectTarget
           label="Select some food"
           placeholder="Select some food"
           selectFirstOptionOnChange
-          size="xs"
           combobox={combobox}
           data={data}
           value={selectedItem}
@@ -73,6 +71,24 @@ export function SingleSelect() {
         />
 
         <VisynOptionsDropdown
+          search={search}
+          // limit={4}
+          onSearchChange={setSearch}
+          comboboxSearchProps={{
+            placeholder: 'Search for food',
+          }}
+          filter={({ search: localSearch, options, limit }) => {
+            const searchLower = localSearch.toLowerCase();
+            if (searchLower === '') {
+              return options.slice(0, limit);
+            }
+            return options
+              .filter((item) => {
+                // TODO: fix typings so that I can access item.description here
+                return item.label?.toLowerCase().includes(searchLower) || item.description?.toLowerCase().includes(searchLower);
+              })
+              .slice(0, limit);
+          }}
           renderOption={({ option, checked }) => {
             return (
               <VisynOption
