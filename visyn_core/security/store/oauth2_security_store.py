@@ -25,6 +25,10 @@ class OAuth2SecurityStore(BaseStore):
             # Get token data from header
             access_token = req.headers.get(token_field)
             if access_token:
+                # Remove any leading "Bearer " if exists
+                if access_token.startswith("Bearer "):
+                    access_token = access_token.replace("Bearer ", "", 1)
+
                 _log.debug(f"Try to decode the oidc data jwt with access token: {access_token}")
                 user = jwt.decode(access_token, options={"verify_signature": False})
 
