@@ -18,7 +18,7 @@ export function VisynOption({ label, description, disabled, icon, checked, searc
     <Group gap="xs" wrap="nowrap">
       {/* TODO: icon does not scale with mantine size */}
       {check}
-      <Text>{icon}</Text>
+      {icon}
       <div>
         <Text inherit>
           <Highlight inherit highlight={search}>
