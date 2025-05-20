@@ -17,6 +17,8 @@ export function VisynSelectTarget({
   size,
   error,
   clearable,
+  label,
+  placeholder,
 }: {
   autoComplete?: string;
   id?: string;
@@ -32,6 +34,8 @@ export function VisynSelectTarget({
   size?: MantineSize;
   error?: React.ReactNode;
   clearable?: boolean;
+  label?: string;
+  placeholder?: string;
 }) {
   const clearButton = (
     <Combobox.ClearButton
@@ -74,6 +78,8 @@ export function VisynSelectTarget({
         }}
         pointer
         error={error}
+        label={label}
+        placeholder={placeholder}
       />
     </Combobox.Target>
   );

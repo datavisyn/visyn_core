@@ -46,15 +46,7 @@ export function SingleSelect() {
   });
 
   return (
-    <Stack>
-      <Box mt="xs">
-        <Text span size="sm" c="dimmed">
-          Selected item:{' '}
-        </Text>
-        <Text span size="sm">
-          {selectedItem || 'Nothing selected'}
-        </Text>
-      </Box>
+    <Stack mt="xl">
       <Combobox
         size="md"
         store={combobox}
@@ -68,14 +60,25 @@ export function SingleSelect() {
         }}
       >
         {/* TODO: add label, placeholder, and indicate selected option in dropdown */}
-        <VisynSelectTarget selectFirstOptionOnChange size="xs" combobox={combobox} data={data} value={selectedItem} onChange={setSelectedItem} clearable />
+        <VisynSelectTarget
+          label="Select some food"
+          placeholder="Select some food"
+          selectFirstOptionOnChange
+          size="xs"
+          combobox={combobox}
+          data={data}
+          value={selectedItem}
+          onChange={setSelectedItem}
+          clearable
+        />
 
         <VisynOptionsDropdown
-          renderOption={({ option }) => {
+          renderOption={({ option, checked }) => {
             return (
               <VisynOption
                 label={option.label}
                 value={option.value}
+                checked={checked}
                 // TODO: this is a workaround and needs to be fixed in the typings of the component
                 icon={groceries.find((g) => g.value === option.value)?.emoji}
                 description={groceries.find((g) => g.value === option.value)?.description}
@@ -84,6 +87,7 @@ export function SingleSelect() {
           }}
           data={groceries.map((g) => ({ label: g.value, value: g.value })) as OptionsData}
           maxDropdownHeight={undefined}
+          value={selectedItem}
         />
       </Combobox>
     </Stack>

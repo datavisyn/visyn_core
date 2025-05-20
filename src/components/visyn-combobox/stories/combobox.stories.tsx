@@ -14,7 +14,7 @@ const meta: Meta<typeof Combobox> = {
 export default meta;
 type Story = StoryObj<typeof Combobox>;
 
-export const Select: Story = {
+export const BasicSelect: Story = {
   render: () => (
     <Center w={300}>
       <SingleSelect />
