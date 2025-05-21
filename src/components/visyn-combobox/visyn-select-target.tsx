@@ -11,12 +11,12 @@ export function VisynSelectTarget({
   readOnly,
   onClear,
   rightSectionPointerEvents,
-  selectFirstOptionOnChange,
   disabled,
   size,
   error,
   clearable,
   children,
+  label,
 }: React.PropsWithChildren<{
   autoComplete?: string;
   id?: string;
@@ -26,11 +26,11 @@ export function VisynSelectTarget({
   onClear?: () => void;
   readOnly?: boolean;
   rightSectionPointerEvents?: React.CSSProperties['pointerEvents'];
-  selectFirstOptionOnChange?: boolean;
   disabled?: boolean;
   size?: MantineSize;
   error?: React.ReactNode;
   clearable?: boolean;
+  label?: string;
 }>) {
   const clearButton = (
     <Combobox.ClearButton
@@ -54,19 +54,17 @@ export function VisynSelectTarget({
         // rightSection={rightSection}
         rightSectionPointerEvents={rightSectionPointerEvents || (isClearable ? 'all' : 'none')}
         // {...others}
+        multiline
         size={size}
         __staticSelector="Select"
         disabled={disabled}
         value={value ?? ''}
-        onChange={() => {
-          combobox.openDropdown();
-          selectFirstOptionOnChange && combobox.selectFirstOption();
-        }}
         onClick={() => {
           combobox.toggleDropdown();
         }}
         pointer
         error={error}
+        label={label}
       >
         {children}
       </InputBase>

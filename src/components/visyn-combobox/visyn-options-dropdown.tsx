@@ -10,6 +10,7 @@ import {
   MantineSize,
   ScrollArea,
   ScrollAreaProps,
+  Space,
   defaultOptionsFilter,
   isOptionsGroup,
 } from '@mantine/core';
@@ -18,6 +19,7 @@ import { FilterOptionsInput } from './default-options-filter';
 import { isEmptyComboboxData } from './is-empty-combobox-data';
 import { validateOptions } from './validate-options';
 import { VisynCheckIcon } from './visyn-check-icon';
+import { optionsDropdownOptions } from './styles';
 
 export type OptionsFilter = (input: FilterOptionsInput) => ComboboxParsedItem[];
 
@@ -49,26 +51,15 @@ function isValueChecked(value: string | string[] | undefined | null, optionValue
 function Option({ data, withCheckIcon, value, checkIconPosition, renderOption }: OptionProps) {
   if (!isOptionsGroup(data)) {
     const checked = isValueChecked(value, data.value);
-    const check = withCheckIcon && checked && <VisynCheckIcon />;
-
-    const defaultContent = (
-      <Group gap={8}>
-        {checkIconPosition === 'left' && check}
-        <span>{data.label}</span>
-        {checkIconPosition === 'right' && check}
-      </Group>
-    );
+    const check = withCheckIcon && checked ? <VisynCheckIcon /> : <Space w="0.8em" />;
 
     return (
-      <Combobox.Option
-        value={data.value}
-        disabled={data.disabled}
-        data-reverse={checkIconPosition === 'right' || undefined}
-        data-checked={checked || undefined}
-        aria-selected={checked}
-        active={checked}
-      >
-        {typeof renderOption === 'function' ? renderOption({ option: data, checked }) : defaultContent}
+      <Combobox.Option value={data.value} disabled={data.disabled} data-checked={checked || undefined} active={checked} className={optionsDropdownOptions}>
+        <Group gap={8} wrap="nowrap">
+          {checkIconPosition === 'left' ? check : null}
+          {typeof renderOption === 'function' ? renderOption({ option: data, checked }) : <span>{data.label}</span>}
+          {checkIconPosition === 'right' ? check : null}
+        </Group>
       </Combobox.Option>
     );
   }
@@ -108,10 +99,10 @@ export function VisynOptionsDropdown<D extends OptionsData[0]>({
   limit,
   maxDropdownHeight,
   withScrollArea,
-  withCheckIcon,
+  withCheckIcon = true,
   value,
   checkIconPosition = 'left',
-  nothingFoundMessage = 'Nothing found',
+  nothingFoundMessage = 'No items match your search',
   labelId,
   renderOption,
   scrollAreaProps,

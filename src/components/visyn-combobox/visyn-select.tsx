@@ -59,7 +59,7 @@ export function VisynSelect<D extends ComboboxParsedItem>({
 }) {
   // const parsedData = React.useMemo(() => getParsedComboboxData(data), [data]);
   const optionsLockup = React.useMemo(() => getOptionsLockup(data), [data]);
-  const _id = React.useId();
+  const uniqueId = React.useId();
 
   const [internalValue, setInternalValue, controlled] = useUncontrolled({
     value,
@@ -69,8 +69,6 @@ export function VisynSelect<D extends ComboboxParsedItem>({
   });
 
   const selectedOption = typeof internalValue === 'string' ? optionsLockup[internalValue] : undefined;
-
-  console.log('selectedOption', selectedOption);
 
   const [search, setSearch] = useUncontrolled({
     value: searchValue,
@@ -108,7 +106,7 @@ export function VisynSelect<D extends ComboboxParsedItem>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectFirstOptionOnChange, search]);
 
-  const _clearable = clearable && !!internalValue && !disabled && !readOnly;
+  const isClearable = clearable && !!internalValue && !disabled && !readOnly;
 
   return (
     <Combobox
@@ -129,17 +127,14 @@ export function VisynSelect<D extends ComboboxParsedItem>({
       size={size}
     >
       <VisynSelectTarget
-        id={_id}
-        data={data}
+        id={uniqueId}
         value={internalValue}
         onChange={setInternalValue}
         combobox={combobox}
         readOnly={readOnly}
         onClear={onClear}
-        selectFirstOptionOnChange={selectFirstOptionOnChange}
         disabled={disabled}
-        clearable={_clearable}
-        placeholder={placeholder}
+        clearable={isClearable}
         size={size}
       >
         {selectedOption ? renderOption?.({ option: selectedOption, checked: false, size }) : <Input.Placeholder>{placeholder}</Input.Placeholder>}
@@ -156,7 +151,7 @@ export function VisynSelect<D extends ComboboxParsedItem>({
         maxDropdownHeight={maxDropdownHeight}
         value={internalValue}
         nothingFoundMessage={nothingFoundMessage}
-        labelId={`${_id}-label`}
+        labelId={`${uniqueId}-label`}
         renderOption={renderOption}
         searchable={searchable}
       />

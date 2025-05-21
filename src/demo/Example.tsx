@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { useState } from 'react';
 
-import { Box, Combobox, Select, Text, useCombobox } from '@mantine/core';
+import { Box, Text, useCombobox } from '@mantine/core';
 
-import { VisynOptionsDropdown } from '../components/visyn-combobox';
+import { VisynOption } from '../components/visyn-combobox/visyn-option';
 import { VisynSelect } from '../components/visyn-combobox/visyn-select';
-import { VisynSelectTarget } from '../components/visyn-combobox/visyn-select-target';
 
 const groceries = ['🍎 Apples', '🍌 Bananas', '🥦 Broccoli', '🥕 Carrots', '🍫 Chocolate', '🍇 Grapes'];
 
@@ -42,8 +41,8 @@ export function Example() {
   ];
 
   const flat = [
-    { label: 'Test', value: 'test2', extra: 3 },
-    { label: 'Angular', value: 'angular2', extra: 4 },
+    { label: 'Test', value: 'test2', description: 'some very cool stuff' },
+    { label: 'Angular', value: 'angular2', description: 'alo some ver ycool stuff' },
   ];
 
   return (
@@ -54,7 +53,7 @@ export function Example() {
         clearable
         placeholder="Cool value"
         renderOption={(evnt) => {
-          return <div>test</div>;
+          return <VisynOption {...evnt.option} {...evnt} />;
         }}
       />
 
