@@ -6,7 +6,6 @@ import {
   ComboboxLikeRenderOptionInput,
   ComboboxParsedItem,
   ComboboxSearchProps,
-  Group,
   MantineSize,
   ScrollArea,
   ScrollAreaProps,
@@ -17,9 +16,9 @@ import {
 
 import { FilterOptionsInput } from './default-options-filter';
 import { isEmptyComboboxData } from './is-empty-combobox-data';
+import { optionsDropdownOptions } from './styles';
 import { validateOptions } from './validate-options';
 import { VisynCheckIcon } from './visyn-check-icon';
-import { optionsDropdownOptions } from './styles';
 
 export type OptionsFilter = (input: FilterOptionsInput) => ComboboxParsedItem[];
 
@@ -54,12 +53,17 @@ function Option({ data, withCheckIcon, value, checkIconPosition, renderOption }:
     const check = withCheckIcon && checked ? <VisynCheckIcon /> : <Space w="0.8em" />;
 
     return (
-      <Combobox.Option value={data.value} disabled={data.disabled} data-checked={checked || undefined} active={checked} className={optionsDropdownOptions}>
-        <Group gap={8} wrap="nowrap">
-          {checkIconPosition === 'left' ? check : null}
-          {typeof renderOption === 'function' ? renderOption({ option: data, checked }) : <span>{data.label}</span>}
-          {checkIconPosition === 'right' ? check : null}
-        </Group>
+      <Combobox.Option
+        value={data.value}
+        disabled={data.disabled}
+        data-checked={checked || undefined}
+        data-reverse={checkIconPosition === 'right'}
+        active={checked}
+        className={optionsDropdownOptions}
+      >
+        {checkIconPosition === 'left' ? check : null}
+        {typeof renderOption === 'function' ? renderOption({ option: data, checked }) : <span>{data.label}</span>}
+        {checkIconPosition === 'right' ? check : null}
       </Combobox.Option>
     );
   }

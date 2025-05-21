@@ -1,6 +1,16 @@
 import * as React from 'react';
 
-import { Combobox, ComboboxLikeRenderOptionInput, ComboboxParsedItem, Input, MantineSize, OptionsFilter, getOptionsLockup, useCombobox } from '@mantine/core';
+import {
+  Combobox,
+  ComboboxLikeRenderOptionInput,
+  ComboboxParsedItem,
+  Group,
+  Input,
+  MantineSize,
+  OptionsFilter,
+  getOptionsLockup,
+  useCombobox,
+} from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 
 import { VisynOptionsDropdown } from './visyn-options-dropdown';
@@ -137,7 +147,13 @@ export function VisynSelect<D extends ComboboxParsedItem>({
         clearable={isClearable}
         size={size}
       >
-        {selectedOption ? renderOption?.({ option: selectedOption, checked: false, size }) : <Input.Placeholder>{placeholder}</Input.Placeholder>}
+        {selectedOption ? (
+          <Group w="100%" wrap="nowrap">
+            {renderOption?.({ option: selectedOption, checked: false, size })}
+          </Group>
+        ) : (
+          <Input.Placeholder>{placeholder}</Input.Placeholder>
+        )}
       </VisynSelectTarget>
 
       <VisynOptionsDropdown

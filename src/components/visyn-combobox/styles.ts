@@ -11,6 +11,7 @@ export const optionsDropdownOptions = css`
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 
   &:where([data-reverse]) {
     justify-content: space-between;

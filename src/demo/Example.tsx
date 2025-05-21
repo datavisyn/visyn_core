@@ -41,8 +41,12 @@ export function Example() {
   ];
 
   const flat = [
-    { label: 'Test', value: 'test2', description: 'some very cool stuff' },
-    { label: 'Angular', value: 'angular2', description: 'alo some ver ycool stuff' },
+    { label: 'Test', value: 'test2', description: 'some very cool stuff fja slkdjf kajsd kfjalsd jflkasj dfjsdf' },
+    {
+      label: 'Angular dkjf skjdf ksfj ksdj fksjdfj sdklfj dksfkd j',
+      value: 'angular2',
+      description: 'alo some ver ycool stuff dfjs kdjf sjkf ksdjfk sdjf ksjdf k',
+    },
   ];
 
   return (
@@ -53,7 +57,7 @@ export function Example() {
         clearable
         placeholder="Cool value"
         renderOption={(evnt) => {
-          return <VisynOption {...evnt.option} {...evnt} />;
+          return <VisynOption {...evnt.option} {...evnt} size="xs" />;
         }}
       />
 
