@@ -83,6 +83,7 @@ export function MainApp() {
       {user ? (
         <Box w={600} h={600} p="lg">
           <Example />
+
           <Example2 />
         </Box>
       ) : null}

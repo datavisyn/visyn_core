@@ -1,12 +1,12 @@
 import * as React from 'react';
 
 import {
-  CheckIcon,
   Combobox,
   ComboboxItem,
   ComboboxLikeRenderOptionInput,
   ComboboxParsedItem,
   ComboboxSearchProps,
+  Group,
   MantineSize,
   ScrollArea,
   ScrollAreaProps,
@@ -16,8 +16,8 @@ import {
 
 import { FilterOptionsInput } from './default-options-filter';
 import { isEmptyComboboxData } from './is-empty-combobox-data';
-import { optionsDropdownCheckIcon, optionsDropdownOptions } from './styles';
 import { validateOptions } from './validate-options';
+import { VisynCheckIcon } from './visyn-check-icon';
 
 export type OptionsFilter = (input: FilterOptionsInput) => ComboboxParsedItem[];
 
@@ -25,6 +25,12 @@ export interface OptionsGroup {
   group: string;
   items: ComboboxItem[];
 }
+
+export type VisynComboboxItem = ComboboxItem;
+
+export type VisynOptionsGroup = OptionsGroup;
+
+export type VisynOptionsData = (VisynComboboxItem | VisynOptionsGroup)[];
 
 export type OptionsData = (ComboboxItem | OptionsGroup)[];
 
@@ -43,21 +49,20 @@ function isValueChecked(value: string | string[] | undefined | null, optionValue
 function Option({ data, withCheckIcon, value, checkIconPosition, renderOption }: OptionProps) {
   if (!isOptionsGroup(data)) {
     const checked = isValueChecked(value, data.value);
-    const check = withCheckIcon && checked && <CheckIcon className={optionsDropdownCheckIcon} />;
+    const check = withCheckIcon && checked && <VisynCheckIcon />;
 
     const defaultContent = (
-      <>
+      <Group gap={8}>
         {checkIconPosition === 'left' && check}
         <span>{data.label}</span>
         {checkIconPosition === 'right' && check}
-      </>
+      </Group>
     );
 
     return (
       <Combobox.Option
         value={data.value}
         disabled={data.disabled}
-        className={optionsDropdownOptions}
         data-reverse={checkIconPosition === 'right' || undefined}
         data-checked={checked || undefined}
         aria-selected={checked}
@@ -75,59 +80,58 @@ function Option({ data, withCheckIcon, value, checkIconPosition, renderOption }:
   return <Combobox.Group label={data.group}>{options}</Combobox.Group>;
 }
 
-export interface OptionsDropdownProps {
-  data: OptionsData;
+export interface OptionsDropdownProps<D extends ComboboxParsedItem> {
+  data: D[];
   filter?: OptionsFilter;
   limit?: number;
   withScrollArea?: boolean;
   maxDropdownHeight: number | string | undefined;
   hidden?: boolean;
-  hiddenWhenEmpty?: boolean;
-  filterOptions?: boolean;
   withCheckIcon?: boolean;
   value?: string | string[] | null;
   checkIconPosition?: 'left' | 'right';
   nothingFoundMessage?: React.ReactNode;
   labelId?: string;
-  renderOption?: (input: ComboboxLikeRenderOptionInput<any>) => React.ReactNode;
+  renderOption?: (input: ComboboxLikeRenderOptionInput<D>) => React.ReactNode;
   scrollAreaProps?: ScrollAreaProps;
-  search?: string;
+  searchValue?: string;
   onSearchChange?: (search: string) => void;
   comboboxSearchProps?: ComboboxSearchProps;
   size?: MantineSize;
+  searchable?: boolean;
 }
 
-export function VisynOptionsDropdown({
+export function VisynOptionsDropdown<D extends OptionsData[0]>({
   data,
   hidden,
-  hiddenWhenEmpty,
   filter,
   limit,
   maxDropdownHeight,
-  withScrollArea = true,
-  filterOptions = true,
-  withCheckIcon = false,
+  withScrollArea,
+  withCheckIcon,
   value,
-  checkIconPosition,
-  nothingFoundMessage,
+  checkIconPosition = 'left',
+  nothingFoundMessage = 'Nothing found',
   labelId,
   renderOption,
   scrollAreaProps,
-  search,
+  searchValue,
   onSearchChange,
   comboboxSearchProps,
   size,
-}: OptionsDropdownProps) {
+  searchable = true,
+}: OptionsDropdownProps<D>) {
   validateOptions(data);
 
-  const shouldFilter = typeof search === 'string';
-  const filteredData = shouldFilter
-    ? (filter || defaultOptionsFilter)({
-        options: data,
-        search: filterOptions ? search : '',
-        limit: limit ?? Infinity,
-      })
-    : data;
+  const filteredData =
+    searchValue !== undefined && searchable
+      ? (filter || defaultOptionsFilter)({
+          options: data,
+          search: searchValue,
+          limit: limit ?? Infinity,
+        })
+      : data;
+
   const isEmpty = isEmptyComboboxData(filteredData);
 
   const options = filteredData.map((item) => (
@@ -142,11 +146,11 @@ export function VisynOptionsDropdown({
   ));
 
   return (
-    <Combobox.Dropdown hidden={hidden || (hiddenWhenEmpty && isEmpty)} data-composed>
-      {search !== undefined || onSearchChange ? (
+    <Combobox.Dropdown hidden={hidden}>
+      {searchable ? (
         <Combobox.Search
           size={size}
-          value={search}
+          value={searchValue}
           onChange={(event) => onSearchChange?.(event.currentTarget.value)}
           placeholder="Search items"
           {...comboboxSearchProps}
@@ -155,7 +159,7 @@ export function VisynOptionsDropdown({
 
       <Combobox.Options labelledBy={labelId}>
         {withScrollArea ? (
-          <ScrollArea.Autosize mah={maxDropdownHeight ?? 220} type="scroll" scrollbarSize="var(--combobox-padding)" offsetScrollbars="y" {...scrollAreaProps}>
+          <ScrollArea.Autosize mah={maxDropdownHeight ?? 220} type="scroll" {...scrollAreaProps}>
             {options}
           </ScrollArea.Autosize>
         ) : (

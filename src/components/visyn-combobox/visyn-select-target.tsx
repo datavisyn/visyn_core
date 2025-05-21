@@ -1,11 +1,10 @@
 import * as React from 'react';
 
-import { Combobox, ComboboxStore, InputBase, MantineSize, OptionsData } from '@mantine/core';
+import { Combobox, ComboboxStore, InputBase, MantineSize } from '@mantine/core';
 
 export function VisynSelectTarget({
   autoComplete,
   id,
-  data,
   value,
   onChange,
   combobox,
@@ -17,10 +16,10 @@ export function VisynSelectTarget({
   size,
   error,
   clearable,
-}: {
+  children,
+}: React.PropsWithChildren<{
   autoComplete?: string;
   id?: string;
-  data: OptionsData;
   value?: string | null;
   combobox: ComboboxStore;
   onChange: (value: string | null) => void;
@@ -32,7 +31,7 @@ export function VisynSelectTarget({
   size?: MantineSize;
   error?: React.ReactNode;
   clearable?: boolean;
-}) {
+}>) {
   const clearButton = (
     <Combobox.ClearButton
       onClear={() => {
@@ -44,16 +43,11 @@ export function VisynSelectTarget({
 
   const isClearable = clearable && !!value && !disabled && !readOnly;
 
-  React.useEffect(() => {
-    if (selectFirstOptionOnChange) {
-      combobox.selectFirstOption();
-    }
-  }, [selectFirstOptionOnChange, combobox]);
-
   return (
     <Combobox.Target targetType="button" autoComplete={autoComplete}>
       <InputBase
         id={id}
+        component="button"
         __defaultRightSection={<Combobox.Chevron size={size} error={error} />}
         __clearSection={clearButton}
         __clearable={isClearable}
@@ -63,7 +57,6 @@ export function VisynSelectTarget({
         size={size}
         __staticSelector="Select"
         disabled={disabled}
-        readOnly
         value={value ?? ''}
         onChange={() => {
           combobox.openDropdown();
@@ -74,7 +67,9 @@ export function VisynSelectTarget({
         }}
         pointer
         error={error}
-      />
+      >
+        {children}
+      </InputBase>
     </Combobox.Target>
   );
 }

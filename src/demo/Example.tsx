@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useState } from 'react';
 
-import { Box, Combobox, Highlight, Text, useCombobox } from '@mantine/core';
+import { Box, Combobox, Select, Text, useCombobox } from '@mantine/core';
 
 import { VisynOptionsDropdown } from '../components/visyn-combobox';
+import { VisynSelect } from '../components/visyn-combobox/visyn-select';
 import { VisynSelectTarget } from '../components/visyn-combobox/visyn-select-target';
 
 const groceries = ['🍎 Apples', '🍌 Bananas', '🥦 Broccoli', '🥕 Carrots', '🍫 Chocolate', '🍇 Grapes'];
@@ -23,45 +24,39 @@ export function Example() {
     },
   });
 
-  const data = groceries.map((item) => ({
-    value: item,
-    label: item,
-  }));
+  const data = [
+    {
+      group: 'Frontend',
+      items: [
+        { label: 'Test', value: 'test', extra: 1 },
+        { label: 'Angular', value: 'angular', extra: 2 },
+      ],
+    },
+    {
+      group: 'Backend',
+      items: [
+        { label: 'Test', value: 'test2', extra: 3 },
+        { label: 'Angular', value: 'angular2', extra: 4 },
+      ],
+    },
+  ];
+
+  const flat = [
+    { label: 'Test', value: 'test2', extra: 3 },
+    { label: 'Angular', value: 'angular2', extra: 4 },
+  ];
 
   return (
     <>
-      <Combobox
-        store={combobox}
-        position="bottom-start"
-        withArrow
-        withinPortal={false}
-        onOptionSubmit={(val) => {
-          setSelectedItem(val);
-          combobox.closeDropdown();
+      <VisynSelect
+        data={flat}
+        size="xs"
+        clearable
+        placeholder="Cool value"
+        renderOption={(evnt) => {
+          return <div>test</div>;
         }}
-      >
-        <VisynSelectTarget selectFirstOptionOnChange size="xs" combobox={combobox} data={data} value={selectedItem} onChange={setSelectedItem} clearable />
-
-        <VisynOptionsDropdown
-          data={data}
-          search={search}
-          onSearchChange={setSearch}
-          limit={10}
-          maxDropdownHeight={200}
-          renderOption={(input) => {
-            return (
-              <div>
-                <Highlight inherit highlight={search}>
-                  {input.option.label}
-                </Highlight>
-                <Text inherit c="dimmed">
-                  description
-                </Text>
-              </div>
-            );
-          }}
-        />
-      </Combobox>
+      />
 
       <Box mt="xs">
         <Text span size="sm" c="dimmed">
