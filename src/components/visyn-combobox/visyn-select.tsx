@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 
+import { defaultOptionsFilterWithDescription } from './default-options-filter';
 import { OptionsFilter } from './interfaces';
 import { VisynOptionsDropdown } from './visyn-options-dropdown';
 import { VisynSelectTarget } from './visyn-select-target';
@@ -168,7 +169,8 @@ export function VisynSelect<D extends ComboboxParsedItem>({
       <VisynOptionsDropdown
         data={data}
         hidden={readOnly || disabled}
-        filter={filter}
+        // TODO: the typings are wrong?
+        filter={filter || defaultOptionsFilterWithDescription}
         searchValue={search}
         onSearchChange={handleSearchChange}
         limit={limit}
