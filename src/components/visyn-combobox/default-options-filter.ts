@@ -1,4 +1,6 @@
-import { ComboboxItem, ComboboxParsedItem, ComboboxParsedItemGroup, isOptionsGroup } from '@mantine/core';
+import { ComboboxItem, ComboboxParsedItem, isOptionsGroup } from '@mantine/core';
+
+import { ComboboxItemWithDescription, ComboboxParsedItemWithDescription, ComboboxParsedItemWithDescriptionGroup, OptionsFilter } from './interfaces';
 
 export interface FilterOptionsInput {
   options: ComboboxParsedItem[];
@@ -37,28 +39,13 @@ export function defaultOptionsFilter({ options, search, limit }: FilterOptionsIn
 
   return result;
 }
-interface ComboboxItemWithDescription extends ComboboxItem {
-  description?: string;
-}
-export interface ComboboxParsedItemWithDescriptionGroup extends ComboboxParsedItemGroup {
-  items: ComboboxItemWithDescription[];
-}
 
-export type ComboboxParsedItemWithDescription = ComboboxItemWithDescription | ComboboxParsedItemWithDescriptionGroup;
-
-interface FilterOptionsInputWithDescription<D extends ComboboxParsedItemWithDescription> extends FilterOptionsInput {
-  options: D[];
-  search: string;
-  limit: number;
-}
-
-export function defaultOptionsFilterWithDescription<D extends ComboboxParsedItemWithDescription>({
-  options,
-  search,
-  limit,
-}: FilterOptionsInputWithDescription<D>): D[] {
+export const defaultOptionsFilterWithDescription = <D extends ComboboxParsedItemWithDescription>(
+  args: Parameters<OptionsFilter<D>>[0],
+): ReturnType<OptionsFilter<D>> => {
+  const { options, search, limit } = args;
   const parsedSearch = search.trim().toLowerCase();
-  const result: ComboboxParsedItemWithDescription[] = [];
+  const result: D[] = [];
 
   for (let i = 0; i < options.length; i += 1) {
     const item = options[i]!;
@@ -68,14 +55,15 @@ export function defaultOptionsFilterWithDescription<D extends ComboboxParsedItem
     }
 
     if (isOptionsGroup(item)) {
+      // TODO: Moritz check typing
       result.push({
         group: item.group,
-        items: defaultOptionsFilter({
+        items: defaultOptionsFilterWithDescription({
           options: item.items,
           search,
           limit: limit - result.length,
         }) as ComboboxItemWithDescription[],
-      });
+      } as ComboboxParsedItemWithDescriptionGroup as D);
     }
 
     if (!isOptionsGroup(item)) {
@@ -85,4 +73,4 @@ export function defaultOptionsFilterWithDescription<D extends ComboboxParsedItem
     }
   }
   return result;
-}
+};

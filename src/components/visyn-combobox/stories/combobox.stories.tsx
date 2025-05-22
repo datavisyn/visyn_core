@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, useCombobox } from '@mantine/core';
 import { Meta, StoryObj } from '@storybook/react';
 
+import { ComboboxParsedItemWithDescriptionGroup } from '../interfaces';
 import { VisynOption } from '../visyn-option';
 import { IVisynSelect, VisynSelect } from '../visyn-select';
 
@@ -19,7 +20,7 @@ interface Item {
   description: string;
 }
 
-const groceries: Item[] = [
+const groceriesWithIcon: Item[] = [
   {
     icon: <FontAwesomeIcon icon={faFish} />,
     value: 'fish',
@@ -30,6 +31,41 @@ const groceries: Item[] = [
   { icon: <FontAwesomeIcon icon={faShrimp} />, value: 'shrimp', label: 'Shrimp', description: 'Crunchy and vitamin-rich sea food' },
   { icon: <FontAwesomeIcon icon={faWorm} />, value: 'worm', label: 'Worm', description: 'Indulgent and decadent treat' },
   { icon: <FontAwesomeIcon icon={faAppleWhole} />, value: 'apples', label: 'Apples', description: 'Crisp and refreshing fruit' },
+];
+
+const groceries: Item[] = groceriesWithIcon.map((item) => ({
+  ...item,
+  icon: null,
+}));
+
+const groceriesWithDisabled: Item[] = groceriesWithIcon.map((item) => ({
+  ...item,
+  disabled: item.value === 'fish',
+}));
+
+const groceriesWithGroups = [
+  {
+    group: 'Fruits',
+    items: [
+      { value: 'kiwi', label: 'Kiwi', description: 'Nutrient-packed green fruit' },
+      { value: 'apples', label: 'Apples', description: 'Crisp and refreshing fruit' },
+    ],
+  },
+  {
+    group: 'Seafood',
+    items: [
+      {
+        value: 'fish',
+        label: 'Fishasdf safa sfas asdfasfsadfasf asdfasdf asdf as fs ',
+        description: 'Natural and omega3-rich asdf asfasf fsasdf sdf sdfa sf',
+      },
+      { value: 'shrimp', label: 'Shrimp', description: 'Crunchy and vitamin-rich sea food' },
+    ],
+  },
+  {
+    group: 'Worms',
+    items: [{ value: 'worm', label: 'Worm', description: 'Indulgent and decadent treat' }],
+  },
 ];
 
 const badgeLabel = (item: Item) => {
@@ -68,14 +104,13 @@ function VisynSelectWrapper(args: IVisynSelect<Item>) {
   return (
     <Box w="300" m="xs">
       <VisynSelect
-        data={groceries}
         size="xs"
         clearable
         onSearchChange={setSearch}
         searchValue={search}
         label="Snacks"
         renderOption={(evnt) => {
-          return <VisynOption {...evnt.option} {...evnt} size="xs" search={search} icon={null} />;
+          return <VisynOption {...evnt.option} {...evnt} size="xs" search={search} />;
         }}
         comboboxSearchProps={{
           placeholder: 'Search for a snack...',
@@ -106,7 +141,7 @@ export const BasicSelect: Story = {
 
 export const SelectOptionsWithIcon: Story = {
   args: {
-    data: groceries,
+    data: groceriesWithIcon,
     size: 'xs',
     clearable: true,
     placeholder: 'Pick a snack',
@@ -158,9 +193,19 @@ export const SelectWithCustomOption: Story = {
   },
 };
 
-export const SelectWithoutDescriptionInInput: Story = {
+export const SelectWithGroups: Story = {
   args: {
-    data: groceries,
+    // TODO: Moritz fix typings
+    data: groceriesWithGroups as ComboboxParsedItemWithDescriptionGroup[],
+    size: 'xs',
+    clearable: true,
+    placeholder: 'Pick a snack',
+  },
+};
+
+export const SelectWithDisabledOption: Story = {
+  args: {
+    data: groceriesWithDisabled,
     size: 'xs',
     clearable: true,
     placeholder: 'Pick a snack',

@@ -159,7 +159,6 @@ export function VisynSelect<D extends ComboboxParsedItemWithDescription>({
       <VisynOptionsDropdown
         data={data}
         hidden={readOnly || disabled}
-        // TODO: the typings are wrong?
         filter={filter || defaultOptionsFilterWithDescription}
         searchValue={search}
         onSearchChange={handleSearchChange}
