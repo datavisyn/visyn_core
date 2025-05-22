@@ -17,10 +17,9 @@ export const optionsDropdownOptions = css`
   }
 
   &:where([data-checked]) {
-    background-color: var(--mantine-color-gray-1);
+    background-color: var(--mantine-color-gray-0);
   }
 
-  // Hover
   &:hover {
     background-color: var(--mantine-color-gray-0);
   }

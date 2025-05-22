@@ -90,3 +90,34 @@ export const SelectWithSearch: Story = {
     placeholder: 'Pick a snack',
   },
 };
+
+export const SelectWithOptionsLimit: Story = {
+  args: {
+    data: groceries,
+    size: 'xs',
+    clearable: true,
+    placeholder: 'Pick a snack',
+    limit: 2,
+  },
+};
+
+export const SelectWithCustomOption: Story = {
+  args: {
+    data: groceries,
+    size: 'xs',
+    clearable: true,
+    placeholder: 'Pick a snack',
+    renderOption: (evnt) => {
+      return <div>{evnt.option.label}</div>;
+    },
+  },
+};
+
+// export const SelectWithoutDescriptionInInput: Story = {
+//   args: {
+//     data: groceries,
+//     size: 'xs',
+//     clearable: true,
+//     placeholder: 'Pick a snack',
+//   },
+// };
