@@ -55,6 +55,9 @@ function VisynSelectWrapper(args: IVisynSelect<Item>) {
         renderOption={(evnt) => {
           return <VisynOption {...evnt.option} {...evnt} size="xs" search={search} />;
         }}
+        comboboxSearchProps={{
+          placeholder: 'Search for a snack',
+        }}
         {...args}
       />
     </Box>

@@ -1,6 +1,16 @@
 import * as React from 'react';
 
-import { Combobox, ComboboxLikeRenderOptionInput, ComboboxParsedItem, Group, Input, MantineSize, getOptionsLockup, useCombobox } from '@mantine/core';
+import {
+  Combobox,
+  ComboboxLikeRenderOptionInput,
+  ComboboxParsedItem,
+  ComboboxSearchProps,
+  Group,
+  Input,
+  MantineSize,
+  getOptionsLockup,
+  useCombobox,
+} from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 
 import { OptionsFilter } from './interfaces';
@@ -33,6 +43,7 @@ export interface IVisynSelect<D extends ComboboxParsedItem> {
   onOptionSubmit?: (value: string) => void;
   allowDeselect?: boolean;
   size?: MantineSize;
+  comboboxSearchProps?: ComboboxSearchProps;
 }
 
 export function VisynSelect<D extends ComboboxParsedItem>({
@@ -61,6 +72,7 @@ export function VisynSelect<D extends ComboboxParsedItem>({
   onOptionSubmit,
   allowDeselect = false,
   size,
+  comboboxSearchProps,
 }: IVisynSelect<D>) {
   // const parsedData = React.useMemo(() => getParsedComboboxData(data), [data]);
   const optionsLockup = React.useMemo(() => getOptionsLockup(data), [data]);
@@ -167,6 +179,7 @@ export function VisynSelect<D extends ComboboxParsedItem>({
         labelId={`${uniqueId}-label`}
         renderOption={renderOption}
         searchable={searchable}
+        comboboxSearchProps={comboboxSearchProps}
       />
     </Combobox>
   );

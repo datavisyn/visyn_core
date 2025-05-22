@@ -142,15 +142,8 @@ export function VisynOptionsDropdown<D extends OptionsData[0]>({
   return (
     <Combobox.Dropdown hidden={hidden}>
       {searchable ? (
-        <Combobox.Search
-          size={size}
-          value={searchValue}
-          onChange={(event) => onSearchChange?.(event.currentTarget.value)}
-          placeholder="Search items"
-          {...comboboxSearchProps}
-        />
+        <Combobox.Search size={size} value={searchValue} onChange={(event) => onSearchChange?.(event.currentTarget.value)} {...comboboxSearchProps} />
       ) : null}
-
       <Combobox.Options labelledBy={labelId}>
         {withScrollArea ? (
           <ScrollArea.Autosize mah={maxDropdownHeight ?? 220} type="scroll" {...scrollAreaProps}>
