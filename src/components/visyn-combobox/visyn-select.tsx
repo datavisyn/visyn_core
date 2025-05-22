@@ -16,6 +16,34 @@ import { useUncontrolled } from '@mantine/hooks';
 import { VisynOptionsDropdown } from './visyn-options-dropdown';
 import { VisynSelectTarget } from './visyn-select-target';
 
+export interface IVisynSelect<D> {
+  data: D[];
+  value?: string | null;
+  onChange?: (value: string | null) => void;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  onDropdownClose?: () => void;
+  onDropdownOpen?: () => void;
+  dropdownOpened?: boolean;
+  selectFirstOptionOnChange?: boolean;
+  onClear?: () => void;
+  clearable?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  limit?: number;
+  nothingFoundMessage?: React.ReactNode;
+  filter?: OptionsFilter;
+  searchable?: boolean;
+  withScrollArea?: boolean;
+  maxDropdownHeight?: number | string;
+  renderOption?: (input: ComboboxLikeRenderOptionInput<D>) => React.ReactNode;
+  placeholder?: string;
+  label?: string;
+  onOptionSubmit?: (value: string) => void;
+  allowDeselect?: boolean;
+  size?: MantineSize;
+}
+
 export function VisynSelect<D extends ComboboxParsedItem>({
   data,
   value,
@@ -38,35 +66,11 @@ export function VisynSelect<D extends ComboboxParsedItem>({
   maxDropdownHeight,
   renderOption,
   placeholder,
+  label,
   onOptionSubmit,
   allowDeselect = false,
   size,
-}: {
-  data: D[];
-  value?: string | null;
-  onChange?: (value: string | null) => void;
-  searchValue?: string;
-  onSearchChange?: (value: string) => void;
-  onDropdownClose?: () => void;
-  onDropdownOpen?: () => void;
-  dropdownOpened?: boolean;
-  selectFirstOptionOnChange?: boolean;
-  onClear?: () => void;
-  clearable?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
-  limit?: number;
-  nothingFoundMessage?: React.ReactNode;
-  filter?: OptionsFilter;
-  searchable?: boolean;
-  withScrollArea?: boolean;
-  maxDropdownHeight?: number | string;
-  renderOption?: (input: ComboboxLikeRenderOptionInput<D>) => React.ReactNode;
-  placeholder?: string;
-  onOptionSubmit?: (value: string) => void;
-  allowDeselect?: boolean;
-  size?: MantineSize;
-}) {
+}: IVisynSelect<D>) {
   // const parsedData = React.useMemo(() => getParsedComboboxData(data), [data]);
   const optionsLockup = React.useMemo(() => getOptionsLockup(data), [data]);
   const uniqueId = React.useId();
@@ -145,10 +149,12 @@ export function VisynSelect<D extends ComboboxParsedItem>({
         onClear={onClear}
         disabled={disabled}
         clearable={isClearable}
+        label={label}
         size={size}
       >
         {selectedOption ? (
-          <Group w="100%" wrap="nowrap">
+          // pr aligns the label properly with the options
+          <Group w="100%" wrap="nowrap" pr="0.7em">
             {renderOption?.({ option: selectedOption, checked: false, size })}
           </Group>
         ) : (

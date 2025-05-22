@@ -5,9 +5,9 @@ import { CheckIcon } from '@mantine/core';
 
 export const style = css`
   opacity: 1;
-  width: 0.8em;
-  min-width: 0.8em;
-  height: 0.8em;
+  width: 1em;
+  min-width: 1em;
+  height: 1em;
 `;
 
 export function VisynCheckIcon() {

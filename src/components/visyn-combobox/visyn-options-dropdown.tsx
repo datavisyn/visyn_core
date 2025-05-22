@@ -50,7 +50,8 @@ function isValueChecked(value: string | string[] | undefined | null, optionValue
 function Option({ data, withCheckIcon, value, checkIconPosition, renderOption }: OptionProps) {
   if (!isOptionsGroup(data)) {
     const checked = isValueChecked(value, data.value);
-    const check = withCheckIcon && checked ? <VisynCheckIcon /> : <Space w="0.8em" />;
+    // Space of 1em is aligned with the check-icon and the select target
+    const check = withCheckIcon && checked ? <VisynCheckIcon /> : <Space w="1em" />;
 
     return (
       <Combobox.Option
@@ -105,7 +106,7 @@ export function VisynOptionsDropdown<D extends OptionsData[0]>({
   withScrollArea,
   withCheckIcon = true,
   value,
-  checkIconPosition = 'left',
+  checkIconPosition = 'right',
   nothingFoundMessage = 'No items match your search',
   labelId,
   renderOption,
