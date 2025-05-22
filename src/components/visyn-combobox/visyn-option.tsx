@@ -8,10 +8,10 @@ export interface VisynOptionProps extends ComboboxItem {
   checked?: boolean;
   search?: string;
   size?: MantineSize;
+  badgeLabel?: string;
 }
-// TODO: implement withCheckIcon
 // TODO: implement disabled state
-export function VisynOption({ label, description, disabled, icon, checked, search = '', size }: React.PropsWithChildren<VisynOptionProps>) {
+export function VisynOption({ label, description, disabled, icon, checked, search = '', size, badgeLabel }: React.PropsWithChildren<VisynOptionProps>) {
   // width: 0 is required in display: table to make truncate work
   return (
     <Group gap="xs" wrap="nowrap" style={{ width: 0, flexGrow: 1 }}>
@@ -27,9 +27,11 @@ export function VisynOption({ label, description, disabled, icon, checked, searc
           </Highlight>
         )}
       </div>
-      <Badge size={size} style={{ flexShrink: 0 }}>
-        Test
-      </Badge>
+      {badgeLabel && (
+        <Badge size={size} style={{ flexShrink: 0 }}>
+          {badgeLabel}
+        </Badge>
+      )}
     </Group>
   );
 }

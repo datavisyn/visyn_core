@@ -1,24 +1,14 @@
 import * as React from 'react';
 
-import {
-  Combobox,
-  ComboboxLikeRenderOptionInput,
-  ComboboxParsedItem,
-  ComboboxSearchProps,
-  Group,
-  Input,
-  MantineSize,
-  getOptionsLockup,
-  useCombobox,
-} from '@mantine/core';
+import { Combobox, ComboboxLikeRenderOptionInput, ComboboxSearchProps, Group, Input, MantineSize, getOptionsLockup, useCombobox } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 
-import { defaultOptionsFilterWithDescription } from './default-options-filter';
+import { ComboboxParsedItemWithDescription, defaultOptionsFilterWithDescription } from './default-options-filter';
 import { OptionsFilter } from './interfaces';
 import { VisynOptionsDropdown } from './visyn-options-dropdown';
 import { VisynSelectTarget } from './visyn-select-target';
 
-export interface IVisynSelect<D extends ComboboxParsedItem> {
+export interface IVisynSelect<D extends ComboboxParsedItemWithDescription> {
   data: D[];
   value?: string | null;
   onChange?: (value: string | null) => void;
@@ -47,7 +37,7 @@ export interface IVisynSelect<D extends ComboboxParsedItem> {
   comboboxSearchProps?: ComboboxSearchProps;
 }
 
-export function VisynSelect<D extends ComboboxParsedItem>({
+export function VisynSelect<D extends ComboboxParsedItemWithDescription>({
   data,
   value,
   onChange,

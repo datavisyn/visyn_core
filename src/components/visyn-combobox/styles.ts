@@ -11,7 +11,7 @@ export const optionsDropdownOptions = css`
   }
 
   &:where([data-combobox-selected]) {
-    outline: 1px solid var(--mantine-primary-color-filled);
+    outline: 2px solid var(--mantine-primary-color-filled);
     background-color: inherit;
     color: black;
   }

@@ -20,12 +20,35 @@ interface Item {
 }
 
 const groceries: Item[] = [
-  { icon: <FontAwesomeIcon icon={faFish} />, value: 'fish', label: 'Fish', description: 'Natural and omega3-rich' },
+  {
+    icon: <FontAwesomeIcon icon={faFish} />,
+    value: 'fish',
+    label: 'Fishasdf safa sfas asdfasfsadfasf asdfasdf asdf as fs ',
+    description: 'Natural and omega3-rich asdf asfasf fsasdf sdf sdfa sf',
+  },
   { icon: <FontAwesomeIcon icon={faKiwiBird} />, value: 'kiwi', label: 'Kiwi', description: 'Nutrient-packed green fruit' },
   { icon: <FontAwesomeIcon icon={faShrimp} />, value: 'shrimp', label: 'Shrimp', description: 'Crunchy and vitamin-rich sea food' },
   { icon: <FontAwesomeIcon icon={faWorm} />, value: 'worm', label: 'Worm', description: 'Indulgent and decadent treat' },
   { icon: <FontAwesomeIcon icon={faAppleWhole} />, value: 'apples', label: 'Apples', description: 'Crisp and refreshing fruit' },
 ];
+
+const badgeLabel = (item: Item) => {
+  if (item.value === 'fish') {
+    return 'Fish';
+  }
+  if (item.value === 'kiwi') {
+    return 'Fruit';
+  }
+  if (item.value === 'shrimp') {
+    return 'Fish';
+  }
+  if (item.value === 'worm') {
+    return 'Worm';
+  }
+  if (item.value === 'apples') {
+    return 'Fruit';
+  }
+};
 
 function VisynSelectWrapper(args: IVisynSelect<Item>) {
   const [search, setSearch] = React.useState('');
@@ -50,13 +73,12 @@ function VisynSelectWrapper(args: IVisynSelect<Item>) {
         clearable
         onSearchChange={setSearch}
         searchValue={search}
-        placeholder="Cool value"
         label="Snacks"
         renderOption={(evnt) => {
-          return <VisynOption {...evnt.option} {...evnt} size="xs" search={search} />;
+          return <VisynOption {...evnt.option} {...evnt} size="xs" search={search} icon={null} />;
         }}
         comboboxSearchProps={{
-          placeholder: 'Search for a snack',
+          placeholder: 'Search for a snack...',
         }}
         {...args}
       />
@@ -75,6 +97,29 @@ type Story = StoryObj<typeof VisynSelectWrapper>;
 export const BasicSelect: Story = {
   args: {
     data: groceries,
+    size: 'xs',
+    clearable: true,
+    placeholder: 'Pick a snack',
+    searchable: false,
+  },
+};
+
+export const SelectOptionsWithIcon: Story = {
+  args: {
+    data: groceries,
+    size: 'xs',
+    clearable: true,
+    placeholder: 'Pick a snack',
+    searchable: false,
+  },
+};
+
+export const SelectOptionsWithBadge: Story = {
+  args: {
+    data: groceries.map((item) => ({
+      ...item,
+      badgeLabel: badgeLabel(item),
+    })),
     size: 'xs',
     clearable: true,
     placeholder: 'Pick a snack',
@@ -113,11 +158,11 @@ export const SelectWithCustomOption: Story = {
   },
 };
 
-// export const SelectWithoutDescriptionInInput: Story = {
-//   args: {
-//     data: groceries,
-//     size: 'xs',
-//     clearable: true,
-//     placeholder: 'Pick a snack',
-//   },
-// };
+export const SelectWithoutDescriptionInInput: Story = {
+  args: {
+    data: groceries,
+    size: 'xs',
+    clearable: true,
+    placeholder: 'Pick a snack',
+  },
+};

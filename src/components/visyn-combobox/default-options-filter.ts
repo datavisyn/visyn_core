@@ -46,11 +46,17 @@ export interface ComboboxParsedItemWithDescriptionGroup extends ComboboxParsedIt
 
 export type ComboboxParsedItemWithDescription = ComboboxItemWithDescription | ComboboxParsedItemWithDescriptionGroup;
 
-interface FilterOptionsInputWithDescription extends FilterOptionsInput {
-  options: (ComboboxParsedItem & { description?: string })[];
+interface FilterOptionsInputWithDescription<D extends ComboboxParsedItemWithDescription> extends FilterOptionsInput {
+  options: D[];
+  search: string;
+  limit: number;
 }
 
-export function defaultOptionsFilterWithDescription({ options, search, limit }: FilterOptionsInputWithDescription): ComboboxParsedItemWithDescription[] {
+export function defaultOptionsFilterWithDescription<D extends ComboboxParsedItemWithDescription>({
+  options,
+  search,
+  limit,
+}: FilterOptionsInputWithDescription<D>): D[] {
   const parsedSearch = search.trim().toLowerCase();
   const result: ComboboxParsedItemWithDescription[] = [];
 
