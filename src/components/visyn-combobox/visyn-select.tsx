@@ -1,22 +1,13 @@
 import * as React from 'react';
 
-import {
-  Combobox,
-  ComboboxLikeRenderOptionInput,
-  ComboboxParsedItem,
-  Group,
-  Input,
-  MantineSize,
-  OptionsFilter,
-  getOptionsLockup,
-  useCombobox,
-} from '@mantine/core';
+import { Combobox, ComboboxLikeRenderOptionInput, ComboboxParsedItem, Group, Input, MantineSize, getOptionsLockup, useCombobox } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 
+import { OptionsFilter } from './interfaces';
 import { VisynOptionsDropdown } from './visyn-options-dropdown';
 import { VisynSelectTarget } from './visyn-select-target';
 
-export interface IVisynSelect<D> {
+export interface IVisynSelect<D extends ComboboxParsedItem> {
   data: D[];
   value?: string | null;
   onChange?: (value: string | null) => void;
@@ -32,7 +23,7 @@ export interface IVisynSelect<D> {
   readOnly?: boolean;
   limit?: number;
   nothingFoundMessage?: React.ReactNode;
-  filter?: OptionsFilter;
+  filter?: OptionsFilter<D>;
   searchable?: boolean;
   withScrollArea?: boolean;
   maxDropdownHeight?: number | string;

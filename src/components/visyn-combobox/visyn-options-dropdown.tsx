@@ -14,13 +14,11 @@ import {
   isOptionsGroup,
 } from '@mantine/core';
 
-import { FilterOptionsInput } from './default-options-filter';
+import { OptionsFilter } from './interfaces';
 import { isEmptyComboboxData } from './is-empty-combobox-data';
 import { optionsDropdownOptions } from './styles';
 import { validateOptions } from './validate-options';
 import { VisynCheckIcon } from './visyn-check-icon';
-
-export type OptionsFilter = (input: FilterOptionsInput) => ComboboxParsedItem[];
 
 export interface OptionsGroup {
   group: string;
@@ -78,7 +76,7 @@ function Option({ data, withCheckIcon, value, checkIconPosition, renderOption }:
 
 export interface OptionsDropdownProps<D extends ComboboxParsedItem> {
   data: D[];
-  filter?: OptionsFilter;
+  filter?: OptionsFilter<D>;
   limit?: number;
   withScrollArea?: boolean;
   maxDropdownHeight: number | string | undefined;
