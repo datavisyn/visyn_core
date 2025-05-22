@@ -101,17 +101,17 @@ class OAuth2SecurityStoreSettings(BaseModel):
     """
     access_token_header_name: str | None = "X-Forwarded-Access-Token"
     """
-    @deprecated: Use `headers` instead. This will be made read-only in the future.
+    @deprecated: Use `token_headers` instead. This will be made read-only in the future.
     """
     email_token_field: str | list[str] | None = ["email"]
     """
     Field in the JWT token that contains the email address of the user.
-    @deprecated: Use `headers` instead. This will be made read-only in the future.
+    @deprecated: Use `token_headers` instead. This will be made read-only in the future.
     """
     properties_fields: list[str] | None = []
     """
     Fields in the JWT token payload that should be mapped to the properties of the user.
-    @deprecated: Use `headers` instead. This will be made read-only in the future.
+    @deprecated: Use `token_headers` instead. This will be made read-only in the future.
     """
 
 
