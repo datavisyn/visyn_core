@@ -4,6 +4,7 @@ export * from '../scatter/ColorSelect';
 export * from './FilterButtons';
 export * from './NumericalColorButtons';
 export * from './MultiSelect';
+export * from './SingleSelect';
 export * from '../scatter/OpacitySlider';
 export * from './utils';
 export * from '../violin/ViolinSegmentedControl';
