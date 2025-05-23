@@ -149,6 +149,7 @@ export function VisynSelect<D extends ComboboxParsedItemWithDescription>({
         {selectedOption ? (
           // pr aligns the label properly with the options
           <Group w="100%" wrap="nowrap" pr="0.7em">
+            {/* Todo: Moritz check typings */}
             {renderOption?.({ option: selectedOption, checked: false, size })}
           </Group>
         ) : (

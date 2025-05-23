@@ -73,7 +73,7 @@ const badgeLabel = (item: Item) => {
     return 'Fish';
   }
   if (item.value === 'kiwi') {
-    return 'Fruit';
+    return 'Long fruit label';
   }
   if (item.value === 'shrimp') {
     return 'Fish';
