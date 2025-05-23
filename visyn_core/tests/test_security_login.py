@@ -201,7 +201,9 @@ def test_oauth2_security_store(client: TestClient):
 
     # Header created with a random token containing "email"
     headers = {
-        "X-Forwarded-Access-Token": jwt.encode({"email": "admin@localhost", "sub": "admin"}, "secret", algorithm="HS256"),
+        "X-Forwarded-Access-Token": jwt.encode(
+            {"email": "admin@localhost", "sub": "admin", "groups": ["role1", "role2"]}, "secret", algorithm="HS256"
+        ),
     }
 
     stores = client.get("/api/security/stores", headers=headers).json()
@@ -212,6 +214,7 @@ def test_oauth2_security_store(client: TestClient):
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
+    assert response.json()["roles"] == ["role1", "role2"]
     assert response.json()["properties"] == {"sub": "admin"}
 
     # Logout and check if we get the correct redirect url
@@ -241,6 +244,7 @@ def test_oauth2_security_store_multiple_headers(client: TestClient):
     response = client.get(
         "/api/loggedinas",
         headers={
+            "X-Forwarded-Access-Token": "Invalid header",
             "X-Forwarded-Access-Token-3": jwt.encode({"email": "admin-3@localhost", "sub": "admin-3"}, "secret", algorithm="HS256"),
         },
     )
