@@ -42,21 +42,31 @@ export function useDataPreparation({
   value: FetchColumnDataResult | null;
 }) {
   const subplots = React.useMemo(() => {
-    if (!(status === 'success' && value.subplots && value.subplots.length > 0 && value.subplots[0])) {
+    if (!(status === 'success' && value && value.subplots && value.subplots.length > 0 && value.subplots[0])) {
       return undefined;
     }
 
+    const filter =
+      value?.colorColumn && hiddenCategoriesSet
+        ? indicesOf(
+            value.colorColumn.resolvedValues,
+            (e, index) =>
+              !hiddenCategoriesSet.has((e.val ?? NAN_REPLACEMENT) as string) &&
+              isFinite(value.subplots?.[0]!.xColumn.resolvedValues[index]!.val) &&
+              isFinite(value.subplots?.[0]!.yColumn.resolvedValues[index]!.val),
+          )
+        : range(value.subplots[0].xColumn.resolvedValues.length);
+
     const ids = value.subplots[0].xColumn.resolvedValues.map((v) => v.id);
+
     const idToIndex = new Map<string, number>();
-    ids.forEach((v, i) => {
-      idToIndex.set(v, i);
+    filter.forEach((v, i) => {
+      idToIndex.set(ids[v]!, i);
     });
 
     const xyPairs = value.subplots.map((subplot, index) => {
       const x = subplot.xColumn.resolvedValues.map((v) => v.val as number);
       const y = subplot.yColumn.resolvedValues.map((v) => v.val as number);
-
-      const validIndices = x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[];
 
       const { xDomain, yDomain } = getStretchedDomains(x, y);
 
@@ -67,15 +77,15 @@ export function useDataPreparation({
         yDomain,
         xTitle: columnNameWithDescription(subplot.xColumn.info),
         yTitle: columnNameWithDescription(subplot.yColumn.info),
-        validIndices,
+        validIndices: filter,
         title: subplot.title,
         xref: `x${index > 0 ? index + 1 : ''}` as PlotlyTypes.XAxisName,
         yref: `y${index > 0 ? index + 1 : ''}` as PlotlyTypes.YAxisName,
       };
     });
 
-    return { xyPairs, ids, text: ids, idToIndex };
-  }, [status, value]);
+    return { xyPairs, ids, text: ids, idToIndex, filter };
+  }, [hiddenCategoriesSet, status, value]);
 
   // Case when we have just a scatterplot
   const scatter = React.useMemo(() => {
@@ -124,7 +134,7 @@ export function useDataPreparation({
       yLabel: columnNameWithDescription(value.validColumns[1].info),
       idToIndex,
     };
-  }, [status, value, hiddenCategoriesSet]);
+  }, [hiddenCategoriesSet, status, value]);
 
   // Case when we have a scatterplot matrix
   const splom = React.useMemo(() => {
@@ -132,9 +142,20 @@ export function useDataPreparation({
       return undefined;
     }
 
+    const filter =
+      value?.colorColumn && hiddenCategoriesSet
+        ? indicesOf(
+            value.colorColumn.resolvedValues,
+            (e, index) =>
+              !hiddenCategoriesSet.has((e.val ?? NAN_REPLACEMENT) as string) &&
+              isFinite(value.validColumns?.[0]!.resolvedValues[index]!.val) &&
+              isFinite(value.validColumns?.[0]!.resolvedValues[index]!.val),
+          )
+        : range(value.validColumns?.[0]!.resolvedValues.length);
+
     const plotlyDimensions = value.validColumns.map((col) => ({
       label: columnNameWithDescription(col.info),
-      values: col.resolvedValues.map((v) => v.val),
+      values: filter.map((v) => col.resolvedValues[v]?.val as number),
     }));
 
     // Split up data to xy plot pairs (for regression and subplots)
@@ -147,12 +168,23 @@ export function useDataPreparation({
           continue;
         }
 
-        const x = value.validColumns[c].resolvedValues.map((v) => v.val as number);
-        const y = value.validColumns[r].resolvedValues.map((v) => v.val as number);
+        const matrixItemFilter =
+          value?.colorColumn && hiddenCategoriesSet
+            ? indicesOf(
+                value.colorColumn.resolvedValues,
+                (e, index) =>
+                  !hiddenCategoriesSet.has((e.val ?? NAN_REPLACEMENT) as string) &&
+                  isFinite(value.validColumns?.[c]!.resolvedValues[index]!.val) &&
+                  isFinite(value.validColumns?.[r]!.resolvedValues[index]!.val),
+              )
+            : range(value.validColumns?.[c]!.resolvedValues.length);
+
+        const x = value.validColumns?.[c]!.resolvedValues.map((v) => v.val as number);
+        const y = value.validColumns?.[r]!.resolvedValues.map((v) => v.val as number);
 
         xyPairs.push({
           data: {
-            validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
+            validIndices: matrixItemFilter,
             x,
             y,
           },
@@ -164,8 +196,8 @@ export function useDataPreparation({
 
     const ids = value.validColumns[0].resolvedValues.map((v) => v.id);
     const idToIndex = new Map<string, number>();
-    ids.forEach((v, i) => {
-      idToIndex.set(v, i);
+    filter.forEach((v, i) => {
+      idToIndex.set(ids[v]!, i);
     });
 
     return {
@@ -173,9 +205,10 @@ export function useDataPreparation({
       idToIndex,
       xyPairs,
       ids,
-      text: value.validColumns[0].resolvedValues.map((v) => v.id),
+      text: ids,
+      filter,
     };
-  }, [status, value]);
+  }, [hiddenCategoriesSet, status, value]);
 
   // Case when we have faceting
   const facet = React.useMemo(() => {
@@ -185,11 +218,11 @@ export function useDataPreparation({
 
     const plotlyData = value.validColumns[0].resolvedValues.map((v, i) => ({
       x: v.val,
-      y: value.validColumns[1].resolvedValues[i].val,
+      y: value.validColumns[1]?.resolvedValues[i]?.val,
       ids: v.id?.toString(),
-      facet: value.facetColumn.resolvedValues[i].val?.toString(),
-      color: value.colorColumn ? value.colorColumn.resolvedValues[i].val : undefined,
-      shape: value.shapeColumn ? value.shapeColumn.resolvedValues[i].val : undefined,
+      facet: value.facetColumn.resolvedValues[i]?.val?.toString(),
+      color: value.colorColumn ? value.colorColumn.resolvedValues[i]?.val : undefined,
+      shape: value.shapeColumn ? value.shapeColumn.resolvedValues[i]?.val : undefined,
     }));
 
     const sortOrder =
@@ -197,8 +230,8 @@ export function useDataPreparation({
       [...new Set(value.facetColumn.resolvedValues.map((v) => v.val as string))].sort((a, b) => a?.localeCompare(b, undefined, { sensitivity: 'base' }));
 
     const groupedData = sortBy(groupBy(plotlyData, 'facet'), (group) => {
-      const facetValue = group[0].facet;
-      const index = sortOrder.indexOf(facetValue);
+      const facetValue = group[0]?.facet;
+      const index = sortOrder.indexOf(facetValue as string);
       return index !== -1 ? index : Infinity;
     });
 
@@ -209,9 +242,13 @@ export function useDataPreparation({
     );
 
     const resultData = groupedData.map((grouped, index) => {
+      const filter =
+        value.colorColumn && hiddenCategoriesSet
+          ? indicesOf(grouped, (e) => !hiddenCategoriesSet.has((e.color ?? NAN_REPLACEMENT) as string) && isFinite(e.x) && isFinite(e.y))
+          : range(grouped.map((v) => v.x).length);
       const idToIndex = new Map<string, number>();
-      grouped.forEach((v, vi) => {
-        idToIndex.set(v.ids, vi);
+      filter.forEach((i) => {
+        idToIndex.set(grouped[i]?.ids as string, i);
       });
 
       const x = grouped.map((v) => v.x as number);
@@ -219,16 +256,17 @@ export function useDataPreparation({
 
       return {
         data: {
-          validIndices: x.map((_, i) => (isFinite(x[i]) && isFinite(y[i]) ? i : null)).filter((i) => i !== null) as number[],
+          validIndices: filter,
           x,
           y,
           text: grouped.map((v) => v.ids),
-          facet: grouped[0].facet,
+          facet: grouped[0]?.facet,
           ids: grouped.map((v) => v.ids),
           color: grouped.map((v) => v.color),
           shape: grouped.map((v) => v.shape),
         },
         idToIndex,
+        filter,
         xref: `x${index > 0 ? index + 1 : ''}` as PlotlyTypes.XAxisName,
         yref: `y${index > 0 ? index + 1 : ''}` as PlotlyTypes.YAxisName,
       };
@@ -242,7 +280,7 @@ export function useDataPreparation({
       yDomain,
       ids: value.validColumns[0].resolvedValues.map((v) => v.id),
     };
-  }, [status, value]);
+  }, [hiddenCategoriesSet, status, value]);
 
   const scales = React.useMemo(() => {
     if (!value) {

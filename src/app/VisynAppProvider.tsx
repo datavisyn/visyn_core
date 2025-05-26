@@ -24,12 +24,12 @@ import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/tiptap/styles.css';
 
-export function VisynAppProvider({
+/**
+ * The main provider for the visyn app context.
+ */
+export function VisynAppContextProvider({
   children,
   appName,
-  mantineProviderProps,
-  mantineModalsProviderProps,
-  mantineNotificationsProviderProps,
   sentryInitOptions = {},
   sentryOptions = {},
   waitForClientConfig = true,
@@ -38,17 +38,12 @@ export function VisynAppProvider({
   children?: React.ReactNode;
   appName: JSX.Element | string;
   /**
-   * Props to merge with the `DEFAULT_MANTINE_PROVIDER_PROPS`.
-   */
-  mantineProviderProps?: Omit<MantineProviderProps, 'children'>;
-  mantineModalsProviderProps?: Omit<ModalsProviderProps, 'children'>;
-  mantineNotificationsProviderProps?: Omit<NotificationsProps, 'children'>;
-  /**
    * Options to pass to Sentry.init. The DSN is automatically set from the client config.
    */
   sentryInitOptions?: Omit<BrowserOptions, 'dsn'> | (() => Promise<Omit<BrowserOptions, 'dsn'>>);
   /**
    * Additional options for the Sentry integration.
+   * @deprecated Is not used anymore.
    */
   sentryOptions?: {
     /**
@@ -100,17 +95,14 @@ export function VisynAppProvider({
               Sentry.captureConsoleIntegration({ levels: ['error'] }),
               // Instrument browser pageload/navigation performance
               Sentry.browserTracingIntegration(),
-              // Enable replay integration
-              Sentry.replayIntegration(),
             ],
             */
             // We want to avoid having [object Object] in the Sentry breadcrumbs, so we increase the depth.
             normalizeDepth: 5,
             // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
             tracesSampleRate: 1.0,
-            // Disable replays by default
-            replaysSessionSampleRate: 0,
-            replaysOnErrorSampleRate: 0,
+            // Set send_default_pii to True to send PII like the user's IP address.
+            sendDefaultPii: true,
             // Add our own options
             ...(resolvedSentryInitOptions || {}),
             // And finally set the DSN and tunnel
@@ -134,13 +126,12 @@ export function VisynAppProvider({
         if (Sentry.isInitialized() && Sentry.getClient()?.getOptions()?.sendDefaultPii) {
           Sentry.setUser({
             id: user.name,
+            username: user.name,
           });
         }
       });
     }
   }, [successfulSentryInit, user]);
-
-  const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
 
   const context = React.useMemo<Parameters<typeof VisynAppContext.Provider>[0]['value']>(
     () => ({
@@ -149,20 +140,55 @@ export function VisynAppProvider({
       clientConfig,
       successfulClientConfigInit,
       successfulSentryInit,
+      initStatus,
     }),
-    [user, appName, clientConfig, successfulClientConfigInit, successfulSentryInit],
+    [user, appName, clientConfig, successfulClientConfigInit, successfulSentryInit, initStatus],
   );
 
   return (
-    <VisProvider>
-      <MantineProvider {...mergedMantineProviderProps}>
-        <Notifications {...(mantineNotificationsProviderProps || {})} />
-        <ModalsProvider {...(mantineModalsProviderProps || {})}>
-          <VisynAppContext.Provider value={context}>
-            {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) && (!waitForSentry || successfulSentryInit) ? children : null}
-          </VisynAppContext.Provider>
-        </ModalsProvider>
-      </MantineProvider>
-    </VisProvider>
+    <VisynAppContext.Provider value={context}>
+      {initStatus === 'success' && (!waitForClientConfig || successfulClientConfigInit) && (!waitForSentry || successfulSentryInit) ? (
+        <VisProvider>{children}</VisProvider>
+      ) : null}
+    </VisynAppContext.Provider>
+  );
+}
+
+/**
+ * The main provider for Mantine in the visyn app.
+ */
+export function VisynAppMantineProvider({
+  children,
+  mantineProviderProps,
+  mantineModalsProviderProps,
+  mantineNotificationsProviderProps,
+}: {
+  children?: React.ReactNode;
+  /**
+   * Props to merge with the `DEFAULT_MANTINE_PROVIDER_PROPS`.
+   */
+  mantineProviderProps?: Omit<MantineProviderProps, 'children'>;
+  mantineModalsProviderProps?: Omit<ModalsProviderProps, 'children'>;
+  mantineNotificationsProviderProps?: Omit<NotificationsProps, 'children'>;
+}) {
+  const mergedMantineProviderProps = React.useMemo(() => merge(merge({}, DEFAULT_MANTINE_PROVIDER_PROPS), mantineProviderProps || {}), [mantineProviderProps]);
+
+  return (
+    <MantineProvider {...mergedMantineProviderProps}>
+      <Notifications {...(mantineNotificationsProviderProps || {})} />
+      <ModalsProvider {...(mantineModalsProviderProps || {})}>{children}</ModalsProvider>
+    </MantineProvider>
+  );
+}
+
+/**
+ * The main provider for the visyn app. This provider is responsible for loading the client config, initializing Sentry and providing the user context.
+ * It mounts both the `VisynAppContextProvider` and the `VisynAppMantineProvider`.
+ */
+export function VisynAppProvider(props: Parameters<typeof VisynAppContextProvider>[0] & Parameters<typeof VisynAppMantineProvider>[0]) {
+  return (
+    <VisynAppContextProvider {...props}>
+      <VisynAppMantineProvider {...props}>{props.children}</VisynAppMantineProvider>
+    </VisynAppContextProvider>
   );
 }

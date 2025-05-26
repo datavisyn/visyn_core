@@ -78,21 +78,23 @@ export function useData({
         return {
           ...BASE_DATA,
           type: 'scattergl',
-          x: pair.x,
-          y: pair.y,
+          x: subplots.filter.map((index) => pair.x[index]),
+          y: subplots.filter.map((index) => pair.y[index]),
           xaxis: pair.xref,
           yaxis: pair.yref,
-          textposition: subplots.text.map((_, i) => textPositionOptions[i % textPositionOptions.length]),
+          textposition: subplots.filter.map((i) => textPositionOptions[i % textPositionOptions.length]),
           ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => subplots.idToIndex.get(idx)) }),
           mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
           ...(config.showLabels === ELabelingOptions.NEVER
             ? {}
             : config.showLabels === ELabelingOptions.ALWAYS
               ? {
-                  text: subplots.text.map((t) => truncateText(value.idToLabelMapper(t), true, 10)),
+                  text: subplots.filter.map((t) => truncateText(value.idToLabelMapper(subplots.text[t]!), true, 10)),
                 }
               : {
-                  text: subplots.text.map((t, i) => (visibleLabelsSet.has(subplots.ids[i]!) ? truncateText(value.idToLabelMapper(t), true, 10) : '')),
+                  text: subplots.filter.map((i) =>
+                    visibleLabelsSet.has(subplots.ids[i]!) ? truncateText(value.idToLabelMapper(subplots.text[i]!), true, 10) : '',
+                  ),
                 }),
           hovertext: subplots.ids.map((p_id, index) =>
             `${value.idToLabelMapper(p_id)}
@@ -101,8 +103,11 @@ export function useData({
             ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[index]?.val)}` : ''}`.trim(),
           ),
           marker: {
-            color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+            color:
+              value.colorColumn && mappingFunction
+                ? subplots.filter.map((index) => mappingFunction(value.colorColumn.resolvedValues[index]?.val as string))
+                : VIS_NEUTRAL_COLOR,
+            symbol: value.shapeColumn ? subplots.filter.map((index) => shapeScale(value.shapeColumn.resolvedValues[index]?.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
             size: 8,
           },
@@ -134,26 +139,26 @@ export function useData({
                   text: scatter.filter.map((index) => truncateText(value.idToLabelMapper(scatter.plotlyData.text[index]!), true, 10)),
                 }
               : {
-                  text: scatter.filter.map((index, i) =>
+                  text: scatter.filter.map((index) =>
                     visibleLabelsSet.has(scatter.ids[index]!)
                       ? truncateText(value.idToLabelMapper(value.idToLabelMapper(scatter.plotlyData.text[index]!)), true, 10)
                       : '',
                   ),
                 }),
-          hovertext: scatter.filter.map((i) => {
+          hovertext: scatter.filter.map((index) => {
             const resolvedLabelString =
               value.resolvedLabelColumns?.length > 0
-                ? value.resolvedLabelColumns.map((l) => `<b>${columnNameWithDescription(l.info)}</b>: ${getLabelOrUnknown(l.resolvedValues[i]?.val)}<br />`)
+                ? value.resolvedLabelColumns.map((l) => `<b>${columnNameWithDescription(l.info)}</b>: ${getLabelOrUnknown(l.resolvedValues[index]?.val)}<br />`)
                 : '';
-            const idString = `<b>${value.idToLabelMapper(scatter.plotlyData.text[i]!)}</b><br />`;
-            const xString = `<b>${columnNameWithDescription(value.validColumns[0]!.info)}</b>: ${getLabelOrUnknown(value.validColumns[0]!.resolvedValues[i]?.val)}<br />`;
-            const yString = `<b>${columnNameWithDescription(value.validColumns[1]!.info)}</b>: ${getLabelOrUnknown(value.validColumns[1]!.resolvedValues[i]?.val)}<br />`;
+            const idString = `<b>${value.idToLabelMapper(scatter.plotlyData.text[index]!)}</b><br />`;
+            const xString = `<b>${columnNameWithDescription(value.validColumns[0]!.info)}</b>: ${getLabelOrUnknown(value.validColumns[0]!.resolvedValues[index]?.val)}<br />`;
+            const yString = `<b>${columnNameWithDescription(value.validColumns[1]!.info)}</b>: ${getLabelOrUnknown(value.validColumns[1]!.resolvedValues[index]?.val)}<br />`;
             const colorColumnString = value.colorColumn
-              ? `<b>${columnNameWithDescription(value.colorColumn.info)}</b>: ${getLabelOrUnknown(value.colorColumn.resolvedValues[i]?.val)}<br />`
+              ? `<b>${columnNameWithDescription(value.colorColumn.info)}</b>: ${getLabelOrUnknown(value.colorColumn.resolvedValues[index]?.val)}<br />`
               : '';
             const shapeColumnString =
               value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id
-                ? `<b>${columnNameWithDescription(value.shapeColumn.info)}</b>: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[i]?.val)}<br />`
+                ? `<b>${columnNameWithDescription(value.shapeColumn.info)}</b>: ${getLabelOrUnknown(value.shapeColumn.resolvedValues[index]?.val)}<br />`
                 : '';
 
             return `${idString}${xString}${yString}${resolvedLabelString}${colorColumnString}${shapeColumnString}`;
@@ -167,7 +172,7 @@ export function useData({
               value.colorColumn && mappingFunction
                 ? scatter.filter.map((index) => mappingFunction(value.colorColumn.resolvedValues[index]!.val as string))
                 : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+            symbol: value.shapeColumn ? scatter.filter.map((index) => shapeScale(value.shapeColumn.resolvedValues[index]!.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
           },
           ...baseData(config.alphaSliderVal, !!value.colorColumn),
@@ -185,8 +190,8 @@ export function useData({
         return {
           ...BASE_DATA,
           type: 'scattergl',
-          x: group.data.x,
-          y: group.data.y,
+          x: group.filter.map((index) => group.data.x[index]),
+          y: group.filter.map((index) => group.data.y[index]),
           xaxis: group.xref,
           yaxis: group.yref,
           mode: config.showLabels === ELabelingOptions.NEVER || config.xAxisScale === 'log' || config.yAxisScale === 'log' ? 'markers' : 'text+markers',
@@ -211,8 +216,8 @@ export function useData({
             ${value.shapeColumn && value.shapeColumn.info.id !== value.colorColumn?.info.id ? `<br />${columnNameWithDescription(value.shapeColumn.info)}: ${getLabelOrUnknown(group.data.shape[index])}` : ''}`.trim(),
           ),
           marker: {
-            color: value.colorColumn && mappingFunction ? group.data.color.map((v) => mappingFunction(v!)) : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? group.data.shape.map((shape) => shapeScale(shape as string)) : 'circle',
+            color: value.colorColumn && mappingFunction ? group.filter.map((index) => mappingFunction(group.data.color[index])) : VIS_NEUTRAL_COLOR,
+            symbol: value.shapeColumn ? group.filter.map((index) => shapeScale(group.data.shape[index] as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
             size: 8,
           },
@@ -244,8 +249,11 @@ export function useData({
           ...(isEmpty(selectedSet) ? {} : { selectedpoints: selectedList.map((idx) => splom.idToIndex.get(idx)) }),
           marker: {
             size: 8,
-            color: value.colorColumn && mappingFunction ? value.colorColumn.resolvedValues.map((v) => mappingFunction(v.val)) : VIS_NEUTRAL_COLOR,
-            symbol: value.shapeColumn ? value.shapeColumn.resolvedValues.map((v) => shapeScale(v.val as string)) : 'circle',
+            color:
+              value.colorColumn && mappingFunction
+                ? splom.filter.map((index) => mappingFunction(value.colorColumn.resolvedValues[index]!.val))
+                : VIS_NEUTRAL_COLOR,
+            symbol: value.shapeColumn ? splom.filter.map((index) => shapeScale(value.shapeColumn.resolvedValues[index]!.val as string)) : 'circle',
             opacity: fullOpacityOrAlpha,
           },
           ...baseData(config.alphaSliderVal, !!value.colorColumn),

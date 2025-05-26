@@ -484,7 +484,7 @@ function EagerSingleEChartsBarChart({
     isSuccess &&
     (visState.series.length === 0 ? (
       config?.facets && selectedFacetValue ? (
-        <Stack mih={DEFAULT_BAR_CHART_HEIGHT} align="center" justify="center" data-test-id={`visyn-bar-chart-no-data-error-facet-${selectedFacetValue}`}>
+        <Stack align="center" justify="center" data-test-id={`visyn-bar-chart-no-data-error-facet-${selectedFacetValue}`}>
           <Text style={{ textAlign: 'center' }}>{selectedFacetValue}</Text>
           <WarningMessage dataTestId={`visyn-vis-bar-chart-no-data-facet-${selectedFacetValue}-warning`}>No data available for this facet.</WarningMessage>
         </Stack>

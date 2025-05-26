@@ -7,6 +7,7 @@ from visyn_core.security.model import User
 from visyn_core.security.store.alb_security_store import create as create_alb_security_store
 from visyn_core.security.store.no_security_store import create as create_no_security_store
 from visyn_core.security.store.oauth2_security_store import create as create_oauth2_security_store
+from visyn_core.settings.model import OAuth2SecurityStoreHeader
 
 AUTH_PARAMS = (
     "workspace_config",
@@ -200,7 +201,9 @@ def test_oauth2_security_store(client: TestClient):
 
     # Header created with a random token containing "email"
     headers = {
-        "X-Forwarded-Access-Token": jwt.encode({"email": "admin@localhost", "sub": "admin"}, "secret", algorithm="HS256"),
+        "X-Forwarded-Access-Token": jwt.encode(
+            {"email": "admin@localhost", "sub": "admin", "groups": ["role1", "role2"]}, "secret", algorithm="HS256"
+        ),
     }
 
     stores = client.get("/api/security/stores", headers=headers).json()
@@ -211,12 +214,58 @@ def test_oauth2_security_store(client: TestClient):
     assert response.status_code == 200
     assert response.json() != '"not_yet_logged_in"'
     assert response.json()["name"] == "admin@localhost"
+    assert response.json()["roles"] == ["role1", "role2"]
     assert response.json()["properties"] == {"sub": "admin"}
 
     # Logout and check if we get the correct redirect url
     response = client.post("/api/logout", headers=headers)
     assert response.status_code == 200
     assert response.json()["redirect"] == "http://localhost/api/logout"
+
+
+@pytest.mark.parametrize(*AUTH_PARAMS)
+def test_oauth2_security_store_multiple_headers(client: TestClient):
+    # Add some basic configuration
+    manager.settings.visyn_core.security.store.oauth2_security_store.enable = True
+    manager.settings.visyn_core.security.store.oauth2_security_store.cookie_name = ["TestCookie"]
+    manager.settings.visyn_core.security.store.oauth2_security_store.signout_url = "http://localhost/api/logout"
+    manager.settings.visyn_core.security.store.oauth2_security_store.token_headers = [
+        OAuth2SecurityStoreHeader(name="X-Forwarded-Access-Token", email_fields=["email"], properties_fields=["sub"]),
+        OAuth2SecurityStoreHeader(name="X-Forwarded-Access-Token-2", email_fields=["email"], properties_fields=["sub"]),
+        OAuth2SecurityStoreHeader(name="X-Forwarded-Access-Token-3", email_fields=["email"], properties_fields=["sub"]),
+    ]
+
+    store = create_oauth2_security_store()
+    assert store is not None
+
+    manager.security.user_stores = [store]
+
+    # Check loggedinas with a JWT as last header
+    response = client.get(
+        "/api/loggedinas",
+        headers={
+            "X-Forwarded-Access-Token": "Invalid header",
+            "X-Forwarded-Access-Token-3": jwt.encode({"email": "admin-3@localhost", "sub": "admin-3"}, "secret", algorithm="HS256"),
+        },
+    )
+    assert response.status_code == 200
+    assert response.json() != '"not_yet_logged_in"'
+    assert response.json()["name"] == "admin-3@localhost"
+    assert response.json()["properties"] == {"sub": "admin-3"}
+
+    # Check loggedinas with a JWT with all headers, matching the first one
+    response = client.get(
+        "/api/loggedinas",
+        headers={
+            "X-Forwarded-Access-Token": jwt.encode({"email": "admin@localhost", "sub": "admin"}, "secret", algorithm="HS256"),
+            "X-Forwarded-Access-Token-2": jwt.encode({"email": "admin-2@localhost", "sub": "admin-2"}, "secret", algorithm="HS256"),
+            "X-Forwarded-Access-Token-3": jwt.encode({"email": "admin-3@localhost", "sub": "admin-3"}, "secret", algorithm="HS256"),
+        },
+    )
+    assert response.status_code == 200
+    assert response.json() != '"not_yet_logged_in"'
+    assert response.json()["name"] == "admin@localhost"
+    assert response.json()["properties"] == {"sub": "admin"}
 
 
 @pytest.mark.parametrize(*AUTH_PARAMS)
