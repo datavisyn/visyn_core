@@ -3,8 +3,8 @@ import React from 'react';
 import { ActionIcon, Center, CopyButton, Divider, Group, MantineSize, Modal, Space, Text, Title, Tooltip } from '@mantine/core';
 
 import { VisynEnv } from '../../base/VisynEnv';
+import { generateVersionInfo } from '../../base/versionInfoUtils';
 import { useVisynAppContext } from '../VisynAppContext';
-import { generateVersionInfo } from './utils';
 
 /**
  * Configuration for the about app modal. Can

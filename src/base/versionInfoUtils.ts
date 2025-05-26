@@ -1,4 +1,4 @@
-import { VisynEnv } from '../../base/VisynEnv';
+import { VisynEnv } from './VisynEnv';
 
 const getBrowserInfo = () => {
   const { userAgent } = navigator;
