@@ -47,5 +47,5 @@ export const generateVersionInfo = () => {
   const info = getBrowserInfo();
   const appUrl = window.location.href;
 
-  return `Version: ${version} (${buildId}), Browser: ${info.browserName} ${info.fullVersion}, URL: ${appUrl}`;
+  return `Version: ${version} (${buildId})\nBrowser: ${info.browserName} ${info.fullVersion}\nURL: ${appUrl}`;
 };
