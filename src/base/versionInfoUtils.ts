@@ -3,39 +3,19 @@ import { VisynEnv } from './VisynEnv';
 const getBrowserInfo = () => {
   const { userAgent } = navigator;
 
-  if (userAgent.includes('Firefox')) {
-    return {
-      browserName: 'Mozilla Firefox',
-      fullVersion: userAgent.match(/Firefox\/([\d.]+)/)?.[1] || 'Unknown',
-    };
-  }
+  const browsers = [
+    { name: 'Mozilla Firefox', pattern: /Firefox\/([\d.]+)/ },
+    { name: 'Google Chrome', pattern: /Chrome\/([\d.]+)/ },
+    { name: 'Safari', pattern: /Version\/([\d.]+).*Safari/ },
+    { name: 'Microsoft Edge', pattern: /Edg\/([\d.]+)/ },
+    { name: 'Opera', pattern: /OPR\/([\d.]+)/ },
+  ];
 
-  if (userAgent.includes('Chrome')) {
-    return {
-      browserName: 'Google Chrome',
-      fullVersion: userAgent.match(/Chrome\/([\d.]+)/)?.[1] || 'Unknown',
-    };
-  }
-
-  if (userAgent.includes('Safari')) {
-    return {
-      browserName: 'Safari',
-      fullVersion: userAgent.match(/Version\/([\d.]+)/)?.[1] || 'Unknown',
-    };
-  }
-
-  if (userAgent.includes('Edg')) {
-    return {
-      browserName: 'Microsoft Edge',
-      fullVersion: userAgent.match(/Edg\/([\d.]+)/)?.[1] || 'Unknown',
-    };
-  }
-
-  if (userAgent.includes('OPR')) {
-    return {
-      browserName: 'Opera',
-      fullVersion: userAgent.match(/OPR\/([\d.]+)/)?.[1] || 'Unknown',
-    };
+  for (const { name, pattern } of browsers) {
+    const match = userAgent.match(pattern);
+    if (match) {
+      return { browserName: name, fullVersion: match[1] };
+    }
   }
 
   return { browserName: 'Unknown', fullVersion: 'Unknown' };
