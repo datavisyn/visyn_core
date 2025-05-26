@@ -62,19 +62,16 @@ export function AboutAppModal({
       size={size}
     >
       <Group my="md">{content}</Group>
-      <Group>
+      <Group gap="xs" wrap="nowrap">
         {VisynEnv.__VERSION__ ? (
-          <>
-            <Group gap="xs" wrap="nowrap">
-              <Text fw={700} c="dimmed">
-                Version:
-              </Text>
-              <Text>
-                {VisynEnv.__VERSION__} {VisynEnv.__BUILD_ID__ ? ` (${VisynEnv.__BUILD_ID__})` : ''}
-              </Text>
-            </Group>
-            <Space h="md" />
-          </>
+          <Group gap="xs" wrap="nowrap">
+            <Text fw={700} c="dimmed">
+              Version:
+            </Text>
+            <Text>
+              {VisynEnv.__VERSION__} {VisynEnv.__BUILD_ID__ ? ` (${VisynEnv.__BUILD_ID__})` : ''}
+            </Text>
+          </Group>
         ) : null}
 
         <CopyButton value={generateVersionInfo()} timeout={2000}>
