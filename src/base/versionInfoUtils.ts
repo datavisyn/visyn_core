@@ -10,14 +10,14 @@ const getBrowserInfo = () => {
     };
   }
 
-  if (userAgent.includes('Chrome') && !userAgent.includes('Edg') && !userAgent.includes('OPR')) {
+  if (userAgent.includes('Chrome')) {
     return {
       browserName: 'Google Chrome',
       fullVersion: userAgent.match(/Chrome\/([\d.]+)/)?.[1] || 'Unknown',
     };
   }
 
-  if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+  if (userAgent.includes('Safari')) {
     return {
       browserName: 'Safari',
       fullVersion: userAgent.match(/Version\/([\d.]+)/)?.[1] || 'Unknown',
