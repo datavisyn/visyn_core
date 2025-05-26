@@ -43,8 +43,9 @@ const getBrowserInfo = () => {
 
 export const generateVersionInfo = () => {
   const version = VisynEnv.__VERSION__;
+  const buildId = VisynEnv.__BUILD_ID__ ?? '';
   const info = getBrowserInfo();
   const appUrl = window.location.href;
 
-  return `Version: ${version}, Browser: ${info.browserName} ${info.fullVersion}, URL: ${appUrl}`;
+  return `Version: ${version} (${buildId}), Browser: ${info.browserName} ${info.fullVersion}, URL: ${appUrl}`;
 };
