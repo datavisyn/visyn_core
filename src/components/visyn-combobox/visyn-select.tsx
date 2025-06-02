@@ -38,7 +38,7 @@ export interface VisynSelectProps<Data extends VisynComboboxParsedItem> {
   searchable?: boolean;
   withScrollArea?: boolean;
   maxDropdownHeight?: number | string;
-  renderOption?: (input: ComboboxLikeRenderOptionInput<Data>) => React.ReactNode;
+  renderOption?: (input: ComboboxLikeRenderOptionInput<Data> & { searchValue?: string }) => React.ReactNode;
   placeholder?: string;
   label?: string;
   onOptionSubmit?: (value: string) => void;

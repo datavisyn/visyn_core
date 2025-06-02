@@ -7,7 +7,7 @@ export const defaultVisynOptionsFilter = <Data extends VisynComboboxParsedItem>(
 ): ReturnType<VisynOptionsFilter<Data>> => {
   const { options, search, limit } = args;
   const parsedSearch = search.trim().toLowerCase();
-  const result: D[] = [];
+  const result: Data[] = [];
 
   for (let i = 0; i < options.length; i += 1) {
     const item = options[i]!;

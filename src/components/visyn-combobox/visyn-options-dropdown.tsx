@@ -31,14 +31,15 @@ interface OptionProps {
   data: ComboboxItem | OptionsGroup;
   withCheckIcon?: boolean;
   value?: string | string[] | null;
-  renderOption?: (input: ComboboxLikeRenderOptionInput<any>) => React.ReactNode;
+  renderOption?: (input: ComboboxLikeRenderOptionInput<any> & { searchValue?: string }) => React.ReactNode;
+  searchValue?: string;
 }
 
 function isValueChecked(value: string | string[] | undefined | null, optionValue: string) {
   return Array.isArray(value) ? value.includes(optionValue) : value === optionValue;
 }
 
-function Option({ data, withCheckIcon, value, renderOption }: OptionProps) {
+function Option({ data, withCheckIcon, value, renderOption, searchValue }: OptionProps) {
   if (!isOptionsGroup(data)) {
     const checked = isValueChecked(value, data.value);
     // Space of 1em is aligned with the check-icon and the select target
@@ -53,7 +54,7 @@ function Option({ data, withCheckIcon, value, renderOption }: OptionProps) {
         active={checked}
         className={optionsDropdownOptions}
       >
-        {typeof renderOption === 'function' ? renderOption({ option: data, checked }) : <span>{data.label}</span>}
+        {typeof renderOption === 'function' ? renderOption({ option: data, checked, searchValue }) : <span>{data.label}</span>}
         {check}
       </Combobox.Option>
     );
@@ -75,7 +76,7 @@ export interface OptionsDropdownProps<D extends ComboboxParsedItem> {
   value?: string | string[] | null;
   nothingFoundMessage?: React.ReactNode;
   labelId?: string;
-  renderOption?: (input: ComboboxLikeRenderOptionInput<D>) => React.ReactNode;
+  renderOption?: (input: ComboboxLikeRenderOptionInput<D> & { searchValue?: string }) => React.ReactNode;
   scrollAreaProps?: ScrollAreaProps;
   searchValue?: string;
   onSearchChange?: (search: string) => void;
@@ -117,7 +118,14 @@ export function VisynOptionsDropdown<D extends OptionsData[0]>({
   const isEmpty = isEmptyComboboxData(filteredData);
 
   const options = filteredData.map((item) => (
-    <Option data={item} key={isOptionsGroup(item) ? item.group : item.value} withCheckIcon={withCheckIcon} value={value} renderOption={renderOption} />
+    <Option
+      data={item}
+      key={isOptionsGroup(item) ? item.group : item.value}
+      withCheckIcon={withCheckIcon}
+      value={value}
+      renderOption={renderOption}
+      searchValue={searchValue}
+    />
   ));
 
   return (
