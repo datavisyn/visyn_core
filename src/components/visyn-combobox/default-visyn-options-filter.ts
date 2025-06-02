@@ -1,10 +1,10 @@
 import { isOptionsGroup } from '@mantine/core';
 
-import { ComboboxParsedItemWithDescription, VisynOptionsFilter } from './interfaces';
+import { VisynComboboxParsedItem, VisynOptionsFilter } from './interfaces';
 
-export const defaultOptionsFilterWithDescription = <D extends ComboboxParsedItemWithDescription>(
-  args: Parameters<VisynOptionsFilter<D>>[0],
-): ReturnType<VisynOptionsFilter<D>> => {
+export const defaultVisynOptionsFilter = <Data extends VisynComboboxParsedItem>(
+  args: Parameters<VisynOptionsFilter<Data>>[0],
+): ReturnType<VisynOptionsFilter<Data>> => {
   const { options, search, limit } = args;
   const parsedSearch = search.trim().toLowerCase();
   const result: D[] = [];
@@ -17,15 +17,15 @@ export const defaultOptionsFilterWithDescription = <D extends ComboboxParsedItem
     }
 
     if (isOptionsGroup(item)) {
-      // TODO: Moritz check typing
       result.push({
         group: item.group,
-        items: defaultOptionsFilterWithDescription({
+        items: defaultVisynOptionsFilter({
           options: item.items,
           search,
           limit: limit - result.length,
         }),
-      } as D);
+        // We need to cast here because the mantine function is not generic
+      } as Data);
     }
 
     if (!isOptionsGroup(item)) {

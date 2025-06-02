@@ -1,4 +1,4 @@
-export * from './default-options-filter';
+export * from './default-visyn-options-filter';
 export * from './is-empty-combobox-data';
 export * from './visyn-options-dropdown';
 export * from './validate-options';

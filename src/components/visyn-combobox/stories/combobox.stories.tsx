@@ -6,7 +6,7 @@ import { faKiwiBird } from '@fortawesome/free-solid-svg-icons/faKiwiBird';
 import { faShrimp } from '@fortawesome/free-solid-svg-icons/faShrimp';
 import { faWorm } from '@fortawesome/free-solid-svg-icons/faWorm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, useCombobox } from '@mantine/core';
+import { Box } from '@mantine/core';
 import { Meta, StoryObj } from '@storybook/react';
 
 import { VisynComboboxItem, VisynComboboxParsedItemGroup } from '../interfaces';

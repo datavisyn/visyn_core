@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 
-import { defaultOptionsFilterWithDescription } from './default-options-filter';
+import { defaultVisynOptionsFilter } from './default-visyn-options-filter';
 import { VisynComboboxItem, VisynComboboxParsedItem, VisynOptionsFilter } from './interfaces';
 import { VisynOptionsDropdown } from './visyn-options-dropdown';
 import { VisynSelectTarget } from './visyn-select-target';
@@ -173,7 +173,7 @@ export function VisynSelect<Data extends VisynComboboxParsedItem>({
       <VisynOptionsDropdown
         data={data}
         hidden={readOnly || disabled}
-        filter={filter || defaultOptionsFilterWithDescription}
+        filter={filter || defaultVisynOptionsFilter}
         searchValue={search}
         onSearchChange={handleSearchChange}
         limit={limit}
