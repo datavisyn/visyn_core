@@ -20,18 +20,12 @@ import { optionsDropdownOptions } from './styles';
 import { validateOptions } from './validate-options';
 import { VisynCheckIcon } from './visyn-check-icon';
 
-export interface OptionsGroup {
+interface OptionsGroup {
   group: string;
   items: ComboboxItem[];
 }
 
-export type VisynComboboxItem = ComboboxItem;
-
-export type VisynOptionsGroup = OptionsGroup;
-
-export type VisynOptionsData = (VisynComboboxItem | VisynOptionsGroup)[];
-
-export type OptionsData = (ComboboxItem | OptionsGroup)[];
+type OptionsData = (ComboboxItem | OptionsGroup)[];
 
 interface OptionProps {
   data: ComboboxItem | OptionsGroup;

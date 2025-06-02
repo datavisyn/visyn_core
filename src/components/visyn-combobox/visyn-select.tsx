@@ -4,8 +4,8 @@ import { Combobox, ComboboxLikeRenderOptionInput, ComboboxSearchProps, Group, In
 import { useUncontrolled } from '@mantine/hooks';
 
 import { defaultOptionsFilterWithDescription } from './default-options-filter';
-import { VisynComboboxParsedItem, VisynOptionsFilter } from './interfaces';
-import { VisynComboboxItem, VisynOptionsDropdown } from './visyn-options-dropdown';
+import { VisynComboboxItem, VisynComboboxParsedItem, VisynOptionsFilter } from './interfaces';
+import { VisynOptionsDropdown } from './visyn-options-dropdown';
 import { VisynSelectTarget } from './visyn-select-target';
 
 export interface VisynSelectProps<Data extends VisynComboboxParsedItem> {
