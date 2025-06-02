@@ -5,3 +5,4 @@ export * from './validate-options';
 export * from './visyn-select-target';
 export * from './visyn-select';
 export * from './interfaces';
+export * from './visyn-option';

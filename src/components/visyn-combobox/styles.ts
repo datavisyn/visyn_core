@@ -12,13 +12,15 @@ export const optionsDropdownOptions = css`
 
   &:where([data-combobox-selected]) {
     outline: 2px solid var(--mantine-primary-color-filled);
+    outline-offset: -2px;
     background-color: inherit;
     color: black;
   }
 
-  &:where([data-checked]) {
-    background-color: var(--mantine-color-gray-0);
-  }
+  // Collides with hover color!
+  // &:where([data-checked]) {
+  //   background-color: var(--mantine-color-gray-0);
+  // }
 
   &:hover {
     background-color: var(--mantine-color-gray-0);

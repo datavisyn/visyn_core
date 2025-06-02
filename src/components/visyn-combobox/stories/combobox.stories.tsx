@@ -90,30 +90,16 @@ const badgeLabel = (item: StoryItem) => {
 };
 
 function VisynSelectWrapper(args: VisynSelectProps<any>) {
-  const [search, setSearch] = React.useState('');
   const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
 
-  const combobox = useCombobox({
-    onDropdownClose: () => {
-      combobox.resetSelectedOption();
-      combobox.focusTarget();
-      setSearch('');
-    },
-
-    onDropdownOpen: () => {
-      combobox.focusSearchInput();
-    },
-  });
   return (
     <Box w="300" m="xs">
       <VisynSelect
         size="xs"
         clearable
-        onSearchChange={setSearch}
-        searchValue={search}
         label="Snacks"
         renderOption={(evnt) => {
-          return <VisynOption {...evnt.option} {...evnt} size="xs" search={search} />;
+          return <VisynOption {...evnt.option} {...evnt} size="xs" />;
         }}
         comboboxSearchProps={{
           placeholder: 'Search for a snack...',
@@ -139,6 +125,7 @@ export const BasicSelect: Story = {
     clearable: true,
     placeholder: 'Pick a snack',
     searchable: false,
+    withScrollArea: true,
   },
 };
 
