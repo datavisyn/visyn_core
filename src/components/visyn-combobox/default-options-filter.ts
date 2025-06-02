@@ -1,6 +1,6 @@
 import { ComboboxItem, ComboboxParsedItem, isOptionsGroup } from '@mantine/core';
 
-import { ComboboxItemWithDescription, ComboboxParsedItemWithDescription, ComboboxParsedItemWithDescriptionGroup, OptionsFilter } from './interfaces';
+import { ComboboxParsedItemWithDescription, VisynOptionsFilter } from './interfaces';
 
 export interface FilterOptionsInput {
   options: ComboboxParsedItem[];
@@ -41,8 +41,8 @@ export function defaultOptionsFilter({ options, search, limit }: FilterOptionsIn
 }
 
 export const defaultOptionsFilterWithDescription = <D extends ComboboxParsedItemWithDescription>(
-  args: Parameters<OptionsFilter<D>>[0],
-): ReturnType<OptionsFilter<D>> => {
+  args: Parameters<VisynOptionsFilter<D>>[0],
+): ReturnType<VisynOptionsFilter<D>> => {
   const { options, search, limit } = args;
   const parsedSearch = search.trim().toLowerCase();
   const result: D[] = [];
@@ -62,8 +62,8 @@ export const defaultOptionsFilterWithDescription = <D extends ComboboxParsedItem
           options: item.items,
           search,
           limit: limit - result.length,
-        }) as ComboboxItemWithDescription[],
-      } as ComboboxParsedItemWithDescriptionGroup as D);
+        }),
+      } as D);
     }
 
     if (!isOptionsGroup(item)) {

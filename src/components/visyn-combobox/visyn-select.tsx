@@ -3,13 +3,13 @@ import * as React from 'react';
 import { Combobox, ComboboxLikeRenderOptionInput, ComboboxSearchProps, Group, Input, MantineSize, getOptionsLockup, useCombobox } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
 
-import { ComboboxParsedItemWithDescription, defaultOptionsFilterWithDescription } from './default-options-filter';
-import { OptionsFilter } from './interfaces';
-import { VisynOptionsDropdown } from './visyn-options-dropdown';
+import { defaultOptionsFilterWithDescription } from './default-options-filter';
+import { VisynComboboxParsedItem, VisynOptionsFilter } from './interfaces';
+import { VisynComboboxItem, VisynOptionsDropdown } from './visyn-options-dropdown';
 import { VisynSelectTarget } from './visyn-select-target';
 
-export interface IVisynSelect<D extends ComboboxParsedItemWithDescription> {
-  data: D[];
+export interface VisynSelectProps<Data extends VisynComboboxParsedItem> {
+  data: Data[];
   value?: string | null;
   onChange?: (value: string | null) => void;
   searchValue?: string;
@@ -24,11 +24,11 @@ export interface IVisynSelect<D extends ComboboxParsedItemWithDescription> {
   readOnly?: boolean;
   limit?: number;
   nothingFoundMessage?: React.ReactNode;
-  filter?: OptionsFilter<D>;
+  filter?: VisynOptionsFilter<Data>;
   searchable?: boolean;
   withScrollArea?: boolean;
   maxDropdownHeight?: number | string;
-  renderOption?: (input: ComboboxLikeRenderOptionInput<D>) => React.ReactNode;
+  renderOption?: (input: ComboboxLikeRenderOptionInput<Data>) => React.ReactNode;
   placeholder?: string;
   label?: string;
   onOptionSubmit?: (value: string) => void;
@@ -37,7 +37,7 @@ export interface IVisynSelect<D extends ComboboxParsedItemWithDescription> {
   comboboxSearchProps?: ComboboxSearchProps;
 }
 
-export function VisynSelect<D extends ComboboxParsedItemWithDescription>({
+export function VisynSelect<Data extends VisynComboboxParsedItem>({
   data,
   value,
   onChange,
@@ -64,9 +64,9 @@ export function VisynSelect<D extends ComboboxParsedItemWithDescription>({
   allowDeselect = false,
   size,
   comboboxSearchProps,
-}: IVisynSelect<D>) {
-  // const parsedData = React.useMemo(() => getParsedComboboxData(data), [data]);
-  const optionsLockup = React.useMemo(() => getOptionsLockup(data), [data]);
+}: VisynSelectProps<Data>) {
+  // This cast is necessary because its a mantine internal function
+  const optionsLockup = React.useMemo(() => getOptionsLockup(data), [data]) as Record<string, VisynComboboxItem>;
   const uniqueId = React.useId();
 
   const [internalValue, setInternalValue, controlled] = useUncontrolled({
@@ -149,7 +149,7 @@ export function VisynSelect<D extends ComboboxParsedItemWithDescription>({
         {selectedOption ? (
           // pr aligns the label properly with the options
           <Group w="100%" wrap="nowrap" pr="0.7em">
-            {/* Todo: Moritz check typings */}
+            {/* @ts-ignore */}
             {renderOption?.({ option: selectedOption, checked: false, size })}
           </Group>
         ) : (

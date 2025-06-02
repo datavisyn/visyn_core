@@ -9,18 +9,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Box, useCombobox } from '@mantine/core';
 import { Meta, StoryObj } from '@storybook/react';
 
-import { ComboboxParsedItemWithDescriptionGroup } from '../interfaces';
+import { VisynComboboxItem, VisynComboboxParsedItemGroup } from '../interfaces';
 import { VisynOption } from '../visyn-option';
-import { IVisynSelect, VisynSelect } from '../visyn-select';
+import { VisynSelect, VisynSelectProps } from '../visyn-select';
 
-interface Item {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  description: string;
+interface StoryItem extends VisynComboboxItem {
+  icon?: React.ReactNode;
 }
 
-const groceriesWithIcon: Item[] = [
+const groceriesWithIcon: StoryItem[] = [
   {
     icon: <FontAwesomeIcon icon={faFish} />,
     value: 'fish',
@@ -31,17 +28,17 @@ const groceriesWithIcon: Item[] = [
   { icon: <FontAwesomeIcon icon={faShrimp} />, value: 'shrimp', label: 'Shrimp', description: 'Crunchy and vitamin-rich sea food' },
   { icon: <FontAwesomeIcon icon={faWorm} />, value: 'worm', label: 'Worm', description: 'Indulgent and decadent treat' },
   { icon: <FontAwesomeIcon icon={faAppleWhole} />, value: 'apples', label: 'Apples', description: 'Crisp and refreshing fruit' },
-];
+] satisfies StoryItem[];
 
-const groceries: Item[] = groceriesWithIcon.map((item) => ({
+const groceries: StoryItem[] = groceriesWithIcon.map((item) => ({
   ...item,
   icon: null,
-}));
+})) satisfies StoryItem[];
 
-const groceriesWithDisabled: Item[] = groceriesWithIcon.map((item) => ({
+const groceriesWithDisabled: StoryItem[] = groceriesWithIcon.map((item) => ({
   ...item,
   disabled: item.value === 'fish',
-}));
+})) satisfies StoryItem[];
 
 const groceriesWithGroups = [
   {
@@ -66,27 +63,33 @@ const groceriesWithGroups = [
     group: 'Worms',
     items: [{ value: 'worm', label: 'Worm', description: 'Indulgent and decadent treat' }],
   },
-];
+] satisfies VisynComboboxParsedItemGroup<StoryItem>[];
 
-const badgeLabel = (item: Item) => {
+const badgeLabel = (item: StoryItem) => {
   if (item.value === 'fish') {
     return 'Fish';
   }
+
   if (item.value === 'kiwi') {
     return 'Long fruit label';
   }
+
   if (item.value === 'shrimp') {
     return 'Fish';
   }
+
   if (item.value === 'worm') {
     return 'Worm';
   }
+
   if (item.value === 'apples') {
     return 'Fruit';
   }
+
+  return '';
 };
 
-function VisynSelectWrapper(args: IVisynSelect<Item>) {
+function VisynSelectWrapper(args: VisynSelectProps<any>) {
   const [search, setSearch] = React.useState('');
   const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
 
@@ -195,8 +198,7 @@ export const SelectWithCustomOption: Story = {
 
 export const SelectWithGroups: Story = {
   args: {
-    // TODO: Moritz fix typings
-    data: groceriesWithGroups as ComboboxParsedItemWithDescriptionGroup[],
+    data: groceriesWithGroups,
     size: 'xs',
     clearable: true,
     placeholder: 'Pick a snack',
