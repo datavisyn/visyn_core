@@ -131,7 +131,19 @@ export function VisynOptionsDropdown<D extends OptionsData[0]>({
   return (
     <Combobox.Dropdown hidden={hidden}>
       {searchable ? (
-        <Combobox.Search size={size} value={searchValue} onChange={(event) => onSearchChange?.(event.currentTarget.value)} {...comboboxSearchProps} />
+        <Combobox.Search
+          size={size}
+          value={searchValue}
+          onChange={(event) => onSearchChange?.(event.currentTarget.value)}
+          {...comboboxSearchProps}
+          styles={{
+            // In this special case there was a slight gap (scrollarea without padding overriden + search bar in dropdown)
+            // The native mantine style uses calc(100% + --mantine-scrollbar-padding) which we override here
+            input: {
+              maxWidth: 'calc(100% + 1em)',
+            },
+          }}
+        />
       ) : null}
       <Combobox.Options labelledBy={labelId}>
         {withScrollArea ? (
