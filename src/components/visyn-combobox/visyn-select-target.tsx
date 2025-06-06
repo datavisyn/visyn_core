@@ -30,7 +30,7 @@ export function VisynSelectTarget({
   size?: MantineSize;
   error?: React.ReactNode;
   clearable?: boolean;
-  label?: string;
+  label?: React.ReactNode;
 }>) {
   const clearButton = (
     <Combobox.ClearButton

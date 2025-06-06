@@ -40,7 +40,7 @@ export interface VisynSelectProps<Data extends VisynComboboxParsedItem> {
   maxDropdownHeight?: number | string;
   renderOption?: (input: ComboboxLikeRenderOptionInput<Data> & { searchValue?: string }) => React.ReactNode;
   placeholder?: string;
-  label?: string;
+  label?: React.ReactNode;
   onOptionSubmit?: (value: string) => void;
   allowDeselect?: boolean;
   size?: MantineSize;
