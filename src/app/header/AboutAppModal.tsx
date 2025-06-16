@@ -64,7 +64,7 @@ export function AboutAppModal({
       <Group my="md">{content}</Group>
       <Group gap="xs" wrap="nowrap">
         {VisynEnv.__VERSION__ ? (
-          <Group gap="xs" wrap="nowrap">
+          <Group gap="xs" wrap="nowrap" my="xs">
             <Text fw={700} c="dimmed">
               Version:
             </Text>
