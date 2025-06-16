@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { css, cx } from '@emotion/css';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Badge, Box, Card, Divider, Group, Image, Paper, Stack, Text, ThemeIcon, useMantineColorScheme, useMantineTheme } from '@mantine/core';
+import { Badge, Box, Card, Divider, Group, Image, Paper, Stack, Text, ThemeIcon, useMantineColorScheme } from '@mantine/core';
 import { useElementSize, useHover } from '@mantine/hooks';
 
 import { dvBoxplot, dvCorrelationplot, dvHeatmap, dvHexbinplot, dvSankey, dvScatterplot, dvViolin } from '../icons';
