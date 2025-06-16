@@ -383,7 +383,7 @@ export function EagerVis({
         )}
       </Stack>
       {showSidebar && visConfig?.merged ? (
-        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)} disableVisTypeSelect={enableVisTypeChooser}>
+        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)} enableVisTypeChooser={enableVisTypeChooser}>
           <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} selectedList={selectedList} />
         </VisSidebarWrapper>
       ) : null}

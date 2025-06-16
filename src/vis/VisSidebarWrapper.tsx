@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Box, Divider, Group, ScrollArea, Stack, Text, Tooltip } from '@mantine/core';
 
 import { i18n } from '../i18n';
+import { VisTypeSelect } from './sidebar';
 
 const sidebarSize = 200;
 
@@ -14,13 +15,13 @@ export function VisSidebarWrapper({
   config,
   setConfig,
   onClick,
-  disableVisTypeSelect = false,
+  enableVisTypeChooser = false,
 }: {
   children: ReactNode;
   config;
   setConfig;
   onClick;
-  disableVisTypeSelect?: boolean;
+  enableVisTypeChooser?: boolean;
 }) {
   return (
     <Box pt="sm" style={{ height: '100%', boxShadow: '2px 0px 15px 0px lightgray', zIndex: 5 }}>
@@ -37,7 +38,12 @@ export function VisSidebarWrapper({
                     </ActionIcon>
                   </Tooltip>
                 </Group>
-                <Divider mt="xs" />
+                {enableVisTypeChooser === false && (
+                  <>
+                    <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} />
+                    <Divider mt="xs" />
+                  </>
+                )}
               </Stack>
               {children}
             </Stack>
