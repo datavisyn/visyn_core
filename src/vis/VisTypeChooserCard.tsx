@@ -26,7 +26,6 @@ const iconMap = {
 function VisTypeChooserCardUnmemoized({ plotType, isSelected, onClick }: { plotType: GeneralVis; isSelected: boolean; onClick?: (plotType: string) => void }) {
   const { hovered, ref: hoverRef } = useHover<HTMLDivElement>();
   const colorScheme = useMantineColorScheme();
-  const theme = useMantineTheme();
   const { ref: collapsedStackRef, height: heightOfCollapsedStack } = useElementSize();
 
   const cardIcon = iconMap[plotType.type as keyof typeof iconMap];
@@ -116,6 +115,7 @@ function VisTypeChooserCardUnmemoized({ plotType, isSelected, onClick }: { plotT
                     opacity: 0.7;
                   }
                   // If hovered
+                  &[data-selected='true'],
                   &[data-hovered='true'] {
                     filter: grayscale(0);
                   }
@@ -123,6 +123,7 @@ function VisTypeChooserCardUnmemoized({ plotType, isSelected, onClick }: { plotT
                   transition: filter 0.3s;
                 `}
                 data-hovered={hovered}
+                data-selected={isSelected}
               />
             </Box>
           </Card.Section>
