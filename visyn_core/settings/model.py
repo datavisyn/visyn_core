@@ -75,18 +75,64 @@ class AlbSecurityStoreSettings(BaseModel):
     """
 
 
-class OAuth2SecurityStoreSettings(BaseModel):
-    enable: bool = False
-    cookie_name: str | None = None
-    signout_url: str | None = None
-    access_token_header_name: str = "X-Forwarded-Access-Token"
-    email_token_field: str | list[str] = ["email"]
+class OAuth2SecurityStoreHeader(BaseModel):
+    name: str
+    """
+    Name of the header to extract the JWT token from.
+    """
+    email_fields: list[str] = []
     """
     Field in the JWT token that contains the email address of the user.
+    """
+    roles_fields: list[str] = []
+    """
+    Field in the JWT token that contains the roles of the user.
     """
     properties_fields: list[str] = []
     """
     Fields in the JWT token payload that should be mapped to the properties of the user.
+    """
+
+
+class OAuth2SecurityStoreSettings(BaseModel):
+    enable: bool = False
+    cookie_name: str | list[str] | None = None
+    signout_url: str | None = None
+    use_user_headers: bool = False
+    """
+    If true, the X-Forwarded-Email and X-Forwarded-Groups headers are used to extract the email and roles of the user instead of the JWT token.
+    """
+    user_email_header: str = "X-Forwarded-Email"
+    """
+    If `use_user_headers` is true, this header is used to extract the email of the user.
+    """
+    user_groups_header: str = "X-Forwarded-Groups"
+    """
+    If `use_user_headers` is true, this header is used to extract the roles of the user.
+    """
+    token_headers: list[OAuth2SecurityStoreHeader] = []
+    """
+    Headers from which the JWT token is extracted. The headers are extracted from the request and passed to the `jwt.decode` function.
+    The headers are tried in the order they are defined, and the first one that is found is used.
+    """
+    access_token_header_name: str | None = "X-Forwarded-Access-Token"
+    """
+    @deprecated: Use `token_headers` instead. This will be made read-only in the future.
+    """
+    email_token_field: str | list[str] | None = ["email"]
+    """
+    Field in the JWT token that contains the email address of the user.
+    @deprecated: Use `token_headers` instead. This will be made read-only in the future.
+    """
+    roles_token_field: str | list[str] | None = ["groups"]
+    """
+    Field in the JWT token that contains the roles of the user.
+    @deprecated: Use `token_headers` instead. This will be made read-only in the future.
+    """
+    properties_fields: list[str] | None = []
+    """
+    Fields in the JWT token payload that should be mapped to the properties of the user.
+    @deprecated: Use `token_headers` instead. This will be made read-only in the future.
     """
 
 
