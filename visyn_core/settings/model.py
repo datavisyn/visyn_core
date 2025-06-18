@@ -1,8 +1,8 @@
 import contextlib
 from typing import Any, Literal
 
-from pydantic import AnyHttpUrl, BaseConfig, BaseModel, BaseSettings, Extra, Field
-from pydantic.env_settings import EnvSettingsSource, SettingsSourceCallable
+from pydantic.v1 import AnyHttpUrl, BaseConfig, BaseModel, BaseSettings, Extra, Field
+from pydantic.v1.env_settings import EnvSettingsSource, SettingsSourceCallable
 
 from .constants import default_logging_dict
 
@@ -12,13 +12,13 @@ class DBMigrationSettings(BaseModel):
 
 
 class DisableSettings(BaseModel):
-    plugins: list[str] = []
-    extensions: list[str] = []
+    plugins: list[str] = []  # NOQA RUF012
+    extensions: list[str] = []  # NOQA RUF012
 
 
 class DummyStoreSettings(BaseModel):
     enable: bool = False
-    users: list[dict[str, Any]] = [
+    users: list[dict[str, Any]] = [  # NOQA RUF012
         {
             "name": "admin",
             "salt": "dcf46ce914154a44b1557eba91c1f50d",
@@ -44,11 +44,11 @@ class AlbSecurityStoreSettings(BaseModel):
     enable: bool = False
     cookie_name: str | None = None
     signout_url: str | None = None
-    email_token_field: str | list[str] = ["email"]
+    email_token_field: str | list[str] = Field(default_factory=lambda: ["email"])
     """
     Field in the JWT token that contains the email address of the user.
     """
-    properties_fields: list[str] = []
+    properties_fields: list[str] = Field(default=lambda: [])
     """
     Fields in the JWT token payload that should be mapped to the properties of the user.
     """
@@ -69,7 +69,7 @@ class AlbSecurityStoreSettings(BaseModel):
     """
     The region of the ALB to fetch the public key from.
     """
-    decode_algorithms: list[str] = ["ES256"]
+    decode_algorithms: list[str] = ["ES256"]  # NOQA RUF012
     """
     The algorithm used to sign the JWT token. See https://pyjwt.readthedocs.io/en/stable/algorithms.html for details.
     """
@@ -80,15 +80,15 @@ class OAuth2SecurityStoreHeader(BaseModel):
     """
     Name of the header to extract the JWT token from.
     """
-    email_fields: list[str] = []
+    email_fields: list[str] = Field(default_factory=lambda: [])
     """
     Field in the JWT token that contains the email address of the user.
     """
-    roles_fields: list[str] = []
+    roles_fields: list[str] = Field(default_factory=lambda: [])
     """
     Field in the JWT token that contains the roles of the user.
     """
-    properties_fields: list[str] = []
+    properties_fields: list[str] = Field(default_factory=lambda: [])
     """
     Fields in the JWT token payload that should be mapped to the properties of the user.
     """
@@ -110,7 +110,7 @@ class OAuth2SecurityStoreSettings(BaseModel):
     """
     If `use_user_headers` is true, this header is used to extract the roles of the user.
     """
-    token_headers: list[OAuth2SecurityStoreHeader] = []
+    token_headers: list[OAuth2SecurityStoreHeader] = Field(default_factory=lambda: [])
     """
     Headers from which the JWT token is extracted. The headers are extracted from the request and passed to the `jwt.decode` function.
     The headers are tried in the order they are defined, and the first one that is found is used.
@@ -119,17 +119,17 @@ class OAuth2SecurityStoreSettings(BaseModel):
     """
     @deprecated: Use `token_headers` instead. This will be made read-only in the future.
     """
-    email_token_field: str | list[str] | None = ["email"]
+    email_token_field: str | list[str] | None = Field(default_factory=lambda: ["email"])
     """
     Field in the JWT token that contains the email address of the user.
     @deprecated: Use `token_headers` instead. This will be made read-only in the future.
     """
-    roles_token_field: str | list[str] | None = ["groups"]
+    roles_token_field: str | list[str] | None = Field(default_factory=lambda: ["groups", "roles"])
     """
     Field in the JWT token that contains the roles of the user.
     @deprecated: Use `token_headers` instead. This will be made read-only in the future.
     """
-    properties_fields: list[str] | None = []
+    properties_fields: list[str] | None = Field(default_factory=lambda: [])
     """
     Fields in the JWT token payload that should be mapped to the properties of the user.
     @deprecated: Use `token_headers` instead. This will be made read-only in the future.
@@ -139,8 +139,8 @@ class OAuth2SecurityStoreSettings(BaseModel):
 class NoSecurityStoreSettings(BaseModel):
     enable: bool = False
     user: str = "admin"
-    roles: list[str] = []
-    properties: dict[str, Any] = {}
+    roles: list[str] = Field(default_factory=lambda: [])
+    properties: dict[str, Any] = Field(default_factory=lambda: {})
 
 
 class SecurityStoreSettings(BaseModel):
@@ -159,7 +159,7 @@ class SecuritySettings(BaseModel):
     """
     Settings for the security store.
     """
-    paths_without_authentication: list[str] = []
+    paths_without_authentication: list[str] = Field(default_factory=lambda: [])
     """
     Paths that are not protected by the security store.
     """
@@ -173,7 +173,7 @@ class BaseExporterTelemetrySettings(BaseModel):
     endpoint: AnyHttpUrl  # could be "http://localhost:4318"
     headers: dict[str, str] | None = None
     timeout: int | None = None
-    kwargs: dict[str, Any] = {}
+    kwargs: dict[str, Any] = {}  # NOQA RUF012
 
 
 class MetricsExporterTelemetrySettings(BaseExporterTelemetrySettings):
@@ -232,7 +232,7 @@ class SentrySettings(BaseModel):
     """
     Public DSN of the Sentry backend project.
     """
-    backend_init_options: dict[str, Any] = {}
+    backend_init_options: dict[str, Any] = Field(default_factory=lambda: {})
     """
     Options to be passed to the Sentry SDK during initialization.
     """
@@ -311,7 +311,7 @@ class VisynCoreSettings(BaseModel):
     """
 
     disable: DisableSettings = DisableSettings()
-    enabled_plugins: list[str] = []
+    enabled_plugins: list[str] = []  # NOQA RUF012
 
     # TODO: Proper typing. This is 1:1 passed to the logging.config.dictConfig(...).
     logging: dict = Field(default_logging_dict)
@@ -344,7 +344,7 @@ class GlobalSettings(BaseSettings):
     secret_key: str = "VERY_SECRET_STUFF_T0IB84wlQrdMH8RVT28w"
 
     # JWT options mostly inspired by flask-jwt-extended: https://flask-jwt-extended.readthedocs.io/en/stable/options/#general-options
-    jwt_token_location: list[str] = ["headers", "cookies"]
+    jwt_token_location: list[str] = ["headers", "cookies"]  # NOQA RUF012
     jwt_expire_in_seconds: int = 24 * 60 * 60
     jwt_refresh_if_expiring_in_seconds: int = 30 * 60
     jwt_algorithm: str = "HS256"
