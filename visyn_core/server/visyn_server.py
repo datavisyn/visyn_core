@@ -117,23 +117,17 @@ def create_visyn_server(
 
     from ..dbmigration.manager import DBMigrationManager
 
-    # Check if we have an alternative start command and temporarily disable auto_upgrade if so
+    # Check if we have an alternative start command and disable auto_upgrade if so
     from .cmd import parse_command_string
 
     has_alternative_command = start_cmd and parse_command_string(start_cmd) is not None
-    original_auto_upgrade = None
+    auto_upgrade_override = False if has_alternative_command else None
 
     if has_alternative_command:
-        _log.info("Alternative start command detected, temporarily disabling auto_upgrade")
-        original_auto_upgrade = manager.settings.visyn_core.migrations.autoUpgrade
-        manager.settings.visyn_core.migrations.autoUpgrade = False
+        _log.info("Alternative start command detected, disabling auto_upgrade")
 
-    app.state.db_migration = manager.db_migration = DBMigrationManager()
+    app.state.db_migration = manager.db_migration = DBMigrationManager(auto_upgrade_override=auto_upgrade_override)
     manager.db_migration.init_app(app, manager.registry.list("tdp-sql-database-migration"))  # type: ignore
-
-    # Restore original setting if it was changed
-    if original_auto_upgrade is not None:
-        manager.settings.visyn_core.migrations.autoUpgrade = original_auto_upgrade
 
     from ..security.manager import create_security_manager
 

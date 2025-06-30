@@ -154,14 +154,19 @@ class DBMigrationManager:
     - Plugin configuration
     """
 
-    def __init__(self):
+    def __init__(self, auto_upgrade_override: bool | None = None):
         self._migrations: dict[str, DBMigration] = {}
+        self._auto_upgrade_override = auto_upgrade_override
 
     def init_app(self, app: FastAPI, plugins: list[AExtensionDesc] | None = None):
         if plugins is None:
             plugins = []
         _log.info(f"Initializing DBMigrationManager with {', '.join([p.id for p in plugins]) or 'no plugins'}")
-        auto_upgrade_default = manager.settings.visyn_core.migrations.autoUpgrade
+        # Use override if provided, otherwise use the default logic
+        if self._auto_upgrade_override is not None:
+            auto_upgrade_default = self._auto_upgrade_override
+        else:
+            auto_upgrade_default = manager.settings.visyn_core.migrations.autoUpgrade
 
         for p in plugins:
             _log.info(f"Database migration found: {p.id}")
