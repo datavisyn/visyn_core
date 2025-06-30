@@ -262,9 +262,16 @@ def create_migration_command(parser):
     command_parser = subparsers.add_parser("exec", help="Execute command on migration(s)")
 
     # Either require individual ids or all flag
+    # Note: We need to be defensive here as this factory might be called before manager.db_migration is initialized
+    try:
+        migration_choices = [*manager.db_migration.ids, "all"] if manager.db_migration else ["all"]
+    except (AttributeError, NameError):
+        # If manager.db_migration is not available yet, just use "all" for now
+        migration_choices = ["all"]
+
     command_parser.add_argument(
         "id",
-        choices=[*manager.db_migration.ids, "all"],
+        choices=migration_choices,
         help="ID of the migration, or all of them",
     )
 
