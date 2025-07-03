@@ -53,16 +53,6 @@ class DBMigration:
         # Because we can't easily pass "-1" as npm argument, we add a custom command for that without the space
         self.add_custom_command(r"downgrade-(\d+)", "downgrade -{}")
 
-        # Automatically upgrade to head (if enabled)
-        if self.auto_upgrade:
-            _log.info(f"Upgrading database {self.id}")
-            try:
-                self.execute(["upgrade", "head"])
-                _log.info(f"Successfully upgraded database {self.id}")
-            # As alembic is actually a commandline tool, it sometimes uses sys.exit (https://github.com/sqlalchemy/alembic/blob/master/alembic/util/messaging.py#L63)
-            except (SystemExit, CommandError):
-                _log.exception(f"Error upgrading database {self.id}")
-
     def __repr__(self) -> str:
         return f"DBMigration({self.id})"
 
@@ -154,19 +144,14 @@ class DBMigrationManager:
     - Plugin configuration
     """
 
-    def __init__(self, auto_upgrade_override: bool | None = None):
+    def __init__(self):
         self._migrations: dict[str, DBMigration] = {}
-        self._auto_upgrade_override = auto_upgrade_override
 
     def init_app(self, app: FastAPI, plugins: list[AExtensionDesc] | None = None):
         if plugins is None:
             plugins = []
         _log.info(f"Initializing DBMigrationManager with {', '.join([p.id for p in plugins]) or 'no plugins'}")
-        # Use override if provided, otherwise use the default logic
-        if self._auto_upgrade_override is not None:
-            auto_upgrade_default = self._auto_upgrade_override
-        else:
-            auto_upgrade_default = manager.settings.visyn_core.migrations.autoUpgrade
+        auto_upgrade_default = manager.settings.visyn_core.migrations.autoUpgrade
 
         for p in plugins:
             _log.info(f"Database migration found: {p.id}")
@@ -236,6 +221,19 @@ class DBMigrationManager:
     def add_migration(self, migration: DBMigration):
         self._migrations[migration.id] = migration
 
+    def run_auto_upgrades(self):
+        """
+        Runs the auto upgrade for all migrations that have auto_upgrade set to True.
+        """
+        for migration in self._migrations.values():
+            if migration.auto_upgrade:
+                _log.info(f"Upgrading database {migration.id}")
+                try:
+                    migration.execute(["upgrade", "head"])
+                    _log.info(f"Successfully upgraded database {migration.id}")
+                except (SystemExit, CommandError):
+                    _log.exception(f"Error upgrading database {migration.id}")
+
     def __contains__(self, item):
         return item in self._migrations
 
@@ -267,16 +265,9 @@ def create_migration_command(parser):
     command_parser = subparsers.add_parser("exec", help="Execute command on migration(s)")
 
     # Either require individual ids or all flag
-    # Note: We need to be defensive here as this factory might be called before manager.db_migration is initialized
-    try:
-        migration_choices = [*manager.db_migration.ids, "all"] if manager.db_migration else ["all"]
-    except (AttributeError, NameError):
-        # If manager.db_migration is not available yet, just use "all" for now
-        migration_choices = ["all"]
-
     command_parser.add_argument(
         "id",
-        choices=migration_choices,
+        choices=[*manager.db_migration.ids, "all"],
         help="ID of the migration, or all of them",
     )
 
