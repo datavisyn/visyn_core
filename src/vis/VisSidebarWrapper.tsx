@@ -6,27 +6,45 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Box, Divider, Group, ScrollArea, Stack, Text, Tooltip } from '@mantine/core';
 
 import { i18n } from '../i18n';
-import { VisTypeSelect } from './sidebar/VisTypeSelect';
+import { VisTypeSelect } from './sidebar';
 
 const sidebarSize = 200;
 
-export function VisSidebarWrapper({ children, config, setConfig, onClick }: { children: ReactNode; config; setConfig; onClick }) {
+export function VisSidebarWrapper({
+  children,
+  config,
+  setConfig,
+  onClick,
+  enableVisTypeChooser = false,
+}: {
+  children: ReactNode;
+  config;
+  setConfig;
+  onClick;
+  enableVisTypeChooser?: boolean;
+}) {
   return (
     <Box pt="sm" style={{ height: '100%', boxShadow: '2px 0px 15px 0px lightgray', zIndex: 5 }}>
       <Group gap={0} style={{ width: '100%', height: '100%' }} wrap="nowrap">
         <ScrollArea p={0} w={`${sidebarSize}px`} h="100%">
           <Box pb="xl" style={{ height: '100%', width: `${sidebarSize}px` }}>
             <Stack gap="xs" px="xs">
-              <Group justify="space-between">
-                <Text>Settings</Text>
-                <Tooltip label={i18n.t('visyn:vis.closeSettings')} withArrow>
-                  <ActionIcon onClick={onClick} variant="transparent" color="gray">
-                    <FontAwesomeIcon icon={faClose} />
-                  </ActionIcon>
-                </Tooltip>
-              </Group>
-              <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} />
-              <Divider mt="xs" />
+              <Stack gap={0}>
+                <Group justify="space-between">
+                  <Text>Settings</Text>
+                  <Tooltip label={i18n.t('visyn:vis.closeSettings')} withArrow>
+                    <ActionIcon onClick={onClick} variant="transparent" color="gray">
+                      <FontAwesomeIcon icon={faClose} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+                {enableVisTypeChooser === false && (
+                  <>
+                    <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} />
+                    <Divider mt="xs" />
+                  </>
+                )}
+              </Stack>
               {children}
             </Stack>
           </Box>

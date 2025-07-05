@@ -1,12 +1,13 @@
 import * as React from 'react';
 
-import { Group, Stack } from '@mantine/core';
+import { Group, Overlay, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 
 import { createVis, useVisProvider } from './Provider';
 import { VisSidebar } from './VisSidebar';
 import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
+import { VisTypeChooser } from './VisTypeChooser';
 import { BarVis, BarVisSidebar, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './bar';
 import { correlationMergeDefaultConfig } from './correlation';
 import { CorrelationVis } from './correlation/CorrelationVis';
@@ -54,56 +55,57 @@ function registerAllVis(visTypes?: string[]) {
       renderer: ScatterVis,
       sidebarRenderer: ScatterVisSidebar,
       mergeConfig: scatterMergeDefaultConfig,
-      description: 'Visualizes two variables as individual data points in two-dimensional space',
+      description: 'Shows the relationship between two numerical variables. Each point is positioned by its values on the horizontal and vertical axes.',
     }),
     createVis({
       type: ESupportedPlotlyVis.BAR,
       renderer: BarVis,
       sidebarRenderer: BarVisSidebar,
       mergeConfig: barMergeDefaultConfig,
-      description: 'Visualizes categorical data with rectangular bars',
+      description: 'Compares the values of categories using bars. The length of each bar reflects the magnitude of the corresponding category.',
     }),
     createVis({
       type: ESupportedPlotlyVis.HEXBIN,
       renderer: HexbinVis,
       sidebarRenderer: HexbinVisSidebar,
       mergeConfig: hexinbMergeDefaultConfig,
-      description: 'Visualizes 2D data points within hexagons',
+      description: 'Displays the density of data points in a 2D space using hexagonal bins. Darker hexagons indicate higher data concentration.',
     }),
     createVis({
       type: ESupportedPlotlyVis.SANKEY,
       renderer: SankeyVis,
       sidebarRenderer: SankeyVisSidebar,
       mergeConfig: sankeyMergeDefaultConfig,
-      description: 'Visualizes the flow of data between different categories',
+      description: `Visualizes flows and connections between categories. The width of the connecting lines represents the flow's magnitude.`,
     }),
     createVis({
       type: ESupportedPlotlyVis.HEATMAP,
       renderer: HeatmapVis,
       sidebarRenderer: HeatmapVisSidebar,
       mergeConfig: heatmapMergeDefaultConfig,
-      description: 'Visualizes matrix data using color gradients',
+      description: `Represents data as a grid of colored cells, where each cell's color corresponds to a numerical value in a matrix.`,
     }),
     createVis({
       type: ESupportedPlotlyVis.VIOLIN,
       renderer: ViolinVis,
       sidebarRenderer: ViolinVisSidebar,
       mergeConfig: violinBoxMergeDefaultConfig,
-      description: 'Visualizes numerical data distribution by combining a box plot and a kernel density plot',
+      description: `Shows the distribution of data, like a box plot, but also displays the data's density shape, revealing more detail than a standard box plot.`,
     }),
     createVis({
       type: ESupportedPlotlyVis.BOXPLOT,
       renderer: ViolinVis,
       sidebarRenderer: ViolinVisSidebar,
       mergeConfig: violinBoxMergeDefaultConfig,
-      description: 'Visualizes numerical data distribution by box plot',
+      description: `Summarizes the distribution of data using quartiles and outliers, providing a quick overview of the data's spread and central tendency.`,
     }),
     createVis({
       type: ESupportedPlotlyVis.CORRELATION,
       renderer: CorrelationVis,
       sidebarRenderer: CorrelationVisSidebar,
       mergeConfig: correlationMergeDefaultConfig,
-      description: 'Visualizes statistical relationships between pairs of numerical variables',
+      description:
+        'Shows pairwise correlations between variables. Circle size and color indicate correlation strength (Spearman or Pearson), with p-values for significance.',
     }),
   ].filter((v) => !visTypes || visTypes.includes(v.type));
 }
@@ -138,6 +140,9 @@ export function EagerVis({
   visTypes,
   uniquePlotId,
   showDownloadScreenshot = false,
+  showVisTypeChooser: internalShowVisTypeChooser,
+  setShowVisTypeChooser: internalSetShowVisTypeChooser,
+  enableVisTypeChooser = false,
 }: {
   /**
    * Required data columns which are displayed.
@@ -178,6 +183,9 @@ export function EagerVis({
   enableSidebar?: boolean;
   showSidebar?: boolean;
   showDragModeOptions?: boolean;
+  enableVisTypeChooser?: boolean;
+  showVisTypeChooser?: boolean;
+  setShowVisTypeChooser?: (show: boolean) => void;
   setShowSidebar?(show: boolean): void;
   showSidebarDefault?: boolean;
   scrollZoom?: boolean;
@@ -213,7 +221,7 @@ export function EagerVis({
 
   useRegisterDefaultVis(visTypes);
 
-  const { getVisByType } = useVisProvider();
+  const { visTypes: visTypesProvided, getVisByType } = useVisProvider();
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [visConfig, _setVisConfig] = useUncontrolled({
@@ -221,29 +229,30 @@ export function EagerVis({
     value: setExternalConfig && externalConfig ? externalConfig : undefined,
     defaultValue:
       // If we have an external value, use that as the default. Otherwise use some inferred config.
-      externalConfig ||
-      (columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
-        ? ({
-            type: ESupportedPlotlyVis.SCATTER,
-            numColumnsSelected: [],
-            color: null,
-            numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
-            shape: null,
-            dragMode: EScatterSelectSettings.RECTANGLE,
-            alphaSliderVal: 0.5,
-          } as BaseVisConfig)
-        : ({
-            type: ESupportedPlotlyVis.BAR,
-            facets: null,
-            group: null,
-            direction: EBarDirection.HORIZONTAL,
-            display: EBarDisplayType.ABSOLUTE,
-            groupType: EBarGroupingType.STACK,
-            numColumnsSelected: [],
-            catColumnSelected: null,
-            aggregateColumn: null,
-            aggregateType: EAggregateTypes.COUNT,
-          } as BaseVisConfig)),
+      externalConfig || !enableVisTypeChooser
+        ? columns.filter((c) => c.type === EColumnTypes.NUMERICAL).length > 1
+          ? ({
+              type: ESupportedPlotlyVis.SCATTER,
+              numColumnsSelected: [],
+              color: null,
+              numColorScaleType: ENumericalColorScaleType.SEQUENTIAL,
+              shape: null,
+              dragMode: EScatterSelectSettings.RECTANGLE,
+              alphaSliderVal: 0.5,
+            } as BaseVisConfig)
+          : ({
+              type: ESupportedPlotlyVis.BAR,
+              facets: null,
+              group: null,
+              direction: EBarDirection.HORIZONTAL,
+              display: EBarDisplayType.ABSOLUTE,
+              groupType: EBarGroupingType.STACK,
+              numColumnsSelected: [],
+              catColumnSelected: null,
+              aggregateColumn: null,
+              aggregateType: EAggregateTypes.COUNT,
+            } as BaseVisConfig)
+        : undefined,
     onChange: setExternalConfig,
   });
 
@@ -271,6 +280,14 @@ export function EagerVis({
     },
     [_setVisConfig, visConfig?.type, statsCallback],
   );
+
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const [showVisTypeChooser, setShowVisTypeChooser] = useUncontrolled<boolean>({
+    value: internalShowVisTypeChooser,
+    defaultValue: visConfig?.type == null,
+    finalValue: false,
+    onChange: internalSetShowVisTypeChooser,
+  });
 
   // Converting the selected list into a map, since searching through the list to find an item is common in the vis components.
   const selectedMap: { [key: string]: boolean } = React.useMemo(() => {
@@ -311,7 +328,20 @@ export function EagerVis({
           cursor: 'pointer !important',
         },
       }}
+      data-testid={`vis-plot-container-${(visConfig?.type ?? '').toLowerCase().replace(/\s/g, '-')}`}
     >
+      {enableVisTypeChooser && showVisTypeChooser ? (
+        <Overlay bg="white" h="100%">
+          <VisTypeChooser
+            visTypes={visTypesProvided}
+            selectedVisType={isSelectedVisTypeRegistered?.type ?? null}
+            onClick={(plotType: string) => {
+              setVisConfig({ ...visConfig, type: plotType });
+              setShowVisTypeChooser(false);
+            }}
+          />
+        </Overlay>
+      ) : null}
       {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
         {visTypeNotSupported ? (
@@ -344,7 +374,6 @@ export function EagerVis({
               selectedMap={selectedMap}
               selectedList={selectedList}
               columns={columns}
-              showSidebar={showSidebar}
               showCloseButton={showCloseButton}
               closeButtonCallback={closeCallback}
               scrollZoom={scrollZoom}
@@ -354,7 +383,7 @@ export function EagerVis({
         )}
       </Stack>
       {showSidebar && visConfig?.merged ? (
-        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)}>
+        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)} enableVisTypeChooser={enableVisTypeChooser}>
           <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} selectedList={selectedList} />
         </VisSidebarWrapper>
       ) : null}
