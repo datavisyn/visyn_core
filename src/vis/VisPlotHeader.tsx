@@ -22,7 +22,7 @@ export function VisPlotHeader({
   onClickBack: () => void;
 }) {
   return (
-    <Group justify="space-between">
+    <Group justify="space-between" p={5}>
       <Tooltip label="Go to visualization chooser" position="top" withArrow withinPortal>
         <Anchor component="button" c="dark" ta="left" type="button" size="sm" onClick={onClickBack} data-testid="visyn-vis-plot-header-back-button">
           <FontAwesomeIcon icon={faArrowLeft} style={{ marginRight: 5 }} />

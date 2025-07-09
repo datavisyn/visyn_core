@@ -10,7 +10,7 @@ import { i18n } from '../i18n';
 
 export function VisChooserHeader({ selectedType, onClickContinue }: { selectedType: string | null; onClickContinue: () => void }) {
   return (
-    <Group justify="space-between">
+    <Group justify="space-between" p={5}>
       <Text c="dimmed" size="sm">
         Explore different ways to visualize your data.
       </Text>
