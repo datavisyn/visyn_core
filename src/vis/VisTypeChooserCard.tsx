@@ -61,7 +61,7 @@ function VisTypeChooserCardUnmemoized({ plotType, isSelected, onClick }: { plotT
       >
         <Stack gap="xs">
           <Card.Section>
-            <Group wrap="nowrap" justify="space-between" m="sm" style={{ overflowX: 'auto', width: '100%' }}>
+            <Group wrap="nowrap" justify="space-between" p="sm" style={{ overflowX: 'auto', width: '100%' }}>
               <Group wrap="nowrap">
                 <ThemeIcon
                   radius="xl"
