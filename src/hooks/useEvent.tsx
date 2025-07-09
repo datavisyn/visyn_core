@@ -23,7 +23,7 @@ export function useEvent<T extends (...args: any[]) => any, P extends Parameters
     handlerRef.current = handler;
   });
 
-  return React.useCallback((...args: Parameters<T>) => {
+  return React.useCallback((...args: P) => {
     return handlerRef.current?.(...args);
   }, []);
 }
