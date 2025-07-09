@@ -12,11 +12,13 @@
       "sankeyError": "Select at least two categorical columns to display the sankey chart."
     },
     "openSettings": "Open settings",
+    "chartOverview": "Chart overview",
+    "continueWithSelectedType": "Continue with {{selectedType}}",
     "closeSettings": "Close settings",
     "hexbinOptions": "Hexbin options",
     "animation": "Animation",
     "missingValue": "n/a",
-    "selectedBadge":"Selected"
+    "selectedBadge": "Selected"
   },
   "permission": {
     "future": "in the future",
@@ -46,5 +48,4 @@
     "buddiesPlaceholder": "List of usernames separated by semicolon",
     "buddiesDescription": "Buddies are a list of user names that can have advanced rights, such as backup administrators"
   }
-
 }

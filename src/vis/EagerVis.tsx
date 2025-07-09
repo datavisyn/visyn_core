@@ -45,6 +45,8 @@ import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
+import { VisChooserHeader } from './VisChooserHeader';
+import { VisPlotHeader } from './VisPlotHeader';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 
@@ -332,6 +334,9 @@ export function EagerVis({
     >
       {enableVisTypeChooser && showVisTypeChooser ? (
         <Overlay bg="white" h="100%">
+          {isSelectedVisTypeRegistered?.type ? (
+            <VisChooserHeader selectedType={isSelectedVisTypeRegistered?.type} onClickContinue={() => setShowVisTypeChooser(false)} />
+          ) : null}
           <VisTypeChooser
             visTypes={visTypesProvided}
             selectedVisType={isSelectedVisTypeRegistered?.type ?? null}
@@ -342,45 +347,58 @@ export function EagerVis({
           />
         </Overlay>
       ) : null}
-      {enableSidebar && !showSidebar ? <VisSidebarOpenButton onClick={() => setShowSidebar(!showSidebar)} /> : null}
-      <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
-        {visTypeNotSupported ? (
-          <WarningMessage centered dataTestId="visyn-vis-not-supported" title="Visualization type is not supported" alertProps={{ my: 'auto' }}>
-            The visualization type &quot;{visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
-          </WarningMessage>
-        ) : visHasError || !Renderer ? (
-          <WarningMessage centered dataTestId="visyn-vis-not-supported" alertProps={{ my: 'auto' }}>
-            An error occured in the visualization. Please try to select something different in the sidebar.
-          </WarningMessage>
-        ) : (
-          visConfig?.merged && (
-            <Renderer
-              config={visConfig}
-              dimensions={dimensions}
-              optionsConfig={{
-                color: {
-                  enable: true,
-                },
-              }}
-              uniquePlotId={uniquePlotId}
-              showDownloadScreenshot={showDownloadScreenshot}
-              showDragModeOptions={showDragModeOptions}
-              shapes={shapes}
-              setConfig={setVisConfig}
-              stats={stats}
-              statsCallback={statsCallback}
-              filterCallback={filterCallback}
-              selectionCallback={setSelectedList}
-              selectedMap={selectedMap}
-              selectedList={selectedList}
-              columns={columns}
-              showCloseButton={showCloseButton}
-              closeButtonCallback={closeCallback}
-              scrollZoom={scrollZoom}
-              {...commonProps}
-            />
-          )
-        )}
+      <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch">
+        <VisPlotHeader
+          enableSidebar={enableSidebar}
+          isOpenSidebar={showSidebar}
+          showSidebar={showSidebar}
+          onClickBack={() => {
+            setShowVisTypeChooser(true);
+          }}
+          onClickSettings={() => {
+            setShowSidebar(!showSidebar);
+          }}
+        />
+
+        <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch" ref={ref}>
+          {visTypeNotSupported ? (
+            <WarningMessage centered dataTestId="visyn-vis-not-supported" title="Visualization type is not supported" alertProps={{ my: 'auto' }}>
+              The visualization type &quot;{visConfig?.type}&quot; is not supported. Please open the sidebar and select a different type.
+            </WarningMessage>
+          ) : visHasError || !Renderer ? (
+            <WarningMessage centered dataTestId="visyn-vis-not-supported" alertProps={{ my: 'auto' }}>
+              An error occured in the visualization. Please try to select something different in the sidebar.
+            </WarningMessage>
+          ) : (
+            visConfig?.merged && (
+              <Renderer
+                config={visConfig}
+                dimensions={dimensions}
+                optionsConfig={{
+                  color: {
+                    enable: true,
+                  },
+                }}
+                uniquePlotId={uniquePlotId}
+                showDownloadScreenshot={showDownloadScreenshot}
+                showDragModeOptions={showDragModeOptions}
+                shapes={shapes}
+                setConfig={setVisConfig}
+                stats={stats}
+                statsCallback={statsCallback}
+                filterCallback={filterCallback}
+                selectionCallback={setSelectedList}
+                selectedMap={selectedMap}
+                selectedList={selectedList}
+                columns={columns}
+                showCloseButton={showCloseButton}
+                closeButtonCallback={closeCallback}
+                scrollZoom={scrollZoom}
+                {...commonProps}
+              />
+            )
+          )}
+        </Stack>
       </Stack>
       {showSidebar && visConfig?.merged ? (
         <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)} enableVisTypeChooser={enableVisTypeChooser}>
