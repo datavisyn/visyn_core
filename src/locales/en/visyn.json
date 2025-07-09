@@ -14,6 +14,7 @@
     "openSettings": "Open settings",
     "chartOverview": "Chart overview",
     "continueWithSelectedType": "Continue with {{selectedType}}",
+    "visTypeChooserTitle": "Explore different ways to visualize your data",
     "closeSettings": "Close settings",
     "hexbinOptions": "Hexbin options",
     "animation": "Animation",

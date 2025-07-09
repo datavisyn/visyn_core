@@ -12,7 +12,7 @@ export function VisChooserHeader({ selectedType, onClickContinue }: { selectedTy
   return (
     <Group justify="space-between" p={5}>
       <Text c="dimmed" size="sm">
-        Explore different ways to visualize your data.
+        {i18n.t('visyn:vis.visTypeChooserTitle')}
       </Text>
 
       <Anchor
