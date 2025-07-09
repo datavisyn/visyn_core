@@ -61,8 +61,8 @@ function VisTypeChooserCardUnmemoized({ plotType, isSelected, onClick }: { plotT
       >
         <Stack gap="xs">
           <Card.Section>
-            <Group wrap="nowrap" justify="space-between" m="sm">
-              <Group wrap="nowrap" style={{ overflowX: 'auto' }}>
+            <Group wrap="nowrap" justify="space-between" style={{ overflowX: 'auto', width: '100%' }}>
+              <Group wrap="nowrap">
                 <ThemeIcon
                   radius="xl"
                   size="2.45rem"
@@ -83,12 +83,13 @@ function VisTypeChooserCardUnmemoized({ plotType, isSelected, onClick }: { plotT
                 >
                   {plotType.type}
                 </Text>
-                {isSelected ? (
-                  <Badge size="md" variant="light" data-testid={`snapshot-${(plotType.type ?? '').toLowerCase().replace(/\s/g, '-')}-selected-badge`}>
-                    {i18n.t('visyn:vis.selectedBadge')}
-                  </Badge>
-                ) : null}
               </Group>
+
+              {isSelected ? (
+                <Badge size="md" variant="light" data-testid={`snapshot-${(plotType.type ?? '').toLowerCase().replace(/\s/g, '-')}-selected-badge`}>
+                  {i18n.t('visyn:vis.selectedBadge')}
+                </Badge>
+              ) : null}
             </Group>
           </Card.Section>
 
