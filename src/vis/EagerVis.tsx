@@ -4,8 +4,9 @@ import { Group, Overlay, Stack } from '@mantine/core';
 import { useResizeObserver, useUncontrolled } from '@mantine/hooks';
 
 import { createVis, useVisProvider } from './Provider';
+import { VisChooserHeader } from './VisChooserHeader';
+import { VisPlotHeader } from './VisPlotHeader';
 import { VisSidebar } from './VisSidebar';
-import { VisSidebarOpenButton } from './VisSidebarOpenButton';
 import { VisSidebarWrapper } from './VisSidebarWrapper';
 import { VisTypeChooser } from './VisTypeChooser';
 import { BarVis, BarVisSidebar, EBarDirection, EBarDisplayType, EBarGroupingType, IBarConfig, barMergeDefaultConfig } from './bar';
@@ -45,8 +46,6 @@ import { IScatterConfig } from './scatter/interfaces';
 import { ViolinVis, violinBoxMergeDefaultConfig } from './violin';
 import { ViolinVisSidebar } from './violin/ViolinVisSidebar';
 import { IViolinConfig } from './violin/interfaces';
-import { VisChooserHeader } from './VisChooserHeader';
-import { VisPlotHeader } from './VisPlotHeader';
 
 const DEFAULT_SHAPES = ['circle', 'square', 'triangle-up', 'star'];
 

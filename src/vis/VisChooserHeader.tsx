@@ -1,10 +1,8 @@
 import * as React from 'react';
 
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
-
-import { ActionIcon, Text, Group, Tooltip, Anchor } from '@mantine/core';
+import { Anchor, Group, Text } from '@mantine/core';
 
 import { i18n } from '../i18n';
 
