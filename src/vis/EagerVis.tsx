@@ -333,9 +333,8 @@ export function EagerVis({
     >
       {enableVisTypeChooser && showVisTypeChooser ? (
         <Overlay bg="white" h="100%">
-          {isSelectedVisTypeRegistered?.type ? (
-            <VisChooserHeader selectedType={isSelectedVisTypeRegistered?.type} onClickContinue={() => setShowVisTypeChooser(false)} />
-          ) : null}
+          <VisChooserHeader selectedType={isSelectedVisTypeRegistered?.type} onClickContinue={() => setShowVisTypeChooser(false)} />
+
           <VisTypeChooser
             visTypes={visTypesProvided}
             selectedVisType={isSelectedVisTypeRegistered?.type ?? null}
