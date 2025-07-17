@@ -119,7 +119,7 @@
     "i18next": "^23.16.8",
     "jstat": "^1.9.6",
     "jszip": "^3.10.1",
-    "lineupjs": "4.14.0",
+    "lineupjs": "4.14.1",
     "lodash": "~4.17.21",
     "plotly.js-dist-min": "~2.12.1",
     "react": "~18.3.1",
