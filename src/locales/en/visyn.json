@@ -12,10 +12,14 @@
       "sankeyError": "Select at least two categorical columns to display the sankey chart."
     },
     "openSettings": "Open settings",
+    "chartOverview": "Chart overview",
+    "continueWithSelectedType": "Continue with {{selectedType}}",
+    "visTypeChooserTitle": "Explore different ways to visualize your data.",
     "closeSettings": "Close settings",
     "hexbinOptions": "Hexbin options",
     "animation": "Animation",
-    "missingValue": "n/a"
+    "missingValue": "n/a",
+    "selectedBadge": "Selected"
   },
   "permission": {
     "future": "in the future",
