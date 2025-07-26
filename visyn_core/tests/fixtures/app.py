@@ -10,7 +10,7 @@ from ...server.visyn_server import create_visyn_server
 from ...settings import client_config
 
 
-@pytest.fixture
+@pytest.fixture()
 def workspace_config() -> dict:
     return {
         "visyn_core": {
@@ -30,7 +30,7 @@ def workspace_config() -> dict:
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def app(workspace_config) -> FastAPI:
     # Only initialize the client config once
     if not client_config._has_been_initialized:
@@ -49,7 +49,7 @@ def app(workspace_config) -> FastAPI:
     return create_visyn_server(workspace_config=workspace_config)
 
 
-@pytest.fixture
+@pytest.fixture()
 def client(app: FastAPI) -> Generator[TestClient, Any, None]:
     with TestClient(app) as client:
         yield client
