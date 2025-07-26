@@ -71,7 +71,6 @@ def xlsx2json(file: Annotated[bytes, File()]):
         return result
 
     def convert_sheet(ws):
-
         ws_rows = ws.iter_rows()
         ws_cols = next(ws_rows, [])
         ws_first_row = next(ws_rows, [])
@@ -146,7 +145,14 @@ def json2xlsx(data: TableData):
         ws.append(to_header(col.name) for col in cols)
 
         for row in sheet.rows:
-            ws.append(to_value(row.get(col.name, None), col.type) for col in cols)
+            ws.append(
+                to_value(
+                    row.get(col.name, None),
+                    # Fix for date columns (for https://github.com/datavisyn/ordino/pull/2787), since they cannot be exported as `date` type
+                    col.type if col.type != "date" else "string",
+                )
+                for col in cols
+            )
 
     with NamedTemporaryFile() as tmp:
         wb.save(tmp.name)
