@@ -38,7 +38,7 @@ export function VisSidebarWrapper({
                     </ActionIcon>
                   </Tooltip>
                 </Group>
-                {enableVisTypeChooser === false && (
+                {enableVisTypeChooser && (
                   <>
                     <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} />
                     <Divider mt="xs" />

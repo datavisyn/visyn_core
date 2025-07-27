@@ -347,6 +347,7 @@ export function EagerVis({
       ) : null}
       <Stack gap={0} style={{ width: '100%', height: '100%', overflow: 'hidden' }} align="stretch">
         <VisPlotHeader
+          enableVisTypeChooser={enableVisTypeChooser}
           enableSidebar={enableSidebar}
           isOpenSidebar={showSidebar}
           showSidebar={showSidebar}
