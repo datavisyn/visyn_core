@@ -41,8 +41,10 @@ export function VisTypeChooser({
 
   const cols = useMemo(() => getCols(width), [width]);
 
+  const scrollClass = width > 0 ? `vis-chooser-scroll-container-${width < 496 && selectedVisType ? 2 : 1}` : '';
+
   return (
-    <Container fluid p="sm" ref={ref} pos="relative" w="100%" data-testid="vis-type-chooser" className="vis-chooser-scroll-container">
+    <Container fluid p="sm" ref={ref} pos="relative" w="100%" data-testid="vis-type-chooser" className={scrollClass}>
       {cols ? (
         <SimpleGrid cols={cols} spacing="xl" verticalSpacing="xl">
           {visTypes.map((plotType) => (

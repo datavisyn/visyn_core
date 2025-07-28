@@ -1,15 +1,15 @@
-
 @import '../scss/abstracts/variables';
 
-.vis-chooser-scroll-container {
+.vis-chooser-scroll-container-1 {
   overflow-y: auto;
   height: calc(100% - #{$vis-chooser-header-height});
 }
 
-@media screen and (max-width: 1000px) {
-  .vis-chooser-scroll-container {
-    height: calc(100% - #{$vis-chooser-header-height * 2});
-  }
+
+.vis-chooser-scroll-container-2 {
+  overflow-y: auto;
+  height: calc(100% - #{$vis-chooser-header-height} * 2);
+  
 }
 
 
