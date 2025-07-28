@@ -4,7 +4,6 @@
 .vis-chooser-scroll-container {
   overflow-y: auto;
   height: calc(100vh - #{$vis-chooser-header-height} - 2 *  var(--mantine-spacing-xl));
-  background-color: red;
 }
 
 @media screen and (max-width: 1000px) {
