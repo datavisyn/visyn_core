@@ -13,7 +13,7 @@ type VisynActionIconProps = PolymorphicComponentProps<'button', ActionIconProps>
  * A wrapper around Mantine's ActionIcon that automatically
  * passes the size prop to the child icon.
  */
-export function VisynActionIcon({ size = 'md', variant = 'transparent', color = 'dark', icon, ...rest }: VisynActionIconProps) {
+export function VisynActionIcon({ size = 'md', variant = 'subtle', color = 'dark', icon, ...rest }: VisynActionIconProps) {
   return (
     <ActionIcon size={size} variant={variant} color={color} {...rest}>
       {resolveIconFactory(icon, size)}
