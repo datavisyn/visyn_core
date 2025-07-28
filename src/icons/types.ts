@@ -1,6 +1,7 @@
-import { MantineSize } from '@mantine/core';
+import { ActionIconProps } from '@mantine/core';
 
 export interface VisynIconProps {
-  size?: MantineSize | number;
-  // className?: string;
+  size?: VisynMantineSize;
 }
+
+export type VisynMantineSize = ActionIconProps['size'];

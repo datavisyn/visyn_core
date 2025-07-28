@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { resolveIconSize } from '../size-map';
 import { VisynIconProps } from '../types';
 
-export function VisynFontAwesomeIcon({ size = 'md', icon }: VisynIconProps & { icon: IconProp }) {
+export function VisynFontAwesomeIcon({ size, icon }: VisynIconProps & { icon: IconProp }) {
   const pixelSize = resolveIconSize(size);
 
   return <FontAwesomeIcon icon={icon} style={{ width: pixelSize, height: pixelSize }} />;

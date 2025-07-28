@@ -1,21 +1,24 @@
-import React, { cloneElement, isValidElement } from 'react';
+import React from 'react';
 
-import { ActionIcon, ActionIconProps, MantineSize } from '@mantine/core';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { ActionIcon, ActionIconProps, PolymorphicComponentProps } from '@mantine/core';
+import { LucideIcon } from 'lucide-react';
 
-type VisynActionIconProps = ActionIconProps & {
-  children: React.ReactElement<{ size?: MantineSize | number }>;
+import { resolveIconFactory } from './adapters/util';
+import { VisynIconProps } from './types';
+
+type VisynActionIconProps = PolymorphicComponentProps<'button', ActionIconProps> & {
+  icon: IconProp | LucideIcon | React.FunctionComponent<VisynIconProps>;
 };
 
 /**
  * A wrapper around Mantine's ActionIcon that automatically
  * passes the size prop to the child icon.
  */
-export function VisynActionIcon({ children, size = 'md', variant = 'transparent', color = 'dark', ...rest }: VisynActionIconProps) {
-  const iconWithSize = isValidElement(children) ? cloneElement(children, { size }) : children;
-
+export function VisynActionIcon({ size = 'md', variant = 'transparent', color = 'dark', icon, ...rest }: VisynActionIconProps) {
   return (
     <ActionIcon size={size} variant={variant} color={color} {...rest}>
-      {iconWithSize}
+      {resolveIconFactory(icon, size)}
     </ActionIcon>
   );
 }

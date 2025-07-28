@@ -7,10 +7,14 @@ import { resolveIconSize } from '../size-map';
 import { VisynIconProps } from '../types';
 
 export const createFontAwesomeIcon = (icon: IconProp) => {
-  // eslint-disable-next-line func-names, react/display-name
-  return function ({ size = 'md', ...props }: VisynIconProps) {
+  function FontAwesomeWrapper({ size }: VisynIconProps) {
     const pixelSize = resolveIconSize(size);
 
-    return <FontAwesomeIcon icon={icon} style={{ width: pixelSize, height: pixelSize }} {...props} />;
-  };
+    return <FontAwesomeIcon icon={icon} style={{ width: pixelSize, height: pixelSize }} />;
+  }
+
+  // Add unique tag for type guarding
+  (FontAwesomeWrapper as typeof FontAwesomeWrapper & { isVisynIcon: true }).isVisynIcon = true;
+
+  return FontAwesomeWrapper;
 };

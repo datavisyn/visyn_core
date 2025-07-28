@@ -84,3 +84,7 @@ export { dvCellLine } from './font-awesome/icon-cell-line';
 export { dvDisease } from './font-awesome/icon-disease';
 export { dvGene } from './font-awesome/icon-gene';
 export { dvTissue } from './font-awesome/icon-tissue';
+
+// Export base components
+export { VisynActionIcon } from './visyn-action-icon';
+export { VisynThemeIcon } from './visyn-theme-icon';

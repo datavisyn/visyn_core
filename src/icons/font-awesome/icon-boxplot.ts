@@ -1,6 +1,6 @@
 import { IconDefinition, IconName, IconPrefix } from '@fortawesome/fontawesome-common-types';
 
-import { createFontAwesomeIcon } from '../factories/create-font-awesome-icon';
+import { createFontAwesomeIcon } from '../adapters/create-font-awesome-icon';
 
 export const dvBoxplot: IconDefinition = {
   prefix: 'dv' as IconPrefix,
