@@ -11,7 +11,7 @@ import './VisChooserHeader.scss';
 export function VisChooserHeader({ selectedType, onClickContinue }: { selectedType?: string; onClickContinue: () => void }) {
   const { ref, width } = useElementSize();
 
-  const ratioClass = width > 0 ? `vis-chooser-header-${width < 1000 && selectedType ? 2 : 1}` : '';
+  const ratioClass = width > 0 ? `vis-chooser-header-${width < 500 && selectedType ? 2 : 1}` : '';
 
   return (
     <Group ref={ref} justify="space-between" p={5} className={ratioClass} data-testid="visyn-vis-chooser-header">

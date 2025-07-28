@@ -41,7 +41,7 @@ export function VisTypeChooser({
 
   const cols = useMemo(() => getCols(width), [width]);
 
-  const scrollClass = width > 0 ? `vis-chooser-scroll-container-${width < 496 && selectedVisType ? 2 : 1}` : '';
+  const scrollClass = width > 0 ? `vis-chooser-scroll-container-${cols === 1 && selectedVisType ? 2 : 1}` : '';
 
   return (
     <Container fluid p="sm" ref={ref} pos="relative" w="100%" data-testid="vis-type-chooser" className={scrollClass}>
