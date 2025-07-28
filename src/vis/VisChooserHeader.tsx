@@ -5,10 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Anchor, Group, Text } from '@mantine/core';
 
 import { i18n } from '../i18n';
+import './VisChooserHeader.scss';
 
 export function VisChooserHeader({ selectedType, onClickContinue }: { selectedType?: string; onClickContinue: () => void }) {
   return (
-    <Group justify="space-between" p={5}>
+    <Group justify="space-between" p={5} className="vis-chooser-header">
       <Text c="dimmed" size="sm">
         {i18n.t('visyn:vis.visTypeChooserTitle')}
       </Text>

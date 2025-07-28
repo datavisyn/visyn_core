@@ -1,0 +1,11 @@
+@import '../scss/abstracts/variables';
+
+.vis-chooser-header {
+  height: $vis-chooser-header-height; 
+}
+
+@media screen and (max-width: 1000px) {
+  .vis-chooser-header {
+    height:  calc($vis-chooser-header-height * 2); 
+  }
+}

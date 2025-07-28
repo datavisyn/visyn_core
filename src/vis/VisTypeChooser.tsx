@@ -5,6 +5,7 @@ import { useElementSize } from '@mantine/hooks';
 
 import { GeneralVis } from './Provider';
 import { VisTypeChooserCard } from './VisTypeChooserCard';
+import './VisTypeChooser.scss';
 
 /**
  * Get the number of columns based on the width of the container.
@@ -41,7 +42,7 @@ export function VisTypeChooser({
   const cols = useMemo(() => getCols(width), [width]);
 
   return (
-    <Container fluid p="sm" ref={ref} pos="relative" w="100%" h="100%" data-testid="vis-type-chooser" style={{ overflow: 'auto' }}>
+    <Container fluid p="sm" ref={ref} pos="relative" w="100%" data-testid="vis-type-chooser" className="vis-chooser-scroll-container">
       {cols ? (
         <SimpleGrid cols={cols} spacing="xl" verticalSpacing="xl">
           {visTypes.map((plotType) => (
