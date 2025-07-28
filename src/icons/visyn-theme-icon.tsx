@@ -1,21 +1,22 @@
-import React, { cloneElement, isValidElement } from 'react';
+import React from 'react';
 
-import { MantineSize, ThemeIcon, ThemeIconProps } from '@mantine/core';
+import { PolymorphicComponentProps, ThemeIcon, ThemeIconProps } from '@mantine/core';
 
-type VisynThemeIconProps = ThemeIconProps & {
-  children: React.ReactElement<{ size?: MantineSize | number }>;
+import { resolveIconFactory } from './adapters/util';
+import { AgnosticIconDefinition } from './types';
+
+type VisynThemeIconProps = PolymorphicComponentProps<'div', ThemeIconProps> & {
+  icon: AgnosticIconDefinition;
 };
 
 /**
- * A wrapper around Mantine's ThemeIcon that automatically
+ * A wrapper around Mantine's ActionIcon that automatically
  * passes the size prop to the child icon.
  */
-export function VisynThemeIcon({ children, size = 'md', variant = 'transparent', color = 'dark', ...rest }: VisynThemeIconProps) {
-  const iconWithSize = isValidElement(children) ? cloneElement(children, { size }) : children;
-
+export function VisynThemeIcon({ size = 'md', variant = 'transparent', color = 'dark', icon, ...rest }: VisynThemeIconProps) {
   return (
     <ThemeIcon size={size} variant={variant} color={color} {...rest}>
-      {iconWithSize}
+      {resolveIconFactory(icon, size)}
     </ThemeIcon>
   );
 }

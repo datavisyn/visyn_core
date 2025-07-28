@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { type IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { resolveIconSize } from '../size-map';

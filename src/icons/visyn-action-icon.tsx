@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { ActionIcon, ActionIconProps, PolymorphicComponentProps } from '@mantine/core';
-import { LucideIcon } from 'lucide-react';
 
 import { resolveIconFactory } from './adapters/util';
-import { VisynIconProps } from './types';
+import { AgnosticIconDefinition } from './types';
 
 type VisynActionIconProps = PolymorphicComponentProps<'button', ActionIconProps> & {
-  icon: IconProp | LucideIcon | React.FunctionComponent<VisynIconProps>;
+  icon: AgnosticIconDefinition;
 };
 
 /**
