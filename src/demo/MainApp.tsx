@@ -137,7 +137,7 @@ export function MainApp() {
             showSidebarDefault
             externalConfig={visConfig}
             showDownloadScreenshot
-            enableVisTypeChooser={true}
+            enableVisTypeChooser
             showVisTypeChooser={showVisTypeChooser}
             setShowVisTypeChooser={setShowVisTypeChooser}
             setExternalConfig={setVisConfig}

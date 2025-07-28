@@ -1,11 +1,9 @@
 @import '../scss/abstracts/variables';
 
-.vis-chooser-header {
+.vis-chooser-header-1 {
   height: $vis-chooser-header-height; 
 }
 
-@media screen and (max-width: 1000px) {
-  .vis-chooser-header {
-    height:  calc($vis-chooser-header-height * 2); 
-  }
+.vis-chooser-header-2 {
+  height: calc($vis-chooser-header-height * 2); 
 }
