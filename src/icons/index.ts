@@ -94,3 +94,8 @@ export type { AgnosticIconDefinition } from './types';
 export type { VisynMantineSize } from './types';
 export type { VisynIcon } from './types';
 export type { VisynIconProps } from './types';
+
+// export icon type guards
+export { isVisynIcon } from './adapters/typeguards';
+export { isLucideIcon } from './adapters/typeguards';
+export { isFontAwesomeIcon } from './adapters/typeguards';
