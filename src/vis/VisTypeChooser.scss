@@ -3,12 +3,12 @@
 
 .vis-chooser-scroll-container {
   overflow-y: auto;
-  height: calc(100vh - #{$vis-chooser-header-height} - 2 *  var(--mantine-spacing-xl));
+  height: calc(100% - #{$vis-chooser-header-height});
 }
 
 @media screen and (max-width: 1000px) {
   .vis-chooser-scroll-container {
-    height: calc(100vh - #{$vis-chooser-header-height * 2} - 2 * var(--mantine-spacing-xl));
+    height: calc(100% - #{$vis-chooser-header-height * 2});
   }
 }
 
