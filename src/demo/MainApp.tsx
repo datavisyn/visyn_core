@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 
 import { VisynApp, VisynHeader } from '../app';
@@ -18,7 +19,6 @@ import {
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { useVisynUser } from '../hooks';
 import { VisynActionIcon } from '../icons/visyn-action-icon';
-import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 
 const { breastCancerData } = await import('../vis/stories/breastCancerData');
 const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancerData');
