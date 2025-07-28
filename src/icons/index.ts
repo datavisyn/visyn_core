@@ -88,3 +88,9 @@ export { dvTissue } from './font-awesome/icon-tissue';
 // Export base components
 export { VisynActionIcon } from './visyn-action-icon';
 export { VisynThemeIcon } from './visyn-theme-icon';
+
+// Export important types
+export type { AgnosticIconDefinition } from './types';
+export type { VisynMantineSize } from './types';
+export type { VisynIcon } from './types';
+export type { VisynIconProps } from './types';
