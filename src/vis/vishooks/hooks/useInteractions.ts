@@ -38,7 +38,7 @@ interface ClickEvent extends BaseEvent {
 }
 
 export interface UseInteractionsProps {
-  skip?: boolean;
+  skip?: boolean | ((event: MouseEvent) => boolean);
 
   extent?: Extent;
 
@@ -112,7 +112,9 @@ export function useInteractions(options: UseInteractionsProps = {}) {
       };
 
       const handleMouseDown = (mouseDownEvent: MouseEvent) => {
-        if (callbacksRef.current.skip || mouseDownEvent.button !== 0) {
+        const { skip } = callbacksRef.current;
+
+        if ((typeof skip === 'function' && skip(mouseDownEvent) === true) || skip === true || mouseDownEvent.button !== 0) {
           return;
         }
 
