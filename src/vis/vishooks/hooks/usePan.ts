@@ -24,7 +24,7 @@ interface UsePanProps {
 
   onClick?: NonNullable<UseInteractionsProps['onClick']>;
 
-  skip?: boolean;
+  skip?: boolean | ((event: MouseEvent) => boolean);
 }
 
 export function usePan(options: UsePanProps = {}) {

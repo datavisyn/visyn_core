@@ -21,7 +21,10 @@ export function generateDataTable(allColumns: Awaited<ReturnType<typeof getBarDa
       agg: agg?.val as number,
 
       // if the group column is numerical, use the bin lookup to get the bin name, otherwise use the label or 'unknown'
-      group: typeof group?.val === 'number' ? (binLookup?.get(group as VisNumericalValue) as string) : getLabelOrUnknown(group?.val),
+      group:
+        typeof group?.val === 'number'
+          ? ((binLookup?.get(group as VisNumericalValue) as string) ?? getLabelOrUnknown(group?.val))
+          : getLabelOrUnknown(group?.val),
 
       facet: getLabelOrUnknown(facet?.val),
     }),
