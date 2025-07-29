@@ -148,8 +148,8 @@ def json2xlsx(data: TableData):
             ws.append(
                 to_value(
                     row.get(col.name, None),
-                    # Fix for date columns (for https://github.com/datavisyn/ordino/pull/2787), since they cannot be exported as `date` type
-                    col.type if col.type != "date" else "string",
+                    # Export date columns as string, since they cannot be exported as `date` type (see https://github.com/datavisyn/ordino/pull/2787)
+                    "string" if col.type == "date" else col.type,
                 )
                 for col in cols
             )
