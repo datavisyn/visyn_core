@@ -169,5 +169,5 @@
     }
   },
   "packageManager": "yarn@4.5.0",
-  "sideEffects": false
+  "sideEffects": ["**/*.scss", "**/*.css", "**/phovea_registry"]
 }
