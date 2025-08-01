@@ -94,6 +94,8 @@ export type { AgnosticIconDefinition } from './types';
 export type { VisynMantineSize } from './types';
 export type { VisynIcon } from './types';
 export type { VisynIconProps } from './types';
+export type { VisynActionIconProps } from './visyn-action-icon';
+export type { VisynThemeIconProps } from './visyn-theme-icon';
 
 // export icon type guards
 export { isVisynIcon } from './adapters/typeguards';
