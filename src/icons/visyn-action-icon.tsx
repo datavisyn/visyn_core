@@ -5,7 +5,8 @@ import { ActionIcon, ActionIconProps, PolymorphicComponentProps } from '@mantine
 import { resolveIconFactory } from './adapters/util';
 import { AgnosticIconDefinition } from './types';
 
-type VisynActionIconProps = PolymorphicComponentProps<'button', ActionIconProps> & {
+export type VisynActionIconProps = PolymorphicComponentProps<'button', ActionIconProps> & {
+  /** The icon to be displayed inside the VisynActionIcon. */
   icon: AgnosticIconDefinition;
 };
 
