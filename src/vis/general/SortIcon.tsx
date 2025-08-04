@@ -5,7 +5,9 @@ import { ActionIcon, Group, Text, Tooltip } from '@mantine/core';
 import * as d3v7 from 'd3v7';
 
 import { VIS_LABEL_COLOR } from './constants';
-import { dvSort, dvSortAsc, dvSortDesc } from '../../icons';
+import { dvSort } from '../../icons/font-awesome/icon-sort';
+import { dvSortAsc } from '../../icons/font-awesome/icon-sort-asc';
+import { dvSortDesc } from '../../icons/font-awesome/icon-sort-desc';
 import { selectionColorDark } from '../../utils';
 
 export enum ESortStates {

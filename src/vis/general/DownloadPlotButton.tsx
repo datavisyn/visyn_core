@@ -3,7 +3,7 @@ import * as React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Tooltip } from '@mantine/core';
 
-import { dvDownloadVisualization } from '../../icons';
+import { dvDownloadVisualization } from '../../icons/font-awesome/icon-download-visualization';
 import { BaseVisConfig } from '../interfaces';
 import { DownloadPlotOptions, useCaptureVisScreenshot } from '../useCaptureVisScreenshot';
 
