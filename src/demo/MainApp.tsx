@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { Loader, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 
 import { VisynApp, VisynHeader } from '../app';
@@ -17,6 +18,7 @@ import {
 } from '../vis';
 import { MyCategoricalScore, MyLinkScore, MyNumberScore, MySMILESScore, MyStringScore } from './scoresUtils';
 import { useVisynUser } from '../hooks';
+import { VisynActionIcon } from '../icons/visyn-action-icon';
 
 const { breastCancerData } = await import('../vis/stories/breastCancerData');
 const { fetchBreastCancerData } = await import('../vis/stories/fetchBreastCancerData');
@@ -81,6 +83,7 @@ export function MainApp() {
       {user ? (
         <SimpleGrid cols={2} style={{ height: '100%' }} ml="md" pt="md">
           <Stack>
+            <VisynActionIcon icon={faGear} size="md" />
             <Select
               placeholder="Add a score column"
               onChange={async (value) => {

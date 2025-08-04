@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { dvSort, dvSortAsc, dvSortDesc } from '../../../icons';
+import { dvSort } from '../../../icons/font-awesome/icon-sort';
+import { dvSortAsc } from '../../../icons/font-awesome/icon-sort-asc';
+import { dvSortDesc } from '../../../icons/font-awesome/icon-sort-desc';
 import { selectionColorDark } from '../../../utils';
 import { EBarDirection, EBarSortParameters, EBarSortState, IBarConfig } from '../interfaces';
 
