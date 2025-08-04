@@ -1,7 +1,7 @@
 {
   "name": "visyn_core",
   "description": "Core repository for datavisyn applications.",
-  "version": "17.9.0",
+  "version": "17.9.1-SNAPSHOT",
   "author": {
     "name": "datavisyn GmbH",
     "email": "contact@datavisyn.io",
@@ -169,5 +169,9 @@
     }
   },
   "packageManager": "yarn@4.5.0",
-  "sideEffects": ["**/*.scss", "**/*.css", "**/phovea_registry"]
+  "sideEffects": [
+    "**/*.scss",
+    "**/*.css",
+    "**/phovea_registry"
+  ]
 }
