@@ -25,7 +25,7 @@ export function VisPlotHeader({
   return (
     <Group justify="space-between" p={5}>
       {enableVisTypeChooser ? (
-        <Tooltip label="Go to visualization chooser" position="top" withArrow withinPortal>
+        <Tooltip label={i18n.t('visyn:vis.goToChooser')} position="top" withArrow withinPortal>
           <Anchor component="button" c="dark" ta="left" type="button" size="sm" onClick={onClickBack} data-testid="visyn-vis-plot-header-back-button">
             <FontAwesomeIcon icon={faArrowLeft} style={{ marginRight: 5 }} />
             {i18n.t('visyn:vis.chartOverview')}

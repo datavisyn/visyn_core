@@ -13,6 +13,7 @@
     },
     "openSettings": "Open settings",
     "chartOverview": "Chart overview",
+    "goToChooser": "Go to visualization chooser",
     "continueWithSelectedType": "Continue with {{selectedType}}",
     "visTypeChooserTitle": "Explore different ways to visualize your data.",
     "closeSettings": "Close settings",
