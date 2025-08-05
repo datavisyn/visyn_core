@@ -117,7 +117,7 @@ export async function createViolinTraces(
   const catColValues = (await catCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const uniqueCatColValues = [...new Set(catColValues.map((v) => v.val))];
   const facetColValues = (await facetCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
-  const uniqueFacetValues = [...new Set(facetColValues.map((v) => v.val))];
+  const uniqueFacetValues = [...new Set(facetColValues.map((v) => String(v.val)))];
   const subCatColValues = (await subCatCol?.values())?.map((v) => ({ ...v, val: v.val || NAN_REPLACEMENT })) || [];
   const subCatMap: { [key: string]: { color: string; idx: number } } = {};
 
@@ -225,8 +225,8 @@ export async function createViolinTraces(
     const catIndexB = groupB.cat ? (catOrder.has(groupB.cat.val) ? [...catOrder].indexOf(groupB.cat.val) : Infinity) : Infinity;
     const subCatIndexA = groupA.subCat ? (subCatOrder.has(groupA.subCat.val) ? [...subCatOrder].indexOf(groupA.subCat.val) : Infinity) : Infinity;
     const subCatIndexB = groupB.subCat ? (subCatOrder.has(groupB.subCat.val) ? [...subCatOrder].indexOf(groupB.subCat.val) : Infinity) : Infinity;
-    const facetIndexA = groupA.facet ? (facetOrder.has(groupA.facet.val) ? [...facetOrder].indexOf(groupA.facet.val) : Infinity) : Infinity;
-    const facetIndexB = groupB.facet ? (facetOrder.has(groupB.facet.val) ? [...facetOrder].indexOf(groupB.facet.val) : Infinity) : Infinity;
+    const facetIndexA = groupA.facet ? (facetOrder.has(String(groupA.facet.val)) ? [...facetOrder].indexOf(String(groupA.facet.val)) : Infinity) : Infinity;
+    const facetIndexB = groupB.facet ? (facetOrder.has(String(groupB.facet.val)) ? [...facetOrder].indexOf(String(groupB.facet.val)) : Infinity) : Infinity;
     // Ensure that NAN_REPLACEMENT is always at the end
     const nanIndexA = groupedData[a][0].x === NAN_REPLACEMENT ? Infinity : -Infinity;
     const nanIndexB = groupedData[b][0].x === NAN_REPLACEMENT ? Infinity : -Infinity;
@@ -314,7 +314,7 @@ export async function createViolinTraces(
     const { plotId, facet, subCat, cat, num } = group[0].groups;
     const isSelected = selectedList.length > 0 && group.some((g) => selectedMap[g.ids]);
     const opacities = selectedList.length > 0 ? (isSelected ? baseOpacities.selected : baseOpacities.unselected) : baseOpacities.selected;
-    const patchedPlotId = config.syncYAxis === EYAxisMode.MERGED ? 1 : facet ? numCols.length * [...facetOrder].indexOf(facet.val) + plotId : plotId;
+    const patchedPlotId = config.syncYAxis === EYAxisMode.MERGED ? 1 : facet ? numCols.length * [...facetOrder].indexOf(String(facet.val)) + plotId : plotId;
     if (patchedPlotId > plotCounter) {
       plotCounter = patchedPlotId;
     }

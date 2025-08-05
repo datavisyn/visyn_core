@@ -1,0 +1,23 @@
+import React from 'react';
+
+import { ActionIcon, ActionIconProps, PolymorphicComponentProps } from '@mantine/core';
+
+import { resolveIconFactory } from './adapters/util';
+import { AgnosticIconDefinition } from './types';
+
+export type VisynActionIconProps = PolymorphicComponentProps<'button', ActionIconProps> & {
+  /** The icon to be displayed inside the VisynActionIcon. */
+  icon: AgnosticIconDefinition;
+};
+
+/**
+ * A wrapper around Mantine's ActionIcon that automatically
+ * passes the size prop to the child icon.
+ */
+export function VisynActionIcon({ size = 'md', variant = 'subtle', color = 'dark', icon, ...rest }: VisynActionIconProps) {
+  return (
+    <ActionIcon size={size} variant={variant} color={color} {...rest}>
+      {resolveIconFactory(icon, size)}
+    </ActionIcon>
+  );
+}
