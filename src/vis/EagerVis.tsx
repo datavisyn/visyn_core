@@ -144,6 +144,7 @@ export function EagerVis({
   showVisTypeChooser: internalShowVisTypeChooser,
   setShowVisTypeChooser: internalSetShowVisTypeChooser,
   enableVisTypeChooser = false,
+  visTypeChooserFeatureUnlock = false,
 }: {
   /**
    * Required data columns which are displayed.
@@ -185,6 +186,7 @@ export function EagerVis({
   showSidebar?: boolean;
   showDragModeOptions?: boolean;
   enableVisTypeChooser?: boolean;
+  visTypeChooserFeatureUnlock?: boolean;
   showVisTypeChooser?: boolean;
   setShowVisTypeChooser?: (show: boolean) => void;
   setShowSidebar?(show: boolean): void;
@@ -400,7 +402,12 @@ export function EagerVis({
         </Stack>
       </Stack>
       {showSidebar && visConfig?.merged ? (
-        <VisSidebarWrapper config={visConfig} setConfig={setVisConfig} onClick={() => setShowSidebar(false)} enableVisTypeChooser={enableVisTypeChooser}>
+        <VisSidebarWrapper
+          config={visConfig}
+          setConfig={setVisConfig}
+          onClick={() => setShowSidebar(false)}
+          visTypeChooserFeatureUnlock={visTypeChooserFeatureUnlock}
+        >
           <VisSidebar config={visConfig} columns={columns} filterCallback={filterCallback} setConfig={setVisConfig} selectedList={selectedList} />
         </VisSidebarWrapper>
       ) : null}

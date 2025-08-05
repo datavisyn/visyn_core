@@ -15,13 +15,13 @@ export function VisSidebarWrapper({
   config,
   setConfig,
   onClick,
-  enableVisTypeChooser = false,
+  visTypeChooserFeatureUnlock = false,
 }: {
   children: ReactNode;
   config;
   setConfig;
   onClick;
-  enableVisTypeChooser?: boolean;
+  visTypeChooserFeatureUnlock?: boolean;
 }) {
   return (
     <Box pt="sm" style={{ height: '100%', boxShadow: '2px 0px 15px 0px lightgray', zIndex: 5 }}>
@@ -38,7 +38,7 @@ export function VisSidebarWrapper({
                     </ActionIcon>
                   </Tooltip>
                 </Group>
-                {enableVisTypeChooser && (
+                {!visTypeChooserFeatureUnlock && (
                   <>
                     <VisTypeSelect callback={(type) => setConfig({ ...config, type })} currentSelected={config?.type} />
                     <Divider mt="xs" />

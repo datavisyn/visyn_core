@@ -138,6 +138,7 @@ export function MainApp() {
             externalConfig={visConfig}
             showDownloadScreenshot
             enableVisTypeChooser
+            visTypeChooserFeatureUnlock
             showVisTypeChooser={showVisTypeChooser}
             setShowVisTypeChooser={setShowVisTypeChooser}
             setExternalConfig={setVisConfig}
