@@ -120,6 +120,14 @@ def create_visyn_server(
     app.state.db_migration = manager.db_migration = DBMigrationManager()
     manager.db_migration.init_app(app, manager.registry.list("tdp-sql-database-migration"))  # type: ignore
 
+    from .cmd import parse_command_string
+
+    alternative_start_command = parse_command_string(start_cmd)
+
+    if not alternative_start_command:
+        # Run auto-upgrades if we are not in a custom start command
+        manager.db_migration.run_auto_upgrades()
+
     from ..security.manager import create_security_manager
 
     app.state.security = manager.security = create_security_manager()
@@ -174,10 +182,6 @@ def create_visyn_server(
     for p in plugins:
         p.plugin.init_app(app)
 
-    # TODO: Allow custom command routine (i.e. for db-migrations)
-    from .cmd import parse_command_string
-
-    alternative_start_command = parse_command_string(start_cmd)
     if alternative_start_command:
         _log.info(f"Received start command: {start_cmd}")
         alternative_start_command()

@@ -53,16 +53,6 @@ class DBMigration:
         # Because we can't easily pass "-1" as npm argument, we add a custom command for that without the space
         self.add_custom_command(r"downgrade-(\d+)", "downgrade -{}")
 
-        # Automatically upgrade to head (if enabled)
-        if self.auto_upgrade:
-            _log.info(f"Upgrading database {self.id}")
-            try:
-                self.execute(["upgrade", "head"])
-                _log.info(f"Successfully upgraded database {self.id}")
-            # As alembic is actually a commandline tool, it sometimes uses sys.exit (https://github.com/sqlalchemy/alembic/blob/master/alembic/util/messaging.py#L63)
-            except (SystemExit, CommandError):
-                _log.exception(f"Error upgrading database {self.id}")
-
     def __repr__(self) -> str:
         return f"DBMigration({self.id})"
 
@@ -230,6 +220,19 @@ class DBMigrationManager:
 
     def add_migration(self, migration: DBMigration):
         self._migrations[migration.id] = migration
+
+    def run_auto_upgrades(self):
+        """
+        Runs the auto upgrade for all migrations that have auto_upgrade set to True.
+        """
+        for migration in self._migrations.values():
+            if migration.auto_upgrade:
+                _log.info(f"Upgrading database {migration.id}")
+                try:
+                    migration.execute(["upgrade", "head"])
+                    _log.info(f"Successfully upgraded database {migration.id}")
+                except (SystemExit, CommandError):
+                    _log.exception(f"Error upgrading database {migration.id}")
 
     def __contains__(self, item):
         return item in self._migrations
