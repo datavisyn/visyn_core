@@ -172,6 +172,6 @@
   "sideEffects": [
     "**/*.scss",
     "**/*.css",
-    "**/phovea_registry"
+    "**/phovea_registry.ts"
   ]
 }
