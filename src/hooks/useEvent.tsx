@@ -16,16 +16,14 @@ import * as React from 'react';
  * @param handler Event handler to be wrapped.
  * @returns Callback that always has the latest version of the given handler.
  */
-export function useEvent<T extends (...args: unknown[]) => unknown, P extends Parameters<T>>(handler: T) {
-  // @ts-ignore
-  const handlerRef = React.useRef<T>(() => {
-    throw new Error('Cannot call an event handler while rendering.');
-  });
+export function useEvent<T extends (...args: any[]) => any, P extends Parameters<T>>(handler: T): (...args: P) => ReturnType<T> {
+  const handlerRef = React.useRef<T>();
 
   React.useLayoutEffect(() => {
     handlerRef.current = handler;
   });
 
-  // @ts-ignore
-  return React.useCallback<T>((...args: P) => handlerRef.current?.(...args), []);
+  return React.useCallback((...args: P) => {
+    return handlerRef.current?.(...args);
+  }, []);
 }
