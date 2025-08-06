@@ -203,6 +203,6 @@ def create_id_mapping_manager() -> MappingManager:
     # Load mapping providers
     providers = []
     for plugin in manager.registry.list("mapping_provider"):
-        providers = providers + list(plugin.load().factory())
+        providers = providers + list(plugin.load().factory())  # type: ignore
     _log.info(f"Initializing MappingManager with {len(providers)} provider(s)")
     return MappingManager(providers)

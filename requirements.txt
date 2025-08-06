@@ -3,7 +3,7 @@ alembic==1.13.2
 cachetools==5.3.3
 celery>=5.0.0,<6.0.0
 celery-types~=0.22.0
-fastapi==0.115.6
+fastapi[all]==0.115.6
 json-cfg==0.4.2
 openpyxl==3.1.5
 opentelemetry-api==1.29.0
@@ -18,7 +18,7 @@ opentelemetry-instrumentation-system-metrics==0.50b0
 opentelemetry-sdk==1.29.0
 psycopg==3.2.1
 psycopg2==2.9.9
-pydantic==1.10.17
+pydantic~=2.10.3
 pyjwt[crypto]==2.9.0
 pytest-postgresql==6.1.1
 python-dateutil==2.9.0.post0
@@ -26,32 +26,8 @@ requests==2.32.3
 # Redis versions according to https://github.com/celery/celery/blob/main/requirements/extras/redis.txt
 redis>=4.5.2,<6.0.0,!=4.5.5
 sentry-sdk~=2.22.0
-SQLAlchemy>=1.4.40,<=1.4.54
+SQLAlchemy>=1.4.50,<2.0.0
 # Install sqlalchemy2-stubs for better type hinting: https://docs.sqlalchemy.org/en/20/orm/extensions/mypy.html
 # Remove as soon as we migrate SQLAlchemy 2, as native support is available then
 sqlalchemy2-stubs==0.0.2a38
 starlette-context==0.3.6
-# Extras from fastapi[all], which we can't install because it requires pydantic v2: https://github.com/tiangolo/fastapi/blob/master/pyproject.toml#L79-L103
-fastapi-cli[standard]>=0.0.5
-# For the test client
-httpx>=0.23.0
-# For templates
-jinja2>=2.11.2
-# For forms and file uploads
-python-multipart>=0.0.7
-# For Starlette's SessionMiddleware, not commonly used with FastAPI
-itsdangerous>=1.1.0
-# For Starlette's schema generation, would not be used with FastAPI
-pyyaml>=5.3.1
-# For UJSONResponse
-ujson>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0
-# For ORJSONResponse
-orjson>=3.2.1
-# To validate email fields
-# Not required for now: email-validator>=2.0.0
-# Uvicorn with uvloop
-uvicorn[standard]>=0.30.6
-# Disabled as we are still on Pydantic 1: Settings management
-# pydantic-settings>=2.0.0
-# Disabled as we are still on Pydantic 1: Extra Pydantic data types
-# pydantic-extra-types>=2.0.0

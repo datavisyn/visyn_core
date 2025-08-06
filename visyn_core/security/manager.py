@@ -113,7 +113,7 @@ class SecurityManager:
             method = getattr(store, store_method_name, None)
             if callable(method):
                 try:
-                    value = method(*args)
+                    value: User | None = method(*args)  # type: ignore
                 except Exception:
                     _log.exception(f"Error executing {store_method_name} in {store}")
                 else:

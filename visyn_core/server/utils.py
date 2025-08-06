@@ -5,8 +5,8 @@ import time
 import traceback
 
 from fastapi import HTTPException
-from pydantic import create_model
-from pydantic.utils import deep_update
+from pydantic.v1 import create_model
+from pydantic.v1.utils import deep_update
 
 from .. import manager
 
@@ -80,7 +80,7 @@ try:
         if manager.settings.visyn_core:
             app.config["SECRET_KEY"] = manager.settings.secret_key
 
-        @app.errorhandler(FlaskHTTPException)
+        @app.errorhandler(FlaskHTTPException)  # type: ignore
         @app.errorhandler(Exception)  # type: ignore
         async def handle_exception(e):
             """Handles Flask exceptions by returning the same JSON response as FastAPI#HTTPException would."""
