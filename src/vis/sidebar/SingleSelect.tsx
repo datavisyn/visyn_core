@@ -14,9 +14,9 @@ export function SingleSelect({
   isClearable = true,
   disabled = false,
 }: {
-  callback: (value: ColumnInfo) => void;
+  callback: (value: ColumnInfo | null) => void;
   columns: VisColumn[];
-  currentSelected: ColumnInfo;
+  currentSelected: ColumnInfo | null;
   /** If null, all columns are selectable */
   columnType: EColumnTypes[] | null;
   label: string;

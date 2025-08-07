@@ -9,7 +9,8 @@
       "barError": "Select one categorical column to display the bar chart.",
       "correlationError": "Select at least two numerical columns to display the correlation plot.",
       "heatmapError": "Select at least two categorical columns to display the heatmap chart.",
-      "sankeyError": "Select at least two categorical columns to display the sankey chart."
+      "sankeyError": "Select at least two categorical columns to display the sankey chart.",
+      "lineError": "Select at least two numerical columns to display the line chart."
     },
     "openSettings": "Open settings",
     "closeSettings": "Close settings",
