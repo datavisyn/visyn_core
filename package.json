@@ -123,7 +123,7 @@
     "lodash": "~4.17.21",
     "lucide-react": "^0.526.0",
     "plotly.js-dist-min": "~2.12.1",
-    "react": "~18.3.1",
+    "react": "~19.1.0",
     "react-dom": "~18.3.1",
     "react-plotly.js": "^2.6.0",
     "react-spring": "^9.7.5",
